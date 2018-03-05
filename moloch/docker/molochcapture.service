@@ -1,0 +1,12 @@
+[Unit]
+Description=Moloch Service
+Wants=network.target
+
+[Service]
+ExecStart=/data/moloch/bin/moloch-capture -c /data/moloch/etc/config.ini
+RestartSec=5
+Restart=always
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

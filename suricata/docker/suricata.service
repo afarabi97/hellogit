@@ -1,0 +1,11 @@
+[Unit]
+Description = Suricata IDS
+
+[Service]
+Type = simple
+ExecStart = /usr/sbin/suricata --af-packet
+Restart = always
+RestartSec = 5
+
+[Install]
+WantedBy = multi-user.target

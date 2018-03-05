@@ -1,0 +1,11 @@
+[Unit]
+Description=Updater Service
+Wants=network.target
+
+[Service]
+ExecStart=/usr/bin/icdm
+RestartSec=5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
