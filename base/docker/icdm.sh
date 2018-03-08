@@ -7,22 +7,21 @@ parse_templates () {
     uid=$(cat $conffile | grep -P '^uid:\s+' | head -n 1 | awk '{ $1=""; print $0}')
     gid=$(cat $conffile | grep -P '^gid:\s+' | head -n 1 | awk '{ $1=""; print $0}')
     mode=$(cat $conffile | grep -P '^mode:\s+' | head -n 1 | awk '{ $1=""; print $0}')
-    reload_cmd=$(cat $conffile | grep -P '^reload_cmd:\s+' | head -n 1 | awk '{ $1=""; print $0}')
-    if [ ! -f $src ]; then continue; fi;
-    tmpfile=/tmp/$(basename $src).tmp
-    echo "cat <<END_OF_TEXT_FILE" > $tmpfile
-    cat $src >> $tmpfile
-    echo " " >> $tmpfile
-    echo "END_OF_TEXT_FILE" >> $tmpfile
-    bash $tmpfile > $tmpfile.expanded
-    if jinja2 --format=yml $tmpfile.expanded /etc/icdm/vars.yml 2> $tmpfile.err > $tmpfile; then
-      cp $tmpfile $dst
+    reload_cmd=$(cat $conffile | grep -P '^reload_cmd:\s+' | head -n 1 | awk '{ $1=""; print $0}')    
+    # Remove trailing \r
+    src=`echo $src | sed 's/\\r//g'`
+    dst=`echo $dst | sed 's/\\r//g'`
+    uid=`echo $uid | sed 's/\\r//g'`
+    gid=`echo $gid | sed 's/\\r//g'`
+    mode=`echo $mode | sed 's/\\r//g'`
+    reload_cmd=`echo $reload_cmd | sed 's/\\r//g'`
+    if jinja2 --format=yml $src /etc/icdm/vars.yml -D host=$HOSTNAME > /tmp/$(basename $src); then
+      cp /tmp/$(basename $src) $dst
       chown $uid:$gid $dst
       chmod $mode $dst
       bash -c "$reload_cmd"
+      rm /tmp/$(basename $src)
     fi
-    if [ -f $tmpfile.err ]; then cat $tmpfile.err; fi
-    rm -f $tmpfile*
   done;
 }
 
