@@ -1,16 +1,11 @@
 # Dockerfile for suricata
 
-FROM dwharve/base:icdm
+FROM prodian0013/tfplenum-base:latest
 
-RUN yum -y update &&\
-    yum -y install epel-release &&\
-    yum -y install suricata
-
-RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.2-x86_64.rpm && \
+RUN yum -y install suricata && \
+    curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.2-x86_64.rpm && \
     rpm -i filebeat-6.2.2-x86_64.rpm && \
-    rm -f filebeat-6.2.2-x86_64.rpm
-
-RUN yum -y autoremove &&\
+    rm -f filebeat-6.2.2-x86_64.rpm && \
     yum clean all &&\
     rm -rf /var/cahce/yum &&\
     find /var/log -type f -delete
