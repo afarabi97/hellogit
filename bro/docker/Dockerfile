@@ -1,4 +1,4 @@
-FROM prodian0013/tfplenum-base:latest
+FROM tfplenum/base:latest
 
 COPY rocknsm-2.1.repo /etc/yum.repos.d/rocknsm-2.1.repo
 

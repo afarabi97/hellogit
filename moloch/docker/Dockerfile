@@ -1,12 +1,11 @@
 # Dockerfile for moloch
 
-FROM prodian0013/tfplenum-base:latest
+FROM tfplenum/base:latest
 
-RUN curl -L -o /tmp/moloch.rpm https://files.molo.ch/builds.1/centos-7/moloch-1.0.0_beta2-1.x86_64.rpm && \
-    yum -y install expect nodejs libyaml perl perl-libwww-perl perl-JSON libpng /tmp/moloch.rpm && \
+RUN yum -y install expect nodejs libyaml perl perl-libwww-perl perl-JSON libpng && \
+    yum -y install https://files.molo.ch/moloch-1.centos7.x86_64.rpm && \
     yum clean all && \
     rm -rf /var/cache/yum && \
-    rm -f /tmp/moloch.rpm && \
     curl -L -o /tmp/GeoLite2-Country.tar.gz http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz && \
     curl -L -o /tmp/GeoLite2-ASN.tar.gz http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz && \
     curl -L -o /data/moloch/etc/ipv4-address-space.csv https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.csv && \
@@ -21,5 +20,9 @@ RUN systemctl enable molochcapture molochviewer
 
 COPY config.ini.conf /etc/icdm/conf/
 COPY config.ini.tmpl /etc/icdm/templates/
+
+# Fix for error in beta 3
+RUN sed -i "s/'.\/vueapp/__dirname + '\/vueapp/" /data/moloch/viewer/viewer.js
+
 
 EXPOSE 8005

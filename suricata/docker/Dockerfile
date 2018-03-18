@@ -1,6 +1,6 @@
 # Dockerfile for suricata
 
-FROM prodian0013/tfplenum-base:latest
+FROM tfplenum/base:latest
 
 RUN yum -y install suricata && \
     curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.2-x86_64.rpm && \
