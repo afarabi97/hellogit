@@ -1,4 +1,4 @@
-NAME := rocknsm/bro
+NAME := rocknsm/elasticsearch
 REV := $(shell git log -1 --pretty=%h)
 VERSION := $(shell cat Dockerfile | awk -F= '/io.rocknsm.bro/ { print $$2 }' | tr -d '"')
 TAG := ${VERSION}-${REV}
