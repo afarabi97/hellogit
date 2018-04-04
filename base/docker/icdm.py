@@ -33,7 +33,8 @@ def process(icdm_dir, icdm_vars):
 
                     if simple is None:
                         raise Exception('icdm vars is empty')
-
+                    
+                    # Try to get hostname
                     if 'HOSTNAME' in os.environ:
                         hostname = os.environ['HOSTNAME']
                     elif len(socket.gethostname()) > 1:
@@ -45,9 +46,14 @@ def process(icdm_dir, icdm_vars):
 
                     with open(configvars['dst'], 'wb') as fh:
                         fh.write(render(configvars['src'], simple))
-
+                    
+                    # Set correct perms
                     os.chown(configvars['dst'], 0, 0)
                     os.chmod(configvars['dst'], 0644)
+                    
+                    # Restart Service is defined
+                    if configvars['reload_cmd']:
+                        os.system(configvars['reload_cmd'])
 
 
 def usage():
