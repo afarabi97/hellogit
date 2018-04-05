@@ -4,12 +4,11 @@ icdm_dir=/etc/icdm
 icdm_vars=/etc/icdm/vars.yml
 
 parse_templates () {
-  $reload_cmd=$(/usr/bin/python /icdm.py -d $icdm_dir -v $icdm_vars)
+  /usr/bin/python /icdm.py -d $icdm_dir -v $icdm_vars
   ret=$?
   if [ $ret -ne 0 ]; then
     exit 1
-  fi
-  bash -c "$reload_cmd"
+  fi  
 }
 
 parse_templates
