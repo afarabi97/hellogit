@@ -1,43 +1,51 @@
-# Dockerfile for Zookeeper
+FROM tfplenum/base:latest
 
-FROM rocknsm/base:latest
-MAINTAINER Derek Ditch <derek@rocknsm.io>
+ARG zookeeper_dist=zookeeper-3.5.3-beta
 
-LABEL io.rocknsm.zookeeper="0.0.6"
+ENV ZOOKEEPER_DIST=$zookeeper_dist \    
+    ZOOKEEPER_HOME=/opt/zookeeper \
+    ZOOKEEPER_DATA_DIR=/data \
+    ZOOKEEPER_DATALOG_DIR=/datalog \
+    JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk
+ 
+ENV PATH=${PATH}:${ZOOKEEPER_HOME}/bin
 
-ENV ZOOKEEPER_USER=zookeeper \
-    ZOOKEEPER_MYID=1 \
-    ZOOKEEPER_CONFDIR=/etc/zookeeper \
-    ZOOKEEPER_DATADIR=/var/lib/zookeeper/data \
-    ZOOKEEPER_DATALOGDIR=/var/lib/zookeeper/logs \
-    ZOOKEEPER_PORT=2181 \
-    ZOOKEEPER_TICKTIME=2000 \
-    ZOOKEEPER_INITLIMIT=10 \
-    ZOOKEEPER_SYNCLIMIT=5 \
-    ZOOKEEPER_MAXCLIENTCNXNS=60 \
-    ZOOKEEPER_SERVERS=server.1=0.0.0.0:2888:3888
+COPY download-zookeeper.sh /tmp/
+COPY zookeeper.service /usr/lib/systemd/system/
 
-# Prepare the environment and get things up to date
-RUN yum update -y; \
-  yum install -y zookeeper java-1.8.0-openjdk-headless; \
-  rm -rf /var/cache/yum/*; \
-  mkdir -p "$ZOOKEEPER_DATADIR" \
-           "$ZOOKEEPER_DATALOGDIR"; \
-  chown -R "$ZOOKEEPER_USER:$ZOOKEEPER_USER" \
-           "$ZOOKEEPER_DATADIR" \
-           "$ZOOKEEPER_DATALOGDIR"; \
-  systemctl enable zookeeper;
+RUN yum update -y && \
+  yum install java-1.8.0-openjdk-headless -y && \
+  chmod +x /tmp/download-zookeeper.sh && \
+  /tmp/download-zookeeper.sh && \
+  tar xf /tmp/$zookeeper_dist.tar.gz -C /opt && \
+  rm /tmp/$zookeeper_dist.tar.gz && \
+  ln -s /opt/$zookeeper_dist /opt/zookeeper && \
+  mkdir {${ZOOKEEPER_DATA_DIR},${ZOOKEEPER_DATALOG_DIR}} && \
+  rm /tmp/download-zookeeper.sh && \
+  systemctl enable zookeeper.service && \
+  rm --recursive --force /opt/$zookeeper_dist/CHANGES.txt \
+    /opt/$zookeeper_dist/README.txt \
+    /opt/$zookeeper_dist/NOTICE.txt \
+    /opt/$zookeeper_dist/CHANGES.txt \
+    /opt/$zookeeper_dist/README_packaging.txt \
+    /opt/$zookeeper_dist/build.xml \
+    /opt/$zookeeper_dist/config \
+    /opt/$zookeeper_dist/contrib \
+    /opt/$zookeeper_dist/dist-maven \
+    /opt/$zookeeper_dist/docs \
+    /opt/$zookeeper_dist/ivy.xml \
+    /opt/$zookeeper_dist/ivysettings.xml \
+    /opt/$zookeeper_dist/recipes \
+    /opt/$zookeeper_dist/src \
+    /opt/$zookeeper_dist/$zookeeper_dist.jar.asc \
+    /opt/$zookeeper_dist/$zookeeper_dist.jar.md5 \
+    /opt/$zookeeper_dist/$zookeeper_dist.jar.sha1 && \
+  yum clean all
 
-# Add configuration templates
-COPY zoo.cfg.toml /etc/confd/conf.d/
-COPY zoo_myid.toml /etc/confd/conf.d/
-COPY zoo.cfg.tmpl /etc/confd/templates/
-COPY zoo_myid.tmpl /etc/confd/templates/
-
+COPY zoo.cfg ${ZOOKEEPER_HOME}/conf/zoo.cfg
+COPY start-zookeeper.sh /
 
 # Expose data dirs
-VOLUME ["$ZOOKEEPER_DATADIR", "$ZOOKEEPER_DATALOGDIR"] 
-EXPOSE $ZOOKEEPER_PORT 2888 3888
-
-# systemd starts by default (from parent)
-
+EXPOSE 2181
+EXPOSE 2888
+EXPOSE 3888

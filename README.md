@@ -53,5 +53,3 @@ Lastly, I don't claim to be the end-all-be-all expert on these things. I accept
 (and enjoy) a good argument. I have strong opinions, but happy to listen.
 
 Thanks!
-
-
