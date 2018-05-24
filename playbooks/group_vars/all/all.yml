@@ -6,6 +6,7 @@ debug_enabled: true
 install_user: root
 install_group: root
 install_dir: /opt/rock
+log_dir: /var/log/ansible/hosts/
 sysctl_file: /etc/sysctl.d/rock.conf
 fqdn: default.svc.cluster.local
 
