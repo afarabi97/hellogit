@@ -1,0 +1,84 @@
+%YAML 1.1
+---
+
+rhel_repos:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
+
+rhel_offline_repos:
+  rhel-7-server-rpms:
+    baseurl: "{{ offline_repo_base }}/rhel-7-server-rpms"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+    gpgcheck: true
+    name: "rhel-7-server-rpms"
+    description: "rhel-7-server-rpms repo"
+  rhel-7-server-extras-rpms:
+    baseurl: "{{ offline_repo_base }}/rhel-7-server-extras-rpms"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+    gpgcheck: true
+    name: "rhel-7-server-extras-rpms"
+    description: "rhel-7-server-extras-rpms repo"
+  rhel-7-server-optional-rpms:
+    baseurl: "{{ offline_repo_base }}/rhel-7-server-optional-rpms"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+    gpgcheck: true
+    name: "rhel-7-server-optional-rpms"
+    description: "rhel-7-server-optional-rpms repo"
+
+additional_offline_repos:
+  epel:
+    baseurl: "{{ offline_repo_base }}/epel"
+    gpgkey:  "http://{{ offline_repo_base }}/epel/RPM-GPG-KEY-EPEL-7"
+    gpgcheck: true
+    name: "epel"
+    description: "epel repo"
+  rocknsm:
+    baseurl: "{{ offline_repo_base }}/rocknsm"
+    gpgkey:  ""
+    gpgcheck: false
+    name: "rocknsm"
+    description: "rocknsm repo"
+  misc:
+    baseurl: "{{ offline_repo_base }}/misc"
+    gpgkey:  ""
+    gpgcheck: false
+    name: "misc"
+    description: "misc repo"
+
+
+centos_offline_repos:
+  base:
+    baseurl: "{{ offline_repo_base }}/base"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+    gpgcheck: true
+    name: "base"
+    description: "base repo"
+  updates:
+    baseurl: "{{ offline_repo_base }}/updates"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+    gpgcheck: true
+    name: "updates"
+    description: "updates repo"
+  extras:
+    baseurl: "{{ offline_repo_base }}/extras"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+    gpgcheck: true
+    name: "extras"
+    description: "extras repo"
+
+additional_online_repos:
+  epel:
+    baseurl: "http://download.fedoraproject.org/pub/epel/7/$basearch"
+    gpgkey:  "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    gpgcheck: true
+    name: "epel"
+    description: "epel repo"
+  rocknsm:
+    baseurl: "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/"
+    gpgkey:  "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg"
+    gpgcheck: true
+    name: "rocknsm"
+    description: "rocknsm repo"
+
+...

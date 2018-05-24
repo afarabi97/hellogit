@@ -1,45 +1,33 @@
 ---
 
-- name: Install ceph trusted key for RHEL
-  rpm_key:
-    state: present
-    key: https://download.ceph.com/keys/release.asc
-  when: ansible_distribution == 'RedHat'
+- name: Setup Ceph Repos
+  block:
+    - name: Install ceph trusted key for RHEL
+      rpm_key:
+        state: present
+        key: https://download.ceph.com/keys/release.asc
+        
+    - name: Configure Online Ceph repository
+      yum_repository:
+        name: "{{ item.value.name }}"
+        description: "{{ item.value.description }}"
+        baseurl: "{{ item.value.baseurl }}"
+        enabled: yes        
+        gpgcheck: "{{ item.value.gpgcheck }}"
+        gpgkey: "{{ item.value.gpgkey }}"
+      loops: "{{ lookup('dict', ceph_online) }}"
+      when: offline is defined and offline
 
-- name: Configure Ceph $basearch repository
-  yum_repository:
-    name: "ceph-basearch"
-    description: Ceph packages for $basearch
-    baseurl: https://download.ceph.com/rpm-luminous/el7/$basearch
-    enabled: yes
-    priority: 2
-    gpgcheck: yes
-    gpgkey: https://download.ceph.com/keys/release.asc
-    file: ceph-RHEL
-  when: ansible_distribution == 'RedHat'
-
-- name: Configure Ceph noarch repository
-  yum_repository:
-    name: ceph-noarch
-    description: Ceph noarch packages
-    baseurl: https://download.ceph.com/rpm-luminous/el7/noarch
-    enabled: yes
-    priority: 2
-    gpgcheck: yes
-    gpgkey: https://download.ceph.com/keys/release.asc
-    file: ceph-RHEL
-  when: ansible_distribution == 'RedHat'
-
-- name: Configure Ceph source packages repository
-  yum_repository:
-    name: ceph-SRPMS
-    description: Ceph source packages
-    baseurl: https://download.ceph.com/rpm-luminous/el7/SRPMS
-    enabled: yes
-    priority: 2
-    gpgcheck: yes
-    gpgkey: https://download.ceph.com/keys/release.asc
-    file: ceph-RHEL
+    - name: Configure Offline Ceph repository
+      yum_repository:
+        name: "{{ item.value.name }}"
+        description: "{{ item.value.description }}"
+        baseurl: "{{ item.value.baseurl }}"
+        enabled: yes        
+        gpgcheck: "{{ item.value.gpgcheck }}"
+        gpgkey: "{{ item.value.gpgkey }}"
+      with_dict: "{{ ceph_offline) }}"
+      when: not offline or (offline is defined and offline == false)
   when: ansible_distribution == 'RedHat'
 
 - name: Install ceph-deploy
