@@ -39,8 +39,9 @@ kafka_retention: 168
 
 # VERSIONS
 kube_state_ver: "v1.3.0"
+kube_rpm_version: "1.9.7"
+kube_image_version: "v1.9.7"
 harbor_ver: "1.4.0"
-kube_ver: "v1.9.3"
 metallb_ver: "v0.3.1"
 busybox_ver: "1.27.2"
 k8s_ver: "1.14.7"

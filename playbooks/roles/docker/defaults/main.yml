@@ -18,10 +18,10 @@ kube_images:
   - tfplenum/kube-state-metrics:{{kube_state_ver}}
   - docker.elastic.co/beats/metricbeat:6.2.3
   - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
-  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-proxy-amd64:{{kube_ver}}
-  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_ver}}
+  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-proxy-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_image_version}}
   - quay.io/coreos/flannel:v0.10.0-amd64
   - metallb/controller:{{metallb_ver}}
   - metallb/speaker:{{metallb_ver}}

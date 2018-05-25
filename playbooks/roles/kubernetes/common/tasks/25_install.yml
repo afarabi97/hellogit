@@ -9,9 +9,9 @@
     state: 'installed'
     allow_downgrade: yes
   with_items:
-    - "kubeadm-{{ kube_version }}"
-    - "kubelet-{{ kube_version }}"
-    - "kubectl-{{ kube_version }}"
+    - "kubeadm-{{ kube_rpm_version }}"
+    - "kubelet-{{ kube_rpm_version }}"
+    - "kubectl-{{ kube_rpm_version }}"
   register: installed_packages
   notify:
     - restart kubelet
