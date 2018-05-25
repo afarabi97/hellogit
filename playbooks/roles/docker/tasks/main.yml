@@ -1,0 +1,22 @@
+---
+
+- name: Install Docker
+  yum:
+    name: docker
+    state: present
+
+- name: Docker Service
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- import_tasks: offline.yml
+  when: offline is defined and offline
+  tags: 
+    - docker_images
+
+- import_tasks: online.yml
+  when: not offline or (offline is defined and offline == false)
+
+...

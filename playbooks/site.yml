@@ -52,6 +52,12 @@
   any_errors_fatal: true
   pre_tasks:
     - setup:
+    # TODO: This should removed when firewalld needs to be enabled
+    - name: Disable firewall for now    
+      systemd:
+        name: firewalld
+        enabled: no
+        state: stopped
   roles:
     - dnsmasq
   tags: dnsmasq
@@ -65,6 +71,15 @@
       state: latest
       exclude: ceph-deploy,cockpit*,kube*
     register: system_updated
+  - name:  Remove CentOS Repos
+    file:
+      path: "/etc/yum.repos.d/CentOS-{{ item }}.repo"
+      state: absent
+    with_items: "{{ CentOS_Repos }}"
+  - name: Yum Clean all
+    shell: yum clean all
+    args:
+      warn: false
   - name: Reboot system to finish installing updates
     command: "/sbin/shutdown -r +1 --no-wall"
     async: 0
@@ -119,6 +134,17 @@
     - chrony
   tags:
     - common
+
+- name: Docker Images
+  hosts: all
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - docker
+  tags:
+    - docker
 
 - name: Configure kube master
   hosts: master-server

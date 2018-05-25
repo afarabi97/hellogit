@@ -6,6 +6,7 @@
       rpm_key:
         state: present
         key: https://download.ceph.com/keys/release.asc
+      when: not offline or (offline is defined and offline == false)
         
     - name: Configure Online Ceph repository
       yum_repository:
@@ -15,7 +16,8 @@
         enabled: yes        
         gpgcheck: "{{ item.value.gpgcheck }}"
         gpgkey: "{{ item.value.gpgkey }}"
-      loops: "{{ lookup('dict', ceph_online) }}"
+        file: "offline"
+      loop: "{{ lookup('dict', ceph_online) }}"
       when: offline is defined and offline
 
     - name: Configure Offline Ceph repository

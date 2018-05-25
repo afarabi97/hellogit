@@ -17,6 +17,7 @@
         name: chronyd
         enabled: yes
       when: chrony_result.rc == 1 and "'503 No such source' in chrony_result.stdout"
+  when: not offline or (offline is defined and offline == false)
 
 - name: Wait for 10 seconds to make sure the time server is ready
   wait_for: timeout=10

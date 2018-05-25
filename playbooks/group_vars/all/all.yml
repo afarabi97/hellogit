@@ -40,13 +40,13 @@ kafka_retention: 168
 
 # Common
 package_list:
-  - cockpit
-  - cockpit-dashboard
-  - cockpit-machines
-  - cockpit-networkmanager
-  - cockpit-packagekit
+  - cockpit-160-1.el7.centos
+  - cockpit-dashboard-160-1.el7.centos
+  - cockpit-machines-160-1.el7.centos
+  - cockpit-networkmanager-160-1.el7.centos
+  - cockpit-packagekit-160-1.el7.centos
   #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
-  - cockpit-system
+  - cockpit-system-160-1.el7.centos
   - python-gobject
   - python-docker-py.noarch
   - nload
@@ -57,6 +57,18 @@ package_list:
 rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
 rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
 
-offline_repo_base: "http://{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}/offlinerepo"
+ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 
+offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"
+harbor_port: 81
+harbor_project: "library"
+harbor_repo: "{{ ansible_controller_ip }}:{{ harbor_port }}/library"
+CentOS_Repos:
+  - "Base"
+  - "CR"
+  - "Debuginfo"
+  - "fasttrack"
+  - "Media"
+  - "Sources"
+  - "Vault"
 ...

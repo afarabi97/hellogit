@@ -1,0 +1,37 @@
+%YAML 1.1
+---
+kube_images:
+  - tfplenum/bro:1.0
+  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_ver }}
+  - docker.elastic.co/beats/filebeat:{{elastic_ver}}
+  - heketi/heketi
+  - portainer/portainer
+  - k8s.gcr.io/redis
+  - dwharve/scaleio:1.0
+  - tfplenum/kafka:alpine
+  - docker.elastic.co/kibana/kibana:{{ elastic_ver }}
+  - docker.elastic.co/logstash/logstash:{{ elastic_ver }}
+  - tfplenum/moloch
+  - tfplenum/suricata
+  - tfplenum/zookeeper:alpine
+  - tfplenum/kube-state-metrics-amd64:{{kube_state_ver}}
+  - tfplenum/kube-state-metrics:{{kube_state_ver}}
+  - docker.elastic.co/beats/metricbeat:6.2.3
+  - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
+  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_ver}}
+  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_ver}}
+  - gcr.io/google_containers/kube-proxy-amd64:{{kube_ver}}
+  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_ver}}
+  - quay.io/coreos/flannel:v0.10.0-amd64
+  - metallb/controller:{{metallb_ver}}
+  - metallb/speaker:{{metallb_ver}}
+  - gcr.io/google_containers/etcd-amd64:3.1.11
+  - busybox:{{busybox_ver}}
+  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_ver}}
+  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_ver}}
+  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_ver}}
+  - gcr.io/google_containers/pause-amd64:3.0
+  - docker.io/dwharve/elastichq
+  - quay.io/external_storage/rbd-provisioner
+  - k8s.gcr.io/addon-resizer:1.7
+...
