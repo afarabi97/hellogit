@@ -95,6 +95,7 @@ spec:
       containers:
       - name: metricbeat
         image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+        imagePullPolicy: IfNotPresent
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",
@@ -192,6 +193,7 @@ spec:
       containers:
       - name: metricbeat
         image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+        imagePullPolicy: IfNotPresent
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",

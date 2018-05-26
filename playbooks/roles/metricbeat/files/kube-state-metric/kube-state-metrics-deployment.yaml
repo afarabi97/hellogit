@@ -19,6 +19,7 @@ spec:
       containers:
       - name: kube-state-metrics
         image: quay.io/coreos/kube-state-metrics:v1.3.0
+        imagePullPolicy: IfNotPresent
         ports:
         - name: http-metrics
           containerPort: 8080

@@ -18,6 +18,7 @@ spec:
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
         - -c
@@ -30,6 +31,7 @@ spec:
       containers:
       - name: es-data
         image: {{ elasticsearch_image }}:{{ elastic_ver }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
           capabilities:
