@@ -12,6 +12,7 @@ kube_images:
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine
   - tfplenum/kafka:alpine
+  - tfplenum/kafka-manager:alpine
   - tfplenum/elasticsearch:{{ elastic_version }}
   - tfplenum/kube-state-metrics-amd64:{{kube_state_version}}
   - tfplenum/kube-state-metrics:{{kube_state_version}}
@@ -19,7 +20,7 @@ kube_images:
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
   - docker.elastic.co/kibana/kibana:{{ elastic_version }}
   - docker.elastic.co/logstash/logstash:{{ elastic_version }}
-  - docker.elastic.co/beats/metricbeat:6.2.3
+  - docker.elastic.co/beats/metricbeat:{{ elastic_version }}
   - docker.io/dwharve/elastichq
   - gcr.io/google_containers/kube-apiserver-amd64:{{kube_image_version}}
   - gcr.io/google_containers/kube-scheduler-amd64:{{kube_image_version}}
