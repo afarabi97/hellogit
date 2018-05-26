@@ -38,14 +38,14 @@ kafka_port: 9092
 kafka_retention: 168
 
 # VERSIONS
-kube_state_ver: "v1.3.0"
+kube_state_version: "v1.3.0"
 kube_rpm_version: "1.9.7"
 kube_image_version: "v1.9.7"
-harbor_ver: "1.4.0"
-metallb_ver: "v0.3.1"
-busybox_ver: "1.27.2"
-k8s_ver: "1.14.7"
-elastic_ver: '6.2.4'
+harbor_version: "1.4.0"
+metallb_version: "v0.3.1"
+busybox_version: "1.27.2"
+k8s_version: "1.14.7"
+elastic_version: '6.2.4'
 coreos_version: 1688.5.3
 
 # Common

@@ -8,7 +8,7 @@
 # Pulling it through Docker resolves the issue
 #- name: Perform Elasticsearch image download workaround
 #  docker_image:
-#    name: "{{ elasticsearch_image }}:{{ elastic_ver }}"
+#    name: "{{ elasticsearch_image }}:{{ elastic_version }}"
 
 - name: "Create directories"
   file:

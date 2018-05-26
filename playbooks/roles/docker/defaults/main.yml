@@ -1,9 +1,9 @@
 %YAML 1.1
 ---
 kube_images:
-  - busybox:{{busybox_ver}}
-  - metallb/controller:{{metallb_ver}}
-  - metallb/speaker:{{metallb_ver}}
+  - busybox:{{busybox_version}}
+  - metallb/controller:{{metallb_version}}
+  - metallb/speaker:{{metallb_version}}
   - heketi/heketi
   - portainer/portainer
   - dwharve/scaleio:1.0
@@ -12,13 +12,13 @@ kube_images:
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine
   - tfplenum/kafka:alpine
-  - tfplenum/elasticsearch:{{ elastic_ver }}
-  - tfplenum/kube-state-metrics-amd64:{{kube_state_ver}}
-  - tfplenum/kube-state-metrics:{{kube_state_ver}}
-  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_ver }}
-  - docker.elastic.co/beats/filebeat:{{elastic_ver}}
-  - docker.elastic.co/kibana/kibana:{{ elastic_ver }}
-  - docker.elastic.co/logstash/logstash:{{ elastic_ver }}
+  - tfplenum/elasticsearch:{{ elastic_version }}
+  - tfplenum/kube-state-metrics-amd64:{{kube_state_version}}
+  - tfplenum/kube-state-metrics:{{kube_state_version}}
+  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
+  - docker.elastic.co/beats/filebeat:{{elastic_version}}
+  - docker.elastic.co/kibana/kibana:{{ elastic_version }}
+  - docker.elastic.co/logstash/logstash:{{ elastic_version }}
   - docker.elastic.co/beats/metricbeat:6.2.3
   - docker.io/dwharve/elastichq
   - gcr.io/google_containers/kube-apiserver-amd64:{{kube_image_version}}
@@ -26,9 +26,9 @@ kube_images:
   - gcr.io/google_containers/kube-proxy-amd64:{{kube_image_version}}
   - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_image_version}}
   - gcr.io/google_containers/etcd-amd64:3.1.11
-  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_ver}}
-  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_ver}}
-  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_ver}}
+  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_version}}
   - gcr.io/google_containers/pause-amd64:3.0
   - k8s.gcr.io/addon-resizer:1.7
   - k8s.gcr.io/redis
@@ -38,5 +38,6 @@ kube_images:
   - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
   - quay.io/external_storage/rbd-provisioner
   - quay.io/coreos/flannel:v0.10.0-amd64
+  - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
 
 ...
