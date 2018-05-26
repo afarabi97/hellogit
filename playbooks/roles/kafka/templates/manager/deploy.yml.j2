@@ -18,6 +18,7 @@ spec:
       containers:
       - name: kafka-manager
         image: prodian0013/tfplenum-kafka-manager:alpine
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9000
           name: http

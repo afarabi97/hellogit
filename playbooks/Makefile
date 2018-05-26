@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 # Confirm Ansible is installed.
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
-INVENTORY ?= 'inventory/dev/inventory.yml'
+INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
 .PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun

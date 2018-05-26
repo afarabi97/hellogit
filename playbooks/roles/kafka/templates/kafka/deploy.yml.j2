@@ -24,7 +24,7 @@ spec:
       containers:
       - name: {{ kafka_app_name }}
         image: {{ kafka_image }}:{{ kafka_ver }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 1000m
@@ -153,7 +153,7 @@ spec:
       containers:
       - name: {{ kafka_app_name }}
         image: {{ kafka_image }}:{{ kafka_ver }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 1000m

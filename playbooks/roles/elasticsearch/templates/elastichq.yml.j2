@@ -17,6 +17,7 @@ spec:
       containers:
       - name: elastichq
         image: dwharve/elastichq:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
           name: http

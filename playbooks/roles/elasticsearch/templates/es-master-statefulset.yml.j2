@@ -30,6 +30,7 @@ spec:
       containers:
       - name: elasticsearch
         image: {{ elasticsearch_image }}:{{ elastic_ver }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
           capabilities:

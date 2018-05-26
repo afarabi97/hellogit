@@ -16,25 +16,29 @@
         enabled: yes        
         gpgcheck: "{{ item.value.gpgcheck }}"
         gpgkey: "{{ item.value.gpgkey }}"
-        file: "offline"
+        file: "ceph"
       loop: "{{ lookup('dict', ceph_online) }}"
-      when: offline is defined and offline
+      when: not offline or (offline is defined and offline == false)
 
     - name: Configure Offline Ceph repository
       yum_repository:
-        name: "{{ item.value.name }}"
-        description: "{{ item.value.description }}"
-        baseurl: "{{ item.value.baseurl }}"
+        name: "{{ ceph_offline.name }}"
+        description: "{{ ceph_offline.description }}"
+        baseurl: "{{ ceph_offline.baseurl }}"
         enabled: yes        
-        gpgcheck: "{{ item.value.gpgcheck }}"
-        gpgkey: "{{ item.value.gpgkey }}"
-      with_dict: "{{ ceph_offline) }}"
-      when: not offline or (offline is defined and offline == false)
-  when: ansible_distribution == 'RedHat'
+        gpgcheck: "{{ ceph_offline.gpgcheck }}"
+        gpgkey: "{{ ceph_offline.gpgkey }}"
+        file: "offline"
+      when: offline is defined and offline
+
+- name: Yum Clean All
+  shell: yum clean all
+  args:
+    warn: false
 
 - name: Install ceph-deploy
   yum:
-    name: "{{ ceph_deploy_rpm }}"
+    name: "ceph-deploy-1.5.39-0"
     state: installed
     allow_downgrade: yes
   when: inventory_hostname in groups['master-server']
