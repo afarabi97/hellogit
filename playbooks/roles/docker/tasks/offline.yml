@@ -4,11 +4,13 @@
   template:
     src: templates/daemon.json.j2
     dest: "/etc/docker/daemon.json"
+  register: docker_config
 
 - name: Restart Docker
   service:
     name: docker
     state: restarted
+  when: docker_config.changed
 
 - name: 'Download images from harbor'
   docker_image:

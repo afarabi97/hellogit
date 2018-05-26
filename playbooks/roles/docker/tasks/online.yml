@@ -1,1 +1,9 @@
 ---
+
+- name: 'Download images from harbor'
+  docker_image:
+    name: "{{ item }}"
+    push: no
+    pull: yes
+  with_items:
+    - "{{ kube_images }}"
