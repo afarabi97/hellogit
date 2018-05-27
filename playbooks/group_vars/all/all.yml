@@ -37,17 +37,6 @@ kafka_fqdn: "kafka.{{ fqdn }}"
 kafka_port: 9092
 kafka_retention: 168
 
-# VERSIONS
-kube_state_version: "v1.3.0"
-kube_rpm_version: "1.9.7"
-kube_image_version: "v1.9.7"
-harbor_version: "1.4.0"
-metallb_version: "v0.3.1"
-busybox_version: "1.27.2"
-k8s_version: "1.14.7"
-elastic_version: '6.2.4'
-coreos_version: 1688.5.3
-
 # Common
 package_list:
   - cockpit-160-1.el7.centos
