@@ -8,13 +8,13 @@
     name: 'python-docker-py.noarch'
     state: 'installed'
 
-- name: Download Kube State Metric Containers
-  docker_image:
-    name: "{{ item }}"
-  with_items:
-    - tfplenum/kube-state-metrics-amd64:{{ kube_state_metrics_version }}
-    - tfplenum/kube-state-metrics:{{ kube_state_metrics_version }}
-    - docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+#- name: Download Kube State Metric Containers
+#  docker_image:
+#    name: "{{ item }}"
+#  with_items:
+#    - tfplenum/kube-state-metrics-amd64:{{ kube_state_metrics_version }}
+#    - tfplenum/kube-state-metrics:{{ kube_state_metrics_version }}
+#    - docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
 
 - name: "Create config directory"
   file:

@@ -18,7 +18,7 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Run Ceph deploy
-  shell: ceph-deploy install --stable luminous {{ ceph_host_pool_list }}
+  shell: ceph-deploy install --no-adjust-repos --stable luminous {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 

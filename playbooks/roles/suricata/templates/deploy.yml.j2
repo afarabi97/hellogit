@@ -18,6 +18,7 @@ spec:
       containers:
       - name: suricata
         image: {{ suricata_image }}:{{ suricata_ver }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
             add:

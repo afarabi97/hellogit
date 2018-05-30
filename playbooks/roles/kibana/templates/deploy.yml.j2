@@ -17,6 +17,7 @@ spec:
       containers:
       - name: kibana
         image: {{ kibana_image }}:{{ kibana_ver }}
+        imagePullPolicy: IfNotPresent
         env:
         - name: CLUSTER_NAME
           value: {{ elastic_cluster_name }}

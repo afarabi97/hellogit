@@ -6,9 +6,9 @@
 # This is here because Kubernetes repeatedly failed to download the image.
 # See: https://github.com/kubernetes/kubernetes/issues/59376
 # Pulling it through Docker resolves the issue
-- name: Perform Elasticsearch image download workaround
-  docker_image:
-    name: "{{ elasticsearch_image }}:{{ elastic_ver }}"
+#- name: Perform Elasticsearch image download workaround
+#  docker_image:
+#    name: "{{ elasticsearch_image }}:{{ elastic_version }}"
 
 - name: "Create directories"
   file:

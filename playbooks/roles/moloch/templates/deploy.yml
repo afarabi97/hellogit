@@ -21,6 +21,7 @@ spec:
       containers:
       - name: "moloch"
         image: "{{ moloch_image}}:{{ moloch_tag }}"
+        imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
             add:

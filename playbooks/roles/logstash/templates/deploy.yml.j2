@@ -17,6 +17,7 @@ spec:
       containers:
       - name: logstash
         image: {{ logstash_image }}:{{ logstash_ver }}
+        imagePullPolicy: IfNotPresent
         command: ["/usr/share/logstash/bin/logstash"]
         env:
         - name: LS_HOME

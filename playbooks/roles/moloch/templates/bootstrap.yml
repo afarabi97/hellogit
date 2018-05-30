@@ -17,6 +17,7 @@ spec:
       containers:
       - name: "moloch"
         image: "{{ moloch_image }}:{{ moloch_tag }}"
+        imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: vars
           mountPath: /etc/icdm/

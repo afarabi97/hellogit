@@ -1,0 +1,52 @@
+---
+
+- name: "Configure additional offline repos"
+  yum_repository:    
+    name: "{{ item.value.name }}"
+    description: "{{ item.value.name }} repo"
+    baseurl: "{{ item.value.baseurl }}"
+    enabled: true 
+    gpgcheck: "{{ item.value.gpgcheck}}"
+    gpgkey: "{{ item.value.gpgkey}}"
+    file: "offline"
+  loop: "{{ lookup('dict', additional_offline_repos) }}"
+  register: yum_results
+
+- name: "Configure RHEL offline repos"
+  yum_repository:    
+    name: "{{ item.value.name }}"
+    description: "{{ item.value.name }} repo"
+    baseurl: "{{ item.value.baseurl }}"
+    enabled: true 
+    gpgcheck: "{{ item.value.gpgcheck}}"
+    gpgkey: "{{ item.value.gpgkey}}"
+    file: "offline"
+  loop: "{{ lookup('dict', rhel_offline_repos) }}"
+  when: "ansible_distribution == 'RedHat'"
+  register: yum_results
+
+- name: CentOS
+  block:
+    - name:  Remove CentOS Repos
+      file:
+        path: "/etc/yum.repos.d/CentOS-{{ item }}.repo"
+        state: absent
+      with_items: "{{ CentOS_Repos }}"
+    - name: "Configure CentOS offline repos"
+      yum_repository:
+        name: "{{ item.value.name }}"
+        description: "{{ item.value.name }} repo"
+        baseurl: "{{ item.value.baseurl }}"
+        enabled: true 
+        gpgcheck: "{{ item.value.gpgcheck}}"
+        gpgkey: "{{ item.value.gpgkey}}"
+        file: "offline"
+      loop: "{{ lookup('dict', centos_offline_repos) }}"
+      when: "ansible_distribution == 'CentOS'"
+      register: yum_results
+
+- name: Clean repo cache
+  shell: yum clean all
+  when: yum_results.changed
+  args:
+    warn: false

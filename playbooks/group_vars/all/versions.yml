@@ -1,0 +1,56 @@
+---
+# Master Dependency Versions file between all tfplenum projects.
+# Use include_vars function to utilize this file.
+
+# VERSIONS
+kube_state_version: "v1.3.0"
+kube_rpm_version: "1.9.7"
+kube_image_version: "v1.9.7"
+harbor_version: "1.4.0"
+metallb_version: "v0.3.1"
+busybox_version: "1.27.2"
+k8s_version: "1.14.7"
+elastic_version: "6.2.4"
+coreos_version: "1688.5.3"
+
+# Docker Image List
+kube_images:
+  - busybox:{{busybox_version}}
+  - metallb/controller:{{metallb_version}}
+  - metallb/speaker:{{metallb_version}}
+  - heketi/heketi
+  - portainer/portainer
+  - dwharve/scaleio:1.0
+  - tfplenum/bro:1.0
+  - tfplenum/moloch
+  - tfplenum/suricata
+  - tfplenum/zookeeper:alpine
+  - tfplenum/kafka:alpine
+  - tfplenum/kafka-manager:alpine
+  - tfplenum/elasticsearch:{{ elastic_version }}
+  - tfplenum/kube-state-metrics-amd64:{{kube_state_version}}
+  - tfplenum/kube-state-metrics:{{kube_state_version}}
+  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
+  - docker.elastic.co/beats/filebeat:{{elastic_version}}
+  - docker.elastic.co/kibana/kibana:{{ elastic_version }}
+  - docker.elastic.co/logstash/logstash:{{ elastic_version }}
+  - docker.elastic.co/beats/metricbeat:{{ elastic_version }}
+  - docker.io/dwharve/elastichq
+  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-proxy-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/etcd-amd64:3.1.11
+  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_version}}
+  - gcr.io/google_containers/pause-amd64:3.0
+  - k8s.gcr.io/addon-resizer:1.7
+  - k8s.gcr.io/redis
+  - k8s.gcr.io/heapster-amd64:v1.4.2
+  - k8s.gcr.io/heapster-grafana-amd64:v4.4.3
+  - k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
+  - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
+  - quay.io/external_storage/rbd-provisioner
+  - quay.io/coreos/flannel:v0.10.0-amd64
+  - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
