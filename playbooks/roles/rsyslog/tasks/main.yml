@@ -1,0 +1,19 @@
+#########################################################################
+############################ Setup RSysLog ##############################
+#########################################################################
+---
+
+- name: Install Prerequisites
+  yum:
+    name: "{{ item }}"
+    state: installed
+  when: (item.test is undefined) or (item.test)
+  with_items:
+    - "{{ prereqs }}"
+
+- name: Install RSysLog
+  yum:
+    name: "rsyslog"
+    state: installed
+    allow_downgrade: yes
+  when: inventory_hostname in groups['nodes']    
