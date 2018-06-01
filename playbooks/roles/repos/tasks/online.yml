@@ -67,4 +67,9 @@
     enabled: true 
     gpgcheck: "{{ item.value.gpgcheck}}"
     gpgkey: "{{ item.value.gpgkey}}"
-  loop: "{{ lookup('dict', additional_online_repos) }}"
+  loop: "{{ lookup('dict', additional_online_repos, wantlist=True) }}"
+
+- name: install epel repo
+  yum:
+    name: epel-release
+    state: present

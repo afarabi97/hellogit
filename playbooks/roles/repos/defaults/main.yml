@@ -68,12 +68,6 @@ centos_offline_repos:
     description: "extras repo"
 
 additional_online_repos:
-  epel:
-    baseurl: "http://download.fedoraproject.org/pub/epel/7/$basearch"
-    gpgkey:  "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-    gpgcheck: true
-    name: "epel"
-    description: "epel repo"
   rocknsm:
     baseurl: "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/"
     gpgkey:  "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg"
