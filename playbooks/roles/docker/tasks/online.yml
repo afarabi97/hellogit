@@ -1,6 +1,6 @@
 ---
 
-- name: 'Download images from harbor'
+- name: 'Download images from internet'
   docker_image:
     name: "{{ item }}"
     push: no

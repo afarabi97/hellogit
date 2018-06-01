@@ -17,6 +17,7 @@
         gpgcheck: "{{ item.value.gpgcheck }}"
         gpgkey: "{{ item.value.gpgkey }}"
         file: "ceph"
+        priority: 2
       loop: "{{ lookup('dict', ceph_online) }}"
       when: not offline or (offline is defined and offline == false)
 
@@ -29,6 +30,7 @@
         gpgcheck: "{{ ceph_offline.gpgcheck }}"
         gpgkey: "{{ ceph_offline.gpgkey }}"
         file: "offline"
+        priority: 2
       when: offline is defined and offline
 
 - name: Yum Clean All

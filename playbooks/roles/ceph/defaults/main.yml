@@ -11,19 +11,19 @@ ceph_online:
     baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
     gpgkey:  "https://download.ceph.com/keys/release.asc"
     gpgcheck: true
-    name: "ceph-rhel"
-    description: "ceph base repo"
+    name: "ceph-x86_64"
+    description: "ceph base repo"   
   noarch:
     baseurl: "https://download.ceph.com/rpm-luminous/el7/noarch"
     gpgkey:  "https://download.ceph.com/keys/release.asc"
     gpgcheck: true
-    name: "ceph-rhel"
+    name: "ceph-noarch"
     description: "ceph arch repo"
   srpms:
     baseurl: "https://download.ceph.com/rpm-luminous/el7/SRPMS"
     gpgkey:  "https://download.ceph.com/keys/release.asc"
     gpgcheck: true
-    name: "ceph-rhel"
+    name: "ceph-srpms"
     description: "ceph srpms repo"
 
 ceph_offline:
