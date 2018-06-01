@@ -28,7 +28,7 @@
 
 - name: dns list
   set_fact:
-    dns_list: "{{ dns_list }} + '[ '8.8.8.8' ]"
+    dns_list: "{{ dns_list }} + [ '8.8.8.8' ]"
   when: not offline or (offline is defined and offline == false)
 
 - name: Update DNS records for the management interface
