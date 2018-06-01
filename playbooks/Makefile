@@ -4,8 +4,9 @@ SHELL=/bin/bash
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
+NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
 
 # Default target, build *and* run tests
 all:
@@ -106,3 +107,7 @@ moloch-rerun:
 
 suricata-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
+
+add-node:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)

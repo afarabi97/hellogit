@@ -65,6 +65,10 @@
 - name: Update all hosts to most recent packages
   hosts: all
   tasks:
+  - name: Yum Clean all
+    shell: yum clean all
+    args:
+      warn: false
   - name: Update all packages
     yum:
       name: '*'
@@ -95,6 +99,7 @@
       timeout: 300
     delegate_to: localhost
     when: system_updated is defined and system_updated.changed
+  tags: yum-update
 
 - name: Generate SSH keys
   hosts:
