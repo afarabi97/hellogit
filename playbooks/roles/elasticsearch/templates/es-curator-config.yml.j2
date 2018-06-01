@@ -14,23 +14,19 @@ data:
     actions:
       1:
         action: delete_indices
-        description: "Clean up ES by deleting old indices"
+        description: Delete oldest indices if elastic disk consumption exceeds 90% of maximum
         options:
-          timeout_override:
           continue_if_exception: False
           disable_action: False
-          ignore_empty_list: True
         filters:
-        - filtertype: age
-          source: name
-          direction: older
-          timestring: '%Y.%m.%d'
-          unit: days
-          unit_count: 3
+        - filtertype: space
+          disk_space: {{ ((elastic_pv_size * elastic_masters) + elastic_datas) * {{ elastic_max }} }}
+          reverse: True
+          use_age: True
+          source: creation_date
+          timestring:
           field:
           stats_result:
-          epoch:
-          exclude: False
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,

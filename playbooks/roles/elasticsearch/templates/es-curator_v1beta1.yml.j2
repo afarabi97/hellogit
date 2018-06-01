@@ -1,9 +1,19 @@
+# This outlines a Kubernetes CronJob to run every 10 minutes and execute the Curator
+# actions in the curator-config file.
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: curator
+  laels:
+    app: curator
 spec:
-  schedule: 1 0 * * *
+  schedule: "10 * * * *"
+  # For debugging failed jobs
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  # Wait 120 secs for job to start before terminating it and starting a new one
+  startingDeadlineSeconds: 120
   jobTemplate:
     spec:
       template:
