@@ -185,6 +185,17 @@
   tags:
     - ceph
 
+- name: Setup Storage
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - storage
+  tags:
+    - storage
+
 - name: Deploy Elasticsearch
   hosts: master-server
   gather_facts: no

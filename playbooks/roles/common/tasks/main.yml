@@ -7,6 +7,8 @@
 - import_tasks: 45_disable_ipv6.yml
 - import_tasks: 50_disable_firewall.yml
 - import_tasks: 55_banner.yml
+- import_tasks: 60_kube_external_dns.yml
+  when: inventory_hostname in groups['master-server']
 
 - import_tasks: 95_reboot.yml
 

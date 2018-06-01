@@ -93,6 +93,12 @@
     regexp: '^#addn-hosts=/etc/banner_add_hosts'
     replace: 'addn-hosts={{ host_file }}'
 
+- name: Add dnsmasq_kube_hosts to dnsmasq conf
+  lineinfile:
+    path: "{{ conf_file }}"
+    insertafter: 'addn-hosts={{ host_file }}'
+    line: 'addn-hosts=/etc/dnsmasq_kube_hosts'
+
 # TODO: Add this back in when firewalld is ready
 #- name: Configure firewalld
 #  firewalld:
