@@ -19,6 +19,9 @@ data:
           continue_if_exception: False
           disable_action: False
         filters:
+        - filtertype: pattern
+          kind: prefix
+          value: logstash-
         - filtertype: space
           disk_space: {{ ((elastic_pv_size * elastic_masters) + elastic_datas) * elastic_max }}
           reverse: True
@@ -28,8 +31,8 @@ data:
           field:
           stats_result:
     # A concern I have here is that this is ONLY filtering based on age. We could end up deleting stuff
-    # that we don't want to delete, like our kibana index. Need to add additional filters to whitelist
-    # stuff we always want to keep.
+    # that we don't want to delete, like our kibana index. I am currently filtering on the prefix
+    # "logstash-" to prevent this, but we might need additional filters in the future.
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,
