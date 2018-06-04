@@ -37,7 +37,10 @@
     - es-curator-config.yml
 
 - name: Flush Config
-  command: 'kubectl delete configmap elastic --ignore-not-found=true'
+  command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
+  with_items:
+    - elastic
+    - es-curator
 
 - name: Create Config
   shell: |
