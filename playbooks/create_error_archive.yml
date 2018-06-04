@@ -19,6 +19,7 @@
       executable: /bin/bash
     when: inventory_hostname in groups['nodes']
     changed_when: False
+    ignore_errors: yes
 
   - name: Log Kubernetes items details
     shell: "kubectl describe all --all-namespaces > {{ log_dir }}/{{ inventory_hostname_short }}_kubectl_describe.log"
@@ -26,6 +27,7 @@
       executable: /bin/bash
     when: inventory_hostname in groups['nodes']
     changed_when: False
+    ignore_errors: yes
 
   - name: Log Ceph status on all nodes
     shell: "ceph status > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_status.log"
@@ -33,6 +35,7 @@
       executable: /bin/bash
     when: inventory_hostname in groups['ceph']
     changed_when: False
+    ignore_errors: yes
 
   - name: Log Ceph health on all nodes
     shell: "ceph health > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_health.log"
@@ -40,6 +43,7 @@
       executable: /bin/bash
     when: inventory_hostname in groups['ceph']
     changed_when: False
+    ignore_errors: yes
 
   - name: Generate full journalctl output from all nodes
     shell: "journalctl -a --no-tail -o verbose > {{ log_dir }}/{{ inventory_hostname_short }}_journalctl.log"
@@ -47,6 +51,7 @@
       executable: /bin/bash
     when: inventory_hostname in groups['nodes']
     changed_when: False
+    ignore_errors: yes
 
 # These tasks copy all files created above to the controller to be aggregated and archived.
 # Ansible fetch module is not recursive, so the first task generates a variable containing
