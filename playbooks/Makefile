@@ -5,6 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 NODE ?= 'NONE'
+OFFLINE ?= 'False'
 
 .PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
 
@@ -13,7 +14,7 @@ all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' --ask-pass
 
 preflight:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight
@@ -25,19 +26,19 @@ rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
 
 common:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' --ask-pass -t common
 
 dnsmasq:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' --ask-pass -t dnsmasq
 
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
 kubernetes:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t kube-master,kube-node
 
 ceph:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t ceph
 
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
@@ -70,19 +71,19 @@ docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
@@ -109,5 +110,6 @@ suricata-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
 add-node:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE) }' -t kube-node -l $(NODE)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{offline: $(OFFLINE), node_to_add: "$(NODE)"}' -t ceph

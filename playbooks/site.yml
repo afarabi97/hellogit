@@ -53,7 +53,7 @@
   pre_tasks:
     - setup:
     # TODO: This should removed when firewalld needs to be enabled
-    - name: Disable firewall for now    
+    - name: Disable firewall for now
       systemd:
         name: firewalld
         enabled: no
@@ -177,7 +177,6 @@
     - kubernetes/common
     - kubernetes/node
   tags:
-    - add-node
     - kube-node
 
 - name: Setup Ceph
