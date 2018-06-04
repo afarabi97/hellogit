@@ -44,6 +44,11 @@
     kubectl create configmap elastic --from-file {{ elastic_dir }}/{{ item }}
   with_items:
     - elasticsearch.yml
+
+- name: Create Config
+  shell: |
+    kubectl create configmap es-curator --from-file {{ elastic_dir }}/{{ item }}
+  with_items:
     - es-curator-config.yml
 
 - name: Flush Deployments
