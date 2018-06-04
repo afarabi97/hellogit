@@ -27,6 +27,9 @@ data:
           timestring:
           field:
           stats_result:
+    # A concern I have here is that this is ONLY filtering based on age. We could end up deleting stuff
+    # that we don't want to delete, like our kibana index. Need to add additional filters to whitelist
+    # stuff we always want to keep.
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,
