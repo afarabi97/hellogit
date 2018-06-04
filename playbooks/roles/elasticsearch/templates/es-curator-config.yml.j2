@@ -20,7 +20,7 @@ data:
           disable_action: False
         filters:
         - filtertype: space
-          disk_space: {{ ((elastic_pv_size * elastic_masters) + elastic_datas) * {{ elastic_max }} }}
+          disk_space: {{ ((elastic_pv_size * elastic_masters) + elastic_datas) * elastic_max }}
           reverse: True
           use_age: True
           source: creation_date
