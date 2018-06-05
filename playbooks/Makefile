@@ -109,6 +109,6 @@ suricata-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
 add-node:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t kube-node -l $(NODE)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{node_to_add: "$(NODE)"}' -t ceph
