@@ -69,6 +69,16 @@
     gpgkey: "{{ item.value.gpgkey}}"
   loop: "{{ lookup('dict', additional_online_repos, wantlist=True) }}"
 
+- name: "Configure epel online repos"
+  yum_repository:    
+    name: "{{ epel_online_repo.name }}"
+    description: "{{ epel_online_repo.name }} repo"
+    failovermethod: "{{ epel_online_repo.failovermethod }}"
+    metalink: "{{ epel_online_repo.metalink }}"
+    enabled: true 
+    gpgcheck: "{{ epel_online_repo.gpgcheck}}"
+    gpgkey: "{{ epel_online_repo.gpgkey}}"
+
 - name: install epel repo
   yum:
     name: epel-release

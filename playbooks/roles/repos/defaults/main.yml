@@ -75,4 +75,12 @@ additional_online_repos:
     name: "rocknsm"
     description: "rocknsm repo"
 
+epel_online_repo:
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
+    gpgcheck: true
+    name: "epel"
+    description: "epel repo"
+    failovermethod: "priority"
+
 ...
