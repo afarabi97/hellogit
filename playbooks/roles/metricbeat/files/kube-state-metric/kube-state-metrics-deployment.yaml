@@ -33,6 +33,7 @@ spec:
           timeoutSeconds: 5
       - name: addon-resizer
         image: k8s.gcr.io/addon-resizer:1.7
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 100m

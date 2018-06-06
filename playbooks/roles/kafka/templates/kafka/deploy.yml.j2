@@ -59,7 +59,7 @@ spec:
           value: "PLAINTEXT://:9092"
       - name: {{ zk_app_name }}
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: {{ zookeeper_port }}
           name: client
