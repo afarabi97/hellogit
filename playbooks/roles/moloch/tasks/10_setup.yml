@@ -49,6 +49,7 @@
     - auto_init
     - bootstrap.yml
     - deploy.yml
+    - deploy-remote.yml
     - svc.yml
 
 - name: "Clean up kube configmap"
@@ -62,6 +63,7 @@
   with_items:
     - bootstrap
     - deploy
+    - deploy-remote
     - svc
 
 - name: "Wait for deployment to cleanup"
@@ -127,5 +129,6 @@
   with_items:
     - svc.yml
     - deploy.yml
+    - deploy-remote.yml
 
 ...
