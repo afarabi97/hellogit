@@ -24,7 +24,7 @@ spec:
           name: http
         env:
         - name: KAFKA_ZOOKEEPER_CONNECT
-          value: "zookeeper.default.svc.cluster.local"
+          value: "zookeeper"
         - name: ZOOKEEPER_PORT
           value: "{{ zookeeper_port }}"
       nodeSelector:

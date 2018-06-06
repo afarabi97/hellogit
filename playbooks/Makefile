@@ -4,6 +4,7 @@ SHELL=/bin/bash
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
+REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
 .PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
@@ -82,7 +83,7 @@ kubernetes-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
@@ -112,3 +113,6 @@ add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t ceph
+
+remove-node:
+	ansible-playbook $(REMOVE_PLAYBOOK) -i $(INVENTORY)
