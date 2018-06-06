@@ -233,7 +233,7 @@ all:
 
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
-            tfplneumsensor1.lan:
+            tfplenumsensor1.lan:
 
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
@@ -271,7 +271,7 @@ all:
               # - <DISK 2>
 
             # ADDITIONAL SENSORS HERE
-            # tfplneumsensor1.lan:
+            # tfplenumsensor1.lan:
             #   ansible_user: root
             #   ansible_connection: ssh
             #   management_ipv4: # !!!DEFINE ME!!!
@@ -292,7 +292,7 @@ all:
         #with just "remote-sensors:", but no hosts defined.
         remote-sensors:
           #hosts:
-          #  tfplneumsensor2.lan:
+          #  tfplenumsensor2.lan:
           #    ansible_user: root
           #    bro_workers: 2
           #    moloch_threads: 8
@@ -315,7 +315,7 @@ all:
 
           hosts:
 
-            tfplneumserver2.lan:
+            tfplenumserver2.lan:
               ansible_user: root
               ansible_connection: ssh
               management_ipv4: # !!!DEFINE ME!!!
@@ -337,7 +337,7 @@ all:
     # feel free to dig through the code.
 
           hosts:
-            tfplneumserver1.lan:
+            tfplenumserver1.lan:
               ansible_user: root
               ansible_connection: ssh
               management_ipv4: # !!!DEFINE ME!!!
@@ -350,8 +350,8 @@ all:
     nodes_to_remove:
       # Example: (you need to define your own hosts)
       #hosts:
-      #  tfplneumsensor1.lan:
-      #  tfplneumserver2.lan:
-      #  tfplneumserver1.lan:
+      #  tfplenumsensor1.lan:
+      #  tfplenumserver2.lan:
+      #  tfplenumserver1.lan:
 
 ...
