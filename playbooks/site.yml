@@ -40,11 +40,13 @@
     yum:
       name: "NetworkManager-glib"
       state: installed
+    register: network_manager_result
   # TODO: This should be removed after updates have been out for a bit
   - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
     systemd:
       name: NetworkManager
       state: restarted
+    when: network_manager_result.changed
   tags: dnsmasq
 
 - name: Verify Ansible meets version requirements
