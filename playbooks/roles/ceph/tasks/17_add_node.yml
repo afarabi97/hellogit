@@ -4,7 +4,7 @@
   shell: |
     ceph-deploy purge {{ node_to_add }}
     ceph-deploy purgedata {{ node_to_add }}
-    rm -rf {{ ceph_dir }}/*
+    #rm -rf {{ ceph_dir }}/*
   args:
     chdir: "{{ ceph_dir }}"
 

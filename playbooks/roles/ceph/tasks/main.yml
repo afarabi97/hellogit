@@ -15,7 +15,7 @@
   when: inventory_hostname in groups['master-server'] and node_to_add is not defined
 
 - import_tasks: 17_add_node.yml
-  when: inventory_hostname in groups['master-server'] and node_to_add is defined
+  when: inventory_hostname in groups['master-server'] and node_to_add is defined and node_to_add not in groups['remote-sensors']
 
 - import_tasks: 20_deploy.yml
   when: inventory_hostname in groups['master-server'] and node_to_add is not defined
