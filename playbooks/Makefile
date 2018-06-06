@@ -70,16 +70,16 @@ docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 ceph-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)' -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
@@ -111,4 +111,4 @@ suricata-rerun:
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t repos,dnsmasq,yum-update,genkeys,preflight,common,docker --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e '{node_to_add: "$(NODE)"}' -t ceph
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t ceph
