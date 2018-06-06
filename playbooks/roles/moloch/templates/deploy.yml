@@ -1,4 +1,3 @@
-# TODO: Since Moloch is using rbd storage it cannot live on remote-sensors atm
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
