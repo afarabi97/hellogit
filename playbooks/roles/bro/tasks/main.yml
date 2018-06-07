@@ -80,3 +80,10 @@
     namespace: "default"
     resource_name: "bro"
     label: ""
+
+- name: Scale up Bro Deployment
+  command: "kubectl scale deployment bro --replicas={{ groups['bro'] | length }}"
+  when: node_to_add is defined
+  tags:
+    - bro-scale
+  

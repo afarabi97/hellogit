@@ -265,8 +265,7 @@
   pre_tasks:
     - setup:
   roles:
-    - { role: kafka, remote: true }
-    - { role: kafka, remote: false }
+    - { role: kafka }
   tags:
     - kafka
 
