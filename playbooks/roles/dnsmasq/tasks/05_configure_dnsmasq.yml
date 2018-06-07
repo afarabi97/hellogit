@@ -48,13 +48,6 @@
   with_items: "{{ interface_list }}"
   when: interface_list is defined
 
-
-- debug:
-    msg: "{{ item }}"
-  with_items: "{{ interface_dns_result.results }}"
-  #when: item.stdout is defined
-
-
 - name: set update interface var
   set_fact:
     update_interface: true
@@ -132,6 +125,8 @@
   template:
     src: templates/hosts.j2
     dest: "{{ host_file }}"
+  tags:
+    - update-dnsmasq-hosts
 
 # This will bind dnsmasq to only one interface
 - name: Select dnsmasq bind interface
@@ -172,15 +167,21 @@
     name: dnsmasq
     state: restarted
     enabled: yes
+  tags:
+    - update-dnsmasq-hosts
 
 - name: Check if dnsmasq is running
   command: systemctl status dnsmasq
   ignore_errors: yes
   changed_when: false
   register: service_dnsmasq_status
+  tags:
+    - update-dnsmasq-hosts
 
 - name: Confirm dnsmasq is running
   fail:
     msg: "dnsmasq is not running for some reason. Log into {{ inventory_hostname }} and check status with 'systemctl status dnsmasq'"
   when: service_dnsmasq_status is failed
+  tags:
+    - update-dnsmasq-hosts
 ...

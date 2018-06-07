@@ -47,7 +47,9 @@
       name: NetworkManager
       state: restarted
     when: network_manager_result.changed
-  tags: dnsmasq
+  tags: 
+    - dnsmasq
+    - update-networkmanager
 
 - name: Verify Ansible meets version requirements
   hosts: localhost

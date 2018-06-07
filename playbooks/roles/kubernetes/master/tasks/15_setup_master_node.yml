@@ -8,5 +8,12 @@
 - name: 'Label masters'
   command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
 
+- name: Delete Var configmap
+  command: "kubectl delete configmap vars --ignore-not-found=true"
+  tags:
+    - vars-configmap
+
 - name: Add Var configmap
   command: "kubectl create configmap vars --from-file {{ kube_dir }}/vars.yml"
+  tags:
+    - vars-configmap
