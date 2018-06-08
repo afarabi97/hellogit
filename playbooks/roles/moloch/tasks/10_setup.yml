@@ -25,7 +25,7 @@
   delegate_to: "{{ item }}"
   with_items:
     - "{{ groups['moloch'] }}"
-  when: not use_ceph_for_pcap
+  when: not use_ceph_for_pcap or inventory_hostname in groups['remote-sensors']
 
 - name: 'Copy files'
   copy:
