@@ -41,13 +41,13 @@ kafka_retention: 168
 
 # Common
 package_list:
-  - cockpit
-  - cockpit-dashboard
-  - cockpit-machines
-  - cockpit-networkmanager
-  - cockpit-packagekit
+  #- cockpit
+  #- cockpit-dashboard
+  #- cockpit-machines
+  #- cockpit-networkmanager
+  #- cockpit-packagekit
   #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
-  - cockpit-system
+  #- cockpit-system
   - python-gobject
   - python-docker-py.noarch
   - nload
