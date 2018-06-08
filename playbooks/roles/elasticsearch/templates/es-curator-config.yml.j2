@@ -19,9 +19,11 @@ data:
           continue_if_exception: False
           disable_action: False
         filters:
+        - filtertype: kibana
+          exclude: True
         - filtertype: pattern
-          kind: timestring
-          value: '%Y.%m.%d'
+          kind: prefix
+          value: sessions
         - filtertype: space
           disk_space: {{ ((elastic_pv_size * elastic_masters) + elastic_datas) * elastic_max }}
           reverse: True
@@ -30,9 +32,9 @@ data:
           timestring:
           field:
           stats_result:
-    # A concern I have here is that this is ONLY filtering based on age. We could end up deleting stuff
-    # that we don't want to delete, like our kibana index. I am currently filtering on the timestamps
-    # to prevent this, but we might need additional filters in the future.
+    # The above filters are finding all indices prefixed by the phrase "sessions" and deleting the oldest ones
+    # when the disk usage is exceeding the configured percentage of allocated elasticsearch disk space (default
+    # is 90%). All kibana indices are also excluded, just as a fail-safe.
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,
