@@ -283,6 +283,7 @@ all:
             #   bro_workers: 2
             #   moloch_threads: 8
             #   monitor_interface: # !!!DEFINE ME!!!
+            #   - <Interface Name> #Interface must be listed here or it will parse incorrectly
             #   pcap_disk: # !!!DEFINE ME!!!
             #   ceph_disks:
             #   - <DISK 1>
