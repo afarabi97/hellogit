@@ -50,3 +50,13 @@
   when: yum_results.changed
   args:
     warn: false
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"
