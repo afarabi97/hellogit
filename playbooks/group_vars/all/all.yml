@@ -5,6 +5,7 @@ debug_enabled: true
 install_user: root
 install_group: root
 install_dir: /opt/rock
+log_dir: /var/log/ansible/hosts/
 sysctl_file: /etc/sysctl.d/rock.conf
 fqdn: default.svc.cluster.local
 
@@ -39,13 +40,13 @@ kafka_retention: 168
 
 # Common
 package_list:
-  - cockpit-160-1.el7.centos
-  - cockpit-dashboard-160-1.el7.centos
-  - cockpit-machines-160-1.el7.centos
-  - cockpit-networkmanager-160-1.el7.centos
-  - cockpit-packagekit-160-1.el7.centos
+  #- cockpit
+  #- cockpit-dashboard
+  #- cockpit-machines
+  #- cockpit-networkmanager
+  #- cockpit-packagekit
   #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
-  - cockpit-system-160-1.el7.centos
+  #- cockpit-system
   - python-gobject
   - python-docker-py.noarch
   - nload
