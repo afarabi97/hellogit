@@ -36,7 +36,12 @@ spec:
           timeoutSeconds: 1
           periodSeconds: 15
           failureThreshold: 5
-        volumeMounts: 
+        resources:
+          limits:
+            cpu: {{ zookeeper_cpu_limit }}
+          requests:
+            cpu: {{ zookeeper_cpu_request }}
+        volumeMounts:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}

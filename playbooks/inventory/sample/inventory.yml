@@ -21,6 +21,34 @@ all:
     dns_ip:
 
     #############################
+    # CPU Allocations           #
+    #############################
+
+    bro_cpu_limit: 1000m
+    bro_cpu_request: 100m
+
+    moloch_cpu_limit: 1000m
+    moloch_cpu_request: 100m
+
+    suricata_cpu_limit: 1000m
+    suricata_cpu_request: 100m
+
+    kafka_cpu_limit: 1000m
+    kafka_cpu_request: 100m
+
+    zookeeper_cpu_limit: 1000m
+    zookeeper_cpu_request: 100m
+
+    logstash_cpu_limit: 1000m
+    logstash_cpu_request: 100m
+
+    elasticsearch_cpu_limit: 1000m
+    elasticsearch_cpu_request: 100m
+
+    kibana_cpu_limit: 1000m
+    kibana_cpu_request: 100m
+
+    #############################
     # Moloch Settings           #
     #############################
 

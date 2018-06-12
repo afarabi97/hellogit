@@ -27,9 +27,9 @@ spec:
               - SYS_NICE
         resources:
           limits:
-            cpu: 1000m
+            cpu: {{ bro_cpu_limit }}
           requests:
-            cpu: 100m
+            cpu: {{ bro_cpu_request }}
         volumeMounts:
         - name: vars
           mountPath: /etc/icdm/

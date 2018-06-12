@@ -29,6 +29,86 @@
     msg: "moloch_bpf is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_bpf is not defined or moloch_bpf is none
 
+- name: Checking that bro_cpu_limit is set
+  fail:
+    msg: "bro_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: bro_cpu_limit is not defined or bro_cpu_limit is none
+
+- name: Checking that bro_cpu_request is set
+  fail:
+    msg: "bro_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: bro_cpu_request is not defined or bro_cpu_request is none
+
+- name: Checking that moloch_cpu_limit is set
+  fail:
+    msg: "moloch_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_cpu_limit is not defined or moloch_cpu_limit is none
+
+- name: Checking that moloch_cpu_request is set
+  fail:
+    msg: "moloch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_cpu_request is not defined or moloch_cpu_request is none
+
+- name: Checking that suricata_cpu_limit is set
+  fail:
+    msg: "suricata_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: suricata_cpu_limit is not defined or suricata_cpu_limit is none
+
+- name: Checking that suricata_cpu_request is set
+  fail:
+    msg: "suricata_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: suricata_cpu_request is not defined or suricata_cpu_request is none
+
+- name: Checking that kafka_cpu_limit is set
+  fail:
+    msg: "kafka_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kafka_cpu_limit is not defined or kafka_cpu_limit is none
+
+- name: Checking that kafka_cpu_request is set
+  fail:
+    msg: "kafka_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kafka_cpu_request is not defined or kafka_cpu_request is none
+
+- name: Checking that zookeeper_cpu_limit is set
+  fail:
+    msg: "zookeeper_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: zookeeper_cpu_limit is not defined or zookeeper_cpu_limit is none
+
+- name: Checking that zookeeper_cpu_request is set
+  fail:
+    msg: "zookeeper_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: zookeeper_cpu_request is not defined or zookeeper_cpu_request is none
+
+- name: Checking that logstash_cpu_limit is set
+  fail:
+    msg: "logstash_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: logstash_cpu_limit is not defined or logstash_cpu_limit is none
+
+- name: Checking that logstash_cpu_request is set
+  fail:
+    msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: logstash_cpu_request is not defined or logstash_cpu_request is none
+
+- name: Checking that elasticsearch_cpu_limit is set
+  fail:
+    msg: "elasticsearch_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: elasticsearch_cpu_limit is not defined or elasticsearch_cpu_limit is none
+
+- name: Checking that elasticsearch_cpu_request is set
+  fail:
+    msg: "elasticsearch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: elasticsearch_cpu_request is not defined or elasticsearch_cpu_request is none
+
+- name: Checking that kibana_cpu_limit is set
+  fail:
+    msg: "kibana_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kibana_cpu_limit is not defined or kibana_cpu_limit is none
+
+- name: Checking that kibana_cpu_request is set
+  fail:
+    msg: "kibana_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kibana_cpu_request is not defined or kibana_cpu_request is none
+
 - name: Checking that elastic_mem is set
   fail:
     msg: "elastic_mem is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
@@ -38,16 +118,6 @@
   fail:
     msg: "elastic_masters is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_masters is not defined or elastic_masters is none
-
-- name: Checking that elastic_cpu_maximum is set
-  fail:
-    msg: "elastic_cpu_maximum is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_cpu_maximum is not defined or elastic_cpu_maximum is none
-
-- name: Checking that elastic_cpu_minimum is set
-  fail:
-    msg: "elastic_cpu_minimum is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_cpu_minimum is not defined or elastic_cpu_minimum is none
 
 - name: Checking that moloch_dontSaveBPFs is set
   fail:

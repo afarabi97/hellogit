@@ -24,9 +24,9 @@ spec:
           value: "{{ logstash_path }}"
         resources:
           limits:
-            cpu: 1000m
+            cpu: {{ logstash_cpu_limit }}
           requests:
-            cpu: 100m
+            cpu: {{ logstash_cpu_request }}
         volumeMounts:
           - name: logstash
             mountPath: "{{ logstash_path }}/config/logstash.yml"

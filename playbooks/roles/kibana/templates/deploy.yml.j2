@@ -33,9 +33,9 @@ spec:
           value: '{{ xpack_license }}'
         resources:
           limits:
-            cpu: 1000m
+            cpu: {{ kibana_cpu_limit }}
           requests:
-            cpu: 100m
+            cpu: {{ kibana_cpu_request }}
         ports:
         - containerPort: {{ kibana_port }}
           name: http

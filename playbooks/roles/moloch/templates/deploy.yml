@@ -30,6 +30,11 @@ spec:
         ports:
           - containerPort: {{ moloch_port }}
             name: webgui
+        resources:
+          limits:
+            cpu: {{ moloch_cpu_limit }}
+          requests:
+            cpu: {{ moloch_cpu_request }}
         volumeMounts:
         - name: vars
           mountPath: /etc/icdm/
