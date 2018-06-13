@@ -131,4 +131,20 @@
     - deploy.yml
     - deploy-remote.yml
 
+- name: Scale up Moloch Statefulset
+  command: "kubectl scale statefulset moloch --replicas={{ groups['sensors'] | length }}"
+  when: node_to_add is defined 
+    and node_to_add in groups['sensors']
+    and node_to_add in groups['moloch']
+  tags:
+    - moloch-scale
+
+- name: Scale up Remote Moloch Statefulset
+  command: "kubectl scale statefulset remote-moloch --replicas={{ groups['remote-sensors'] | length }}"
+  when: node_to_add is defined 
+    and node_to_add in groups['remote-sensors']
+    and node_to_add in groups['moloch']
+  tags:
+    - moloch-scale
+
 ...

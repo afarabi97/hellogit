@@ -106,3 +106,25 @@
     namespace: "default"
     resource_name: "es-master-statefulset"
     label: ""
+
+- name: Scale up Elasticsearch Statefulset
+  command: "kubectl get sts es-master-statefulset --no-headers=true | awk '{ print $2 }'"
+  when: node_to_add is defined 
+    and node_to_add in groups['elasticsearch']
+  register: current_es_count
+  tags:
+    - es-scale
+
+- name: set es replica count by 1
+  set_fact:
+    es_replicas: "1 +  ({{ current_es_count }} | int)"
+  when: current_es_count is defined and (current_es_count | int) > 0
+  tags:
+    - es-scale
+
+- name: Scale up Elasticsearch Statefulset
+  command: "kubectl scale statefulset es-master-statefulset --replicas={{ es_replicas }}"
+  when: node_to_add is defined 
+    and node_to_add in groups['elasticsearch']
+  tags:
+    - es-scale

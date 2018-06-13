@@ -83,7 +83,7 @@
 
 - name: Scale up Bro Deployment
   command: "kubectl scale deployment bro --replicas={{ groups['bro'] | length }}"
-  when: node_to_add is defined
+  when: node_to_add is defined 
+    and node_to_add in groups['bro']
   tags:
     - bro-scale
-  

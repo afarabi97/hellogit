@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: moloch-remote
+  name: remote-moloch
   labels:
-    component: moloch-remote
+    component: remote-moloch
 spec:
-  serviceName: moloch-remote
+  serviceName: remote-moloch
   replicas: {{ groups['remote-sensors'] | length }} #{{ groups['moloch'] | length }}
   podManagementPolicy: "Parallel"
   selector:
     matchLabels:
-      component: moloch-remote
+      component: remote-moloch
   template:
     metadata:
       labels:
-        component: moloch-remote
+        component: remote-moloch
     spec:
       hostNetwork: true
       containers:
@@ -69,7 +69,7 @@ spec:
               - key: component
                 operator: In
                 values:
-                - moloch-remote
+                - remote-moloch
               - key: node
                 operator: In
                 values:

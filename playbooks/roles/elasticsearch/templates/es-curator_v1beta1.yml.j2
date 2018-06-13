@@ -21,6 +21,7 @@ spec:
           containers:
           - name: curator
             image: quay.io/pires/docker-elasticsearch-curator:5.5.4
+            imagePullPolicy: IfNotPresent
             args:
             - --config
             - /etc/config/config.yml
