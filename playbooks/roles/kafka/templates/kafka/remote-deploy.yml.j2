@@ -26,9 +26,9 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            cpu: 1000m
+            cpu: {{ kafka_cpu_limit }}
           requests:
-            cpu: 100m
+            cpu: {{ kafka_cpu_request }}
         ports:
         - containerPort: {{ kafka_port }}
           name: transport

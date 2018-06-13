@@ -2,24 +2,24 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ kafka_app_name }}
+  name: kafka
   labels:
-    component: {{ kafka_app_name }}
+    component: kafka
 spec:
   ports:
   - port: 9092
   selector:
-    component: {{ kafka_app_name }}
+    component: kafka
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ kafka_app_name }}-broker
+  name: kafka-broker
   labels:
-    component: {{ kafka_app_name }}
+    component: kafka
 spec:
   selector:
-    component: {{ kafka_app_name }}
+    component: kafka
   ports:
   - name: transport
     protocol: TCP

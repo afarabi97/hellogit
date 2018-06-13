@@ -42,13 +42,15 @@
 - name: Copy files
   copy:
     src: "files/{{ item }}"
-    dest: "{{ kafka_dir }}/{{ app_type }}/{{ item }}"
+    dest: "{{ kafka_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
   with_items:
     - configuration.xsl
     - log4j.properties
+  tags:
+    - kafka-scale
 
 # Flush remote kafka
 - name: Flush Services
@@ -75,26 +77,51 @@
 - name: Flush Remote Zookeeper Config Maps
   command: 'kubectl delete configmap remote-zookeeper --ignore-not-found=true'
 
+- name: Check if remote configmaps exist
+  shell: |
+    kubectl get configmap --no-headers=true | grep -e remote-zookeeper -e remote-kafka | awk '{ print $1 }'
+  register: configmap_result
+  when: node_to_add is defined
+  tags:
+    - kafka-scale
+
 # This does the same, but with Zookeeper
 - name: Create Zookeeper Config
   shell: |
     kubectl create configmap remote-zookeeper --from-file={{ kafka_dir }}/zoo.cfg \
        --from-file={{ kafka_dir }}/configuration.xsl \
        --from-file={{ kafka_dir }}/log4j.properties \
-       --from-file={{ kafka_dir }}/java.env
+       --from-file={{ kafka_dir }}/java.env  
+  when: (configmap_result is not defined) or ("'remote-zookeeper' not in configmap_result.stdout")
+  tags:
+    - kafka-scale
 
 - name: Create ConfigMaps
   command: 'kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties'
-
-- name: Replace configmap when adding node
-  shell: |
-    kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties -o yaml --dry-run | kubectl replace -f -
+  when: (configmap_result is not defined) or ("'remote-kafka' not in configmap_result.stdout")
   tags:
     - kafka-scale
-  when: node_to_add is defined
+
+- name: Replace remote zookeeper configmap when adding node
+  shell: |
+    kubectl create configmap remote-zookeeper \
+    --from-file={{ kafka_dir }}/zoo.cfg \
+    --from-file={{ kafka_dir }}/configuration.xsl \
+    --from-file={{ kafka_dir }}/log4j.properties \
+    --from-file={{ kafka_dir }}/java.env  -o yaml --dry-run | kubectl replace -f -
+  when: "'remote-zookeeper' in configmap_result.stdout"
+  tags:
+    - kafka-scale
+
+- name: Replace remote kafka configmap when adding node
+  shell: |
+    kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties -o yaml --dry-run | kubectl replace -f -
+  when: "'remote-kafka' in configmap_result.stdout"
+  tags:
+    - kafka-scale
 
 - name: Create Kafka Remote Svc
-  shell: "kubectl apply -f {{ kafka_dir }}/remote-svc.yml"
+  shell: "kubectl apply -f {{ kafka_dir }}/remote-svc.yml"  
   tags:
     - kafka-scale
 
@@ -103,6 +130,6 @@
     seconds: 10
 
 - name: Run the kafka deploy file
-  shell: "kubectl apply -f {{ kafka_dir }}/remote-deploy.yml"
+  shell: "kubectl apply -f {{ kafka_dir }}/remote-deploy.yml" 
   tags:
   - kafka-scale

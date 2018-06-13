@@ -34,13 +34,15 @@
     - elastichq-svc.yml
     - elasticsearch.yml
     - es-curator_v1beta1.yml
-    - es-curator-config.yml
+    - action_file.yml
+    - config.yml
 
 - name: Flush Config
   command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
   with_items:
     - elastic
     - es-curator
+    - curator-config
 
 - name: Create Config
   shell: |
@@ -50,9 +52,8 @@
 
 - name: Create Config
   shell: |
-    kubectl create configmap es-curator --from-file {{ elastic_dir }}/{{ item }}
-  with_items:
-    - es-curator-config.yml
+    kubectl create configmap curator-config --from-file {{ elastic_dir }}/action_file.yml \
+    --from-file {{ elastic_dir }}/config.yml
 
 - name: Flush Deployments
   shell: |
