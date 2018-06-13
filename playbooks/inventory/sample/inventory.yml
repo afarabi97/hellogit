@@ -7,6 +7,7 @@
 
 all:
   vars:
+    offline: true # Offline install repos and dependencies are hosted on ansible controller
 
     #############################
     # General System Settings   #

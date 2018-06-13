@@ -1,0 +1,9 @@
+---
+
+- name: 'Download images from internet'
+  docker_image:
+    name: "{{ item }}"
+    push: no
+    pull: yes
+  with_items:
+    - "{{ kube_images }}"

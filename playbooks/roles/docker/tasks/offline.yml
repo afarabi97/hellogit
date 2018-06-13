@@ -1,0 +1,26 @@
+---
+
+- name: Add docker config
+  template:
+    src: templates/daemon.json.j2
+    dest: "/etc/docker/daemon.json"
+  register: docker_config
+
+- name: Restart Docker
+  service:
+    name: docker
+    state: restarted
+  when: docker_config.changed
+
+- name: 'Download images from harbor'
+  docker_image:
+    name: "{{ harbor_repo }}/{{ item[item.rfind('/')+1:] }}"
+    push: no
+    pull: yes
+  with_items:
+    - "{{ kube_images }}"
+
+- name: 'Retag local images back to original name'
+  shell: "docker tag {{ harbor_repo }}/{{ item[item.rfind('/')+1:] }} {{ item }}"
+  with_items:
+    - "{{ kube_images }}"

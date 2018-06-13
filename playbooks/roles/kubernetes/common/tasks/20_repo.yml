@@ -3,12 +3,28 @@
 #######################################################
 ---
 
-- name: "Setup Kubernetes repo"
+- name: "Setup Kubernetes Online Repo"
   yum_repository:
-    baseurl: "{{ kube_baseurl }}"
-    description: "Kubernetes YUM repo"
-    gpgcheck: true
-    gpgkey: "{{ kube_gpgurl }}"
-    name: kubernetes
+    baseurl: "{{ kube_online.baseurl }}"
+    description: "{{ kube_online.description }}"
+    gpgcheck: "{{ kube_online.gpgcheck }}"
+    gpgkey: "{{ kube_online.gpgkey }}"
+    name: "{{ kube_online.name }}"
+    enabled: true
+  when: not offline or (offline is defined and offline == false)
+
+- debug:
+    msg: "{{ kube_offline.baseurl }}"
+
+- name: "Setup Kubernetes Offline Repo"
+  yum_repository:
+    baseurl: "{{ kube_offline.baseurl }}"
+    description: "{{ kube_offline.description }}"
+    gpgcheck: "{{ kube_offline.gpgcheck }}"
+    gpgkey: "{{kube_offline.gpgkey }}"
+    name: "{{ kube_offline.name }}"
+    enabled: true
+    file: "offline"
+  when: offline is defined and offline
 
 ...

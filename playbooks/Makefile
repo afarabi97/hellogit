@@ -2,10 +2,12 @@ SHELL=/bin/bash
 
 # Confirm Ansible is installed.
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
-INVENTORY ?= 'inventory/dev/inventory.yml'
+INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
+REMOVE_PLAYBOOK ?= 'remove-node.yml'
+NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
 
 # Default target, build *and* run tests
 all:
@@ -69,22 +71,22 @@ docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 logstash-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,kafka,bro,moloch,suricata
@@ -106,3 +108,11 @@ moloch-rerun:
 
 suricata-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
+
+add-node:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,docker,vars-configmap --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-node -l $(NODE)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t ceph,kafka-scale,bro-scale
+	
+remove-node:
+	ansible-playbook $(REMOVE_PLAYBOOK) -i $(INVENTORY)

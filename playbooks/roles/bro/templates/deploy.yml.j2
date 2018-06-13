@@ -18,6 +18,7 @@ spec:
       containers:
       - name: bro
         image: {{ bro_image }}:{{ bro_ver }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
             add:

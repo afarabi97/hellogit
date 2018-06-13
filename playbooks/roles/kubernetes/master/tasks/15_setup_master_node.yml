@@ -10,3 +10,10 @@
 
 - name: Add Var configmap
   command: "kubectl create configmap vars --from-file {{ kube_dir }}/vars.yml"
+
+- name: Replace Var configmap
+  shell: |
+    kubectl create configmap vars --from-file {{ kube_dir }}/vars.yml -o yaml --dry-run | kubectl replace -f -
+  tags:
+    - vars-configmap
+  when: node_to_add is defined
