@@ -7,6 +7,25 @@
 # 
 ---
 
+- name: remote list
+  set_fact:
+    remote_list: []
+  tags:
+    - kafka-scale
+
+- name: add node to list
+  set_fact:
+    remote_list: "{{ remote_list }} + [ '{{ node_to_add }}' ]"
+  when: node_to_add is defined
+  tags:
+    - kafka-scale
+
+- name: add node to list
+  set_fact:
+    remote_list: "{{ remote_list }} + [ '{{ item }}' ]"
+  with_items: "{{ groups['remote-sensors'] }}"
+  when: node_to_add is not defined or node_to_add is none
+
 - name: Install Kafka Templates
   template:
     src: "templates/kafka/{{ item }}.j2"
@@ -81,10 +100,9 @@
   shell: |
     kubectl get configmap --no-headers=true | grep -e remote-zookeeper -e remote-kafka | awk '{ print $1 }'
   register: configmap_result
-  when: node_to_add is defined
   tags:
     - kafka-scale
-
+      
 # This does the same, but with Zookeeper
 - name: Create Zookeeper Config
   shell: |
@@ -92,13 +110,13 @@
        --from-file={{ kafka_dir }}/configuration.xsl \
        --from-file={{ kafka_dir }}/log4j.properties \
        --from-file={{ kafka_dir }}/java.env  
-  when: (configmap_result is not defined) or ("'remote-zookeeper' not in configmap_result.stdout")
+  when: "'remote-zookeeper' not in configmap_result.stdout"
   tags:
     - kafka-scale
 
 - name: Create ConfigMaps
   command: 'kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties'
-  when: (configmap_result is not defined) or ("'remote-kafka' not in configmap_result.stdout")
+  when: "'remote-kafka' not in configmap_result.stdout"
   tags:
     - kafka-scale
 

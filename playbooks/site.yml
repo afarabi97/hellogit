@@ -8,6 +8,7 @@
 
 - name: Preflight for adding new node
   hosts: master-server
+  any_errors_fatal: true
   gather_facts: no
   tasks:
     - name: Check if node_to_add is defined
@@ -24,6 +25,7 @@
       stat:
         path: "/usr/bin/kubelet"
       register: kubelet_stat_result
+      when: node_to_add is defined
     
     - name: Fail if kubelet doesnt exists
       fail:
@@ -46,7 +48,11 @@
   tags: preflight-add-node 
 
 - name: Disable firewalld
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   tasks:
   - systemd:
       service: firewalld
@@ -86,7 +92,11 @@
       state: installed
 
 - name: Install Controller Dependancies
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   tasks:
   - name: Install NetworkManager packages
     yum:
@@ -105,6 +115,7 @@
 
 - name: Verify Ansible meets version requirements
   hosts: localhost
+  any_errors_fatal: true
   tasks:
   - fail:
       msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
@@ -112,7 +123,11 @@
   tags: preflight
 
 - name: Create Error Logging Directory
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   tasks:
   - name: Create directories on nodes
     file:
@@ -132,7 +147,11 @@
       state: directory       
 
 - name: dnsmasq
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
@@ -174,25 +193,34 @@
 - name: Generate SSH keys
   hosts:
     - localhost
-    - all
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   connection: ssh
   any_errors_fatal: true
   vars:
     ssh_known_hosts_command: "ssh-keyscan -T 10"
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-    ssh_known_hosts: "{{ groups['all'] }}"
+    ssh_known_hosts: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
 
-    # This takes the groups['all'] list, which is every host, feeds it into map, which then
+    # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff), 
+    # feeds it into map, which then
     # performs a regex_replace on each element. The regex_replace replaces .lan in each
     # element to nothing or ''. Finally, we feed that back into list because Ansible
     # expects the final product to be a list.
-    ssh_short_known_hosts: "{{ groups['all'] | map('regex_replace','(.lan)','' ) | list }}"
+    ssh_short_known_hosts: "{{ ssh_known_hosts | map('regex_replace','(.lan)','' ) | list }}"
   tasks:
     - import_tasks: generate_ssh_keys.yml
   tags: genkeys
 
 - name: Perform preflight checks
-  hosts: all
+  any_errors_fatal: true
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   roles:
     - preflight_checks
   tags: preflight
@@ -200,7 +228,9 @@
 - name: Common Setup
   hosts:
     - master-server
-    - nodes
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -212,7 +242,11 @@
     - common
 
 - name: Docker Images
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -250,7 +284,11 @@
     - kube-node
 
 - name: Setup Ceph
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors  
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -338,7 +376,11 @@
   - bro
 
 - name: Deploy Moloch
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

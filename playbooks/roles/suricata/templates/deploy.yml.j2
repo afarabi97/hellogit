@@ -5,7 +5,7 @@ metadata:
   labels:
     component: suricata
 spec:
-  replicas: 1
+  replicas: {{ groups['suricata'] | length }}
   selector:
     matchLabels:
       component: suricata

@@ -1,4 +1,4 @@
-{% for host in groups['remote-sensors'] %}
+{% for host in remote_list %}
 {% set kafka_app_name = 'kafka-' + hostvars[host].inventory_hostname_short %}
 ---
 apiVersion: v1

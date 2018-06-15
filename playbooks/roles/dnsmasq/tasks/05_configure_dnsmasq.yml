@@ -121,6 +121,12 @@
     name: bind-utils
     state: installed
 
+- name: create list
+  set_fact:
+    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+  tags:
+    - update-dnsmasq-hosts
+
 - name: Copy over hosts template
   template:
     src: templates/hosts.j2

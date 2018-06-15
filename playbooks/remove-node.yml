@@ -36,7 +36,7 @@
 
 - name: Remove node from cluster
   hosts: master-server
-  tasks: 
+  tasks:
     - name: remove-node | Drain node except daemonsets resource
       shell: |
         kubectl drain --force --ignore-daemonsets --grace-period 300 --timeout 360s --delete-local-data {{ item }}
@@ -64,14 +64,21 @@
       shell: |
         ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}' | xargs -n 1 ceph osd out
         sleep 30
+
     - name: Wait for Ceph health
-      shell: |
-        while [ "$(ceph health)" != "HEALTH_OK" ]; do echo -n .; sleep 1; done;
+      shell: "ceph health"
+      register: task_result
+      until: task_result.stdout.find("HEALTH_OK") != -1
+      retries: 15
+      delay: 5      
+      ignore_errors: yes
+
     - name: Purge OSDs
       shell: |
         OSDS=$(ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}')
         echo $OSDS | xargs -I X systemctl stop ceph-osd@X
         echo $OSDS | xargs -I X ceph osd purge X --yes-i-really-mean-it
+  tags: ceph
 
 - name: Purge Ceph from nodes
   hosts: master-server
@@ -86,5 +93,14 @@
       shell: ceph mon rm {{ hostvars[item].inventory_hostname_short }}
       with_items:
         - "{{ groups['nodes_to_remove'] }}"
+  tags: ceph
 
+- name: Reboot node
+  hosts: nodes_to_remove
+  tasks:
+    - name: Reboot system to finish installing updates
+      command: "/sbin/shutdown -r +1 --no-wall"
+      async: 0
+      poll: 0
+      ignore_errors: yes
 ...
