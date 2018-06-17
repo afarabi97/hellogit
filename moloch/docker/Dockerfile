@@ -29,7 +29,4 @@ RUN systemctl enable molochcapture molochviewer
 COPY config.ini.conf /etc/icdm/conf/
 COPY config.ini.tmpl /etc/icdm/templates/
 
-# Fix for error in beta 3
-RUN sed -i "s/'.\/vueapp/__dirname + '\/vueapp/" /data/moloch/viewer/viewer.js
-
 EXPOSE 8005
