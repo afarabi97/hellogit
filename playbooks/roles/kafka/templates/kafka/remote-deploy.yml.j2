@@ -56,6 +56,10 @@ spec:
           value: "1"
         - name: KAFKA_LISTENERS
           value: "PLAINTEXT://:9092"
+        - name: JMX_PORT
+          value: "{{ kafka_jmx_port }}"
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xmx{{ kafka_jvm_memory }}g -Xms{{ kafka_jvm_memory }}g"
       - name: {{ zk_app_name }}
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         imagePullPolicy: IfNotPresent
@@ -78,8 +82,18 @@ spec:
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}
           name: zookeeper-datalog
-        - name: configs
-          mountPath: {{ zookeeper_home }}/conf/
+        - name: zookeeper-configs
+          mountPath: "{{ zookeeper_home }}/conf/zoo.cfg"
+          subPath: zoo.cfg
+        - name: zookeeper-configs
+          mountPath: "{{ zookeeper_home }}/conf/log4j.properties"
+          subPath: log4j.properties
+        - name: zookeeper-configs
+          mountPath: "{{ zookeeper_home }}/conf/configuration.xsl"
+          subPath: configuration.xsl
+        - name: zookeeper-configs
+          mountPath: "{{ zookeeper_home }}/conf/java.env"
+          subPath: java.env
         env:
         - name: INSTANCE_ID
           value: "1"
@@ -109,16 +123,9 @@ spec:
         hostPath:
           path: /data/kafka
           type: Directory
-      - name: configs
+      - name: zookeeper-configs
         configMap:
           name: remote-zookeeper
-          items:
-          - key: zoo.cfg
-            path: zoo.cfg
-          - key: log4j.properties
-            path: log4j.properties
-          - key: configuration.xsl
-            path: configuration.xsl
       - name: zookeeper-data
         hostPath:
           path: /data/zookeeper/data

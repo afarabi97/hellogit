@@ -26,7 +26,7 @@
   with_items: "{{ groups['remote-sensors'] }}"
   when: node_to_add is not defined or node_to_add is none
 
-- name: Install Kafka Templates
+- name: Install Templates
   template:
     src: "templates/kafka/{{ item }}.j2"
     dest: "{{ kafka_dir }}/{{ item }}"
@@ -34,25 +34,24 @@
     owner: root
     mode: 0644
   with_items:
-    - remote-deploy.yml
-    - remote-svc.yml
-    - server.properties
+    - "remote-deploy.yml"
+    - "remote-svc.yml"
+    - "server.properties"
   tags:
     - kafka-scale
   vars:
     remote: true
 
-- name: Install Zookeeper Template (this is used for the self contained zookeeper in kafka)
+- name: Install Templates
   template:
-    src: "templates/zookeeper/zoo.cfg.j2"
+    src: "templates/zookeeper/{{ item }}.j2"
     dest: "{{ kafka_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
-  with_items:
-    - zoo.cfg
-    - java.env
-    - 
+  with_items: 
+    - "zoo.cfg"
+    - "java.env"
   tags:
     - kafka-scale
   vars:

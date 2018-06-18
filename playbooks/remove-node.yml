@@ -98,7 +98,7 @@
 - name: Reboot node
   hosts: nodes_to_remove
   tasks:
-    - name: Reboot system to finish installing updates
+    - name: Reboot system
       command: "/sbin/shutdown -r +1 --no-wall"
       async: 0
       poll: 0
