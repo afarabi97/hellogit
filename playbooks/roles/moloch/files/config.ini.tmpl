@@ -218,7 +218,7 @@ spiDataMaxIndices = {{ moloch_spiDataMaxIndices | default("5") }}
 #titleTemplate=_cluster_ - _page_ _-view_ _-expression_
 
 # Number of threads processing packets
-packetThreads = {{ moloch_threads | default("4") }}
+packetThreads = {{ moloch_threads[host] | default("4") }}
 
 # ADVANCED - Semicolon ';' seperated list of files to load for config.  Files are loaded
 # in order and can replace values set in this file or previous files.
