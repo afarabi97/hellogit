@@ -11,8 +11,8 @@
 2. Fill out Add cluster form:
    - "Cluster Name" - Name your cluster ie: "zk"
    - "Cluster Zookeeper Hosts"
-        - For the default zookeeper cluster use "zookeeper:2181"
-        - For remote sensor zookeeper use the kafka broker service name for the node the format will be "kakfa-<node shortname>-broker" and port 2181 ie: "kafka-rocksensor2-broker:2181"
+     - For the default zookeeper cluster use "zookeeper:2181"
+     - For remote sensor zookeeper use the kafka broker service name for the node the format will be "kakfa-<node shortname>-broker" and port 2181 ie: "kafka-rocksensor2-broker:2181"
    - Check "Enable JMX Polling"
    - Check "Poll consumer information"
 3. Press "Save" at the bottom
@@ -22,7 +22,7 @@
 1. Select "Cluster->List"
 2. Select the desired zookeeper cluster to view.
 3. To view the combined stats of all topics:
-    - Under Summary section, Select the number next to "Brokers".
+   - Under Summary section, Select the number next to "Brokers".
 4. To view individual stats for each topic:
-    - Under Summary section, Select the number next to "Topics"
-    - Then select the desired topic name to view ie: bro-raw
+   - Under Summary section, Select the number next to "Topics"
+   - Then select the desired topic name to view ie: bro-raw
