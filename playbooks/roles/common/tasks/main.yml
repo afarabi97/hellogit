@@ -9,6 +9,9 @@
 - import_tasks: 55_banner.yml
 - import_tasks: 60_kube_external_dns.yml
   when: inventory_hostname in groups['master-server']
+- import_tasks: 65_elasticdump.yml
+  when: inventory_hostname in groups['master-server']
+  tags: elasticdump
 
 - import_tasks: 95_reboot.yml
 

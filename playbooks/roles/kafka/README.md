@@ -9,12 +9,12 @@
 ### Adding a cluster
 1. Select Cluster-> "Add Cluster"
 2. Fill out Add cluster form:
-	a. "Cluster Name" - Name your cluster ie: "zk"
-	b. "Cluster Zookeeper Hosts"
+	* "Cluster Name" - Name your cluster ie: "zk"
+	- "Cluster Zookeeper Hosts"
 		- For the default zookeeper cluster use "zookeeper:2181"
         - For remote sensor zookeeper use the kafka broker service name for the node the format will be "kakfa-<node shortname>-broker" and port 2181 ie: "kafka-rocksensor2-broker:2181"
-	c. Check "Enable JMX Polling"
-	d. Check "Poll consumer information"
+	- Check "Enable JMX Polling"
+	- Check "Poll consumer information"
 3. Press "Save" at the bottom
 
 ### View Kafka Stats
