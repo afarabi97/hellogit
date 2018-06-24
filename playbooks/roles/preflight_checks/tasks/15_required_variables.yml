@@ -32,7 +32,7 @@
 - name: Ensuring there is no ceph drive declared for a remote sensor
   fail:
      msg: "You have declared a ceph drive for a remote sensor. Remote sensors cannot be part of the ceph cluster; please remove this drive."
-  when: inventory_hostname in groups['remote-sensors'] and sensor_ceph_drive_list is defined
+  when: inventory_hostname in groups['remote-sensors'] and ceph_drive_list is defined
 
 - name: Checking that moloch_bpf is set
   fail:
