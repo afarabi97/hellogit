@@ -10,7 +10,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ pcap_pv_size }}Gi
+      storage: {{ moloch_pcap_pv_size }}Gi
   storageClassName: rbd
 {% endfor %}
 {% endif %}

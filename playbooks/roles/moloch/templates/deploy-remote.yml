@@ -43,7 +43,7 @@ spec:
       volumes:
       - name: data
         hostPath:
-          path: {{ pcap_folder }}
+          path: {{ moloch_pcap_folder }}
       - name: vars
         configMap:
           name: vars

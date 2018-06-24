@@ -40,9 +40,9 @@ spec:
         resources:
           limits:
             cpu: "{{ elasticsearch_cpu_limit }}"
-            memory: "{{ elastic_mem * 2 }}Gi"
+            memory: "{{ elastic_memory * 2 }}Gi"
           requests:
-            memory: "{{ elastic_mem * 2 }}Gi"
+            memory: "{{ elastic_memory * 2 }}Gi"
             cpu: "{{ elasticsearch_cpu_request }}"
         env:
         - name: NAMESPACE
@@ -62,7 +62,7 @@ spec:
         - name: HTTP_ENABLE
           value: "false"
         - name: ELASTIC_JAVA_OPTS
-          value: -Xms{{ elastic_mem }}g -Xmx{{ elastic_mem }}g
+          value: -Xms{{ elastic_memory }}g -Xmx{{ elastic_memory }}g
         ports:
         - containerPort: {{ elastic_data_port }}
           name: http

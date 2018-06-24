@@ -53,7 +53,7 @@
   shell: "ip=$(python -c $\'import ipaddress\nnet = ipaddress.ip_network(u\\\'{{ item }}\\\', False)\\nfor r in net:\\n print r') && output=$( for ip in $ip; do ping -c 1 $ip | grep \"bytes from\" & done;) && echo $output"
   ignore_errors: True
   register: result_output
-  with_items: "{{ services_cidr }}"
+  with_items: "{{ kubernetes_services_cidr }}"
   changed_when: False
   failed_when: result_output.stdout != ""
 

@@ -54,7 +54,7 @@ httpRealm = Moloch
 # webBasePath = /moloch/
 
 # Semicolon ';' seperated list of interfaces to listen on for traffic
-interface = {{ ( monitor_interface[host] | default(['eth0'], true) ) | join(';') }}
+interface = {{ ( sensor_monitor_interface[host] | default(['eth0'], true) ) | join(';') }}
 
 # The bpf filter
 bpf = {{ moloch_bpf | default("") }}

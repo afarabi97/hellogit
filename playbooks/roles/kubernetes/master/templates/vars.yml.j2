@@ -1,13 +1,13 @@
-monitor_interface:
+sensor_monitor_interface:
 {% for host in groups['sensors'] %}
   {{ hostvars[host].inventory_hostname }}:
-{% for iface in hostvars[host].monitor_interface %}
+{% for iface in hostvars[host].sensor_monitor_interface %}
     - {{ iface }}
 {% endfor %}
 {% endfor %}
 {% for host in groups['remote-sensors'] %}
   {{ hostvars[host].inventory_hostname }}:
-{% for iface in hostvars[host].monitor_interface %}
+{% for iface in hostvars[host].sensor_monitor_interface %}
     - {{ iface }}
 {% endfor %}
 {% endfor %}

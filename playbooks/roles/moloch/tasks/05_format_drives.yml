@@ -2,7 +2,7 @@
 
 - name: Unmount the drive if it was already mounted
   mount:
-    path: "{{ pcap_folder }}"
+    path: "{{ moloch_pcap_folder }}"
     src: "{{ pcap_disk }}"
     state: unmounted
     fstype: btrfs
@@ -15,7 +15,7 @@
 
 - name: Mount PCAP drive
   mount:
-    path: "{{ pcap_folder }}"
+    path: "{{ moloch_pcap_folder }}"
     src: "{{ pcap_disk }}"
     state: mounted
     fstype: btrfs

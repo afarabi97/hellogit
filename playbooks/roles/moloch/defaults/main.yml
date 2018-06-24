@@ -31,6 +31,6 @@ moloch_pcap_path: "{{ moloch_path }}/raw"
 
 # Kubernetes variables
 moloch_pv_data: "moloch-data"
-pcap_pv_size: "5"
+moloch_pcap_pv_size: "5"
 
 ...
