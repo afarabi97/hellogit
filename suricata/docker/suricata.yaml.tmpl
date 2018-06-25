@@ -52,12 +52,12 @@ vars:
 default-rule-path: /etc/suricata/rules
 rule-files:
  - botcc.rules
- # - botcc.portgrouped.rules
+ - botcc.portgrouped.rules
  - ciarmy.rules
  - compromised.rules
  - drop.rules
  - dshield.rules
-# - emerging-activex.rules
+ - emerging-activex.rules
  - emerging-attack_response.rules
  - emerging-chat.rules
  - emerging-current_events.rules
@@ -65,12 +65,12 @@ rule-files:
  - emerging-dos.rules
  - emerging-exploit.rules
  - emerging-ftp.rules
-# - emerging-games.rules
-# - emerging-icmp_info.rules
-# - emerging-icmp.rules
+ - emerging-games.rules
+ - emerging-icmp_info.rules
+ - emerging-icmp.rules
  - emerging-imap.rules
-# - emerging-inappropriate.rules
-# - emerging-info.rules
+ - emerging-inappropriate.rules
+ - emerging-info.rules
  - emerging-malware.rules
  - emerging-misc.rules
  - emerging-mobile_malware.rules
@@ -79,10 +79,10 @@ rule-files:
  - emerging-policy.rules
  - emerging-pop3.rules
  - emerging-rpc.rules
-# - emerging-scada.rules
-# - emerging-scada_special.rules
+ - emerging-scada.rules
+ # - emerging-scada_special.rules
  - emerging-scan.rules
-# - emerging-shellcode.rules
+ - emerging-shellcode.rules
  - emerging-smtp.rules
  - emerging-snmp.rules
  - emerging-sql.rules
@@ -93,19 +93,19 @@ rule-files:
  - emerging-voip.rules
  - emerging-web_client.rules
  - emerging-web_server.rules
-# - emerging-web_specific_apps.rules
+ - emerging-web_specific_apps.rules
  - emerging-worm.rules
  - tor.rules
-# - decoder-events.rules # available in suricata sources under rules dir
-# - stream-events.rules  # available in suricata sources under rules dir
+ - decoder-events.rules # available in suricata sources under rules dir
+ - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
  - smtp-events.rules    # available in suricata sources under rules dir
  - dns-events.rules     # available in suricata sources under rules dir
  - tls-events.rules     # available in suricata sources under rules dir
-# - modbus-events.rules  # available in suricata sources under rules dir
-# - app-layer-events.rules  # available in suricata sources under rules dir
-# - dnp3-events.rules       # available in suricata sources under rules dir
-# - ntp-events.rules       # available in suricata sources under rules dir
+ - modbus-events.rules  # available in suricata sources under rules dir
+ - app-layer-events.rules  # available in suricata sources under rules dir
+ - dnp3-events.rules       # available in suricata sources under rules dir
+ # - ntp-events.rules       # available in suricata sources under rules dir
 
 classification-file: /etc/suricata/classification.config
 reference-config-file: /etc/suricata/reference.config
@@ -123,7 +123,7 @@ default-log-dir: /var/log/suricata/
 
 # global stats configuration
 stats:
-  enabled: yes
+  enabled: no
   # The interval field (in seconds) controls at what interval
   # the loggers are invoked.
   interval: 8
@@ -132,7 +132,7 @@ stats:
 outputs:
   # a line based alerts log similar to Snort's fast.log
   - fast:
-      enabled: yes
+      enabled: no
       filename: fast.log
       append: yes
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
@@ -141,7 +141,8 @@ outputs:
   - eve-log:
       enabled: yes
       filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
-      filename: eve.json
+      filename: eve-%Y-%m-%d-%H-%M.json
+      rotate-interval: minute
       #prefix: "@cee: " # prefix to prepend to each log entry
       # the following are valid when type: syslog above
       #identity: "suricata"
@@ -237,15 +238,15 @@ outputs:
             # to yes
             #md5: [body, subject]
 
-        #- dnp3
-        #- nfs
+        - dnp3
+        - nfs
         - ssh
         - stats:
             totals: yes       # stats for all threads merged together
             threads: no       # per thread stats
             deltas: no        # include delta values
         # bi-directional flows
-        - flow
+        #- flow
         # uni-directional flows
         #- netflow
         # Vars log flowbits and other packet and flow vars
@@ -544,7 +545,7 @@ logging:
 
 # Linux high speed capture support
 af-packet:
-{% for iface in monitor_interfaces[host] %}
+{% for iface in monitor_interface[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # Number of receive threads. "auto" uses the number of cores
     #threads: auto
@@ -631,7 +632,7 @@ af-packet:
 
 # Cross platform libpcap capture support
 pcap:
-{% for iface in monitor_interfaces[host] %}
+{% for iface in monitor_interface[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # On Linux, pcap will try to use mmaped capture and will use buffer-size
     # as total of memory used by the ring. So set this to something bigger
@@ -879,7 +880,7 @@ app-layer:
       # If the limit is reached, app-layer-event:modbus.flooded; will match.
       #request-flood: 500
 
-      enabled: no
+      enabled: yes
       detection-ports:
         dp: 502
       # According to MODBUS Messaging on TCP/IP Implementation Guide V1.0b, it
@@ -893,13 +894,13 @@ app-layer:
 
     # DNP3
     dnp3:
-      enabled: no
+      enabled: yes
       detection-ports:
         dp: 20000
 
     # SCADA EtherNet/IP and CIP protocol support
     enip:
-      enabled: no
+      enabled: yes
       detection-ports:
         dp: 44818
         sp: 44818

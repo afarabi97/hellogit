@@ -10,6 +10,10 @@ RUN yum -y install suricata && \
     rm -rf /var/cahce/yum &&\
     find /var/log -type f -delete
 
+RUN curl -L -O https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz && \
+    tar -zxf emerging.rules.tar.gz -C /etc/suricata && \
+    rm emerging.rules.tar.gz
+
 COPY filebeat.yml.conf /etc/icdm/conf/
 COPY filebeat.yml.tmpl /etc/icdm/templates/
 RUN systemctl enable filebeat
@@ -19,3 +23,7 @@ COPY suricata.yaml.conf /etc/icdm/conf/
 COPY suricata.yaml.tmpl /etc/icdm/templates/
 RUN mkdir -p /var/log/suricata
 RUN systemctl enable suricata
+
+COPY crontab /etc/crontab
+COPY rm-suricata-logs.sh /usr/local/bin/rm-suricata-logs.sh
+RUN chmod +x /usr/local/bin/rm-suricata-logs.sh
