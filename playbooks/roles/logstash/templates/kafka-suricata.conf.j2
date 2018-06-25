@@ -5,7 +5,7 @@ input {
     #consumer_threads => 4
     group_id => "suricata_logstash"
     client_id => "logstash-suricata"
-    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
+    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}{% for host in groups['remote-sensors'] %},kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}{% endfor %}"
     codec => json
     auto_offset_reset => "earliest"
   }
@@ -16,23 +16,60 @@ filter {
     drop { }
   }
 
-  #if [message][event_type] == "stats" {
-  #  drop { }
-  #}
-
-  # Remove kafka_topic field
-  mutate {
-    remove_field => [ "kafka_topic" ]
+  json {
+    source => "message"
   }
 
   # Set the timestamp
   date { match => [ "timestamp", "ISO8601" ] }
+
+  # Remove kafka_topic field
+  mutate {
+    copy => { "[beat][hostname]" => "[sensor]" }
+    remove_field => [ "kafka_topic", "message", "beat" ]
+  }
+
+  if [event_type] == "alert" and ([src_port]) and ([dest_port]) {
+    mutate {
+      add_field => {
+           "[@metadata][tags][signature]" => "%{[alert][signature]}"
+           "[@metadata][tags][signature_id]" => "SigID-%{[alert][signature_id]}"
+           "[@metadata][tags][severity]" => "%{[alert][severity]}"
+      }
+    }
+    mutate {
+      gsub => [
+                "[@metadata][tags][signature]"," ","-",
+                "[@metadata][tags][signature_id]"," ","-",
+                "[@metadata][tags][severity]"," ","-"
+              ]
+    }
+    ruby {
+      code => "
+        require 'logstash/event'
+        event.set('[@metadata][startTime]',1000*Time.parse(event.get('[flow][start]')).to_f-1)
+        event.set('[@metadata][stopTime]',1000*Time.parse(event.get('[flow][start]')).to_f+1)
+      "
+    }
+  }
 }
 
 output {
   elasticsearch {
-    hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
+    hosts => ["elasticsearch:9200"]
     index => "suricata-%{+YYYY.MM.dd}"
     manage_template => false
+  }
+
+  if [event_type] == "alert" and ([src_port]) and ([dest_port]) {
+
+    http {
+      http_method => "post"
+      request_timeout => 300
+      url => "http://{{ moloch_login }}:{{ moloch_pass }}@moloch/addTags?startTime=%{[@metadata][startTime]}&stopTime=%{[@metadata][stopTime]}&expression=ip.src%3D%{src_ip}%26%26port.src%3D%{src_port}%26%26ip.dst%3D%{dest_ip}%26%26port.dst%3D%{dest_port}"
+      mapping => {
+       "tags" => "%{[@metadata][tags][signature]},%{[@metadata][tags][signature_id]},severity-%{[@metadata][tags][severity]}"
+      }
+    }
   }
 }

@@ -24,26 +24,26 @@ all:
     # CPU Allocations           #
     #############################
 
-    bro_cpu_limit: 1000m
-    bro_cpu_request: 100m
+    bro_cpu_limit: 20000m
+    bro_cpu_request: 15000m
 
-    moloch_cpu_limit: 1000m
-    moloch_cpu_request: 100m
+    moloch_cpu_limit: 6000m
+    moloch_cpu_request: 5000m
 
-    suricata_cpu_limit: 1000m
-    suricata_cpu_request: 100m
+    suricata_cpu_limit: 2000m
+    suricata_cpu_request: 1000m
 
-    kafka_cpu_limit: 1000m
-    kafka_cpu_request: 100m
+    kafka_cpu_limit: 5000m
+    kafka_cpu_request: 3000m
 
     zookeeper_cpu_limit: 1000m
     zookeeper_cpu_request: 100m
 
-    logstash_cpu_limit: 1000m
-    logstash_cpu_request: 100m
+    logstash_cpu_limit: 5000m
+    logstash_cpu_request: 1000m
 
-    elasticsearch_cpu_limit: 1000m
-    elasticsearch_cpu_request: 100m
+    elasticsearch_cpu_limit: 10000m
+    elasticsearch_cpu_request: 5000m
 
     kibana_cpu_limit: 1000m
     kibana_cpu_request: 100m
@@ -91,15 +91,15 @@ all:
     pcap_pv_size: 0
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
-    moloch_spiDataMaxIndices: 5
+    moloch_spiDataMaxIndices: 20
     moloch_pcapWriteMethod: "simple"
-    moloch_pcapWriteSize: 262143
-    moloch_dbBulkSize: 300000
-    moloch_maxESConns: 30
-    moloch_maxESRequests: 500
-    moloch_packetsPerPoll: 50000
+    moloch_pcapWriteSize: 67108608
+    moloch_dbBulkSize: 1000000
+    moloch_maxESConns: 300
+    moloch_maxESRequests: 1000
+    moloch_packetsPerPoll: 100000
     moloch_magicMode: "libmagic"
-    moloch_maxPacketsInQueue: 200000
+    moloch_maxPacketsInQueue: 2000000
 
     #############################
     # Elasticsearch Settings    #
