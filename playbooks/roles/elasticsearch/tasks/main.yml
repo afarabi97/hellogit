@@ -130,9 +130,15 @@
     kubectl scale statefulset es-master-statefulset --replicas={{ es_replicas }}
   when: node_to_add is defined 
     and node_to_add in groups['elasticsearch']
-    and es_replicas is defined
+    and es_replicas is defined and es_replicas is not none
+  register: es_scale_result
+  changed_when: "es_scale_result.stdout == 'statefulset \"es-master-statefulset\" scaled'"
   tags:
     - es-scale
+
+- debug:
+    msg: "{{ es_scale_result }}"
+  when: es_scale_result is defined and es_scale_result.changed
 
 # - name: Update moloch
 #   shell: |
