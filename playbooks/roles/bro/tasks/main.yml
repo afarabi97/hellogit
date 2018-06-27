@@ -24,11 +24,13 @@
     - networks.cfg.tmpl
     - kafka.bro.tmpl
     - local.bro.tmpl
+    - custom.bro.tmpl
     - broctl.cfg.conf
     - node.cfg.conf
     - networks.cfg.conf
     - kafka.bro.conf
     - local.bro.conf
+    - custom.bro.conf
 
 - name: Install templates
   template:
@@ -51,11 +53,13 @@
     --from-file {{ bro_dir }}/networks.cfg.tmpl \
     --from-file {{ bro_dir }}/kafka.bro.tmpl \
     --from-file {{ bro_dir }}/local.bro.tmpl \
+    --from-file {{ bro_dir }}/custom.bro.tmpl \
     --from-file {{ bro_dir }}/broctl.cfg.conf \
     --from-file {{ bro_dir }}/node.cfg.conf \
     --from-file {{ bro_dir }}/networks.cfg.conf \
     --from-file {{ bro_dir }}/kafka.bro.conf \
-    --from-file {{ bro_dir }}/local.bro.conf
+    --from-file {{ bro_dir }}/local.bro.conf \
+    --from-file {{ bro_dir }}/custom.bro.conf
 
 - name: Flush Deployments
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
@@ -83,7 +87,7 @@
 
 - name: Scale up Bro Deployment
   command: "kubectl scale deployment bro --replicas={{ groups['bro'] | length }}"
-  when: node_to_add is defined 
+  when: node_to_add is defined
     and node_to_add in groups['bro']
   tags:
     - bro-scale
