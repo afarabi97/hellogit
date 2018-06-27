@@ -97,16 +97,6 @@
     - elastichq.yml
     - es-curator_v1beta1.yml
 
-- name: Wait for Elasticsearch to be ready
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "statefulset"
-    namespace: "default"
-    resource_name: "es-master-statefulset"
-    label: ""
-
 - name: Scale up Elasticsearch Statefulset
   shell: |
     kubectl get sts es-master-statefulset --no-headers=true | awk '{ print $2 }'
@@ -125,6 +115,13 @@
   tags:
     - es-scale
 
+- name: create pvc of new es
+  shell: |
+    echo '{"kind":"PersistentVolumeClaim","apiVersion":"v1","metadata":{"name":"data-es-data-2"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"6Gi"}},"storageClassName":"rbd"}}' | kubectl create -f -
+  when: node_to_add is defined 
+    and node_to_add in groups['elasticsearch']
+    and es_replicas is defined and es_replicas is not none
+
 - name: Scale up Elasticsearch Statefulset
   shell: |
     kubectl scale statefulset es-master-statefulset --replicas={{ es_replicas }}
@@ -136,15 +133,22 @@
   tags:
     - es-scale
 
-- debug:
-    msg: "{{ es_scale_result }}"
-  when: es_scale_result is defined and es_scale_result.changed
+- name: Wait for Elasticsearch to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "es-master-statefulset"
+    label: ""
 
-# - name: Update moloch
-#   shell: |
-#     kubectl exec -ti moloch-0 -- /data/moloch/db/db.pl {{ elastic_fqdn }}:{{ elastic_data_port }} upgrade --shards {{ es_replicas }}
-#   when: node_to_add is defined 
-#     and node_to_add in groups['elasticsearch']
-#     and es_replicas is defined
-#   tags:
-#     - es-scale
+- name: Update moloch
+  shell: |
+    kubectl exec -ti moloch-0 -- /data/moloch/db/db.pl {{ elastic_fqdn }}:{{ elastic_data_port }} upgradenoprompt --shards {{ es_replicas }}
+  when: node_to_add is defined 
+    and node_to_add in groups['elasticsearch']
+    and es_scale_result is defined 
+    and es_scale_result.changed
+  tags:
+    - es-scale
