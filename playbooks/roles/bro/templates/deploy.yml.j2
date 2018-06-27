@@ -55,6 +55,8 @@ spec:
             path: kafka.bro.tmpl
           - key: local.bro.tmpl
             path: local.bro.tmpl
+          - key: custom.bro.tmpl
+            path: custom.bro.tmpl
       - name: configs
         configMap:
           name: bro
@@ -69,6 +71,8 @@ spec:
             path: broctl.cfg.conf
           - key: local.bro.conf
             path: local.bro.conf
+          - key: custom.bro.conf
+            path: custom.bro.conf  
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
