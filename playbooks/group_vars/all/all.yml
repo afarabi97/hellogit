@@ -38,6 +38,10 @@ kafka_fqdn: "kafka.{{ fqdn }}"
 kafka_port: 9092
 kafka_retention: 168
 
+# Username and password for Web login
+moloch_login: 'assessor'
+moloch_pass: 'password'
+
 # Common
 package_list:
   #- cockpit

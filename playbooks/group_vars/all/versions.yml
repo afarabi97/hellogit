@@ -21,7 +21,7 @@ kube_images:
   - heketi/heketi
   - portainer/portainer
   - dwharve/scaleio:1.0
-  - tfplenum/bro:1.0
+  - tfplenum/bro
   - tfplenum/moloch
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine

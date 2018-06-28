@@ -169,7 +169,7 @@ filebeat.prospectors:
 output.kafka:
   hosts: ['{{ kafka_fqdn }}:{{ kafka_port }}']
   topic: 'suricata-raw'
-  partition.roud_robin:
+  partition.round_robin:
     reachable_only: true
 
 

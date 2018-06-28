@@ -1,7 +1,7 @@
 {% if remote[host] %}{% set hostname_var = host %}{% set shortname = hostname_var.split('.') %}{% endif %}
 ## Setup Kafka output
 @load Apache/Kafka/logs-to-kafka
-
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG);
 redef Kafka::topic_name = "bro-raw";
 redef Kafka::json_timestamps = JSON::TS_ISO8601;
 redef Kafka::tag_json = T;
