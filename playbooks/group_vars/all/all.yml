@@ -54,6 +54,7 @@ package_list:
   - python-gobject
   - python-docker-py.noarch
   - nload
+  - iperf
 
 # RockNSM
 #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
