@@ -380,8 +380,6 @@ all:
               # - <DISK 1>
               # - <DISK 2>
 
-    # This is used when you add -e reinstall=true to your ansible-playbook command. This has the effect
-    # of resetting kubernetes on all nodes defined below
     nodes_to_remove:
       # Example: (you need to define your own hosts)
       #hosts:
