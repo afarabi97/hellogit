@@ -23,6 +23,7 @@ kube_images:
   - dwharve/scaleio:1.0
   - tfplenum/bro
   - tfplenum/moloch
+  - tfplenum/moloch-viewer
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine
   - tfplenum/kafka:alpine
