@@ -66,7 +66,7 @@ output {
     http {
       http_method => "post"
       request_timeout => 300
-      url => "http://{{ moloch_login }}:{{ moloch_pass }}@moloch/addTags?startTime=%{[@metadata][startTime]}&stopTime=%{[@metadata][stopTime]}&expression=ip.src%3D%{src_ip}%26%26port.src%3D%{src_port}%26%26ip.dst%3D%{dest_ip}%26%26port.dst%3D%{dest_port}"
+      url => "http://{{ moloch_login }}:{{ moloch_pass }}@moloch-viewer/addTags?startTime=%{[@metadata][startTime]}&stopTime=%{[@metadata][stopTime]}&expression=ip.src%3D%{src_ip}%26%26port.src%3D%{src_port}%26%26ip.dst%3D%{dest_ip}%26%26port.dst%3D%{dest_port}"
       mapping => {
        "tags" => "%{[@metadata][tags][signature]},%{[@metadata][tags][signature_id]},severity-%{[@metadata][tags][severity]}"
       }

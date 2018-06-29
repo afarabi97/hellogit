@@ -51,7 +51,6 @@
     - bootstrap.yml
     - deploy.yml
     - deploy-remote.yml
-    - svc.yml
     - svc-viewer.yml
     - moloch-viewer.yml
 
@@ -68,7 +67,6 @@
     - deploy
     - deploy-remote
     - svc-viewer
-    - svc
     - moloch-viewer
 
 - name: "Wait for deployment to cleanup"
@@ -134,7 +132,6 @@
     file_name: "{{ moloch_dir }}/{{ item }}"
   with_items:
     - svc-viewer.yml
-    - svc.yml
     - deploy.yml
     - deploy-remote.yml
     - moloch-viewer.yml
