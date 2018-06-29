@@ -16,7 +16,7 @@ spec:
       labels:
         component: moloch
     spec:
-      hostNetwork: true
+      #hostNetwork: true
       containers:
       - name: "moloch"
         image: "{{ moloch_image}}:{{ moloch_tag }}"
