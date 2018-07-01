@@ -5,7 +5,7 @@ metadata:
   labels:
     component: logstash
 spec:
-  replicas: 1
+  replicas: {{ logstash_replicas }}
   selector:
     matchLabels:
       component: logstash
@@ -23,8 +23,6 @@ spec:
         - name: LS_HOME
           value: "{{ logstash_path }}"
         resources:
-          limits:
-            cpu: {{ logstash_cpu_limit }}
           requests:
             cpu: {{ logstash_cpu_request }}
         volumeMounts:

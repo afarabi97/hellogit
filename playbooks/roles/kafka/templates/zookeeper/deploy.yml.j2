@@ -1,7 +1,7 @@
 ---
 apiVersion: apps/v1
 kind: StatefulSet
-metadata: 
+metadata:
   name: zookeeper
 spec:
   selector:
@@ -11,15 +11,15 @@ spec:
   replicas: {{ zookeeper_replicas }}
   serviceName: zookeeper
   template:
-    metadata: 
-      labels: 
+    metadata:
+      labels:
         component: zookeeper
     spec:
       containers:
       - name: zookeeper
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         imagePullPolicy: IfNotPresent
-        ports: 
+        ports:
         - containerPort: {{ zookeeper_port }}
           name: client
         - containerPort: 2888
@@ -37,15 +37,13 @@ spec:
           periodSeconds: 15
           failureThreshold: 5
         resources:
-          limits:
-            cpu: {{ zookeeper_cpu_limit }}
           requests:
             cpu: {{ zookeeper_cpu_request }}
         volumeMounts:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}
-          name: zookeeper-datalog                       
+          name: zookeeper-datalog
         - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/zoo.cfg"
           subPath: zoo.cfg
@@ -58,7 +56,7 @@ spec:
         - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/java.env"
           subPath: java.env
-        env:        
+        env:
         - name: ZOOKEEPER_PORT
           value: "{{ zookeeper_port }}"
       volumes:

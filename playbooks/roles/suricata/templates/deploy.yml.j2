@@ -26,8 +26,6 @@ spec:
               - NET_RAW
               - SYS_NICE
         resources:
-          limits:
-            cpu: {{ suricata_cpu_limit }}
           requests:
             cpu: {{ suricata_cpu_request }}
         volumeMounts:

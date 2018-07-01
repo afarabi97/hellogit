@@ -114,11 +114,6 @@
     msg: "kibana_cpu_limit is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: kibana_cpu_limit is not defined or kibana_cpu_limit is none
 
-- name: Checking that kibana_cpu_request is set
-  fail:
-    msg: "kibana_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: kibana_cpu_request is not defined or kibana_cpu_request is none
-
 - name: Checking that elastic_memory is set
   fail:
     msg: "elastic_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
@@ -257,17 +252,17 @@
 - name: Ensure ceph_disks is defined when use_ceph_for_pcap
   fail:
     msg: "ceph_disks must be defined when use_ceph_for_pcap is true.  Please review inventory file."
-  when: use_ceph_for_pcap is defined 
+  when: use_ceph_for_pcap is defined
     and use_ceph_for_pcap == true
-    and ceph_disks is not defined 
+    and ceph_disks is not defined
     and ceph_disks is none
 
 - name: Ensure ceph_disks is a list
   fail:
     msg: "ceph_disks must be a list of disks. Please review inventory file."
-  when: use_ceph_for_pcap is defined 
+  when: use_ceph_for_pcap is defined
     and use_ceph_for_pcap == true
-    and ceph_disks is defined 
+    and ceph_disks is defined
     and (ceph_disks is string or ceph_disks is not iterable)
 
 ...

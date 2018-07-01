@@ -31,11 +31,6 @@ spec:
           value: '{{ xpack_license }}'
         - name: XPACK_REPORTING_ENABLED
           value: '{{ xpack_license }}'
-        resources:
-          limits:
-            cpu: {{ kibana_cpu_limit }}
-          requests:
-            cpu: {{ kibana_cpu_request }}
         ports:
         - containerPort: {{ kibana_port }}
           name: http

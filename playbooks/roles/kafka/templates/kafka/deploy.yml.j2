@@ -22,8 +22,6 @@ spec:
         image: {{ kafka_image }}:{{ kafka_ver }}
         imagePullPolicy: IfNotPresent
         resources:
-          limits:
-            cpu: {{ kafka_cpu_limit }}
           requests:
             cpu: {{ kafka_cpu_request }}
         ports:

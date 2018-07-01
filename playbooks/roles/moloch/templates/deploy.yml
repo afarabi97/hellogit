@@ -31,8 +31,6 @@ spec:
           - containerPort: {{ moloch_port }}
             name: webgui
         resources:
-          limits:
-            cpu: {{ moloch_cpu_limit }}
           requests:
             cpu: {{ moloch_cpu_request }}
         volumeMounts:
@@ -70,7 +68,7 @@ spec:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
-              matchExpressions: 
+              matchExpressions:
               - key: component
                 operator: In
                 values:

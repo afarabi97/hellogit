@@ -26,8 +26,6 @@ spec:
               - NET_RAW
               - SYS_NICE
         resources:
-          limits:
-            cpu: {{ bro_cpu_limit }}
           requests:
             cpu: {{ bro_cpu_request }}
         volumeMounts:
@@ -72,7 +70,7 @@ spec:
           - key: local.bro.conf
             path: local.bro.conf
           - key: custom.bro.conf
-            path: custom.bro.conf  
+            path: custom.bro.conf
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

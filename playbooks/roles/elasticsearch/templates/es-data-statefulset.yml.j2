@@ -38,9 +38,6 @@ spec:
             add:
               - IPC_LOCK
         resources:
-          limits:
-            cpu: "{{ elasticsearch_cpu_limit }}"
-            memory: "{{ elastic_memory * 2 }}Gi"
           requests:
             memory: "{{ elastic_memory * 2 }}Gi"
             cpu: "{{ elasticsearch_cpu_request }}"
