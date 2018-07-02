@@ -28,7 +28,8 @@ filter {
         if k[0,1] != '@' && k[0,1] != '_' && k != tags
           logtype = k
           v.each do |ik,iv|
-            event.set('['+ik+']',iv)
+            event.set(ik,iv)
+#event.set('['+ik+']',iv)
           end
         end
       end
@@ -83,6 +84,12 @@ filter {
                   "OTH", "No SYN seen, just midstream traffic (a 'partial connection' that was not later closed)"
                   ]
   }
+
+  mutate {
+   {% for item in bro_csv_data %}
+     rename => {"{{ item['Original Field Label'] }}" => "{{ item['ECS Standard'] }}"}
+   {% endfor %}
+  } 
 }
 
 output {

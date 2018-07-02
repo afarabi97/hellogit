@@ -10,6 +10,12 @@
 #  docker_image:
 #    name: "{{ logstash_image }}:{{ logstash_ver }}"
 
+- name: Include the dictionaries
+  include_vars: "files/ECSDictionarySuricata.yml"
+  
+- name: Include another dictionary
+  include_vars: "files/ECSDictionaryBro.yml"
+
 - name: "Create Logstash directory"
   file:
     path: "{{ logstash_dir }}"
@@ -46,6 +52,15 @@
 - name: Flush ConfigMaps
   command: 'kubectl delete configmap logstash --ignore-not-found=true'
 
+- name: Flush Deployment
+  shell: |
+    kubectl delete -f {{ logstash_dir }}/deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
 - name: Create Main ConfigMap
   shell: |
     kubectl create configmap logstash \
@@ -56,14 +71,6 @@
     --from-file {{ logstash_dir }}/kafka-suricata.conf \
     --from-file {{ logstash_dir }}/kafka-fsf.conf
 
-- name: Flush Deployment
-  shell: |
-    kubectl delete -f {{ logstash_dir }}/deploy.yml --ignore-not-found=true
-    while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-    sleep 5;
 
 - name: Deploy Services
   import_role:
