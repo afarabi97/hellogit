@@ -1,4 +1,13 @@
 ---
+- name:  Remove Repos
+  file:
+    path: "/etc/yum.repos.d/{{ item }}.repo"
+    state: absent
+  with_items:
+  - "{{ CentOS_Repos }}"
+  - epel
+  - epel-testing
+  - rocknsm
 
 - name: "Configure additional offline repos"
   yum_repository:    
@@ -27,11 +36,6 @@
 
 - name: CentOS
   block:
-    - name:  Remove CentOS Repos
-      file:
-        path: "/etc/yum.repos.d/CentOS-{{ item }}.repo"
-        state: absent
-      with_items: "{{ CentOS_Repos }}"
     - name: "Configure CentOS offline repos"
       yum_repository:
         name: "{{ item.value.name }}"
