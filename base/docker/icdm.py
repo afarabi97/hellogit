@@ -9,6 +9,7 @@ import sys
 
 import yaml
 from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
+import time
 
 
 def render(tpl_path, context):
@@ -19,6 +20,7 @@ def render(tpl_path, context):
 
 
 def process(icdm_dir, icdm_vars):
+    reload_cmd_list = []
     for root, directories, filenames in os.walk(icdm_dir):
         for filename in filenames:
             if filename.endswith(".conf"):
@@ -51,14 +53,20 @@ def process(icdm_dir, icdm_vars):
                     os.chown(configvars['dst'], 0, 0)
                     os.chmod(configvars['dst'], 0644)
                     
-                    # Restart Service is defined
+                    # add reload_cmd to list
                     if configvars['reload_cmd']:
-                        os.system(configvars['reload_cmd'])
-
+                        reload_cmd_list.append(configvars['reload_cmd'])
+                    
+    # Restart Service is defined
+    if len(reload_cmd_list) > 0:
+        # Remove duplicates from list
+        reload_cmd_list = list(set(reload_cmd_list))
+        for cmd in reload_cmd_list:
+            os.system(cmd)
+            time.sleep(1)
 
 def usage():
     print 'Usage: icdm.py -d <icdm dir> -v <icdm vars>'
-
 
 if __name__ == "__main__":
     icdm_dir = '/etc/icdm'
