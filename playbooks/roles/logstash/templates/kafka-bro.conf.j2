@@ -16,8 +16,9 @@ filter {
     drop { }
   }
 
+
   # Set the timestamp
-  date { match => [ "ts", "UNIX" ] }
+  
 
   ruby {
     code => "
@@ -28,8 +29,8 @@ filter {
         if k[0,1] != '@' && k[0,1] != '_' && k != tags
           logtype = k
           v.each do |ik,iv|
-            event.set(ik,iv)
-#event.set('['+ik+']',iv)
+#event.set(ik,iv)
+            event.set('['+ik+']',iv)
           end
         end
       end
@@ -38,6 +39,12 @@ filter {
     "
   }
 
+  date { 
+    match => [ "ts","ISO8601","yyyy-MM-dd'T'HH:mm:ss.SSSZ" ]
+    add_tag => [ "bro_timestamp" ]
+    #add_field => {" wafflesthedoggo" => "goodgirle"}
+  }
+  
   if [source] == "communication" or [source] == "stats" or [source] == "capture_loss" {
     drop { }
   }
