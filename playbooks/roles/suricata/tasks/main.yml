@@ -28,8 +28,10 @@
   with_items:
     - suricata.yaml.tmpl
     - filebeat.yml.tmpl
+    - custom.rules.tmpl
     - suricata.yaml.conf
     - filebeat.yml.conf
+    - custom.rules.conf
 
 - name: Install templates
   template:
@@ -47,7 +49,8 @@
     kubectl create configmap suricata --from-file={{ suricata_dir }}/suricata.yaml.tmpl \
       --from-file={{ suricata_dir }}/filebeat.yml.tmpl \
       --from-file={{ suricata_dir }}/suricata.yaml.conf \
-      --from-file={{ suricata_dir }}/filebeat.yml.conf
+      --from-file={{ suricata_dir }}/filebeat.yml.conf \
+      --from-file={{ suricata_dir }}/custom.rules.conf 
 
 - name: Deploy
   shell: |

@@ -47,6 +47,8 @@ spec:
             path: suricata.yaml.conf
           - key: filebeat.yml.conf
             path: filebeat.yml.conf
+          - key: custom.rules.conf
+            path: custom.rules.conf
       - name: templates
         configMap:
           name: suricata
@@ -55,6 +57,8 @@ spec:
             path: suricata.yaml.tmpl
           - key: filebeat.yml.tmpl
             path: filebeat.yml.tmpl
+          - key: custom.rules.tmpl
+            path: custom.rules.tmpl  
       nodeSelector:
         suricata: "true"
       affinity:
