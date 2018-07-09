@@ -39,7 +39,7 @@ spec:
               - IPC_LOCK
         resources:
           requests:
-            memory: "{{ elastic_memory * 2 }}Gi"
+            memory: "{{ elastic_memory }}Gi"
             cpu: "{{ elasticsearch_cpu_request }}"
         env:
         - name: NAMESPACE
