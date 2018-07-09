@@ -69,11 +69,11 @@ harbor_port: 81
 harbor_project: "library"
 harbor_repo: "{{ ansible_controller_ip }}:{{ harbor_port }}/library"
 CentOS_Repos:
-  - "Base"
-  - "CR"
-  - "Debuginfo"
-  - "fasttrack"
-  - "Media"
-  - "Sources"
-  - "Vault"
+  - "CentOS-Base"
+  - "CentOS-CR"
+  - "CentOS-Debuginfo"
+  - "CentOS-fasttrack"
+  - "CentOS-Media"
+  - "CentOS-Sources"
+  - "CentOS-Vault"
 ...
