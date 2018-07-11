@@ -1,10 +1,16 @@
 ---
 
+- name: Stop Kubelet (if it is running)
+  service:
+    name: kubelet
+    state: stopped
+  ignore_errors: yes
+
 - name: Stop Docker
   service:
     name: docker
     state: stopped
-    
+
 - name: Clear docker dir
   file:
     path: "/var/lib/docker"
