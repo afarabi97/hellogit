@@ -18,8 +18,7 @@ kube_images:
   - busybox:{{busybox_version}}
   - metallb/controller:{{metallb_version}}
   - metallb/speaker:{{metallb_version}}
-  - heketi/heketi
-  - portainer/portainer
+  - heketi/heketi  
   - dwharve/scaleio:1.0
   - tfplenum/bro
   - tfplenum/moloch
@@ -29,8 +28,6 @@ kube_images:
   - tfplenum/kafka:alpine
   - tfplenum/kafka-manager:alpine
   - tfplenum/elasticsearch:{{ elastic_version }}
-  - tfplenum/kube-state-metrics-amd64:{{kube_state_version}}
-  - tfplenum/kube-state-metrics:{{kube_state_version}}
   - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
   - docker.elastic.co/kibana/kibana:{{ elastic_version }}
@@ -46,8 +43,7 @@ kube_images:
   - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_version}}
   - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_version}}
   - gcr.io/google_containers/pause-amd64:3.0
-  - k8s.gcr.io/addon-resizer:1.7
-  - k8s.gcr.io/redis
+  - k8s.gcr.io/addon-resizer:1.7 
   - k8s.gcr.io/heapster-amd64:v1.4.2
   - k8s.gcr.io/heapster-grafana-amd64:v4.4.3
   - k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
