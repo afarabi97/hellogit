@@ -50,7 +50,8 @@
       --from-file={{ suricata_dir }}/filebeat.yml.tmpl \
       --from-file={{ suricata_dir }}/suricata.yaml.conf \
       --from-file={{ suricata_dir }}/filebeat.yml.conf \
-      --from-file={{ suricata_dir }}/custom.rules.conf 
+      --from-file={{ suricata_dir }}/custom.rules.conf \
+      --from-file={{ suricata_dir }}/custom.rules.tmpl
 
 - name: Deploy
   shell: |
