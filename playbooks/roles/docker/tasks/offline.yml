@@ -1,16 +1,25 @@
 ---
 
+- name: Stop Docker
+  service:
+    name: docker
+    state: stopped
+    
+- name: Clear docker dir
+  file:
+    path: "/var/lib/docker"
+    state: absent
+
 - name: Add docker config
   template:
     src: templates/daemon.json.j2
     dest: "/etc/docker/daemon.json"
   register: docker_config
 
-- name: Restart Docker
+- name: Start Docker
   service:
     name: docker
-    state: restarted
-  when: docker_config.changed
+    state: started
 
 - name: 'Download images from harbor'
   docker_image:
