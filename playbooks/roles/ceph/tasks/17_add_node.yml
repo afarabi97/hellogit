@@ -50,10 +50,13 @@
   when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
 - name: Debugging
-  msg: {{ osd_results.results }}
+  msg: "{{ osd_results.results }}"
 
 - set_fact:
     osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
+
+- name: Debugging
+  msg: "{{ osd_count }}"    
 
 - name: Increase Placement Groups
   shell: |
