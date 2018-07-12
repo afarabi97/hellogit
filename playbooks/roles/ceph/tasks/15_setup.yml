@@ -76,17 +76,9 @@
   loop: "{{ groups['ceph'] }}"
   when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
-- debug:
-    msg: "{{ osd_count }}"
-
-- debug:
-    msg: "{{ osd_results.results }}"
-
-- set_fact:
-    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
-
-- debug:
-    msg: "{{ osd_count }}"
+# I believe this line is causing problems. I am commenting it out to test.
+#- set_fact:
+#    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
 - name: Create Pool
   shell: ceph osd pool create rbd {{ osd_count | int * 32 }} {{ osd_count | int * 32 }} replicated
