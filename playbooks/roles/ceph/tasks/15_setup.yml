@@ -76,19 +76,16 @@
   loop: "{{ groups['ceph'] }}"
   when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
-- name: Debugging
-  debug:
+- debug:
     msg: "{{ osd_count }}"
 
-- name: Debugging
-  debug:
+- debug:
     msg: "{{ osd_results.results }}"
 
 - set_fact:
     osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
-- name: Debugging
-  debug:
+- debug:
     msg: "{{ osd_count }}"
 
 - name: Create Pool
