@@ -60,7 +60,7 @@ spec:
           value: "false"
         - name: HTTP_ENABLE
           value: "false"
-        - name: ELASTIC_JAVA_OPTS
+        - name: ES_JAVA_OPTS
           value: -Xms{{ elastic_memory // 2 }}g -Xmx{{ elastic_memory // 2 }}g
         ports:
         - containerPort: {{ elastic_data_port }}
