@@ -25,6 +25,7 @@ kube_images:
   - tfplenum/zookeeper:alpine
   - tfplenum/kafka:alpine
   - tfplenum/kafka-manager:alpine
+  - tfplenum/elasticsearch:{{ elastic_version }}
   - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
   - docker.elastic.co/kibana/kibana:{{ elastic_version }}
