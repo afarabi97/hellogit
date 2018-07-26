@@ -18,8 +18,6 @@ kube_images:
   - busybox:{{busybox_version}}
   - metallb/controller:{{metallb_version}}
   - metallb/speaker:{{metallb_version}}
-  - heketi/heketi  
-  - dwharve/scaleio:1.0
   - tfplenum/bro
   - tfplenum/moloch
   - tfplenum/moloch-viewer
