@@ -67,15 +67,19 @@ output {
     manage_template => false
   }
 
-  if [event_type] == "alert" and ([src_port]) and ([dest_port]) {
-
-    http {
-      http_method => "post"
-      request_timeout => 300
-      url => "http://{{ moloch_login }}:{{ moloch_pass }}@moloch-viewer/addTags?startTime=%{[@metadata][startTime]}&stopTime=%{[@metadata][stopTime]}&expression=ip.src%3D%{src_ip}%26%26port.src%3D%{src_port}%26%26ip.dst%3D%{dest_ip}%26%26port.dst%3D%{dest_port}"
-      mapping => {
-       "tags" => "%{[@metadata][tags][signature]},%{[@metadata][tags][signature_id]},severity-%{[@metadata][tags][severity]}"
-      }
-    }
-  }
+#  if [event_type] == "alert" and ([src_port]) and ([dest_port]) {
+#
+#    http {
+#      http_method => "post"
+#      request_timeout => 300
+#
+# BUG: The URL below will not be generated correctly after most reboots, and if this URL
+#      gets made incorrectly it will repeatedly fail and stall all logstash pipelines
+#
+#      url => "http://{{ moloch_login }}:{{ moloch_pass }}@moloch-viewer/addTags?startTime=%{[@metadata][startTime]}&stopTime=%{[@metadata][stopTime]}&expression=ip.src%3D%{src_ip}%26%26port.src%3D%{src_port}%26%26ip.dst%3D%{dest_ip}%26%26port.dst%3D%{dest_port}"
+#      mapping => {
+#       "tags" => "%{[@metadata][tags][signature]},%{[@metadata][tags][signature_id]},severity-%{[@metadata][tags][severity]}"
+#      }
+#    }
+#  }
 }
