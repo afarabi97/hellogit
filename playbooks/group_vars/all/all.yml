@@ -41,6 +41,7 @@ package_list:
   - python-docker-py.noarch
   - nload
   - iperf
+  - python-netaddr
 
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 
