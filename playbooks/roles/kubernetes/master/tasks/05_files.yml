@@ -21,7 +21,6 @@
     - kube-flannel
     - dashboard
     - vars
-    - kube_dns_config_map
 
 - name: Vars Config Map
   template:
