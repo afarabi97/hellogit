@@ -425,4 +425,28 @@
 #  tags:
 #    - docket
 
+- name: Enable sensor_monitor_interface
+  hosts:
+    - sensors
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  tasks:
+    - name: Set on boot to yes
+      replace:
+        path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+        regexp: "ONBOOT=no"
+        replace: "ONBOOT=yes"
+      with_items: "{{ sensor_monitor_interface }}"
+    - name: set bootproto to link-local
+      replace:
+        path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+        regexp: "BOOTPROTO=none"
+        replace: "BOOTPROTO=autoip"
+      with_items: "{{ sensor_monitor_interface }}"
+  tags:
+    - enable-sensor-monitor-interface
+
 ...
