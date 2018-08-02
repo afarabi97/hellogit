@@ -1,0 +1,26 @@
+---
+
+- name: Get elasticsearch indices
+  uri:
+    url: "{{ elastic_uri }}/_cat/indices?v&format=json"
+  register: elasticsearch_indices
+
+- name: Test | Verify bro index is available in elasticsearch
+  assert:
+    that: 
+    - "'bro' in item.index"
+    - "'green' in item.health"
+    msg: "Bro index verification has failed. Bro index health is {{ item.health }}."
+  with_items: "{{ elasticsearch_indices.json }}"
+  when: "'bro' in item.index"
+
+- name: Test | Verify suricata index is available in elasticsearch
+  assert:
+    that: 
+    - "'suricata' in item.index"
+    - "'green' in item.health"
+    msg: "Suricata index verification has failed.  Suricata index health is {{ item.health }}."
+  with_items: "{{ elasticsearch_indices.json }}"
+  when: "'suricata' in item.index"
+
+...

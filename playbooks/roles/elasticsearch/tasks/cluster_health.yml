@@ -1,0 +1,13 @@
+---
+
+- name: Get elasticsearch cluster health
+  uri:
+    url: "{{ elastic_uri }}/_cluster/health"
+  register: elasticsearch_health_result
+
+- name: Test | Elasticsearch cluster should be green
+  assert:
+    that: elasticsearch_health_result.json.status == 'green'
+    msg: "Elasticsearch cluster health check failed.  ES Cluster is currently {{ elasticsearch_health_result.json.status }}."
+
+...

@@ -1,0 +1,46 @@
+---
+
+- name: Get Elasticsearch External Ip
+  shell: |
+    kubectl get service elasticsearch --no-headers=true | grep -v '<none>'  | awk '{ print $4 }'
+  register: elasticsearch_ip
+  when:  inventory_hostname in groups['master-server'] 
+  changed_when: elasticsearch_ip.failed
+
+- name: Get Elasticsearch port
+  shell: |
+    port_tmp=`kubectl get service elasticsearch --no-headers=true | grep -v '<none>'  | awk '{ print $5 }'`
+    echo $port_tmp | awk -F : '{ print $1 }'
+  register: elasticsearch_port
+  when: inventory_hostname in groups['master-server'] 
+  changed_when: elasticsearch_port.failed
+
+- name: set elastic url
+  set_fact:
+    elastic_uri: "http://{{ elasticsearch_ip.stdout }}:{{ elasticsearch_port.stdout }}"
+  when: inventory_hostname in groups['master-server']
+
+- name: set elastic url
+  set_fact:
+    elastic_uri: "{{ hostvars[item].elastic_uri }}"
+  with_items: "{{ groups['master-server'] }}"
+
+- name: Test | Elastic uri variable
+  assert:
+    that: 
+    - elastic_uri is defined
+    - elastic_uri != ""
+    msg: "Unable to get Elasticsearch uri: {{ elastic_uri }}"
+
+- name: Get elasticsearch main page
+  uri:
+    url: "{{ elastic_uri }}"
+  register: elasticsearch_result
+
+- name: Test | Elastichsearch service and port
+  assert:
+    that:  elasticsearch_result.status == 200
+    msg: "Elasticsearch responded with {{ elasticsearch_result.status }} status code instead of 200."
+
+
+...
