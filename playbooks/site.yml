@@ -44,4 +44,13 @@
     - elasticsearch
   tags: elasticsearch
 
+- name: Validate Bro
+  hosts:
+  - master-server
+  gather_facts: no
+  any_errors_fatal: true  
+  roles:
+    - bro
+  tags: bro
+
 ...

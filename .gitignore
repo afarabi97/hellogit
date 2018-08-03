@@ -31,3 +31,4 @@ playbooks/files/join-node.sh
 playbooks/inventory/dev/*
 playbooks/inventory.yml
 .remote-sync.json
+*.pyc
