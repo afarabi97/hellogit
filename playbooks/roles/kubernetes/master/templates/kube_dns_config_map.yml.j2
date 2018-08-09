@@ -12,4 +12,4 @@ data:
   stubDomains: |
     {{'{'}}"lan": [{{'"'}}{{ dns_ip }}{{'"'}}]{{'}'}}
   upstreamNameservers: |
-    ["8.8.8.8", "8.8.4.4"]
+    ["{{ hostvars[groups['master-server'][0]].management_ipv4 }}"]
