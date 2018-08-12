@@ -1,3 +1,8 @@
+
+scripts/\.idea/
+
+\.remote-sync\.json
+
 *#
 *.iso
 *.pcap
