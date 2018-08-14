@@ -15,18 +15,18 @@
       fail:
         msg: "Missing node_to_add variable or NODE option.  To run add-node using make use the following: make add-node NODE=<node fqdn>"
       when: node_to_add is defined and node_to_add == 'NONE'
-    
+
     - name: Check nodes to add
       fail:
         msg: "{{ node_to_add }} is not defined in inventory.  Add {{ node_to_add }} to inventory."
       when: node_to_add is defined and node_to_add not in groups['nodes']
-    
+
     - name: check if kubelet installed
       stat:
         path: "/usr/bin/kubelet"
       register: kubelet_stat_result
       when: node_to_add is defined
-    
+
     - name: Fail if kubelet doesnt exists
       fail:
         msg: "Cannot find a k8s cluster.  Run make to deploy system."
@@ -38,14 +38,14 @@
       when: node_to_add is defined
         and kubelet_stat_result.stat.exists
       register: node_list
-    
+
     - name: Check if nodes in nodes to remove is in node_list
       fail:
         msg: "{{ node_to_add }} node is already joined to k8s cluster.  To re-add {{ node_to_add }} you will need to remove the node first by adding to nodes_to_remove group."
-      when: node_to_add is defined 
-        and node_list is defined 
+      when: node_to_add is defined
+        and node_list is defined
         and node_to_add in node_list.stdout
-  tags: preflight-add-node 
+  tags: preflight-add-node
 
 - name: Disable firewalld
   hosts:
@@ -109,7 +109,7 @@
       name: NetworkManager
       state: restarted
     when: network_manager_result.changed
-  tags: 
+  tags:
     - dnsmasq
     - update-networkmanager
 
@@ -144,7 +144,7 @@
       owner: root
       group: root
       mode: 0644
-      state: directory       
+      state: directory
 
 - name: dnsmasq
   hosts:
@@ -204,7 +204,7 @@
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
     ssh_known_hosts: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
 
-    # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff), 
+    # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
     # feeds it into map, which then
     # performs a regex_replace on each element. The regex_replace replaces .lan in each
     # element to nothing or ''. Finally, we feed that back into list because Ansible
@@ -288,7 +288,7 @@
     - master-server
     - servers
     - sensors
-    - remote-sensors  
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -440,13 +440,15 @@
         regexp: "ONBOOT=no"
         replace: "ONBOOT=yes"
       with_items: "{{ sensor_monitor_interface }}"
-    - name: set bootproto to link-local
+    - name: Set bootproto to link-local
       replace:
         path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
         regexp: "BOOTPROTO=none"
         replace: "BOOTPROTO=autoip"
       with_items: "{{ sensor_monitor_interface }}"
+    - name: Set interface to promiscuous mode
+      shell: "ip link set {{ item }} promisc on"
+      with_items: "{{ sensor_monitor_interface }}"            
   tags:
     - enable-sensor-monitor-interface
-
 ...
