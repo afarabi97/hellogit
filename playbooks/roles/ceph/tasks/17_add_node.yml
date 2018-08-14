@@ -49,8 +49,8 @@
   loop: "{{ groups['ceph'] }}"
   when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
-- set_fact:
-    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
+#- set_fact:
+#    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
 - name: Increase Placement Groups
   shell: |
