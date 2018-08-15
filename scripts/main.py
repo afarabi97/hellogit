@@ -16,7 +16,7 @@ import requests
 import urllib3
 from vmware.vapi.vsphere.client import create_vsphere_client
 
-from VM import Test_VM
+from VM import Deployer_VM
 
 def main():
 
@@ -37,11 +37,12 @@ def main():
     # List all VMs inside the vCenter Server
     #print(vsphere_client.vcenter.VM.list())
 
-    create_exhaustive_vm = Test_VM(client=vsphere_client)
-    create_exhaustive_vm.cleanup()
-    create_exhaustive_vm.run()
-    if create_exhaustive_vm.cleardata:
-        create_exhaustive_vm.cleanup()
+    create_deployer_vm = Deployer_VM(client=vsphere_client)
+    create_deployer_vm.cleanup()
+    create_deployer_vm.run()
+    if create_deployer_vm.cleardata:
+        create_deployer_vm.cleanup()
+    create_deployer_vm.power_on()
 
 
 if __name__ == '__main__':

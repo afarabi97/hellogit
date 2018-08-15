@@ -52,25 +52,29 @@ config["VM_DATACENTER_NAME"] = config["DATACENTER1_NAME"]
 config["VM_DATASTORE_NAME"] = config["ESX_HOST1_VMFS_DATASTORE"]
 
 # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
-config["VM_GUESTOS"] = "WINDOWS_9_64"
+config["VM_GUESTOS"] = "RHEL_7_64"
 
-config["VM_NAME_DEFAULT"] = "Sample_Default_VM_for_Simple_Testbed"
-config["VM_NAME_BASIC"] = "Sample_Basic_VM_for_Simple_Testbed"
-config["VM_NAME_EXHAUSTIVE"] = "Sample_Exhaustive_VM_for_Simple_Testbed"
+#config["VM_NAME_DEFAULT"] = "Sample_Default_VM_for_Simple_Testbed"
+#config["VM_NAME_BASIC"] = "Sample_Basic_VM_for_Simple_Testbed"
+#config["VM_NAME_EXHAUSTIVE"] = "Sample_Exhaustive_VM_for_Simple_Testbed"
+config["VM_NAME_EXHAUSTIVE"] = "Deployer Test VM"
 
 config["BACKENDS_DATACENTER_NAME"] = config["VM_DATACENTER_NAME"]
 
 # Root datastore path where VM backend files not will be created for the
 # samples
-config["BACKENDS_DATASTORE_ROOT_PATH"] = "[{}] Sample_Backends".format(config["VM_DATASTORE_NAME"])
+#config["BACKENDS_DATASTORE_ROOT_PATH"] = "[{}] Sample_Backends".format(config["VM_DATASTORE_NAME"])
+config["BACKENDS_DATASTORE_ROOT_PATH"] = "[{}]".format(config["VM_DATASTORE_NAME"])
 
 config["DISK_DATACENTER_NAME"] = config["VM_DATACENTER_NAME"]
 config["DISK_DATASTORE_ROOT_PATH"] = config["BACKENDS_DATASTORE_ROOT_PATH"] + "/disk"
 
 config["ISO_SRC_URL"] = "https://dl.bintray.com/vmware/photon/iso/1.0TP2/x86_64/photon-minimal-1.0TP2.iso"
 config["ISO_DATACENTER_NAME"] = config["VM_DATACENTER_NAME"]
-config["ISO_DATASTORE_ROOT_PATH"] = config["BACKENDS_DATASTORE_ROOT_PATH"] + "/iso"
-config["ISO_DATASTORE_PATH"] = config["ISO_DATASTORE_ROOT_PATH"] + "/photonOS.iso"
+#config["ISO_DATASTORE_ROOT_PATH"] = config["BACKENDS_DATASTORE_ROOT_PATH"] + "/iso"
+#config["ISO_DATASTORE_PATH"] = config["ISO_DATASTORE_ROOT_PATH"] + "/photonOS.iso"
+config["ISO_DATASTORE_ROOT_PATH"] = config["BACKENDS_DATASTORE_ROOT_PATH"] + "/ISOs"
+config["ISO_DATASTORE_PATH"] = config["ISO_DATASTORE_ROOT_PATH"] + "/rhel-server-7.5-x86_64-dvd.iso"
 
 config["SERIAL_PORT_DATACENTER_NAME"] = config["VM_DATACENTER_NAME"]
 config["SERIAL_PORT_DATASTORE_ROOT_PATH"] = config["BACKENDS_DATASTORE_ROOT_PATH"] + "/serial"
