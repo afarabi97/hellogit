@@ -32,7 +32,7 @@ def main():
 
     # Connect to a vCenter Server using username and password
     vsphere_client = create_vsphere_client(server='172.16.70.5',
-    username='administrator@vcenter.lan', password='', session=session)
+    username='test', password='test', session=session)
 
     # List all VMs inside the vCenter Server
     #print(vsphere_client.vcenter.VM.list())

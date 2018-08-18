@@ -16,13 +16,13 @@ __copyright__ = 'Copyright 2016 VMware, Inc. All rights reserved.'
 
 config = {}
 config["SERVER"] = "172.16.70.5"
-config["USERNAME"] = "administrator@vcenter.lan"
-config["PASSWORD"] = ""
+config["USERNAME"] = "test"
+config["PASSWORD"] = "test"
 
 config["ESX_HOST1"] = "172.16.70.6"
 config["ESX_HOST2"] = "172.16.70.7"
-config["ESX_USER"] = "root"
-config["ESX_PASS"] = ""
+config["ESX_USER"] = "test"
+config["ESX_PASS"] = "test"
 
 config["USE_NFS"] = False
 config["NFS_HOST"] = ""

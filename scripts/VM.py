@@ -19,6 +19,8 @@ from vsphere.vcenter.helper import vm_placement_helper
 from vsphere.vcenter.helper.vm_helper import get_vm
 from vsphere.vcenter.setup import testbed
 
+import yaml
+
 # This is the class from which all other VM types will inherit
 class Test_VM(object):
         """
@@ -235,19 +237,6 @@ class Test_VM(object):
 
 
 class Deployer_VM(object):
-    """
-    Demonstrates how to create a exhaustive VM with the below configuration:
-    3 disks, 2 nics, 2 vcpu, 2 GB, memory, boot=BIOS, 1 cdrom, 1 serial port,
-    1 parallel port, 1 floppy, boot_device=[CDROM, DISK, ETHERNET])
-    Sample Prerequisites:
-        - datacenter
-        - vm folder
-        - resource pool
-        - datastore
-        - standard switch network
-        - distributed switch network
-        - An iso file on the datastore mentioned above
-    """
 
     def __init__(self, client=None, placement_spec=None,
                  standard_network=None, distributed_network=None):
@@ -305,31 +294,6 @@ class Deployer_VM(object):
                 dv_portgroup_name,
                 datacenter_name)
 
-        """
-        Create an exhaustive VM.
-        Using the provided PlacementSpec, create a VM with a selected Guest OS
-        and provided name.
-        Create a VM with the following configuration:
-        * Hardware Version = VMX_11 (for 6.0)
-        * CPU (count = 2, coresPerSocket = 2, hotAddEnabled = false,
-        hotRemoveEnabled = false)
-        * Memory (size_mib = 2 GB, hotAddEnabled = false)
-        * 3 Disks and specify each of the HBAs and the unit numbers
-          * (capacity=40 GB, name=<some value>, spaceEfficient=true)
-        * Specify 2 ethernet adapters, one using a Standard Portgroup backing and
-        the
-          other using a DISTRIBUTED_PORTGROUP networking backing.
-          * nic1: Specify Ethernet (macType=MANUAL, macAddress=<some value>)
-          * nic2: Specify Ethernet (macType=GENERATED)
-        * 1 CDROM (type=ISO_FILE, file="os.iso", startConnected=true)
-        * 1 Serial Port (type=NETWORK_SERVER, file="tcp://localhost/16000",
-        startConnected=true)
-        * 1 Parallel Port (type=HOST_DEVICE, startConnected=false)
-        * 1 Floppy Drive (type=CLIENT_DEVICE)
-        * Boot, type=BIOS
-        * BootDevice order: CDROM, DISK, ETHERNET
-        Use guest and system provided defaults for remaining configuration settings.
-        """
         guest_os = testbed.config['VM_GUESTOS']
         iso_datastore_path = testbed.config['ISO_DATASTORE_PATH']
         serial_port_network_location = \
@@ -356,17 +320,7 @@ class Deployer_VM(object):
                                                              capacity=20 * GiB)),
                 Disk.CreateSpec(new_vmdk=Disk.VmdkCreateSpec(name='data1',
                                                              capacity=20 * GiB))
-                #Disk.CreateSpec(new_vmdk=Disk.VmdkCreateSpec(name='data2',
-                #                                             capacity=10 * GiB))
-            ],
             nics=[
-                #Ethernet.CreateSpec(
-                #    start_connected=True,
-                #    mac_type=Ethernet.MacAddressType.MANUAL,
-                #    mac_address='11:23:58:13:21:34',
-                #    backing=Ethernet.BackingSpec(
-                #        type=Ethernet.BackingType.STANDARD_PORTGROUP,
-                #        network=self.standard_network)),
                 Ethernet.CreateSpec(
                     start_connected=True,
                     mac_type=Ethernet.MacAddressType.GENERATED,
@@ -381,27 +335,6 @@ class Deployer_VM(object):
                                               iso_file=iso_datastore_path)
                 )
             ],
-            #serial_ports=[
-            #    Serial.CreateSpec(
-            #        start_connected=False,
-            #        backing=Serial.BackingSpec(
-            #            type=Serial.BackingType.NETWORK_SERVER,
-            #            network_location=serial_port_network_location)
-            #    )
-            #],
-            #parallel_ports=[
-            #    Parallel.CreateSpec(
-            #        start_connected=False,
-            #        backing=Parallel.BackingSpec(
-            #            type=Parallel.BackingType.HOST_DEVICE)
-            #    )
-            #],
-            #floppies=[
-            #    Floppy.CreateSpec(
-            #        backing=Floppy.BackingSpec(
-            #            type=Floppy.BackingType.CLIENT_DEVICE)
-            #    )
-            #],
             boot=Boot.CreateSpec(type=Boot.Type.BIOS,
                                  delay=0,
                                  enter_setup_mode=False

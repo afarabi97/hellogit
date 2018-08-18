@@ -3,6 +3,11 @@ scripts/\.idea/
 
 \.remote-sync\.json
 
+scripts/VMs\.yml
+
+\.idea/
+
+venv
 *#
 *.iso
 *.pcap
