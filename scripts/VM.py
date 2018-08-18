@@ -2,7 +2,7 @@
 __author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
-from vmware.vapi.vsphere.client import create_vsphere_client
+from vmware.vapi.vsphere.client import VsphereClient
 from com.vmware.vcenter.vm.hardware.boot_client import Device as BootDevice
 from com.vmware.vcenter.vm.hardware_client import (
     Cpu, Memory, Disk, Ethernet, Cdrom, Boot)
@@ -21,48 +21,48 @@ from vsphere.vcenter.setup import testbed
 
 class Virtual_Machine(object):
 
-    def __init__(self, client, placement_spec=None,
-                 standard_network=None, distributed_network=None):
+    def __init__(self, client: VsphereClient, vm_spec: dict, vm_name: str):
+
+
+    #, placement_spec=None,
+    #             standard_network=None, distributed_network=None):
+        """
+        Initializes a virtual machine object
+
+        :param client (VsphereClient): a vCenter server client
+        :param vm_spec (dict): The schema of a virtual machine
+        :param vm_name (str): The name of the virtual machine
+        :return:
+        """
+
         self.client = client
-        self.placement_spec = placement_spec
-        self.standard_network = standard_network
-        self.distributed_network = distributed_network
-        self.vm_name = testbed.config['VM_NAME_EXHAUSTIVE']
+
+        # Get a placement spec
+        self.placement_spec = vm_placement_helper.get_placement_spec_for_resource_pool(
+            self.client,
+            vm_spec["storage_options"]["datacenter"],
+            vm_spec["storage_options"]["folder"],
+            vm_spec["storage_options"]["datastore"])
+
+        # Get a standard network backing
+        self.standard_network = network_helper.get_standard_network_backing(
+            self.client,
+            vm_spec["networking"]["std_portgroup_name"],
+            vm_spec["storage_options"]["datacenter"])
+
+        # Get a distributed network backing
+        self.distributed_network = network_helper.get_distributed_network_backing(
+            self.client,
+            vm_spec["networking"]["dv_portgroup_name"],
+            vm_spec["storage_options"]["datacenter"])
+
+        self.vm_name = vm_name
         self.cleardata = None
 
     def run(self):
-        # Get a placement spec
-        datacenter_name = testbed.config['VM_DATACENTER_NAME']
-        vm_folder_name = testbed.config['VM_FOLDER1_NAME']
-        datastore_name = testbed.config['VM_DATASTORE_NAME']
-        std_portgroup_name = testbed.config['STDPORTGROUP_NAME']
-        dv_portgroup_name = testbed.config['VDPORTGROUP1_NAME']
-
-        if not self.placement_spec:
-            self.placement_spec = vm_placement_helper.get_placement_spec_for_resource_pool(
-                self.client,
-                datacenter_name,
-                vm_folder_name,
-                datastore_name)
-
-        # Get a standard network backing
-        if not self.standard_network:
-            self.standard_network = network_helper.get_standard_network_backing(
-                self.client,
-                std_portgroup_name,
-                datacenter_name)
-
-        # Get a distributed network backing
-        if not self.distributed_network:
-            self.distributed_network = network_helper.get_distributed_network_backing(
-                self.client,
-                dv_portgroup_name,
-                datacenter_name)
 
         guest_os = testbed.config['VM_GUESTOS']
         iso_datastore_path = testbed.config['ISO_DATASTORE_PATH']
-        serial_port_network_location = \
-            testbed.config['SERIAL_PORT_NETWORK_SERVER_LOCATION']
 
         GiB = 1024 * 1024 * 1024
         GiBMemory = 1024
