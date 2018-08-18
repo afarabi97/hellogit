@@ -17,88 +17,112 @@ from vsphere.common.sample_util import pp
 from vsphere.vcenter.helper import network_helper
 from vsphere.vcenter.helper import vm_placement_helper
 from vsphere.vcenter.helper.vm_helper import get_vm
-from vsphere.vcenter.setup import testbed
 
 class Virtual_Machine(object):
 
-    def __init__(self, client: VsphereClient, vm_spec: dict, vm_name: str):
-
-
-    #, placement_spec=None,
-    #             standard_network=None, distributed_network=None):
+    def __init__(self, client: VsphereClient, vm_spec: dict, vm_name: str, iso_folder_path: str) -> None:
         """
         Initializes a virtual machine object
 
         :param client (VsphereClient): a vCenter server client
         :param vm_spec (dict): The schema of a virtual machine
         :param vm_name (str): The name of the virtual machine
+        :param iso_folder_path (str): Path to the ISO files folder
         :return:
         """
 
-        self.client = client
+        self.client = client # type: VsphereClient
+
+        self.vm_spec = vm_spec # type: dict
+
+        self.iso_path = iso_folder_path + self.vm_spec["iso_file"] # type: str
 
         # Get a placement spec
         self.placement_spec = vm_placement_helper.get_placement_spec_for_resource_pool(
             self.client,
-            vm_spec["storage_options"]["datacenter"],
-            vm_spec["storage_options"]["folder"],
-            vm_spec["storage_options"]["datastore"])
+            self.vm_spec["storage_options"]["datacenter"],
+            self.vm_spec["storage_options"]["folder"],
+            self.vm_spec["storage_options"]["datastore"]) # type: PlacementSpec
 
         # Get a standard network backing
         self.standard_network = network_helper.get_standard_network_backing(
             self.client,
-            vm_spec["networking"]["std_portgroup_name"],
-            vm_spec["storage_options"]["datacenter"])
+            self.vm_spec["networking"]["std_portgroup_name"],
+            self.vm_spec["storage_options"]["datacenter"]) # type: str
 
         # Get a distributed network backing
         self.distributed_network = network_helper.get_distributed_network_backing(
             self.client,
-            vm_spec["networking"]["dv_portgroup_name"],
-            vm_spec["storage_options"]["datacenter"])
+            self.vm_spec["networking"]["dv_portgroup_name"],
+            self.vm_spec["storage_options"]["datacenter"]) # type: str
 
         self.vm_name = vm_name
-        self.cleardata = None
 
-    def run(self):
+    def create(self) -> str:
+        """
+        Create the VM
 
-        guest_os = testbed.config['VM_GUESTOS']
-        iso_datastore_path = testbed.config['ISO_DATASTORE_PATH']
+        :return: Returns a string with the schema of the VM
+        """
 
-        GiB = 1024 * 1024 * 1024
-        GiBMemory = 1024
+        GiB = 1024 * 1024 * 1024 # type: int
+        GiBMemory = 1024 # type: int
 
-        vm_create_spec = VM.CreateSpec(
-            guest_os=guest_os,
-            name=self.vm_name,
-            placement=self.placement_spec,
-            hardware_version=Hardware.Version.VMX_11,
-            cpu=Cpu.UpdateSpec(count=2,
-                               cores_per_socket=1,
-                               hot_add_enabled=False,
-                               hot_remove_enabled=False),
-            memory=Memory.UpdateSpec(size_mib=4 * GiBMemory,
-                                     hot_add_enabled=False),
-            disks=[
-                Disk.CreateSpec(type=Disk.HostBusAdapterType.SCSI,
-                                scsi=ScsiAddressSpec(bus=0, unit=0),
-                                new_vmdk=Disk.VmdkCreateSpec(name='boot',
-                                                             capacity=20 * GiB)),
-                Disk.CreateSpec(new_vmdk=Disk.VmdkCreateSpec(name='data1',
-                                                             capacity=20 * GiB)),
-            ],
-            nics=[
-                Ethernet.CreateSpec(
-                    start_connected=True,
+        # Create a list of the VM's disks
+        disks = [] # type: list
+        for disk_name, capacity in self.vm_spec["disks"].items():
+            disks.append(Disk.CreateSpec(type=Disk.HostBusAdapterType.SCSI,
+                scsi=ScsiAddressSpec(bus=0, unit=0),
+                new_vmdk=Disk.VmdkCreateSpec(name=disk_name,
+                                             capacity=capacity * GiB)),)
+
+        # Create a list of the VM's NICs
+        nics = [] # type: list
+        for nic in self.vm_spec["networking"]["nics"].keys():
+            if(self.vm_spec["networking"]["nics"][nic]["mac_auto_generated"]):
+                nics.append(Ethernet.CreateSpec(
+                    start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
                     mac_type=Ethernet.MacAddressType.GENERATED,
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network=self.distributed_network)),
-            ],
+                        network=self.distributed_network)))
+            else:
+                nics.append(Ethernet.CreateSpec(
+                    start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
+                    mac_type=Ethernet.MacAddressType.MANUAL,
+                    mac_address=self.vm_spec["networking"]["nics"][nic]["mac_address"],
+                    backing=Ethernet.BackingSpec(
+                        type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
+                        network=self.distributed_network)))
+
+        # Create the boot order for the VM
+        boot_devices = [] # type: list
+        for item in self.vm_spec["boot_order"]:
+            if item == "CDROM":
+                boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.CDROM))
+            elif item == "DISK":
+                boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.DISK))
+            else:
+                boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.ETHERNET))
+
+        vm_create_spec = VM.CreateSpec(
+            guest_os=self.vm_spec["vm_guestos"],
+            name=self.vm_name,
+            placement=self.placement_spec,
+            hardware_version=Hardware.Version.VMX_11,
+            cpu=Cpu.UpdateSpec(count=self.vm_spec["cpu_spec"]["sockets"],
+                               cores_per_socket=self.vm_spec["cpu_spec"]["cores_per_socket"],
+                               hot_add_enabled=self.vm_spec["cpu_spec"]["hot_add_enabled"],
+                               hot_remove_enabled=self.vm_spec["cpu_spec"]["hot_remove_enabled"]),
+            memory=Memory.UpdateSpec(size_mib=self.vm_spec["memory_spec"]["size"] * GiBMemory,
+                                     hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"]),
+            disks=disks,
+            nics=nics,
             cdroms=[
                 Cdrom.CreateSpec(
                     start_connected=True,
                     backing=Cdrom.BackingSpec(type=Cdrom.BackingType.ISO_FILE,
-                                              iso_file=iso_datastore_path)
+                                              iso_file=self.iso_path)
                 )
             ],
             boot=Boot.CreateSpec(type=Boot.Type.BIOS,
@@ -107,11 +131,7 @@ class Virtual_Machine(object):
                                  ),
             # TODO Should DISK be put before CDROM and ETHERNET?  Does the BIOS
             # automatically try the next device if the DISK is empty?
-            boot_devices=[
-                BootDevice.EntryCreateSpec(BootDevice.Type.CDROM),
-                BootDevice.EntryCreateSpec(BootDevice.Type.DISK),
-                BootDevice.EntryCreateSpec(BootDevice.Type.ETHERNET)
-            ]
+            boot_devices=boot_devices
         )
         print('Creating a VM using spec\n-----')
         print(pp(vm_create_spec))
@@ -127,7 +147,12 @@ class Virtual_Machine(object):
 
         return vm
 
-    def cleanup(self):
+    def cleanup(self) -> None:
+        """
+        Deletes the VM from the server's inventory
+
+        :return:
+        """
         vm = get_vm(self.client, self.vm_name)
         if vm:
             state = self.client.vcenter.vm.Power.get(vm)
@@ -140,8 +165,13 @@ class Virtual_Machine(object):
             self.client.vcenter.VM.delete(vm)
 
     def power_on(self):
+        """
+        Powers the VM on
+
+        :return:
+        """
         vm = get_vm(self.client, self.vm_name)
         if vm:
-            print('Powering on the Deployer Test VM')
+            print('Powering on ' + self.vm_name)
             self.client.vcenter.vm.Power.start(vm)
             print('vm.Power.start({})'.format(vm))

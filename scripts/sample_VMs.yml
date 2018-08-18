@@ -46,7 +46,8 @@ VMs:
     storage_options:
       datacenter: "Lab"
       cluster: "Lab Cluster"
-      datastore: "NVMe Storage 2"
+      datastore: "NVMe Storage"
+      folder: "Testing"
     networking:
       std_portgroup_name: "VM Network"
       dv_portgroup_name: "82 Network"
@@ -64,10 +65,9 @@ VMs:
       size: 16 # This value is in GiB
       hot_add_enabled: False
     disks:
-      boot: # This is the name of the disk inside of VMWare
-      capacity: 200 # This value is in GiB
+      boot: 200 # Name of disk followed by capacity in GiBs
     iso_file: "rhel-server-7.5-x86_64-dvd.iso"
-    boot_order:
+    boot_order: # Valid options are CDROM, DISK, and ETHERNET
       - "CDROM"
       - "DISK"
       - "ETHERNET"

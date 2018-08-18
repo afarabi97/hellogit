@@ -9,32 +9,30 @@ import urllib3
 from vmware.vapi.vsphere.client import create_vsphere_client, VsphereClient
 from VM import Virtual_Machine
 
-def create_vms(configuration: dict, client: VsphereClient):
+def create_vms(configuration: dict, client: VsphereClient, iso_folder_path: str):
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
     :param configuration (dict): A YAML file defining the schema of the kit
     :param client (VsphereClient): a vCenter server client
+    :param iso_folder_path (str): Path to the ISO files folder
     :return:
     """
 
     for vm in configuration["VMs"].keys():
-        vm_instance = Virtual_Machine(client, configuration["VMs"][vm], vm)
-        vm_instance.run()
+        vm_instance = Virtual_Machine(client, configuration["VMs"][vm], vm, iso_folder_path)
+        vm_instance.create()
         vm_instance.power_on()
-        """
-        create_deployer_vm.cleanup()
-        create_deployer_vm.run()
-        if create_deployer_vm.cleardata:
-            create_deployer_vm.cleanup()
-        create_deployer_vm.power_on()
-        """
 
 def main():
 
     with open("VMs.yml", 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema) # type: dict
+            iso_folder_path = \
+            "[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
+            '/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/' # type: str
+
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -56,14 +54,7 @@ def main():
     password=configuration["host_configuration"]["vcenter"]["password"],
     session=session) # type: vmware.vapi.vsphere.client.VsphereClient
 
-    create_vms(configuration, vsphere_client)
-
-    # List all VMs inside the vCenter Server
-    #print(vsphere_client.vcenter.VM.list())
-    """
-
-
-    """
+    create_vms(configuration, vsphere_client, iso_folder_path)
 
 if __name__ == '__main__':
     main()
