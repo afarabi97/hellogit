@@ -42,4 +42,10 @@ Download the SDK from
 https://github.com/vmware/vsphere-automation-sdk-python
 
 1) yum install -y epel-release git wget vim python34 python34-pip python34-devel
-2)
+2) If on windows install twisted from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#twisted
+
+git clone https://github.com/vmware/vsphere-automation-sdk-python.git
+cd vsphere-automation-sdk-python
+pip install --upgrade --force-reinstall -r requirements.txt --extra-index-url file:///<absolute_path_to_sdk>/lib
+
+If on windows take off --force-reinstall

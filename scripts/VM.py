@@ -10,9 +10,6 @@ from com.vmware.vcenter.vm.hardware_client import ScsiAddressSpec
 from com.vmware.vcenter.vm_client import (Hardware, Power)
 from com.vmware.vcenter_client import VM
 
-from vsphere.common.ssl_helper import get_unverified_session
-from vsphere.common import sample_cli
-from vsphere.common import sample_util
 from vsphere.common.sample_util import pp
 from vsphere.vcenter.helper import network_helper
 from vsphere.vcenter.helper import vm_placement_helper
