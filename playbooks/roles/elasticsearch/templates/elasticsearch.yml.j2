@@ -10,3 +10,4 @@ xpack.license.self_generated.type: basic
 thread_pool.bulk.queue_size: -1
 index.store.type: niofs
 indices.fielddata.cache.size: 20%
+processors: {{ ( ( elasticsearch_cpu_request | replace('m','') | int ) / 1000 ) | round | int}}
