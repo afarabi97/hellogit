@@ -33,7 +33,7 @@ host_configuration:
         - "NVMe Storage 2"
 
 VMs:
-  test_controller:
+  test_controller.lan:
     type: "controller" # Can be controller, sensor, or server
 
     # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -53,6 +53,8 @@ VMs:
       dv_portgroup_name: "82 Network"
       nics:
         nic1:
+          type: "manual" # This can be auto, manual, or link-local
+          ip_address: "172.16.82.15"
           start_connected: True
           mac_auto_generated: True
           mac_address: "" # This is ignored if mac_auto_generated is true
@@ -68,6 +70,111 @@ VMs:
       boot: 200 # Name of disk followed by capacity in GiBs
     iso_file: "rhel-server-7.5-x86_64-dvd.iso"
     boot_order: # Valid options are CDROM, DISK, and ETHERNET
+      - "CDROM" # CDROM will be ignored if iso_file is None
+      - "DISK"
+      - "ETHERNET"
+
+  tfserver1.lan:
+    type: "server" # Can be controller, sensor, or server
+    vm_guestos: "RHEL_7_64"
+    storage_options:
+      datacenter: "Lab"
+      cluster: "Lab Cluster"
+      datastore: "NVMe Storage"
+      folder: "Testing"
+    networking:
+      std_portgroup_name: "VM Network"
+      dv_portgroup_name: "82 Network"
+      nics:
+        nic1:
+          type: "manual"
+          ip_address: "172.16.82.40"
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "AA:AA:AA:AA:AA:AA"
+    cpu_spec:
+      sockets: 1
+      cores_per_socket: 4
+      hot_add_enabled: False
+      hot_remove_enabled: False
+    memory_spec:
+      size: 16
+      hot_add_enabled: False
+    disks:
+      boot: 20
+      ceph: 20
+    iso_file:
+    boot_order:
       - "CDROM"
       - "DISK"
       - "ETHERNET"
+
+  tfserver2.lan:
+    type: "server" # Can be controller, sensor, or server
+    vm_guestos: "RHEL_7_64"
+    storage_options:
+      datacenter: "Lab"
+      cluster: "Lab Cluster"
+      datastore: "NVMe Storage"
+      folder: "Testing"
+    networking:
+      std_portgroup_name: "VM Network"
+      dv_portgroup_name: "82 Network"
+      nics:
+        nic1:
+          type: "manual"
+          ip_address: "172.16.82.41"
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "BB:BB:BB:BB:BB:BB"
+    cpu_spec:
+      sockets: 1
+      cores_per_socket: 4
+      hot_add_enabled: False
+      hot_remove_enabled: False
+    memory_spec:
+      size: 16
+      hot_add_enabled: False
+    disks:
+      boot: 20
+      ceph: 20
+    iso_file:
+    boot_order:
+      - "CDROM"
+      - "DISK"
+      - "ETHERNET"
+
+  tfsensor1.lan:
+    type: "sensor" # Can be controller, sensor, or server
+    vm_guestos: "RHEL_7_64"
+    storage_options:
+      datacenter: "Lab"
+      cluster: "Lab Cluster"
+      datastore: "NVMe Storage"
+      folder: "Testing"
+    networking:
+      std_portgroup_name: "VM Network"
+      dv_portgroup_name: "82 Network"
+      nics:
+        nic1:
+          type: "manual"
+          ip_address: "172.16.82.41"
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "CC:CC:CC:CC:CC:CC"
+    cpu_spec:
+      sockets: 1
+      cores_per_socket: 4
+      hot_add_enabled: False
+      hot_remove_enabled: False
+    memory_spec:
+      size: 16
+      hot_add_enabled: False
+    disks:
+      boot: 20
+      ceph: 20
+    iso_file:
+    boot_order:
+    - "CDROM"
+    - "DISK"
+    - "ETHERNET"

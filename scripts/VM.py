@@ -2,6 +2,8 @@
 __author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
+from collections import OrderedDict
+
 from vmware.vapi.vsphere.client import VsphereClient
 from com.vmware.vcenter.vm.hardware.boot_client import Device as BootDevice
 from com.vmware.vcenter.vm.hardware_client import (
@@ -17,12 +19,12 @@ from vsphere.vcenter.helper.vm_helper import get_vm
 
 class Virtual_Machine(object):
 
-    def __init__(self, client: VsphereClient, vm_spec: dict, vm_name: str, iso_folder_path: str) -> None:
+    def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path: str) -> None:
         """
         Initializes a virtual machine object
 
         :param client (VsphereClient): a vCenter server client
-        :param vm_spec (dict): The schema of a virtual machine
+        :param vm_spec (OrderedDict): The schema of a virtual machine
         :param vm_name (str): The name of the virtual machine
         :param iso_folder_path (str): Path to the ISO files folder
         :return:
@@ -30,9 +32,12 @@ class Virtual_Machine(object):
 
         self.client = client # type: VsphereClient
 
-        self.vm_spec = vm_spec # type: dict
+        self.vm_spec = vm_spec # type: OrderedDict
 
-        self.iso_path = iso_folder_path + self.vm_spec["iso_file"] # type: str
+        if self.vm_spec["iso_file"] is not None:
+            self.iso_path = iso_folder_path + self.vm_spec["iso_file"] # type: str
+        else:
+            self.iso_path = None
 
         # Get a placement spec
         self.placement_spec = vm_placement_helper.get_placement_spec_for_resource_pool(
@@ -65,13 +70,20 @@ class Virtual_Machine(object):
         GiB = 1024 * 1024 * 1024 # type: int
         GiBMemory = 1024 # type: int
 
+        cpu=Cpu.UpdateSpec(count=self.vm_spec["cpu_spec"]["sockets"],
+                           cores_per_socket=self.vm_spec["cpu_spec"]["cores_per_socket"],
+                           hot_add_enabled=self.vm_spec["cpu_spec"]["hot_add_enabled"],
+                           hot_remove_enabled=self.vm_spec["cpu_spec"]["hot_remove_enabled"])
+
+        memory=Memory.UpdateSpec(size_mib=self.vm_spec["memory_spec"]["size"] * GiBMemory,
+                                hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"])
+
         # Create a list of the VM's disks
         disks = [] # type: list
         for disk_name, capacity in self.vm_spec["disks"].items():
-            disks.append(Disk.CreateSpec(type=Disk.HostBusAdapterType.SCSI,
-                scsi=ScsiAddressSpec(bus=0, unit=0),
+            disks.append(Disk.CreateSpec(
                 new_vmdk=Disk.VmdkCreateSpec(name=disk_name,
-                                             capacity=capacity * GiB)),)
+                                             capacity=capacity * GiB)))
 
         # Create a list of the VM's NICs
         nics = [] # type: list
@@ -92,11 +104,27 @@ class Virtual_Machine(object):
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
                         network=self.distributed_network)))
 
+        # Only create a CDROM drive if the user put an iso as part of their
+        # configuration
+        if self.iso_path is not None:
+            cdroms=[
+                Cdrom.CreateSpec(
+                    start_connected=True,
+                    backing=Cdrom.BackingSpec(type=Cdrom.BackingType.ISO_FILE,
+                                              iso_file=self.iso_path)
+                )
+            ]
+        else:
+            cdroms=None
+
+        boot=Boot.CreateSpec(type=Boot.Type.BIOS, delay=0, enter_setup_mode=False)
+
         # Create the boot order for the VM
         boot_devices = [] # type: list
         for item in self.vm_spec["boot_order"]:
             if item == "CDROM":
-                boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.CDROM))
+                if self.iso_path is not None:
+                    boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.CDROM))
             elif item == "DISK":
                 boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.DISK))
             else:
@@ -107,29 +135,15 @@ class Virtual_Machine(object):
             name=self.vm_name,
             placement=self.placement_spec,
             hardware_version=Hardware.Version.VMX_11,
-            cpu=Cpu.UpdateSpec(count=self.vm_spec["cpu_spec"]["sockets"],
-                               cores_per_socket=self.vm_spec["cpu_spec"]["cores_per_socket"],
-                               hot_add_enabled=self.vm_spec["cpu_spec"]["hot_add_enabled"],
-                               hot_remove_enabled=self.vm_spec["cpu_spec"]["hot_remove_enabled"]),
-            memory=Memory.UpdateSpec(size_mib=self.vm_spec["memory_spec"]["size"] * GiBMemory,
-                                     hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"]),
+            cpu=cpu,
+            memory=memory,
             disks=disks,
             nics=nics,
-            cdroms=[
-                Cdrom.CreateSpec(
-                    start_connected=True,
-                    backing=Cdrom.BackingSpec(type=Cdrom.BackingType.ISO_FILE,
-                                              iso_file=self.iso_path)
-                )
-            ],
-            boot=Boot.CreateSpec(type=Boot.Type.BIOS,
-                                 delay=0,
-                                 enter_setup_mode=False
-                                 ),
-            # TODO Should DISK be put before CDROM and ETHERNET?  Does the BIOS
-            # automatically try the next device if the DISK is empty?
+            cdroms=cdroms,
+            boot=boot,
             boot_devices=boot_devices
         )
+
         print('Creating a VM using spec\n-----')
         print(pp(vm_create_spec))
         print('-----')
