@@ -12,6 +12,7 @@ busybox_version: "1.27.2"
 k8s_version: "1.14.7"
 elastic_version: "6.2.4"
 coreos_version: "1688.5.3"
+rbd_provisioner_version: "v0.1.1"
 
 # Docker Image List
 kube_images:
@@ -41,12 +42,12 @@ kube_images:
   - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_version}}
   - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_version}}
   - gcr.io/google_containers/pause-amd64:3.0
-  - k8s.gcr.io/addon-resizer:1.7 
+  - k8s.gcr.io/addon-resizer:1.7
   - k8s.gcr.io/heapster-amd64:v1.4.2
   - k8s.gcr.io/heapster-grafana-amd64:v4.4.3
   - k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
   - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
-  - quay.io/external_storage/rbd-provisioner
+  - quay.io/external_storage/rbd-provisioner:{{ rbd_provisioner_version }}
   - quay.io/coreos/flannel:v0.10.0-amd64
   - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
   - quay.io/pires/docker-elasticsearch-curator:5.5.4
