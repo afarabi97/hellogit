@@ -26,4 +26,5 @@ RUN systemctl enable suricata
 
 COPY crontab /etc/crontab
 COPY rm-suricata-logs.sh /usr/local/bin/rm-suricata-logs.sh
-RUN chmod +x /usr/local/bin/rm-suricata-logs.sh
+RUN chmod +x /usr/local/bin/rm-suricata-logs.sh && \
+    chmod 0644 /etc/crontab

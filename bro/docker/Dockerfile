@@ -9,5 +9,7 @@ RUN yum install -y bro bro-plugin-kafka bro-plugin-af_packet && \
 # Add configuration templates
 COPY ["local.bro.conf","kafka.bro.conf","broctl.cfg.conf","node.cfg.conf","networks.cfg.conf","/etc/icdm/conf/"]
 COPY ["local.bro.tmpl","kafka.bro.tmpl","broctl.cfg.tmpl", "node.cfg.tmpl","networks.cfg.tmpl","/etc/icdm/templates/"]
+COPY crontab /etc/crontab
+RUN chmod 0644 /etc/crontab
 
 COPY bro.service /usr/lib/systemd/system
