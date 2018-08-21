@@ -54,12 +54,6 @@
       when: "ansible_distribution == 'CentOS'"
       register: yum_results
 
-- name: Clean repo cache
-  shell: yum clean all
-  when: yum_results.changed
-  args:
-    warn: false
-
 - name: create pip dir
   file:
     path: "~/.pip"
