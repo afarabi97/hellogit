@@ -12,10 +12,10 @@ from com.vmware.vcenter.vm.hardware_client import ScsiAddressSpec
 from com.vmware.vcenter.vm_client import (Hardware, Power)
 from com.vmware.vcenter_client import VM
 
-from vsphere.common.sample_util import pp
-from vsphere.vcenter.helper import network_helper
-from vsphere.vcenter.helper import vm_placement_helper
-from vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.common.sample_util import pp
+from lib.vsphere.vcenter.helper import network_helper
+from lib.vsphere.vcenter.helper import vm_placement_helper
+from lib.vsphere.vcenter.helper.vm_helper import get_vm
 
 class Virtual_Machine(object):
 

@@ -49,3 +49,8 @@ cd vsphere-automation-sdk-python
 pip install --upgrade --force-reinstall -r requirements.txt --extra-index-url file:///<absolute_path_to_sdk>/lib
 
 If on windows take off --force-reinstall
+
+-------------------------------------
+
+1) yum install -y gcc openssl-devel bzip2-devel gcc-c++ zlib zlib-devel libffi-devel && ./configure --enable-optimizations && make altinstall
+2) Download python 3 and install it
