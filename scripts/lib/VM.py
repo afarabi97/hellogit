@@ -17,7 +17,7 @@ from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 
-class Virtual_Machine(object):
+class Virtual_Machine():
 
     def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path: str) -> None:
         """
