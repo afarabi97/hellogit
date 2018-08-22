@@ -14,16 +14,16 @@
 __author__ = 'VMware, Inc.'
 __vcenter_version__ = '6.5+'
 
-import vsphere.vcenter.helper.network_helper
-import vsphere.vcenter.vm.hardware.main
-import vsphere.vcenter.vm.placement
-import vsphere.vcenter.vm.power
-from vsphere.common.sample_util import pp
-from vsphere.vcenter.setup import testbed_setup
-from vsphere.vcenter.setup import testbed
-from vsphere.vcenter.vm.create.create_default_vm import CreateDefaultVM
-from vsphere.vcenter.vm.create.create_basic_vm import CreateBasicVM
-from vsphere.vcenter.vm.create.create_exhaustive_vm import \
+import lib.vsphere.vcenter.helper.network_helper
+import lib.vsphere.vcenter.vm.hardware.main
+import lib.vsphere.vcenter.vm.placement
+import lib.vsphere.vcenter.vm.power
+from lib.vsphere.common.sample_util import pp
+from lib.vsphere.vcenter.setup import testbed_setup
+from lib.vsphere.vcenter.setup import testbed
+from lib.vsphere.vcenter.vm.create.create_default_vm import CreateDefaultVM
+from lib.vsphere.vcenter.vm.create.create_basic_vm import CreateBasicVM
+from lib.vsphere.vcenter.vm.create.create_exhaustive_vm import \
     CreateExhaustiveVM
 
 
@@ -42,7 +42,7 @@ class VMSetup(object):
         ###########################################################################
         # Getting a PlacementSpec
         ###########################################################################
-        placement_spec = vsphere.vcenter.vm.placement.get_placement_spec_for_resource_pool(context)
+        placement_spec = lib.vsphere.vcenter.vm.placement.get_placement_spec_for_resource_pool(context)
         print('=' * 79)
         print('= Resource selection')
         print('=' * 79)
@@ -54,14 +54,14 @@ class VMSetup(object):
         # 1. STANDARD_PORTGROUP on DATACENTER2
         # 2. DISTRIBUTED_PORTGROUP on DATACENTER2
         ###########################################################################
-        standard_network = vsphere.vcenter.helper \
+        standard_network = lib.vsphere.vcenter.helper \
             .network_helper.get_standard_network_backing(
             context.client,
             context.testbed.config['STDPORTGROUP_NAME'],
             context.testbed.config['VM_DATACENTER_NAME'])
         print('standard_network={}'.format(standard_network))
 
-        distributed_network = vsphere.vcenter.helper \
+        distributed_network = lib.vsphere.vcenter.helper \
             .network_helper.get_distributed_network_backing(
             context.client,
             context.testbed.config['VDPORTGROUP1_NAME'],
@@ -126,11 +126,11 @@ class VMSetup(object):
         #
         ###########################################################################
         if self.context.option['DO_SAMPLES_INCREMENTAL']:
-            vsphere.vcenter.vm.hardware.main.setup(self.context)
-            vsphere.vcenter.vm.hardware.main.validate(self.context)
-            vsphere.vcenter.vm.hardware.main.run()
+            lib.vsphere.vcenter.vm.hardware.main.setup(self.context)
+            lib.vsphere.vcenter.vm.hardware.main.validate(self.context)
+            lib.vsphere.vcenter.vm.hardware.main.run()
             if self.context.option['DO_SAMPLES_CLEANUP']:
-                vsphere.vcenter.vm.hardware.main.cleanup()
+                lib.vsphere.vcenter.vm.hardware.main.cleanup()
 
         # Sample cleanup
         if self.context.option['DO_SAMPLES_CLEANUP']:

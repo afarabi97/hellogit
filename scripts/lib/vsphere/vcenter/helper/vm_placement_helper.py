@@ -16,9 +16,9 @@ __vcenter_version__ = '6.5+'
 
 from com.vmware.vcenter_client import VM
 
-from vsphere.vcenter.helper import datastore_helper
-from vsphere.vcenter.helper import folder_helper
-from vsphere.vcenter.helper import resource_pool_helper
+from lib.vsphere.vcenter.helper import datastore_helper
+from lib.vsphere.vcenter.helper import folder_helper
+from lib.vsphere.vcenter.helper import resource_pool_helper
 
 
 def get_placement_spec_for_resource_pool(client,

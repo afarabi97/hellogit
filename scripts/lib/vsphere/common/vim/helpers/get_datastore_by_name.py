@@ -16,8 +16,8 @@ __copyright__ = 'Copyright 2013, 2016 VMware, Inc. All rights reserved.'
 
 from pyVmomi import vim
 
-from vsphere.common.sample_base import SampleBase
-from vsphere.common.vim.helpers.vim_utils import get_obj
+from lib.vsphere.common.sample_base import SampleBase
+from lib.vsphere.common.vim.helpers.vim_utils import get_obj
 
 
 class GetDatastoreByName(SampleBase):

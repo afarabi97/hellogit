@@ -16,8 +16,7 @@ __author__ = 'VMware, Inc.'
 from six.moves import cStringIO
 from vmware.vapi.bindings.struct import PrettyPrinter
 
-from vsphere.common import sample_cli
-from vsphere.vcenter.setup import testbed
+from lib.vsphere.common import sample_cli
 
 
 def pp(value):
@@ -29,7 +28,7 @@ def pp(value):
 
 def parse_cli_args_vm(vm_name):
     """
-    Parse the server IP, credential and vm name used by vcenter vm 
+    Parse the server IP, credential and vm name used by vcenter vm
     Use values from command line arguments if present, otherwise use values
     from testbed.py
     """

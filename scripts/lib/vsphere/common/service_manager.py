@@ -15,9 +15,9 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2013, 2016 VMware, Inc. All rights reserved.'
 
 from pyVim.connect import SmartConnect, Disconnect
-from vsphere.common import vapiconnect
+from lib.vsphere.common import vapiconnect
 
-from vsphere.common.ssl_helper import get_unverified_context
+from lib.vsphere.common.ssl_helper import get_unverified_context
 
 
 class ServiceManager(object):

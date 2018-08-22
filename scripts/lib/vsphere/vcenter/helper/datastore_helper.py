@@ -16,7 +16,7 @@ __vcenter_version__ = '6.5+'
 
 from com.vmware.vcenter_client import Datastore
 
-from vsphere.vcenter.helper import datacenter_helper
+from lib.vsphere.vcenter.helper import datacenter_helper
 
 
 def get_datastore(client, datacenter_name, datastore_name):

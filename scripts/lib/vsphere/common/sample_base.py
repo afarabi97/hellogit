@@ -16,7 +16,7 @@ __copyright__ = 'Copyright 2013, 2016 VMware, Inc. All rights reserved.'
 
 import argparse
 import traceback
-from vsphere.common.service_manager_factory import ServiceManagerFactory
+from lib.vsphere.common.service_manager_factory import ServiceManagerFactory
 
 
 class SampleBase(object):

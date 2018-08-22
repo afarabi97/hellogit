@@ -16,7 +16,7 @@ __vcenter_version__ = '6.5+'
 
 from com.vmware.vcenter_client import Network
 
-from vsphere.vcenter.helper import datacenter_helper
+from lib.vsphere.vcenter.helper import datacenter_helper
 
 
 def get_standard_network_backing(client,

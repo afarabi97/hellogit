@@ -15,10 +15,10 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2013, 2016 VMware, Inc. All rights reserved.'
 
 from vmware.vapi.security.sso import create_saml_bearer_security_context
-from vsphere.common import sso
-from vsphere.common.lookup_service_helper import LookupServiceHelper
+from lib.vsphere.common import sso
+from lib.vsphere.common.lookup_service_helper import LookupServiceHelper
 
-from vsphere.common.ssl_helper import get_unverified_context
+from lib.vsphere.common.ssl_helper import get_unverified_context
 
 
 class PlatformServiceController(object):

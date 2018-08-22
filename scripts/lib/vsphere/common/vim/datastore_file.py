@@ -18,7 +18,7 @@ import pyVim.task
 import requests
 from pyVmomi import vim
 
-from vsphere.common.vim.inventory import get_datacenter_for_datastore
+from lib.vsphere.common.vim.inventory import get_datacenter_for_datastore
 
 # TODO:
 # verify=False in all cases.  Expose this as a top level control

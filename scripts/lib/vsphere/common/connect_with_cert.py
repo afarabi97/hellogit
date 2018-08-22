@@ -22,8 +22,8 @@ from vmware.vapi.vsphere.client import create_vsphere_client
 
 from com.vmware.cis.tagging_client import CategoryModel
 
-from vsphere.common.sample_util import process_cli_args
-from vsphere.common import sample_cli
+from lib.vsphere.common.sample_util import process_cli_args
+from lib.vsphere.common import sample_cli
 
 
 class CertConnect(object):

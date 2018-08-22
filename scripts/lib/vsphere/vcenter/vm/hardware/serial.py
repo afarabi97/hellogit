@@ -23,13 +23,13 @@ from vmware.vapi.vsphere.client import create_vsphere_client
 from com.vmware.vcenter.vm.hardware_client import Serial
 from pyVim.connect import SmartConnect, Disconnect
 
-from vsphere.common.sample_util import parse_cli_args_vm
-from vsphere.common.sample_util import pp
-from vsphere.common.ssl_helper import get_unverified_context
-from vsphere.common.vim.file import delete_file
-from vsphere.vcenter.helper.vm_helper import get_vm
-from vsphere.vcenter.setup import testbed
-from vsphere.common.ssl_helper import get_unverified_session
+from lib.vsphere.common.sample_util import parse_cli_args_vm
+from lib.vsphere.common.sample_util import pp
+from lib.vsphere.common.ssl_helper import get_unverified_context
+from lib.vsphere.common.vim.file import delete_file
+from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.vcenter.setup import testbed
+from lib.vsphere.common.ssl_helper import get_unverified_session
 
 """
 Demonstrates how to configure Serial ports for a VM.

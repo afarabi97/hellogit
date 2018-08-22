@@ -21,7 +21,7 @@ import argparse
 from com.vmware.vcenter.hvc.management_client import Administrators
 from com.vmware.vmc.model_client import *
 
-from vsphere.common import vapiconnect
+from lib.vsphere.common import vapiconnect
 
 
 class AdministratorClient(object):

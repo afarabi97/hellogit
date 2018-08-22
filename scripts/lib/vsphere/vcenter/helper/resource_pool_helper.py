@@ -16,7 +16,7 @@ __vcenter_version__ = '6.5+'
 
 from com.vmware.vcenter_client import ResourcePool
 
-from vsphere.vcenter.helper import datacenter_helper
+from lib.vsphere.vcenter.helper import datacenter_helper
 
 
 def get_resource_pool(client, datacenter_name, resource_pool_name=None):

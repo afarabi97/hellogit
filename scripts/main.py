@@ -8,7 +8,7 @@ import requests
 import urllib3
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import create_vsphere_client, VsphereClient
-from VM import Virtual_Machine
+from lib.VM import Virtual_Machine
 
 def create_vms(configuration: OrderedDict, client: VsphereClient, iso_folder_path: str):
     """

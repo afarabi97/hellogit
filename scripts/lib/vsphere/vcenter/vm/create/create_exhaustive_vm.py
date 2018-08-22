@@ -24,14 +24,14 @@ from com.vmware.vcenter.vm_client import (Hardware, Power)
 from com.vmware.vcenter_client import VM
 from vmware.vapi.vsphere.client import create_vsphere_client
 
-from vsphere.common.ssl_helper import get_unverified_session
-from vsphere.common import sample_cli
-from vsphere.common import sample_util
-from vsphere.common.sample_util import pp
-from vsphere.vcenter.helper import network_helper
-from vsphere.vcenter.helper import vm_placement_helper
-from vsphere.vcenter.helper.vm_helper import get_vm
-from vsphere.vcenter.setup import testbed
+from lib.vsphere.common.ssl_helper import get_unverified_session
+from lib.vsphere.common import sample_cli
+from lib.vsphere.common import sample_util
+from lib.vsphere.common.sample_util import pp
+from lib.vsphere.vcenter.helper import network_helper
+from lib.vsphere.vcenter.helper import vm_placement_helper
+from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.vcenter.setup import testbed
 
 
 class CreateExhaustiveVM(object):

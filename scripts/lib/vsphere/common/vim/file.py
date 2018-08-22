@@ -15,9 +15,9 @@ __author__ = 'VMware, Inc.'
 
 import re
 
-from vsphere.common.vim.inventory import get_datastore_mo
+from lib.vsphere.common.vim.inventory import get_datastore_mo
 
-from vsphere.common.vim import datastore_file
+from lib.vsphere.common.vim import datastore_file
 
 datastore_path_regex = re.compile('\[(.+)\]\s?(.*)')
 

@@ -20,7 +20,7 @@ import argparse
 
 from com.vmware.vcenter.hvc_client import Links
 
-from vsphere.common import vapiconnect
+from lib.vsphere.common import vapiconnect
 
 
 class LinksClient(object):
@@ -66,12 +66,12 @@ class LinksClient(object):
 
         parser.add_argument('--foreigndomain',
                             required=True,
-                            help='SSO Domain name for the foreign PSC. Eg - vsphere.local')
+                            help='SSO Domain name for the foreign PSC. Eg - lib.vsphere.local')
 
         parser.add_argument('--foreignport',
                             required=False,
                             default='443',
-                            help='SSO Domain name for the foreign PSC. Eg - vsphere.local')
+                            help='SSO Domain name for the foreign PSC. Eg - lib.vsphere.local')
 
         parser.add_argument('-v', '--skipverification',
                             action='store_true',

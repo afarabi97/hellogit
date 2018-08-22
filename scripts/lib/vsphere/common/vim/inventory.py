@@ -16,7 +16,7 @@ __vcenter__ = 'since 6.0'
 
 from pyVmomi import vim
 
-from vsphere.vcenter.helper.datastore_helper import get_datastore
+from lib.vsphere.vcenter.helper.datastore_helper import get_datastore
 
 
 def get_datastore_mo(client, soap_stub,

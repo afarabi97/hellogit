@@ -17,7 +17,7 @@ __vcenter_version__ = '6.5+'
 from com.vmware.vcenter_client import (Cluster, Datastore, Folder, ResourcePool,
                                        VM)
 
-from vsphere.vcenter.helper import vm_placement_helper
+from lib.vsphere.vcenter.helper import vm_placement_helper
 
 
 #####################################################################

@@ -14,7 +14,7 @@
 __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2013, 2016 VMware, Inc. All rights reserved.'
 
-from vsphere.common.service_manager import ServiceManager
+from lib.vsphere.common.service_manager import ServiceManager
 
 
 class ServiceManagerFactory(object):

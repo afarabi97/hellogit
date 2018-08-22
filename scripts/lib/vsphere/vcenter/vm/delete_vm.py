@@ -20,10 +20,10 @@ from vmware.vapi.vsphere.client import create_vsphere_client
 
 from com.vmware.vcenter.vm_client import Power
 
-from vsphere.common import sample_cli
-from vsphere.common import sample_util
-from vsphere.vcenter.helper.vm_helper import get_vm
-from vsphere.common.ssl_helper import get_unverified_session
+from lib.vsphere.common import sample_cli
+from lib.vsphere.common import sample_util
+from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.common.ssl_helper import get_unverified_session
 
 
 class DeleteVM(object):

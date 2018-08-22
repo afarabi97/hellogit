@@ -22,13 +22,13 @@ import atexit
 from com.vmware.vcenter.vm.hardware_client import Parallel
 from pyVim.connect import SmartConnect, Disconnect
 
-from vsphere.common.sample_util import parse_cli_args_vm
-from vsphere.common.sample_util import pp
-from vsphere.common.ssl_helper import get_unverified_context, \
+from lib.vsphere.common.sample_util import parse_cli_args_vm
+from lib.vsphere.common.sample_util import pp
+from lib.vsphere.common.ssl_helper import get_unverified_context, \
     get_unverified_session
-from vsphere.common.vim.file import delete_file
-from vsphere.vcenter.helper.vm_helper import get_vm
-from vsphere.vcenter.setup import testbed
+from lib.vsphere.common.vim.file import delete_file
+from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.vcenter.setup import testbed
 
 """
 Demonstrates how to configure Parallel ports for a VM.
