@@ -1,5 +1,7 @@
+"""
+Module used for creating and manipulating virtual machines
+"""
 
-__author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
 from collections import OrderedDict
@@ -18,6 +20,20 @@ from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 
 class Virtual_Machine():
+    """
+    Represents a single virtual machine
+
+    Attributes:
+        client (VsphereClient): A client object which allows interaction with vCenter
+        vm_spec (OrderedDict): A dictionary created from the yaml configuration file
+                               containing the totality of the VM's configuration options
+        iso_path (str): The path to the ISO file we will use for this VM on the server
+        placement_spec (PlacementSpec): Defines the location in which vCenter will
+                                        place the VM
+        distributed_network (str): The name of the distributed network to which the
+                                   VM will attach
+        vm_name (str): The name of the virtual machine as it appears in vCenter
+    """
 
     def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path: str) -> None:
         """
@@ -47,10 +63,12 @@ class Virtual_Machine():
             self.vm_spec["storage_options"]["datastore"]) # type: PlacementSpec
 
         # Get a standard network backing
-        self.standard_network = network_helper.get_standard_network_backing(
-            self.client,
-            self.vm_spec["networking"]["std_portgroup_name"],
-            self.vm_spec["storage_options"]["datacenter"]) # type: str
+        # TODO: Left it here just in case we swap to a non distributed switch
+        # based network
+        #self.standard_network = network_helper.get_standard_network_backing(
+        #    self.client,
+        #    self.vm_spec["networking"]["std_portgroup_name"],
+        #    self.vm_spec["storage_options"]["datacenter"]) # type: str
 
         # Get a distributed network backing
         self.distributed_network = network_helper.get_distributed_network_backing(
@@ -58,7 +76,7 @@ class Virtual_Machine():
             self.vm_spec["networking"]["dv_portgroup_name"],
             self.vm_spec["storage_options"]["datacenter"]) # type: str
 
-        self.vm_name = vm_name
+        self.vm_name = vm_name # type: str
 
     def create(self) -> str:
         """

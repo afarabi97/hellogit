@@ -264,7 +264,6 @@ all:
               sensor_monitor_interface:
                 - ens192
 
-
               # Instead of using ceph you can use an entire drive for PCAP storage.
               # This is the drive you will use. Ex: /dev/sdb. This is only used
               # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
@@ -277,39 +276,6 @@ all:
               # two.
               ceph_drive_list:
 
-                - /dev/sdb
-
-
-            # This is the hostname of the sensor. Whatever you put here will be
-            # used to overwrite the current hostname.
-            tfsensor2.lan:
-              # This is the user you will use to SSH to each box for setup. This
-              # should always be root.
-              ansible_user: root
-              # This is the Ansible connection type. This should always be SSH.
-              ansible_connection: ssh
-              # This is the management IP address of the node. Ex: 192.168.1.198
-              # This is the address Ansible will use to communicate with.
-              management_ipv4: "172.16.70.51"
-              # This is the number of bro workers which will spawn on the sensor
-              bro_workers: 2
-              # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: 1
-              # This is the interface the sensor will use for monitoring on Moloch,
-              # bro, and Suricata. Ex: ens4
-              sensor_monitor_interface:
-                - ens224
-              # Instead of using ceph you can use an entire drive for PCAP storage.
-              # This is the drive you will use. Ex: /dev/sdb. This is only used
-              # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
-              # for this to work. moloch_pcap_folder will be the mount point.
-              pcap_disk:
-
-              # These are the disks you will use for Ceph. These must be devices.
-              # This cannot be a folder or partition. Ex: /dev/vdb. You may have
-              # none on a machine. On the system in total there must be at least
-              # two.
-              ceph_drive_list:
                 - /dev/sdb
 
         # If you have a deployment where the majority of the kit is in one location,
@@ -339,7 +305,7 @@ all:
             tfserver2.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: "172.16.82.51"
+              management_ipv4: "172.16.82.41"
               ceph_drive_list:
                 - /dev/sdb
 
@@ -359,7 +325,7 @@ all:
             tfserver1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: "172.16.82.52"
+              management_ipv4: "172.16.82.40"
               ceph_drive_list:
                 - /dev/sdb
 
