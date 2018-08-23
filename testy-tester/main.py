@@ -6,6 +6,7 @@ __vcenter_version__ = '6.7c'
 import yaml
 import requests
 import urllib3
+import sys
 from collections import OrderedDict
 from time import sleep
 from vmware.vapi.vsphere.client import create_vsphere_client, VsphereClient
@@ -40,7 +41,7 @@ def main():
     # If using 3.7+ this is not an issue as it is the default behavior
     configuration = OrderedDict() # type: OrderedDict
 
-    with open("VMs.yml", 'r') as kit_schema:
+    with open(sys.argv[0], 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
             iso_folder_path = \
