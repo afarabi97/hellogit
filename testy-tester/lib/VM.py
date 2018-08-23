@@ -106,7 +106,7 @@ class Virtual_Machine():
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
                         network=network_helper.get_distributed_network_backing(
                                 self.client,
-                                self.vm_spec["networking"][nic]["dv_portgroup_name"],
+                                self.vm_spec["networking"]["nics"][nic]["dv_portgroup_name"],
                                 self.vm_spec["storage_options"]["datacenter"]))))
             else:
                 nics.append(Ethernet.CreateSpec(
@@ -117,7 +117,7 @@ class Virtual_Machine():
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
                         network=network_helper.get_distributed_network_backing(
                                 self.client,
-                                self.vm_spec["networking"][nic]["dv_portgroup_name"],
+                                self.vm_spec["networking"]["nics"][nic]["dv_portgroup_name"],
                                 self.vm_spec["storage_options"]["datacenter"]))))
 
         # Only create a CDROM drive if the user put an iso as part of their

@@ -89,7 +89,6 @@ VMs:
       datastore: "NVMe Storage"
       folder: "Testing"
     networking:
-      std_portgroup_name: "VM Network"
       nics:
         nic1:
           type: "manual"
@@ -125,7 +124,6 @@ VMs:
       datastore: "NVMe Storage"
       folder: "Testing"
     networking:
-      std_portgroup_name: "VM Network"
       nics:
         nic1:
           type: "manual"

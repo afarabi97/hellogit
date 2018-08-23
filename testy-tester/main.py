@@ -41,7 +41,7 @@ def main():
     # If using 3.7+ this is not an issue as it is the default behavior
     configuration = OrderedDict() # type: OrderedDict
 
-    with open(sys.argv[0], 'r') as kit_schema:
+    with open(sys.argv[1], 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
             iso_folder_path = \
