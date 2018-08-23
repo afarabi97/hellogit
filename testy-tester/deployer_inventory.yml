@@ -124,9 +124,14 @@ all:
               boot_drive: sda
               pxe_type: bios
 
-
             tfsensor1.lan:
               ip: 172.16.82.50
               mac: AA:AA:AA:AA:AA:AC
+              boot_drive: sda
+              pxe_type: bios
+
+            tfsensor2.lan:
+              ip: 172.16.82.51
+              mac: AA:AA:AA:AA:AA:AE
               boot_drive: sda
               pxe_type: bios
