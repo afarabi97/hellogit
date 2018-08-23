@@ -237,10 +237,7 @@ all:
     # Here you will define any variables specific to each sensor host.
 
         sensors:
-
           hosts:
-
-
 
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
@@ -266,9 +263,7 @@ all:
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
               sensor_monitor_interface:
-
                 - ens224
-
 
               # Instead of using ceph you can use an entire drive for PCAP storage.
               # This is the drive you will use. Ex: /dev/sdb. This is only used
@@ -281,9 +276,6 @@ all:
               # none on a machine. On the system in total there must be at least
               # two.
               ceph_drive_list:
-
-
-
 
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
@@ -309,9 +301,7 @@ all:
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
               sensor_monitor_interface:
-
                 - ens224
-
 
               # Instead of using ceph you can use an entire drive for PCAP storage.
               # This is the drive you will use. Ex: /dev/sdb. This is only used
@@ -324,10 +314,6 @@ all:
               # none on a machine. On the system in total there must be at least
               # two.
               ceph_drive_list:
-
-
-
-
 
         # If you have a deployment where the majority of the kit is in one location,
         # but some sensors remotely deployed away from the central servers put them
@@ -349,11 +335,7 @@ all:
     # only.
 
         servers:
-
-
           hosts:
-
-
             tfserver2.lan:
               ansible_user: root
               ansible_connection: ssh
@@ -382,7 +364,6 @@ all:
               ansible_connection: ssh
               management_ipv4: "172.16.82.40"
               ceph_drive_list:
-
                 - /dev/sdb
 
 
