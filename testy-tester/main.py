@@ -128,7 +128,7 @@ def main():
 
     print("Running 'make' from tfplenum on controller.")
     with client.cd("/opt/tfplenum/playbooks"):
-        client.run('make')
+        client.run('ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass=' + configuration["tfplenum_kit_configuration"]["password"])
 
 
 if __name__ == '__main__':
