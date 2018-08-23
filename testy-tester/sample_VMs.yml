@@ -99,12 +99,12 @@ VMs:
           dv_portgroup_name: "82 Network"
           std_portgroup_name:
     cpu_spec:
-      sockets: 1
+      sockets: 16
       cores_per_socket: 4
       hot_add_enabled: False
       hot_remove_enabled: False
     memory_spec:
-      size: 16
+      size: 64
       hot_add_enabled: False
     disks:
       boot: 20
@@ -139,7 +139,7 @@ VMs:
       hot_add_enabled: False
       hot_remove_enabled: False
     memory_spec:
-      size: 16
+      size: 64
       hot_add_enabled: False
     disks:
       boot: 20
@@ -162,7 +162,7 @@ VMs:
       nics:
         nic1:
           type: "manual"
-          ip_address: "172.16.82.41"
+          ip_address: "172.16.82.50"
           start_connected: True
           mac_auto_generated: False
           mac_address: "AA:AA:AA:AA:AA:AC"
@@ -177,12 +177,55 @@ VMs:
           dv_portgroup_name: "Monitor Portgroup"
           std_portgroup_name:
     cpu_spec:
-      sockets: 1
-      cores_per_socket: 16
+      sockets: 16
+      cores_per_socket: 1
       hot_add_enabled: False
       hot_remove_enabled: False
     memory_spec:
-      size: 16
+      size: 64
+      hot_add_enabled: False
+    disks:
+      boot: 20
+      ceph: 20
+    iso_file:
+    boot_order:
+    - "CDROM"
+    - "DISK"
+    - "ETHERNET"
+
+  tfsensor2.lan:
+    type: "sensor" # Can be controller, sensor, or server
+    vm_guestos: "RHEL_7_64"
+    storage_options:
+      datacenter: "Lab"
+      cluster: "Lab Cluster"
+      datastore: "NVMe Storage"
+      folder: "Testing"
+    networking:
+      nics:
+        nic1:
+          type: "manual"
+          ip_address: "172.16.82.51"
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "AA:AA:AA:AA:AA:AE"
+          dv_portgroup_name: "82 Network"
+          std_portgroup_name:
+        nic2:
+          type: "manual"
+          ip_address:
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "AA:AA:AA:AA:AA:AF"
+          dv_portgroup_name: "Monitor Portgroup"
+          std_portgroup_name:
+    cpu_spec:
+      sockets: 16
+      cores_per_socket: 1
+      hot_add_enabled: False
+      hot_remove_enabled: False
+    memory_spec:
+      size: 64
       hot_add_enabled: False
     disks:
       boot: 20
