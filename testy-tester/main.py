@@ -91,6 +91,10 @@ def main():
 
     vms = create_vms(configuration, vsphere_client, iso_folder_path) # type: list
 
+    print("Running 'make dnsmasq' from tfplenum-deployer on controller.")
+    with client.cd("/opt/tfplenum-deployer/playbooks"):
+        client.run('make dnsmasq')
+
     print("Running 'make generate-profiles' from tfplenum-deployer on controller.")
     with client.cd("/opt/tfplenum-deployer/playbooks"):
         client.run('make generate-profiles')
