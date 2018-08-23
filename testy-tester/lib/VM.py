@@ -30,8 +30,6 @@ class Virtual_Machine():
         iso_path (str): The path to the ISO file we will use for this VM on the server
         placement_spec (PlacementSpec): Defines the location in which vCenter will
                                         place the VM
-        distributed_network (str): The name of the distributed network to which the
-                                   VM will attach
         vm_name (str): The name of the virtual machine as it appears in vCenter
     """
 
@@ -70,12 +68,6 @@ class Virtual_Machine():
         #    self.vm_spec["networking"]["std_portgroup_name"],
         #    self.vm_spec["storage_options"]["datacenter"]) # type: str
 
-        # Get a distributed network backing
-        self.distributed_network = network_helper.get_distributed_network_backing(
-            self.client,
-            self.vm_spec["networking"]["dv_portgroup_name"],
-            self.vm_spec["storage_options"]["datacenter"]) # type: str
-
         self.vm_name = vm_name # type: str
 
     def create(self) -> str:
@@ -112,7 +104,10 @@ class Virtual_Machine():
                     mac_type=Ethernet.MacAddressType.GENERATED,
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network=self.distributed_network)))
+                        network=network_helper.get_distributed_network_backing(
+                                self.client,
+                                self.vm_spec["networking"][nic]["dv_portgroup_name"],
+                                self.vm_spec["storage_options"]["datacenter"]))))
             else:
                 nics.append(Ethernet.CreateSpec(
                     start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
@@ -120,7 +115,10 @@ class Virtual_Machine():
                     mac_address=self.vm_spec["networking"]["nics"][nic]["mac_address"],
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network=self.distributed_network)))
+                        network=network_helper.get_distributed_network_backing(
+                                self.client,
+                                self.vm_spec["networking"][nic]["dv_portgroup_name"],
+                                self.vm_spec["storage_options"]["datacenter"]))))
 
         # Only create a CDROM drive if the user put an iso as part of their
         # configuration

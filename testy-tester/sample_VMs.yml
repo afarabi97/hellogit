@@ -55,7 +55,6 @@ VMs:
       folder: "Testing"
     networking:
       std_portgroup_name: "VM Network"
-      dv_portgroup_name: "82 Network"
       nics:
         nic1:
           type: "manual" # This can be auto, manual, or link-local
@@ -63,6 +62,8 @@ VMs:
           start_connected: True
           mac_auto_generated: True
           mac_address: "" # This is ignored if mac_auto_generated is true
+          dv_portgroup_name: "82 Network"
+          std_portgroup_name:
     cpu_spec:
       sockets: 2
       cores_per_socket: 1
@@ -89,7 +90,6 @@ VMs:
       folder: "Testing"
     networking:
       std_portgroup_name: "VM Network"
-      dv_portgroup_name: "82 Network"
       nics:
         nic1:
           type: "manual"
@@ -97,6 +97,8 @@ VMs:
           start_connected: True
           mac_auto_generated: False
           mac_address: "AA:AA:AA:AA:AA:AA"
+          dv_portgroup_name: "82 Network"
+          std_portgroup_name:
     cpu_spec:
       sockets: 1
       cores_per_socket: 4
@@ -124,7 +126,6 @@ VMs:
       folder: "Testing"
     networking:
       std_portgroup_name: "VM Network"
-      dv_portgroup_name: "82 Network"
       nics:
         nic1:
           type: "manual"
@@ -132,8 +133,10 @@ VMs:
           start_connected: True
           mac_auto_generated: False
           mac_address: "AA:AA:AA:AA:AA:AB"
+          dv_portgroup_name: "82 Network"
+          std_portgroup_name:
     cpu_spec:
-      sockets: 4
+      sockets: 16
       cores_per_socket: 1
       hot_add_enabled: False
       hot_remove_enabled: False
@@ -158,8 +161,6 @@ VMs:
       datastore: "NVMe Storage"
       folder: "Testing"
     networking:
-      std_portgroup_name: "VM Network"
-      dv_portgroup_name: "82 Network"
       nics:
         nic1:
           type: "manual"
@@ -167,9 +168,19 @@ VMs:
           start_connected: True
           mac_auto_generated: False
           mac_address: "AA:AA:AA:AA:AA:AC"
+          dv_portgroup_name: "82 Network"
+          std_portgroup_name:
+        nic2:
+          type: "manual"
+          ip_address:
+          start_connected: True
+          mac_auto_generated: False
+          mac_address: "AA:AA:AA:AA:AA:AD"
+          dv_portgroup_name: "Monitor Portgroup"
+          std_portgroup_name:
     cpu_spec:
       sockets: 1
-      cores_per_socket: 4
+      cores_per_socket: 16
       hot_add_enabled: False
       hot_remove_enabled: False
     memory_spec:
