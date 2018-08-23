@@ -10,8 +10,8 @@ from collections import OrderedDict
 from time import sleep
 from vmware.vapi.vsphere.client import create_vsphere_client, VsphereClient
 from lib.VM import Virtual_Machine
+from lib.ssh import SSH_client
 from fabric import Connection
-#from lib.ssh import SSH_client
 
 def create_vms(configuration: OrderedDict, client: VsphereClient, iso_folder_path: str, create_deployer=False) -> list:
     """
@@ -58,6 +58,18 @@ def main():
             print("Controller detected as: " + vm)
             break
 
+    client = Connection(
+                host=configuration["VMs"][controller_name]["networking"]["nics"]["nic1"]["ip_address"],
+                connect_kwargs={"password": configuration["VMs"][controller_name]["password"]}) # type: Connection
+
+    # Copy TFPlenum inventory
+    print("Copying TFPlenum inventory")
+    client.put('/opt/tfplenum-integration-testing/testy-tester/tfplenum_inventory.yml', '/opt/tfplenum/playbooks/inventory.yml')
+
+    # Copy TFPlenum Deployer inventory
+    print("Copying TFPlenum Deployer inventory")
+    client.put('/opt/tfplenum-integration-testing/testy-tester/deployer_inventory.yml', '/opt/tfplenum-deployer/playbooks/inventory.yml')
+
     session = requests.session() # type: requests.sessions.Session
 
     # Disable cert verification for demo purpose.
@@ -78,12 +90,9 @@ def main():
 
     vms = create_vms(configuration, vsphere_client, iso_folder_path) # type: list
 
-    #ssh = SSH_client(configuration["VMs"][controller_name]["networking"]["nics"]["nic1"]["ip_address"],
-    #                configuration["VMs"][controller_name]["username"],
-    #                configuration["VMs"][controller_name]["password"])
-
     print("Running 'make generate-profiles' from tfplenum-deployer on controller.")
-    print(ssh.run_command("make generate-profiles", "/opt/tfplenum-deployer/playbooks")[0])
+    with client.cd("/opt/tfplenum-deployer/playbooks"):
+        client.run('make generate-profiles')
 
     for vm in vms:
         vm.power_on()
@@ -117,10 +126,9 @@ def main():
 
         sleep(5)
 
-    ssh.scp('/opt/tfplenum-integration-testing/tfplenum-testy-tester/inventory.yml', '/opt/tfplenum/playbooks/inventory.yml')
-
     print("Running 'make' from tfplenum on controller.")
-    print(ssh.run_command("make", "/opt/tfplenum/playbooks")[0])
+    with client.cd("/opt/tfplenum/playbooks"):
+        client.run('make')
 
 
 if __name__ == '__main__':
