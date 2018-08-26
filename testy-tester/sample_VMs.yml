@@ -1,6 +1,6 @@
 ---
 
-host_configuration:
+host_kit_configuration:
   vcenter:
     ip_address: "172.16.70.5"
     username: ""
@@ -32,7 +32,7 @@ host_configuration:
       datastores:
         - "NVMe Storage 2"
 
-tfplenum_kit_configuration:
+tfplenum_kit_kit_configuration:
   username: ""
   password: ""
 
@@ -40,6 +40,7 @@ VMs:
 
   # Note: You should not have more than one of these
   test_controller.lan:
+
     type: "controller" # Can be controller, sensor, or server
 
     # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -48,8 +49,12 @@ VMs:
     # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
     vm_guestos: "RHEL_7_64"
 
+    clone_target: "some_controller_vm_to_clone_here" # This is by the name in vCenter
+
     username: ""
     password: ""
+
+    inventory_file: '/opt/tfplenum-integration-testing/testy-tester/deployer_inventory.yml'
 
     # The following controls where the VM will be placed on the ESXi servers
     storage_options:
@@ -58,9 +63,8 @@ VMs:
       datastore: "NVMe Storage"
       folder: "Testing"
     networking:
-      std_portgroup_name: "VM Network"
       nics:
-        nic1:
+        management_nic:
           type: "manual" # This can be auto, manual, or link-local
           ip_address: "172.16.82.15"
           start_connected: True
@@ -85,6 +89,7 @@ VMs:
       - "ETHERNET"
 
   tfserver1.lan:
+
     type: "server" # Can be controller, sensor, or server
     vm_guestos: "RHEL_7_64"
     storage_options:
@@ -94,7 +99,7 @@ VMs:
       folder: "Testing"
     networking:
       nics:
-        nic1:
+        management_nic:
           type: "manual"
           ip_address: "172.16.82.40"
           start_connected: True
@@ -120,6 +125,7 @@ VMs:
       - "ETHERNET"
 
   tfserver2.lan:
+
     type: "server" # Can be controller, sensor, or server
     vm_guestos: "RHEL_7_64"
     storage_options:
@@ -129,7 +135,7 @@ VMs:
       folder: "Testing"
     networking:
       nics:
-        nic1:
+        management_nic:
           type: "manual"
           ip_address: "172.16.82.41"
           start_connected: True
@@ -155,6 +161,7 @@ VMs:
       - "ETHERNET"
 
   tfsensor1.lan:
+
     type: "sensor" # Can be controller, sensor, or server
     vm_guestos: "RHEL_7_64"
     storage_options:
@@ -164,7 +171,7 @@ VMs:
       folder: "Testing"
     networking:
       nics:
-        nic1:
+        management_nic:
           type: "manual"
           ip_address: "172.16.82.50"
           start_connected: True
@@ -198,6 +205,7 @@ VMs:
     - "ETHERNET"
 
   tfsensor2.lan:
+
     type: "sensor" # Can be controller, sensor, or server
     vm_guestos: "RHEL_7_64"
     storage_options:
@@ -207,7 +215,7 @@ VMs:
       folder: "Testing"
     networking:
       nics:
-        nic1:
+        management_nic:
           type: "manual"
           ip_address: "172.16.82.51"
           start_connected: True

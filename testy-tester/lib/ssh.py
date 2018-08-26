@@ -14,7 +14,7 @@ class SSH_client():
         client (SSHClient): An SSHClient object on which you can run commands
     """
 
-    client = None # type: SSHClient
+    client = None  # type: SSHClient
 
     def __init__(self, hostname: str, username: str, password: str, port=22) -> None:
         """
@@ -60,7 +60,7 @@ class SSH_client():
         return (stdout.read(), stderr.read())
 
     @staticmethod
-    def test_connection(hostname: str, username: str, password: str, port=22, timeout=5) -> None:
+    def test_connection(hostname: str, username: str, password: str, port=22, timeout=5) -> bool:
         """
         Tests whether a server is responding to SSH connections
 
@@ -87,7 +87,7 @@ class SSH_client():
             print(e)
             return False
 
-    def scp(self, source, dest):
+    def scp(self, source: str, dest: str) -> None:
         """
         Used to SCP files from location to another. Note: the filename is required
         on both source and destination.

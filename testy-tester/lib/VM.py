@@ -10,7 +10,6 @@ from vmware.vapi.vsphere.client import VsphereClient
 from com.vmware.vcenter.vm.hardware.boot_client import Device as BootDevice
 from com.vmware.vcenter.vm.hardware_client import (
     Cpu, Memory, Disk, Ethernet, Cdrom, Boot)
-from com.vmware.vcenter.vm.hardware_client import ScsiAddressSpec
 from com.vmware.vcenter.vm_client import (Hardware, Power)
 from com.vmware.vcenter_client import VM
 
@@ -19,7 +18,8 @@ from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 
-class Virtual_Machine():
+
+class VirtualMachine:
     """
     Represents a single virtual machine
 
@@ -86,19 +86,19 @@ class Virtual_Machine():
                            hot_remove_enabled=self.vm_spec["cpu_spec"]["hot_remove_enabled"])
 
         memory=Memory.UpdateSpec(size_mib=self.vm_spec["memory_spec"]["size"] * GiBMemory,
-                                hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"])
+                                 hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"])
 
         # Create a list of the VM's disks
-        disks = [] # type: list
+        disks = []  # type: list
         for disk_name, capacity in self.vm_spec["disks"].items():
             disks.append(Disk.CreateSpec(
                 new_vmdk=Disk.VmdkCreateSpec(name=disk_name,
                                              capacity=capacity * GiB)))
 
         # Create a list of the VM's NICs
-        nics = [] # type: list
+        nics = []  # type: list
         for nic in self.vm_spec["networking"]["nics"].keys():
-            if(self.vm_spec["networking"]["nics"][nic]["mac_auto_generated"]):
+            if self.vm_spec["networking"]["nics"][nic]["mac_auto_generated"]:
                 nics.append(Ethernet.CreateSpec(
                     start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
                     mac_type=Ethernet.MacAddressType.GENERATED,
@@ -131,7 +131,7 @@ class Virtual_Machine():
                 )
             ]
         else:
-            cdroms=None
+            cdroms = None
 
         boot=Boot.CreateSpec(type=Boot.Type.BIOS, delay=0, enter_setup_mode=False)
 
