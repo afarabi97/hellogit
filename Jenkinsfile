@@ -49,29 +49,32 @@ def notifyBitbucket(String state) {
 
 pipeline {
     agent none
+    triggers {
+        pollSCM ('0 0 1 1 0')
+    }
     stages {
         stage('checkout') {
             steps {
                 node('tfplenum-test-controller') {
                     script {
-                        echo currentBuild.result
-                        GIT_COMMIT = sh(
+                        cleanWs()
+                        
+                        def GIT_COMMIT = sh(
                             script: "cat /opt/tfplenum/GIT_COMMIT_HASH",
                             returnStdout: true,
                         )
+                        
                         dir('tfplenum') {
+                            sh('cp -rf /opt/tfplenum/* .')
+                            sh('cp -rf /opt/tfplenum/.git* .')
                             checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: GIT_COMMIT]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'micah-downing-user-pass', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git']]]
-                            sh('sudo rm -rf /opt/tfplenum')
-                            sh('sudo mkdir -p /opt/tfplenum')
-                            sh('sudo cp -r * /opt/tfplenum/')
                         }
-                        notifySlack('STARTED')                        
+                        notifySlack('STARTED')
                         notifyBitbucket('INPROGRESS')
                     }
                 }
-                    
             }
-        }        
+        }
         stage('clone other repos') {
             steps {
                 build 'get-repos-pipeline'
@@ -87,6 +90,10 @@ pipeline {
         stage('system function testing') {
             steps {
                 node('tfplenum-test-controller') { 
+                    script {
+                        env.JUNIT_OUTPUT_DIR = "$WORKSPACE/reports"
+                        sh("mkdir -p $WORKSPACE/reports")
+                    }
                     dir('/opt/tfplenum-integration-testing/playbooks') {
                         sh('make')
                     }
@@ -96,11 +103,14 @@ pipeline {
     }
     post {
         always{
+            node('tfplenum-test-controller'){
+                junit 'reports/*.xml'
+            }
             node('master') {                
                 script {
                     currentBuild.result = currentBuild.result ?: 'SUCCESS'                    
                     notifySlack(currentBuild.result)
-                    notifyBitbucket(currentBuild.result)
+                    notifyBitbucket(currentBuild.result)                    
                 }
             }
         }
