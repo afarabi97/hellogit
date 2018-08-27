@@ -57,6 +57,10 @@ def is_ready(vm):
 def get_vm_by_name(si, name):
     """
     Find a virtual machine by it's name and return it
+
+    :param si (vim.ServiceInstance): An instance of a smart connector linked to a vCenter instance
+    :param name (str): The name of the VM you want to get
+    :return (?): TODO I still need to figure out what this ends up being
     """
     print(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
     exit(0)
@@ -122,6 +126,7 @@ def get_registered_vms(si):
     """
     return _get_all_objs(si.RetrieveContent(), [vim.VirtualMachine])
 
+
 # TODO: I left the type out here in the definition. No idea why, but when you run type() you get
 # pyVmomi.VmomiSupport.vim.Task. However, vim is not a package within VmomiSupport so it throws an error.
 def wait_for_task(task) -> None:
@@ -166,6 +171,45 @@ def create_client(configuration: OrderedDict) -> VsphereClient:
         password=configuration["host_configuration"]["vcenter"]["password"],
         session=session)  # type: VsphereClient
 
+
+# TODO: I left the type out here in the definition. No idea why, but when you run type() you get
+# pyVmomi.VmomiSupport.vim.ServiceInstance. However, vim is not a package within VmomiSupport so it throws an error.
+def create_smart_connect_client(configuration: OrderedDict) -> vim.ServiceInstance:
+
+    username = configuration["host_configuration"]["vcenter"]["username"]
+    password = configuration["host_configuration"]["vcenter"]["password"]
+    vcenter_ip = configuration["host_configuration"]["vcenter"]["ip_address"]
+
+    # This will connect us to vCenter
+    return SmartConnectNoSSL(host=vcenter_ip,
+                          user=username,
+                          pwd=password,
+                          port=443)  # type: pyVmomi.VmomiSupport.vim.ServiceInstance
+
+def change_network_address(configuration: OrderedDict, vm_name: str):
+
+    s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+    vm = get_vm_by_name()
+
+
+    state = client.vcenter.vm.Power.get(vm)
+    if state == Power.Info(state=Power.State.POWERED_ON):
+        s.vcenter.vm.Power.stop(vm)
+    elif state == Power.Info(state=Power.State.SUSPENDED):
+        s.vcenter.vm.Power.start(vm)
+        s.vcenter.vm.Power.stop(vm)
+
+def power_off_vm():
+    if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
+        # using time.sleep we just wait until the power off action
+        # is complete. Nothing fancy here.
+        print
+        "powering off..."
+        task = vm.PowerOff()
+        while task.info.state not in [vim.TaskInfo.State.success,
+                                      vim.TaskInfo.State.error]:
+            time.sleep(1)
+
 def delete_vm(client: VsphereClient, vm_name: str) -> None:
     """
     Deletes the VM from the server's inventory
@@ -197,16 +241,9 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
     :return:
     """
 
-    username = configuration["host_configuration"]["vcenter"]["username"]
-    password = configuration["host_configuration"]["vcenter"]["password"]
-    vcenter_ip = configuration["host_configuration"]["vcenter"]["ip_address"]
-    cluster_name = configuration["host_configuration"]["vcenter"]["cluster_name"]
+    s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
 
-    # This will connect us to vCenter
-    s = SmartConnectNoSSL(host=vcenter_ip,
-                          user=username,
-                          pwd=password,
-                          port=443)  # type: pyVmomi.VmomiSupport.vim.ServiceInstance
+    cluster_name = configuration["host_configuration"]["vcenter"]["cluster_name"]
 
     # With this we are searching for the MOID of the VM to clone from
     template_vm = get_vm_by_name(s, vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
