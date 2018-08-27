@@ -16,9 +16,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="The path to the configuration YAML file you want to load in")
-    parser.add_argument("--build_controller", help="Specify this option if you want the controller built from a clone")
+    parser.add_argument("--controller", help="Specify this option if you want the controller built from a clone")
     args = parser.parse_args()
-    print(args.config)
+    #print(args.config)
 
     # Python dicts do not preserve order so we must use an ordered dictionary
     # If using 3.7+ this is not an issue as it is the default behavior

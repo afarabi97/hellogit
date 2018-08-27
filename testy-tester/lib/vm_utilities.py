@@ -58,6 +58,8 @@ def get_vm_by_name(si, name):
     """
     Find a virtual machine by it's name and return it
     """
+    print(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
+    exit(0)
     return _get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)
 
 def get_folder(si, name):
