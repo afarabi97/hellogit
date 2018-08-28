@@ -33,7 +33,7 @@ class VirtualMachine:
         vm_name (str): The name of the virtual machine as it appears in vCenter
     """
 
-    def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path: str) -> None:
+    def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path=None) -> None:
         """
         Initializes a virtual machine object
 
@@ -118,7 +118,7 @@ class VirtualMachine:
                         network=network_helper.get_distributed_network_backing(
                                 self.client,
                                 self.vm_spec["networking"]["nics"][nic]["dv_portgroup_name"],
-                                self.vm_spec["storage_options"]["datacenter"]))))
+                                self.vm_spec["storage_options"]["datacenter"])))) # TODO: This is not working on vCenter 6.5
 
         # Only create a CDROM drive if the user put an iso as part of their
         # configuration

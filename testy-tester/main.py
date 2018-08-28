@@ -29,9 +29,9 @@ def main():
         try:
             configuration = yaml.load(kit_schema)
             kit_configuration = configuration["kits"]["kit_1"]
-            iso_folder_path = \
-            "[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
-            '/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
+            #iso_folder_path = \
+            #"[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
+            #'/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
 
         except yaml.YAMLError as exc:
             print(exc)
@@ -40,15 +40,15 @@ def main():
 
     controller_name = get_controller(kit_configuration)
 
-    if args.build_controller:
-        delete_vm(vsphere_client, kit_configuration["VMs"][controller_name]["cloned_vm_name"])
+    #if args.build_controller:
+    #    delete_vm(vsphere_client, kit_configuration["VMs"][controller_name]["cloned_vm_name"])
+#
+#        clone_vm(configuration,
+#                 kit_configuration["VMs"][controller_name]["vm_to_clone"],
+#                 kit_configuration["VMs"][controller_name]["cloned_vm_name"],
+#                 kit_configuration["VMs"][controller_name]["storage_options"]["folder"])
 
-        clone_vm(configuration,
-                 kit_configuration["VMs"][controller_name]["vm_to_clone"],
-                 kit_configuration["VMs"][controller_name]["cloned_vm_name"],
-                 kit_configuration["VMs"][controller_name]["storage_options"]["folder"])
-
-    vms = create_vms(kit_configuration, vsphere_client, iso_folder_path)  # type: list
+    vms = create_vms(kit_configuration, vsphere_client)#, iso_folder_path)  # type: list
 
     configure_deployer(kit_configuration, get_controller(kit_configuration))
 

@@ -19,6 +19,7 @@ from com.vmware.vcenter_client import VM
 from lib.vsphere.vcenter.helper import datastore_helper
 from lib.vsphere.vcenter.helper import folder_helper
 from lib.vsphere.vcenter.helper import resource_pool_helper
+from lib.vsphere.vcenter.helper import cluster_helper
 
 
 def get_placement_spec_for_resource_pool(client,
@@ -40,10 +41,15 @@ def get_placement_spec_for_resource_pool(client,
                                                datacenter_name,
                                                datastore_name)
 
+    cluster = cluster_helper.get_cluster(client,
+                                         datacenter_name,
+                                         "RDTE")
+
     # Create the vm placement spec with the datastore, resource pool and vm
     # folder
     placement_spec = VM.PlacementSpec(folder=folder,
-                                      resource_pool=resource_pool,
+                                      #resource_pool=resource_pool,
+                                      cluster=cluster,
                                       datastore=datastore)
 
     print("get_placement_spec_for_resource_pool: Result is '{}'".

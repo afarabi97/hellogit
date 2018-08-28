@@ -274,7 +274,7 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
     Disconnect(s)
 
 
-def create_vms(kit_configuration: OrderedDict, client: VsphereClient, iso_folder_path: str) -> list:
+def create_vms(kit_configuration: OrderedDict, client: VsphereClient, iso_folder_path=None) -> list:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 

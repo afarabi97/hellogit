@@ -68,6 +68,7 @@ def get_distributed_network_backing(client,
 
     if len(network_summaries) > 0:
         network = network_summaries[0].network
+        print(network)
         print("Selecting Distributed Portgroup Network '{}' ({})".
               format(dv_portgroup_name, network))
         return network

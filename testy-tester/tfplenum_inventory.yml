@@ -24,13 +24,13 @@ all:
     # CPU Allocations           #
     #############################
 
-    bro_cpu_request: 8700m
-    moloch_cpu_request: 2850m
-    suricata_cpu_request: 900m
-    kafka_cpu_request: 1950m
-    zookeeper_cpu_request: 450m
-    logstash_cpu_request: 1600m
-    elasticsearch_cpu_request: 4000m
+    bro_cpu_request: 1739m
+    moloch_cpu_request: 570m
+    suricata_cpu_request: 180m
+    kafka_cpu_request: 390m
+    zookeeper_cpu_request: 90m
+    logstash_cpu_request: 400m
+    elasticsearch_cpu_request: 1000m
 
     #############################
     # Moloch Settings           #
@@ -55,7 +55,7 @@ all:
     # one giant storage device across the entire kit. This is ideal for many types
     # of storage, but causes latency. This is not acceptable for high speed PCAP
     # capture.
-    use_ceph_for_pcap: False
+    use_ceph_for_pcap: True
 
     # This should be defined if you are going to use Moloch in direct disk
     # access mode which is the default. If this is defined it is assumed you are
@@ -72,7 +72,7 @@ all:
     # will assign to PCAP. It should be zero if use_ceph_for_pcap is false.
     # Remember, this will be spread out across every drive in the ceph cluster
     # as defined in the variable "ceph_drive_list".
-    moloch_pcap_pv_size: 0
+    moloch_pcap_pv_size: 24
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
     moloch_spiDataMaxIndices: "5"
@@ -93,16 +93,16 @@ all:
     # different from elastic_masters in that they do not run the master role
     # Unless your kit will exceed 5 nodes, you should probably leave this at 0
     # unless you know what you are doing.
-    elastic_datas: 1
+    elastic_datas: 0
 
     # The number of Elasticsearch masters you will run
-    elastic_masters: 5
+    elastic_masters: 3
 
     # The amount of memory you want to assign to each Elasticsearch instance
-    elastic_memory: 12
+    elastic_memory: 3
 
     # The amount of space allocated in GB to each persistent volume for Elasticsearch
-    elastic_pv_size: 6
+    elastic_pv_size: 4
 
     # The percentage of maximum allocated space for Elasticsearch that can be filled
     # before Curator begins deleting indices. The oldest moloch indices that exceed
@@ -120,7 +120,7 @@ all:
     home_net:
 
 
-      - "172.16.82.0/24"
+      - "172.18.3.64/27"
 
 
 
@@ -155,7 +155,7 @@ all:
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
     # This includes cockpit, Moloch viewer, Kibana, elastichq, kafka-manager, and
     # the kubernetes dashboard. This range must be at least a /28. Ex: "192.168.1.16/28"
-    kubernetes_services_cidr: "172.16.82.16/28"
+    kubernetes_services_cidr: "172.18.3.80/28"
 
     #############################
     # Software Locations        #
@@ -237,11 +237,14 @@ all:
     # Here you will define any variables specific to each sensor host.
 
         sensors:
+
           hosts:
 
+
+
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
-            tfsensor1.lan:
+            sensor.lan:
 
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
@@ -252,24 +255,26 @@ all:
 
               # This is the management IP address of the node. Ex: 192.168.1.198
               # This is the address Ansible will use to communicate with.
-              management_ipv4: "172.16.82.50"
+              management_ipv4: "172.18.3.67"
 
               # This is the number of bro workers which will spawn on the sensor
-              bro_workers: 9
+              bro_workers: 2
 
               # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: 3
+              moloch_threads: 1
 
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
               sensor_monitor_interface:
-                - ens224
+
+                - ens34
+
 
               # Instead of using ceph you can use an entire drive for PCAP storage.
               # This is the drive you will use. Ex: /dev/sdb. This is only used
               # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
               # for this to work. moloch_pcap_folder will be the mount point.
-              pcap_disk: /dev/sdb
+              pcap_disk:
 
               # These are the disks you will use for Ceph. These must be devices.
               # This cannot be a folder or partition. Ex: /dev/vdb. You may have
@@ -277,43 +282,11 @@ all:
               # two.
               ceph_drive_list:
 
-            # This is the hostname of the sensor. Whatever you put here will be
-            # used to overwrite the current hostname.
-            tfsensor2.lan:
+                - /dev/sdb
 
-              # This is the user you will use to SSH to each box for setup. This
-              # should always be root.
-              ansible_user: root
 
-              # This is the Ansible connection type. This should always be SSH.
-              ansible_connection: ssh
 
-              # This is the management IP address of the node. Ex: 192.168.1.198
-              # This is the address Ansible will use to communicate with.
-              management_ipv4: "172.16.82.51"
 
-              # This is the number of bro workers which will spawn on the sensor
-              bro_workers: 9
-
-              # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: 3
-
-              # This is the interface the sensor will use for monitoring on Moloch,
-              # bro, and Suricata. Ex: ens4
-              sensor_monitor_interface:
-                - ens224
-
-              # Instead of using ceph you can use an entire drive for PCAP storage.
-              # This is the drive you will use. Ex: /dev/sdb. This is only used
-              # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
-              # for this to work. moloch_pcap_folder will be the mount point.
-              pcap_disk: /dev/sdb
-
-              # These are the disks you will use for Ceph. These must be devices.
-              # This cannot be a folder or partition. Ex: /dev/vdb. You may have
-              # none on a machine. On the system in total there must be at least
-              # two.
-              ceph_drive_list:
 
         # If you have a deployment where the majority of the kit is in one location,
         # but some sensors remotely deployed away from the central servers put them
@@ -335,14 +308,16 @@ all:
     # only.
 
         servers:
+
+
           hosts:
-            tfserver2.lan:
+
+
+            server-2.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: "172.16.82.41"
+              management_ipv4: 172.18.3.69
               ceph_drive_list:
-
-                - /dev/sdb
 
 
 
@@ -359,11 +334,12 @@ all:
     # feel free to dig through the code.
 
           hosts:
-            tfserver1.lan:
+            server-1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: "172.16.82.40"
+              management_ipv4: 172.18.3.68
               ceph_drive_list:
+
                 - /dev/sdb
 
 
