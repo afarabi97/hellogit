@@ -104,10 +104,7 @@ class VirtualMachine:
                     mac_type=Ethernet.MacAddressType.GENERATED,
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network=network_helper.get_distributed_network_backing(
-                                self.client,
-                                self.vm_spec["networking"]["nics"][nic]["dv_portgroup_name"],
-                                self.vm_spec["storage_options"]["datacenter"]))))
+                        network="dvportgroup-424")))
             else:
                 nics.append(Ethernet.CreateSpec(
                     start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
@@ -115,10 +112,7 @@ class VirtualMachine:
                     mac_address=self.vm_spec["networking"]["nics"][nic]["mac_address"],
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network=network_helper.get_distributed_network_backing(
-                                self.client,
-                                self.vm_spec["networking"]["nics"][nic]["dv_portgroup_name"],
-                                self.vm_spec["storage_options"]["datacenter"])))) # TODO: This is not working on vCenter 6.5
+                        network="dvportgroup-424")))
 
         # Only create a CDROM drive if the user put an iso as part of their
         # configuration

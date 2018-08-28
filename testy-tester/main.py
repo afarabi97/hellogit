@@ -10,7 +10,7 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
 from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum
-
+from lib.ssh import SSH_client
 
 def main():
 

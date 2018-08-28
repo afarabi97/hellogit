@@ -104,18 +104,18 @@ all:
 
             sensor.lan:
               ip: 172.18.3.67
-              mac: 00:50:56:b7:2c:13
+              mac: AA:AA:AA:AA:AA:AC
               boot_drive: sda
               pxe_type: bios
 
             server-2.lan:
               ip: 172.18.3.69
-              mac: 00:50:56:b7:e5:9f
+              mac: AA:AA:AA:AA:AA:AB
               boot_drive: sda
               pxe_type: bios
 
             server-1.lan:
               ip: 172.18.3.68
-              mac: 00:50:56:b7:b6:0c
+              mac: AA:AA:AA:AA:AA:AA
               boot_drive: sda
               pxe_type: bios
