@@ -1,0 +1,29 @@
+---
+
+- set_fact:
+        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get suricata pods
+  shell: |
+    {{ cmd }} | grep 'suricata-'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Suricata Process
+  import_role:
+    name: common
+    tasks_from: check_pod_process
+  vars:
+    app_name: "suricata"
+    process_name: "suricata"
+    pod_list: "{{ get_pods.stdout_lines }}"
+
+- name: Check Suricata Indicies
+  import_role:
+    name: common
+    tasks_from: check_indices
+  vars:
+    app_name: "suricata"
+    index_regex: "^suricata.*"
+    
+...

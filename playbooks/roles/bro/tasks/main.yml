@@ -1,0 +1,29 @@
+---
+
+- set_fact:
+        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get bro pods
+  shell: |
+    {{ cmd }} | grep 'bro-'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Bro Process
+  import_role:
+    name: common
+    tasks_from: check_pod_process
+  vars:
+    app_name: "bro"
+    process_name: "bro"
+    pod_list: "{{ get_pods.stdout_lines }}"
+
+- name: Check Bro Indicies
+  import_role:
+    name: common
+    tasks_from: check_indices
+  vars:
+    app_name: "bro"
+    index_regex: "^bro.*"
+    
+...

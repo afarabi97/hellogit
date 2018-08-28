@@ -1,0 +1,31 @@
+---
+
+- name: Get elasticsearch indices
+  uri:
+    url: "{{ elastic_uri }}/_cat/indices?v&format=json"
+  register: elasticsearch_indices
+
+- set_fact:
+    indices_json: "{{ elasticsearch_indices.json }}"
+
+- set_fact:
+    indices: "{{ indices_json | map(attribute='index') | map('regex_search',index_regex) | select('string') | list }}"
+
+- debug:
+    msg: "{{ indices }}"
+
+- set_fact:
+    index_data: []
+
+- set_fact:
+    index_data: "{{ index_data }} + [ {{ item }} ]"
+  with_items: "{{ indices_json }}"
+  when: item.index in indices
+
+- name: Test | Verify {{ app_name }} index is available in elasticsearch
+  assert:
+    that: "'green' in item.health"
+    msg: "{{ app_name }} index verification has failed. {{ app_name }} index {{ item.index }} health is {{ item.health }}."
+  with_items: "{{ index_data }}"
+
+...

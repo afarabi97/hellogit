@@ -1,0 +1,42 @@
+---
+
+- set_fact:
+        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get moloch pods
+  shell: |
+    {{ cmd }} | grep 'moloch-' | grep -Fv 'moloch-viewer'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Moloch Process
+  import_role:
+    name: common
+    tasks_from: check_pod_process
+  vars:
+    app_name: "moloch"
+    process_name: "molochcapture"
+    pod_list: "{{ get_pods.stdout_lines }}"
+
+# - set_fact:
+#     moloch_indices: "{{ moloch_indices }} + [ {{ item }} ]"
+#   with_items: "{{ elasticsearch_indices.json }}"
+#   when: "('sessions2' in item.index) 
+#     or ('fields' in item.index) 
+#     or ('queries' in item.index) 
+#     or ('dstats' in item.index) 
+#     or ('users' in item.index) 
+#     or ('sequence' in item.index) 
+#     or ('stats' in item.index) 
+#     or ('files' in item.index)"
+
+
+- name: Check Moloch Indicies
+  import_role:
+    name: common
+    tasks_from: check_indices
+  vars:
+    app_name: "moloch"
+    index_regex: "^(files|stats|sequence|users|dstats|queries|fields|sessions2).*"
+    
+...

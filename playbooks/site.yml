@@ -44,13 +44,31 @@
     - elasticsearch
   tags: elasticsearch
 
-- name: Validate Apps Bro Suricata Moloch
+- name: Validate Bro
   hosts:
   - master-server
   gather_facts: no
   any_errors_fatal: true  
   roles:
-    - apps
-  tags: apps
+    - bro
+  tags: bro
+
+- name: Validate Suricata
+  hosts:
+  - master-server
+  gather_facts: no
+  any_errors_fatal: true  
+  roles:
+    - suricata
+  tags: suricata
+
+- name: Validate Moloch
+  hosts:
+  - master-server
+  gather_facts: no
+  any_errors_fatal: true  
+  roles:
+    - moloch
+  tags: moloch
 
 ...

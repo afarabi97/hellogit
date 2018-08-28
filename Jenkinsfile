@@ -92,6 +92,7 @@ pipeline {
                 node('tfplenum-test-controller') { 
                     script {
                         env.JUNIT_OUTPUT_DIR = "$WORKSPACE/reports"
+                        env.JUNIT_FAIL_ON_CHANGE = "true"
                         sh("mkdir -p $WORKSPACE/reports")
                     }
                     dir('/opt/tfplenum-integration-testing/playbooks') {
