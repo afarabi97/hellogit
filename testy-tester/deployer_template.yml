@@ -1,7 +1,4 @@
 ---
-{% for node in kit.nodes %}{% if node.type == 'controller' %}{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
-{% set controller_ip = interface.ip_address }}
-{% endif %}{% endfor %}{% endif %}{% endfor %}
 # The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
 # themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
 # function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
