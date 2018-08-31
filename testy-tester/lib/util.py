@@ -7,7 +7,28 @@ from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
 import os.path
 from lib.model.kit import Kit
 from lib.model.node import Node, Interface, Node_Disk
+import json
 
+
+def todict(obj, classkey=None):
+    if isinstance(obj, dict):
+        data = {}
+        for (k, v) in obj.items():
+            data[k] = todict(v, classkey)
+        return data
+    elif hasattr(obj, "_ast"):
+        return todict(obj._ast())
+    elif hasattr(obj, "__iter__") and not isinstance(obj, str):
+        return [todict(v, classkey) for v in obj]
+    elif hasattr(obj, "__dict__"):
+        data = dict([(key, todict(value, classkey)) 
+            for key, value in obj.__dict__.items() 
+            if not callable(value) and not key.startswith('_')])
+        if classkey is not None and hasattr(obj, "__class__"):
+            data[classkey] = obj.__class__.__name__
+        return data
+    else:
+        return obj
 
 def render(tpl_path: str, context: dict):
     path, filename = os.path.split(tpl_path)
@@ -51,7 +72,7 @@ def configure_deployer(kit: Kit, controller_node: Node) -> None:
 
     # Render deployer template
     with open('/tmp/deployer_template.yml', 'wb') as fh:
-        fh.write(render(kit.deployer_template, kit))
+        fh.write(render(kit.deployer_template, todict(kit) ))
 
     
     # Copy TFPlenum Deployer inventory

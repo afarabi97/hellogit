@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 
-class Storage_Options(object):
-    def __init__(self, datacenter: str, cluster: str, datastore: str, folder: str):
-        self.datacenter = datacenter
-        self.cluster = cluster
-        self.datastore = datastore
-        self.folder = folder
-
 class Interface(object):
     def __init__(self, name: str, interface_type: str, ip_address: str, start_connected: str):
         self.name = name
@@ -28,7 +21,7 @@ class Interface(object):
     
     def __str__(self):        
         return "Interface: %s Ip: %s Mac: %s" % (self.name, self.ip_address, self.mac_address)
-
+    
 class Node_Disk(object):
     def __init__(self, name: str, size):
         self.name = name
@@ -36,7 +29,6 @@ class Node_Disk(object):
     
     def __str__(self):
         return "Name: %s Size: %s" % (self.name, self.size)
-
 
 class Node(object):
     def __init__(self, hostname: str, node_type: str):
