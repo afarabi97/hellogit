@@ -108,7 +108,7 @@ all:
       children:
         servers:
           hosts:
-{% for node in nodes %}
+{% for node in kit.nodes %}
 {% if node.type != 'controller' %}
             {{ node.hostname }}:
 {% for interface in interfaces %}   

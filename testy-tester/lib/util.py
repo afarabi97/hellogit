@@ -71,9 +71,8 @@ def configure_deployer(kit: Kit, controller_node: Node) -> None:
         connect_kwargs={"password": controller_node.password})  # type: Connection
 
     # Render deployer template
-    with open('/tmp/deployer_template.yml', 'wb') as fh:
+    with open('/tmp/deployer_template.yml', 'w') as fh:
         fh.write(render(kit.deployer_template, todict(kit) ))
-
     
     # Copy TFPlenum Deployer inventory
     client.put('/tmp/deployer_template.yml', '/opt/tfplenum-deployer/playbooks/inventory.yml')
