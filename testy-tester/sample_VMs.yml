@@ -30,10 +30,22 @@ kits:
     username: ""
     password: ""
 
-    deployer_inventory_file: '/opt/tfplenum-integration-testing/testy-tester/deployer_inventory.yml'
+    deployer_inventory_file: '/opt/tfplenum-integration-testing/testy-tester/deployer_template.yml'
     tfplenum_inventory_file: '/opt/tfplenum-integration-testing/testy-tester/tfplenum_inventory.yml'
 
-    VMs:
+    # Kubernetes cidr will probably be different on a per kit basis
+    kubernetes_cidr: "172.16.82.112/28"
+
+    # DHCP Ranges
+    dhcp_start: "172.16.82.100"
+    dhcp_end: "172.16.82.110"
+
+    # Gateway will probably be different on a per kit basis (depends on the vlan)
+    gateway: "172.16.82.1"
+
+
+
+    VMs:     
 
       # Note: You should not have more than one of these
       test_controller.lan:

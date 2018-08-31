@@ -9,8 +9,10 @@ import argparse
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
-from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum
+from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform
 from lib.ssh import SSH_client
+from lib.model.kit import Kit
+from lib.model.node import Node, Interface, Node_Disk
 
 def main():
 
@@ -28,7 +30,10 @@ def main():
     with open(sys.argv[1], 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
-            kit_configuration = configuration["kits"]["kit_1"]
+
+            # Returns a list of kit objects
+            kits = transform(configuration["kits"])
+
             #iso_folder_path = \
             #"[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
             #'/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
@@ -37,33 +42,34 @@ def main():
             print(exc)
 
     vsphere_client = create_client(configuration)  # type: VsphereClient
+    
+    for kit in kits:
+        controller_node = get_controller(kit)        
 
-    controller_name = get_controller(kit_configuration)
+        #if args.build_controller:
+        #    delete_vm(vsphere_client, kit_configuration["VMs"][controller_name]["cloned_vm_name"])
+    #
+    #        clone_vm(configuration,
+    #                 kit_configuration["VMs"][controller_name]["vm_to_clone"],
+    #                 kit_configuration["VMs"][controller_name]["cloned_vm_name"],
+    #                 kit_configuration["VMs"][controller_name]["storage_options"]["folder"])
 
-    #if args.build_controller:
-    #    delete_vm(vsphere_client, kit_configuration["VMs"][controller_name]["cloned_vm_name"])
-#
-#        clone_vm(configuration,
-#                 kit_configuration["VMs"][controller_name]["vm_to_clone"],
-#                 kit_configuration["VMs"][controller_name]["cloned_vm_name"],
-#                 kit_configuration["VMs"][controller_name]["storage_options"]["folder"])
+        vms = create_vms(kit, vsphere_client)#, iso_folder_path)  # type: list
 
-    vms = create_vms(kit_configuration, vsphere_client)#, iso_folder_path)  # type: list
+        configure_deployer(kit, controller_node)
 
-    configure_deployer(kit_configuration, get_controller(kit_configuration))
+        for vm in vms:
+            vm.power_on()
 
-    for vm in vms:
-        vm.power_on()
+        vms_to_test = []  # type: list
 
-    vms_to_test = []  # type: list
+        for node in kit.nodes:
+            if node.type != "controller":
+                vms_to_test.append(node)
 
-    for vm in kit_configuration["VMs"].keys():
-        if kit_configuration["VMs"][vm]["type"] != "controller":
-            vms_to_test.append(vm)
+        test_vms_up_and_alive(kit_configuration, vms_to_test)
 
-    test_vms_up_and_alive(kit_configuration, vms_to_test)
-
-    build_tfplenum(kit_configuration, controller_name)
+        build_tfplenum(kit_configuration, controller_node.hostname)
 
 if __name__ == '__main__':
     main()

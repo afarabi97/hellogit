@@ -9,6 +9,8 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient, create_vsphere_client
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from com.vmware.vcenter.vm_client import (Hardware, Power)
+from lib.model.kit import Kit
+from lib.model.node import Node, Interface, Node_Disk
 
 def _get_obj(content, vimtype, name):
     """
@@ -274,7 +276,7 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
     Disconnect(s)
 
 
-def create_vms(kit_configuration: OrderedDict, client: VsphereClient, iso_folder_path=None) -> list:
+def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
@@ -285,9 +287,9 @@ def create_vms(kit_configuration: OrderedDict, client: VsphereClient, iso_folder
     """
 
     vms = []  # type: list
-    for vm in kit_configuration["VMs"].keys():
-        if kit_configuration["VMs"][vm]["type"] != "controller":
-            vm_instance = VirtualMachine(client, kit_configuration["VMs"][vm], vm, iso_folder_path)
+    for node in kit.nodes:
+        if node.type != "controller":
+            vm_instance = VirtualMachine(client, node, iso_folder_path)
             vm_instance.cleanup()
             vm_instance.create()
             vms.append(vm_instance)

@@ -17,6 +17,8 @@ from lib.vsphere.common.sample_util import pp
 from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.model.kit import Kit
+from lib.model.node import Node, Interface, Node_Disk
 
 
 class VirtualMachine:
@@ -33,12 +35,12 @@ class VirtualMachine:
         vm_name (str): The name of the virtual machine as it appears in vCenter
     """
 
-    def __init__(self, client: VsphereClient, vm_spec: OrderedDict, vm_name: str, iso_folder_path=None) -> None:
+    def __init__(self, client: VsphereClient, node: Node, iso_folder_path=None) -> None:
         """
         Initializes a virtual machine object
 
         :param client (VsphereClient): a vCenter server client
-        :param vm_spec (OrderedDict): The schema of a virtual machine
+        :param vm_spec (Node): The schema of a virtual machine
         :param vm_name (str): The name of the virtual machine
         :param iso_folder_path (str): Path to the ISO files folder
         :return:
@@ -46,19 +48,19 @@ class VirtualMachine:
 
         self.client = client # type: VsphereClient
 
-        self.vm_spec = vm_spec # type: OrderedDict
+        self.vm_spec = node # type: Node
 
-        if self.vm_spec["iso_file"] is not None:
-            self.iso_path = iso_folder_path + self.vm_spec["iso_file"] # type: str
+        if node.iso_file is not None:
+            self.iso_path = iso_folder_path + node.iso_file # type: str
         else:
             self.iso_path = None
 
         # Get a placement spec
         self.placement_spec = vm_placement_helper.get_placement_spec_for_resource_pool(
             self.client,
-            self.vm_spec["storage_options"]["datacenter"],
-            self.vm_spec["storage_options"]["folder"],
-            self.vm_spec["storage_options"]["datastore"]) # type: PlacementSpec
+            node.storage_datacenter,
+            node.storage_folder,
+            node.storage_datastore) # type: PlacementSpec
 
         # Get a standard network backing
         # TODO: Left it here just in case we swap to a non distributed switch
@@ -68,7 +70,7 @@ class VirtualMachine:
         #    self.vm_spec["networking"]["std_portgroup_name"],
         #    self.vm_spec["storage_options"]["datacenter"]) # type: str
 
-        self.vm_name = vm_name # type: str
+        self.vm_name = node.hostname # type: str
 
     def create(self) -> str:
         """
@@ -80,39 +82,39 @@ class VirtualMachine:
         GiB = 1024 * 1024 * 1024 # type: int
         GiBMemory = 1024 # type: int
 
-        cpu=Cpu.UpdateSpec(count=self.vm_spec["cpu_spec"]["sockets"],
-                           cores_per_socket=self.vm_spec["cpu_spec"]["cores_per_socket"],
-                           hot_add_enabled=self.vm_spec["cpu_spec"]["hot_add_enabled"],
-                           hot_remove_enabled=self.vm_spec["cpu_spec"]["hot_remove_enabled"])
+        cpu=Cpu.UpdateSpec(count=self.vm_spec.cpu_sockets,
+                           cores_per_socket=self.vm_spec.cores_per_socket,
+                           hot_add_enabled=self.vm_spec.cpu_hot_add_enabled,
+                           hot_remove_enabled=self.vm_spec.cpu_hot_remove_enabled)
 
-        memory=Memory.UpdateSpec(size_mib=self.vm_spec["memory_spec"]["size"] * GiBMemory,
-                                 hot_add_enabled=self.vm_spec["memory_spec"]["hot_add_enabled"])
+        memory=Memory.UpdateSpec(size_mib=self.vm_spec.memory_size * GiBMemory,
+                                 hot_add_enabled=self.vm_spec.memory_hot_add_enabled)
 
         # Create a list of the VM's disks
         disks = []  # type: list
-        for disk_name, capacity in self.vm_spec["disks"].items():
+        for disk in self.vm_spec.disks:
             disks.append(Disk.CreateSpec(
-                new_vmdk=Disk.VmdkCreateSpec(name=disk_name,
-                                             capacity=capacity * GiB)))
+                new_vmdk=Disk.VmdkCreateSpec(name=disk.name,
+                                             capacity=disk.size * GiB)))
 
         # Create a list of the VM's NICs
         nics = []  # type: list
-        for nic in self.vm_spec["networking"]["nics"].keys():
-            if self.vm_spec["networking"]["nics"][nic]["mac_auto_generated"]:
+        for interface in self.vm_spec.interfaces:        
+            if interface.mac_auto_generated:
                 nics.append(Ethernet.CreateSpec(
-                    start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
+                    start_connected=interface.start_connected,
                     mac_type=Ethernet.MacAddressType.GENERATED,
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network="dvportgroup-424")))
+                        network=interface.dv_portgroup_name)))
             else:
                 nics.append(Ethernet.CreateSpec(
-                    start_connected=self.vm_spec["networking"]["nics"][nic]["start_connected"],
+                    start_connected=interface.start_connected,
                     mac_type=Ethernet.MacAddressType.MANUAL,
-                    mac_address=self.vm_spec["networking"]["nics"][nic]["mac_address"],
+                    mac_address=interface.mac_address,
                     backing=Ethernet.BackingSpec(
                         type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-                        network="dvportgroup-424")))
+                        network=interface.dv_portgroup_name)))
 
         # Only create a CDROM drive if the user put an iso as part of their
         # configuration
@@ -131,7 +133,7 @@ class VirtualMachine:
 
         # Create the boot order for the VM
         boot_devices = [] # type: list
-        for item in self.vm_spec["boot_order"]:
+        for item in self.vm_spec.boot_order:
             if item == "CDROM":
                 if self.iso_path is not None:
                     boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.CDROM))
@@ -141,7 +143,7 @@ class VirtualMachine:
                 boot_devices.append(BootDevice.EntryCreateSpec(BootDevice.Type.ETHERNET))
 
         vm_create_spec = VM.CreateSpec(
-            guest_os=self.vm_spec["vm_guestos"],
+            guest_os=self.vm_spec.guestos,
             name=self.vm_name,
             placement=self.placement_spec,
             hardware_version=Hardware.Version.VMX_11,

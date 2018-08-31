@@ -3,9 +3,19 @@ from collections import OrderedDict
 from time import sleep
 from lib.ssh import SSH_client
 from fabric import Connection
+from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
+import os.path
+from lib.model.kit import Kit
+from lib.model.node import Node, Interface, Node_Disk
 
 
-def get_controller(kit_configuration: OrderedDict) -> list:
+def render(tpl_path: str, context: dict):
+    path, filename = os.path.split(tpl_path)
+    return Environment(
+        loader=FileSystemLoader(path or './')
+    ).get_template(filename).render(kit=context)
+
+def get_controller(kit: Kit) -> Node:
     """
     Searches a YAML kit_configuration for a Controller VM and returns the first found
 
@@ -13,14 +23,14 @@ def get_controller(kit_configuration: OrderedDict) -> list:
     :return (list): The name of a controller for a kit
     """
 
-    for vm in kit_configuration["VMs"].keys():
-        if kit_configuration["VMs"][vm]["type"] == "controller":
-            return vm
+    for node in kit.nodes:
+        if node.type == "controller":
+            return node
 
     return ""
 
 
-def configure_deployer(kit_configuration: OrderedDict, controller: str) -> None:
+def configure_deployer(kit: Kit, controller_node: Node) -> None:
     """
     Configures the deployer for a build. This includes transferring the appropriate
     inventory file and running make.
@@ -29,13 +39,23 @@ def configure_deployer(kit_configuration: OrderedDict, controller: str) -> None:
     :param controller_name (list): A list of the controllers you would like to configure
     :return:
     """
+    
+    for interface in controller_node.interfaces:
+        if interface.name == "management_nic":
+            management_nic = interface
+
 
     client = Connection(
-        host=kit_configuration["VMs"][controller]["networking"]["nics"]["management_nic"]["ip_address"],
-        connect_kwargs={"password": kit_configuration["VMs"][controller]["password"]})  # type: Connection
+        host=management_nic.ip_address,
+        connect_kwargs={"password": controller_node.password})  # type: Connection
 
+    # Render deployer template
+    with open('/tmp/deployer_template.yml', 'wb') as fh:
+        fh.write(render(kit.deployer_template, kit))
+
+    
     # Copy TFPlenum Deployer inventory
-    client.put(kit_configuration["deployer_inventory_file"], '/opt/tfplenum-deployer/playbooks/inventory.yml')
+    client.put('/tmp/deployer_template.yml', '/opt/tfplenum-deployer/playbooks/inventory.yml')
 
     with client.cd("/opt/tfplenum-deployer/playbooks"):
         client.run('make')
@@ -43,7 +63,7 @@ def configure_deployer(kit_configuration: OrderedDict, controller: str) -> None:
     client.close()
 
 
-def build_tfplenum(kit_configuration: OrderedDict, controller: str, custom_command=None) -> None:
+def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
     """
     Builds the TFPlenum subsystem by running make
 
@@ -53,16 +73,20 @@ def build_tfplenum(kit_configuration: OrderedDict, controller: str, custom_comma
     :return:
     """
 
+    for interface in controller.interfaces:
+        if interface.name == "management_nic":
+            management_nic = interface
+
     client = Connection(
-        host=kit_configuration["VMs"][controller]["networking"]["nics"]["management_nic"]["ip_address"],
-        connect_kwargs={"password": kit_configuration["VMs"][controller]["password"]})  # type: Connection
+        host=management_nic,
+        connect_kwargs={"password": controller.password})  # type: Connection
 
     # Copy TFPlenum inventory
-    client.put(kit_configuration["tfplenum_inventory_file"], '/opt/tfplenum/playbooks/inventory.yml')
+    client.put(kit.tfplenum_template, '/opt/tfplenum/playbooks/inventory.yml')
 
     if custom_command is None:
         with client.cd("/opt/tfplenum/playbooks"):
-            client.run('ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass=' + kit_configuration["password"])
+            client.run('ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass=' + kit.password)
     else:
         with client.cd("/opt/tfplenum/playbooks"):
             client.run(custom_command)
@@ -70,13 +94,13 @@ def build_tfplenum(kit_configuration: OrderedDict, controller: str, custom_comma
     client.close()
 
 
-def test_vms_up_and_alive(kit_configuration: OrderedDict, vms_to_test: list) -> None:
+def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
     """
     Checks to see if a list of VMs are up and alive by using SSH. Does not return
     until all VMs are up.
 
     :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :param vms_to_test (list): A list of VMs you would like to test for liveness
+    :param vms_to_test (list): A list of Node objects you would like to test for liveness
     :return:
     """
 
@@ -85,12 +109,16 @@ def test_vms_up_and_alive(kit_configuration: OrderedDict, vms_to_test: list) -> 
 
         for vm in vms_to_test:
             print("VMs remaining: " + str(vms_to_test))
-            current_host = vm
-            print("Testing " + vm + " (" + kit_configuration["VMs"][vm]["networking"]["nics"]["management_nic"]["ip_address"] + ")")
+
+            for interface in vm.interfaces:
+                if interface.name == "management_nic":
+                    management_nic = interface
+            
+            print("Testing " + vm.hostname + " (" + management_nic + ")")
             result = SSH_client.test_connection(
-                kit_configuration["VMs"][vm]["networking"]["nics"]["management_nic"]["ip_address"],
-                kit_configuration["username"],
-                kit_configuration["password"],
+                management_nic,
+                kit.username,
+                kit.password,
                 timeout=5)
             if result:
                 vms_to_test.remove(vm)
@@ -100,3 +128,84 @@ def test_vms_up_and_alive(kit_configuration: OrderedDict, vms_to_test: list) -> 
             break
 
         sleep(5)
+
+def transform(configuration) -> list:
+    kits = []
+    for kitconfig in configuration:            
+        kit = Kit(kitconfig)
+        kit.set_username(configuration[kitconfig]['username'])
+        kit.set_password(configuration[kitconfig]['password'])
+        kit.set_deployer_template(configuration[kitconfig]['deployer_template'])
+        kit.set_tfplenum_template(configuration[kitconfig]['tfplenum_template'])
+        kit.set_kubernetes_cidr(configuration[kitconfig]['kubernetes_cidr'])
+        kit.set_dhcp_start(configuration[kitconfig]['dhcp_start'])
+        kit.set_dhcp_end(configuration[kitconfig]['dhcp_end'])
+        kit.set_gateway(configuration[kitconfig]['gateway'])
+        kit.set_netmask(configuration[kitconfig]['netmask'])
+        
+        VMs = configuration[kitconfig]["VMs"]
+        nodes = []
+        for v in VMs:
+            node = Node(v, VMs[v]['type'])            
+            if node.type == "controller":
+                node.set_username(VMs[v]['username'])
+                node.set_password(VMs[v]['password'])
+                node.set_vm_clone_options(VMs[v]['vm_to_clone'],VMs[v]['cloned_vm_name'])
+            else:
+                node.set_username(None)
+                node.set_password(None)
+                node.set_vm_clone_options(None,None)
+
+            node.set_guestos(VMs[v]['vm_guestos'])               
+            
+            storage = VMs[v]['storage_options']
+            node.set_storage_options(storage['datacenter'],storage['cluster'],storage['datastore'],storage['folder'])
+            
+            # Set networking specs
+            nics =  VMs[v]['networking']['nics']
+            interfaces = []
+            for nic in nics:
+                interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'],nics[nic]['start_connected'])
+                interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
+                interface.set_mac_address(nics[nic]['mac_address'])
+                interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
+                interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])                    
+                # Add interface to list of interfaces
+                interfaces.append(interface)                
+            # Set list of interfaces
+            node.set_interfaces(interfaces)
+            
+            # Set cpu specs
+            cpu_spec = VMs[v]['cpu_spec']
+            node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'], cpu_spec['hot_remove_enabled'])
+
+            # Set memory specs
+            memory_spec = VMs[v]['memory_spec'] 
+            node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
+            
+            # Set disk info
+            disk_spec = VMs[v]['disks']
+            disks = []
+            for d in disk_spec:
+                disk = Node_Disk(d, disk_spec[d])
+                disks.append(disk)
+            node.set_disks(disks)
+
+            # Set iso file path
+            node.set_iso_file(VMs[v]['iso_file'])
+            
+            # Set boot order
+            boot_order = []
+            for o in VMs[v]['boot_order']:
+                boot_order.append(o)
+            node.set_boot_order(boot_order)
+
+            # Add node to list of nodes
+            nodes.append(node)
+
+        # Add list of nodes to kit
+        kit.set_nodes(nodes)
+
+        # Add list of kits to kit
+        kits.append(kit)
+    return kits

@@ -43,7 +43,7 @@ def get_placement_spec_for_resource_pool(client,
 
     cluster = cluster_helper.get_cluster(client,
                                          datacenter_name,
-                                         "RDTE")
+                                         "Lab Cluster")
 
     # Create the vm placement spec with the datastore, resource pool and vm
     # folder
