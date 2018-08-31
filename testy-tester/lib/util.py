@@ -32,11 +32,11 @@ def todict(obj, classkey=None):
 
 def render(tpl_path: str, context: dict):
     path, filename = os.path.split(tpl_path)
-    for node in context:
-        if node.type == 'controller':
-            for interface in node.interfaces:
-                if interface.name == 'management_nic':
-                    controller_ip = interface.ip_address
+    for node in context['nodes']:            
+        if node['type'] == 'controller':
+            for interface in node['interfaces']:
+                if interface['name'] == 'management_nic':
+                    controller_ip = interface['ip_address']
     return Environment(
         loader=FileSystemLoader(path or './')
     ).get_template(filename).render(kit=context,controller_ip=controller_ip)
