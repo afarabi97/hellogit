@@ -111,7 +111,7 @@ all:
 {% for node in kit.nodes %}
 {% if node.type != 'controller' %}
             {{ node.hostname }}:
-{% for interface in interfaces %}   
+{% for interface in node.interfaces %}
 {% if interface.name == 'management_nic' %}
               ip: {{ interface.ip_address }}
               mac: {{ interface.mac_address}}
