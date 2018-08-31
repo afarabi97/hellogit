@@ -1,4 +1,6 @@
 ---
+# Get the controller ip with dumb stuff
+{% set vars = {'controller_ip': ''} %}{% for node in kit.nodes %}{% if node.type == 'controller' %}{{ controller_ip }}{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}{% if vars.update({'controller_ip': interface.ip_address}) %}{% endif %}{% endif %}{% endfor %}{% endif %}{% endfor %}
 # The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
 # themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
 # function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
@@ -36,7 +38,7 @@ all:
     # Below are networking options for node static addressing.
     # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
     # Default: ansible controllers ip address
-    dns:  '{{ controller_ip }}'
+    dns:  '{{ vars.controller_ip }}'
     # gateway: This is used to configure the nodes with a default gateway.
     # Default: null
     gateway: '{{ kit.gateway }}'
@@ -88,7 +90,7 @@ all:
     default_boot_drive: sda
     # server_ip: ansible controller ip address used to define kickstart server
     # Default: ansible controller ip address
-    server_ip: '{{ controller_ip }}'
+    server_ip: '{{ vars.controller_ip }}'
 
     # COREOS VARS
     # Only used if you are loading coreos operating system
