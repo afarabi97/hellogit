@@ -7,10 +7,9 @@ from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
 import os.path
 from lib.model.kit import Kit
 from lib.model.node import Node, Interface, Node_Disk
-import json
+from typing import List
 
-
-def todict(obj, classkey=None):
+def todict(obj: object, classkey=None) -> dict:
     if isinstance(obj, dict):
         data = {}
         for (k, v) in obj.items():
@@ -30,7 +29,7 @@ def todict(obj, classkey=None):
     else:
         return obj
 
-def render(tpl_path: str, context: dict):
+def render(tpl_path: str, context: dict) -> str:
     path, filename = os.path.split(tpl_path)
     return Environment(
         loader=FileSystemLoader(path or './')
@@ -51,7 +50,7 @@ def get_controller(kit: Kit) -> Node:
     return ""
 
 
-def configure_deployer(kit: Kit, controller_node: Node) -> None:
+def configure_deployer(kit: Kit, controller: Node) -> None:
     """
     Configures the deployer for a build. This includes transferring the appropriate
     inventory file and running make.
@@ -61,14 +60,14 @@ def configure_deployer(kit: Kit, controller_node: Node) -> None:
     :return:
     """
     
-    for interface in controller_node.interfaces:
+    for interface in controller.interfaces:
         if interface.name == "management_nic":
             management_nic = interface
 
 
     client = Connection(
         host=management_nic.ip_address,
-        connect_kwargs={"password": controller_node.password})  # type: Connection
+        connect_kwargs={"password": controller.password})  # type: Connection
 
     # Render deployer template
     template_name = '/tmp/' + kit.name + "_deployer_template.yml"
@@ -99,11 +98,16 @@ def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
             management_nic = interface
 
     client = Connection(
-        host=management_nic,
+        host=management_nic.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
+    
+    # Render tfplenum template
+    template_name = '/tmp/' + kit.name + "_tfplenum_template.yml"
+    with open(template_name, 'w') as fh:
+        fh.write(render(kit.tfplenum_template, todict(kit) ))
 
     # Copy TFPlenum inventory
-    client.put(kit.tfplenum_template, '/opt/tfplenum/playbooks/inventory.yml')
+    client.put(template_name, '/opt/tfplenum/playbooks/inventory.yml')
 
     if custom_command is None:
         with client.cd("/opt/tfplenum/playbooks"):
@@ -128,16 +132,18 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
     # Wait until all VMs are up and active
     while True:
 
-        for vm in vms_to_test:
-            print("VMs remaining: " + str(vms_to_test))
+        for vm in vms_to_test:            
+                
+            print("VMs remaining:")
+            print([node.hostname for node in vms_to_test])
 
             for interface in vm.interfaces:
                 if interface.name == "management_nic":
                     management_nic = interface
             
-            print("Testing " + vm.hostname + " (" + management_nic + ")")
+            print("Testing " + vm.hostname + " (" + management_nic.ip_address + ")")
             result = SSH_client.test_connection(
-                management_nic,
+                management_nic.ip_address,
                 kit.username,
                 kit.password,
                 timeout=5)
@@ -150,7 +156,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
 
         sleep(5)
 
-def transform(configuration) -> list:
+def transform(configuration: OrderedDict) -> List[Kit]:
     kits = []
     for kitconfig in configuration:            
         kit = Kit(kitconfig)

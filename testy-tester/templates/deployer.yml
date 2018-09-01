@@ -65,7 +65,7 @@ all:
     # The following variables are used to setup the kickstart operating system:
     # iso_pth: Path to operating system iso
     # Default: null
-    iso_pth: /root/rhel-server-7.4-x86_64-dvd.iso
+    iso_pth: /root/rhel-server-7.5-x86_64-dvd.iso
     # iso_url: url to download operating system iso
     # This will only work if the ansible controller has internet connection.
     # Default: null

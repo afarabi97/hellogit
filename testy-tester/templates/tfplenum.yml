@@ -118,11 +118,9 @@ all:
 
     # This is used to define the home nets for bro/suricata
     home_net:
-
-
-      - "172.18.3.64/27"
-
-
+      - "172.0.0.0/8"
+      - "10.0.0.0/8"
+      - "192.168.0.0/16"
 
     #############################
     # Kafka Settings            #
@@ -155,7 +153,7 @@ all:
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
     # This includes cockpit, Moloch viewer, Kibana, elastichq, kafka-manager, and
     # the kubernetes dashboard. This range must be at least a /28. Ex: "192.168.1.16/28"
-    kubernetes_services_cidr: "172.18.3.80/28"
+    kubernetes_services_cidr: "{{ kit.kubernetes_cidr }}"
 
     #############################
     # Software Locations        #
@@ -239,53 +237,24 @@ all:
         sensors:
 
           hosts:
-
-
-
-            # This is the hostname of the sensor. Whatever you put here will be
-            # used to overwrite the current hostname.
-            sensor.lan:
-
-              # This is the user you will use to SSH to each box for setup. This
-              # should always be root.
+{% for node in kit.nodes %}{% if node.type == 'sensor' %}
+            {{ node.hostname }}:
               ansible_user: root
-
-              # This is the Ansible connection type. This should always be SSH.
               ansible_connection: ssh
-
-              # This is the management IP address of the node. Ex: 192.168.1.198
-              # This is the address Ansible will use to communicate with.
-              management_ipv4: "172.18.3.67"
-
-              # This is the number of bro workers which will spawn on the sensor
               bro_workers: 2
-
-              # This is the number of threads which will be dedicated to Moloch
               moloch_threads: 1
 
-              # This is the interface the sensor will use for monitoring on Moloch,
-              # bro, and Suricata. Ex: ens4
+{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
+              management_ipv4: "{{ interface.ip_address }}"              
+{% endif %}{% endfor %}
               sensor_monitor_interface:
-
-                - ens34
-
-
-              # Instead of using ceph you can use an entire drive for PCAP storage.
-              # This is the drive you will use. Ex: /dev/sdb. This is only used
-              # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
-              # for this to work. moloch_pcap_folder will be the mount point.
+{% for interface in node.interfaces %}{% if 'management_nic' not in interface.name  %}
+                - {{ interface.name }}
+{% endif %}{% endfor %}
               pcap_disk:
-
-              # These are the disks you will use for Ceph. These must be devices.
-              # This cannot be a folder or partition. Ex: /dev/vdb. You may have
-              # none on a machine. On the system in total there must be at least
-              # two.
               ceph_drive_list:
-
                 - /dev/sdb
-
-
-
+{% endif %}{% endfor %}
 
 
         # If you have a deployment where the majority of the kit is in one location,
@@ -311,15 +280,17 @@ all:
 
 
           hosts:
-
-
-            server-2.lan:
+{% for node in kit.nodes %}{% if node.type == 'server' %}
+            {{ node.hostname }}:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 172.18.3.69
+
+{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
+              management_ipv4: "{{ interface.ip_address }}"              
+{% endif %}{% endfor %}
               ceph_drive_list:
-
-
+                - /dev/sdb
+{% endif %}{% endfor %}
 
         master-server:
 
@@ -334,14 +305,17 @@ all:
     # feel free to dig through the code.
 
           hosts:
-            server-1.lan:
+{% for node in kit.nodes %}{% if node.type == 'master-server' %}
+            {{ node.hostname }}:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 172.18.3.68
+
+{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
+              management_ipv4: "{{ interface.ip_address }}"              
+{% endif %}{% endfor %}
               ceph_drive_list:
-
                 - /dev/sdb
-
+{% endif %}{% endfor %}
 
     nodes_to_remove:
       # Example: (you need to define your own hosts)

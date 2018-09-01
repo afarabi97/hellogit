@@ -24,15 +24,14 @@ def main():
 
     # Python dicts do not preserve order so we must use an ordered dictionary
     # If using 3.7+ this is not an issue as it is the default behavior
-    configuration = OrderedDict()  # type: OrderedDict
-    kit_configuration = OrderedDict()  # type: OrderedDict
+    configuration = OrderedDict()  # type: OrderedDict    
 
     with open(sys.argv[1], 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
 
             # Returns a list of kit objects
-            kits = transform(configuration["kits"])
+            kits = transform(configuration["kits"])            
 
             #iso_folder_path = \
             #"[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
@@ -67,9 +66,9 @@ def main():
             if node.type != "controller":
                 vms_to_test.append(node)
 
-        test_vms_up_and_alive(kit_configuration, vms_to_test)
+        test_vms_up_and_alive(kit, vms_to_test)
 
-        build_tfplenum(kit_configuration, controller_node.hostname)
+        build_tfplenum(kit, controller_node)
 
 if __name__ == '__main__':
     main()
