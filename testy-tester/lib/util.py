@@ -184,7 +184,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                 interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
 
                 if nic == "management_nic":
-                    node.set_management_interface = interface
+                    node.set_management_interface(interface)
 
                 # Add interface to list of interfaces
                 interfaces.append(interface)
