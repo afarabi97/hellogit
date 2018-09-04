@@ -143,6 +143,8 @@ class Node(object):
         :return:
         """
 
+        self.management_interface = interface
+
     def set_management_interface_mac(self, management_mac: str) -> None:
         """
         Sets the MAC address of the management interface
