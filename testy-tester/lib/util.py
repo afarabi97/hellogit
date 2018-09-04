@@ -1,4 +1,3 @@
-
 from collections import OrderedDict
 from time import sleep
 from lib.ssh import SSH_client
@@ -6,10 +5,18 @@ from fabric import Connection
 from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
 import os.path
 from lib.model.kit import Kit
-from lib.model.node import Node, Interface, Node_Disk
+from lib.model.node import Node, Interface, NodeDisk
 from typing import List
 
+
 def todict(obj: object, classkey=None) -> dict:
+    """
+    Converts nested objects into a dict
+
+    :param obj:
+    :param classkey:
+    :return: dict
+    """
     if isinstance(obj, dict):
         data = {}
         for (k, v) in obj.items():
@@ -21,41 +28,52 @@ def todict(obj: object, classkey=None) -> dict:
         return [todict(v, classkey) for v in obj]
     elif hasattr(obj, "__dict__"):
         data = dict([(key, todict(value, classkey))
-            for key, value in obj.__dict__.items()
-            if not callable(value) and not key.startswith('_')])
+                     for key, value in obj.__dict__.items()
+                     if not callable(value) and not key.startswith('_')])
         if classkey is not None and hasattr(obj, "__class__"):
             data[classkey] = obj.__class__.__name__
         return data
     else:
         return obj
 
+
 def render(tpl_path: str, context: dict) -> str:
+    """
+    Renders a template using Jinja2
+
+    :param tpl_path:
+    :param context:
+    :return: str
+    """
     path, filename = os.path.split(tpl_path)
     return Environment(
         loader=FileSystemLoader(path or './')
     ).get_template(filename).render(kit=context)
 
+
 def get_controller(kit: Kit) -> Node:
     """
     Searches a YAML kit_configuration for a Controller VM and returns the first found
 
-    :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :return (list): The name of a controller for a kit
+    :param kit:  A kit object defining the schema of the kit
+    :return: The name of a controller for a kit
     """
+
+    controller = None  # type: Node
 
     for node in kit.nodes:
         if node.type == "controller":
-            return node
+            controller = node
 
-    return ""
+    return controller
 
 
 def configure_deployer(kit: Kit, controller: Node) -> None:
     """
     Configures the deployer for a build. This includes transferring the appropriate inventory file and running make.
 
-    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
-    :param controller (Node): A node object linked to the controller for the kit
+    :param kit: A kit object defining the schema of the kit which you would like deployed
+    :param controller: A node object linked to the controller for the kit
     :return:
     """
 
@@ -64,9 +82,9 @@ def configure_deployer(kit: Kit, controller: Node) -> None:
         connect_kwargs={"password": controller.password})  # type: Connection
 
     # Render deployer template
-    template_name = '/tmp/' + kit.name + "_deployer_template.yml"
+    template_name = '/tmp/' + kit.name + "_deployer_template.yml"  # type: str
     with open(template_name, 'w') as fh:
-        fh.write(render(kit.deployer_template, todict(kit) ))
+        fh.write(render(kit.deployer_template, todict(kit)))
 
     # Copy TFPlenum Deployer inventory
     client.put(template_name, '/opt/tfplenum-deployer/playbooks/inventory.yml')
@@ -77,12 +95,13 @@ def configure_deployer(kit: Kit, controller: Node) -> None:
     client.close()
 
 
-def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
+def build_tfplenum(kit: Kit, controller: Node, custom_command: str=None) -> None:
     """
     Builds the TFPlenum subsystem by running make
 
-    :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :param custom_command (str): Runs the build with a custom provided command instead of the standard Ansible command
+    :param kit: an instance of a Kit object
+    :param controller: the node instance for a controller
+    :param custom_command: Runs the build with a custom provided command instead of the standard Ansible command
     :return:
     """
 
@@ -91,9 +110,9 @@ def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
         connect_kwargs={"password": controller.password})  # type: Connection
 
     # Render tfplenum template
-    template_name = '/tmp/' + kit.name + "_tfplenum_template.yml"
+    template_name = '/tmp/' + kit.name + "_tfplenum_template.yml"  # type: str
     with open(template_name, 'w') as fh:
-        fh.write(render(kit.tfplenum_template, todict(kit) ))
+        fh.write(render(kit.tfplenum_template, todict(kit)))
 
     # Copy TFPlenum inventory
     client.put(template_name, '/opt/tfplenum/playbooks/inventory.yml')
@@ -113,8 +132,8 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node]) -> None:
     Checks to see if a list of VMs are up and alive by using SSH. Does not return
     until all VMs are up.
 
-    :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :param vms_to_test (list): A list of Node objects you would like to test for liveness
+    :param kit: an instance of a Kit object
+    :param vms_to_test: A list of Node objects you would like to test for liveness
     :return:
     """
 
@@ -141,8 +160,50 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node]) -> None:
 
         sleep(5)
 
+
+def get_interface_names(kit: Kit) -> None:
+    """
+    Get the interface names from each node.
+
+    :param kit: A YAML file defining the schema of the kit
+    :return:
+    """
+
+    for node in kit.nodes:
+
+        interface_filename = '/tmp/' + kit.name + '_interfaces'  # type: str
+
+        client = Connection(
+            host=node.management_interface.ip_address,
+            connect_kwargs={"password": kit.password})  # type: Connection
+
+        client.run(
+            "ip addr | grep -i broadcast | grep -Fv docker | grep -Fv flannel | grep -Fv veth | grep -Fv cni | \
+            awk '{ print $2 }' > /tmp/interfaces")
+        client.run("sed -i 's/:/\ /g' /tmp/interfaces")
+        client.get('/tmp/interfaces', interface_filename)
+
+        with open(interface_filename, 'r') as interfaces:
+            for i in interfaces:
+                # Get the interface mac address
+                mac_address = client.run("ethtool -P " + i.strip() + " | awk '{ print $3 }'")  # type: Result
+                for interface in node.interfaces:
+                    # If the mac address from ethtool matches the interface object mac address
+                    # Set the interface name for that interface object
+                    if mac_address.stdout.lower() == interface.mac_address.lower():
+                        interface.set_interface_name(i)
+
+        client.close()
+
+
 def transform(configuration: OrderedDict) -> List[Kit]:
-    kits = []
+    """
+    Transform the yaml configuration into a list of Kit objects
+
+    :param configuration: A YAML file defining the schema of the kit
+    :return: List[Kit]
+    """
+    kits = []  # type: List[Kit]
     for kitconfig in configuration:
         kit = Kit(kitconfig)
         kit.set_username(configuration[kitconfig]['username'])
@@ -155,64 +216,62 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kit.set_gateway(configuration[kitconfig]['gateway'])
         kit.set_netmask(configuration[kitconfig]['netmask'])
 
-        VMs = configuration[kitconfig]["VMs"]
-        nodes = []
-        for v in VMs:
-            node = Node(v, VMs[v]['type'])
+        vms = configuration[kitconfig]["VMs"]  # type: dict
+        nodes = []  # type: List[Node]
+        for v in vms:
+            node = Node(v, vms[v]['type'])  # type: Node
             if node.type == "controller":
-                node.set_username(VMs[v]['username'])
-                node.set_password(VMs[v]['password'])
-                node.set_vm_clone_options(VMs[v]['vm_to_clone'],VMs[v]['cloned_vm_name'])
-            else:
-                node.set_username(None)
-                node.set_password(None)
-                node.set_vm_clone_options(None,None)
+                node.set_username(vms[v]['username'])
+                node.set_password(vms[v]['password'])
+                node.set_vm_clone_options(vms[v]['vm_to_clone'], vms[v]['cloned_vm_name'])
 
-            node.set_guestos(VMs[v]['vm_guestos'])
-
-            storage = VMs[v]['storage_options']
-            node.set_storage_options(storage['datacenter'],storage['cluster'],storage['datastore'],storage['folder'])
+            node.set_guestos(vms[v]['vm_guestos'])
+            storage = vms[v]['storage_options']  # type: dict
+            node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
 
             # Set networking specs
-            nics =  VMs[v]['networking']['nics']
-            interfaces = []
+            nics = vms[v]['networking']['nics']  # type: dict
+            interfaces = []  # type: List[Interface]
             for nic in nics:
-                interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'],nics[nic]['start_connected'])
+                interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'], nics[nic]['start_connected'],
+                                      nics[nic]['management_interface'])  # type: Interface
                 interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
                 interface.set_mac_address(nics[nic]['mac_address'])
                 interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
                 interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
 
-                if nic == "management_nic":
+                if interface.management_interface:
                     node.set_management_interface(interface)
 
                 # Add interface to list of interfaces
+                interfaces.append(interface)
                 interfaces.append(interface)
             # Set list of interfaces
             node.set_interfaces(interfaces)
 
             # Set cpu specs
-            cpu_spec = VMs[v]['cpu_spec']
-            node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'], cpu_spec['hot_remove_enabled'])
+            cpu_spec = vms[v]['cpu_spec']  # type: dict
+            node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'],
+                                 cpu_spec['hot_remove_enabled'])
 
             # Set memory specs
-            memory_spec = VMs[v]['memory_spec']
+            memory_spec = vms[v]['memory_spec']  # type: dict
             node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
 
             # Set disk info
-            disk_spec = VMs[v]['disks']
-            disks = []
+            disk_spec = vms[v]['disks']  # type: dict
+            disks = []  # type: List[NodeDisk]
             for d in disk_spec:
-                disk = Node_Disk(d, disk_spec[d])
+                disk = NodeDisk(d, disk_spec[d])  # type: NodeDisk
                 disks.append(disk)
             node.set_disks(disks)
 
             # Set iso file path
-            node.set_iso_file(VMs[v]['iso_file'])
+            node.set_iso_file(vms[v]['iso_file'])
 
             # Set boot order
-            boot_order = []
-            for o in VMs[v]['boot_order']:
+            boot_order = []  # type: list
+            for o in vms[v]['boot_order']:
                 boot_order.append(o)
             node.set_boot_order(boot_order)
 

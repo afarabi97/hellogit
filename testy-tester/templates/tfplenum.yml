@@ -245,8 +245,8 @@ all:
               moloch_threads: 1
               management_ipv4: "{{ node.management_interface.ip_address }}"              
               sensor_monitor_interface:
-{% for interface in node.interfaces %}{% if 'management_nic' not in interface.name  %}
-                - {{ interface.name }}
+{% for interface in node.interfaces %}{% if management_interface == 'False'  %}
+                - {{ interface.interface_name }}
 {% endif %}{% endfor %}
               pcap_disk:
               ceph_drive_list:

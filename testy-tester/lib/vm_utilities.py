@@ -11,7 +11,7 @@ from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from com.vmware.vcenter.vm_client import (Hardware, Power)
 from lib.model.kit import Kit
 from lib.model.node import VirtualMachine
-from lib.model.node import Node, Interface, Node_Disk
+from lib.model.node import Node, Interface, NodeDisk
 
 def _get_obj(content, vimtype, name):
     """

@@ -10,10 +10,11 @@ import logging
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
-from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform
-from lib.ssh import SSH_client
+from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, get_interface_names
 from lib.model.kit import Kit
-from lib.model.node import Node, Interface, Node_Disk
+from lib.model.node import Node
+from typing import List
+
 
 def main():
 
@@ -52,7 +53,7 @@ def main():
 
     for kit in kits:
 
-        controller_node = get_controller(kit)  # type: str
+        controller_node = get_controller(kit)  # type: Node
 
         if args.controller:
             delete_vm(vsphere_client, controller_node.cloned_vm_name)
@@ -90,7 +91,7 @@ def main():
         for vm in vms:
             vm.power_on()
 
-        vms_to_test = []  # type: list
+        vms_to_test = []  # type: List[Node]
 
         for node in kit.nodes:
             if node.type != "controller":
@@ -98,7 +99,10 @@ def main():
 
         test_vms_up_and_alive(kit, vms_to_test)
 
+        get_interface_names(kit)
+
         build_tfplenum(kit, controller_node)
+
 
 if __name__ == '__main__':
     main()
