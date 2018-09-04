@@ -55,12 +55,12 @@ def main():
         controller_node = get_controller(kit)  # type: str
 
         if args.controller:
-            delete_vm(vsphere_client, kit_configuration["VMs"][controller_node]["cloned_vm_name"])
+            delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
             clone_vm(configuration,
-                     kit_configuration["VMs"][controller_node]["vm_to_clone"],
-                     kit_configuration["VMs"][controller_node]["cloned_vm_name"],
-                     kit_configuration["VMs"][controller_node]["storage_options"]["folder"])
+                     controller_node.vm_to_clone,
+                     controller_node.cloned_vm_name,
+                     controller_node.storage_folder)
 
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)#, iso_folder_path)  # type: list

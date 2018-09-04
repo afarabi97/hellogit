@@ -107,7 +107,7 @@ class Node(object):
         self.storage_datastore = datastore
         self.storage_folder = folder
 
-    def set_interfaces(self, interfaces: list) -> None:
+    def set_interfaces(self, interfaces: List[Interface]) -> None:
         """
         Configures the interfaces for the node object.
 

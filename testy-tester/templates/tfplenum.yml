@@ -243,10 +243,7 @@ all:
               ansible_connection: ssh
               bro_workers: 2
               moloch_threads: 1
-
-{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
-              management_ipv4: "{{ interface.ip_address }}"              
-{% endif %}{% endfor %}
+              management_ipv4: "{{ node.management_interface.ip_address }}"              
               sensor_monitor_interface:
 {% for interface in node.interfaces %}{% if 'management_nic' not in interface.name  %}
                 - {{ interface.name }}
@@ -284,10 +281,7 @@ all:
             {{ node.hostname }}:
               ansible_user: root
               ansible_connection: ssh
-
-{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
-              management_ipv4: "{{ interface.ip_address }}"              
-{% endif %}{% endfor %}
+              management_ipv4: "{{ node.management_interface.ip_address }}"
               ceph_drive_list:
                 - /dev/sdb
 {% endif %}{% endfor %}
@@ -309,10 +303,7 @@ all:
             {{ node.hostname }}:
               ansible_user: root
               ansible_connection: ssh
-
-{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
-              management_ipv4: "{{ interface.ip_address }}"              
-{% endif %}{% endfor %}
+              management_ipv4: "{{ node.management_interface.ip_address }}"
               ceph_drive_list:
                 - /dev/sdb
 {% endif %}{% endfor %}

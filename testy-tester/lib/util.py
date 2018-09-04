@@ -108,7 +108,7 @@ def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
     client.close()
 
 
-def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
+def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node]) -> None:
     """
     Checks to see if a list of VMs are up and alive by using SSH. Does not return
     until all VMs are up.
@@ -126,13 +126,9 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
             print("VMs remaining:")
             print([node.hostname for node in vms_to_test])
 
-            for interface in vm.interfaces:
-                if interface.name == "management_nic":
-                    management_nic = interface
-
-            print("Testing " + vm.hostname + " (" + management_nic.ip_address + ")")
+            print("Testing " + vm.hostname + " (" + vm.management_interface.ip_address + ")")
             result = SSH_client.test_connection(
-                management_nic.ip_address,
+                vm.management_interface.ip_address,
                 kit.username,
                 kit.password,
                 timeout=5)
