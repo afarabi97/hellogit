@@ -14,6 +14,7 @@
 __author__ = 'VMware, Inc.'
 __vcenter_version__ = '6.5+'
 
+import logging
 from com.vmware.vcenter_client import VM
 
 
@@ -26,11 +27,11 @@ def get_vm(client, vm_name):
     vms = client.vcenter.VM.list(VM.FilterSpec(names=names))
 
     if len(vms) == 0:
-        print("VM with name ({}) not found".format(vm_name))
+        logging.info("VM with name ({}) not found".format(vm_name))
         return None
 
     vm = vms[0].vm
-    print("Found VM '{}' ({})".format(vm_name, vm))
+    logging.info("Found VM '{}' ({})".format(vm_name, vm))
     return vm
 
 
@@ -39,8 +40,8 @@ def get_vms(client, vm_names):
     vms = client.vcenter.VM.list(VM.FilterSpec(names=vm_names))
 
     if len(vms) == 0:
-        print('No vm found')
+        logging.info('No vm found')
         return None
 
-    print("Found VMs '{}' ({})".format(vm_names, vms))
+    logging.info("Found VMs '{}' ({})".format(vm_names, vms))
     return vms

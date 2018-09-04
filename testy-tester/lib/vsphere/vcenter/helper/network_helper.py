@@ -14,14 +14,13 @@
 __author__ = 'VMware, Inc.'
 __vcenter_version__ = '6.5+'
 
-from com.vmware.vcenter_client import Network
+import logging
 
+from com.vmware.vcenter_client import Network
 from lib.vsphere.vcenter.helper import datacenter_helper
 
 
-def get_standard_network_backing(client,
-                                 std_porggroup_name,
-                                 datacenter_name):
+def get_standard_network_backing(client, std_porggroup_name, datacenter_name):
     """
     Gets a standard portgroup network backing for a given Datacenter
     Note: The method assumes that there is only one standard portgroup
@@ -29,8 +28,8 @@ def get_standard_network_backing(client,
     """
     datacenter = datacenter_helper.get_datacenter(client, datacenter_name)
     if not datacenter:
-        print("Datacenter '{}' not found".format(datacenter_name))
-        return None
+        logging.critical("Datacenter '{}' not found".format(datacenter_name))
+        exit(0)
 
     filter = Network.FilterSpec(datacenters=set([datacenter]),
                                 names=set([std_porggroup_name]),
@@ -39,18 +38,15 @@ def get_standard_network_backing(client,
 
     if len(network_summaries) > 0:
         network = network_summaries[0].network
-        print("Selecting Standard Portgroup Network '{}' ({})".
+        logging.debug("Selecting Standard Portgroup Network '{}' ({})".
               format(std_porggroup_name, network))
         return network
     else:
-        print("Standard Portgroup Network not found in Datacenter '{}'".
-              format(datacenter_name))
-        return None
+        logging.critical("Standard Portgroup Network not found in Datacenter '{}'".format(datacenter_name))
+        exit(0)
 
 
-def get_distributed_network_backing(client,
-                                    dv_portgroup_name,
-                                    datacenter_name):
+def get_distributed_network_backing(client, dv_portgroup_name, datacenter_name):
     """
     Gets a distributed portgroup network backing for a given Datacenter
     Note: The method assumes that there is only one distributed portgroup
@@ -58,8 +54,8 @@ def get_distributed_network_backing(client,
     """
     datacenter = datacenter_helper.get_datacenter(client, datacenter_name)
     if not datacenter:
-        print("Datacenter '{}' not found".format(datacenter_name))
-        return None
+        logging.critical("Datacenter '{}' not found".format(datacenter_name))
+        exit(0)
 
     filter = Network.FilterSpec(datacenters=set([datacenter]),
                                 names=set([dv_portgroup_name]),
@@ -68,11 +64,8 @@ def get_distributed_network_backing(client,
 
     if len(network_summaries) > 0:
         network = network_summaries[0].network
-        print(network)
-        print("Selecting Distributed Portgroup Network '{}' ({})".
-              format(dv_portgroup_name, network))
+        logging.debug("Selecting Distributed Portgroup Network '{}' ({})".format(dv_portgroup_name, network))
         return network
     else:
-        print("Distributed Portgroup Network not found in Datacenter '{}'".
-              format(datacenter_name))
-        return None
+        logging.critical("Distributed Portgroup Network not found in Datacenter '{}'".format(datacenter_name))
+        exit(0)

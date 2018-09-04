@@ -14,8 +14,8 @@
 __author__ = 'VMware, Inc.'
 __vcenter_version__ = '6.5+'
 
+import logging
 from com.vmware.vcenter_client import Cluster
-
 from lib.vsphere.vcenter.helper import datacenter_helper
 
 
@@ -28,8 +28,8 @@ def get_cluster(client, datacenter_name, cluster_name):
 
     datacenter = datacenter_helper.get_datacenter(client, datacenter_name)
     if not datacenter:
-        print("Datacenter '{}' not found".format(datacenter_name))
-        return None
+        logging.info("Datacenter '{}' not found".format(datacenter_name))
+        exit(0)
 
     filter_spec = Cluster.FilterSpec(names=set([cluster_name]),
                                      datacenters=set([datacenter]))
@@ -37,8 +37,8 @@ def get_cluster(client, datacenter_name, cluster_name):
     cluster_summaries = client.vcenter.Cluster.list(filter_spec)
     if len(cluster_summaries) > 0:
         cluster = cluster_summaries[0].cluster
-        print("Detected cluster '{}' as {}".format(cluster_name, cluster))
+        logging.info("Detected cluster '{}' as {}".format(cluster_name, cluster))
         return cluster
     else:
-        print("Cluster '{}' not found".format(cluster_name))
-        return None
+        logging.critical("Cluster '{}' not found".format(cluster_name))
+        exit(0)

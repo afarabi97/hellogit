@@ -7,22 +7,22 @@ class Kit(object):
     def __init__(self, name: str) -> None:
         self.name = name
 
-    def set_username(self, username: str) -> None:   
+    def set_username(self, username: str) -> None:
         self.username = username
-    
-    def set_password(self, password: str) -> None:   
+
+    def set_password(self, password: str) -> None:
         self.password = password
 
-    def set_nodes(self, nodes: List[Node]) -> None:   
+    def set_nodes(self, nodes: List[Node]) -> None:
         self.nodes = nodes
 
-    def set_deployer_template(self, deployer_template: str) -> None:   
+    def set_deployer_template(self, deployer_template: str) -> None:
         self.deployer_template = deployer_template
 
-    def set_tfplenum_template(self, tfplenum_template: str) -> None:   
+    def set_tfplenum_template(self, tfplenum_template: str) -> None:
         self.tfplenum_template = tfplenum_template
-    
-    def set_kubernetes_cidr(self, kubernetes_cidr: str) -> None:   
+
+    def set_kubernetes_cidr(self, kubernetes_cidr: str) -> None:
         self.kubernetes_cidr = kubernetes_cidr
 
     def set_dhcp_start(self, dhcp_start: str) -> None:
@@ -36,6 +36,14 @@ class Kit(object):
 
     def set_netmask(self, netmask: str) -> None:
         self.netmask = netmask
+
+    def get_nodes(self) -> list:
+        """
+        Returns a list of all nodes in the kit
+
+        :return list: A list of all nodes in the kit
+        """
+        return self.nodes
 
     def __str__(self) -> str:
         p_nodes = '\n'.join([str(x) for x in self.nodes])

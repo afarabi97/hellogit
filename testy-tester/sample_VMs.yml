@@ -2,27 +2,28 @@
 
 host_configuration:
   vcenter:
-    ip_address: "172.16.70.5"
+    ip_address: "10.4.2.4"
     username: ""
     password: ""
-    datacenters: "Lab"
-    cluster_name: "Lab Cluster"
-    iso_files:
-      datastore: "NVMe Storage"
-      folder: "ISOs"
-  esxi_hosts:
-    esx_host_1:
-      ip_address: "172.16.70.6"
-      esx_user: ""
-      esx_pass: ""
-      datastores:
-        - "NVMe Storage"
-    esx_host_2:
-      ip_address: "172.16.70.7"
-      esx_user: ""
-      esx_pass: ""
-      datastores:
-        - "NVMe Storage 2"
+    datacenters: "GIP-004"
+    cluster_name: "RDTE"
+#    iso_files:
+#      datastore: ""
+#      folder: ""
+# TODO: These are not currently in use, but we should add them in later so you can select a specific host
+#  esxi_hosts:
+#    esx_host_1:
+#      ip_address: "172.16.70.6"
+#      esx_user: ""
+#      esx_pass: ""
+#      datastores:
+#        - "RDTE"
+#    esx_host_2:
+#      ip_address: "172.16.70.7"
+#      esx_user: ""
+#      esx_pass: ""
+#      datastores:
+#        - "RDTE 2"
 
 kits:
   kit_1:
@@ -30,25 +31,25 @@ kits:
     username: ""
     password: ""
 
-    deployer_inventory_file: '/opt/tfplenum-integration-testing/testy-tester/deployer_template.yml'
-    tfplenum_inventory_file: '/opt/tfplenum-integration-testing/testy-tester/tfplenum_inventory.yml'
+    deployer_template: './templates/centos_deployer.yml'
+    tfplenum_template: './templates/tfplenum.yml'
 
     # Kubernetes cidr will probably be different on a per kit basis
-    kubernetes_cidr: "172.16.82.112/28"
+    kubernetes_cidr: "172.18.3.95/28"
 
     # DHCP Ranges
-    dhcp_start: "172.16.82.100"
-    dhcp_end: "172.16.82.110"
+    dhcp_start: "172.18.3.67"
+    dhcp_end: "172.18.3.94"
+
+    netmask: "255.255.255.224"
 
     # Gateway will probably be different on a per kit basis (depends on the vlan)
-    gateway: "172.16.82.1"
+    gateway: "172.18.3.65"
 
-
-
-    VMs:     
+    VMs:
 
       # Note: You should not have more than one of these
-      test_controller.lan:
+      I19-Controller.lan:
 
         type: "controller" # Can be controller, sensor, or server
 
@@ -66,20 +67,20 @@ kits:
 
         # The following controls where the VM will be placed on the ESXi servers
         storage_options:
-          datacenter: "Lab"
-          cluster: "Lab Cluster"
-          datastore: "NVMe Storage"
-          folder: "Testing"
+          datacenter: "GIP-004"
+          cluster: "RDTE"
+          datastore: "RDTE"
+          folder: "Instructor"
         networking:
           std_portgroup_name: "VM Network"
           nics:
-            management_nic:
+            management_nic: # WARNING: The management nic must always be the first nic in the list
               type: "manual" # This can be auto, manual, or link-local
-              ip_address: "172.16.82.15"
+              ip_address: "172.18.3.66"
               start_connected: True
               mac_auto_generated: True
               mac_address: "" # This is ignored if mac_auto_generated is true
-              dv_portgroup_name: "82 Network"
+              dv_portgroup_name: "T219"
               std_portgroup_name:
         cpu_spec:
           sockets: 2
@@ -97,24 +98,24 @@ kits:
           - "DISK"
           - "ETHERNET"
 
-      tfserver1.lan:
+      I19-Server-1.lan:
 
         type: "server" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "Lab"
-          cluster: "Lab Cluster"
-          datastore: "NVMe Storage"
-          folder: "Testing"
+          datacenter: "GIP-004"
+          cluster: "RDTE"
+          datastore: "RDTE"
+          folder: "Instructor"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.16.82.40"
+              ip_address: "172.18.3.68"
               start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AA"
-              dv_portgroup_name: "82 Network"
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "T219"
               std_portgroup_name:
         cpu_spec:
           sockets: 16
@@ -133,24 +134,24 @@ kits:
           - "DISK"
           - "ETHERNET"
 
-      tfserver2.lan:
+      I19-Server-2.lan:
 
         type: "server" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "Lab"
-          cluster: "Lab Cluster"
-          datastore: "NVMe Storage"
-          folder: "Testing"
+          datacenter: "GIP-004"
+          cluster: "RDTE"
+          datastore: "RDTE"
+          folder: "Instructor"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.16.82.41"
+              ip_address: "172.18.3.69"
               start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AB"
-              dv_portgroup_name: "82 Network"
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "T219"
               std_portgroup_name:
         cpu_spec:
           sockets: 16
@@ -169,76 +170,32 @@ kits:
           - "DISK"
           - "ETHERNET"
 
-      tfsensor1.lan:
+      I19-Sensor.lan:
 
         type: "sensor" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "Lab"
-          cluster: "Lab Cluster"
-          datastore: "NVMe Storage"
-          folder: "Testing"
+          datacenter: "GIP-004"
+          cluster: "RDTE"
+          datastore: "RDTE"
+          folder: "Instructor"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.16.82.50"
+              ip_address: "172.18.3.67"
               start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AC"
-              dv_portgroup_name: "82 Network"
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "T219"
               std_portgroup_name:
-            nic2:
-              type: "manual"
+            ens224:
+              type: "link-local"
               ip_address:
               start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AD"
-              dv_portgroup_name: "Monitor Portgroup"
-              std_portgroup_name:
-        cpu_spec:
-          sockets: 16
-          cores_per_socket: 1
-          hot_add_enabled: False
-          hot_remove_enabled: False
-        memory_spec:
-          size: 64
-          hot_add_enabled: False
-        disks:
-          boot: 20
-          ceph: 20
-        iso_file:
-        boot_order:
-        - "CDROM"
-        - "DISK"
-        - "ETHERNET"
-
-      tfsensor2.lan:
-
-        type: "sensor" # Can be controller, sensor, or server
-        vm_guestos: "RHEL_7_64"
-        storage_options:
-          datacenter: "Lab"
-          cluster: "Lab Cluster"
-          datastore: "NVMe Storage"
-          folder: "Testing"
-        networking:
-          nics:
-            management_nic:
-              type: "manual"
-              ip_address: "172.16.82.51"
-              start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AE"
-              dv_portgroup_name: "82 Network"
-              std_portgroup_name:
-            nic2:
-              type: "manual"
-              ip_address:
-              start_connected: True
-              mac_auto_generated: False
-              mac_address: "AA:AA:AA:AA:AA:AF"
-              dv_portgroup_name: "Monitor Portgroup"
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "T222"
               std_portgroup_name:
         cpu_spec:
           sockets: 16

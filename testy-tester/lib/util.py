@@ -20,8 +20,8 @@ def todict(obj: object, classkey=None) -> dict:
     elif hasattr(obj, "__iter__") and not isinstance(obj, str):
         return [todict(v, classkey) for v in obj]
     elif hasattr(obj, "__dict__"):
-        data = dict([(key, todict(value, classkey)) 
-            for key, value in obj.__dict__.items() 
+        data = dict([(key, todict(value, classkey))
+            for key, value in obj.__dict__.items()
             if not callable(value) and not key.startswith('_')])
         if classkey is not None and hasattr(obj, "__class__"):
             data[classkey] = obj.__class__.__name__
@@ -52,28 +52,22 @@ def get_controller(kit: Kit) -> Node:
 
 def configure_deployer(kit: Kit, controller: Node) -> None:
     """
-    Configures the deployer for a build. This includes transferring the appropriate
-    inventory file and running make.
+    Configures the deployer for a build. This includes transferring the appropriate inventory file and running make.
 
-    :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :param controller_name (list): A list of the controllers you would like to configure
+    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
+    :param controller (Node): A node object linked to the controller for the kit
     :return:
     """
-    
-    for interface in controller.interfaces:
-        if interface.name == "management_nic":
-            management_nic = interface
-
 
     client = Connection(
-        host=management_nic.ip_address,
+        host=controller.management_interface.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
 
     # Render deployer template
     template_name = '/tmp/' + kit.name + "_deployer_template.yml"
     with open(template_name, 'w') as fh:
         fh.write(render(kit.deployer_template, todict(kit) ))
-    
+
     # Copy TFPlenum Deployer inventory
     client.put(template_name, '/opt/tfplenum-deployer/playbooks/inventory.yml')
 
@@ -88,19 +82,14 @@ def build_tfplenum(kit: Kit, controller: Node, custom_command=None) -> None:
     Builds the TFPlenum subsystem by running make
 
     :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
-    :param custom_command (str): Runs the build with a custom provided command instead
-                                 of the standard Ansible command
+    :param custom_command (str): Runs the build with a custom provided command instead of the standard Ansible command
     :return:
     """
 
-    for interface in controller.interfaces:
-        if interface.name == "management_nic":
-            management_nic = interface
-
     client = Connection(
-        host=management_nic.ip_address,
+        host=controller.management_interface.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
-    
+
     # Render tfplenum template
     template_name = '/tmp/' + kit.name + "_tfplenum_template.yml"
     with open(template_name, 'w') as fh:
@@ -132,15 +121,15 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
     # Wait until all VMs are up and active
     while True:
 
-        for vm in vms_to_test:            
-                
+        for vm in vms_to_test:
+
             print("VMs remaining:")
             print([node.hostname for node in vms_to_test])
 
             for interface in vm.interfaces:
                 if interface.name == "management_nic":
                     management_nic = interface
-            
+
             print("Testing " + vm.hostname + " (" + management_nic.ip_address + ")")
             result = SSH_client.test_connection(
                 management_nic.ip_address,
@@ -158,7 +147,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: list) -> None:
 
 def transform(configuration: OrderedDict) -> List[Kit]:
     kits = []
-    for kitconfig in configuration:            
+    for kitconfig in configuration:
         kit = Kit(kitconfig)
         kit.set_username(configuration[kitconfig]['username'])
         kit.set_password(configuration[kitconfig]['password'])
@@ -169,11 +158,11 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kit.set_dhcp_end(configuration[kitconfig]['dhcp_end'])
         kit.set_gateway(configuration[kitconfig]['gateway'])
         kit.set_netmask(configuration[kitconfig]['netmask'])
-        
+
         VMs = configuration[kitconfig]["VMs"]
         nodes = []
         for v in VMs:
-            node = Node(v, VMs[v]['type'])            
+            node = Node(v, VMs[v]['type'])
             if node.type == "controller":
                 node.set_username(VMs[v]['username'])
                 node.set_password(VMs[v]['password'])
@@ -183,11 +172,11 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                 node.set_password(None)
                 node.set_vm_clone_options(None,None)
 
-            node.set_guestos(VMs[v]['vm_guestos'])               
-            
+            node.set_guestos(VMs[v]['vm_guestos'])
+
             storage = VMs[v]['storage_options']
             node.set_storage_options(storage['datacenter'],storage['cluster'],storage['datastore'],storage['folder'])
-            
+
             # Set networking specs
             nics =  VMs[v]['networking']['nics']
             interfaces = []
@@ -196,20 +185,24 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                 interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
                 interface.set_mac_address(nics[nic]['mac_address'])
                 interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
-                interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])                    
+                interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
+
+                if nic == "management_nic":
+                    node.management_interface = interface
+
                 # Add interface to list of interfaces
-                interfaces.append(interface)                
+                interfaces.append(interface)
             # Set list of interfaces
             node.set_interfaces(interfaces)
-            
+
             # Set cpu specs
             cpu_spec = VMs[v]['cpu_spec']
             node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'], cpu_spec['hot_remove_enabled'])
 
             # Set memory specs
-            memory_spec = VMs[v]['memory_spec'] 
+            memory_spec = VMs[v]['memory_spec']
             node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
-            
+
             # Set disk info
             disk_spec = VMs[v]['disks']
             disks = []
@@ -220,7 +213,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
             # Set iso file path
             node.set_iso_file(VMs[v]['iso_file'])
-            
+
             # Set boot order
             boot_order = []
             for o in VMs[v]['boot_order']:

@@ -2,14 +2,15 @@
 import urllib3
 import requests
 import time
+import logging
 from pyVmomi import vim
 from pyVim.connect import SmartConnectNoSSL, Disconnect
-from lib.VM import VirtualMachine
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient, create_vsphere_client
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from com.vmware.vcenter.vm_client import (Hardware, Power)
 from lib.model.kit import Kit
+from lib.model.node import VirtualMachine
 from lib.model.node import Node, Interface, Node_Disk
 
 def _get_obj(content, vimtype, name):
@@ -201,7 +202,7 @@ def change_network_address(configuration: OrderedDict, vm_name: str):
         s.vcenter.vm.Power.start(vm)
         s.vcenter.vm.Power.stop(vm)
 
-def power_off_vm():
+def power_off_vm(vm):
     if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
         # using time.sleep we just wait until the power off action
         # is complete. Nothing fancy here.
@@ -280,7 +281,7 @@ def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
-    :param kit_configuration (OrderedDict): A YAML file defining the schema of the kit
+    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
     :param client (VsphereClient): a vCenter server client
     :param iso_folder_path (str): Path to the ISO files folder
     :return (list): A list of all the VM objects created by the method
@@ -289,9 +290,11 @@ def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
     vms = []  # type: list
     for node in kit.nodes:
         if node.type != "controller":
+            logging.info("Creating VM " + node.hostname + "...")
             vm_instance = VirtualMachine(client, node, iso_folder_path)
             vm_instance.cleanup()
             vm_instance.create()
+            vm_instance.set_node_instance(node)
             vms.append(vm_instance)
 
     return vms

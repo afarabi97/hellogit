@@ -1,0 +1,114 @@
+---
+# Get the controller ip with dumb stuff
+{% set vars = {'controller_ip': ''} %}{% for node in kit.nodes %}{% if node.type == 'controller' %}{{ controller_ip }}{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}{% if vars.update({'controller_ip': interface.ip_address}) %}{% endif %}{% endif %}{% endfor %}{% endif %}{% endfor %}
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
+all:
+  vars:
+    # offline: This option should be false when initially setting up ansible controller.
+    # After all the repos and dependencies are available on the ansible controller this option can be set to true.
+    # Tasks requiring an internet connection will not execute such as repo syncs or downloading additional dependencies from the internet.
+    # Default: true
+    offline: true
+
+    # dnsmasq: By default the ansible controller is used as the dns server during setup.
+    # If this is set to false then the proper options such must be configured on the external dns server.
+    # Default: true
+    dnsmasq: true
+
+    # A DHCP server is required to pxe / kickstart the nodes.
+    # The following variables configure a dhcp server on the ansible controller.
+    # dhcp: a dhcp server is required to properly pxe machines.  By default the ansible controller will act as the dhcp server.
+    # If this is set to false then the proper options such must be configured on the external dhcp server.
+    # Default: true
+    dhcp: true
+    # dhcp_start: This is the DHCP range starting ip address.
+    # Default: null
+    dhcp_start: '{{ kit.dhcp_start }}'
+    # dhcp_end: This is the DHCP range ending ip address.
+    # Default: null
+    dhcp_end:  '{{ kit.dhcp_end }}'
+    # dhcp_mask: Subnet mask used for dhcp configuration.
+    # Default: The same subnet as the ansible controller.
+
+    # Below are networking options for node static addressing.
+    # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
+    # Default: ansible controllers ip address
+    dns:  '{{ vars.controller_ip }}'
+    # gateway: This is used to configure the nodes with a default gateway.
+    # Default: null
+    gateway: '{{ kit.gateway }}'
+    # netmask: This is used to define the subnet mask for the node static address.
+    # Default: null
+    netmask: '{{ kit.netmask }}'
+
+
+    # The following variables require internet connection.
+    # pull_all_repos: This pull down centos, rhel and additional yum repos such as epel, rocknsm.
+    # Default: false
+    pull_all_repos: false
+    # pull_centos_repos: This pull down centos base, updates and extras repos.
+    # Default: false
+    pull_centos_repos: false
+    # pull_rhel_repos: This pull down centos base, updates and extras yum repos.
+    # Default: false
+    pull_rhel_repos: false
+    # pull_additional_repos: This pull down epel, rocknsm, and ceph yum repos.
+    # Default: false
+    pull_additional_repos: false
+
+
+    # The following variables are used to setup the kickstart operating system:
+    # iso_pth: Path to operating system iso
+    # Default: null
+    iso_pth: /root/CentOS-7-x86_64-Minimal-1804.iso
+    # iso_url: url to download operating system iso
+    # This will only work if the ansible controller has internet connection.
+    # Default: null
+    iso_url: #http://mirror.wdc1.us.leaseweb.net/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso
+    # os_name provide the kickstart installation with the operationg system name.
+    # Default: centos  /  Available options: atomic, centos, coreos, or rhel
+    os_name: centos
+
+
+    # The following variables are used for kickstart options.
+    # root_password: Sets root password for each node.
+    # Define: empty
+    root_password: "{{ kit.password }}"
+    # timezone: Set the timezone for each node.
+    # Define: America/Chicago
+
+    timezone: 'America/Chicago'
+
+
+    # default_boot_drive: This is the default drive used for operating system installation.
+    # Default: sda
+    default_boot_drive: sda
+    # server_ip: ansible controller ip address used to define kickstart server
+    # Default: ansible controller ip address
+    server_ip: '{{ vars.controller_ip }}'
+
+    # COREOS VARS
+    # Only used if you are loading coreos operating system
+    # This is the ssh public key for core user
+    # Define: null
+    core_sshAuthorizedKeys: #
+
+  children:
+    nodes:
+      children:
+        servers:
+          hosts:
+{% for node in kit.nodes %}{% if node.type != 'controller' %}
+            {{ node.hostname }}:
+{% for interface in node.interfaces %}{% if interface.name == 'management_nic' %}
+              ip: {{ interface.ip_address }}
+              mac: {{ interface.mac_address}}
+{% endif %}{% endfor %}
+              boot_drive: sda
+              pxe_type: bios
+{% endif %}{% endfor %}
