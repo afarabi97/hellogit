@@ -244,8 +244,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                     node.set_management_interface(interface)
 
                 # Add interface to list of interfaces
-                interfaces.append(interface)
-                interfaces.append(interface)
+                interfaces.append(interface)                
             # Set list of interfaces
             node.set_interfaces(interfaces)
 

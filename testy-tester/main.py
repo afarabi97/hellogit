@@ -10,7 +10,8 @@ import logging
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
-from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, get_interface_names
+from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, \
+    get_interface_names
 from lib.model.kit import Kit
 from lib.model.node import Node
 from typing import List
@@ -40,11 +41,11 @@ def main():
             configuration = yaml.load(kit_schema)
 
             # Returns a list of kit objects
-            kits = transform(configuration["kits"])
+            kits = transform(configuration["kits"])  # type: List[Kit]
 
-            #iso_folder_path = \
-            #"[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
-            #'/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
+            # iso_folder_path = \
+            # "[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
+            # '/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
 
         except yaml.YAMLError as exc:
             print(exc)
@@ -64,25 +65,31 @@ def main():
                      controller_node.storage_folder)
 
         logging.info("Creating VMs...")
-        vms = create_vms(kit, vsphere_client)#, iso_folder_path)  # type: list
+        vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
 
         logging.info("Grabbing management MAC addresses")
         for vm in vms:
-            vm.power_on()
-
-        management_mac = None  # type: str
+            vm.power_on()        
 
         for vm in vms:
+            print(vm.get_node_instance().hostname)
 
-            # TODO: This just assumes the first interface is the management interface. We need to update this to be more
-            # permanent
-            macs = vm.get_macs()  # type: dict
-            management_mac = next(iter(macs))
-            management_mac = macs[management_mac]
-            vm.power_off()
-            logging.debug("Found management MAC address: " + management_mac)
-
+            macs = vm.get_macs()  # type: OrderedDict
+            macs_iter = iter(macs)  # type: iter
+            management_mac = next(macs_iter)
+            management_mac = macs[management_mac]  # type: str
             vm.get_node_instance().set_management_interface_mac(management_mac)
+            for interface in vm.get_node_instance().interfaces:
+
+                if interface.management_interface:
+                    interface.set_mac_address(management_mac)
+
+                if not interface.management_interface:
+                    mac = next(macs_iter)
+                    mac = macs[mac]  # type: str
+                    interface.set_mac_address(mac)
+            
+            vm.power_off()
 
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
