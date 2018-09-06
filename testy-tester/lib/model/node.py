@@ -96,7 +96,7 @@ class Interface(object):
 
     def set_interface_name(self, interface_name: str):
         """
-        Set a list of interface names for the Interface object
+        Set the interface name for the Interface object
 
         :param interface_name:
         :return:
