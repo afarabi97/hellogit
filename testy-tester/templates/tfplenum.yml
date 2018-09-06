@@ -245,7 +245,7 @@ all:
               moloch_threads: 1
               management_ipv4: "{{ node.management_interface.ip_address }}"              
               sensor_monitor_interface:
-{% for interface in node.interfaces %}{% if management_interface == 'False'  %}
+{% for interface in node.interfaces %}{% if not interface.management_interface  %}
                 - {{ interface.interface_name }}
 {% endif %}{% endfor %}
               pcap_disk:

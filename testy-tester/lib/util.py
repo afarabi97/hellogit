@@ -7,6 +7,7 @@ import os.path
 from lib.model.kit import Kit
 from lib.model.node import Node, Interface, NodeDisk
 from typing import List
+import logging
 
 
 def todict(obj: object, classkey=None) -> dict:
@@ -173,35 +174,18 @@ def get_interface_names(kit: Kit) -> None:
 
         if node.type == 'sensor':
 
-            #interface_filename = '/tmp/' + kit.name + '_interfaces'  # type: str
-
             client = Connection(
                 host=node.management_interface.ip_address,
                 connect_kwargs={"password": kit.password})  # type: Connection
 
             for interface in node.interfaces:
             
-                interface_name = client.run("ip link show | grep -B 1 " + interface.mac_address + " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
-                interface_name = interface_name.stdout.strip().remove(':','')  # type: str
-                print("Found interface name " + interface_name + " for mac address " + interface.mac_address)            
+                interface_name_result = client.run("ip link show | grep -B 1 " + interface.mac_address +
+                                                   " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
+                interface_name = interface_name_result.stdout.strip()  # type: str
+                interface_name = interface_name.replace(':','')  # type: str
+                logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
                 interface.set_interface_name(interface_name)
-
-            #client.run(
-            #        "ip addr | grep -i broadcast | grep -Fv docker | grep -Fv flannel | grep -Fv veth | grep -Fv cni | \
-            #        awk '{ print $2 }' > /tmp/interfaces")
-            #client.run("sed -i 's/:/\ /g' /tmp/interfaces")
-            #client.get('/tmp/interfaces', interface_filename)
-
-            #with open(interface_filename, 'r') as interfaces:
-            #    for i in interfaces:
-            #        # Get the interface mac address
-            #        mac_address = client.run("ethtool -P " + i.strip() + " | awk '{ print $3 }'")  # type: Result
-            #        mac_address = mac_address.stdout.strip().lower()  # type str
-            #        for interface in node.interfaces:
-            #            # If the mac address from ethtool matches the interface object mac address
-            #            # Set the interface name for that interface object
-            #            if mac_address == interface.mac_address.lower():
-            #                interface.set_interface_name(i)
 
             client.close()
 
