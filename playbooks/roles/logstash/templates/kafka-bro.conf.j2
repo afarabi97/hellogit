@@ -96,7 +96,7 @@ filter {
 output {
   elasticsearch {
     hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
-    index => "bro--%{file.source}-%{+YYYY.MM.dd}"
+    index => "bro--%{source}-%{+YYYY.MM.dd}"
     manage_template => false
   }
 }
