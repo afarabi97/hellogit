@@ -91,12 +91,6 @@ filter {
                   "OTH", "No SYN seen, just midstream traffic (a 'partial connection' that was not later closed)"
                   ]
   }
-
-  mutate {
-   {% for item in bro_csv_data %}
-     rename => {"{{ item['Original Field Label'] }}" => "{{ item['ECS Standard'] }}"}
-   {% endfor %}
-  } 
 }
 
 output {

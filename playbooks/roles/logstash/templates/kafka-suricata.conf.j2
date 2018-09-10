@@ -55,12 +55,6 @@ filter {
       }
     }
   }
-  
-  mutate {
-   {% for item in suricata_csv_data %}
-     rename => {"{{ item['Original Field Label'] }}" => "{{ item['ECS Standard'] }}"}
-   {% endfor %}
-  }
 }
 
 output {
