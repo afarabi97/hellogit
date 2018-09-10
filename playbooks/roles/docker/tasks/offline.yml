@@ -16,6 +16,11 @@
     path: "/var/lib/docker"
     state: absent
 
+- name: Clear var/run/docker.sock
+  file:
+    path: "/var/run/docker.sock"
+    state: absent
+
 - name: Add docker config
   template:
     src: templates/daemon.json.j2
