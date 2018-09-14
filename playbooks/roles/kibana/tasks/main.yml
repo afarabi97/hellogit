@@ -66,3 +66,39 @@
     namespace: "default"
     resource_name: "kibana"
     label: ""
+
+- name: Get Elasticsearch Service IP
+  shell: "kubectl get svc -n default | grep 'elasticsearch ' | awk '{print $4}'"
+  register: es_svc_ip
+
+- name: Get Kibana Service IP
+  shell: "kubectl get svc -n default | grep 'kibana' | awk '{print $4}'"
+  register: kibana_svc_ip
+
+- name: Wait for Kibana Service to become Available
+  wait_for:
+    host: "{{ kibana_svc_ip.stdout }}"
+    port: 80
+    delay: 30
+    timeout: 300
+  delegate_to: localhost
+
+- name: Clear All Kibana Config
+  uri:
+    url: "http://{{ es_svc_ip.stdout }}:9200/.kibana"
+    method: DELETE
+  ignore_errors: true
+
+- name:  Load Kibana Config
+  shell: |
+    curl -X POST {{ kibana_svc_ip.stdout }}:80/api/saved_objects/config/{{ kibana_ver }} -H "Content-Type: application/json" -H "kbn-xsrf: {{ kibana_ver }}" -d @{{ item }}
+  with_fileglob:
+    - "{{ install_dir }}/playbooks/roles/kibana/files/*.json"
+  delegate_to: localhost
+
+- name: Load Dashboards
+  shell: |
+    curl -X POST {{ kibana_svc_ip.stdout }}:80/api/kibana/dashboards/import?force=true -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @{{ item }}
+  with_fileglob:
+    - "{{ install_dir }}/playbooks/roles/kibana/files/dashboards/*.json"
+  delegate_to: localhost
