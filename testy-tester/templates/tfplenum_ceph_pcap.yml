@@ -1,4 +1,4 @@
-{% set vars = {'has_remote_sensor': false} %}{{% for node in kit.nodes %}{% if node.type == 'remote-sensor' %}{% if vars.update({'has_remote_sensor': true}) %}{% endif %}{% endfor %}
+{% set vars = {'has_remote_sensor': false} %}{% for node in kit.nodes %}{% if node.type == 'remote-sensor' %}{% if vars.update({'has_remote_sensor': true}) %}{% endif %}{% endif %}{% endfor %}
 ---
 # The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
 # themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
@@ -263,7 +263,7 @@ all:
         #everything after the group name empty. Ex: you could have an inventory
         #with just "remote-sensors:", but no hosts defined.
         remote-sensors:
-{% vars.has_remote_sensor %}
+{% if vars.has_remote_sensor %}
           hosts:
 {% for node in kit.nodes %}{% if node.type == 'remote-sensor' %}
             {{ node.hostname }}:
