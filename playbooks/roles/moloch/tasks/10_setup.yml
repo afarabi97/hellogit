@@ -27,6 +27,17 @@
     - "{{ groups['moloch'] }}"
   when: not use_ceph_for_pcap
 
+- name: 'Create unclustered pcap directories'
+  file:
+    path: "{{ moloch_pcap_folder }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['remote-sensors'] }}"
+
 - name: 'Copy files'
   copy:
     src: files/{{ item }}
