@@ -2,7 +2,7 @@
 
 - name: Get elasticsearch cluster health
   uri:
-    url: "{{ elastic_uri }}/_cluster/health"
+    url: "http://elasticsearch:9200/_cluster/health"
   register: elasticsearch_health_result
 
 - name: Test | Elasticsearch cluster should be green

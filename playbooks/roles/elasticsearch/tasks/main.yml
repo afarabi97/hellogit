@@ -1,8 +1,5 @@
 ---
 
-- import_tasks: get_service_ip.yml
-  when: inventory_hostname in groups['master-server']
-
 - import_tasks: access.yml
 
 - import_tasks: cluster_health.yml

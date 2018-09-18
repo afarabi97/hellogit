@@ -56,7 +56,7 @@ all:
     # one giant storage device across the entire kit. This is ideal for many types
     # of storage, but causes latency. This is not acceptable for high speed PCAP
     # capture.
-    use_ceph_for_pcap: False
+    use_ceph_for_pcap: True
 
     # This should be defined if you are going to use Moloch in direct disk
     # access mode which is the default. If this is defined it is assumed you are
@@ -249,8 +249,9 @@ all:
 {% for interface in node.interfaces %}{% if not interface.management_interface  %}
                 - {{ interface.interface_name }}
 {% endif %}{% endfor %}
-              pcap_disk: /dev/sdb
-              ceph_drive_list:                
+              pcap_disk:
+              ceph_drive_list:
+                - /dev/sdb
 {% endif %}{% endfor %}
 
 

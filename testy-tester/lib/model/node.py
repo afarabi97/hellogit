@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python 
 
 __vcenter_version__ = '6.7c'
 
@@ -20,7 +20,7 @@ from lib.vsphere.vcenter.helper.vm_helper import get_vm
 
 class Interface(object):
     """
-        Represents a single node object such as a controller, server or sensor
+        Represents a single node object such as a controller, master-server, server, sensor or remote-sensor
 
         Attributes:
             name: Name of interface from yaml
