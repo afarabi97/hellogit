@@ -2,8 +2,11 @@
 
 - name: Get elasticsearch cluster health
   uri:
-    url: "http://elasticsearch:9200/_cluster/health"
+    url: "{{ elastic_uri }}/_cluster/health"
   register: elasticsearch_health_result
+  until: elasticsearch_health_result.json.status == 'green'
+  retries: 10
+  delay: 5
 
 - name: Test | Elasticsearch cluster should be green
   assert:

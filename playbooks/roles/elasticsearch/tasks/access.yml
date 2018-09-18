@@ -2,7 +2,7 @@
 
 - name: Get elasticsearch main page
   uri:
-    url: "http://elasticsearch:9200"
+    url: "{{ elastic_uri }}"
   register: elasticsearch_result
 
 - name: Test | Elastichsearch service and port
