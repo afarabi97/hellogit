@@ -172,7 +172,7 @@ def get_interface_names(kit: Kit) -> None:
 
     for node in kit.nodes:
 
-        if node.type == 'sensor':
+        if node.type == 'sensor' or node.type == 'remote-sensor':
 
             client = Connection(
                 host=node.management_interface.ip_address,
