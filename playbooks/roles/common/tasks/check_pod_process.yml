@@ -8,6 +8,7 @@
   retries: 10
   delay: 5
   until: pod_status.stdout.find("active") != -1
+  ignore_errors: yes
 
 - name: Test | {{ app_name }} service should be active
   assert:

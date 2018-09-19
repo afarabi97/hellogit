@@ -7,6 +7,7 @@
   until: elasticsearch_health_result.json.status == 'green'
   retries: 10
   delay: 5
+  ignore_errors: yes
 
 - name: Test | Elasticsearch cluster should be green
   assert:
