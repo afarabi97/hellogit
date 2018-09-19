@@ -10,13 +10,14 @@
   changed_when: get_pods.failed
 
 - name: Check Moloch Process
-  import_role:
+  include_role:
     name: common
     tasks_from: check_pod_process
   vars:
     app_name: "moloch"
     process_name: "molochcapture"
-    pod_list: "{{ get_pods.stdout_lines }}"
+    pod_name: "{{ item }}"
+  with_items: "{{ get_pods.stdout_lines }}"
 
 # - set_fact:
 #     moloch_indices: "{{ moloch_indices }} + [ {{ item }} ]"

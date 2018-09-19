@@ -3,19 +3,16 @@
 - name: Get {{ app_name }} status
   shell: |
     kubectl exec {{ pod_name }} -- systemctl is-active {{ process_name }}
-  with_items: "{{ pod_list }}"
   register: pod_status
   changed_when: pod_status.failed
-  ignore_errors: yes
-  loop_control:
-    loop_var: pod_name
+  retries: 10
+  delay: 5
+  until: pod_status.stdout.find("active") != -1
 
 - name: Test | {{ app_name }} service should be active
   assert:
-    that: "'active' in pod_item.stdout"
-    msg: "{{ process_name }} service is reporting  {{ pod_item.stdout }}"
-  with_items: "{{ pod_status.results }}"
-  loop_control:
-    loop_var: pod_item
+    that: "'active' in pod_status.stdout"
+    msg: "{{ process_name }} service is reporting  {{ pod_status.stdout }}"
+
     
 ...
