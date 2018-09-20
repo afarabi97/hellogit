@@ -83,7 +83,7 @@ pipeline {
         stage('build / deploy system') {
             steps {
                 node('master') { 
-                    sh('sudo /usr/bin/python36 /opt/tfplenum-integration-testing/testy-tester/main.py VMs-2-1-1.yml')
+                    sh('sudo /usr/bin/python36 /opt/tfplenum-integration-testing/testy-tester/main.py /root/VMs-2-1-1.yml')
                 }
             }
         }
