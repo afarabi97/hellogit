@@ -12,6 +12,7 @@
   with_items:
     - "{{ kubernetes_conf_file }}"
     - "/etc/kubernetes/join-node.sh"
+  tags: pull_join_script
 
 - name: Retrieve generated credentials
   import_role:
