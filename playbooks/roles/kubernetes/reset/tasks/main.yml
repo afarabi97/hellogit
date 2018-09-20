@@ -47,9 +47,7 @@
 
 - name: Remove Interfaces
   shell: |
-    if [ $(ifconfig | grep {{ item }} | wc -l ) -gt 0 ]; then
-      ip link delete {{ item }};
-    fi
+    ip link delete {{ item }};
   with_items:
     - flannel.1
     - cni0
