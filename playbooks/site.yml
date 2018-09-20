@@ -189,6 +189,18 @@
 #      timeout: 300
 #    delegate_to: localhost
 #    when: system_updated is defined and system_updated.changed
+- name: Remove existing SSH keys
+  hosts:
+    - localhost
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  connection: ssh
+  any_errors_fatal: true
+  tasks:
+    - import_tasks: remove_ssh_info.yml
+  tags: genkeys
 
 - name: Generate SSH keys
   hosts:
