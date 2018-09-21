@@ -37,7 +37,7 @@
 
 - name: Check Interface DNS
   shell: |
-    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'  
+    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
   register: interface_dns_result
   with_items: "{{ interface_list }}"
   when: interface_list is defined
@@ -61,7 +61,7 @@
       - "{{ dns_ip }}"
     state: present
   with_items: "{{ interface_list }}"
-  when: update_interface 
+  when: update_interface
   register: dns_updated_result
 
 - name: Bump the network service
@@ -75,6 +75,12 @@
   stat:
     path: "/usr/bin/docker"
   register: docker_stat_result
+
+- name: Stop docker if it is installed
+  service:
+    name: docker
+    state: stopped
+  when: docker_stat_result.stat.exists
 
 - name: check if kubelet installed
   stat:
