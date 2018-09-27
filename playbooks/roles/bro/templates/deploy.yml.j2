@@ -35,6 +35,8 @@ spec:
           mountPath: /etc/icdm/templates/
         - name: configs
           mountPath: /etc/icdm/conf/
+        - name: scripts
+          mountPath: /usr/share/bro/policy/custom-scripts
       volumes:
       - name: vars
         configMap:
@@ -70,7 +72,11 @@ spec:
           - key: local.bro.conf
             path: local.bro.conf
           - key: custom.bro.conf
-            path: custom.bro.conf  
+            path: custom.bro.conf
+      - name: scripts
+        hostPath:
+          path: /bro-scripts
+          type: DirectoryOrCreate
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

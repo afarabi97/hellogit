@@ -32,6 +32,10 @@
     - local.bro.conf
     - custom.bro.conf
 
+- name: Copy Custom Bro Scripts to Sensors
+  local_action: command /bin/sh -c "/usr/bin/scp {{ install_dir }}/playbooks/roles/bro/files/scripts/* root@{{ item }}:/bro-scripts/"
+  with_items: "{{ groups['bro'] }}"
+
 - name: Install templates
   template:
     src: "templates/{{ item }}.j2"

@@ -146,6 +146,38 @@
       mode: 0644
       state: directory
 
+- name: Create Custom IDS Rules/Scripts Directories on Sensors
+  hosts:
+    - sensors
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+  - name: Create Bro Script Directory
+    file:
+      path: "{{ bro_script_dir }}"
+      owner: root
+      group: root
+      mode: 0644
+      state: directory
+
+#- name: Copy Custom IDS Rules/Scripts to Sensors
+#  hosts:
+#    - sensors
+#    - remote-sensors
+#  gather_facts: no
+#  any_errors_fatal: true
+#  tasks:
+#  - name: Copy Bro Scripts
+#    copy:
+#      src: "{{ item }}"
+#      dest: "/scripts/"
+#      owner: "root"
+#      mode: 0644
+#      force: yes
+#    with_fileglob:
+#      - "{{ install_dir }}/playbooks/roles/bro/files/scripts/*"
+
 - name: dnsmasq
   hosts:
     - master-server
@@ -460,7 +492,7 @@
       with_items: "{{ sensor_monitor_interface }}"
     - name: Set interface to promiscuous mode
       shell: "ip link set {{ item }} promisc on"
-      with_items: "{{ sensor_monitor_interface }}"            
+      with_items: "{{ sensor_monitor_interface }}"
   tags:
     - enable-sensor-monitor-interface
 ...

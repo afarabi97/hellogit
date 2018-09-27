@@ -35,6 +35,10 @@ kafka_retention: 168
 moloch_login: 'assessor'
 moloch_pass: 'password'
 
+# Directories in which to store IDS scripts/rules on sensors
+bro_script_dir: /bro-scripts
+suri_rule_dir: /suri-rules
+
 # Common
 package_list:
   - python-gobject
