@@ -2,7 +2,7 @@
 
 from typing import List
 from lib.model.node import Node
-from lib.kickstart_configuration import KickstartConfiguration
+from lib.model.kickstart_configuration import KickstartConfiguration
 
 class Kit(object):
     def __init__(self, name: str) -> None:

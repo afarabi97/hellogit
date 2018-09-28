@@ -78,10 +78,10 @@ def main():
         # TODO: Bootstrap will go here
         """
         logging.info("Running frontend")
-        run_kickstart_configuration(kit.)
+        run_kickstart_configuration(kit.kickstart_configuration, controller_node.management_interface.ip_address, "4200")
         """
         logging.info("Configuring deployer...")
-        configure_deployer(kit.kickstart_configuration, controller_node, 4200)
+        configure_deployer(kit, controller_node)
 
         logging.info("Powering VMs on...")
         for vm in vms:

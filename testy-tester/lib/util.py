@@ -5,6 +5,7 @@ from fabric import Connection
 from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
 import os.path
 from lib.model.kit import Kit
+from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node, Interface, NodeDisk
 from typing import List
 import logging

@@ -22,5 +22,3 @@ class KickstartConfiguration():
 
     def set_netmask(self, netmask: str) -> None:
         self.netmask = netmask
-
-    def 

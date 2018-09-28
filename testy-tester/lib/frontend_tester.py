@@ -10,9 +10,9 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.options import Options
 from lib.util import get_controller
-from lib.kickstart_configuration import KickstartConfiguration
+from lib.model.kickstart_configuration import KickstartConfiguration
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, web_server_ip: str, port="80"):
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, webserver_ip: str, port="80"):
 
     chrome_options = Options()
     #chrome_options.add_argument('--headless')
@@ -22,7 +22,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     browser = webdriver.Chrome('/home/assessor/selenium_testing/chromedriver', chrome_options=chrome_options)
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver + ":" + port + "/kickstart")
+    browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
 
     #html_source = browser.page_source
     #soup = BeautifulSoup(html_source, 'html.parser')
