@@ -2,54 +2,55 @@
 
 host_configuration:
   vcenter:
-    ip_address: "10.4.2.4"
-    username: ""
-    password: ""
-    datacenters: "GIP-004"
-    cluster_name: "RDTE"
+    ip_address: "172.16.20.106"
+    username: "administrator@sil.local"
+    password: "PASSWORD"
+    datacenters: "SIL_Datacenter"
+    cluster_name: "SIL_Cluster"
 #    iso_files:
-#      datastore: ""
-#      folder: ""
-# TODO: These are not currently in use, but we should add them in later so you can select a specific host
+#      datastore: "NVMe Storage"
+#      folder: "ISOs"
 #  esxi_hosts:
 #    esx_host_1:
 #      ip_address: "172.16.70.6"
-#      esx_user: ""
-#      esx_pass: ""
+#      esx_user: "root"
+#      esx_pass: "PASSWORD"
 #      datastores:
-#        - "RDTE"
+#        - "NVMe Storage"
 #    esx_host_2:
 #      ip_address: "172.16.70.7"
-#      esx_user: ""
-#      esx_pass: ""
+#      esx_user: "root"
+#      esx_pass: "PASSWORD"
 #      datastores:
-#        - "RDTE 2"
+#        - "NVMe Storage 2"
 
 kits:
   kit_1:
 
-    username: ""
-    password: ""
 
-    deployer_template: './templates/centos_deployer.yml'
-    tfplenum_template: './templates/tfplenum.yml'
+    username: "root"
+    password: "PASSWORD"
+
+    deployer_template: '/opt/tfplenum-integration-testing/testy-tester/templates/deployer.yml'
+    tfplenum_template: '/opt/tfplenum-integration-testing/testy-tester/templates/tfplenum.yml'
+    # tfplenum_template: '/opt/tfplenum-integration-testing/testy-tester/templates/tfplenum_ceph_pcap.yml'
 
     # Kubernetes cidr will probably be different on a per kit basis
-    kubernetes_cidr: "172.18.3.95/28"
+    kubernetes_cidr: "172.16.82.112/28"
 
     # DHCP Ranges
-    dhcp_start: "172.18.3.67"
-    dhcp_end: "172.18.3.94"
+    dhcp_start: "172.16.82.100"
+    dhcp_end: "172.16.82.110"
 
-    netmask: "255.255.255.224"
+    netmask: "255.255.255.0"
 
     # Gateway will probably be different on a per kit basis (depends on the vlan)
-    gateway: "172.18.3.65"
+    gateway: "172.16.82.1"
 
     VMs:
 
       # Note: You should not have more than one of these
-      I19-Controller.lan:
+      test_controller.lan:
 
         type: "controller" # Can be controller, sensor, or server
 
@@ -62,25 +63,26 @@ kits:
         vm_to_clone: "DO NOT TURN ON Master Controller (RHEL)"
         cloned_vm_name: "Test Controller"
 
-        username: ""
-        password: ""
+        username: "root"
+        password: "PASSWORD"
 
         # The following controls where the VM will be placed on the ESXi servers
         storage_options:
-          datacenter: "GIP-004"
-          cluster: "RDTE"
-          datastore: "RDTE"
-          folder: "Instructor"
+          datacenter: "SIL_Datacenter"
+          cluster: "SIL_Cluster"
+          datastore: "NVMe Storage"
+          folder: "Testing"
         networking:
           std_portgroup_name: "VM Network"
           nics:
-            management_nic: # WARNING: The management nic must always be the first nic in the list
+            management_nic:
               type: "manual" # This can be auto, manual, or link-local
-              ip_address: "172.18.3.66"
+              ip_address: "172.16.82.15"
               start_connected: True
+              management_interface: True
               mac_auto_generated: True
               mac_address: "" # This is ignored if mac_auto_generated is true
-              dv_portgroup_name: "T219"
+              dv_portgroup_name: "82 Portgroup"
               std_portgroup_name:
         cpu_spec:
           sockets: 2
@@ -92,30 +94,29 @@ kits:
           hot_add_enabled: False
         disks:
           boot: 200 # Name of disk followed by capacity in GiBs
-        iso_file: "rhel-server-7.5-x86_64-dvd.iso"
+        iso_file: "rhel-server-7.4-x86_64-dvd.iso"
         boot_order: # Valid options are CDROM, DISK, and ETHERNET
           - "CDROM" # CDROM will be ignored if iso_file is None
           - "DISK"
           - "ETHERNET"
-
-      I19-Server-1.lan:
-
-        type: "server" # Can be controller, sensor, or server
+      tfserver1.lan:
+        type: "master-server" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "GIP-004"
-          cluster: "RDTE"
-          datastore: "RDTE"
-          folder: "Instructor"
+          datacenter: "SIL_Datacenter"
+          cluster: "SIL_Cluster"
+          datastore: "NVMe Storage"
+          folder: "Testing"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.18.3.68"
+              ip_address: "172.16.82.40"
               start_connected: True
+              management_interface: True
               mac_auto_generated: True
               mac_address: ""
-              dv_portgroup_name: "T219"
+              dv_portgroup_name: "82 Portgroup"
               std_portgroup_name:
         cpu_spec:
           sockets: 16
@@ -133,25 +134,24 @@ kits:
           - "CDROM"
           - "DISK"
           - "ETHERNET"
-
-      I19-Server-2.lan:
-
+      tfserver2.lan:
         type: "server" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "GIP-004"
-          cluster: "RDTE"
-          datastore: "RDTE"
-          folder: "Instructor"
+          datacenter: "SIL_Datacenter"
+          cluster: "SIL_Cluster"
+          datastore: "NVMe Storage"
+          folder: "Testing"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.18.3.69"
+              ip_address: "172.16.82.41"
               start_connected: True
+              management_interface: True
               mac_auto_generated: True
               mac_address: ""
-              dv_portgroup_name: "T219"
+              dv_portgroup_name: "82 Portgroup"
               std_portgroup_name:
         cpu_spec:
           sockets: 16
@@ -169,33 +169,33 @@ kits:
           - "CDROM"
           - "DISK"
           - "ETHERNET"
-
-      I19-Sensor.lan:
-
+      tfsensor1.lan:
         type: "sensor" # Can be controller, sensor, or server
         vm_guestos: "RHEL_7_64"
         storage_options:
-          datacenter: "GIP-004"
-          cluster: "RDTE"
-          datastore: "RDTE"
-          folder: "Instructor"
+          datacenter: "SIL_Datacenter"
+          cluster: "SIL_Cluster"
+          datastore: "NVMe Storage"
+          folder: "Testing"
         networking:
           nics:
             management_nic:
               type: "manual"
-              ip_address: "172.18.3.67"
+              ip_address: "172.16.82.50"
               start_connected: True
+              management_interface: True
               mac_auto_generated: True
               mac_address: ""
-              dv_portgroup_name: "T219"
+              dv_portgroup_name: "82 Portgroup"
               std_portgroup_name:
             ens224:
-              type: "link-local"
+              type: "manual"
               ip_address:
               start_connected: True
+              management_interface: False
               mac_auto_generated: True
               mac_address: ""
-              dv_portgroup_name: "T222"
+              dv_portgroup_name: "Monitoring Portgroup"
               std_portgroup_name:
         cpu_spec:
           sockets: 16
@@ -213,3 +213,50 @@ kits:
         - "CDROM"
         - "DISK"
         - "ETHERNET"
+      tfsensor2.lan:
+        type: "remote-sensor" # Can be controller, sensor, or server
+        vm_guestos: "RHEL_7_64"
+        storage_options:
+          datacenter: "SIL_Datacenter"
+          cluster: "SIL_Cluster"
+          datastore: "NVMe Storage"
+          folder: "Testing"
+        networking:
+          nics:
+            management_nic:
+              type: "manual"
+              ip_address: "172.16.82.51"
+              start_connected: True
+              management_interface: True
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "82 Portgroup"
+              std_portgroup_name:
+            ens224:
+              type: "manual"
+              ip_address:
+              start_connected: True
+              management_interface: False
+              mac_auto_generated: True
+              mac_address: ""
+              dv_portgroup_name: "Monitoring Portgroup"
+              std_portgroup_name:
+        cpu_spec:
+          sockets: 16
+          cores_per_socket: 1
+          hot_add_enabled: False
+          hot_remove_enabled: False
+        memory_spec:
+          size: 64
+          hot_add_enabled: False
+        disks:
+          boot: 20
+          ceph: 20
+        iso_file:
+        boot_order:
+        - "CDROM"
+        - "DISK"
+        - "ETHERNET"
+
+    kickstart_configuration:
+      dhcp_start:
