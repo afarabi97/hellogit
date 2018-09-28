@@ -200,6 +200,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kickstart_configuration.set_dhcp_end(configuration[kitconfig]["kickstart_configuration"]['dhcp_end'])
         kickstart_configuration.set_gateway(configuration[kitconfig]["kickstart_configuration"]['gateway'])
         kickstart_configuration.set_netmask(configuration[kitconfig]["kickstart_configuration"]['netmask'])
+        kickstart_configuration.set_root_password(configuration[kitconfig]["kickstart_configuration"]['root_password'])
 
         kit.set_kickstart_configuration(kickstart_configuration)
 

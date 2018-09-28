@@ -47,7 +47,7 @@ def main():
     for kit in kits:
 
         controller_node = get_controller(kit)  # type: Node
-        """
+
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
 
@@ -76,9 +76,11 @@ def main():
             vm.power_off()
 
         # TODO: Bootstrap will go here
-        """
+
         logging.info("Running frontend")
-        run_kickstart_configuration(kit.kickstart_configuration, controller_node.management_interface.ip_address, "4200")
+        run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address, "4200")
+
+
         """
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
