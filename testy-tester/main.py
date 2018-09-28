@@ -14,15 +14,11 @@ from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, 
     get_interface_names
 from lib.model.kit import Kit
 from lib.model.node import Node
+from lib.frontend_tester import run_kickstart_configuration
 from typing import List
 
 
 def main():
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config", help="The path to the configuration YAML file you want to load in")
-    parser.add_argument("--controller", help="Specify this option if you want the controller built from a clone")
-    args = parser.parse_args()
 
     kit_builder = logging.getLogger()
     kit_builder.setLevel(logging.INFO)
@@ -43,10 +39,6 @@ def main():
             # Returns a list of kit objects
             kits = transform(configuration["kits"])  # type: List[Kit]
 
-            # iso_folder_path = \
-            # "[{}]".format(configuration["host_configuration"]["vcenter"]["iso_files"]["datastore"]) + \
-            # '/' + configuration["host_configuration"]["vcenter"]["iso_files"]["folder"] + '/'  # type: str
-
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -55,21 +47,13 @@ def main():
     for kit in kits:
 
         controller_node = get_controller(kit)  # type: Node
-
-        if args.controller:
-            delete_vm(vsphere_client, controller_node.cloned_vm_name)
-
-            clone_vm(configuration,
-                     controller_node.vm_to_clone,
-                     controller_node.cloned_vm_name,
-                     controller_node.storage_folder)
-
+        """
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
 
         logging.info("Grabbing management MAC addresses")
         for vm in vms:
-            vm.power_on()        
+            vm.power_on()
 
         for vm in vms:
             print(vm.get_node_instance().hostname)
@@ -88,11 +72,16 @@ def main():
                     mac = next(macs_iter)
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
-            
+
             vm.power_off()
 
+        # TODO: Bootstrap will go here
+        """
+        logging.info("Running frontend")
+        run_kickstart_configuration(kit.)
+        """
         logging.info("Configuring deployer...")
-        configure_deployer(kit, controller_node)
+        configure_deployer(kit.kickstart_configuration, controller_node, 4200)
 
         logging.info("Powering VMs on...")
         for vm in vms:
@@ -109,6 +98,7 @@ def main():
         get_interface_names(kit)
 
         build_tfplenum(kit, controller_node)
+        """
 
 
 if __name__ == '__main__':

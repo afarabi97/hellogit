@@ -82,14 +82,6 @@ def configure_deployer(kit: Kit, controller: Node) -> None:
         host=controller.management_interface.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
 
-    # Render deployer template
-    template_name = '/tmp/' + kit.name + "_deployer_template.yml"  # type: str
-    with open(template_name, 'w') as fh:
-        fh.write(render(kit.deployer_template, todict(kit)))
-
-    # Copy TFPlenum Deployer inventory
-    client.put(template_name, '/opt/tfplenum-deployer/playbooks/inventory.yml')
-
     with client.cd("/opt/tfplenum-deployer/playbooks"):
         client.run('make')
 
@@ -179,7 +171,7 @@ def get_interface_names(kit: Kit) -> None:
                 connect_kwargs={"password": kit.password})  # type: Connection
 
             for interface in node.interfaces:
-            
+
                 interface_name_result = client.run("ip link show | grep -B 1 " + interface.mac_address +
                                                    " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
                 interface_name = interface_name_result.stdout.strip()  # type: str
@@ -199,18 +191,22 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     """
     kits = []  # type: List[Kit]
     for kitconfig in configuration:
-        kit = Kit(kitconfig)
-        kit.set_username(configuration[kitconfig]['username'])
-        kit.set_password(configuration[kitconfig]['password'])
-        kit.set_deployer_template(configuration[kitconfig]['deployer_template'])
-        kit.set_tfplenum_template(configuration[kitconfig]['tfplenum_template'])
-        kit.set_kubernetes_cidr(configuration[kitconfig]['kubernetes_cidr'])
-        kit.set_dhcp_start(configuration[kitconfig]['dhcp_start'])
-        kit.set_dhcp_end(configuration[kitconfig]['dhcp_end'])
-        kit.set_gateway(configuration[kitconfig]['gateway'])
-        kit.set_netmask(configuration[kitconfig]['netmask'])
 
-        vms = configuration[kitconfig]["VMs"]  # type: dict
+        kit = Kit(kitconfig)
+
+        kickstart_configuration = KickstartConfiguration()
+        kickstart_configuration.set_dhcp_start(configuration[kitconfig]["kickstart_configuration"]['dhcp_start'])
+        kickstart_configuration.set_dhcp_end(configuration[kitconfig]["kickstart_configuration"]['dhcp_end'])
+        kickstart_configuration.set_gateway(configuration[kitconfig]["kickstart_configuration"]['gateway'])
+        kickstart_configuration.set_netmask(configuration[kitconfig]["kickstart_configuration"]['netmask'])
+
+        kit.set_kickstart_configuration(kickstart_configuration)
+
+        kit.set_username(configuration[kitconfig]["VM_settings"]['username'])
+        kit.set_password(configuration[kitconfig]["VM_settings"]['password'])
+        kit.set_kubernetes_cidr(configuration[kitconfig]["VM_settings"]['kubernetes_cidr'])
+
+        vms = configuration[kitconfig]["VM_settings"]["VMs"]  # type: dict
         nodes = []  # type: List[Node]
         for v in vms:
             node = Node(v, vms[v]['type'])  # type: Node
@@ -238,7 +234,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                     node.set_management_interface(interface)
 
                 # Add interface to list of interfaces
-                interfaces.append(interface)                
+                interfaces.append(interface)
             # Set list of interfaces
             node.set_interfaces(interfaces)
 

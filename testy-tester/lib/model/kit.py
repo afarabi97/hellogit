@@ -2,6 +2,7 @@
 
 from typing import List
 from lib.model.node import Node
+from lib.kickstart_configuration import KickstartConfiguration
 
 class Kit(object):
     def __init__(self, name: str) -> None:
@@ -16,26 +17,11 @@ class Kit(object):
     def set_nodes(self, nodes: List[Node]) -> None:
         self.nodes = nodes
 
-    def set_deployer_template(self, deployer_template: str) -> None:
-        self.deployer_template = deployer_template
-
-    def set_tfplenum_template(self, tfplenum_template: str) -> None:
-        self.tfplenum_template = tfplenum_template
-
     def set_kubernetes_cidr(self, kubernetes_cidr: str) -> None:
         self.kubernetes_cidr = kubernetes_cidr
 
-    def set_dhcp_start(self, dhcp_start: str) -> None:
-        self.dhcp_start = dhcp_start
-
-    def set_dhcp_end(self, dhcp_end: str) -> None:
-        self.dhcp_end = dhcp_end
-
-    def set_gateway(self, gateway: str) -> None:
-        self.gateway = gateway
-
-    def set_netmask(self, netmask: str) -> None:
-        self.netmask = netmask
+    def set_kickstart_configuration(self, kickstart_configuration: KickstartConfiguration) -> None:
+        self.kickstart_configuration = kickstart_configuration
 
     def get_nodes(self) -> list:
         """
