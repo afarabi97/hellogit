@@ -108,6 +108,7 @@ kits:
             memory_spec:
               size: 64
               hot_add_enabled: False
+            boot_drive_name: "sda"
             disks:
               boot: 20
               ceph: 20
@@ -143,6 +144,7 @@ kits:
             memory_spec:
               size: 64
               hot_add_enabled: False
+            boot_drive_name: "sda"
             disks:
               boot: 20
               ceph: 20
@@ -187,6 +189,7 @@ kits:
             memory_spec:
               size: 64
               hot_add_enabled: False
+            boot_drive_name: "sda"
             disks:
               boot: 20
               ceph: 20
@@ -231,6 +234,7 @@ kits:
             memory_spec:
               size: 64
               hot_add_enabled: False
+            boot_drive_name: "sda"
             disks:
               boot: 20
               ceph: 20

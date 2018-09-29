@@ -266,6 +266,9 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                 boot_order.append(o)
             node.set_boot_order(boot_order)
 
+            if node.type != "controller":
+                node.set_boot_drive(vms[v]['boot_drive_name'])
+
             # Add node to list of nodes
             nodes.append(node)
 

@@ -63,7 +63,8 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
         logging.critical("Could not find the controller interface " + controller_interface + ". Exiting.")
         exit(0)
 
-    for i, node in enumerate(nodes, start=0):
+    i = 0
+    for node in nodes:
 
         if node.type == "controller":
             logging.debug("Skipping controller")
@@ -71,38 +72,38 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
 
             index = str(i)
 
-            try:
-                element = WebDriverWait(browser, 30).until(EC.presence_of_element_located((By.NAME, "add_node")))
-                element.click()
-            except:
-                logging.critical("Could not click button Add Node")
-                exit(0)
+            element = browser.find_element_by_name("add_node")
+            element.click()
 
-            try:
-                element = WebDriverWait(browser, 30).until(EC.presence_of_element_located((By.NAME, "node_type" + index)))
-                element.click()
-            except:
-                logging.critical("Could not click the button Node Type")
-                exit(0)
+            element = browser.find_element_by_name("node_type" + index)
+            element.click()
 
             if node.type == "server" or node.type == "master-server":
 
-                try:
-                    element = WebDriverWait(browser, 30).until(EC.presence_of_element_located((By.NAME, "Server" + index)))
-                    element.click()
-                except:
-                    logging.critical("Could not find the controller interface " + controller_interface + ". Exiting.")
-                    exit(0)
-            else:
-                try:
-                    element = WebDriverWait(browser, 30).until(EC.presence_of_element_located((By.NAME, "Sensor" + index)))
-                    element.click()
-                except:
-                    logging.critical("Could not find the controller interface " + controller_interface + ". Exiting.")
-                    exit(0)
+                element = browser.find_element_by_name("Server" + index)
+                element.click()
 
-            element = browser.find_element_by_name("hostname")
+            else:
+
+                element = browser.find_element_by_name("Sensor" + index)
+                element.click()
+
+
+            element = browser.find_element_by_name("hostname" + index)
             element.clear()
             element.send_keys(node.hostname)
 
-            time.sleep(10)
+            element = browser.find_element_by_name("ip_address" + index)
+            element.send_keys(node.management_interface.ip_address)
+
+            element = browser.find_element_by_name("mac_address" + index)
+            element.send_keys(node.management_interface.mac_address)
+
+            element = browser.find_element_by_name("boot_drive" + index)
+            element.send_keys(node.boot_drive)
+
+            i = i + 1
+
+    element = browser.find_element_by_name("execute_kickstart")
+    element.click()
+    time.sleep(100)

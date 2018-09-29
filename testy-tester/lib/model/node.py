@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 __vcenter_version__ = '6.7c'
 
@@ -157,6 +157,7 @@ class Node(object):
         disks: List of NodeDisk objects
         iso_file: The datapath of the ISO file for the VM
         boot_order: A list of boot devices from which the VM may boot
+        boot_drive (str): The name of the bootable disk
         management_interface: The Interface object for the management interface
     """
 
@@ -195,7 +196,7 @@ class Node(object):
         """
         Sets the username for the node
 
-        :param username: Username for node login        
+        :param username: Username for node login
         :return:
         """
         self.username = username
@@ -204,7 +205,7 @@ class Node(object):
         """
         Sets the password for the node
 
-        :param password: Password for node login        
+        :param password: Password for node login
         :return:
         """
         self.password = password
@@ -213,7 +214,7 @@ class Node(object):
         """
         Sets the guest os for the node
 
-        :param guestos: Guest OS for node login        
+        :param guestos: Guest OS for node login
         :return:
         """
         self.guestos = guestos
@@ -223,7 +224,7 @@ class Node(object):
         Sets the virtual machine options
 
         :param vm_to_clone: Name of Virtual Machine to clone
-        :param cloned_vm_name: Name of cloned Virtual Machine     
+        :param cloned_vm_name: Name of cloned Virtual Machine
         :return:
         """
         self.vm_to_clone = vm_to_clone
@@ -248,7 +249,7 @@ class Node(object):
         """
         Configures the interfaces for the node object.
 
-        :param interfaces: A list of interface objects to assign the node object        
+        :param interfaces: A list of interface objects to assign the node object
         :return:
         """
         self.interfaces = interfaces
@@ -297,6 +298,15 @@ class Node(object):
         :return:
         """
         self.iso_file = iso_file
+
+    def set_boot_drive(self, boot_drive: str) -> None:
+        """
+        Sets the name of the bootable drive
+
+        :param boot_drive (str): Name of the bootable drive
+        :return:
+        """
+        self.boot_drive = boot_drive
 
     def set_boot_order(self, boot_order: list) -> None:
         """
