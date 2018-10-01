@@ -57,7 +57,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     element.send_keys(kickstart_configuration.root_password)
 
     try:
-        element = WebDriverWait(browser, 30).until(EC.presence_of_element_located((By.NAME, "controller_interface")))
+        element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "controller_interface")))
         element.click()
     except:
         logging.critical("Could not find the controller interface " + controller_interface + ". Exiting.")
@@ -88,7 +88,6 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
                 element = browser.find_element_by_name("Sensor" + index)
                 element.click()
 
-
             element = browser.find_element_by_name("hostname" + index)
             element.clear()
             element.send_keys(node.hostname)
@@ -106,4 +105,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
 
     element = browser.find_element_by_name("execute_kickstart")
     element.click()
-    time.sleep(100)
+    #time.sleep(100)
+
+def run_tfplenum_configuration(tfplenum_configuration: TfplenumConfiguration, nodes: list, webserver_ip: str, port="80"):
+    print("test")

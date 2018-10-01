@@ -80,8 +80,6 @@ def main():
         logging.info("Running frontend")
         run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address, "4200")
 
-
-        """
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
 
@@ -98,7 +96,7 @@ def main():
         test_vms_up_and_alive(kit, vms_to_test)
 
         get_interface_names(kit)
-
+        """
         build_tfplenum(kit, controller_node)
         """
 
