@@ -8,4 +8,8 @@ num_bro_replicas: "{{ groups['bro'] | length }}"
 
 # This is the path of the Bro installation in the pod
 bro_path: "/usr/share/bro"
+
+# This is the directory on the sensors that will be mounted by the Bro pod
+# to add custom scripts.
+bro_scripts: "/bro-scripts"
 ...
