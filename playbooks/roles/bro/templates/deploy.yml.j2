@@ -15,6 +15,19 @@ spec:
         component: bro
     spec:
       hostNetwork: true
+      initContainers:
+      - name: init-scripts
+        image: busybox:1.27.2
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - "chmod -R 755 {{ bro_path }}/policy/custom-scripts"
+        volumeMounts:
+        - name: scripts
+          mountPath: {{ bro_path }}/policy/custom-scripts
+        securityContext:
+          privileged: true
       containers:
       - name: bro
         image: {{ bro_image }}:{{ bro_ver }}
@@ -36,7 +49,7 @@ spec:
         - name: configs
           mountPath: /etc/icdm/conf/
         - name: scripts
-          mountPath: /usr/share/bro/policy/custom-scripts
+          mountPath: {{ bro_path }}/policy/custom-scripts
       volumes:
       - name: vars
         configMap:
@@ -75,7 +88,7 @@ spec:
             path: custom.bro.conf
       - name: scripts
         hostPath:
-          path: /bro-scripts
+          path: {{ bro_scripts }}
           type: DirectoryOrCreate
       affinity:
         nodeAffinity:
