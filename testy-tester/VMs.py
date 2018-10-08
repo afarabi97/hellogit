@@ -4,7 +4,7 @@ host_configuration:
   vcenter:
     ip_address: "172.16.20.106"
     username: "administrator@sil.local"
-    password: "We.are.tfplenum4$"
+    password: "We.are.tfplenum4$$"
     datacenters: "SIL_Datacenter"
     cluster_name: "SIL_Cluster"
 
@@ -22,12 +22,40 @@ kits:
 
         root_password: "we.are.tfplenum"
 
-    VM_settings:
-        username: "root"
-        password: "we.are.tfplenum"
+    kit_configuration:
+
+        use_ceph_for_pcap: False
+
+        # Only fill this in if use_ceph_for_pcap is true
+        moloch_pcap_storage_percentage:
+
+        elasticsearch_cpu_percentage:
+        elasticsearch_ram_percentage:
+        logstash_server_cpu_percentage:
+        logstash_replicas:
+        es_storage_space_percentage:
 
         # Kubernetes cidr will probably be different on a per kit basis
         kubernetes_cidr: "172.16.73.112/28"
+
+        home_nets:
+            - "172.16.73.0/24"
+
+        # This is optional - you can fill it in if you need to
+        external_nets:
+
+        kafka_cpu_percentage:
+        moloch_cpu_percentage:
+        bro_cpu_percentage:
+        suricata_cpu_percentage:
+        zookeeper_cpu_percentage:
+
+        ideal_es_cpus_per_instance:
+        es_cpu_to_memory_ratio_default:
+
+    VM_settings:
+        username: "root"
+        password: "we.are.tfplenum"
 
         VMs:
 

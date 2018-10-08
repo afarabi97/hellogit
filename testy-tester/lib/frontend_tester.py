@@ -18,11 +18,7 @@ from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node
 import time
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="80"):
-    """
-    Runs the frontend's kickstart configuration.
-    """
-
+_create_browser():
     chrome_options = Options()
     #chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -30,12 +26,22 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     # TODO: Need to make this path not hardcoded
     browser = webdriver.Chrome('/home/assessor/selenium_testing/chromedriver', chrome_options=chrome_options)
 
+    print("THE TYPE IS: " + type(browser))
+
+    return browser
+
+
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="80") -> None:
+    """
+    Runs the frontend's kickstart configuration.
+
+    :return:
+    """
+
+    browser = _create_browser()
+
     # Use selenium with beautiful soup to get the text from each of the examples
     browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
-
-    #html_source = browser.page_source
-    #soup = BeautifulSoup(html_source, 'html.parser')
-    #print(soup)
 
     element = browser.find_element_by_name("dhcp_start")
     element.send_keys(kickstart_configuration.dhcp_start)
@@ -107,5 +113,55 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     element.click()
     #time.sleep(100)
 
-def run_tfplenum_configuration(tfplenum_configuration: TfplenumConfiguration, nodes: list, webserver_ip: str, port="80"):
-    print("test")
+def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="80") -> None:
+    browser = _create_browser()
+
+    # Use selenium with beautiful soup to get the text from each of the examples
+    browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
+
+    element = browser.find_element_by_name("sensor_storage_type") # type: <TODO ENTER TYPE HERE>
+    element.click()
+
+    if kit_configuration.use_ceph_for_pcap:
+        element = browser.find_element_by_name("Use Ceph clustered storage for PCAP")
+        element.click()
+
+        if moloch_pcap_storage_percentage is not None:
+            element = browser.find_element_by_name("moloch_pcap_storage_percentage")
+            element.clear()
+            element.send_keys(str(kit.moloch_pcap_storage_percentage))
+    else:
+        element = browser.find_element_by_name("Use hard drive for PCAP storage")
+        element.click()
+
+    if elasticsearch_cpu_percentage is not None:
+        element = browser.find_element_by_name("elastic_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.elasticsearch_cpu_percentage))
+
+    if elasticsearch_ram_percentage is not None:
+        element = browser.find_element_by_name("elastic_memory_percentage")
+        element.clear()
+        element.send_keys(str(kit.elasticsearch_ram_percentage))
+
+    if logstash_server_cpu_percentage is not None:
+        element = browser.find_element_by_name("logstash_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.logstash_server_cpu_percentage))
+
+    if logstash_replicas is not None:
+        element = browser.find_element_by_name("logstash_replicas")
+        element.clear()
+        element.send_keys(str(kit.logstash_replicas))
+
+    if es_storage_space_percentage is not None:
+        element = browser.find_element_by_name("elastic_storage_percentage")
+        element.clear()
+        element.send_keys(str(kit.es_storage_space_percentage))
+
+    element = browser.find_element_by_name("kubernetes_services_cidr")
+    element.send_keys(str(kit.kubernetes_services_cidr))
+
+    # TODO: FINISH HOME NET
+
+    # TODO: FINISH EXTERNAL NET

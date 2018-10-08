@@ -208,6 +208,80 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kit.set_password(configuration[kitconfig]["VM_settings"]['password'])
         kit.set_kubernetes_cidr(configuration[kitconfig]["VM_settings"]['kubernetes_cidr'])
 
+        kit.set_use_ceph_for_pcap(configuration[kitconfig]["kit_configuration"]['use_ceph_for_pcap'])
+
+        if not configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage']:
+            kit.set_moloch_pcap_storage_percentage(None)
+        else:
+            kit.set_moloch_pcap_storage_percentage(configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['elasticsearch_cpu_percentage']:
+            kit.set_elasticsearch_cpu_percentage(None)
+        else:
+            kit.set_elasticsearch_cpu_percentage(configuration[kitconfig]["kit_configuration"]['elasticsearch_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['elasticsearch_ram_percentage']:
+            kit.set_elasticsearch_ram_percentage(None)
+        else:
+            kit.set_elasticsearch_ram_percentage(configuration[kitconfig]["kit_configuration"]['elasticsearch_ram_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['logstash_server_cpu_percentage']:
+            kit.set_logstash_server_cpu_percentage(None)
+        else:
+            kit.set_logstash_server_cpu_percentage(configuration[kitconfig]["kit_configuration"]['logstash_server_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['logstash_replicas']:
+            kit.set_logstash_replicas(None)
+        else:
+            kit.set_logstash_replicas(configuration[kitconfig]["kit_configuration"]['logstash_replicas'])
+
+        if not configuration[kitconfig]["kit_configuration"]['es_storage_space_percentage']:
+            kit.set_es_storage_space_percentage(None)
+        else:
+            kit.set_es_storage_space_percentage(configuration[kitconfig]["kit_configuration"]['es_storage_space_percentage'])
+
+        kit.set_home_nets(configuration[kitconfig]["kit_configuration"]['home_nets'])
+
+        if not configuration[kitconfig]["kit_configuration"]['external_nets']:
+            kit.set_external_nets(None)
+        else:
+            kit.set_external_nets(configuration[kitconfig]["kit_configuration"]['external_nets'])
+
+        if not configuration[kitconfig]["kit_configuration"]['kafka_cpu_percentage']:
+            kit.set_kafka_cpu_percentage(None)
+        else:
+            kit.set_kafka_cpu_percentage(configuration[kitconfig]["kit_configuration"]['kafka_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['moloch_cpu_percentage']:
+            kit.set_moloch_cpu_percentage(None)
+        else:
+            kit.set_moloch_cpu_percentage(configuration[kitconfig]["kit_configuration"]['moloch_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['bro_cpu_percentage']:
+            kit.set_bro_cpu_percentage(None)
+        else:
+            kit.set_bro_cpu_percentage(configuration[kitconfig]["kit_configuration"]['bro_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['suricata_cpu_percentage']:
+            kit.set_suricata_cpu_percentage(None)
+        else:
+            kit.set_suricata_cpu_percentage(configuration[kitconfig]["kit_configuration"]['suricata_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['zookeeper_cpu_percentage']:
+            kit.set_zookeeper_cpu_percentage(None)
+        else:
+            kit.set_zookeeper_cpu_percentage(configuration[kitconfig]["kit_configuration"]['zookeeper_cpu_percentage'])
+
+        if not configuration[kitconfig]["kit_configuration"]['ideal_es_cpus_per_instance']:
+            kit.set_ideal_es_cpus_per_instance(None)
+        else:
+            kit.set_ideal_es_cpus_per_instance(configuration[kitconfig]["kit_configuration"]['ideal_es_cpus_per_instance'])
+
+        if not configuration[kitconfig]["kit_configuration"]['es_cpu_to_memory_ratio_default']:
+            kit.set_es_cpu_to_memory_ratio_default(None)
+        else:
+            kit.set_es_cpu_to_memory_ratio_default(configuration[kitconfig]["kit_configuration"]['es_cpu_to_memory_ratio_default'])
+
         vms = configuration[kitconfig]["VM_settings"]["VMs"]  # type: dict
         nodes = []  # type: List[Node]
         for v in vms:
@@ -277,4 +351,5 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
         # Add list of kits to kit
         kits.append(kit)
+
     return kits
