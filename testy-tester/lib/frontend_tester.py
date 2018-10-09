@@ -16,9 +16,10 @@ from selenium.webdriver.chrome.options import Options
 from lib.util import get_controller
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node
+from lib.model.kit import Kit
 import time
 
-_create_browser():
+def _create_browser():
     chrome_options = Options()
     #chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -159,9 +160,44 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
         element.clear()
         element.send_keys(str(kit.es_storage_space_percentage))
 
+    if kafka_cpu_percentage is not None:
+        element = browser.find_element_by_name("kafka_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.kafka_cpu_percentage))
+
     element = browser.find_element_by_name("kubernetes_services_cidr")
     element.send_keys(str(kit.kubernetes_services_cidr))
 
     # TODO: FINISH HOME NET
 
     # TODO: FINISH EXTERNAL NET
+
+    if moloch_cpu_percentage is not None:
+        element = browser.find_element_by_name("moloch_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.moloch_cpu_percentage))
+
+    if bro_cpu_percentage is not None:
+        element = browser.find_element_by_name("bro_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.bro_cpu_percentage))
+
+    if suricata_cpu_percentage is not None:
+        element = browser.find_element_by_name("suricata_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.suricata_cpu_percentage))
+
+    if zookeeper_cpu_percentage is not None:
+        element = browser.find_element_by_name("zookeeper_cpu_percentage")
+        element.clear()
+        element.send_keys(str(kit.zookeeper_cpu_percentage))
+
+    if ideal_es_cpus_per_instance is not None:
+        element = browser.find_element_by_name("elastic_cpus_per_instance_idea")
+        element.clear()
+        element.send_keys(str(kit.ideal_es_cpus_per_instance))
+
+    if es_cpu_to_memory_ratio_default is not None:
+        element = browser.find_element_by_name("elastic_cpus_to_mem_ratio")
+        element.clear()
+        element.send_keys(str(kit.es_cpu_to_memory_ratio_default))

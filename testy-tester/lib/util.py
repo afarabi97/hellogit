@@ -193,6 +193,8 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     kits = []  # type: List[Kit]
     for kitconfig in configuration:
 
+        print(configuration[kitconfig])
+
         kit = Kit(kitconfig)
 
         kickstart_configuration = KickstartConfiguration()
@@ -206,7 +208,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
         kit.set_username(configuration[kitconfig]["VM_settings"]['username'])
         kit.set_password(configuration[kitconfig]["VM_settings"]['password'])
-        kit.set_kubernetes_cidr(configuration[kitconfig]["VM_settings"]['kubernetes_cidr'])
+        kit.set_kubernetes_cidr(configuration[kitconfig]['kubernetes_cidr'])
 
         kit.set_use_ceph_for_pcap(configuration[kitconfig]["kit_configuration"]['use_ceph_for_pcap'])
 
