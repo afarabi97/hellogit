@@ -20,19 +20,23 @@ from lib.model.kit import Kit
 import time
 
 def _create_browser():
+    """
+    Creates a web browser which the test framework can use to interact with the frontend
+
+    :returns (selenium.webdriver.chrome.webdriver.WebDriver): An instance of a Selenium web browser
+    """
     chrome_options = Options()
     #chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--ignore-certificate-errors')
     #chrome_options.add_argument('--disable-dev-shm-usage')
     # TODO: Need to make this path not hardcoded
     browser = webdriver.Chrome('/home/assessor/selenium_testing/chromedriver', chrome_options=chrome_options)
 
-    print("THE TYPE IS: " + type(browser))
-
     return browser
 
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="80") -> None:
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="443") -> None:
     """
     Runs the frontend's kickstart configuration.
 
@@ -42,7 +46,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     browser = _create_browser()
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
+    browser.get("https://" + webserver_ip + ":" + port + "/kickstart")
 
     element = browser.find_element_by_name("dhcp_start")
     element.send_keys(kickstart_configuration.dhcp_start)
@@ -114,8 +118,9 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     element.click()
     #time.sleep(100)
 
-def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="80") -> None:
-    browser = _create_browser()
+def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="443") -> None:
+
+    browser = _create_browser() # type: selenium.webdriver.chrome.webdriver.WebDriver
 
     # Use selenium with beautiful soup to get the text from each of the examples
     browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
@@ -130,74 +135,100 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
         if moloch_pcap_storage_percentage is not None:
             element = browser.find_element_by_name("moloch_pcap_storage_percentage")
             element.clear()
-            element.send_keys(str(kit.moloch_pcap_storage_percentage))
+            element.send_keys(str(kit_configuration.moloch_pcap_storage_percentage))
     else:
         element = browser.find_element_by_name("Use hard drive for PCAP storage")
         element.click()
 
-    if elasticsearch_cpu_percentage is not None:
+    if kit_configuration.elasticsearch_cpu_percentage is not None:
         element = browser.find_element_by_name("elastic_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.elasticsearch_cpu_percentage))
+        element.send_keys(str(kit_configuration.elasticsearch_cpu_percentage))
 
-    if elasticsearch_ram_percentage is not None:
+    if kit_configuration.elasticsearch_ram_percentage is not None:
         element = browser.find_element_by_name("elastic_memory_percentage")
         element.clear()
-        element.send_keys(str(kit.elasticsearch_ram_percentage))
+        element.send_keys(str(kit_configuration.elasticsearch_ram_percentage))
 
-    if logstash_server_cpu_percentage is not None:
+    if kit_configuration.logstash_server_cpu_percentage is not None:
         element = browser.find_element_by_name("logstash_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.logstash_server_cpu_percentage))
+        element.send_keys(str(kit_configuration.logstash_server_cpu_percentage))
 
-    if logstash_replicas is not None:
+    if kit_configuration.logstash_replicas is not None:
         element = browser.find_element_by_name("logstash_replicas")
         element.clear()
-        element.send_keys(str(kit.logstash_replicas))
+        element.send_keys(str(kit_configuration.logstash_replicas))
 
-    if es_storage_space_percentage is not None:
+    if kit_configuration.es_storage_space_percentage is not None:
         element = browser.find_element_by_name("elastic_storage_percentage")
         element.clear()
-        element.send_keys(str(kit.es_storage_space_percentage))
+        element.send_keys(str(kit_configuration.es_storage_space_percentage))
 
-    if kafka_cpu_percentage is not None:
+    if kit_configuration.kafka_cpu_percentage is not None:
         element = browser.find_element_by_name("kafka_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.kafka_cpu_percentage))
+        element.send_keys(str(kit_configuration.kafka_cpu_percentage))
 
     element = browser.find_element_by_name("kubernetes_services_cidr")
-    element.send_keys(str(kit.kubernetes_services_cidr))
+    element.send_keys(str(kit_configuration.kubernetes_cidr))
 
-    # TODO: FINISH HOME NET
+    x = 0 # type: int
 
-    # TODO: FINISH EXTERNAL NET
+    for home_net in kit_configuration.home_nets:
+        element = browser.find_element_by_name("home_net" + str(x))
+        element.send_keys(home_net)
 
-    if moloch_cpu_percentage is not None:
+        # This condition is to ensure when the add home net button is
+        # clicked it doesn't add more home nets than we have
+        if x < len(kit_configuration.home_nets) - 1:
+            element = browser.find_element_by_name("add_home_net")
+            element.click()
+            x = x+1
+
+    x = 0 # type: int
+
+    for external_net in kit_configuration.external_nets:
+        element = browser.find_element_by_name("external_net" + str(x))
+        element.send_keys(external_net)
+
+        # This condition is to ensure when the add home net button is
+        # clicked it doesn't add more home nets than we have
+        if x < len(kit_configuration.external_nets) - 1:
+            element = browser.find_element_by_name("add_external_net")
+            element.click()
+            x = x+1
+
+    if kit_configuration.moloch_cpu_percentage is not None:
         element = browser.find_element_by_name("moloch_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.moloch_cpu_percentage))
+        element.send_keys(str(kit_configuration.moloch_cpu_percentage))
 
-    if bro_cpu_percentage is not None:
+    if kit_configuration.bro_cpu_percentage is not None:
         element = browser.find_element_by_name("bro_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.bro_cpu_percentage))
+        element.send_keys(str(kit_configuration.bro_cpu_percentage))
 
-    if suricata_cpu_percentage is not None:
+    if kit_configuration.suricata_cpu_percentage is not None:
         element = browser.find_element_by_name("suricata_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.suricata_cpu_percentage))
+        element.send_keys(str(kit_configuration.suricata_cpu_percentage))
 
-    if zookeeper_cpu_percentage is not None:
+    if kit_configuration.zookeeper_cpu_percentage is not None:
         element = browser.find_element_by_name("zookeeper_cpu_percentage")
         element.clear()
-        element.send_keys(str(kit.zookeeper_cpu_percentage))
+        element.send_keys(str(kit_configuration.zookeeper_cpu_percentage))
 
-    if ideal_es_cpus_per_instance is not None:
+    if kit_configuration.ideal_es_cpus_per_instance is not None:
         element = browser.find_element_by_name("elastic_cpus_per_instance_idea")
         element.clear()
-        element.send_keys(str(kit.ideal_es_cpus_per_instance))
+        element.send_keys(str(kit_configuration.ideal_es_cpus_per_instance))
 
-    if es_cpu_to_memory_ratio_default is not None:
+    if kit_configuration.es_cpu_to_memory_ratio_default is not None:
         element = browser.find_element_by_name("elastic_cpus_to_mem_ratio")
         element.clear()
-        element.send_keys(str(kit.es_cpu_to_memory_ratio_default))
+        element.send_keys(str(kit_configuration.es_cpu_to_memory_ratio_default))
+
+
+
+    time.sleep(100)

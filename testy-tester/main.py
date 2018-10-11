@@ -14,7 +14,7 @@ from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, 
     get_interface_names
 from lib.model.kit import Kit
 from lib.model.node import Node
-from lib.frontend_tester import run_kickstart_configuration
+from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
 from typing import List
 
 
@@ -48,6 +48,8 @@ def main():
 
         controller_node = get_controller(kit)  # type: Node
 
+        """
+
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
 
@@ -77,8 +79,10 @@ def main():
 
         # TODO: Bootstrap will go here
 
+
         logging.info("Running frontend")
-        run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address, "4200")
+        logging.info("Configuring Kickstart")
+        run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address)
 
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
@@ -96,9 +100,11 @@ def main():
         test_vms_up_and_alive(kit, vms_to_test)
 
         get_interface_names(kit)
+
         """
-        build_tfplenum(kit, controller_node)
-        """
+
+        logging.info("Run TFPlenum configuration")
+        run_tfplenum_configuration(kit, kit.get_nodes(), controller_node.management_interface.ip_address, "4200")
 
 
 if __name__ == '__main__':
