@@ -3,21 +3,17 @@
 # pip install selenium beautifulsoup4
 # chromedriver from: http://chromedriver.chromium.org/downloads
 
-import yaml
+
 import logging
+import time
+from datetime import datetime
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
-from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.options import Options
-from lib.util import get_controller
 from lib.model.kickstart_configuration import KickstartConfiguration
-from lib.model.node import Node
 from lib.model.kit import Kit
 from lib.connection_mngs import MongoConnectionManager
 
@@ -30,7 +26,7 @@ def _create_browser():
     """
     chrome_options = Options()
 
-    chrome_options.add_argument('--headless')
+    #chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
     # chrome_options.add_argument('--disable-dev-shm-usage')
@@ -153,11 +149,12 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     """
     with MongoConnectionManager() as mongo_manager:
         mongo_manager.mongo_kickstart.drop()
+        print(mongo_manager.mongo_kickstart)
 
     browser = _create_browser()
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("https://" + webserver_ip + ":" + port + "/kickstart")
+    browser.get("https://" + webserver_ip + "/kickstart")
 
     # DHCP Settings Section
     _run_DHCP_settings_section(kickstart_configuration, browser)
@@ -180,7 +177,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
 
     # will close out of the driver and allow for the process to be killed
     # if you wish to keep the browser up comment out this line
-    browser.quit()
+    #browser.quit()
 
 
 def run_global_setting_section(kit_configuration: Kit, browser) -> None:
@@ -297,8 +294,6 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
         # This condition is to ensure when the add home net button is
         # clicked it doesn't add more home nets than we have
         if x < len(kit_configuration.home_nets) - 1:
-            element = browser.find_element_by_name("add_home_net")
-            element.click()
             x += 1
 
     x = 0  # type: int
@@ -344,15 +339,21 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
                 actions = ActionChains(browser)
                 actions.move_to_element(element).perform()
                 element.click()
-
-            element = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.NAME, "monitor_interface" + str(i))))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()
         except:
             pass
 
+        x = 0
+        if node.type == "sensor":  # TODO remove the true
+            for interface in node.interfaces:
+                try:
+                    element = WebDriverWait(browser, 10).until(
+                        EC.presence_of_element_located((By.NAME, "monitor_interface" + str(x) + "_" + interface.mac_address)))
+                    actions = ActionChains(browser)
+                    actions.move_to_element(element).perform()
+                    element.click()
+                except:
+                    pass
+            x += 1
         i += 1
 
 
@@ -367,7 +368,6 @@ def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
     nodes = kit_configuration.get_nodes()
     i = 0
     for node in nodes:
-
         if node.type == "master-server" or node.type == "server":
             # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
             # the gather facts button into view
@@ -388,8 +388,46 @@ def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
             element.click()
             i = i + 1
 
+def run_execute_kit(browser) -> None:
+    # Execute's Kickstart when all fields are configured
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+    element.click()
 
-def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="443") -> None:
+    currentdate = datetime.utcnow()
+    # Right now there are no names on the frontend for this elements using xpath should be temporary until the frontend
+    # elements are given a name.
+    # input the current hour in utc time
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[1]/input')))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+    # element = browser.find_element_by_xpath('//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[1]/input')
+    element.send_keys(str(currentdate.hour))
+
+    # input the current minutes in utc time
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[3]/input')))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+    element.send_keys(str(currentdate.minute))
+    element.click()
+
+    # input the current date
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, 'date')))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+
+    element.send_keys(str(currentdate.year) + '-' + str(currentdate.month) + '-' + str(currentdate.day))
+
+    # clicks on the execute button
+    # element = browser.find_element_by_xpath('//*[@id="execute_kit_modal"]/div/div/form/div[3]/button[2]')
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[3]/button[2]')))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+    element.click()
+
+
+def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="443") -> None:
     """
     Runs the frontend's kit configuration.
 
@@ -402,7 +440,8 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
     browser = _create_browser()  # type: selenium.webdriver.chrome.webdriver.WebDriver
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
+    browser.get("https://" + webserver_ip + "/kit_configuration")
+
 
     # Global Settings Section
     run_global_setting_section(kit_configuration, browser)
@@ -414,12 +453,9 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
     run_total_sensor_resources_section(kit_configuration, browser)
 
     # Execute's Kickstart when all fields are configured
-    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
-    actions = ActionChains(browser)
-    actions.move_to_element(element).perform()
-    element.click()
+    run_execute_kit(browser)
 
     # will close out of the driver and allow for the process to be killed
     # if you wish to keep the browser up comment out this line
-    browser.quit()
+    # browser.quit()
     time.sleep(500000000)

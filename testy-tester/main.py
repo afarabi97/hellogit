@@ -48,6 +48,7 @@ def main():
 
     for kit in kits:
         controller_node = get_controller(kit)  # type: Node
+
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
         
@@ -74,9 +75,9 @@ def main():
                     interface.set_mac_address(mac)
 
             vm.power_off()   
-        
-        logging.info("Deleting controller....")
-        delete_vm(vsphere_client, controller_node.cloned_vm_name)
+
+        #logging.info("Deleting controller....")
+        #delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
         logging.info("Cloning base rhel template for controller....")
         clone_vm(configuration, controller_node)
@@ -128,6 +129,7 @@ def main():
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, controller_node.management_interface.ip_address, "4200")
         build_tfplenum(kit, controller_node)
+
 
 
 if __name__ == '__main__':
