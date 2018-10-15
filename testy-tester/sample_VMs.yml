@@ -1,4 +1,8 @@
 ---
+DI2E:
+  Username: "<USERNAME>"
+  Password: "<PASSWORD>"
+  
 
 host_configuration:
   vcenter:

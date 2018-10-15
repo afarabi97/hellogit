@@ -27,12 +27,12 @@ def _create_browser():
     :returns (selenium.webdriver.chrome.webdriver.WebDriver): An instance of a Selenium web browser
     """
     chrome_options = Options()
-    #chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
     #chrome_options.add_argument('--disable-dev-shm-usage')
     # TODO: Need to make this path not hardcoded
-    browser = webdriver.Chrome('/home/assessor/selenium_testing/chromedriver', chrome_options=chrome_options)
+    browser = webdriver.Chrome('chromedriver', chrome_options=chrome_options)
 
     return browser
 

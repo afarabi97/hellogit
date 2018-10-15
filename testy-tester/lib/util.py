@@ -70,6 +70,43 @@ def get_controller(kit: Kit) -> Node:
     return controller
 
 
+def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
+    """
+    Download bootstrap script from DI2E tfplenum-deployer git repository to target controller using curl.
+
+    :param controller: A node with type of controller.
+    :param di2e_username: Username to access DI2E systems.
+    :param di2e_password: Password to access DI2E systems.
+    """
+    
+    client = Connection(
+        host=controller.management_interface.ip_address,
+        connect_kwargs={"password": controller.password})  # type: Connection
+    # curl -o /root/bootstrap.sh -H "Authorization: Bearer <access token>" https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fdevel'
+    client.run('curl -s -o /root/bootstrap.sh -u ' + di2e_username + ':' + di2e_password + ' https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fdevel')
+    client.close()
+    
+def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
+    """
+    Execute bootstrap script on controller node.  This will take 30 minutes to 1 hour to complete.
+
+    :param controller: A node with type of controller.
+    :param di2e_username: Username to access DI2E systems.
+    :param di2e_password: Password to access DI2E systems.
+    """
+
+    client = Connection(
+            host=controller.management_interface.ip_address,
+            connect_kwargs={"password": controller.password})  # type: Connection
+     
+    client.run("export BRANCH_NAME='devel' && \
+        export TFPLENUM_LABREPO=true && \
+        export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
+        export DIEUSERNAME='" + di2e_username + "' && \
+        export PASSWORD='" + di2e_password + "' && \
+        bash /root/bootstrap.sh", shell=True)
+    client.close()
+
 def configure_deployer(kit: Kit, controller: Node) -> None:
     """
     Configures the deployer for a build. This includes transferring the appropriate inventory file and running make.

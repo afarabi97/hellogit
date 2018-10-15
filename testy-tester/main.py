@@ -11,7 +11,7 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
 from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, \
-    get_interface_names
+    get_interface_names, get_bootstrap, run_bootstrap
 from lib.model.kit import Kit
 from lib.model.node import Node
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
@@ -35,6 +35,8 @@ def main():
     with open(sys.argv[1], 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
+            di2e_username = configuration["DI2E"]["Username"]
+            di2e_password = configuration["DI2E"]["Password"]
 
             # Returns a list of kit objects
             kits = transform(configuration["kits"])  # type: List[Kit]
@@ -47,6 +49,8 @@ def main():
     for kit in kits:
 
         controller_node = get_controller(kit)  # type: Node
+      
+
 
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
@@ -73,9 +77,34 @@ def main():
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
-            vm.power_off()
+            vm.power_off()   
 
-        # TODO: Bootstrap will go here
+        """
+        #logging.info("Deleting controller....")
+        #delete_vm(vsphere_client, controller_node.cloned_vm_name)
+
+        logging.info("Cloning base rhel template for controller....")
+        clone_vm(configuration,
+            controller_node.vm_to_clone,
+            controller_node.cloned_vm_name,
+            controller_node.storage_folder)
+
+        vms_to_test = []  # type: List[Node]
+        for node in kit.nodes:
+            if node.type == "controller":
+                vms_to_test.append(node)
+
+        logging.info("Waiting for base rhel vm to boot...")
+        test_vms_up_and_alive(kit, vms_to_test)
+        
+        logging.info("Downloading controller bootstrap...")
+        get_bootstrap(controller_node, di2e_username, di2e_password)
+
+
+        logging.info("Running controller bootstrap...")
+        run_bootstrap(controller_node, di2e_username, di2e_password)
+
+        """
 
         logging.info("Running frontend")
         logging.info("Configuring Kickstart")
