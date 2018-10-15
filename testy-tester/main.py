@@ -50,8 +50,6 @@ def main():
 
         controller_node = get_controller(kit)  # type: Node
 
-        """ 
-
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
         
@@ -79,7 +77,6 @@ def main():
 
             vm.power_off()   
 
-        """
         #logging.info("Deleting controller....")
         #delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
@@ -87,28 +84,12 @@ def main():
 
         clone_vm(configuration, controller_node, kit.kickstart_configuration, vsphere_client)
 
-        clone_vm(configuration,
-            controller_node.vm_to_clone,
-            controller_node.cloned_vm_name,
-            controller_node.storage_folder)
-
-        clone_vm(configuration, controller_node, kit.kickstart_configuration, vsphere_client)
-
-
         vms_to_test = []  # type: List[Node]
         for node in kit.nodes:
             if node.type == "controller":
                 vms_to_test.append(node)
 
         logging.info("Waiting for base rhel vm to boot...")
-        test_vms_up_and_alive(kit, vms_to_test)      
-
-        logging.info("Downloading controller bootstrap...")
-        get_bootstrap(controller_node, di2e_username, di2e_password)
-
-        logging.info("Running controller bootstrap...")
-        run_bootstrap(controller_node, di2e_username, di2e_password)
-
         test_vms_up_and_alive(kit, vms_to_test)
 
         logging.info("Downloading controller bootstrap...")
@@ -120,6 +101,7 @@ def main():
         logging.info("Running frontend")
         logging.info("Configuring Kickstart")
         run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address)
+
 
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
@@ -140,6 +122,7 @@ def main():
 
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, controller_node.management_interface.ip_address, "4200")
+
 
 
 if __name__ == '__main__':

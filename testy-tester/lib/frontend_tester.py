@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.chrome.options import Options
@@ -19,7 +20,6 @@ from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node
 from lib.model.kit import Kit
 from lib.mongo_connection_manager import MongoConnectionManager
-import time
 
 
 def _create_browser():
@@ -29,10 +29,11 @@ def _create_browser():
     :returns (selenium.webdriver.chrome.webdriver.WebDriver): An instance of a Selenium web browser
     """
     chrome_options = Options()
+
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
-    #chrome_options.add_argument('--disable-dev-shm-usage')
+    # chrome_options.add_argument('--disable-dev-shm-usage')
     # TODO: Need to make this path not hardcoded
     browser = webdriver.Chrome('chromedriver', chrome_options=chrome_options)
 
@@ -119,7 +120,7 @@ def _run_add_node_section(nodes: list, browser) -> None:
                 element = browser.find_element_by_name("Server" + index)
                 element.click()
 
-            elif node.type== "sensor":
+            elif node.type == "sensor":
 
                 element = browser.find_element_by_name("Sensor" + index)
                 element.click()
@@ -143,7 +144,8 @@ def _run_add_node_section(nodes: list, browser) -> None:
             i = i + 1
 
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="4200") -> None:
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="443") -> None:
+
     """
     Runs the frontend's kickstart configuration.
 
@@ -155,7 +157,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     browser = _create_browser()
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
+    browser.get("https://" + webserver_ip + ":" + port + "/kickstart")
 
     # DHCP Settings Section
     _run_DHCP_settings_section(kickstart_configuration, browser)
@@ -256,33 +258,6 @@ def run_global_setting_section(kit_configuration: Kit, browser) -> None:
             element.clear()
             element.send_keys(str(kit_configuration.es_cpu_to_memory_ratio_default))
 
-    x = 0 # type: int
-
-    for home_net in kit_configuration.home_nets:
-        element = browser.find_element_by_name("home_net" + str(x))
-        element.send_keys(home_net)
-
-        # This condition is to ensure when the add home net button is
-        # clicked it doesn't add more home nets than we have
-        if x < len(kit_configuration.home_nets) - 1:
-            element = browser.find_element_by_name("add_home_net")
-            element.click()
-            x = x+1
-
-    if kit_configuration.external_nets is not None:
-        x = 0 # type: int
-
-        for external_net in kit_configuration.external_nets:
-            element = browser.find_element_by_name("external_net" + str(x))
-            element.send_keys(external_net)
-
-            # This condition is to ensure when the add home net button is
-            # clicked it doesn't add more home nets than we have
-            if x < len(kit_configuration.external_nets) - 1:
-                element = browser.find_element_by_name("add_external_net")
-                element.click()
-                x = x+1
-
 
 def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
     """
@@ -310,7 +285,7 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
         element.clear()
         element.send_keys(str(kit_configuration.zookeeper_cpu_percentage))
 
-    x = 0 # type: int
+    x = 0  # type: int
 
     for home_net in kit_configuration.home_nets:
         element = browser.find_element_by_name("add_home_net")
@@ -326,7 +301,7 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
             element.click()
             x += 1
 
-    x = 0 # type: int
+    x = 0  # type: int
 
     if kit_configuration.external_nets is not None:
         for external_net in kit_configuration.external_nets:
@@ -343,98 +318,102 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
                 element.click()
                 x += 1
 
+    # Loop through for all sensors, and click all the necessary buttons
+    nodes = kit_configuration.get_nodes()
+    i = 0
+    for node in nodes:
 
-def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="4200") -> None:
+        try:
+            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
+            # the gather facts button into view
+            element = browser.find_element_by_name("host_sensor" + str(i))
+            element.send_keys()
+
+            element = browser.find_element_by_name("btn_host_sensor" + str(i))
+            element.click()
+
+            if kit_configuration.use_ceph_for_pcap and node.type == "sensor" or True:  # TODO remove the true
+                element = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.NAME, "ceph_drives_sensor" + str(i))))
+                actions = ActionChains(browser)
+                actions.move_to_element(element).perform()
+                element.click()
+            else:
+                element = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.NAME, "pcap_drives" + str(i))))
+                actions = ActionChains(browser)
+                actions.move_to_element(element).perform()
+                element.click()
+
+            element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.NAME, "monitor_interface" + str(i))))
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.click()
+        except:
+            pass
+
+        i += 1
+
+
+def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
+    """
+    Using selenium this fucntion test the elements that in the Total Server Resources Section
+
+    :returns:
+    """
+    # Gather facts on server
+
+    nodes = kit_configuration.get_nodes()
+    i = 0
+    for node in nodes:
+
+        if node.type == "master-server" or node.type == "server":
+            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
+            # the gather facts button into view
+            element = browser.find_element_by_name("host_server" + str(i))
+            element.send_keys()
+
+            element = browser.find_element_by_name("btn_host_server" + str(i))
+            element.click()
+
+            if node.type == "master-server":
+                element = browser.find_element_by_name("is_master_server" + str(i))
+                element.click()
+
+            element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.NAME, "ceph_drives_server" + str(i))))
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.click()
+            i = i + 1
+
+
+def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="443") -> None:
     """
     Runs the frontend's kit configuration.
 
     :returns:
     """
-    browser = _create_browser() # type: selenium.webdriver.chrome.webdriver.WebDriver
+
+    with MongoConnectionManager() as mongo_manager:
+        mongo_manager.mongo_kit.drop()
+
+    browser = _create_browser()  # type: selenium.webdriver.chrome.webdriver.WebDriver
 
     # Use selenium with beautiful soup to get the text from each of the examples
     browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
 
-
-    #Global Settings Section
+    # Global Settings Section
     run_global_setting_section(kit_configuration, browser)
+
+    # Gather fact on sensor and server
+    run_total_server_resources_section(kit_configuration, browser)
 
     # Total Sensor Resources Section
     run_total_sensor_resources_section(kit_configuration, browser)
 
-    server_index = 0 # type: int
-    sensor_index = 0 # type: int
-
-    for node in nodes:
-
-        if node.type == "server" or node.type == "master-server":
-
-            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
-            # the gather facts button into view
-            element = browser.find_element_by_name("host_server" + str(server_index))
-            element.send_keys()
-
-            element = browser.find_element_by_name("btn_host_server" + str(server_index))
-            element.click()
-
-            if node.type == "master-server":
-                element = browser.find_element_by_name("is_master_server" + str(server_index))
-                element.click()
-
-            element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "ceph_drives_server" + str(server_index))))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()
-
-            server_index = server_index + 1
-
-            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
-            # the gather facts button into view
-            element = browser.find_element_by_name("host_server" + str(server_index))
-            element.send_keys()
-
-            element = browser.find_element_by_name("btn_host_server" + str(server_index))
-            element.click()
-
-            if node.type == "master-server":
-                element = browser.find_element_by_name("is_master_server" + str(server_index))
-                element.click()
-
-            element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "ceph_drives_server" + str(server_index))))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()
-
-            server_index = server_index + 1
-
-        elif node.type == "sensor" or node.type == "remote-sensor":
-
-            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
-            # the gather facts button into view
-            element = browser.find_element_by_name("host_sensor" + str(sensor_index))
-            element.send_keys()
-
-            element = browser.find_element_by_name("btn_host_sensor" + str(sensor_index))
-            element.click()
-
-            if kit_configuration.use_ceph_for_pcap and node.type == "sensor" or True: # TODO remove the true
-                element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "ceph_drives_sensor" + str(sensor_index))))
-                actions = ActionChains(browser)
-                actions.move_to_element(element).perform()
-                element.click()
-            else:
-                element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "pcap_drives" + str(sensor_index))))
-                actions = ActionChains(browser)
-                actions.move_to_element(element).perform()
-                element.click()
-
-            element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "monitor_interface" + str(sensor_index))))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()         
-
-            sensor_index = sensor_index + 1
-        # Execute's Kickstart when all fields are configured
+    # Execute's Kickstart when all fields are configured
     element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
     actions = ActionChains(browser)
     actions.move_to_element(element).perform()
@@ -444,4 +423,3 @@ def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="
     # if you wish to keep the browser up comment out this line
     browser.quit()
     time.sleep(500000000)
-
