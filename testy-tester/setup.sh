@@ -70,4 +70,3 @@ setup_sdk
 setup_virtenv
 install_requirements
 finish
-

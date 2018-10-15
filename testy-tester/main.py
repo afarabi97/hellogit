@@ -19,7 +19,6 @@ from typing import List
 
 
 def main():
-
     kit_builder = logging.getLogger()
     kit_builder.setLevel(logging.INFO)
     ch = logging.StreamHandler(sys.stdout)
@@ -40,16 +39,13 @@ def main():
 
             # Returns a list of kit objects
             kits = transform(configuration["kits"])  # type: List[Kit]
-
         except yaml.YAMLError as exc:
             print(exc)
 
     vsphere_client = create_client(configuration)  # type: VsphereClient
 
     for kit in kits:
-
         controller_node = get_controller(kit)  # type: Node
-
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
         
@@ -102,7 +98,6 @@ def main():
         logging.info("Configuring Kickstart")
         run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address)
 
-
         logging.info("Configuring deployer...")
         configure_deployer(kit, controller_node)
 
@@ -122,7 +117,6 @@ def main():
 
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, controller_node.management_interface.ip_address, "4200")
-
 
 
 if __name__ == '__main__':
