@@ -43,5 +43,6 @@ playbooks/inventory.yml
 .remote-sync.json
 *.pyc
 testy-tester/VMs\.yml
-
 *.code-workspace
+testy-tester/tfp-env
+

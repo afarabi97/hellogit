@@ -170,6 +170,7 @@ class Node(object):
         :return:
         """
         self.hostname = hostname
+        self.domain = None
         self.type = node_type
         self.username = None
         self.password = None
@@ -191,6 +192,15 @@ class Node(object):
         self.boot_order = None
         self.management_interface = None
         self.interfaces = None
+
+    def set_domain(self, domain: str) -> None:
+        """
+        Sets the domain for the node
+
+        :param domain: domain for node
+        :return:
+        """
+        self.domain = domain
 
     def set_username(self, username: str) -> None:
         """

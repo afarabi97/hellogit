@@ -48,8 +48,7 @@ def main():
 
     for kit in kits:
 
-        controller_node = get_controller(kit)  # type: Node
-      
+        controller_node = get_controller(kit)  # type: Node      
 
 
         logging.info("Creating VMs...")
@@ -84,10 +83,7 @@ def main():
         #delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
         logging.info("Cloning base rhel template for controller....")
-        clone_vm(configuration,
-            controller_node.vm_to_clone,
-            controller_node.cloned_vm_name,
-            controller_node.storage_folder)
+        clone_vm(configuration, controller_node, kit.kickstart_configuration, vsphere_client)
 
         vms_to_test = []  # type: List[Node]
         for node in kit.nodes:
@@ -95,11 +91,11 @@ def main():
                 vms_to_test.append(node)
 
         logging.info("Waiting for base rhel vm to boot...")
-        test_vms_up_and_alive(kit, vms_to_test)
-        
+        test_vms_up_and_alive(kit, vms_to_test)      
+
+
         logging.info("Downloading controller bootstrap...")
         get_bootstrap(controller_node, di2e_username, di2e_password)
-
 
         logging.info("Running controller bootstrap...")
         run_bootstrap(controller_node, di2e_username, di2e_password)

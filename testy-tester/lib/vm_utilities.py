@@ -8,10 +8,13 @@ from pyVim.connect import SmartConnectNoSSL, Disconnect
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient, create_vsphere_client
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.vsphere.vcenter.helper import network_helper
 from com.vmware.vcenter.vm_client import (Hardware, Power)
+from com.vmware.vcenter.vm.hardware_client import (Cpu, Memory, Disk, Ethernet, Cdrom, Boot)
 from lib.model.kit import Kit
 from lib.model.node import VirtualMachine
 from lib.model.node import Node, Interface, NodeDisk
+from lib.model.kickstart_configuration import KickstartConfiguration
 
 def _get_obj(content, vimtype, name):
     """
@@ -65,8 +68,8 @@ def get_vm_by_name(si, name):
     :param name (str): The name of the VM you want to get
     :return (?): TODO I still need to figure out what this ends up being
     """
-    print(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
-    exit(0)
+    #print(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
+    #exit(0)
     return _get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)
 
 def get_folder(si, name):
@@ -231,8 +234,72 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
         print("Deleting VM '{}' ({})".format(vm_name, vm))
         client.vcenter.VM.delete(vm)
 
+def configure_clone(configuration: OrderedDict, controller: Node, kickconfiguration: KickstartConfiguration, relospec: vim.vm.RelocateSpec, client: VsphereClient) -> vim.vm.CloneSpec:    
 
-def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, folder_name=None) -> None:
+    # Networking self.config for VM and guest OS
+    devices = []  # type: list
+    adaptermaps = []  # type: list
+
+    # Create a list of the VM's NICs    
+    # for interface in controller.interfaces:
+    #     if interface.mac_auto_generated:
+            
+    #         devices.append(Ethernet.CreateSpec(
+    #             start_connected=interface.start_connected,
+    #             mac_type=Ethernet.MacAddressType.GENERATED,
+    #             backing=Ethernet.BackingSpec(
+    #                 type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
+    #                 network=network_helper.get_distributed_network_backing(
+    #                     client,
+    #                     interface.dv_portgroup_name,
+    #                     controller.storage_datacenter))))        
+
+    # guest NIC settings, i.e. 'adapter map'
+    guest_map = vim.vm.customization.AdapterMapping()
+    guest_map.adapter = vim.vm.customization.IPSettings()
+    guest_map.adapter.ip = vim.vm.customization.FixedIp()
+    guest_map.adapter.ip.ipAddress = controller.management_interface.ip_address
+    guest_map.adapter.subnetMask = kickconfiguration.netmask
+    guest_map.adapter.gateway = kickconfiguration.gateway
+    guest_map.adapter.dnsDomain = controller.domain
+    adaptermaps.append(guest_map)
+
+    # VM config spec
+    #vmconf = vim.vm.ConfigSpec()
+    #vmconf.numCPUs = controller.cpu_sockets
+    #vmconf.memoryMB = controller.memory_size
+    #vmconf.cpuHotAddEnabled = controller.cpu_hot_add_enabled
+    #vmconf.memoryHotAddEnabled = controller.memory_hot_add_enabled
+    #vmconf.deviceChange = devices
+
+    # DNS settings
+    globalip = vim.vm.customization.GlobalIPSettings()
+    globalip.dnsServerList = kickconfiguration.gateway
+    globalip.dnsSuffixList = controller.domain
+
+    # Hostname settings
+    ident = vim.vm.customization.LinuxPrep()
+    ident.domain = controller.domain
+    ident.hostName = vim.vm.customization.FixedName()
+    ident.hostName.name = controller.hostname
+
+    customspec = vim.vm.customization.Specification()
+    customspec.nicSettingMap = adaptermaps
+    customspec.globalIPSettings = globalip
+    customspec.identity = ident
+
+    # Clone spec
+    clonespec = vim.vm.CloneSpec()
+    clonespec.location = relospec
+    clonespec.config = vmconf
+    clonespec.customization = customspec
+    clonespec.powerOn = True
+    clonespec.template = False
+
+    return clonespec
+
+
+def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: KickstartConfiguration, client: VsphereClient) -> None:
     """
     Clones a target VM by name
 
@@ -248,7 +315,7 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
     cluster_name = configuration["host_configuration"]["vcenter"]["cluster_name"]
 
     # With this we are searching for the MOID of the VM to clone from
-    template_vm = get_vm_by_name(s, vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
+    template_vm = get_vm_by_name(s, controller.vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
 
     # This will retrieve the Cluster MOID
     cluster = get_cluster(s, cluster_name)  # type: pyVmomi.VmomiSupport.vim.ClusterComputeResource
@@ -259,19 +326,31 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
     relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
-    cloneSpec = vim.vm.CloneSpec(powerOn=True,
+    cloneSpec = vim.vm.CloneSpec(powerOn=False,
                                  template=False,
                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
+
+    # TODO: Currently cloning the template does not update the interface ip or portgroup
+    # You will need to manually change the portgroup and ip address
+    # cloneSpec = configure_clone(configuration, controller, kitconfiguration, relocate_spec, client)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
     print("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     print("You can watch the progress bar in vCenter.")
     # Finally this is the clone operation with the relevant specs attached
-    if folder_name is not None:
-        wait_for_task(template_vm.Clone(name=cloned_vm_name, folder=get_folder(s, folder_name), spec=cloneSpec))
+    if controller.storage_folder is not None:
+        wait_for_task(
+            template_vm.Clone(
+                name=controller.cloned_vm_name,
+                folder=get_folder(s, controller.storage_folder), 
+                spec=cloneSpec))
     else:
         # If the folder name is not provided it will put it in the same folder
         # as the parent
-        wait_for_task(template_vm.Clone(name=cloned_vm_name, folder=template_vm.parent, spec=cloneSpec))
+        wait_for_task(
+            template_vm.Clone(
+                name=controller.cloned_vm_name, 
+                folder=template_vm.parent, 
+                spec=cloneSpec))
 
     Disconnect(s)
 

@@ -327,6 +327,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                 node.set_username(vms[v]['username'])
                 node.set_password(vms[v]['password'])
                 node.set_vm_clone_options(vms[v]['vm_to_clone'], vms[v]['cloned_vm_name'])
+                node.set_domain(vms[v]['domain'])
 
             node.set_guestos(vms[v]['vm_guestos'])
             storage = vms[v]['storage_options']  # type: dict
