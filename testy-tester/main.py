@@ -45,7 +45,7 @@ def main():
     vsphere_client = create_client(configuration)  # type: VsphereClient
 
     for kit in kits:
-        controller_node = get_controller(kit)  # type: Node
+        controller_node = get_controller(kit)  # type: Node      
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
         
@@ -86,7 +86,8 @@ def main():
                 vms_to_test.append(node)
 
         logging.info("Waiting for base rhel vm to boot...")
-        test_vms_up_and_alive(kit, vms_to_test)
+        test_vms_up_and_alive(kit, vms_to_test)      
+
 
         logging.info("Downloading controller bootstrap...")
         get_bootstrap(controller_node, di2e_username, di2e_password)
