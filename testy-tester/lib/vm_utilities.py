@@ -194,7 +194,6 @@ def change_network_address(configuration: OrderedDict, vm_name: str):
     s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
     vm = get_vm_by_name()
 
-
     state = client.vcenter.vm.Power.get(vm)
     if state == Power.Info(state=Power.State.POWERED_ON):
         s.vcenter.vm.Power.stop(vm)
@@ -275,7 +274,6 @@ def clone_vm(configuration: OrderedDict, vm_to_clone: str, cloned_vm_name: str, 
         wait_for_task(template_vm.Clone(name=cloned_vm_name, folder=template_vm.parent, spec=cloneSpec))
 
     Disconnect(s)
-
 
 def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
     """

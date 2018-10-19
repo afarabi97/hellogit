@@ -48,11 +48,9 @@ def main():
 
         controller_node = get_controller(kit)  # type: Node
 
-        """
-
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
-
+        
         logging.info("Grabbing management MAC addresses")
         for vm in vms:
             vm.power_on()
@@ -79,7 +77,6 @@ def main():
 
         # TODO: Bootstrap will go here
 
-
         logging.info("Running frontend")
         logging.info("Configuring Kickstart")
         run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address)
@@ -98,14 +95,11 @@ def main():
                 vms_to_test.append(node)
 
         test_vms_up_and_alive(kit, vms_to_test)
-
+        
         get_interface_names(kit)
-
-        """
 
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, kit.get_nodes(), controller_node.management_interface.ip_address, "4200")
-
 
 if __name__ == '__main__':
     main()
