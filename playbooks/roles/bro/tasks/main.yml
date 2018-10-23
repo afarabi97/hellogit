@@ -36,6 +36,12 @@
   local_action: command /bin/sh -c "/usr/bin/scp {{ install_dir }}/playbooks/roles/bro/files/scripts/* root@{{ item }}:/bro-scripts/"
   with_items: "{{ groups['bro'] }}"
 
+- name: Change permissions of bro scripts directory
+  file:
+    path: /bro-scripts/
+    mode: 0755
+    recurse: yes
+
 - name: Install templates
   template:
     src: "templates/{{ item }}.j2"
