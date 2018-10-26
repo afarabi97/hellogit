@@ -167,7 +167,7 @@ filebeat.prospectors:
 
 #----------------------------- Kafka output --------------------------------
 output.kafka:
-  hosts: ['{{ kafka_fqdn }}:{{ kafka_port }}']
+  hosts: ['{% if remote[host] %}kafka-{{ shortname[0] }}.default.svc.cluster.local{% else %}{{ kafka_fqdn | default("kafka.default.svc.cluster.local",true) }}{% endif %}:{{ kafka_port | default("9092",true) }}']
   topic: 'suricata-raw'
   partition.round_robin:
     reachable_only: true

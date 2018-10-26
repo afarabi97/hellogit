@@ -115,7 +115,7 @@ suricata-rerun:
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,disable-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t docker -l $(NODE)
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,ceph,es-scale,kafka-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,ceph,es-scale,kafka-scale,bro-scale,suricata-scale,moloch-scale,enable-sensor-monitor-interface
 
 remove-node:
 	ansible-playbook $(REMOVE_PLAYBOOK) -i $(INVENTORY)

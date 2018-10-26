@@ -9,6 +9,7 @@ spec:
       role: master
   serviceName: "es-master-statefulset"
   replicas: {{ elastic_masters }}
+  podManagementPolicy: "Parallel"
   template:
     metadata:
       labels:

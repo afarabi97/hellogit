@@ -35,12 +35,16 @@
 - name: Copy Custom Bro Scripts to Sensors
   local_action: command /bin/sh -c "/usr/bin/scp {{ install_dir }}/playbooks/roles/bro/files/scripts/* root@{{ item }}:/bro-scripts/"
   with_items: "{{ groups['bro'] }}"
+  tags:
+    - bro-scale
 
 - name: Change permissions of bro scripts directory
   file:
     path: /bro-scripts/
     mode: 0755
     recurse: yes
+  tags:
+    - bro-scale
 
 - name: Install templates
   template:

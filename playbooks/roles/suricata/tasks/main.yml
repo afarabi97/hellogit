@@ -61,3 +61,10 @@
       echo -n .;
       sleep 1;
     done;
+
+- name: Scale up Suricata Deployment
+  command: "kubectl scale deployment suricata --replicas={{ groups['suricata'] | length }}"
+  when: node_to_add is defined
+    and node_to_add in groups['suricata']
+  tags:
+    - suricata-scale
