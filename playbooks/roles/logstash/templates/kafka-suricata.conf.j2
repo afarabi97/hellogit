@@ -5,10 +5,22 @@ input {
     #consumer_threads => 4
     group_id => "suricata_logstash"
     client_id => "logstash-suricata"
-    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}{% for host in groups['remote-sensors'] %},kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}{% endfor %}"
+    bootstrap_servers => "{{ kafka_url }}.default.svc.cluster.local:{{ kafka_port }}"
     codec => json
     auto_offset_reset => "earliest"
   }
+{% for host in groups['remote-sensors'] %}
+  kafka {
+    topics => ["suricata-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "suricata_logstash"
+    client_id => "logstash-suricata-{{ hostvars[host].inventory_hostname_short }}"
+    bootstrap_servers => "kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+  }
+{% endfor %}
 }
 
 filter {
