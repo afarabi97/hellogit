@@ -1,0 +1,20 @@
+######################################################
+################# Custom Bro Scripts #################
+######################################################
+
+- name: create bro scripts directory
+  file:
+    path: "{{ bro_scripts }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy Custom Bro Scripts to Sensors
+  copy:
+    src: "{{ item }}"
+    dest: "{{ bro_scripts }}"
+  with_fileglob:
+    - "files/scripts/*"
+  tags:
+    - bro-scale
