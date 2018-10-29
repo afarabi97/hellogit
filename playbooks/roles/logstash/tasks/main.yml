@@ -33,8 +33,7 @@
     mode: 0644
   with_items:
     - deploy.yml
-    - kafka-bro.conf
-    - kafka-fsf.conf
+    - kafka-bro.conf    
     - kafka-suricata.conf
     - logstash.yml
 
@@ -68,9 +67,7 @@
     --from-file {{ logstash_dir }}/pipelines.yml \
     --from-file {{ logstash_dir }}/log4j2.properties \
     --from-file {{ logstash_dir }}/kafka-bro.conf \
-    --from-file {{ logstash_dir }}/kafka-suricata.conf \
-    --from-file {{ logstash_dir }}/kafka-fsf.conf
-
+    --from-file {{ logstash_dir }}/kafka-suricata.conf
 
 - name: Deploy Services
   import_role:
