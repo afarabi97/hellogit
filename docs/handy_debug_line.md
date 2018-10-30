@@ -21,3 +21,6 @@ ansible rockserver1.lan -i inventory/dev/inventory.yml -m setup
 
 # Delete evicted pods in Kubernetes
 kubectl get po -a --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
+
+# JSON to get CPU requests
+kubectl get pods -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[].resources.requests.cpu}{"\n"}{end}'
