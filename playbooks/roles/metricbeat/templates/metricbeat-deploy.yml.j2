@@ -92,6 +92,7 @@ spec:
       serviceAccountName: metricbeat
       terminationGracePeriodSeconds: 30
       hostNetwork: true
+      hostPID: true
       containers:
       - name: metricbeat
         image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
