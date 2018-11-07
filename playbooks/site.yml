@@ -13,15 +13,24 @@
     - sensors
     - remote-sensors
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - preflight
   tags: preflight
 
+- name: Replay PCAPs
+  hosts:
+  - localhost
+  gather_facts: yes
+  any_errors_fatal: true
+  roles:
+    - replay
+  tags: replay
+
 - name: Verify kubernetes is healthy
   hosts: master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - kubernetes
   tags: kubernetes
@@ -29,7 +38,7 @@
 - name: Verify ceph is healthy
   hosts: master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - ceph
   tags: ceph
@@ -38,7 +47,7 @@
   hosts:
   - master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - elasticsearch
   tags: elasticsearch
@@ -47,7 +56,7 @@
   hosts:
   - master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - bro
   tags: bro
@@ -56,7 +65,7 @@
   hosts:
   - master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - suricata
   tags: suricata
@@ -65,9 +74,8 @@
   hosts:
   - master-server
   gather_facts: no
-  any_errors_fatal: true  
+  any_errors_fatal: true
   roles:
     - moloch
   tags: moloch
-
 ...

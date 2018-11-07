@@ -1,0 +1,32 @@
+---
+
+# Right now, test interface is hardcoded since we've just been using ens224 in our testing.
+# Could add functionality to auto-detect test interface
+
+- name: Set Test Interface
+  set_fact:
+    test_interface: ens192
+  when: ansible_ens192 is defined
+
+# Only launch the PCAP if the controller has a second interface for testing purposes.
+# The playbook will not fail out if this is not the case, and will display a message
+# indicating that the PCAP did not play.
+
+- name: Announce starting PCAP test
+  debug:
+    msg: "{{ test_interface }} test interface detected. Starting PCAP replay..."
+  when: test_interface is defined
+
+- name: Announce when test interface not detected
+  debug:
+    msg: "{{ test_interface }} test interface not found. No PCAP will be played."
+  when: test_interface is not defined
+
+- name: Start Testing PCAP Replay
+  shell: |
+    /usr/bin/tcpreplay --intf1={{ test_interface }} {{ item }}
+  with_fileglob:
+    - "{{ install_dir }}/playbooks/roles/replay/pcaps/*"
+  when: test_interface is defined
+
+...
