@@ -89,16 +89,25 @@
     method: DELETE
   ignore_errors: true
 
-- name:  Load Kibana Config
-  shell: |
-    curl -X POST {{ kibana_svc_ip.stdout }}:80/api/saved_objects/config/{{ kibana_ver }} -H "Content-Type: application/json" -H "kbn-xsrf: {{ kibana_ver }}" -d @{{ item }}
-  with_fileglob:
-    - "{{ install_dir }}/playbooks/roles/kibana/files/*.json"
-  delegate_to: localhost
+- name: Set Default Kibana Pattern
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/settings/defaultIndex"
+    method: POST
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body:
+      value: "logstash-*"
+    status_code: 200, 201
 
 - name: Load Dashboards
-  shell: |
-    curl -X POST {{ kibana_svc_ip.stdout }}:80/api/kibana/dashboards/import?force=true -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @{{ item }}
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/dashboards/import?force=true"
+    method: POST
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body: "{{ lookup('file', '{{ item }}')}}"
+    status_code: 200, 201
   with_fileglob:
-    - "{{ install_dir }}/playbooks/roles/kibana/files/dashboards/*.json"
-  delegate_to: localhost
+    - "files/dashboards/*.json"

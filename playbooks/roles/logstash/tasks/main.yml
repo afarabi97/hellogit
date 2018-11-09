@@ -6,19 +6,19 @@
 # This is here because Kubernetes repeatedly failed to download the image.
 # See: https://github.com/kubernetes/kubernetes/issues/59376
 # Pulling it through Docker resolves the issue
-#- name: Perform image download workaround
-#  docker_image:
-#    name: "{{ logstash_image }}:{{ logstash_ver }}"
+# - name: Perform image download workaround
+#    docker_image:
+#      name: "{{ logstash_image }}:{{ logstash_ver }}"
 
 - name: Include the dictionaries
   include_vars: "files/ECSDictionarySuricata.yml"
-  
+
 - name: Include another dictionary
   include_vars: "files/ECSDictionaryBro.yml"
 
 - name: "Create Logstash directory"
   file:
-    path: "{{ logstash_dir }}"
+    path: "{{ logstash_dir }}/pipeline"
     mode: u+rw,g+rw
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
@@ -33,23 +33,29 @@
     mode: 0644
   with_items:
     - deploy.yml
-    - kafka-bro.conf    
-    - kafka-suricata.conf
     - logstash.yml
 
-- name: Copy Config Files
-  copy:
-    src: "files/{{ item }}"
-    dest: "{{ logstash_dir }}/{{ item }}"
+- name: Install pipeline templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ logstash_dir }}/pipeline/{{ item | basename | regex_replace('\\.j2','') }}"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0644
-  with_items:
-    - pipelines.yml
-    - log4j2.properties
+  with_fileglob:
+    - "templates/pipeline/*.j2"
 
-- name: Flush ConfigMaps
-  command: 'kubectl delete configmap logstash --ignore-not-found=true'
+- name: Copy Additional Files
+  copy:
+    src: "files/"
+    dest: "{{ logstash_dir }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0644
+
+- name: Copy Additional Logstash Plugins to Servers
+  local_action: command /bin/sh -c "/usr/bin/ssh root@{{ item }} 'mkdir -p {{ logstash_dir }}' && /usr/bin/scp -rp {{ install_dir }}/playbooks/roles/logstash/files/plugins root@{{ item }}:{{ logstash_dir }}/"
+  with_items: "{{ groups['logstash'] }}"
 
 - name: Flush Deployment
   shell: |
@@ -63,11 +69,14 @@
 - name: Create Main ConfigMap
   shell: |
     kubectl create configmap logstash \
+    --from-file {{ logstash_dir }}/logstash-template.json \
     --from-file {{ logstash_dir }}/logstash.yml \
-    --from-file {{ logstash_dir }}/pipelines.yml \
     --from-file {{ logstash_dir }}/log4j2.properties \
-    --from-file {{ logstash_dir }}/kafka-bro.conf \
-    --from-file {{ logstash_dir }}/kafka-suricata.conf
+    --dry-run -o yaml | kubectl replace --force -f -
+
+- name: Create Pipeline ConfigMap
+  shell: |
+    kubectl create configmap logstash-pipeline --from-file {{ logstash_dir }}/pipeline --dry-run -o yaml | kubectl replace --force -f -
 
 - name: Deploy Services
   import_role:
