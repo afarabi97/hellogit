@@ -18,7 +18,9 @@ from lib.util import get_controller
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node
 from lib.model.kit import Kit
+from lib.mongo_connection_manager import MongoConnectionManager
 import time
+
 
 def _create_browser():
     """
@@ -37,24 +39,25 @@ def _create_browser():
     return browser
 
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="443") -> None:
+def _run_DHCP_settings_section(kickstart_configuration: KickstartConfiguration, browser) -> None:
     """
-    Runs the frontend's kickstart configuration.
+    Using selenium this fucntion test the elements in the DHCP Settings Section
 
-    :return:
+    :returns:
     """
-
-    browser = _create_browser()
-
-    # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("https://" + webserver_ip + ":" + port + "/kickstart")
-
     element = browser.find_element_by_name("dhcp_start")
     element.send_keys(kickstart_configuration.dhcp_start)
 
     element = browser.find_element_by_name("dhcp_end")
     element.send_keys(kickstart_configuration.dhcp_end)
 
+
+def _run_static_interface_settings_section(kickstart_configuration: KickstartConfiguration, browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the Static Interface Settings Section
+
+    :returns:
+    """
     element = browser.find_element_by_name("gateway")
     element.send_keys(kickstart_configuration.gateway)
 
@@ -62,12 +65,26 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     element.clear()
     element.send_keys(kickstart_configuration.netmask)
 
+
+def _run_system_settings_section(kickstart_configuration: KickstartConfiguration, browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the System Settings Section
+
+    :returns:
+    """
     element = browser.find_element_by_name("root_password")
     element.send_keys(kickstart_configuration.root_password)
 
     element = browser.find_element_by_name("re_password")
     element.send_keys(kickstart_configuration.root_password)
 
+
+def run_controller_interface_settings_section(browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the Controller Interface Settings Section
+
+    :returns:
+    """
     try:
         element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "controller_interface")))
         element.click()
@@ -75,6 +92,13 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
         logging.critical("Could not find the controller interface. Exiting.")
         exit(0)
 
+
+def _run_add_node_section(nodes: list, browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the Add Node Section
+
+    :returns:
+    """
     i = 0
     for node in nodes:
 
@@ -118,17 +142,52 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
 
             i = i + 1
 
+
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="4200") -> None:
+    """
+    Runs the frontend's kickstart configuration.
+
+    :return:
+    """
+    with MongoConnectionManager() as mongo_manager:
+        mongo_manager.mongo_kickstart.drop()
+
+    browser = _create_browser()
+
+    # Use selenium with beautiful soup to get the text from each of the examples
+    browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
+
+    # DHCP Settings Section
+    _run_DHCP_settings_section(kickstart_configuration, browser)
+
+    # Static Interface Settings Section
+    _run_static_interface_settings_section(kickstart_configuration, browser)
+
+    # System Settings Section
+    _run_system_settings_section(kickstart_configuration, browser)
+
+    # Controller Interface Settings Section
+    run_controller_interface_settings_section(browser)
+
+    # Add Node Section
+    _run_add_node_section(nodes, browser)
+
+    # Execute's Kickstart when all fields are configured
     element = browser.find_element_by_name("execute_kickstart")
     element.click()
 
-def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip: str, port="443") -> None:
+    # will close out of the driver and allow for the process to be killed
+    # if you wish to keep the browser up comment out this line
+    browser.quit()
 
-    browser = _create_browser() # type: selenium.webdriver.chrome.webdriver.WebDriver
 
-    # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
+def run_global_setting_section(kit_configuration: Kit, browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the Global Settings Section
 
-    element = browser.find_element_by_name("sensor_storage_type") # type: selenium.webdriver.remote.webelement
+    :returns:
+    """
+    element = browser.find_element_by_name("sensor_storage_type")
     element.click()
 
     if kit_configuration.use_ceph_for_pcap:
@@ -224,6 +283,13 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
                 element.click()
                 x = x+1
 
+
+def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
+    """
+    Using selenium this fucntion test the elements in the Total Sensor Sesources Section
+
+    :returns:
+    """
     if kit_configuration.moloch_cpu_percentage is not None:
         element = browser.find_element_by_name("moloch_cpu_percentage")
         element.clear()
@@ -244,12 +310,83 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
         element.clear()
         element.send_keys(str(kit_configuration.zookeeper_cpu_percentage))
 
+    x = 0 # type: int
+
+    for home_net in kit_configuration.home_nets:
+        element = browser.find_element_by_name("add_home_net")
+        element.click()
+
+        element = browser.find_element_by_name("home_net" + str(x))
+        element.send_keys(home_net)
+
+        # This condition is to ensure when the add home net button is
+        # clicked it doesn't add more home nets than we have
+        if x < len(kit_configuration.home_nets) - 1:
+            element = browser.find_element_by_name("add_home_net")
+            element.click()
+            x += 1
+
+    x = 0 # type: int
+
+    if kit_configuration.external_nets is not None:
+        for external_net in kit_configuration.external_nets:
+            element = browser.find_element_by_name("add_external_net")
+            element.click()
+
+            element = browser.find_element_by_name("external_net" + str(x))
+            element.send_keys(external_net)
+
+            # This condition is to ensure when the add home net button is
+            # clicked it doesn't add more home nets than we have
+            if x < len(kit_configuration.external_nets) - 1:
+                element = browser.find_element_by_name("add_external_net")
+                element.click()
+                x += 1
+
+
+def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="4200") -> None:
+    """
+    Runs the frontend's kit configuration.
+
+    :returns:
+    """
+    browser = _create_browser() # type: selenium.webdriver.chrome.webdriver.WebDriver
+
+    # Use selenium with beautiful soup to get the text from each of the examples
+    browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
+
+
+    #Global Settings Section
+    run_global_setting_section(kit_configuration, browser)
+
+    # Total Sensor Resources Section
+    run_total_sensor_resources_section(kit_configuration, browser)
+
     server_index = 0 # type: int
     sensor_index = 0 # type: int
 
     for node in nodes:
 
         if node.type == "server" or node.type == "master-server":
+
+            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
+            # the gather facts button into view
+            element = browser.find_element_by_name("host_server" + str(server_index))
+            element.send_keys()
+
+            element = browser.find_element_by_name("btn_host_server" + str(server_index))
+            element.click()
+
+            if node.type == "master-server":
+                element = browser.find_element_by_name("is_master_server" + str(server_index))
+                element.click()
+
+            element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "ceph_drives_server" + str(server_index))))
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.click()
+
+            server_index = server_index + 1
 
             # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
             # the gather facts button into view
@@ -297,10 +434,14 @@ def run_tfplenum_configuration(kit_configuration: Kit, nodes: list, webserver_ip
             element.click()         
 
             sensor_index = sensor_index + 1
-
+        # Execute's Kickstart when all fields are configured
     element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
     actions = ActionChains(browser)
     actions.move_to_element(element).perform()
     element.click()
 
+    # will close out of the driver and allow for the process to be killed
+    # if you wish to keep the browser up comment out this line
+    browser.quit()
     time.sleep(500000000)
+
