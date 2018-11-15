@@ -285,6 +285,34 @@
   tags:
     - common
 
+- name: Fix ARP for OpenVPN
+  hosts:
+    - master-server
+    - remote-sensors
+    - sensors
+    - servers
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - openvpn/other
+  tags:
+    - openvpn
+
+- name: OpenVPN
+  hosts:
+    - master-server
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - openvpn/common
+  tags:
+    - openvpn
+
 - name: Docker Images
   hosts:
     - master-server
@@ -409,7 +437,7 @@
     - kafka
 
 - name: Deploy Bro
-  hosts: 
+  hosts:
     - master-server
     - sensors
     - remote-sensors

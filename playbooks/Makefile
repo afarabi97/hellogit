@@ -34,6 +34,9 @@ dnsmasq:
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
+openvpn:
+		ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t openvpn
+
 kubernetes:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
 

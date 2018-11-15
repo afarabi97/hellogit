@@ -46,6 +46,10 @@ package_list:
   - nload
   - iperf
   - python-netaddr
+  - openvpn
+  - easy-rsa
+  - bridge-utils
+  - net-tools
 
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 
