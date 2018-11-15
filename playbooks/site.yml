@@ -194,6 +194,12 @@
         name: firewalld
         enabled: no
         state: stopped
+    - name: Disable possible existing OpenVPN
+      systemd:
+        name: openvpn-client.service
+        enabled: no
+        state: stopped
+      when: inventory_hostname in groups['remote-sensors']
   roles:
     - dnsmasq
   tags: dnsmasq
