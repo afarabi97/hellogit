@@ -198,7 +198,7 @@
     name: network
     state: restarted
 
-- name: Get management interface device id for servers and remote sensors
+- name: Get management interface device id for remote sensors
   set_fact:
     management_interface: "{{ item }}"
   with_items: "{{ ansible_interfaces }}"
@@ -206,6 +206,7 @@
     - hostvars[inventory_hostname]['ansible_' + item] is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+    - inventory_hostname in groups['remote-sensors']
 
 - name: Kill possible existing OpenVPN service on server
   shell: "kill -9 {{ item }}"
