@@ -100,7 +100,7 @@
     dest: /tmp/
     flat: yes
   with_items:
-    - "{{ issuedCertList.files }}" 
+    - "{{ issuedCertList.files }}"
   when: inventory_hostname in groups['master-server']
 
 #make this specific next
@@ -129,7 +129,7 @@
 - name: Create client config file for each remote sensor
   template:
     src: "templates/ccdtemplate.j2"
-    dest: "/etc/openvpn/server/ccd/{{ item }}" 
+    dest: "/etc/openvpn/server/ccd/{{ item }}"
   with_items:
     - "{{ groups['remote-sensors'] }}"
   when: inventory_hostname in groups['master-server']
@@ -178,15 +178,15 @@
   when: inventory_hostname in groups['remote-sensors']
 
 #Bridge stuff is handled in the preexec for the service
-- name: Take down possible existing bridge interface
-  shell: "ip link set br0 down"
-  ignore_errors: yes
-  when: inventory_hostname in groups['master-server']
-
-- name: Delete existing bridge interface
-  shell: "brctl delbr br0"
-  ignore_errors: yes
-  when: inventory_hostname in groups['master-server']
+#- name: Take down possible existing bridge interface
+#  shell: "ip link set br0 down"
+#  ignore_errors: yes
+#  when: inventory_hostname in groups['master-server']
+#
+#- name: Delete existing bridge interface
+#  shell: "brctl delbr br0"
+#  ignore_errors: yes
+#  when: inventory_hostname in groups['master-server']
 
 - name: Delete all vestiges of the bridge in network scripts
   file:
