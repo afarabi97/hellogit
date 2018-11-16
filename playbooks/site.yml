@@ -200,6 +200,7 @@
         enabled: no
         state: stopped
       when: inventory_hostname in groups['remote-sensors']
+      ignore_errors: yes
   roles:
     - dnsmasq
   tags: dnsmasq
