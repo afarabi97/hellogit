@@ -1,6 +1,7 @@
 
 import urllib3
 import requests
+import sys
 import time
 import logging
 from pyVmomi import vim
@@ -15,10 +16,17 @@ from lib.model.kit import Kit
 from lib.model.node import VirtualMachine
 from lib.model.node import Node, Interface, NodeDisk
 from lib.model.kickstart_configuration import KickstartConfiguration
+from typing import List
 
-def _get_obj(content, vimtype, name):
+
+def _get_obj(content: vim.ServiceInstanceContent, vimtype: List[str], name: str):
     """
     Get the vsphere object associated with a given text name
+
+    :param content:
+    :param vimtype:
+    :param name:
+    :return:
     """
     obj = None
     container = content.viewManager.CreateContainerView(content.rootFolder, vimtype, True)
@@ -234,69 +242,101 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
         print("Deleting VM '{}' ({})".format(vm_name, vm))
         client.vcenter.VM.delete(vm)
 
-def configure_clone(configuration: OrderedDict, controller: Node, kickconfiguration: KickstartConfiguration, relospec: vim.vm.RelocateSpec, client: VsphereClient) -> vim.vm.CloneSpec:    
+def change_ip_address(configuration: OrderedDict, node: Node):
+    service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+    vm = get_vm_by_name(service_instance, node.cloned_vm_name)
 
-    # Networking self.config for VM and guest OS
-    devices = []  # type: list
-    adaptermaps = []  # type: list
+    if vm.runtime.powerState != 'poweredOff':
+        print("WARNING:: Power off your VM before reconfigure")
+        sys.exit()
 
-    # Create a list of the VM's NICs    
-    # for interface in controller.interfaces:
-    #     if interface.mac_auto_generated:
-            
-    #         devices.append(Ethernet.CreateSpec(
-    #             start_connected=interface.start_connected,
-    #             mac_type=Ethernet.MacAddressType.GENERATED,
-    #             backing=Ethernet.BackingSpec(
-    #                 type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
-    #                 network=network_helper.get_distributed_network_backing(
-    #                     client,
-    #                     interface.dv_portgroup_name,
-    #                     controller.storage_datacenter))))        
-
-    # guest NIC settings, i.e. 'adapter map'
-    guest_map = vim.vm.customization.AdapterMapping()
-    guest_map.adapter = vim.vm.customization.IPSettings()
-    guest_map.adapter.ip = vim.vm.customization.FixedIp()
-    guest_map.adapter.ip.ipAddress = controller.management_interface.ip_address
-    guest_map.adapter.subnetMask = kickconfiguration.netmask
-    guest_map.adapter.gateway = kickconfiguration.gateway
-    guest_map.adapter.dnsDomain = controller.domain
-    adaptermaps.append(guest_map)
-
-    # VM config spec
-    #vmconf = vim.vm.ConfigSpec()
-    #vmconf.numCPUs = controller.cpu_sockets
-    #vmconf.memoryMB = controller.memory_size
-    #vmconf.cpuHotAddEnabled = controller.cpu_hot_add_enabled
-    #vmconf.memoryHotAddEnabled = controller.memory_hot_add_enabled
-    #vmconf.deviceChange = devices
-
-    # DNS settings
+    adaptermap = vim.vm.customization.AdapterMapping()
     globalip = vim.vm.customization.GlobalIPSettings()
-    globalip.dnsServerList = kickconfiguration.gateway
-    globalip.dnsSuffixList = controller.domain
+    adaptermap.adapter = vim.vm.customization.IPSettings()
 
-    # Hostname settings
-    ident = vim.vm.customization.LinuxPrep()
-    ident.domain = controller.domain
-    ident.hostName = vim.vm.customization.FixedName()
-    ident.hostName.name = controller.hostname
+    """Static IP Configuration"""
+    adaptermap.adapter.ip = vim.vm.customization.FixedIp()
+    adaptermap.adapter.ip.ipAddress = node.management_interface.ip_address
+    adaptermap.adapter.subnetMask = "255.255.255.0"
+    adaptermap.adapter.gateway = ["172.16.77.1"]
+    globalip.dnsServerList = ["172.16.77.1", "8.8.8.8"]
+    adaptermap.adapter.dnsDomain = node.domain
+
+    # For Linux . For windows follow sysprep
+    ident = vim.vm.customization.LinuxPrep(domain=node.domain,
+                                           hostName=vim.vm.customization.FixedName(name='controller'))
 
     customspec = vim.vm.customization.Specification()
-    customspec.nicSettingMap = adaptermaps
-    customspec.globalIPSettings = globalip
+    # For only one adapter
     customspec.identity = ident
+    customspec.nicSettingMap = [adaptermap]
+    customspec.globalIPSettings = globalip
 
-    # Clone spec
-    clonespec = vim.vm.CloneSpec()
-    clonespec.location = relospec
-    clonespec.config = vmconf
-    clonespec.customization = customspec
-    clonespec.powerOn = True
-    clonespec.template = False
+    print("Reconfiguring VM Networks . . .")
+    task = vm.Customize(spec=customspec)
+    wait_for_task(task)
+    Disconnect(service_instance)
 
-    return clonespec
+
+def change_network_port_group(configuration: OrderedDict, node: Node, network_name: str, is_vds: bool=True):
+    """
+    The VM in question must be powered off before you can change the network port group.
+
+    :param configuration:
+    :param node:
+    :param network_name:
+    :param is_vds: set to true by default which means we are using a distributed standard switch, if you mark vds true,
+           it will assume a distributed switch.
+    :return:
+    """
+    service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+    content = service_instance.RetrieveContent()
+    vm = get_vm_by_name(service_instance, node.cloned_vm_name)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
+    # vm = content.searchIndex.FindByUuid(None, args.vm_uuid, True)
+    # This code is for changing only one Interface. For multiple Interface
+    # Iterate through a loop of network names.
+    device_change = []
+    for device in vm.config.hardware.device:
+        if isinstance(device, vim.vm.device.VirtualEthernetCard):
+            # device.macAddress
+            nicspec = vim.vm.device.VirtualDeviceSpec()
+            nicspec.operation = \
+                vim.vm.device.VirtualDeviceSpec.Operation.edit
+            nicspec.device = device
+            nicspec.device.wakeOnLanEnabled = True
+
+            if not is_vds:
+                nicspec.device.backing = \
+                    vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+                nicspec.device.backing.network = \
+                    _get_obj(content, [vim.Network], network_name)
+                nicspec.device.backing.deviceName = network_name
+            else:
+                network = _get_obj(content,
+                                  [vim.dvs.DistributedVirtualPortgroup],
+                                  network_name)
+                dvs_port_connection = vim.dvs.PortConnection()
+                dvs_port_connection.portgroupKey = network.key
+                dvs_port_connection.switchUuid = \
+                    network.config.distributedVirtualSwitch.uuid
+                nicspec.device.backing = \
+                    vim.vm.device.VirtualEthernetCard. \
+                    DistributedVirtualPortBackingInfo()
+                nicspec.device.backing.port = dvs_port_connection
+
+            nicspec.device.connectable = \
+                vim.vm.device.VirtualDevice.ConnectInfo()
+            nicspec.device.connectable.startConnected = True
+            nicspec.device.connectable.allowGuestControl = True
+            device_change.append(nicspec)
+            break
+
+    config_spec = vim.vm.ConfigSpec(deviceChange=device_change)
+    task = vm.ReconfigVM_Task(config_spec)
+    # tasks.wait_for_tasks(service_instance, [task])
+    wait_for_task(task)
+    Disconnect(service_instance)
+    print("Successfully changed network")
 
 
 def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: KickstartConfiguration, client: VsphereClient) -> None:

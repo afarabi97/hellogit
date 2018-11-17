@@ -9,11 +9,12 @@ import argparse
 import logging
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
-from lib.vm_utilities import create_vms, create_client, clone_vm, delete_vm
+from lib.vm_utilities import (create_vms, create_client, clone_vm,
+                              delete_vm, change_network_port_group, change_ip_address)
 from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, \
     get_interface_names, get_bootstrap, run_bootstrap
 from lib.model.kit import Kit
-from lib.model.node import Node
+from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
 from typing import List
 
@@ -31,7 +32,7 @@ def main():
     # If using 3.7+ this is not an issue as it is the default behavior
     configuration = OrderedDict()  # type: OrderedDict
 
-    with open('./sample_VMs.yml', 'r') as kit_schema:
+    with open('./sample_VMs2.yml', 'r') as kit_schema:
         try:
             configuration = yaml.load(kit_schema)
             di2e_username = configuration["DI2E"]["Username"]
@@ -72,13 +73,18 @@ def main():
                     interface.set_mac_address(mac)
 
             vm.power_off()   
-
+        
         #logging.info("Deleting controller....")
         #delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
         logging.info("Cloning base rhel template for controller....")
 
         clone_vm(configuration, controller_node, kit.kickstart_configuration, vsphere_client)
+        change_network_port_group(configuration, controller_node, "77 Portgroup")
+        change_ip_address(configuration, controller_node)
+
+        ctrl_vm = VirtualMachine(vsphere_client, controller_node, "/root/")
+        ctrl_vm.power_on()
 
         vms_to_test = []  # type: List[Node]
         for node in kit.nodes:
@@ -87,7 +93,6 @@ def main():
 
         logging.info("Waiting for base rhel vm to boot...")
         test_vms_up_and_alive(kit, vms_to_test)      
-
 
         logging.info("Downloading controller bootstrap...")
         get_bootstrap(controller_node, di2e_username, di2e_password)
@@ -118,6 +123,7 @@ def main():
 
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, controller_node.management_interface.ip_address, "4200")
+        build_tfplenum(kit, controller_node)
 
 
 if __name__ == '__main__':

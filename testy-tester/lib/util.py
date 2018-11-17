@@ -83,7 +83,7 @@ def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> N
         host=controller.management_interface.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
     # curl -o /root/bootstrap.sh -H "Authorization: Bearer <access token>" https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fdevel'
-    client.run('curl -s -o /root/bootstrap.sh -u ' + di2e_username + ':' + di2e_password + ' https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fdevel')
+    client.run("curl -o /root/bootstrap.sh -u " + di2e_username + ":'" + di2e_password + "' https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fbugfix%2FTHISISCVAH-1413-centos-fixes-for-bootstrapper")
     client.close()
     
 def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
@@ -103,6 +103,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> N
         export TFPLENUM_LABREPO=true && \
         export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
         export DIEUSERNAME='" + di2e_username + "' && \
+        export RUN_TYPE=full && \
         export PASSWORD='" + di2e_password + "' && \
         bash /root/bootstrap.sh", shell=True)
     client.close()

@@ -379,7 +379,6 @@ class VirtualMachine:
 
         self.client = client
         self.node = node
-        self.vm = None  # type: VM
         self.vm_info = None  # type: VM.info
         self.node_instance = None  # type: Node
 
@@ -405,6 +404,7 @@ class VirtualMachine:
         #    self.vm_spec["storage_options"]["datacenter"]) # type: str
 
         self.vm_name = node.hostname  # type: str
+        self.vm = get_vm(self.client, self.vm_name)  # type: VM
 
     def create(self) -> VM:
         """
