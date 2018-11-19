@@ -57,6 +57,16 @@ class Interface(object):
         self.dv_portgroup_name = None
         self.std_portgroup_name = None
         self.interface_name = None
+        self.subnet_mask = None
+
+    def set_subnet_mask(self, subnet_mask: str) -> None:
+        """
+        Sets subnet mask
+
+        :param subnet_mask:
+        :return:
+        """
+        self.subnet_mask = subnet_mask
 
     def set_mac_auto_generated(self, mac_auto_generated: bool) -> None:
         """
@@ -192,6 +202,25 @@ class Node(object):
         self.boot_order = None
         self.management_interface = None
         self.interfaces = None
+        self.gateway = None
+        self.dns_list = None
+
+    def set_gateway(self, gateway: str) -> None:
+        """
+        Sets the gateway for a given node.
+
+        :param gateway:
+        :return:
+        """
+        self.gateway = gateway
+
+    def set_dns_list(self, dns: List):
+        """
+        Set the dns list to the appropriate values.
+        :param dns:
+        :return:
+        """
+        self.dns_list = dns
 
     def set_domain(self, domain: str) -> None:
         """

@@ -325,6 +325,8 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         for v in vms:
             node = Node(v, vms[v]['type'])  # type: Node
             if node.type == "controller":
+                node.set_dns_list(vms[v]['dns'])
+                node.set_gateway(vms[v]['gateway'])
                 node.set_username(vms[v]['username'])
                 node.set_password(vms[v]['password'])
                 node.set_vm_clone_options(vms[v]['vm_to_clone'], vms[v]['cloned_vm_name'])
@@ -342,6 +344,10 @@ def transform(configuration: OrderedDict) -> List[Kit]:
                                       nics[nic]['management_interface'])  # type: Interface
                 interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
                 interface.set_mac_address(nics[nic]['mac_address'])
+                try:
+                    interface.set_subnet_mask(nics[nic]['subnet_mask'])
+                except KeyError:
+                    pass
                 interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
                 interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
 

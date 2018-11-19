@@ -159,6 +159,7 @@ def wait_for_task(task) -> None:
             print("An error occurred in the task.")
             task_done = True
 
+
 def create_client(configuration: OrderedDict) -> VsphereClient:
     """
     Creates a vSphere client from the given configuration
@@ -200,6 +201,7 @@ def create_smart_connect_client(configuration: OrderedDict) -> vim.ServiceInstan
                           pwd=password,
                           port=443)  # type: pyVmomi.VmomiSupport.vim.ServiceInstance
 
+
 def change_network_address(configuration: OrderedDict, vm_name: str):
 
     s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
@@ -212,6 +214,7 @@ def change_network_address(configuration: OrderedDict, vm_name: str):
         s.vcenter.vm.Power.start(vm)
         s.vcenter.vm.Power.stop(vm)
 
+
 def power_off_vm(vm):
     if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
         # using time.sleep we just wait until the power off action
@@ -222,6 +225,7 @@ def power_off_vm(vm):
         while task.info.state not in [vim.TaskInfo.State.success,
                                       vim.TaskInfo.State.error]:
             time.sleep(1)
+
 
 def delete_vm(client: VsphereClient, vm_name: str) -> None:
     """
@@ -242,6 +246,7 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
         print("Deleting VM '{}' ({})".format(vm_name, vm))
         client.vcenter.VM.delete(vm)
 
+
 def change_ip_address(configuration: OrderedDict, node: Node):
     service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
     vm = get_vm_by_name(service_instance, node.cloned_vm_name)
@@ -257,15 +262,14 @@ def change_ip_address(configuration: OrderedDict, node: Node):
     """Static IP Configuration"""
     adaptermap.adapter.ip = vim.vm.customization.FixedIp()
     adaptermap.adapter.ip.ipAddress = node.management_interface.ip_address
-    adaptermap.adapter.subnetMask = "255.255.255.0"
-    adaptermap.adapter.gateway = ["172.16.77.1"]
-    globalip.dnsServerList = ["172.16.77.1", "8.8.8.8"]
+    adaptermap.adapter.subnetMask = node.management_interface.subnet_mask
+    adaptermap.adapter.gateway = [node.gateway]
+    globalip.dnsServerList = node.dns_list
     adaptermap.adapter.dnsDomain = node.domain
 
     # For Linux . For windows follow sysprep
     ident = vim.vm.customization.LinuxPrep(domain=node.domain,
                                            hostName=vim.vm.customization.FixedName(name='controller'))
-
     customspec = vim.vm.customization.Specification()
     # For only one adapter
     customspec.identity = ident
@@ -278,7 +282,7 @@ def change_ip_address(configuration: OrderedDict, node: Node):
     Disconnect(service_instance)
 
 
-def change_network_port_group(configuration: OrderedDict, node: Node, network_name: str, is_vds: bool=True):
+def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bool=True):
     """
     The VM in question must be powered off before you can change the network port group.
 
@@ -296,6 +300,7 @@ def change_network_port_group(configuration: OrderedDict, node: Node, network_na
     # This code is for changing only one Interface. For multiple Interface
     # Iterate through a loop of network names.
     device_change = []
+    network_name = node.management_interface.dv_portgroup_name
     for device in vm.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             # device.macAddress
@@ -339,19 +344,15 @@ def change_network_port_group(configuration: OrderedDict, node: Node, network_na
     print("Successfully changed network")
 
 
-def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: KickstartConfiguration, client: VsphereClient) -> None:
+def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     """
     Clones a target VM by name
 
     :param configuration (OrderedDict): The schema which defines vCenter and all kits
-    :param vm_to_clone (str): The name of the VM from which you want to clone
-    :param cloned_vm_name (str): The name of the cloned VM
-    :param folder_name (str): An optional folder name in which to place the cloned VM
+    :param controller (Node): The controller node we wish to clone
     :return:
     """
-
     s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
-
     cluster_name = configuration["host_configuration"]["vcenter"]["cluster_name"]
 
     # With this we are searching for the MOID of the VM to clone from
@@ -366,13 +367,12 @@ def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: Kic
     relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
-    cloneSpec = vim.vm.CloneSpec(powerOn=False,
+    clone_spec = vim.vm.CloneSpec(powerOn=False,
                                  template=False,
                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
     # TODO: Currently cloning the template does not update the interface ip or portgroup
     # You will need to manually change the portgroup and ip address
-    # cloneSpec = configure_clone(configuration, controller, kitconfiguration, relocate_spec, client)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
     print("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     print("You can watch the progress bar in vCenter.")
@@ -382,7 +382,7 @@ def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: Kic
             template_vm.Clone(
                 name=controller.cloned_vm_name,
                 folder=get_folder(s, controller.storage_folder), 
-                spec=cloneSpec))
+                spec=clone_spec))
     else:
         # If the folder name is not provided it will put it in the same folder
         # as the parent
@@ -390,9 +390,10 @@ def clone_vm(configuration: OrderedDict, controller: Node, kitconfiguration: Kic
             template_vm.Clone(
                 name=controller.cloned_vm_name, 
                 folder=template_vm.parent, 
-                spec=cloneSpec))
+                spec=clone_spec))
 
     Disconnect(s)
+
 
 def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
     """

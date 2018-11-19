@@ -22,7 +22,6 @@ from lib.model.kit import Kit
 from lib.mongo_connection_manager import MongoConnectionManager
 
 
-
 def _create_browser():
     """
     Creates a web browser which the test framework can use to interact with the frontend
@@ -145,7 +144,8 @@ def _run_add_node_section(nodes: list, browser) -> None:
             i = i + 1
 
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="4200") -> None:
+def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="443") -> None:
+
     """
     Runs the frontend's kickstart configuration.
 
@@ -157,7 +157,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     browser = _create_browser()
 
     # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kickstart")
+    browser.get("https://" + webserver_ip + ":" + port + "/kickstart")
 
     # DHCP Settings Section
     _run_DHCP_settings_section(kickstart_configuration, browser)
@@ -174,7 +174,6 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     # Add Node Section
     _run_add_node_section(nodes, browser)
 
-    # Execute's Kickstart when all fields are configured
     # Execute's Kickstart when all fields are configured
     element = browser.find_element_by_name("execute_kickstart")
     element.click()
@@ -238,33 +237,33 @@ def run_global_setting_section(kit_configuration: Kit, browser) -> None:
     element = browser.find_element_by_name("kubernetes_services_cidr")
     element.send_keys(str(kit_configuration.kubernetes_cidr))
 
+    if kit_configuration.ideal_es_cpus_per_instance is not None or kit_configuration.es_cpu_to_memory_ratio_default is not None:
+
+        element = browser.find_element_by_name("advanced_settings")
+        actions = ActionChains(browser)
+        actions.move_to_element(element).perform()
+        element.click()
+
+        if kit_configuration.ideal_es_cpus_per_instance is not None:
+            element = browser.find_element_by_name("elastic_cpus_per_instance_ideal")
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.clear()
+            element.send_keys(str(kit_configuration.ideal_es_cpus_per_instance))
+
+        if kit_configuration.es_cpu_to_memory_ratio_default is not None:
+            element = browser.find_element_by_name("elastic_cpus_to_mem_ratio")
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.clear()
+            element.send_keys(str(kit_configuration.es_cpu_to_memory_ratio_default))
+
 
 def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
     """
     Using selenium this fucntion test the elements in the Total Sensor Sesources Section
 
     :returns:
-    """
-    if kit_configuration.moloch_cpu_percentage is not None:
-        element = browser.find_element_by_name("moloch_cpu_percentage")
-        element.clear()
-        element.send_keys(str(kit_configuration.moloch_cpu_percentage))
-
-    if kit_configuration.bro_cpu_percentage is not None:
-        element = browser.find_element_by_name("bro_cpu_percentage")
-        element.clear()
-        element.send_keys(str(kit_configuration.bro_cpu_percentage))
-
-    if kit_configuration.suricata_cpu_percentage is not None:
-        element = browser.find_element_by_name("suricata_cpu_percentage")
-        element.clear()
-        element.send_keys(str(kit_configuration.suricata_cpu_percentage))
-
-    if kit_configuration.zookeeper_cpu_percentage is not None:
-        element = browser.find_element_by_name("zookeeper_cpu_percentage")
-        element.clear()
-        element.send_keys(str(kit_configuration.zookeeper_cpu_percentage))
-
     """
     if kit_configuration.moloch_cpu_percentage is not None:
         element = browser.find_element_by_name("moloch_cpu_percentage")
@@ -319,18 +318,24 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
                 element.click()
                 x += 1
 
+    # Loop through for all sensors, and click all the necessary buttons
+    nodes = kit_configuration.get_nodes()
+    i = 0
+    for node in nodes:
 
-def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="4200") -> None:
-    """
-    Runs the frontend's kit configuration.
+        try:
+            # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
+            # the gather facts button into view
+            element = browser.find_element_by_name("host_sensor" + str(i))
             element.send_keys()
 
-    :returns:
-    """
-    browser = _create_browser() # type: selenium.webdriver.chrome.webdriver.WebDriver
+            element = browser.find_element_by_name("btn_host_sensor" + str(i))
+            element.click()
 
-    # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("http://" + webserver_ip + ":" + port + "/kit_configuration")
+            if kit_configuration.use_ceph_for_pcap and node.type == "sensor" or True:  # TODO remove the true
+                element = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.NAME, "ceph_drives_sensor" + str(i))))
+                actions = ActionChains(browser)
                 actions.move_to_element(element).perform()
                 element.click()
             else:
@@ -340,27 +345,22 @@ def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="
                 actions.move_to_element(element).perform()
                 element.click()
 
-    #Global Settings Section
-    run_global_setting_section(kit_configuration, browser)
+            element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.NAME, "monitor_interface" + str(i))))
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
             element.click()
         except:
             pass
 
-    # Total Sensor Resources Section
-    run_total_sensor_resources_section(kit_configuration, browser)
+        i += 1
 
-    # Execute's Kickstart when all fields are configured
-    element = browser.find_element_by_name("execute_kit")
-    element.click()
-
-    # will close out of the driver and allow for the process to be killed
-    # if you wish to keep the browser up comment out this line
-    browser.quit()
 
 def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
     """
     Using selenium this fucntion test the elements that in the Total Server Resources Section
 
+    :returns:
     """
     # Gather facts on server
 

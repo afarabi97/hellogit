@@ -46,7 +46,7 @@ def main():
     vsphere_client = create_client(configuration)  # type: VsphereClient
 
     for kit in kits:
-        controller_node = get_controller(kit)  # type: Node      
+        controller_node = get_controller(kit)  # type: Node
         logging.info("Creating VMs...")
         vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
         
@@ -74,13 +74,13 @@ def main():
 
             vm.power_off()   
         
-        #logging.info("Deleting controller....")
-        #delete_vm(vsphere_client, controller_node.cloned_vm_name)
+        # logging.info("Deleting controller....")
+        # delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
         logging.info("Cloning base rhel template for controller....")
+        clone_vm(configuration, controller_node)
 
-        clone_vm(configuration, controller_node, kit.kickstart_configuration, vsphere_client)
-        change_network_port_group(configuration, controller_node, "77 Portgroup")
+        change_network_port_group(configuration, controller_node)
         change_ip_address(configuration, controller_node)
 
         ctrl_vm = VirtualMachine(vsphere_client, controller_node, "/root/")
