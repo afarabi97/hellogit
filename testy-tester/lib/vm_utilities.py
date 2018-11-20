@@ -1,4 +1,3 @@
-
 import urllib3
 import requests
 import sys
@@ -9,13 +8,10 @@ from pyVim.connect import SmartConnectNoSSL, Disconnect
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient, create_vsphere_client
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
-from lib.vsphere.vcenter.helper import network_helper
-from com.vmware.vcenter.vm_client import (Hardware, Power)
-from com.vmware.vcenter.vm.hardware_client import (Cpu, Memory, Disk, Ethernet, Cdrom, Boot)
+from com.vmware.vcenter.vm_client import Power
 from lib.model.kit import Kit
 from lib.model.node import VirtualMachine
-from lib.model.node import Node, Interface, NodeDisk
-from lib.model.kickstart_configuration import KickstartConfiguration
+from lib.model.node import Node
 from typing import List
 
 
@@ -36,6 +32,7 @@ def _get_obj(content: vim.ServiceInstanceContent, vimtype: List[str], name: str)
             break
     return obj
 
+
 def _get_all_objs(content, vimtype):
     """
     Get all the vsphere objects associated with a given type
@@ -50,6 +47,7 @@ def _get_all_objs(content, vimtype):
 def login_in_guest(username, password):
     return vim.vm.guest.NamePasswordAuthentication(username=username,password=password)
 
+
 def start_process(si, vm, auth, program_path, args=None, env=None, cwd=None):
     cmdspec = vim.vm.guest.ProcessManager.ProgramSpec(arguments=args,
                                                       programPath=program_path,
@@ -57,6 +55,7 @@ def start_process(si, vm, auth, program_path, args=None, env=None, cwd=None):
                                                       workingDirectory=cwd)
     cmdpid = si.content.guestOperationsManager.processManager.StartProgramInGuest(vm=vm, auth=auth, spec=cmdspec)
     return cmdpid
+
 
 def is_ready(vm):
 
@@ -67,6 +66,7 @@ def is_ready(vm):
         if system_ready and system_state == 'running' and system_uptime > 90:
             break
         time.sleep(10)
+
 
 def get_vm_by_name(si, name):
     """
@@ -80,11 +80,13 @@ def get_vm_by_name(si, name):
     #exit(0)
     return _get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)
 
+
 def get_folder(si, name):
     """
     Find a folder by it's name and return it
     """
     return _get_obj(si.RetrieveContent(), [vim.Folder], name)
+
 
 def get_host_by_name(si, name):
     """
@@ -92,11 +94,13 @@ def get_host_by_name(si, name):
     """
     return _get_obj(si.RetrieveContent(), [vim.HostSystem], name)
 
+
 def get_resource_pool(si, name):
     """
     Find a resource pool by it's name and return it
     """
     return _get_obj(si.RetrieveContent(), [vim.ResourcePool], name)
+
 
 def get_resource_pools(si):
     """
@@ -104,11 +108,13 @@ def get_resource_pools(si):
     """
     return _get_all_objs(si.RetrieveContent(), [vim.ResourcePool])
 
+
 def get_cluster(si, name):
     """
     Find a cluster by it's name and return it
     """
     return _get_obj(si.RetrieveContent(), [vim.ComputeResource], name)
+
 
 def get_clusters(si):
     """
@@ -116,11 +122,13 @@ def get_clusters(si):
     """
     return _get_all_objs(si.RetrieveContent(), [vim.ComputeResource])
 
+
 def get_datastores(si):
     """
     Returns all datastores
     """
     return _get_all_objs(si.RetrieveContent(), [vim.Datastore])
+
 
 def get_hosts(si):
     """
@@ -128,11 +136,13 @@ def get_hosts(si):
     """
     return _get_all_objs(si.RetrieveContent(), [vim.HostSystem])
 
+
 def get_datacenters(si):
     """
     Returns all datacenters
     """
     return _get_all_objs(si.RetrieveContent(), [vim.Datacenter])
+
 
 def get_registered_vms(si):
     """
@@ -296,7 +306,11 @@ def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bo
     service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
     content = service_instance.RetrieveContent()
     vm = get_vm_by_name(service_instance, node.cloned_vm_name)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
-    # vm = content.searchIndex.FindByUuid(None, args.vm_uuid, True)
+
+    if vm.runtime.powerState != 'poweredOff':
+        print("WARNING:: Power off your VM before reconfigure")
+        sys.exit()
+
     # This code is for changing only one Interface. For multiple Interface
     # Iterate through a loop of network names.
     device_change = []
@@ -318,8 +332,8 @@ def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bo
                 nicspec.device.backing.deviceName = network_name
             else:
                 network = _get_obj(content,
-                                  [vim.dvs.DistributedVirtualPortgroup],
-                                  network_name)
+                                   [vim.dvs.DistributedVirtualPortgroup],
+                                   network_name)
                 dvs_port_connection = vim.dvs.PortConnection()
                 dvs_port_connection.portgroupKey = network.key
                 dvs_port_connection.switchUuid = \
@@ -371,9 +385,6 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
                                  template=False,
                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
-    # TODO: Currently cloning the template does not update the interface ip or portgroup
-    # You will need to manually change the portgroup and ip address
-
     print("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     print("You can watch the progress bar in vCenter.")
     # Finally this is the clone operation with the relevant specs attached
@@ -391,7 +402,6 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
                 name=controller.cloned_vm_name, 
                 folder=template_vm.parent, 
                 spec=clone_spec))
-
     Disconnect(s)
 
 

@@ -74,8 +74,8 @@ def main():
 
             vm.power_off()   
         
-        # logging.info("Deleting controller....")
-        # delete_vm(vsphere_client, controller_node.cloned_vm_name)
+        logging.info("Deleting controller....")
+        delete_vm(vsphere_client, controller_node.cloned_vm_name)
 
         logging.info("Cloning base rhel template for controller....")
         clone_vm(configuration, controller_node)
