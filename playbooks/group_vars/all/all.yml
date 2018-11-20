@@ -51,12 +51,15 @@ package_list:
   - bridge-utils
   - net-tools
 
+ansible_controller_hostname: "controller.lan"
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 
-offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"
+offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
+#offline_repo_base: "http://{{ ansible_controller_ip }}/offlinerepo"
 harbor_port: 81
 harbor_project: "library"
-harbor_repo: "{{ ansible_controller_ip }}:{{ harbor_port }}/library"
+harbor_repo: "{{ ansible_controller_hostname }}:{{ harbor_port }}/library"
+#harbor_repo: "{{ ansible_controller_ip }}:{{ harbor_port }}/library"
 CentOS_Repos:
   - "CentOS-Base"
   - "CentOS-CR"

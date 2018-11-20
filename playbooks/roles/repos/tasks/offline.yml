@@ -14,6 +14,15 @@
   - epel-testing
   - rocknsm
 
+- name: create list
+  set_fact:
+    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
+
 - name: "Configure additional offline repos"
   yum_repository:    
     name: "{{ item.value.name }}"
