@@ -17,6 +17,7 @@ from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
 from typing import List
+from lib.controller_modifier import ControllerModifier
 
 
 def main():
@@ -91,8 +92,11 @@ def main():
             if node.type == "controller":
                 vms_to_test.append(node)
 
+        ctrl_modifier = ControllerModifier(controller_node)
+        ctrl_modifier.make_controller_changes()
+
         logging.info("Waiting for base rhel vm to boot...")
-        test_vms_up_and_alive(kit, vms_to_test)      
+        test_vms_up_and_alive(kit, vms_to_test)
 
         logging.info("Downloading controller bootstrap...")
         get_bootstrap(controller_node, di2e_username, di2e_password)
@@ -118,7 +122,7 @@ def main():
                 vms_to_test.append(node)
 
         test_vms_up_and_alive(kit, vms_to_test)
-        
+
         get_interface_names(kit)
 
         logging.info("Run TFPlenum configuration")

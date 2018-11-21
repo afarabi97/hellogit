@@ -1,6 +1,7 @@
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
+from fabric import Connection
 
 
 class MongoConnectionManager(object):
@@ -99,3 +100,42 @@ class MongoConnectionManager(object):
         self.close()
 
 
+class FabricConnectionWrapper:
+
+    def __init__(self, username: str, password: str, ipaddress: str):
+        """
+        Initializes the fabric connection manager.
+
+        :param username: The username of the box we wish to connect too
+        :param password: The password of the user account
+        :param ipaddress: The Ip we are trying to gain access too.
+        """
+        self._connection = None  # type: Connection
+        self._username = username
+        self._password = password
+        self._ipaddress = ipaddress
+        self._establish_fabric_connection()
+
+    def _establish_fabric_connection(self) -> None:
+        if not self._connection:
+            self._connection = Connection(self._ipaddress,
+                                          user=self._username,
+                                          connect_timeout=20,
+                                          connect_kwargs={'password': self._password,
+                                                          'allow_agent': False,
+                                                          'look_for_keys': False})
+
+    @property
+    def connection(self):
+        return self._connection
+
+    def close(self):
+        if self._connection:
+            self._connection.close()
+
+    def __enter__(self):
+        self._establish_fabric_connection()
+        return self._connection
+
+    def __exit__(self, *exc):
+        self.close()

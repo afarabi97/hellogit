@@ -19,7 +19,7 @@ from lib.util import get_controller
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node
 from lib.model.kit import Kit
-from lib.mongo_connection_manager import MongoConnectionManager
+from lib.connection_mngs import MongoConnectionManager
 
 
 def _create_browser():
