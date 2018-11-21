@@ -3,10 +3,10 @@
 # NOTE: K8S and CEPH REPOS ARE MAINTAINED IN THEIR RESPECTIVE ROLES
 
 - import_tasks: offline.yml
-  when: offline is defined and offline
+#  when: offline is defined and offline
 
-- import_tasks: online.yml
-  when: not offline or (offline is defined and offline == false)
+#- import_tasks: online.yml
+#  when: not offline or (offline is defined and offline == false)
 
 - name: Disable RHEL License
   replace:    

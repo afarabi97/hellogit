@@ -60,14 +60,14 @@
       enabled: no
   tags: disable-firewall
 
-- name: Check for offline variable
-  hosts: localhost
-  gather_facts: no
-  tasks:
-    - name: Check if offline is defined
-      fail:
-        msg: 'Verify you have the offline group in your inventory file. It must be defined. See sample inventory.'
-      when: offline is not defined or offline is none
+#- name: Check for offline variable
+#  hosts: localhost
+#  gather_facts: no
+#  tasks:
+#    - name: Check if offline is defined
+#      fail:
+#        msg: 'Verify you have the offline group in your inventory file. It must be defined. See sample inventory.'
+#      when: offline is not defined or offline is none
 
 - name: Setup Repos
   hosts:

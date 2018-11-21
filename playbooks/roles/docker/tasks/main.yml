@@ -12,11 +12,12 @@
     enabled: true
 
 - import_tasks: offline.yml
-  when: offline is defined and offline
   tags: 
     - docker_images
 
-- import_tasks: online.yml
-  when: not offline or (offline is defined and offline == false)
+#when: offline is defined and offline
+
+#- import_tasks: online.yml
+#  when: not offline or (offline is defined and offline == false)
 
 ...

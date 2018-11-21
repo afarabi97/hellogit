@@ -2,24 +2,24 @@
 
 - name: Setup Ceph Repos
   block:
-    - name: Install ceph trusted key for RHEL
-      rpm_key:
-        state: present
-        key: https://download.ceph.com/keys/release.asc
-      when: not offline or (offline is defined and offline == false)
-        
-    - name: Configure Online Ceph repository
-      yum_repository:
-        name: "{{ item.value.name }}"
-        description: "{{ item.value.description }}"
-        baseurl: "{{ item.value.baseurl }}"
-        enabled: yes        
-        gpgcheck: "{{ item.value.gpgcheck }}"
-        gpgkey: "{{ item.value.gpgkey }}"
-        file: "ceph"
-        priority: 2
-      loop: "{{ lookup('dict', ceph_online) }}"
-      when: not offline or (offline is defined and offline == false)
+#    - name: Install ceph trusted key for RHEL
+#      rpm_key:
+#        state: present
+#        key: https://download.ceph.com/keys/release.asc
+#      when: not offline or (offline is defined and offline == false)
+#        
+#    - name: Configure Online Ceph repository
+#      yum_repository:
+#        name: "{{ item.value.name }}"
+#        description: "{{ item.value.description }}"
+#        baseurl: "{{ item.value.baseurl }}"
+#        enabled: yes        
+#        gpgcheck: "{{ item.value.gpgcheck }}"
+#        gpgkey: "{{ item.value.gpgkey }}"
+#        file: "ceph"
+#        priority: 2
+#      loop: "{{ lookup('dict', ceph_online) }}"
+#      when: not offline or (offline is defined and offline == false)
 
     - name: Configure Offline Ceph repository
       yum_repository:
@@ -31,7 +31,7 @@
         gpgkey: "{{ ceph_offline.gpgkey }}"
         file: "offline"
         priority: 2
-      when: offline is defined and offline
+#      when: offline is defined and offline
 
 - name: Yum Clean All
   shell: yum clean all
