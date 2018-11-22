@@ -85,7 +85,8 @@ def run_controller_interface_settings_section(browser) -> None:
     try:
         element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "controller_interface")))
         element.click()
-    except:
+    except Exception as e:
+        logging.exception(e)
         logging.critical("Could not find the controller interface. Exiting.")
         exit(0)
 
@@ -147,7 +148,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
 
     :return:
     """
-    with MongoConnectionManager() as mongo_manager:
+    with MongoConnectionManager(webserver_ip) as mongo_manager:
         mongo_manager.mongo_kickstart.drop()
         print(mongo_manager.mongo_kickstart)
 
@@ -317,6 +318,8 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
     nodes = kit_configuration.get_nodes()
     i = 0
     for node in nodes:
+        if node.type != "sensor" and node.type != "remote-sensor":
+            continue
 
         try:
             # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
@@ -327,33 +330,43 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
             element = browser.find_element_by_name("btn_host_sensor" + str(i))
             element.click()
 
-            if kit_configuration.use_ceph_for_pcap and node.type == "sensor" or True:  # TODO remove the true
+            if kit_configuration.use_ceph_for_pcap:
+                # TODO I automatically select the sdb drive but this is not the long term solution.
+                # This should setup so that we can specify which drives we wish to select in the yml file.
+                ceph_drive_ident = "ceph_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(i),
+                                                                                          drive_name='sdb')
                 element = WebDriverWait(browser, 10).until(
-                    EC.presence_of_element_located((By.NAME, "ceph_drives_sensor" + str(i))))
+                    EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
                 actions = ActionChains(browser)
                 actions.move_to_element(element).perform()
                 element.click()
             else:
+                # TODO I automatically select the sdb drive but this is not the long term solution.
+                # This should setup so that we can specify which drives we wish to select in the yml file.
+                pcap_drive_ident = "pcap_drives{sensor_index}_{drive_name}".format(sensor_index=str(i),
+                                                                                   drive_name='sdb')
                 element = WebDriverWait(browser, 10).until(
-                    EC.presence_of_element_located((By.NAME, "pcap_drives" + str(i))))
+                    EC.presence_of_element_located((By.NAME, pcap_drive_ident)))
                 actions = ActionChains(browser)
                 actions.move_to_element(element).perform()
                 element.click()
-        except:
-            pass
+        except Exception as e:
+            logging.exception(e)
 
-        x = 0
-        if node.type == "sensor":  # TODO remove the true
-            for interface in node.interfaces:
-                try:
-                    element = WebDriverWait(browser, 10).until(
-                        EC.presence_of_element_located((By.NAME, "monitor_interface" + str(x) + "_" + interface.mac_address)))
-                    actions = ActionChains(browser)
-                    actions.move_to_element(element).perform()
-                    element.click()
-                except:
-                    pass
-            x += 1
+        #TODO for now we assume that the monitor interface is always teh second one in the list.
+        #This should be fixed so that we can select a specific interface if say a box has more than two interfaces.
+        monitoring_interface = node.interfaces[1]
+        try:
+            monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
+                sensor_index=str(i), interface_name=monitoring_interface.name)
+            element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
+            actions = ActionChains(browser)
+            actions.move_to_element(element).perform()
+            element.click()
+        except Exception as e:
+            logging.exception(e)
+
         i += 1
 
 
@@ -381,12 +394,17 @@ def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
                 element = browser.find_element_by_name("is_master_server" + str(i))
                 element.click()
 
+            #TODO I automatically select the sdb drive but this is not the long term solution.
+            #This should setup so that we can specify which drives we wish to select in the yml file.
+            ceph_drive_ident = "ceph_drives_server{server_index}_{drive_name}".format(server_index=str(i),
+                                                                                      drive_name='sdb')
             element = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.NAME, "ceph_drives_server" + str(i))))
+                EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
             actions = ActionChains(browser)
             actions.move_to_element(element).perform()
             element.click()
             i = i + 1
+
 
 def run_execute_kit(browser) -> None:
     # Execute's Kickstart when all fields are configured
@@ -434,7 +452,7 @@ def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="
     :returns:
     """
 
-    with MongoConnectionManager() as mongo_manager:
+    with MongoConnectionManager(webserver_ip) as mongo_manager:
         mongo_manager.mongo_kit.drop()
 
     browser = _create_browser()  # type: selenium.webdriver.chrome.webdriver.WebDriver

@@ -9,8 +9,8 @@ class MongoConnectionManager(object):
     Managment class for handling mongo connections.
     """
 
-    def __init__(self):
-        self._client = MongoClient('mongodb://localhost:27017/')
+    def __init__(self, webserver_ip: str='localhost'):
+        self._client = MongoClient('mongodb://%s:27017/' % webserver_ip)
         self._tfplenum_database = self._client.tfplenum_database  # type: Database
 
     @property

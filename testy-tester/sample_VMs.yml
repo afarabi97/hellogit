@@ -1,38 +1,36 @@
 ---
 DI2E:
-  Username: "<USERNAME>"
-  Password: "<PASSWORD>"
+  Username: "yourusername"
+  Password: ""
   
 
 host_configuration:
   vcenter:
     ip_address: "172.16.20.106"
-    username: "USERNAME"
-    password: "PASSWORD"
+    username: "username@sil.local"
+    password: ""
     datacenters: "SIL_Datacenter"
-    cluster_name: "SIL_Cluster"
+    cluster_name: "SIL_Dev_Cluster"
 
 kits:
   kit_1:
 
     kickstart_configuration:
 
-        dhcp_start: "172.16.73.100"
-        dhcp_end: "172.16.73.110"
+        dhcp_start: "172.16.77.100"
+        dhcp_end: "172.16.77.110"
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
-        gateway: "172.16.73.1"
+        gateway: "172.16.77.1"
 
-        root_password: "PASSWORD"
+        root_password: "we.are.tfplenum"
 
     kit_configuration:
-
-        use_ceph_for_pcap: True
+        use_ceph_for_pcap: false
 
         # Only fill this in if use_ceph_for_pcap is true
         moloch_pcap_storage_percentage:
-
         elasticsearch_cpu_percentage:
         elasticsearch_ram_percentage:
         logstash_server_cpu_percentage:
@@ -40,11 +38,10 @@ kits:
         es_storage_space_percentage:
 
         # Kubernetes cidr will probably be different on a per kit basis
-        kubernetes_cidr: "172.16.73.112"
+        kubernetes_cidr: "172.16.77.112"
 
         home_nets:
-          - "172.16.73.0/24"
-          - "192.168.1.0/24"
+            - "172.16.77.0/24"
 
         # This is optional - you can fill it in if you need to
         external_nets:
@@ -55,17 +52,17 @@ kits:
         suricata_cpu_percentage:
         zookeeper_cpu_percentage:
 
-        ideal_es_cpus_per_instance: 6
+        ideal_es_cpus_per_instance:
         es_cpu_to_memory_ratio_default:
 
     VM_settings:
         username: "root"
-        password: "PASSWORD"
+        password: "we.are.tfplenum"
 
         VMs:
 
           # Note: You should not have more than one of these
-          test_controller.lan:
+          dnav_controller.lan:
 
             type: "controller" # Can be controller, sensor, or server
 
@@ -74,30 +71,34 @@ kits:
             # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
-
-            vm_to_clone: "DO NOT TURN ON Master Controller (RHEL)"
-            cloned_vm_name: "Test Controller"
+            vm_to_clone: "Test Template"
+            cloned_vm_name: "dnav_controller.lan"
 
             username: "root"
-            password: "PASSWORD"
-
+            password: "we.are.tfplenum"
+            domain: 'sil.local'
+            gateway: "172.16.77.1"
+            dns:
+              - "172.16.77.1"
+              - "8.8.8.8"
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Cluster"
+              cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Curell"
+              folder: "Navarro"
             networking:
               std_portgroup_name: "VM Network"
               nics:
                 management_nic:
                   type: "manual" # This can be auto, manual, or link-local
-                  ip_address: "172.16.73.22"
+                  ip_address: "172.16.77.60"
+                  subnet_mask: "255.255.255.0"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: "" # This is ignored if mac_auto_generated is true
-                  dv_portgroup_name: "73 Portgroup"
+                  dv_portgroup_name: "77 Portgroup"
                   std_portgroup_name:
             cpu_spec:
               sockets: 2
@@ -114,32 +115,32 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          tfserver1.lan:
+          dnavtfserver1.lan:
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Cluster"
+              cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Curell"
+              folder: "Navarro"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.73.40"
+                  ip_address: "172.16.77.51"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "73 Portgroup"
+                  dv_portgroup_name: "77 Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 16
+              sockets: 12
               cores_per_socket: 4
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 64
+              size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
             disks:
@@ -150,24 +151,24 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          tfserver2.lan:
+          dnavtfserver2.lan:
             type: "server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Cluster"
+              cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Curell"
+              folder: "Navarro"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.73.41"
+                  ip_address: "172.16.77.52"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "73 Portgroup"
+                  dv_portgroup_name: "77 Portgroup"
                   std_portgroup_name:
             cpu_spec:
               sockets: 16
@@ -175,7 +176,7 @@ kits:
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 64
+              size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
             disks:
@@ -186,24 +187,24 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          tfsensor1.lan:
+          dnavtfsensor1.lan:
             type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Cluster"
+              cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Curell"
+              folder: "Navarro"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.73.50"
+                  ip_address: "172.16.77.53"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "73 Portgroup"
+                  dv_portgroup_name: "77 Portgroup"
                   std_portgroup_name:
                 ens224:
                   type: "manual"
@@ -215,12 +216,12 @@ kits:
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 16
+              sockets: 12
               cores_per_socket: 1
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 64
+              size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
             disks:
@@ -231,24 +232,24 @@ kits:
             - "CDROM"
             - "DISK"
             - "ETHERNET"
-          tfsensor2.lan:
+          dnavtfsensor2.lan:
             type: "remote-sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Cluster"
+              cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Curell"
+              folder: "Navarro"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.73.51"
+                  ip_address: "172.16.77.54"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "73 Portgroup"
+                  dv_portgroup_name: "77 Portgroup"
                   std_portgroup_name:
                 ens224:
                   type: "manual"
@@ -260,12 +261,12 @@ kits:
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 16
+              sockets: 12
               cores_per_socket: 1
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 64
+              size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
             disks:
