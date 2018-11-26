@@ -76,15 +76,21 @@ def _run_system_settings_section(kickstart_configuration: KickstartConfiguration
     element.send_keys(kickstart_configuration.root_password)
 
 
-def run_controller_interface_settings_section(browser) -> None:
+def run_controller_interface_settings_section(nodes: list, browser) -> None:
     """
     Using selenium this fucntion test the elements in the Controller Interface Settings Section
 
     :returns:
     """
     try:
-        element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "controller_interface")))
-        element.click()
+        i = 0
+        for node in nodes:
+            if node.type == "controller":
+                element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "controller_interface_" + node.management_interface.ip_address)))
+                element.click()
+            else:
+                logging.debug("Not a controller")
+            i = i + 1
     except Exception as e:
         logging.exception(e)
         logging.critical("Could not find the controller interface. Exiting.")
@@ -167,7 +173,7 @@ def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration,
     _run_system_settings_section(kickstart_configuration, browser)
 
     # Controller Interface Settings Section
-    run_controller_interface_settings_section(browser)
+    run_controller_interface_settings_section(nodes, browser)
 
     # Add Node Section
     _run_add_node_section(nodes, browser)
