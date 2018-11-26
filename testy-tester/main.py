@@ -130,14 +130,16 @@ def main():
         logging.info("Waiting for base rhel vm to boot...")
         test_vms_up_and_alive(kit, vms_to_test)
 
-        ctrl_modifier = ControllerModifier(controller_node)
-        ctrl_modifier.make_controller_changes()
+
 
         logging.info("Downloading controller bootstrap...")
         get_bootstrap(controller_node, di2e_username, di2e_password)
 
         logging.info("Running controller bootstrap...")
         run_bootstrap(controller_node, di2e_username, di2e_password)
+
+        ctrl_modifier = ControllerModifier(controller_node)
+        ctrl_modifier.make_controller_changes()
 
         logging.info("Running frontend")
         logging.info("Configuring Kickstart")
