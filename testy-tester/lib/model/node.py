@@ -142,6 +142,10 @@ class NodeDisk(object):
 
 
 class Node(object):
+
+    #A static list of valid node types that are allowed
+    valid_node_types = ("master-server", "remote-sensor", "controller", "sensor", "server")
+
     """
     Represents a single node object such as a controller, server or sensor
 
@@ -151,8 +155,7 @@ class Node(object):
         username: Username for login
         password: Password for login
         guestos: Th operating system used such as RHEL_7_64
-        vm_to_clone: The name of the virtual machine to clone
-        cloned_vm_name: The name of the virtual machine cloned from
+        vm_to_clone: The name of the virtual machine to clone        
         storage_datacenter: The datacenter on which to store th VM
         storage_cluster: The cluster in which to store th VM
         storage_datastore: The specific datastore in which to store the VM
@@ -169,8 +172,10 @@ class Node(object):
         boot_order: A list of boot devices from which the VM may boot
         boot_drive (str): The name of the bootable disk
         management_interface: The Interface object for the management interface
+        ceph_drives (List): A list of ceph drives that we wish to select for the configuration.
+        pcap_drives (List): A list of ceph drives that we wish to select during our kit configuration.
+        monitoring_ifaces (List): A list of monitoring interfaces that will be selected during kit configuration.
     """
-
     def __init__(self, hostname: str, node_type: str) -> None:
         """
         Initializes a node object
@@ -181,12 +186,17 @@ class Node(object):
         """
         self.hostname = hostname
         self.domain = None
-        self.type = node_type
+
+        if node_type in Node.valid_node_types:
+            self.type = node_type
+        else:
+            print("Node type %s is invalid for run." % node_type)
+            exit(1)
+
         self.username = None
         self.password = None
         self.guestos = None
         self.vm_to_clone = None
-        self.cloned_vm_name = None
         self.storage_datacenter = None
         self.storage_cluster = None
         self.storage_datastore = None
@@ -204,6 +214,18 @@ class Node(object):
         self.interfaces = None
         self.gateway = None
         self.dns_list = None
+        self.ceph_drives = None
+        self.pcap_drives = None
+        self.monitoring_ifaces = None
+
+    def set_vm_to_clone(self, vm_to_clone: str) -> None:
+        """
+        Sets the vm to clone name.
+
+        :param vm_to_clone:
+        :return:
+        """
+        self.vm_to_clone = vm_to_clone
 
     def set_gateway(self, gateway: str) -> None:
         """
@@ -257,17 +279,6 @@ class Node(object):
         :return:
         """
         self.guestos = guestos
-
-    def set_vm_clone_options(self, vm_to_clone: str, cloned_vm_name: str) -> None:
-        """
-        Sets the virtual machine options
-
-        :param vm_to_clone: Name of Virtual Machine to clone
-        :param cloned_vm_name: Name of cloned Virtual Machine
-        :return:
-        """
-        self.vm_to_clone = vm_to_clone
-        self.cloned_vm_name = cloned_vm_name
 
     def set_storage_options(self, datacenter: str, cluster: str, datastore: str, folder: str) -> None:
         """
@@ -346,6 +357,33 @@ class Node(object):
         :return:
         """
         self.boot_drive = boot_drive
+
+    def set_ceph_drives(self, ceph_drives: List[str]) -> None:
+        """
+        Sets the ceph_drives for the node in question.
+
+        :param ceph_drives:
+        :return:
+        """
+        self.ceph_drives = ceph_drives
+
+    def set_pcap_drives(self, pcap_drives: List[str]) -> None:
+        """
+        Sets the pcap_drives for the node.
+
+        :param pcap_drives:
+        :return:
+        """
+        self.pcap_drives = pcap_drives
+
+    def set_monitoring_ifaces(self, monitoring_ifaces: List[str]) -> None:
+        """
+        Sets the monitoring interfaces list.
+
+        :param monitoring_ifaces:
+        :return:
+        """
+        self.monitoring_ifaces = monitoring_ifaces
 
     def set_boot_order(self, boot_order: list) -> None:
         """

@@ -259,7 +259,7 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
 
 def change_ip_address(configuration: OrderedDict, node: Node):
     service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
-    vm = get_vm_by_name(service_instance, node.cloned_vm_name)
+    vm = get_vm_by_name(service_instance, node.hostname)
 
     if vm.runtime.powerState != 'poweredOff':
         print("WARNING:: Power off your VM before reconfigure")
@@ -305,7 +305,7 @@ def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bo
     """
     service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
     content = service_instance.RetrieveContent()
-    vm = get_vm_by_name(service_instance, node.cloned_vm_name)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
+    vm = get_vm_by_name(service_instance, node.hostname)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
 
     if vm.runtime.powerState != 'poweredOff':
         print("WARNING:: Power off your VM before reconfigure")
@@ -391,7 +391,7 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     if controller.storage_folder is not None:
         wait_for_task(
             template_vm.Clone(
-                name=controller.cloned_vm_name,
+                name=controller.hostname,
                 folder=get_folder(s, controller.storage_folder), 
                 spec=clone_spec))
     else:
@@ -399,13 +399,13 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
         # as the parent
         wait_for_task(
             template_vm.Clone(
-                name=controller.cloned_vm_name, 
+                name=controller.hostname,
                 folder=template_vm.parent, 
                 spec=clone_spec))
     Disconnect(s)
 
 
-def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> list:
+def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 

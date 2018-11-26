@@ -1,32 +1,31 @@
 ---
 DI2E:
-  Username: "yourusername"
+  Username: "user.name"
   Password: ""
   
 
 host_configuration:
   vcenter:
     ip_address: "172.16.20.106"
-    username: "username@sil.local"
+    username: "user.name@sil.local"
     password: ""
     datacenters: "SIL_Datacenter"
     cluster_name: "SIL_Dev_Cluster"
 
 kits:
   kit_1:
-
     kickstart_configuration:
-
         dhcp_start: "172.16.77.100"
         dhcp_end: "172.16.77.110"
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
         gateway: "172.16.77.1"
-
-        root_password: "we.are.tfplenum"
+        # Note root_password is specified under VM_settings.
 
     kit_configuration:
+        # The branch we want to pull from.
+        branch_name: devel
         use_ceph_for_pcap: false
 
         # Only fill this in if use_ceph_for_pcap is true
@@ -56,14 +55,9 @@ kits:
         es_cpu_to_memory_ratio_default:
 
     VM_settings:
-        username: "root"
-        password: "we.are.tfplenum"
-
         VMs:
-
           # Note: You should not have more than one of these
           dnav_controller.lan:
-
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -72,10 +66,6 @@ kits:
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
             vm_to_clone: "Test Template"
-            cloned_vm_name: "dnav_controller.lan"
-
-            username: "root"
-            password: "we.are.tfplenum"
             domain: 'sil.local'
             gateway: "172.16.77.1"
             dns:
@@ -143,6 +133,8 @@ kits:
               size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
+            ceph_drives:
+              - sdb
             disks:
               boot: 20
               ceph: 20
@@ -179,6 +171,8 @@ kits:
               size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
+            ceph_drives:
+              - sdb
             disks:
               boot: 20
               ceph: 20
@@ -224,6 +218,16 @@ kits:
               size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
+            # Selects the ceph or pcap drives we will use during kit configuration
+            # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
+            # otherwise you should use pcap_drives instead.
+#            ceph_drives:
+#              - sdb
+            pcap_drives:
+              - sdb
+            # Selects the monitoring interfaces we will use during kit configuration.
+            monitoring_ifaces:
+              - ens224
             disks:
               boot: 20
               ceph: 20
@@ -269,6 +273,16 @@ kits:
               size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
+            # Selects the ceph or pcap drives we will use during kit configuration
+            # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
+            # otherwise you should use pcap_drives instead.
+#            ceph_drives:
+#              - sdb
+            pcap_drives:
+              - sdb
+            # Selects the monitoring interfaces we will use during kit configuration.
+            monitoring_ifaces:
+              - ens224
             disks:
               boot: 20
               ceph: 20

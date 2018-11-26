@@ -22,6 +22,3 @@ class KickstartConfiguration():
 
     def set_netmask(self, netmask: str) -> None:
         self.netmask = netmask
-
-    def set_root_password(self, root_password: str) -> None:
-        self.root_password = root_password

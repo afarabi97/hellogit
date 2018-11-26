@@ -8,17 +8,17 @@ import sys
 import logging
 import os
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address)
-from lib.util import get_controller, configure_deployer, test_vms_up_and_alive, build_tfplenum, transform, \
-    get_interface_names, get_bootstrap, run_bootstrap
+from lib.util import (get_controller, test_vms_up_and_alive, transform,
+    get_interface_names, get_bootstrap, run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
-from typing import List
+from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
 
 
@@ -34,63 +34,149 @@ def is_valid_file(path: str) -> bool:
     return False
 
 
-def argparse() -> str:
-    """
-    Parses the arguments passed in by the user and
-    returns the path to the file that is getting processed.
-    
-    If the file does not exist the program will terminate in this
-    function.
+class Runner:
 
-    :return: The path to the yaml file on success
-    """
-    parser = ArgumentParser(description="Testy tester is the application where you can test your Kit Configuration.")
-    parser.add_argument("-p", "--path", dest="filename", required=True,
-                        help="Input yaml configuration file", metavar="FILE")
-    args = parser.parse_args()
-    if not is_valid_file(args.filename):
-        parser.error("The file %s does not exist!" % args.filename)
+    def __init__(self):
+        self.args = None  # type: Namespace
+        self.di2e_password = None  # type: str
+        self.di2e_username = None  # type: str
+        self.kits = None  # type: List[Kit]
+        self.configuration = None  # type: Dict
+        self.controller_node = None  # type: Node
+        self.vsphere_client = None  # type: VsphereClient
 
-    return args.filename
+    def _parse_args(self):
+        """
+        Parses the arguments passed in by the user and
+        returns the path to the file that is getting processed.
 
+        If the file does not exist the program will terminate in this
+        function.
 
-def main():
-    config_path = argparse()
-    kit_builder = logging.getLogger()
-    kit_builder.setLevel(logging.INFO)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    kit_builder.addHandler(ch)
+        :return: The path to the yaml file on success
+        """
+        parser = ArgumentParser(
+            description="Testy tester is the application where you can test your Kit Configuration.")
+        parser.add_argument("-p", "--path", dest="filename", required=True,
+                            help="Input yaml configuration file", metavar="FILE")
+        parser.add_argument('--run-all', dest='run_all', action='store_true')
+        parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
+        parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
+        parser.add_argument('--run-kit', dest='run_kit', action='store_true')
+        parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
+        args = parser.parse_args()
+        if not is_valid_file(args.filename):
+            parser.error("The file %s does not exist!" % args.filename)
+        self.args = args
 
-    # Python dicts do not preserve order so we must use an ordered dictionary
-    # If using 3.7+ this is not an issue as it is the default behavior
-    configuration = OrderedDict()  # type: OrderedDict
+    def _setup_logging(self):
+        """
+        Sets up the logger for this runner.
 
-    with open(config_path, 'r') as kit_schema:
-        try:
-            configuration = yaml.load(kit_schema)
-            di2e_username = configuration["DI2E"]["Username"]
-            di2e_password = configuration["DI2E"]["Password"]
+        :return:
+        """
+        kit_builder = logging.getLogger()
+        kit_builder.setLevel(logging.INFO)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        kit_builder.addHandler(ch)
 
-            # Returns a list of kit objects
-            kits = transform(configuration["kits"])  # type: List[Kit]
-        except yaml.YAMLError as exc:
-            print(exc)
+    def _parse_config(self):
+        """
+        Parses the config file and sets up some class variables which
+        are used in other private functions.
 
-    vsphere_client = create_client(configuration)  # type: VsphereClient
+        :return:
+        """
+        # Python dicts do not preserve order so we must use an ordered dictionary
+        # If using 3.7+ this is not an issue as it is the default behavior
+        with open(self.args.filename, 'r') as kit_schema:
+            try:
+                self.configuration = yaml.load(kit_schema)
+                self.di2e_username = self.configuration["DI2E"]["Username"]
+                self.di2e_password = self.configuration["DI2E"]["Password"]
 
-    for kit in kits:
-        controller_node = get_controller(kit)  # type: Node
+                # Returns a list of kit objects
+                self.kits = transform(self.configuration["kits"])  # type: List[Kit]
+            except yaml.YAMLError as exc:
+                print(exc)
 
-        logging.info("Creating VMs...")
-        vms = create_vms(kit, vsphere_client)  # , iso_folder_path)  # type: list
+    def _perform_bootstrap(self, kit: Kit):
+        """
+        Executes the bootstrap logic needed to setup a fully functional controller.
 
+        :param Kit:
+        :return:
+        """
+        logging.info("Downloading controller bootstrap...")
+        get_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name)
+
+        logging.info("Running controller bootstrap...")
+        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name)
+
+        ctrl_modifier = ControllerModifier(self.controller_node)
+        ctrl_modifier.make_controller_changes()
+
+    def _setup_controller(self, kit: Kit):
+        """
+        Does everything that is needed to setup a fully functional controller.
+        It deletes the controller if it already exists before cloning from a template.
+        After which it configured networking based on the passed in yaml file.
+
+        :param kit:
+        :return:
+        """
+        if not self.args.setup_controller and not self.args.run_all:
+            return
+
+        logging.info("Deleting controller....")
+        delete_vm(self.vsphere_client, self.controller_node.hostname)
+
+        logging.info("Cloning base rhel template for controller....")
+        clone_vm(self.configuration, self.controller_node)
+
+        logging.info("Changing controller portgroup and IP Address...")
+        change_network_port_group(self.configuration, self.controller_node)
+        change_ip_address(self.configuration, self.controller_node)
+
+        logging.info("Powering the controller")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/")
+        ctrl_vm.power_on()
+
+        logging.info("Waiting for controller to become alive...")
+        test_vms_up_and_alive(kit, [self.controller_node], 20)
+        self._perform_bootstrap(kit)
+
+    def _power_on_vms(self, vms: List[VirtualMachine]):
+        """
+        Powers on a list of passed in vms.
+
+        :param vms:
+        :return:
+        """
         logging.info("Grabbing management MAC addresses")
         for vm in vms:
             vm.power_on()
 
+    def _power_off_vms(self, vms: List[VirtualMachine]):
+        """
+        Powers off a list of passed in vms.
+
+        :param vms:
+        :return:
+        """
+        for vm in vms:
+            vm.power_off()
+
+    def _set_vm_macs(self, vms: List[VirtualMachine]):
+        """
+        Sets the mac addresses of a list of powered on vms.
+
+        :param vms:
+        :return:
+        """
         for vm in vms:
             print(vm.get_node_instance().hostname)
             macs = vm.get_macs()  # type: OrderedDict
@@ -108,62 +194,80 @@ def main():
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
-            vm.power_off()
+    def _run_kickstart(self, kit: Kit):
+        """
+        Performs the needed operations to Kickstart any and all vms mentions in
+        the passed in kit.
 
-        logging.info("Deleting controller....")
-        delete_vm(vsphere_client, controller_node.cloned_vm_name)
+        :param kit:
+        :return:
+        """
+        if not self.args.run_kickstart and not self.args.run_all:
+            return
 
-        logging.info("Cloning base rhel template for controller....")
-        clone_vm(configuration, controller_node)
+        logging.info("Creating VMs...")
+        vms = create_vms(kit, self.vsphere_client)  # , iso_folder_path)  # type: list
+        self._power_on_vms(vms)
+        self._set_vm_macs(vms)
+        self._power_off_vms(vms)
 
-        change_network_port_group(configuration, controller_node)
-        change_ip_address(configuration, controller_node)
-
-        ctrl_vm = VirtualMachine(vsphere_client, controller_node, "/root/")
-        ctrl_vm.power_on()
-
-        vms_to_test = []  # type: List[Node]
-        for node in kit.nodes:
-            if node.type == "controller":
-                vms_to_test.append(node)
-
-        logging.info("Waiting for base rhel vm to boot...")
-        test_vms_up_and_alive(kit, vms_to_test)
-
-
-
-        logging.info("Downloading controller bootstrap...")
-        get_bootstrap(controller_node, di2e_username, di2e_password)
-
-        logging.info("Running controller bootstrap...")
-        run_bootstrap(controller_node, di2e_username, di2e_password)
-
-        ctrl_modifier = ControllerModifier(controller_node)
-        ctrl_modifier.make_controller_changes()
-
-        logging.info("Running frontend")
         logging.info("Configuring Kickstart")
-        run_kickstart_configuration(kit.kickstart_configuration, kit.get_nodes(), controller_node.management_interface.ip_address)
+        run_kickstart_configuration(kit, self.controller_node.management_interface.ip_address)
+        self._power_on_vms(vms)
 
-        logging.info("Configuring deployer...")
-        configure_deployer(kit, controller_node)
+        logging.info("Waiting for servers and sensors to become alive...")
+        test_vms_up_and_alive(kit, kit.nodes, 30)
 
-        logging.info("Powering VMs on...")
-        for vm in vms:
-            vm.power_on()
+    def _run_kit(self, kit: Kit):
+        """
+        Performs the needed operations to run a kit assuming kickstart has already run, etc.
 
-        vms_to_test = []  # type: List[Node]
+        :param kit:
+        :return:
+        """
+        if not self.args.run_kit and not self.args.run_all:
+            return
 
-        for node in kit.nodes:
-            if node.type != "controller":
-                vms_to_test.append(node)
-
-        test_vms_up_and_alive(kit, vms_to_test)
+        logging.info("Waiting for servers and sensors to start up.")
+        test_vms_up_and_alive(kit, kit.nodes, 30)
         get_interface_names(kit)
         logging.info("Run TFPlenum configuration")
-        run_tfplenum_configuration(kit, controller_node.management_interface.ip_address, "4200")
-        #TODO we need logic here to wait for the cluter to come up or time out after a period of time.
-        #We should also run the cluster integration tests from the system health page.
+        run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, "4200")
+
+    def _run_integration(self, kit: Kit):
+        """
+        Runs the integration tests.
+
+        :param kit:
+        :return:
+        """
+        if not self.args.run_integration_tests and not self.args.run_all:
+            return
+
+        perform_integration_tests(self.controller_node, kit.password)
+
+    def execute(self):
+        """
+        Does the full or partial execution of cluster setup, and integration tests.
+
+        :return:
+        """
+        self._parse_args()
+        self._setup_logging()
+        self._parse_config()
+        self.vsphere_client = create_client(self.configuration)  # type: VsphereClient
+
+        for kit in self.kits:
+            self.controller_node = get_controller(kit)  # type: Node
+            self._setup_controller(kit)
+            self._run_kickstart(kit)
+            self._run_kit(kit)
+            self._run_integration(kit)
+
+
+def main():
+    runner = Runner()
+    runner.execute()
 
 
 if __name__ == '__main__':

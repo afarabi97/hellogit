@@ -6,7 +6,7 @@
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -63,17 +63,17 @@ def _run_static_interface_settings_section(kickstart_configuration: KickstartCon
     element.send_keys(kickstart_configuration.netmask)
 
 
-def _run_system_settings_section(kickstart_configuration: KickstartConfiguration, browser) -> None:
+def _run_system_settings_section(root_password: str, browser) -> None:
     """
     Using selenium this fucntion test the elements in the System Settings Section
 
     :returns:
     """
     element = browser.find_element_by_name("root_password")
-    element.send_keys(kickstart_configuration.root_password)
+    element.send_keys(root_password)
 
     element = browser.find_element_by_name("re_password")
-    element.send_keys(kickstart_configuration.root_password)
+    element.send_keys(root_password)
 
 
 def run_controller_interface_settings_section(nodes: list, browser) -> None:
@@ -147,44 +147,81 @@ def _run_add_node_section(nodes: list, browser) -> None:
             i = i + 1
 
 
-def run_kickstart_configuration(kickstart_configuration: KickstartConfiguration, nodes: list, webserver_ip: str, port="443") -> None:
+def wait_for_mongo_job(job_name: str, mongo_ip: str, minutes_timeout: int):
+    """
+    Connects to a mongo database and waits for a specific job name to complete.
 
+    Example record in mongo it is looking for:
+    { "_id" : "Kickstart", "return_code" : 0, "date_completed" : "2018-11-27 22:24:07", "message" : "Successfully executed job." }
+
+    :param job_name: The name of the job.
+    :param mongo_ip: The IP Address of the mongo instance.
+    :param timeout: The timeout in minutes.
+    :return:
+    """
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
+    with MongoConnectionManager(mongo_ip) as mongo_manager:
+        while True:
+            if future_time <= datetime.utcnow():
+                logging.error("The {} took way too long.".format(job_name))
+                exit(3)
+
+            result = mongo_manager.mongo_last_jobs.find_one({"_id": job_name})
+            if result:
+                if result["return_code"] != 0:
+                    logging.error(
+                        "{name} failed with message: {message}".format(name=result["_id"], message=result["message"]))
+                    exit(2)
+                else:
+                    logging.info("{name} Job completed successfully".format(name=job_name))
+                break
+            else:
+                logging.info("Waiting for {} to complete sleeping 5 seconds then rechecking.".format(job_name))
+                time.sleep(5)
+
+
+def run_kickstart_configuration(kit: Kit, webserver_ip: str) -> None:
     """
     Runs the frontend's kickstart configuration.
 
+    :param kit:
+    :param webserver_ip:
     :return:
     """
     with MongoConnectionManager(webserver_ip) as mongo_manager:
         mongo_manager.mongo_kickstart.drop()
-        print(mongo_manager.mongo_kickstart)
+        mongo_manager.mongo_last_jobs.drop()
 
+    kickstart_configuration = kit.kickstart_configuration
+    nodes = kit.get_nodes()
     browser = _create_browser()
+    try:
+        # Use selenium with beautiful soup to get the text from each of the examples
+        browser.get("https://" + webserver_ip + "/kickstart")
 
-    # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("https://" + webserver_ip + "/kickstart")
+        # DHCP Settings Section
+        _run_DHCP_settings_section(kickstart_configuration, browser)
 
-    # DHCP Settings Section
-    _run_DHCP_settings_section(kickstart_configuration, browser)
+        # Static Interface Settings Section
+        _run_static_interface_settings_section(kickstart_configuration, browser)
 
-    # Static Interface Settings Section
-    _run_static_interface_settings_section(kickstart_configuration, browser)
+        # System Settings Section
+        _run_system_settings_section(kit.password, browser)
 
-    # System Settings Section
-    _run_system_settings_section(kickstart_configuration, browser)
+        # Controller Interface Settings Section
+        run_controller_interface_settings_section(nodes, browser)
 
-    # Controller Interface Settings Section
-    run_controller_interface_settings_section(nodes, browser)
+        # Add Node Section
+        _run_add_node_section(nodes, browser)
 
-    # Add Node Section
-    _run_add_node_section(nodes, browser)
-
-    # Execute's Kickstart when all fields are configured
-    element = browser.find_element_by_name("execute_kickstart")
-    element.click()
-
-    # will close out of the driver and allow for the process to be killed
-    # if you wish to keep the browser up comment out this line
-    #browser.quit()
+        # Execute's Kickstart when all fields are configured
+        element = browser.find_element_by_name("execute_kickstart")
+        element.click()
+        wait_for_mongo_job("Kickstart", webserver_ip, 30)
+    finally:
+        # will close out of the driver and allow for the process to be killed
+        # if you wish to keep the browser up comment out this line
+        browser.quit()
 
 
 def run_global_setting_section(kit_configuration: Kit, browser) -> None:
@@ -337,41 +374,37 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
             element.click()
 
             if kit_configuration.use_ceph_for_pcap:
-                # TODO I automatically select the sdb drive but this is not the long term solution.
-                # This should setup so that we can specify which drives we wish to select in the yml file.
-                ceph_drive_ident = "ceph_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(i),
-                                                                                          drive_name='sdb')
-                element = WebDriverWait(browser, 10).until(
-                    EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
-                actions = ActionChains(browser)
-                actions.move_to_element(element).perform()
-                element.click()
+                for drive_name in node.ceph_drives:
+                    ceph_drive_ident = "ceph_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(i),
+                                                                                              drive_name=drive_name)
+                    element = WebDriverWait(browser, 10).until(
+                        EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
+                    actions = ActionChains(browser)
+                    actions.move_to_element(element).perform()
+                    element.click()
             else:
-                # TODO I automatically select the sdb drive but this is not the long term solution.
-                # This should setup so that we can specify which drives we wish to select in the yml file.
-                pcap_drive_ident = "pcap_drives{sensor_index}_{drive_name}".format(sensor_index=str(i),
-                                                                                   drive_name='sdb')
-                element = WebDriverWait(browser, 10).until(
-                    EC.presence_of_element_located((By.NAME, pcap_drive_ident)))
-                actions = ActionChains(browser)
-                actions.move_to_element(element).perform()
-                element.click()
+                for drive_name in node.pcap_drives:
+                    pcap_drive_ident = "pcap_drives{sensor_index}_{drive_name}".format(sensor_index=str(i),
+                                                                                       drive_name=drive_name)
+                    element = WebDriverWait(browser, 10).until(
+                        EC.presence_of_element_located((By.NAME, pcap_drive_ident)))
+                    actions = ActionChains(browser)
+                    actions.move_to_element(element).perform()
+                    element.click()
         except Exception as e:
             logging.exception(e)
 
-        #TODO for now we assume that the monitor interface is always teh second one in the list.
-        #This should be fixed so that we can select a specific interface if say a box has more than two interfaces.
-        monitoring_interface = node.interfaces[1]
-        try:
-            monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
-                sensor_index=str(i), interface_name=monitoring_interface.name)
-            element = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()
-        except Exception as e:
-            logging.exception(e)
+        for iface_name in node.monitoring_ifaces:
+            try:
+                monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
+                    sensor_index=str(i), interface_name=iface_name)
+                element = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
+                actions = ActionChains(browser)
+                actions.move_to_element(element).perform()
+                element.click()
+            except Exception as e:
+                logging.exception(e)
 
         i += 1
 
@@ -400,15 +433,14 @@ def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
                 element = browser.find_element_by_name("is_master_server" + str(i))
                 element.click()
 
-            #TODO I automatically select the sdb drive but this is not the long term solution.
-            #This should setup so that we can specify which drives we wish to select in the yml file.
-            ceph_drive_ident = "ceph_drives_server{server_index}_{drive_name}".format(server_index=str(i),
-                                                                                      drive_name='sdb')
-            element = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
-            actions = ActionChains(browser)
-            actions.move_to_element(element).perform()
-            element.click()
+            for drive_name in node.ceph_drives:
+                ceph_drive_ident = "ceph_drives_server{server_index}_{drive_name}".format(server_index=str(i),
+                                                                                          drive_name=drive_name)
+                element = WebDriverWait(browser, 10).until(
+                    EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
+                actions = ActionChains(browser)
+                actions.move_to_element(element).perform()
+                element.click()
             i = i + 1
 
 
@@ -460,26 +492,20 @@ def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="
 
     with MongoConnectionManager(webserver_ip) as mongo_manager:
         mongo_manager.mongo_kit.drop()
+        mongo_manager.mongo_last_jobs.drop()
 
     browser = _create_browser()  # type: selenium.webdriver.chrome.webdriver.WebDriver
-
-    # Use selenium with beautiful soup to get the text from each of the examples
-    browser.get("https://" + webserver_ip + "/kit_configuration")
-
-
-    # Global Settings Section
-    run_global_setting_section(kit_configuration, browser)
-
-    # Gather fact on sensor and server
-    run_total_server_resources_section(kit_configuration, browser)
-
-    # Total Sensor Resources Section
-    run_total_sensor_resources_section(kit_configuration, browser)
-
-    # Execute's Kickstart when all fields are configured
-    run_execute_kit(browser)
-
-    # will close out of the driver and allow for the process to be killed
-    # if you wish to keep the browser up comment out this line
-    # browser.quit()
-    time.sleep(500000000)
+    try:
+        # Use selenium with beautiful soup to get the text from each of the examples
+        browser.get("https://" + webserver_ip + "/kit_configuration")
+        run_global_setting_section(kit_configuration, browser)
+        # Gather fact on sensor and server
+        run_total_server_resources_section(kit_configuration, browser)
+        run_total_sensor_resources_section(kit_configuration, browser)
+        # Execute's Kickstart when all fields are configured
+        run_execute_kit(browser)
+        wait_for_mongo_job("Kit", webserver_ip, 60)
+    finally:
+        # will close out of the driver and allow for the process to be killed
+        # if you wish to keep the browser up comment out this line
+        browser.quit()

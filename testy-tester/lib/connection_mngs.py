@@ -68,6 +68,13 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.console
 
     @property
+    def mongo_last_jobs(self) -> Collection:
+        """
+        Returns a mongo object that can do manipulate the last jobs completed by the system.
+        """
+        return self._tfplenum_database.last_jobs
+
+    @property
     def mongo_portal(self) -> Collection:
         """
         Returns a mongo object that can do database manipulations.

@@ -16,6 +16,7 @@ class Kit(object):
         nodes (list): A list of the VM nodes which are a part of the kit
         kubernetes_cidr (str): See frontend help page
         use_ceph_for_pcap (bool): See frontend help page
+        branch_name (str): The name of the branch.
         moloch_pcap_storage_percentage (int): See frontend help page
         elasticsearch_cpu_percentage (int): See frontend help page
         elasticsearch_ram_percentage (int): See frontend help page
@@ -53,6 +54,9 @@ class Kit(object):
 
     def set_use_ceph_for_pcap(self, use_ceph_for_pcap: bool) -> None:
         self.use_ceph_for_pcap = use_ceph_for_pcap
+
+    def set_branch_name(self, branch_name: str) -> None:
+        self.branch_name = branch_name
 
     def set_moloch_pcap_storage_percentage(self, moloch_pcap_storage_percentage: int) -> None:
         self.moloch_pcap_storage_percentage = moloch_pcap_storage_percentage

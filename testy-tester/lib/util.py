@@ -2,13 +2,16 @@ from collections import OrderedDict
 from time import sleep
 from lib.ssh import SSH_client
 from fabric import Connection
-from jinja2 import DebugUndefined, Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 import os.path
 from lib.model.kit import Kit
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node, Interface, NodeDisk
+from urllib.parse import quote
 from typing import List
 import logging
+from lib.connection_mngs import FabricConnectionWrapper
+from datetime import datetime, timedelta
 
 
 def todict(obj: object, classkey=None) -> dict:
@@ -70,35 +73,45 @@ def get_controller(kit: Kit) -> Node:
     return controller
 
 
-def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
+def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str) -> None:
     """
     Download bootstrap script from DI2E tfplenum-deployer git repository to target controller using curl.
 
     :param controller: A node with type of controller.
     :param di2e_username: Username to access DI2E systems.
     :param di2e_password: Password to access DI2E systems.
+    :param branch_name: the name of the branch we want to pull bootstrap from.
     """
     
     client = Connection(
         host=controller.management_interface.ip_address,
         connect_kwargs={"password": controller.password})  # type: Connection
-    client.run("curl -o /root/bootstrap.sh -u " + di2e_username + ":'" + di2e_password + "' https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer/raw/bootstrap.sh?at=refs%2Fheads%2Fdevel")
+    client.run(
+        "curl -o /root/bootstrap.sh -u {username}:'{password}' "
+        "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer"
+        "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
+            branch_name=quote(branch_name, safe=''),
+            username=di2e_username,
+            password=di2e_password)
+    )
     client.close()
-    
-def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
+
+
+def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str) -> None:
     """
     Execute bootstrap script on controller node.  This will take 30 minutes to 1 hour to complete.
 
     :param controller: A node with type of controller.
     :param di2e_username: Username to access DI2E systems.
     :param di2e_password: Password to access DI2E systems.
+    :param branch_name: The branch we will clone from when we run our bootstrap.
     """
 
     client = Connection(
             host=controller.management_interface.ip_address,
             connect_kwargs={"password": controller.password})  # type: Connection
      
-    client.run("export BRANCH_NAME='devel' && \
+    client.run("export BRANCH_NAME='" + branch_name + "' && \
         export TFPLENUM_LABREPO=true && \
         export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
         export DIEUSERNAME='" + di2e_username + "' && \
@@ -110,76 +123,38 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> N
     client.close()
 
 
-def configure_deployer(kit: Kit, controller: Node) -> None:
-    """
-    Configures the deployer for a build. This includes transferring the appropriate inventory file and running make.
-
-    :param kit: A kit object defining the schema of the kit which you would like deployed
-    :param controller: A node object linked to the controller for the kit
-    :return:
-    """
-
-    client = Connection(
-        host=controller.management_interface.ip_address,
-        connect_kwargs={"password": controller.password})  # type: Connection
-
-    with client.cd("/opt/tfplenum-deployer/playbooks"):
-        client.run('make')
-
-    client.close()
+def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
+    cmd_to_execute = ("ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" +
+                      root_password + "' site.yml")
+    with FabricConnectionWrapper(ctrl_node.username,
+                                 ctrl_node.password,
+                                 ctrl_node.management_interface.ip_address) as ctrl_cmd:
+        ctrl_cmd.run(cmd_to_execute)
 
 
-def build_tfplenum(kit: Kit, controller: Node, custom_command: str=None) -> None:
-    """
-    Builds the TFPlenum subsystem by running make
-
-    :param kit: an instance of a Kit object
-    :param controller: the node instance for a controller
-    :param custom_command: Runs the build with a custom provided command instead of the standard Ansible command
-    :return:
-    """
-
-    client = Connection(
-        host=controller.management_interface.ip_address,
-        connect_kwargs={"password": controller.password})  # type: Connection
-
-    # Render tfplenum template
-    template_name = '/tmp/' + kit.name + "_tfplenum_template.yml"  # type: str
-    with open(template_name, 'w') as fh:
-        fh.write(render(kit.tfplenum_template, todict(kit)))
-
-    # Copy TFPlenum inventory
-    client.put(template_name, '/opt/tfplenum/playbooks/inventory.yml')
-
-    if custom_command is None:
-        with client.cd("/opt/tfplenum/playbooks"):
-            client.run('ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass=' + kit.password)
-    else:
-        with client.cd("/opt/tfplenum/playbooks"):
-            client.run(custom_command)
-
-    client.close()
-
-
-def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node]) -> None:
+def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
     """
     Checks to see if a list of VMs are up and alive by using SSH. Does not return
     until all VMs are up.
 
     :param kit: an instance of a Kit object
     :param vms_to_test: A list of Node objects you would like to test for liveness
+    :param minutes_timeout: The amount of time in minutes we will wait for vms to become alive before failing.
     :return:
     """
 
     # Wait until all VMs are up and active
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
     while True:
+        if future_time <= datetime.utcnow():
+            logging.error("The vms took too long to come up")
+            exit(3)
 
         for vm in vms_to_test:
+            logging.info("VMs remaining:")
+            logging.info([node.hostname for node in vms_to_test])
 
-            print("VMs remaining:")
-            print([node.hostname for node in vms_to_test])
-
-            print("Testing " + vm.hostname + " (" + vm.management_interface.ip_address + ")")
+            logging.info("Testing " + vm.hostname + " (" + vm.management_interface.ip_address + ")")
             result = SSH_client.test_connection(
                 vm.management_interface.ip_address,
                 kit.username,
@@ -189,7 +164,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node]) -> None:
                 vms_to_test.remove(vm)
 
         if not vms_to_test:
-            print("All VMs up and active.")
+            logging.info("All VMs up and active.")
             break
 
         sleep(5)
@@ -204,22 +179,18 @@ def get_interface_names(kit: Kit) -> None:
     """
 
     for node in kit.nodes:
-
         if node.type == 'sensor' or node.type == 'remote-sensor':
-
             client = Connection(
                 host=node.management_interface.ip_address,
                 connect_kwargs={"password": kit.password})  # type: Connection
 
             for interface in node.interfaces:
-
                 interface_name_result = client.run("ip link show | grep -B 1 " + interface.mac_address +
                                                    " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
                 interface_name = interface_name_result.stdout.strip()  # type: str
                 interface_name = interface_name.replace(':','')  # type: str
                 logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
                 interface.set_interface_name(interface_name)
-
             client.close()
 
 
@@ -240,15 +211,14 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kickstart_configuration.set_dhcp_end(configuration[kitconfig]["kickstart_configuration"]['dhcp_end'])
         kickstart_configuration.set_gateway(configuration[kitconfig]["kickstart_configuration"]['gateway'])
         kickstart_configuration.set_netmask(configuration[kitconfig]["kickstart_configuration"]['netmask'])
-        kickstart_configuration.set_root_password(configuration[kitconfig]["kickstart_configuration"]['root_password'])
-
         kit.set_kickstart_configuration(kickstart_configuration)
 
-        kit.set_username(configuration[kitconfig]["VM_settings"]['username'])
-        kit.set_password(configuration[kitconfig]["VM_settings"]['password'])
+        kit.set_username("root")
+        kit.set_password("we.are.tfplenum")
         kit.set_kubernetes_cidr(configuration[kitconfig]['kit_configuration']['kubernetes_cidr'])
 
         kit.set_use_ceph_for_pcap(configuration[kitconfig]["kit_configuration"]['use_ceph_for_pcap'])
+        kit.set_branch_name(configuration[kitconfig]["kit_configuration"]['branch_name'])
 
         if not configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage']:
             kit.set_moloch_pcap_storage_percentage(None)
@@ -327,12 +297,13 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         for v in vms:
             node = Node(v, vms[v]['type'])  # type: Node
             if node.type == "controller":
+                node.set_vm_to_clone(vms[v]['vm_to_clone'])
                 node.set_dns_list(vms[v]['dns'])
                 node.set_gateway(vms[v]['gateway'])
-                node.set_username(vms[v]['username'])
-                node.set_password(vms[v]['password'])
-                node.set_vm_clone_options(vms[v]['vm_to_clone'], vms[v]['cloned_vm_name'])
                 node.set_domain(vms[v]['domain'])
+
+            node.set_username(kit.username)
+            node.set_password(kit.password)
 
             node.set_guestos(vms[v]['vm_guestos'])
             storage = vms[v]['storage_options']  # type: dict
@@ -389,6 +360,18 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
             if node.type != "controller":
                 node.set_boot_drive(vms[v]['boot_drive_name'])
+
+            if node.type == "remote-sensor":
+                node.set_pcap_drives(vms[v]['pcap_drives'])
+            elif node.type == "server" or node.type == "master-server":
+                node.set_ceph_drives(vms[v]['ceph_drives'])
+            elif kit.use_ceph_for_pcap and node.type == "sensor":
+                node.set_ceph_drives(vms[v]['ceph_drives'])
+            elif not kit.use_ceph_for_pcap and node.type == "sensor":
+                node.set_pcap_drives(vms[v]['pcap_drives'])
+
+            if node.type == "sensor" or node.type == "remote-sensor":
+                node.set_monitoring_ifaces(vms[v]['monitoring_ifaces'])
 
             # Add node to list of nodes
             nodes.append(node)
