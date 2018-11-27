@@ -31,7 +31,7 @@ def _create_browser():
     chrome_options.add_argument('--ignore-certificate-errors')
     # chrome_options.add_argument('--disable-dev-shm-usage')
     # TODO: Need to make this path not hardcoded
-    browser = webdriver.Chrome('chromedriver', chrome_options=chrome_options)
+    browser = webdriver.Chrome(chrome_options=chrome_options, executable_path='/usr/local/bin/chromedriver')
 
     return browser
 
