@@ -64,6 +64,7 @@ class Runner:
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
+        parser.add_argument('--headless', dest='is_headless', action='store_true')
         args = parser.parse_args()
         if not is_valid_file(args.filename):
             parser.error("The file %s does not exist!" % args.filename)
@@ -178,7 +179,6 @@ class Runner:
         :return:
         """
         for vm in vms:
-            print(vm.get_node_instance().hostname)
             macs = vm.get_macs()  # type: OrderedDict
             macs_iter = iter(macs)  # type: iter
             management_mac = next(macs_iter)
@@ -212,7 +212,7 @@ class Runner:
         self._power_off_vms(vms)
 
         logging.info("Configuring Kickstart")
-        run_kickstart_configuration(kit, self.controller_node.management_interface.ip_address)
+        run_kickstart_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
         self._power_on_vms(vms)
 
         logging.info("Waiting for servers and sensors to become alive...")
@@ -232,7 +232,7 @@ class Runner:
         test_vms_up_and_alive(kit, kit.nodes, 30)
         get_interface_names(kit)
         logging.info("Run TFPlenum configuration")
-        run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, "4200")
+        run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
 
     def _run_integration(self, kit: Kit):
         """

@@ -12,6 +12,7 @@ from typing import List
 import logging
 from lib.connection_mngs import FabricConnectionWrapper
 from datetime import datetime, timedelta
+from functools import wraps
 
 
 def todict(obj: object, classkey=None) -> dict:
@@ -147,7 +148,8 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
     :param minutes_timeout: The amount of time in minutes we will wait for vms to become alive before failing.
     :return:
     """
-
+    # Make a clone of the list so we do not delete the reference list by accident.
+    vms_to_test = vms_to_test.copy()
     # Wait until all VMs are up and active
     future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
     while True:
@@ -388,3 +390,41 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kits.append(kit)
 
     return kits
+
+
+def retry(count=5, time_to_sleep_between_retries=2):
+    """
+    A function wrapper that can be used to auto try the wrapped function if
+    it fails.  To use this function
+
+    @retry(count=10)
+    def somefunction():
+        pass
+
+    :param count: The number of retries it will perform.
+    :param time_to_sleep_between_retries: The time to sleep between retries.
+    :return:
+    """
+    def decorator(func):
+        @wraps(func)
+        def result(*args, **kwargs):
+            for i in range(count):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if (i + 1) == count:
+                        raise
+                    sleep(time_to_sleep_between_retries)
+        return result
+    return decorator
+
+
+def zero_pad(num: int) -> str:
+    """
+    Zeros pads the numbers that are lower than 10.
+
+    :return: string of the new number.
+    """
+    if num < 10:
+        return "0" + str(num)
+    return str(num)

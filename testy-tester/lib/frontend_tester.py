@@ -9,31 +9,42 @@ import time
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.kit import Kit
 from lib.connection_mngs import MongoConnectionManager
+from lib.util import zero_pad, retry
 
 
-def _create_browser():
+def _create_browser(is_headless: bool) -> WebDriver:
     """
     Creates a web browser which the test framework can use to interact with the frontend
 
+    :param is_headless: Runs the browser in headless mode if its set to true.
     :returns (selenium.webdriver.chrome.webdriver.WebDriver): An instance of a Selenium web browser
     """
     chrome_options = Options()
-
-    #chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--ignore-certificate-errors')
-    # chrome_options.add_argument('--disable-dev-shm-usage')
-    # TODO: Need to make this path not hardcoded
-    browser = webdriver.Chrome(chrome_options=chrome_options, executable_path='/usr/local/bin/chromedriver')
-
-    return browser
+    if is_headless:
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument("--allow-insecure-localhost")
+        capabilities = DesiredCapabilities.CHROME.copy()
+        capabilities['acceptSslCerts'] = True
+        capabilities['acceptInsecureCerts'] = True
+        browser = webdriver.Chrome(chrome_options=chrome_options,
+                                   executable_path='/usr/local/bin/chromedriver',
+                                   desired_capabilities=capabilities)
+        return browser
+    else:
+        browser = webdriver.Chrome(chrome_options=chrome_options,
+                                   executable_path='/usr/local/bin/chromedriver')
+        return browser
 
 
 def _run_DHCP_settings_section(kickstart_configuration: KickstartConfiguration, browser) -> None:
@@ -97,7 +108,7 @@ def run_controller_interface_settings_section(nodes: list, browser) -> None:
         exit(0)
 
 
-def _run_add_node_section(nodes: list, browser) -> None:
+def _run_add_node_section(nodes: list, browser: WebDriver) -> None:
     """
     Using selenium this fucntion test the elements in the Add Node Section
 
@@ -180,12 +191,13 @@ def wait_for_mongo_job(job_name: str, mongo_ip: str, minutes_timeout: int):
                 time.sleep(5)
 
 
-def run_kickstart_configuration(kit: Kit, webserver_ip: str) -> None:
+def run_kickstart_configuration(kit: Kit, webserver_ip: str, is_headless: bool) -> None:
     """
     Runs the frontend's kickstart configuration.
 
-    :param kit:
-    :param webserver_ip:
+    :param kit: A Kit object that was transformed from the config file
+    :param webserver_ip: The Ip address of the controller.
+    :param is_headless: A boolean that states whether or not to run in browser headless mode.
     :return:
     """
     with MongoConnectionManager(webserver_ip) as mongo_manager:
@@ -194,7 +206,7 @@ def run_kickstart_configuration(kit: Kit, webserver_ip: str) -> None:
 
     kickstart_configuration = kit.kickstart_configuration
     nodes = kit.get_nodes()
-    browser = _create_browser()
+    browser = _create_browser(is_headless)
     try:
         # Use selenium with beautiful soup to get the text from each of the examples
         browser.get("https://" + webserver_ip + "/kickstart")
@@ -444,7 +456,25 @@ def run_total_server_resources_section(kit_configuration: Kit, browser) -> None:
             i = i + 1
 
 
-def run_execute_kit(browser) -> None:
+@retry()
+def perform_send_keys(selector: str, value: str, browser: WebDriver, locate_by=By.NAME):
+    """
+    Performs a send keys operation to an element and execute send_keys.  If this function failes,
+    it will retry 5 times before throwing an exception.
+
+    :param selector: Id or name or css selector etc
+    :param value: The value you want to fill the html element with.
+    :param browser: The main web driver.
+    :param locate_by: By.NAME is the default
+    :return:
+    """
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((locate_by, selector)))
+    actions = ActionChains(browser)
+    actions.move_to_element(element).perform()
+    element.send_keys(value)
+
+
+def run_execute_kit(browser: WebDriver) -> None:
     # Execute's Kickstart when all fields are configured
     element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
     actions = ActionChains(browser)
@@ -452,49 +482,36 @@ def run_execute_kit(browser) -> None:
     element.click()
 
     currentdate = datetime.utcnow()
-    # Right now there are no names on the frontend for this elements using xpath should be temporary until the frontend
-    # elements are given a name.
-    # input the current hour in utc time
-    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[1]/input')))
-    actions = ActionChains(browser)
-    actions.move_to_element(element).perform()
-    # element = browser.find_element_by_xpath('//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[1]/input')
-    element.send_keys(str(currentdate.hour))
-
-    # input the current minutes in utc time
-    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[2]/div[2]/app-time-picker/div/ngb-timepicker/fieldset/div/div[3]/input')))
-    actions = ActionChains(browser)
-    actions.move_to_element(element).perform()
-    element.send_keys(str(currentdate.minute))
-    element.click()
-
-    # input the current date
-    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME, 'date')))
-    actions = ActionChains(browser)
-    actions.move_to_element(element).perform()
-
-    element.send_keys(str(currentdate.year) + '-' + str(currentdate.month) + '-' + str(currentdate.day))
+    perform_send_keys('date',
+                      str(currentdate.year) + '-' + str(currentdate.month) + '-' + str(currentdate.day),
+                      browser)
+    perform_send_keys('time',
+                      zero_pad(currentdate.hour) + ":" + zero_pad(currentdate.minute),
+                      browser)
 
     # clicks on the execute button
-    # element = browser.find_element_by_xpath('//*[@id="execute_kit_modal"]/div/div/form/div[3]/button[2]')
-    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="execute_kit_modal"]/div/div/form/div[3]/button[2]')))
+    element = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.NAME,
+                                                                               'primary_btn_execute_kit_modal')))
     actions = ActionChains(browser)
     actions.move_to_element(element).perform()
     element.click()
 
 
-def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, port="443") -> None:
+def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, is_headless: bool) -> None:
     """
     Runs the frontend's kit configuration.
 
-    :returns:
+    :param kit: A Kit object that was transformed from the config file
+    :param webserver_ip: The Ip address of the controller.
+    :param is_headless: A boolean that states whether or not to run in browser headless mode.
+    :return:
     """
 
     with MongoConnectionManager(webserver_ip) as mongo_manager:
         mongo_manager.mongo_kit.drop()
         mongo_manager.mongo_last_jobs.drop()
 
-    browser = _create_browser()  # type: selenium.webdriver.chrome.webdriver.WebDriver
+    browser = _create_browser(is_headless)  # type: WebDriver
     try:
         # Use selenium with beautiful soup to get the text from each of the examples
         browser.get("https://" + webserver_ip + "/kit_configuration")
