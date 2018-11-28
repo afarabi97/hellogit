@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+    cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
 
 - name: get bro pods
   shell: |
@@ -26,5 +26,14 @@
   vars:
     app_name: "bro"
     index_regex: "^bro.*"
-    
+
+- name: Check Bro Data
+  uri:
+    url: "{{ elastic_uri }}/*bro*/_search?q=method:GET+AND+@timestamp:[now-5m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
 ...

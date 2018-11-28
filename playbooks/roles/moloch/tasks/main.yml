@@ -22,13 +22,13 @@
 # - set_fact:
 #     moloch_indices: "{{ moloch_indices }} + [ {{ item }} ]"
 #   with_items: "{{ elasticsearch_indices.json }}"
-#   when: "('sessions2' in item.index) 
-#     or ('fields' in item.index) 
-#     or ('queries' in item.index) 
-#     or ('dstats' in item.index) 
-#     or ('users' in item.index) 
-#     or ('sequence' in item.index) 
-#     or ('stats' in item.index) 
+#   when: "('sessions2' in item.index)
+#     or ('fields' in item.index)
+#     or ('queries' in item.index)
+#     or ('dstats' in item.index)
+#     or ('users' in item.index)
+#     or ('sequence' in item.index)
+#     or ('stats' in item.index)
 #     or ('files' in item.index)"
 
 
@@ -39,5 +39,14 @@
   vars:
     app_name: "moloch"
     index_regex: "^(files|stats|sequence|users|dstats|queries|fields|sessions2).*"
-    
+
+- name: Check Moloch Data
+  uri:
+    url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-5m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
 ...

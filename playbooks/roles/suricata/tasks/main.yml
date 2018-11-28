@@ -26,5 +26,14 @@
   vars:
     app_name: "suricata"
     index_regex: "^suricata.*"
-    
+
+- name: Check Suricata Data
+  uri:
+    url: "{{ elastic_uri }}/*ids*/_search?q=@timestamp:[now-5m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
 ...
