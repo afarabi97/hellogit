@@ -99,15 +99,6 @@ kits:
                   mac_address: ""
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
-                ens224:
-                  type: "manual"
-                  ip_address:
-                  start_connected: True
-                  management_interface: False
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "Monitoring Portgroup"
-                  std_portgroup_name:
             cpu_spec:
               sockets: 2
               cores_per_socket: 1
