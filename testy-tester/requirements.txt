@@ -15,6 +15,7 @@ idna==2.7
 incremental==17.5.0
 invoke==1.1.1
 Jinja2==2.10
+junit-xml==1.8
 lxml==4.2.4
 MarkupSafe==1.0
 nsx-policy-python-sdk==2.2.0.0.0.15184434
