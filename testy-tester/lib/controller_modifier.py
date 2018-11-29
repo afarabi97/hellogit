@@ -5,6 +5,7 @@ integration testing purposes.
 import os
 from lib.connection_mngs import FabricConnectionWrapper
 from lib.model.node import Node
+from lib.util import zero_pad, retry
 
 TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates/'
 
@@ -13,10 +14,19 @@ class ControllerModifier:
 
     def __init__(self, ctrl_node: Node):
         self._ctrl_node = ctrl_node
+        self._initalize_connection()
+
+    @retry()
+    def _initalize_connection(self):
+        """
+        Creates a fabric connection to the controller
+        :return:
+        """
         self._conn = FabricConnectionWrapper(self._ctrl_node.username,
                                              self._ctrl_node.password,
                                              self._ctrl_node.management_interface.ip_address)
 
+    @retry()
     def _change_mongo_confg(self):
         """
         Changes the mongo config file so that we can access it remotely.
@@ -24,7 +34,7 @@ class ControllerModifier:
         """
         self._conn.connection.put(TEMPLATES_DIR + "mongod.conf", '/etc/mongod.conf')
         self._conn.connection.run('systemctl restart mongod')
-
+    @retry()
     def _open_port(self, port: int, port_type='tcp'):
         """
         Opens a specified port.
