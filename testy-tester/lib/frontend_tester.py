@@ -14,6 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.kit import Kit
@@ -210,22 +211,16 @@ def run_kickstart_configuration(kit: Kit, webserver_ip: str, is_headless: bool) 
     try:
         # Use selenium with beautiful soup to get the text from each of the examples
         browser.get("https://" + webserver_ip + "/kickstart")
-
         # DHCP Settings Section
         _run_DHCP_settings_section(kickstart_configuration, browser)
-
         # Static Interface Settings Section
         _run_static_interface_settings_section(kickstart_configuration, browser)
-
         # System Settings Section
         _run_system_settings_section(kit.password, browser)
-
         # Controller Interface Settings Section
         run_controller_interface_settings_section(nodes, browser)
-
         # Add Node Section
         _run_add_node_section(nodes, browser)
-
         # Execute's Kickstart when all fields are configured
         element = browser.find_element_by_name("execute_kickstart")
         element.click()
@@ -385,7 +380,8 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
             element = browser.find_element_by_name("btn_host_sensor" + str(i))
             element.click()
 
-            if kit_configuration.use_ceph_for_pcap:
+
+            try:
                 for drive_name in node.ceph_drives:
                     ceph_drive_ident = "ceph_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(i),
                                                                                               drive_name=drive_name)
@@ -394,7 +390,7 @@ def run_total_sensor_resources_section(kit_configuration: Kit, browser) -> None:
                     actions = ActionChains(browser)
                     actions.move_to_element(element).perform()
                     element.click()
-            else:
+            except:
                 for drive_name in node.pcap_drives:
                     pcap_drive_ident = "pcap_drives{sensor_index}_{drive_name}".format(sensor_index=str(i),
                                                                                        drive_name=drive_name)
@@ -482,6 +478,7 @@ def run_execute_kit(browser: WebDriver) -> None:
     element.click()
 
     currentdate = datetime.utcnow()
+    time.sleep(5)
     perform_send_keys('date',
                       str(currentdate.year) + '-' + str(currentdate.month) + '-' + str(currentdate.day),
                       browser)
@@ -526,3 +523,4 @@ def run_tfplenum_configuration(kit_configuration: Kit, webserver_ip: str, is_hea
         # will close out of the driver and allow for the process to be killed
         # if you wish to keep the browser up comment out this line
         browser.quit()
+

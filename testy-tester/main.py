@@ -12,7 +12,7 @@ from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (create_vms, create_client, clone_vm,
-                              delete_vm, change_network_port_group, change_ip_address)
+                              delete_vm, change_network_port_group, change_ip_address, get_vms)
 from lib.util import (get_controller, test_vms_up_and_alive, transform,
     get_interface_names, get_bootstrap, run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
@@ -118,8 +118,6 @@ class Runner:
         logging.info("Running controller bootstrap...")
         run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name, self.args.is_repo_sync)
 
-        ctrl_modifier = ControllerModifier(self.controller_node)
-        ctrl_modifier.make_controller_changes()
 
     def _setup_controller(self, kit: Kit):
         """
@@ -160,7 +158,10 @@ class Runner:
         """
         logging.info("Grabbing management MAC addresses")
         for vm in vms:
-            vm.power_on()
+            try:
+                vm.power_on()
+            except:
+                pass
 
     def _power_off_vms(self, vms: List[VirtualMachine]):
         """
@@ -195,6 +196,20 @@ class Runner:
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
+    def controller_modifier(self ):
+        ctrl_modifier = ControllerModifier(self.controller_node)
+        ctrl_modifier.make_controller_changes()
+
+
+    def power_on_controller(self):
+        logging.info("Modifying Controller")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/")
+        try:
+            ctrl_vm.power_on()
+        except:
+            pass
+        self.controller_modifier()
+
     def _run_kickstart(self, kit: Kit):
         """
         Performs the needed operations to Kickstart any and all vms mentions in
@@ -206,6 +221,7 @@ class Runner:
         if not self.args.run_kickstart and not self.args.run_all:
             return
 
+        self.power_on_controller()
         logging.info("Creating VMs...")
         vms = create_vms(kit, self.vsphere_client)  # , iso_folder_path)  # type: list
         self._power_on_vms(vms)
@@ -229,6 +245,9 @@ class Runner:
         if not self.args.run_kit and not self.args.run_all:
             return
 
+        self.power_on_controller()
+        vms = get_vms(kit, self.vsphere_client, "/root/")
+        self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
         get_interface_names(kit)
@@ -264,7 +283,6 @@ class Runner:
             self._run_kickstart(kit)
             self._run_kit(kit)
             self._run_integration(kit)
-
 
 def main():
     runner = Runner()

@@ -387,6 +387,7 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
 
     print("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     print("You can watch the progress bar in vCenter.")
+
     # Finally this is the clone operation with the relevant specs attached
     if controller.storage_folder is not None:
         wait_for_task(
@@ -423,6 +424,27 @@ def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[Vi
             vm_instance.cleanup()
             vm_instance.create()
             vm_instance.set_node_instance(node)
+            vms.append(vm_instance)
+
+    return vms
+
+
+def get_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
+    """
+    Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
+
+    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
+    :param client (VsphereClient): a vCenter server client
+    :param iso_folder_path (str): Path to the ISO files folder
+    :return (list): A list of all the VM objects created by the method
+    """
+
+    vms = []  # type: list
+    for node in kit.nodes:
+        if node.type != "controller":
+            logging.info("Getting VM " + node.hostname + "...")
+            vm_instance = VirtualMachine(client, node, iso_folder_path)
+            vm_instance.get_node_instance()
             vms.append(vm_instance)
 
     return vms
