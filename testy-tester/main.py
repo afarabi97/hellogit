@@ -65,6 +65,7 @@ class Runner:
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
+        parser.add_argument('--no-repo-sync', dest='is_repo_sync', action='store_false')
         args = parser.parse_args()
         if not is_valid_file(args.filename):
             parser.error("The file %s does not exist!" % args.filename)
@@ -115,7 +116,7 @@ class Runner:
         get_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name)
 
         logging.info("Running controller bootstrap...")
-        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name)
+        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name, self.args.is_repo_sync)
 
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.make_controller_changes()

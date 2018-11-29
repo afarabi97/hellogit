@@ -98,7 +98,7 @@ def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
     client.close()
 
 
-def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str) -> None:
+def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str, is_repo_sync: bool) -> None:
     """
     Execute bootstrap script on controller node.  This will take 30 minutes to 1 hour to complete.
 
@@ -112,7 +112,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
             host=controller.management_interface.ip_address,
             connect_kwargs={"password": controller.password})  # type: Connection
      
-    client.run("export BRANCH_NAME='" + branch_name + "' && \
+    cmd_to_execute = ("export BRANCH_NAME='" + branch_name + "' && \
         export TFPLENUM_LABREPO=true && \
         export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
         export DIEUSERNAME='" + di2e_username + "' && \
@@ -120,7 +120,9 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
         export RUN_TYPE=full && \
         export PASSWORD='" + di2e_password + "' && \
         export GIT_PASSWORD='" + di2e_password + "' && \
-        bash /root/bootstrap.sh", shell=True)
+        export CLONE_REPOS="+ str(is_repo_sync).lower() + " && \
+        bash /root/bootstrap.sh")
+    client.run(cmd_to_execute, shell=True)
     client.close()
 
 
