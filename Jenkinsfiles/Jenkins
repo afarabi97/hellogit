@@ -1,0 +1,66 @@
+pipeline {
+    agent none
+    stages {
+        stage('checkout'){
+            steps {
+				node('master') {
+				    cleanWs()
+					checkout([$class: 'GitSCM', branches: [[name: '*/devel']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'micah-downing-user-pass', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum-integration-testing.git']]])
+					//checkout([$class: 'GitSCM', branches: [[name: '*/feature/THISISCVAH-1445-add-test-cases-to-jenkin-pipeline']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'micah-downing-user-pass', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum-integration-testing.git']]])
+				}
+			}
+        }
+        stage('setup controller') {
+            steps {
+                node('master') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'), usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                            def command = "sudo /usr/bin/python36 testy-tester/main.py --no-repo-sync --setup-controller --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                            println command
+                            sh(command)
+                        }
+                    }
+                }
+            }
+        }
+        stage('kickstart vms') {
+            steps {
+                node('master') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'), usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                            def command = "sudo /usr/bin/python36 testy-tester/main.py --run-kickstart --headless --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                            println command
+                            sh(command)
+                        }
+                    }
+                }
+            }
+        }
+        stage('deploy kit') {
+            steps {
+                node('master') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'), usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                            def command = "sudo /usr/bin/python36 testy-tester/main.py --run-kit --headless --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                            println command
+                            sh(command)
+                        }
+                    }
+                }
+            }
+        }
+        stage('system function testing') {
+            steps {
+                node('master') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'), usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                            def command = "sudo /usr/bin/python36 testy-tester/main.py --run-integration-tests --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                            println command
+                            sh(command)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

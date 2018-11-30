@@ -5,7 +5,7 @@ integration testing purposes.
 import os
 from lib.connection_mngs import FabricConnectionWrapper
 from lib.model.node import Node
-from lib.util import zero_pad, retry
+from lib.util import retry
 
 TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates/'
 
@@ -34,6 +34,7 @@ class ControllerModifier:
         """
         self._conn.connection.put(TEMPLATES_DIR + "mongod.conf", '/etc/mongod.conf')
         self._conn.connection.run('systemctl restart mongod')
+
     @retry()
     def _open_port(self, port: int, port_type='tcp'):
         """

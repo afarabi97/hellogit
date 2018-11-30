@@ -265,25 +265,32 @@ def change_ip_address(configuration: OrderedDict, node: Node):
         print("WARNING:: Power off your VM before reconfigure")
         sys.exit()
 
-    adaptermap = vim.vm.customization.AdapterMapping()
+    nicSettingMap = []
     globalip = vim.vm.customization.GlobalIPSettings()
-    adaptermap.adapter = vim.vm.customization.IPSettings()
 
     """Static IP Configuration"""
-    adaptermap.adapter.ip = vim.vm.customization.FixedIp()
-    adaptermap.adapter.ip.ipAddress = node.management_interface.ip_address
-    adaptermap.adapter.subnetMask = node.management_interface.subnet_mask
-    adaptermap.adapter.gateway = [node.gateway]
+    for iface in node.interfaces:
+        adaptermap = vim.vm.customization.AdapterMapping()
+        adaptermap.adapter = vim.vm.customization.IPSettings()
+        adaptermap.adapter.ip = vim.vm.customization.FixedIp()
+        adaptermap.adapter.ip.ipAddress = iface.ip_address
+        adaptermap.adapter.subnetMask = iface.subnet_mask
+        if iface.interface_type != "link-local":
+            adaptermap.adapter.gateway = [node.gateway]
+            adaptermap.adapter.dnsDomain = node.domain
+
+        nicSettingMap.append(adaptermap)
+
     globalip.dnsServerList = node.dns_list
-    adaptermap.adapter.dnsDomain = node.domain
 
     # For Linux . For windows follow sysprep
     ident = vim.vm.customization.LinuxPrep(domain=node.domain,
                                            hostName=vim.vm.customization.FixedName(name='controller'))
-    customspec = vim.vm.customization.Specification()
+
     # For only one adapter
+    customspec = vim.vm.customization.Specification()
     customspec.identity = ident
-    customspec.nicSettingMap = [adaptermap]
+    customspec.nicSettingMap = nicSettingMap
     customspec.globalIPSettings = globalip
 
     print("Reconfiguring VM Networks . . .")

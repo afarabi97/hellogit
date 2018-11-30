@@ -13,8 +13,8 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms)
-from lib.util import (get_controller, test_vms_up_and_alive, transform,
-    get_interface_names_by_ip, get_bootstrap, run_bootstrap, perform_integration_tests)
+from lib.util import (get_controller, test_vms_up_and_alive, transform, get_bootstrap,
+                      run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
@@ -66,10 +66,21 @@ class Runner:
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
         parser.add_argument('--no-repo-sync', dest='is_repo_sync', action='store_false')
+        parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
+                            help="A username to the vcenter hosted on our local network.")
+        parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
+                            help="A password to the vcenter hosted on our local network.")
+        parser.add_argument("-du", "--di2e-username", dest="di2e_username", required=True,
+                            help="A username to the DI2E git repo.")
+        parser.add_argument("-dp", "--di2e-password", dest="di2e_password", required=True,
+                            help="A password to the DI2E git repo.")
+
         args = parser.parse_args()
         if not is_valid_file(args.filename):
             parser.error("The file %s does not exist!" % args.filename)
         self.args = args
+        self.di2e_username = self.args.di2e_username
+        self.di2e_password = self.args.di2e_password
 
     def _setup_logging(self):
         """
@@ -97,9 +108,8 @@ class Runner:
         with open(self.args.filename, 'r') as kit_schema:
             try:
                 self.configuration = yaml.load(kit_schema)
-                self.di2e_username = self.configuration["DI2E"]["Username"]
-                self.di2e_password = self.configuration["DI2E"]["Password"]
-
+                self.configuration["host_configuration"]["vcenter"]["username"] = self.args.vcenter_username
+                self.configuration["host_configuration"]["vcenter"]["password"] = self.args.vcenter_password
                 # Returns a list of kit objects
                 self.kits = transform(self.configuration["kits"])  # type: List[Kit]
             except yaml.YAMLError as exc:
@@ -250,7 +260,6 @@ class Runner:
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
-        get_interface_names_by_ip(kit)
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
 

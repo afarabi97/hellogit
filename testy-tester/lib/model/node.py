@@ -48,7 +48,12 @@ class Interface(object):
         :return:
         """
         self.name = name
-        self.interface_type = interface_type
+        if interface_type == 'auto' or interface_type == 'manual' or interface_type == 'link-local':
+            self.interface_type = interface_type
+        else:
+            logging.error("Interface type %s is not a valid type" % interface_type)
+            exit(4)
+
         self.ip_address = ip_address
         self.start_connected = start_connected
         self.management_interface = management_interface

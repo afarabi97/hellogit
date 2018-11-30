@@ -83,19 +83,17 @@ def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: the name of the branch we want to pull bootstrap from.
     """
-    
-    client = Connection(
-        host=controller.management_interface.ip_address,
-        connect_kwargs={"password": controller.password})  # type: Connection
-    client.run(
-        "curl -o /root/bootstrap.sh -u {username}:'{password}' "
-        "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer"
-        "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
-            branch_name=quote(branch_name, safe=''),
-            username=di2e_username,
-            password=di2e_password)
-    )
-    client.close()
+    with FabricConnectionWrapper(controller.username,
+                                 controller.password,
+                                 controller.management_interface.ip_address) as client:
+        client.run(
+            "curl -o /root/bootstrap.sh -u {username}:'{password}' "
+            "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer"
+            "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
+                branch_name=quote(branch_name, safe=''),
+                username=di2e_username,
+                password=di2e_password)
+        )
 
 
 def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str, is_repo_sync: bool) -> None:
@@ -107,31 +105,29 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: The branch we will clone from when we run our bootstrap.
     """
-
-    client = Connection(
-            host=controller.management_interface.ip_address,
-            connect_kwargs={"password": controller.password})  # type: Connection
-     
-    cmd_to_execute = ("export BRANCH_NAME='" + branch_name + "' && \
-        export TFPLENUM_LABREPO=true && \
-        export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
-        export DIEUSERNAME='" + di2e_username + "' && \
-        export GIT_USERNAME='" + di2e_username + "' && \
-        export RUN_TYPE=full && \
-        export PASSWORD='" + di2e_password + "' && \
-        export GIT_PASSWORD='" + di2e_password + "' && \
-        export CLONE_REPOS="+ str(is_repo_sync).lower() + " && \
-        bash /root/bootstrap.sh")
-    client.run(cmd_to_execute, shell=True)
-    client.close()
+    with FabricConnectionWrapper(controller.username,
+                                 controller.password,
+                                 controller.management_interface.ip_address) as client:
+        cmd_to_execute = ("export BRANCH_NAME='" + branch_name + "' && \
+            export TFPLENUM_LABREPO=true && \
+            export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
+            export DIEUSERNAME='" + di2e_username + "' && \
+            export GIT_USERNAME='" + di2e_username + "' && \
+            export RUN_TYPE=full && \
+            export PASSWORD='" + di2e_password + "' && \
+            export GIT_PASSWORD='" + di2e_password + "' && \
+            export CLONE_REPOS="+ str(is_repo_sync).lower() + " && \
+            bash /root/bootstrap.sh")
+        client.run(cmd_to_execute, shell=True)
 
 
 def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
     cmd_to_mkdir = ("mkdir -p reports")
-    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='/opt/tfplenum-intergration-testing/reports' && \
+    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='/opt/tfplenum-integration-testing/reports' && \
         export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
+    print(ctrl_node.management_interface.ip_address)
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
@@ -199,29 +195,6 @@ def get_interface_names_by_mac(kit: Kit) -> None:
                 interface_name = interface_name_result.stdout.strip()  # type: str
                 interface_name = interface_name.replace(':','')  # type: str
                 logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
-                interface.set_interface_name(interface_name)
-            client.close()
-
-def get_interface_names_by_ip(kit: Kit) -> None:
-    """
-    Get the interface names from each node.
-
-    :param kit: A YAML file defining the schema of the kit
-    :return:
-    """
-
-    for node in kit.nodes:
-        if node.type == 'sensor' or node.type == 'remote-sensor':
-            client = Connection(
-                host=node.management_interface.ip_address,
-                connect_kwargs={"password": kit.password})  # type: Connection
-
-            for interface in node.interfaces:
-                interface_name_result = client.run("ip link show | grep -B 1 " + interface.ip_address +
-                                                   " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
-                interface_name = interface_name_result.stdout.strip()  # type: str
-                interface_name = interface_name.replace(':','')  # type: str
-                logging.info("Found interface name " + interface_name + " for ip address " + interface.ip_address)
                 interface.set_interface_name(interface_name)
             client.close()
 
@@ -419,7 +392,7 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
 def retry(count=5, time_to_sleep_between_retries=2):
     """
-    A function wrapper that can be used to auto try the wrapped function if
+    A function wrapper that can be used to auto retry the wrapped function if
     it fails.  To use this function
 
     @retry(count=10)

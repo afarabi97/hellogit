@@ -1,0 +1,241 @@
+---
+host_configuration:
+  vcenter:
+    ip_address: "172.16.20.106"
+    datacenters: "SIL_Datacenter"
+    cluster_name: "SIL_Dev_Cluster"
+
+kits:
+  kit_1:
+    kickstart_configuration:
+        dhcp_start: "172.16.82.80"
+        dhcp_end: "172.16.82.85"
+        netmask: "255.255.255.0"
+
+        # Gateway will probably be different on a per kit basis (depends on the vlan)
+        gateway: "172.16.82.1"
+        # Note root_password is specified under VM_settings.
+
+    kit_configuration:
+        # The branch we want to pull from.
+        branch_name: devel
+        use_ceph_for_pcap: false
+
+        # Only fill this in if use_ceph_for_pcap is true
+        moloch_pcap_storage_percentage:
+        elasticsearch_cpu_percentage:
+        elasticsearch_ram_percentage:
+        logstash_server_cpu_percentage:
+        logstash_replicas:
+        es_storage_space_percentage:
+
+        # Kubernetes cidr will probably be different on a per kit basis
+        kubernetes_cidr: "172.16.82.80"
+
+        home_nets:
+            - "172.16.82.0/24"
+
+        # This is optional - you can fill it in if you need to
+        external_nets:
+
+        kafka_cpu_percentage:
+        moloch_cpu_percentage:
+        bro_cpu_percentage:
+        suricata_cpu_percentage:
+        zookeeper_cpu_percentage:
+
+        ideal_es_cpus_per_instance:
+        es_cpu_to_memory_ratio_default:
+
+    VM_settings:
+        VMs:
+          # Note: You should not have more than one of these
+          onesensortwoserver-ctrl.lan:
+            type: "controller" # Can be controller, sensor, or server
+
+            # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
+            # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
+            # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
+            # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
+            vm_guestos: "RHEL_7_64"
+            vm_to_clone: "NVMEe Test Template"
+            domain: 'sil.local'
+            gateway: "172.16.82.1"
+            dns:
+              - "172.16.82.1"
+              - "8.8.8.8"
+            # The following controls where the VM will be placed on the ESXi servers
+            storage_options:
+              datacenter: "SIL_Datacenter"
+              cluster: "SIL_Dev_Cluster"
+              datastore: "NVMe Storage"
+              folder: "Testing"
+            networking:
+              std_portgroup_name: "VM Network"
+              nics:
+                ens192:
+                  type: "manual" # This can be auto, manual, or link-local
+                  ip_address: "172.16.82.64"
+                  subnet_mask: "255.255.255.0"
+                  start_connected: True
+                  management_interface: True
+                  mac_auto_generated: True
+                  mac_address: "" # This is ignored if mac_auto_generated is true
+                  dv_portgroup_name: "82 Portgroup"
+                  std_portgroup_name:
+                ens224:
+                  type: "link-local" # This can be auto, manual, or link-local
+                  ip_address: "169.254.251.120"
+                  subnet_mask: "255.255.0.0"
+                  start_connected: True
+                  management_interface: False
+                  mac_auto_generated: True
+                  mac_address: "" # This is ignored if mac_auto_generated is true
+                  dv_portgroup_name: "Monitoring Portgroup"
+                  std_portgroup_name:
+            cpu_spec:
+              sockets: 2
+              cores_per_socket: 1
+              hot_add_enabled: False
+              hot_remove_enabled: False
+            memory_spec:
+              size: 16 # This value is in GiB
+              hot_add_enabled: False
+            disks:
+              boot: 200 # Name of disk followed by capacity in GiBs
+            iso_file: "rhel-server-7.4-x86_64-dvd.iso"
+            boot_order: # Valid options are CDROM, DISK, and ETHERNET
+              - "CDROM" # CDROM will be ignored if iso_file is None
+              - "DISK"
+              - "ETHERNET"
+          onesensortwoserver-srv1.lan:
+            type: "master-server" # Can be controller, sensor, or server
+            vm_guestos: "RHEL_7_64"
+            storage_options:
+              datacenter: "SIL_Datacenter"
+              cluster: "SIL_Dev_Cluster"
+              datastore: "NVMe Storage"
+              folder: "Testing"
+            networking:
+              nics:
+                ens192:
+                  type: "manual"
+                  ip_address: "172.16.82.65"
+                  start_connected: True
+                  management_interface: True
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "82 Portgroup"
+                  std_portgroup_name:
+            cpu_spec:
+              sockets: 12
+              cores_per_socket: 4
+              hot_add_enabled: False
+              hot_remove_enabled: False
+            memory_spec:
+              size: 12
+              hot_add_enabled: False
+            boot_drive_name: "sda"
+            ceph_drives:
+              - sdb
+            disks:
+              boot: 20
+              ceph: 20
+            iso_file:
+            boot_order:
+              - "CDROM"
+              - "DISK"
+              - "ETHERNET"
+          onesensortwoserver-srv2.lan:
+            type: "server" # Can be controller, sensor, or server
+            vm_guestos: "RHEL_7_64"
+            storage_options:
+              datacenter: "SIL_Datacenter"
+              cluster: "SIL_Dev_Cluster"
+              datastore: "NVMe Storage"
+              folder: "Testing"
+            networking:
+              nics:
+                ens192:
+                  type: "manual"
+                  ip_address: "172.16.82.66"
+                  start_connected: True
+                  management_interface: True
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "82 Portgroup"
+                  std_portgroup_name:
+            cpu_spec:
+              sockets: 16
+              cores_per_socket: 1
+              hot_add_enabled: False
+              hot_remove_enabled: False
+            memory_spec:
+              size: 12
+              hot_add_enabled: False
+            boot_drive_name: "sda"
+            ceph_drives:
+              - sdb
+            disks:
+              boot: 20
+              ceph: 20
+            iso_file:
+            boot_order:
+              - "CDROM"
+              - "DISK"
+              - "ETHERNET"
+          onesensortwoserver-sensor1.lan:
+            type: "sensor" # Can be controller, sensor, or server
+            vm_guestos: "RHEL_7_64"
+            storage_options:
+              datacenter: "SIL_Datacenter"
+              cluster: "SIL_Dev_Cluster"
+              datastore: "NVMe Storage"
+              folder: "Testing"
+            networking:
+              nics:
+                ens193:
+                  type: "manual"
+                  ip_address: "172.16.82.67"
+                  start_connected: True
+                  management_interface: True
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "82 Portgroup"
+                  std_portgroup_name:
+                ens224:
+                  type: "manual"
+                  ip_address:
+                  start_connected: True
+                  management_interface: False
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "Monitoring Portgroup"
+                  std_portgroup_name:
+            cpu_spec:
+              sockets: 12
+              cores_per_socket: 1
+              hot_add_enabled: False
+              hot_remove_enabled: False
+            memory_spec:
+              size: 12
+              hot_add_enabled: False
+            boot_drive_name: "sda"
+            # Selects the ceph or pcap drives we will use during kit configuration
+            # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
+            # otherwise you should use pcap_drives instead.
+#            ceph_drives:
+#              - sdb
+            pcap_drives:
+              - sdb
+            # Selects the monitoring interfaces we will use during kit configuration.
+            monitoring_ifaces:
+              - ens224
+            disks:
+              boot: 20
+              ceph: 20
+            iso_file:
+            boot_order:
+            - "CDROM"
+            - "DISK"
+            - "ETHERNET"

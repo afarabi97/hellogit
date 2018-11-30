@@ -1,0 +1,3 @@
+This folder is for any test cases that we wish to run in the Jenkins pipeline.
+Adding a valid YAML file into this folder and committing it to devel will add
+new stages and test cases for jenkins pipeline.
