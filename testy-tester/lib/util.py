@@ -179,7 +179,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
         sleep(5)
 
 
-def get_interface_names(kit: Kit) -> None:
+def get_interface_names_by_mac(kit: Kit) -> None:
     """
     Get the interface names from each node.
 
@@ -199,6 +199,29 @@ def get_interface_names(kit: Kit) -> None:
                 interface_name = interface_name_result.stdout.strip()  # type: str
                 interface_name = interface_name.replace(':','')  # type: str
                 logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
+                interface.set_interface_name(interface_name)
+            client.close()
+
+def get_interface_names_by_ip(kit: Kit) -> None:
+    """
+    Get the interface names from each node.
+
+    :param kit: A YAML file defining the schema of the kit
+    :return:
+    """
+
+    for node in kit.nodes:
+        if node.type == 'sensor' or node.type == 'remote-sensor':
+            client = Connection(
+                host=node.management_interface.ip_address,
+                connect_kwargs={"password": kit.password})  # type: Connection
+
+            for interface in node.interfaces:
+                interface_name_result = client.run("ip link show | grep -B 1 " + interface.ip_address +
+                                                   " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
+                interface_name = interface_name_result.stdout.strip()  # type: str
+                interface_name = interface_name.replace(':','')  # type: str
+                logging.info("Found interface name " + interface_name + " for ip address " + interface.ip_address)
                 interface.set_interface_name(interface_name)
             client.close()
 

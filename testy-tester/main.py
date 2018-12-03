@@ -14,7 +14,7 @@ from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms)
 from lib.util import (get_controller, test_vms_up_and_alive, transform,
-    get_interface_names, get_bootstrap, run_bootstrap, perform_integration_tests)
+    get_interface_names_by_ip, get_bootstrap, run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
@@ -250,7 +250,7 @@ class Runner:
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
-        get_interface_names(kit)
+        get_interface_names_by_ip(kit)
         logging.info("Run TFPlenum configuration")
         run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
 
