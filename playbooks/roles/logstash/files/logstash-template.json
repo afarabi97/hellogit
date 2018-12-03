@@ -1784,7 +1784,7 @@
           }
         },
         "logstash_time":{
-          "type":"long"
+          "type":"float"
         },
         "mac":{
           "type":"text",
