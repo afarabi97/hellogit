@@ -27,9 +27,27 @@
     app_name: "suricata"
     index_regex: "^suricata.*"
 
-- name: Check Suricata Data
+- name: Check Suricata HTTP Data
   uri:
-    url: "{{ elastic_uri }}/*ids*/_search?q=@timestamp:[now-5m+TO+now]"
+    url: "{{ elastic_uri }}/*ids*/_search?q=source_port:80+AND+@timestamp:[now-15m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
+- name: Check Suricata DNS Data
+  uri:
+    url: "{{ elastic_uri }}/*ids*/_search?q=source_port:53+AND+@timestamp:[now-15m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
+- name: Check Suricata SMB Data
+  uri:
+    url: "{{ elastic_uri }}/*ids*/_search?q=destination_port:445+AND+@timestamp:[now-15m+TO+now]"
     return_content: y
   register: results
   until: results.json.hits.total != 0

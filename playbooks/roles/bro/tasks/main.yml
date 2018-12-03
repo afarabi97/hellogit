@@ -27,9 +27,27 @@
     app_name: "bro"
     index_regex: "^bro.*"
 
-- name: Check Bro Data
+- name: Check Bro HTTP Result
   uri:
-    url: "{{ elastic_uri }}/*bro*/_search?q=method:GET+AND+@timestamp:[now-5m+TO+now]"
+    url: "{{ elastic_uri }}/*bro*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
+- name: Check Bro DNS Result
+  uri:
+    url: "{{ elastic_uri }}/*bro*/_search?q=event_type:bro_dns+AND+@timestamp:[now-15m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
+- name: Check Bro SMB Result
+  uri:
+    url: "{{ elastic_uri }}/*bro*/_search?q=event_type:bro_smb_mapping+AND+@timestamp:[now-15m+TO+now]"
     return_content: y
   register: results
   until: results.json.hits.total != 0

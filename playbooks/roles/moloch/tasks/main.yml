@@ -40,13 +40,32 @@
     app_name: "moloch"
     index_regex: "^(files|stats|sequence|users|dstats|queries|fields|sessions2).*"
 
-- name: Check Moloch Data
+- name: Check HTTP Moloch Data
   uri:
-    url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-5m+TO+now]"
+    url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
     return_content: y
   register: results
   until: results.json.hits.total != 0
   retries: 10
   delay: 10
+
+- name: Check DNS Moloch Data
+  uri:
+    url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
+    return_content: y
+  register: results
+  until: results.json.hits.total != 0
+  retries: 10
+  delay: 10
+
+# For some reason, Moloch doesn't reliably report SMB traffic. Here's what sometimes works.
+# - name: Check SMB Moloch Data
+#   uri:
+#     url: "{{ elastic_uri }}/sessions*/_search?q=protocol:smb+AND+timestamp:[now-15m+TO+now]"
+#     return_content: y
+#   register: results
+#   until: results.json.hits.total != 0
+#   retries: 10
+#   delay: 10
 
 ...

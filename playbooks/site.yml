@@ -52,6 +52,15 @@
     - elasticsearch
   tags: elasticsearch
 
+- name: Validate Kibana
+  hosts:
+  - master-server
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - kibana
+  tags: kibana
+
 - name: Validate Bro
   hosts:
   - master-server

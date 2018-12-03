@@ -19,7 +19,7 @@
 
 - name: Start Testing PCAP Replay
   shell: |
-    /usr/bin/tcpreplay --intf1={{ test_interface }} {{ item }}
+    /usr/bin/tcpreplay --loop=3 --intf1={{ test_interface }} {{ item }}
   with_fileglob:
     - "{{ install_dir }}/playbooks/roles/replay/pcaps/*"
   when: test_interface is defined
