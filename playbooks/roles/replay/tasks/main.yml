@@ -1,12 +1,7 @@
 ---
-
-# Right now, test interface is hardcoded since we've just been using ens224 in our testing.
-# Could add functionality to auto-detect test interface
-
 - name: Set Test Interface
   set_fact:
-    test_interface: ens192
-  when: ansible_ens192 is defined
+    test_interface: "{{ lookup('env', 'TEST_INTERFACE') | default('ens224', true) }}"
 
 # Only launch the PCAP if the controller has a second interface for testing purposes.
 # The playbook will not fail out if this is not the case, and will display a message
