@@ -31,27 +31,45 @@
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=source_port:80+AND+@timestamp:[now-15m+TO+now]"
     return_content: y
-  register: results
-  until: results.json.hits.total != 0
+  register: results_sh
+  until: results_sh.json.hits.total != 0
   retries: 10
-  delay: 10
+  delay: 15
+  ignore_errors: y
+
+- name: Test | Check Suricata HTTP Results
+  assert:
+    that: results_sh.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received HTTP logs from Suricata"
 
 - name: Check Suricata DNS Data
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=source_port:53+AND+@timestamp:[now-15m+TO+now]"
     return_content: y
-  register: results
-  until: results.json.hits.total != 0
-  retries: 10
+  register: results_sd
+  until: results_sd.json.hits.total != 0
+  retries: 5
   delay: 10
+  ignore_errors: y
+
+- name: Test | Check Suricata DNS Results
+  assert:
+    that: results_sd.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received DNS logs from Suricata"
 
 - name: Check Suricata SMB Data
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=destination_port:445+AND+@timestamp:[now-15m+TO+now]"
     return_content: y
-  register: results
-  until: results.json.hits.total != 0
-  retries: 10
+  register: results_ss
+  until: results_ss.json.hits.total != 0
+  retries: 5
   delay: 10
+  ignore_errors: y
+
+- name: Test | Check Suricata SMB Results
+  assert:
+    that: results_ss.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received SMB logs from Suricata"
 
 ...

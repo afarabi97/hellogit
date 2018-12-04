@@ -17,15 +17,14 @@
     app_name: "kibana"
     index_regex: "^\\.kibana$"
 
-- name: Pull Kibana Dashboards
+- name: Check Kibana Dashboards
   uri:
     url: "{{ elastic_uri }}/.kibana/_search?q=type:dashboard+AND+\"Bro\""
     return_content: y
-  register: results
+  register: results_kd
 
-- name: Check Kibana Dashboards
-  fail:
-    msg: "Dashboards not properly loaded"
-  when: results.json.hits.total < 25
-
+- name: Test | Check Kibana Dashboards
+  assert:
+    that: results_kd.json.hits.total > 25
+    msg: "Kibana Dashboards are not loaded properly"
 ...

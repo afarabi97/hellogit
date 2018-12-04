@@ -44,19 +44,31 @@
   uri:
     url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
     return_content: y
-  register: results
-  until: results.json.hits.total != 0
-  retries: 10
-  delay: 10
+  register: results_mh
+  until: results_mh.json.hits.total != 0
+  retries: 15
+  delay: 15
+  ignore_errors: y
+
+- name: Test | Check Moloch HTTP Results
+  assert:
+    that: results_mh.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received HTTP logs from Moloch"
 
 - name: Check DNS Moloch Data
   uri:
     url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
     return_content: y
-  register: results
-  until: results.json.hits.total != 0
-  retries: 10
+  register: results_md
+  until: results_md.json.hits.total != 0
+  retries: 5
   delay: 10
+  ignore_errors: y
+
+- name: Test | Check Moloch DNS Results
+  assert:
+    that: results_md.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received DNS logs from Moloch"
 
 # For some reason, Moloch doesn't reliably report SMB traffic. Here's what sometimes works.
 # - name: Check SMB Moloch Data
