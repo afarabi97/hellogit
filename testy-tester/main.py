@@ -13,13 +13,14 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms)
-from lib.util import (get_controller, test_vms_up_and_alive, transform, get_bootstrap,
+from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
 from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
+from lib.kubernetes_utilities import wait_for_pods_to_be_alive
 
 
 def is_valid_file(path: str) -> bool:
@@ -64,6 +65,7 @@ class Runner:
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
+        parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
         parser.add_argument('--no-repo-sync', dest='is_repo_sync', action='store_false')
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
@@ -275,6 +277,22 @@ class Runner:
 
         perform_integration_tests(self.controller_node, kit.password)
 
+    def _simulate_powerfailure(self, kit: Kit):
+        """
+        Simulates a power failure on a given cluster.
+
+        :return:
+        """
+        if not self.args.simulate_powerfailure and not self.args.run_all:
+            return
+
+        vms = get_vms(kit, self.vsphere_client, "/root/")
+        self._power_off_vms(vms)
+        self._power_on_vms(vms)
+        test_vms_up_and_alive(kit, kit.nodes, 30)
+        master_node = get_node(kit, "master-server")
+        wait_for_pods_to_be_alive(master_node, 30)
+
     def execute(self):
         """
         Does the full or partial execution of cluster setup, and integration tests.
@@ -287,11 +305,13 @@ class Runner:
         self.vsphere_client = create_client(self.configuration)  # type: VsphereClient
 
         for kit in self.kits:
-            self.controller_node = get_controller(kit)  # type: Node
+            self.controller_node = get_node(kit, "controller")  # type: Node
             self._setup_controller(kit)
             self._run_kickstart(kit)
             self._run_kit(kit)
             self._run_integration(kit)
+            self._simulate_powerfailure(kit)
+
 
 def main():
     runner = Runner()

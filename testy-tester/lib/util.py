@@ -57,21 +57,25 @@ def render(tpl_path: str, context: dict) -> str:
     ).get_template(filename).render(kit=context)
 
 
-def get_controller(kit: Kit) -> Node:
+def get_node(kit: Kit, node_type: str="controller") -> Node:
     """
     Searches a YAML kit_configuration for a Controller VM and returns the first found
 
     :param kit:  A kit object defining the schema of the kit
+    :param node_type: The type of node we wish to pull out of the list. Defaults to controller.
     :return: The name of a controller for a kit
     """
 
-    controller = None  # type: Node
+    if node_type not in Node.valid_node_types:
+        logging.error("The node type: %s you passed into this function is invalid." % node_type)
+        exit(1)
 
+    some_node = None  # type: Node
     for node in kit.nodes:
-        if node.type == "controller":
-            controller = node
+        if node.type == node_type:
+            some_node = node
 
-    return controller
+    return some_node
 
 
 def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str) -> None:

@@ -1,7 +1,13 @@
+import os
+from kubernetes import client, config
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
 from fabric import Connection
+
+
+USERNAME = 'root'
+CONNECTION_TIMEOUT = 20
 
 
 class MongoConnectionManager(object):
@@ -127,7 +133,7 @@ class FabricConnectionWrapper:
         if not self._connection:
             self._connection = Connection(self._ipaddress,
                                           user=self._username,
-                                          connect_timeout=20,
+                                          connect_timeout=CONNECTION_TIMEOUT,
                                           connect_kwargs={'password': self._password,
                                                           'allow_agent': False,
                                                           'look_for_keys': False})
@@ -145,4 +151,58 @@ class FabricConnectionWrapper:
         return self._connection
 
     def __exit__(self, *exc):
+        self.close()
+
+
+class KubernetesWrapper:
+
+    def __init__(self, username: str,
+                 password: str,
+                 ip_address: str,
+                 kubernetes_config_path: str="kubernetes_config"):
+        """
+        Initializes the Kubernetes connection for making API calls to Kubernetes.
+
+        :param username: The username of the master server node
+        :param password: The password of the master server node
+        :param ip_address: The IP Address of the master server node
+        :param kubernetes_config_path: The name and path where we want to save save the kubernetes configuation on the
+                                       Integration runner (IE Jenkins server)
+        """
+        self._kubernetes_config_path = kubernetes_config_path
+        self._username = username
+        self._password = password
+        self._ip_address = ip_address
+        self._get_and_save_kubernetes_config()
+        config.load_kube_config(self._kubernetes_config_path)
+        self._kube_apiv1 = client.CoreV1Api()
+
+    def _get_and_save_kubernetes_config(self) -> None:
+        """
+        Retrieves the kuberntes configuration file from the master server.
+        """
+        config_path = '/root/.kube/config'
+        if (not os.path.exists(self._kubernetes_config_path)
+                or not os.path.isfile(self._kubernetes_config_path)):
+            with FabricConnectionWrapper(self._username,
+                                         self._password,
+                                         self._ip_address) as fab_conn:
+                fab_conn.get(config_path, self._kubernetes_config_path)
+
+    def close(self) -> None:
+        """
+        Closes the connections associated with this context wrapper.
+        """
+        pass
+
+    def __enter__(self) -> client.CoreV1Api():
+        """
+        Returns an instance of the kubernetes main API handler.  Documentation for this can be found here
+        https://github.com/kubernetes-client/python/blob/master/kubernetes/README.md
+
+        :return kubernetes api.
+        """
+        return self._kube_apiv1
+
+    def __exit__(self, *exc) -> None:
         self.close()
