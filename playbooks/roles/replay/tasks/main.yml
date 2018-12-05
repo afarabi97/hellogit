@@ -3,6 +3,7 @@
   yum:
     name: tcpreplay
     state: present
+  changed_when: False
 
 - name: Set Test Interface
   set_fact:
@@ -28,5 +29,6 @@
   with_fileglob:
     - "{{ install_dir }}/playbooks/roles/replay/pcaps/*"
   when: test_interface is defined
+  changed_when: False
 
 ...

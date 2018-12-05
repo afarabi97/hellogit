@@ -1,26 +1,19 @@
 ---
-DI2E:
-  Username: "user.name"
-  Password: ""
-  
-
 host_configuration:
   vcenter:
     ip_address: "172.16.20.106"
-    username: "user.name@sil.local"
-    password: ""
     datacenters: "SIL_Datacenter"
     cluster_name: "SIL_Dev_Cluster"
 
 kits:
   kit_1:
     kickstart_configuration:
-        dhcp_start: "172.16.77.100"
-        dhcp_end: "172.16.77.110"
+        dhcp_start: "172.16.82.x"
+        dhcp_end: "172.16.82.x"
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
-        gateway: "172.16.77.1"
+        gateway: "172.16.82.1"
         # Note root_password is specified under VM_settings.
 
     kit_configuration:
@@ -37,10 +30,10 @@ kits:
         es_storage_space_percentage:
 
         # Kubernetes cidr will probably be different on a per kit basis
-        kubernetes_cidr: "172.16.77.112"
+        kubernetes_cidr: "172.16.82.x"
 
         home_nets:
-            - "172.16.77.0/24"
+            - "172.16.82.0/24"
 
         # This is optional - you can fill it in if you need to
         external_nets:
@@ -57,7 +50,7 @@ kits:
     VM_settings:
         VMs:
           # Note: You should not have more than one of these
-          dnav_controller.lan:
+          testcontroller.lan:
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -67,36 +60,37 @@ kits:
             vm_guestos: "RHEL_7_64"
             vm_to_clone: "Test Template"
             domain: 'sil.local'
-            gateway: "172.16.77.1"
+            gateway: "172.16.82.1"
             dns:
-              - "172.16.77.1"
+              - "172.16.82.1"
               - "8.8.8.8"
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Navarro"
+              folder: "Testing"
             networking:
               std_portgroup_name: "VM Network"
               nics:
                 management_nic:
                   type: "manual" # This can be auto, manual, or link-local
-                  ip_address: "172.16.77.60"
+                  ip_address: "172.16.82.x"
                   subnet_mask: "255.255.255.0"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: "" # This is ignored if mac_auto_generated is true
-                  dv_portgroup_name: "77 Portgroup"
+                  dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
                 ens224:
-                  type: "manual"
-                  ip_address:
+                  type: "link-local" # This can be auto, manual, or link-local
+                  ip_address: "169.254.251.118"
+                  subnet_mask: "255.255.0.0"
                   start_connected: True
                   management_interface: False
                   mac_auto_generated: True
-                  mac_address: ""
+                  mac_address: "" # This is ignored if mac_auto_generated is true
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
             cpu_spec:
@@ -114,24 +108,24 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          dnavtfserver1.lan:
+          server1.lan:
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Navarro"
+              folder: "Testing"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.77.51"
+                  ip_address: "172.16.82.x"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "77 Portgroup"
+                  dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
             cpu_spec:
               sockets: 12
@@ -152,24 +146,24 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          dnavtfserver2.lan:
+          testserver2.lan:
             type: "server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Navarro"
+              folder: "Testing"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.77.52"
+                  ip_address: "172.16.82.x"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "77 Portgroup"
+                  dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
             cpu_spec:
               sockets: 16
@@ -190,24 +184,24 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          dnavtfsensor1.lan:
+          testsensor1.lan:
             type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Navarro"
+              folder: "Testing"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.77.53"
+                  ip_address: "172.16.82.x"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "77 Portgroup"
+                  dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
                 ens224:
                   type: "manual"
@@ -245,24 +239,24 @@ kits:
             - "CDROM"
             - "DISK"
             - "ETHERNET"
-          dnavtfsensor2.lan:
+          testsensor2.lan:
             type: "remote-sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev_Cluster"
               datastore: "NVMe Storage"
-              folder: "Navarro"
+              folder: "Testing"
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.77.54"
+                  ip_address: "172.16.82.x"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "77 Portgroup"
+                  dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
                 ens224:
                   type: "manual"

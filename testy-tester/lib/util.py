@@ -122,8 +122,10 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
 
 
 def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
-    cmd_to_mkdir = ("mkdir -p reports")
-    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='/opt/tfplenum-integration-testing/reports' && \
+    reports_path = "/opt/tfplenum-integration-testing/playbooks/reports"
+    cmd_to_list_reports = ("for i in " + reports_path + "/*; do echo $i; done")
+    cmd_to_mkdir = ("mkdir -p reports")    
+    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_path +"' && \
         export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
@@ -134,6 +136,11 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
         with ctrl_cmd.cd("/opt/tfplenum-integration-testing/playbooks"):
             ctrl_cmd.run(cmd_to_mkdir)
             ctrl_cmd.run(cmd_to_execute, shell=True)
+            reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
+            reports = reports_string_.replace("\r","").split("\n")
+            for report in  reports:
+                filename = report.replace(reports_path + "/", "")
+                ctrl_cmd.get(report, "reports/" + filename)
 
 
 def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
