@@ -33,8 +33,8 @@
     return_content: y
   register: results_bh
   until: results_bh.json.hits.total != 0
-  retries: 10
-  delay: 15
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Bro HTTP Results
@@ -48,8 +48,8 @@
     return_content: y
   register: results_bd
   until: results_bd.json.hits.total != 0
-  retries: 5
-  delay: 10
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Bro DNS Results
@@ -63,8 +63,8 @@
     return_content: y
   register: results_bs
   until: results_bs.json.hits.total != 0
-  retries: 5
-  delay: 10
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Bro SMB Results

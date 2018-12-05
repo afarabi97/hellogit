@@ -46,8 +46,8 @@
     return_content: y
   register: results_mh
   until: results_mh.json.hits.total != 0
-  retries: 15
-  delay: 15
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Moloch HTTP Results
@@ -61,8 +61,8 @@
     return_content: y
   register: results_md
   until: results_md.json.hits.total != 0
-  retries: 5
-  delay: 10
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Moloch DNS Results

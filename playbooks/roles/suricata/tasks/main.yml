@@ -33,8 +33,8 @@
     return_content: y
   register: results_sh
   until: results_sh.json.hits.total != 0
-  retries: 10
-  delay: 15
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Suricata HTTP Results
@@ -48,8 +48,8 @@
     return_content: y
   register: results_sd
   until: results_sd.json.hits.total != 0
-  retries: 5
-  delay: 10
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Suricata DNS Results
@@ -63,8 +63,8 @@
     return_content: y
   register: results_ss
   until: results_ss.json.hits.total != 0
-  retries: 5
-  delay: 10
+  retries: 60
+  delay: 5
   ignore_errors: y
 
 - name: Test | Check Suricata SMB Results
