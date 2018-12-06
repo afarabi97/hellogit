@@ -30,12 +30,12 @@
 - name: Check Suricata HTTP Data
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=source_port:80+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_sh
   until: results_sh.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Suricata HTTP Results
   assert:
@@ -45,12 +45,12 @@
 - name: Check Suricata DNS Data
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=source_port:53+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_sd
   until: results_sd.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Suricata DNS Results
   assert:
@@ -60,12 +60,12 @@
 - name: Check Suricata SMB Data
   uri:
     url: "{{ elastic_uri }}/*ids*/_search?q=destination_port:445+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_ss
   until: results_ss.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Suricata SMB Results
   assert:

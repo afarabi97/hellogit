@@ -4,6 +4,7 @@
   uri:
     url: "{{ elastic_uri }}"
   register: elasticsearch_result
+  ignore_errors: yes
 
 - name: Test | Elastichsearch service and port
   assert:

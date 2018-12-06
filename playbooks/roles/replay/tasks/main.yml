@@ -23,12 +23,16 @@
     msg: "{{ test_interface }} test interface not found. No PCAP will be played."
   when: test_interface is not defined
 
-- name: Start Testing PCAP Replay
+- name: Replay PCAPs
   shell: |
-    /usr/bin/tcpreplay --loop=3 --intf1={{ test_interface }} {{ item }}
-  with_fileglob:
-    - "{{ install_dir }}/playbooks/roles/replay/pcaps/*"
+    /usr/bin/tcpreplay --loop=5 --loopdelay-ms=3000 --intf1={{ test_interface }} {{ item }}
+  loop:
+    - "{{ pcap_dir }}/get.trace"
+    - "{{ pcap_dir }}/dns-dnskey.trace"
+    - "{{ pcap_dir }}/smb1_transaction_request.pcap"
   when: test_interface is defined
   changed_when: False
+  loop_control:
+    pause: 5
 
 ...

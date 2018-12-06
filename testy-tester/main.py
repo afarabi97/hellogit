@@ -274,7 +274,9 @@ class Runner:
         """
         if not self.args.run_integration_tests and not self.args.run_all:
             return
-
+        
+        master_node = get_node(kit, "master-server")
+        wait_for_pods_to_be_alive(master_node, 30)
         perform_integration_tests(self.controller_node, kit.password)
 
     def _simulate_powerfailure(self, kit: Kit):

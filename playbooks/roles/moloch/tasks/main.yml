@@ -19,19 +19,6 @@
     pod_name: "{{ item }}"
   with_items: "{{ get_pods.stdout_lines }}"
 
-# - set_fact:
-#     moloch_indices: "{{ moloch_indices }} + [ {{ item }} ]"
-#   with_items: "{{ elasticsearch_indices.json }}"
-#   when: "('sessions2' in item.index)
-#     or ('fields' in item.index)
-#     or ('queries' in item.index)
-#     or ('dstats' in item.index)
-#     or ('users' in item.index)
-#     or ('sequence' in item.index)
-#     or ('stats' in item.index)
-#     or ('files' in item.index)"
-
-
 - name: Check Moloch Indicies
   import_role:
     name: common
@@ -43,12 +30,12 @@
 - name: Check HTTP Moloch Data
   uri:
     url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_mh
   until: results_mh.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Moloch HTTP Results
   assert:
@@ -58,12 +45,12 @@
 - name: Check DNS Moloch Data
   uri:
     url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_md
   until: results_md.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Moloch DNS Results
   assert:

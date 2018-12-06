@@ -12,8 +12,7 @@
     - servers
     - sensors
     - remote-sensors
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - preflight
   tags: preflight
@@ -21,24 +20,21 @@
 - name: Replay PCAPs
   hosts:
   - localhost
-  gather_facts: yes
-  any_errors_fatal: true
+  gather_facts: yes  
   roles:
     - replay
   tags: replay
 
 - name: Verify kubernetes is healthy
   hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no 
   roles:
     - kubernetes
   tags: kubernetes
 
 - name: Verify ceph is healthy
   hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - ceph
   tags: ceph
@@ -46,8 +42,7 @@
 - name: Validate Elasticsearch
   hosts:
   - master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - elasticsearch
   tags: elasticsearch
@@ -55,8 +50,7 @@
 - name: Validate Kibana
   hosts:
   - master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - kibana
   tags: kibana
@@ -64,8 +58,7 @@
 - name: Validate Bro
   hosts:
   - master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - bro
   tags: bro
@@ -73,8 +66,7 @@
 - name: Validate Suricata
   hosts:
   - master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - suricata
   tags: suricata
@@ -82,8 +74,7 @@
 - name: Validate Moloch
   hosts:
   - master-server
-  gather_facts: no
-  any_errors_fatal: true
+  gather_facts: no  
   roles:
     - moloch
   tags: moloch

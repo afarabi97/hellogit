@@ -30,12 +30,12 @@
 - name: Check Bro HTTP Result
   uri:
     url: "{{ elastic_uri }}/*bro*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_bh
   until: results_bh.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Bro HTTP Results
   assert:
@@ -45,12 +45,12 @@
 - name: Check Bro DNS Result
   uri:
     url: "{{ elastic_uri }}/*bro*/_search?q=event_type:bro_dns+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_bd
   until: results_bd.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Bro DNS Results
   assert:
@@ -60,12 +60,12 @@
 - name: Check Bro SMB Result
   uri:
     url: "{{ elastic_uri }}/*bro*/_search?q=event_type:bro_smb_mapping+AND+@timestamp:[now-15m+TO+now]"
-    return_content: y
+    return_content: yes
   register: results_bs
   until: results_bs.json.hits.total != 0
   retries: 60
   delay: 5
-  ignore_errors: y
+  ignore_errors: yes
 
 - name: Test | Check Bro SMB Results
   assert:
