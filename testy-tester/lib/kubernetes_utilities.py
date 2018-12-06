@@ -62,11 +62,17 @@ def _check_pod_states(items: Dict) -> bool:
         if "curator" in item["metadata"]["name"]:
             continue
 
-        for status in item["status"]["container_statuses"]:
-            if not status["ready"]:
-                logging.info(item["metadata"]["name"])
-                if ret_val:
-                    ret_val = False
+        if item["status"]["phase"] == "Pending":
+            logging.info(item["metadata"]["name"] + " is in Pending state")
+            ret_val = False
+
+        if item["status"]["container_statuses"]:
+            for status in item["status"]["container_statuses"]:
+                if not status["ready"]:
+                    logging.info(item["metadata"]["name"])
+                    if ret_val:
+                        ret_val = False
+
     return ret_val
 
 

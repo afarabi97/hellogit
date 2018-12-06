@@ -48,6 +48,7 @@ kits:
         es_cpu_to_memory_ratio_default:
 
     VM_settings:
+
         VMs:
           # Note: You should not have more than one of these
           onesensoroneserver-ctrl.lan:
@@ -162,6 +163,62 @@ kits:
                 ens192:
                   type: "manual"
                   ip_address: "172.16.82.35"
+                  start_connected: True
+                  management_interface: True
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "82 Portgroup"
+                  std_portgroup_name:
+                ens224:
+                  type: "manual"
+                  ip_address:
+                  start_connected: True
+                  management_interface: False
+                  mac_auto_generated: True
+                  mac_address: ""
+                  dv_portgroup_name: "Monitoring Portgroup"
+                  std_portgroup_name:
+            cpu_spec:
+              sockets: 12
+              cores_per_socket: 1
+              hot_add_enabled: False
+              hot_remove_enabled: False
+            memory_spec:
+              size: 12
+              hot_add_enabled: False
+            boot_drive_name: "sda"
+            # Selects the ceph or pcap drives we will use during kit configuration
+            # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
+            # otherwise you should use pcap_drives instead.
+#            ceph_drives:
+#              - sdb
+            pcap_drives:
+              - sdb
+            # Selects the monitoring interfaces we will use during kit configuration.
+            monitoring_ifaces:
+              - ens224
+            disks:
+              boot: 20
+              ceph: 20
+            iso_file:
+            boot_order:
+            - "CDROM"
+            - "DISK"
+            - "ETHERNET"
+        ADD_NODE_VMs:
+          onesensoroneserver-sensor2.lan:
+            type: "sensor" # Can be controller, sensor, or server
+            vm_guestos: "RHEL_7_64"
+            storage_options:
+              datacenter: "SIL_Datacenter"
+              cluster: "SIL_Dev_Cluster"
+              datastore: "NVMe Storage"
+              folder: "Testing"
+            networking:
+              nics:
+                ens192:
+                  type: "manual"
+                  ip_address: "172.16.82.36"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True

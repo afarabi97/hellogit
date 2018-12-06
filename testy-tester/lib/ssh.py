@@ -30,7 +30,6 @@ class SSH_client():
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             save_stderr = sys.stdout
-            sys.stderr = open('trash', 'w')
             self.client.connect(hostname, port=port, username=username, password=password)
             sys.stderr = save_stderr
 
@@ -73,7 +72,6 @@ class SSH_client():
             client = paramiko.SSHClient() # type: SSHClient
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             save_stderr = sys.stdout
-            sys.stderr = open('trash', 'w')
             client.connect(hostname=hostname, username=username, password=password, port=port, timeout=timeout)
             sys.stderr = save_stderr
             client.close()

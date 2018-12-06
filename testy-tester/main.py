@@ -11,13 +11,13 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
-from lib.vm_utilities import (create_vms, create_client, clone_vm,
+from lib.vm_utilities import (destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms)
 from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
-from lib.frontend_tester import run_kickstart_configuration, run_tfplenum_configuration
+from lib.frontend_tester import KickstartSeleniumRunner, KitSeleniumRunner
 from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
 from lib.kubernetes_utilities import wait_for_pods_to_be_alive
@@ -64,6 +64,7 @@ class Runner:
         parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
+        parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
@@ -129,7 +130,6 @@ class Runner:
 
         logging.info("Running controller bootstrap...")
         run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name, self.args.is_repo_sync)
-
 
     def _setup_controller(self, kit: Kit):
         """
@@ -208,12 +208,16 @@ class Runner:
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
-    def controller_modifier(self ):
+    def controller_modifier(self):
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.make_controller_changes()
 
-
     def power_on_controller(self):
+        """
+        Powers on teh controller node.
+
+        :return:
+        """
         logging.info("Modifying Controller")
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/")
         try:
@@ -235,15 +239,15 @@ class Runner:
 
         self.power_on_controller()
         logging.info("Creating VMs...")
-        vms = create_vms(kit, self.vsphere_client)  # , iso_folder_path)  # type: list
+        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client)  # , iso_folder_path)  # type: list
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
 
         logging.info("Configuring Kickstart")
-        run_kickstart_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
+        runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        runner.run_kickstart_configuration(kit)
         self._power_on_vms(vms)
-
         logging.info("Waiting for servers and sensors to become alive...")
         test_vms_up_and_alive(kit, kit.nodes, 30)
 
@@ -263,7 +267,34 @@ class Runner:
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
         logging.info("Run TFPlenum configuration")
-        run_tfplenum_configuration(kit, self.controller_node.management_interface.ip_address, self.args.is_headless)
+        runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        runner.run_tfplenum_configuration(kit)
+
+    def _run_add_node(self, kit: Kit):
+        """
+        Runs the add node functionality.
+
+        :param kit:
+        :return:
+        """
+        if not self.args.run_add_node and not self.args.run_all:
+            return
+
+        add_nodes = kit.get_add_nodes()
+        if len(add_nodes) == 0:
+            logging.info("Add node skipped as there is nothing defined in the configuration file.")
+            return
+
+        vms = destroy_and_create_vms(add_nodes, self.vsphere_client)
+        self._power_on_vms(vms)
+        self._set_vm_macs(vms)
+        self._power_off_vms(vms)
+        runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        runner.run_kickstart_add_node(kit)
+        self._power_on_vms(vms)
+        test_vms_up_and_alive(kit, kit.add_nodes, 30)
+        kit_runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        kit_runner.run_kit_add_node(kit)
 
     def _run_integration(self, kit: Kit):
         """
@@ -311,8 +342,10 @@ class Runner:
             self._setup_controller(kit)
             self._run_kickstart(kit)
             self._run_kit(kit)
+            self._run_add_node(kit)
             self._run_integration(kit)
             self._simulate_powerfailure(kit)
+            self._run_integration(kit)
 
 
 def main():

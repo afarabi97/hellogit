@@ -413,18 +413,17 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     Disconnect(s)
 
 
-def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
+def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
     """
-    Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
+    Destroys and ceates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
-    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
+    :param nodes (List[Node]): A list of nodes we want to create in vsphere.
     :param client (VsphereClient): a vCenter server client
     :param iso_folder_path (str): Path to the ISO files folder
     :return (list): A list of all the VM objects created by the method
     """
-
     vms = []  # type: list
-    for node in kit.nodes:
+    for node in nodes:
         if node.type != "controller":
             logging.info("Creating VM " + node.hostname + "...")
             vm_instance = VirtualMachine(client, node, iso_folder_path)
@@ -432,7 +431,6 @@ def create_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[Vi
             vm_instance.create()
             vm_instance.set_node_instance(node)
             vms.append(vm_instance)
-
     return vms
 
 

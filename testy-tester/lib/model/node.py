@@ -150,6 +150,8 @@ class Node(object):
 
     #A static list of valid node types that are allowed
     valid_node_types = ("master-server", "remote-sensor", "controller", "sensor", "server")
+    valid_sensor_types = ("remote-sensor", "sensor")
+    valid_server_types = ("master-server", "server")
 
     """
     Represents a single node object such as a controller, server or sensor

@@ -13,6 +13,8 @@ import logging
 from lib.connection_mngs import FabricConnectionWrapper
 from datetime import datetime, timedelta
 from functools import wraps
+from lib.connection_mngs import MongoConnectionManager
+from typing import Dict
 
 
 def todict(obj: object, classkey=None) -> dict:
@@ -210,6 +212,92 @@ def get_interface_names_by_mac(kit: Kit) -> None:
             client.close()
 
 
+def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
+    nodes = []  # type: List[Node]
+    for v in vms:
+        node = Node(v, vms[v]['type'])  # type: Node
+        if node.type == "controller":
+            node.set_vm_to_clone(vms[v]['vm_to_clone'])
+            node.set_dns_list(vms[v]['dns'])
+            node.set_gateway(vms[v]['gateway'])
+            node.set_domain(vms[v]['domain'])
+
+        node.set_username(kit.username)
+        node.set_password(kit.password)
+
+        node.set_guestos(vms[v]['vm_guestos'])
+        storage = vms[v]['storage_options']  # type: dict
+        node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
+
+        # Set networking specs
+        nics = vms[v]['networking']['nics']  # type: dict
+        interfaces = []  # type: List[Interface]
+        for nic in nics:
+            interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'], nics[nic]['start_connected'],
+                                  nics[nic]['management_interface'])  # type: Interface
+            interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
+            interface.set_mac_address(nics[nic]['mac_address'])
+            try:
+                interface.set_subnet_mask(nics[nic]['subnet_mask'])
+            except KeyError:
+                pass
+            interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
+            interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
+
+            if interface.management_interface:
+                node.set_management_interface(interface)
+
+            # Add interface to list of interfaces
+            interfaces.append(interface)
+        # Set list of interfaces
+        node.set_interfaces(interfaces)
+
+        # Set cpu specs
+        cpu_spec = vms[v]['cpu_spec']  # type: dict
+        node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'],
+                             cpu_spec['hot_remove_enabled'])
+
+        # Set memory specs
+        memory_spec = vms[v]['memory_spec']  # type: dict
+        node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
+
+        # Set disk info
+        disk_spec = vms[v]['disks']  # type: dict
+        disks = []  # type: List[NodeDisk]
+        for d in disk_spec:
+            disk = NodeDisk(d, disk_spec[d])  # type: NodeDisk
+            disks.append(disk)
+        node.set_disks(disks)
+
+        # Set iso file path
+        node.set_iso_file(vms[v]['iso_file'])
+
+        # Set boot order
+        boot_order = []  # type: list
+        for o in vms[v]['boot_order']:
+            boot_order.append(o)
+        node.set_boot_order(boot_order)
+
+        if node.type != "controller":
+            node.set_boot_drive(vms[v]['boot_drive_name'])
+
+        if node.type == "remote-sensor":
+            node.set_pcap_drives(vms[v]['pcap_drives'])
+        elif node.type == "server" or node.type == "master-server":
+            node.set_ceph_drives(vms[v]['ceph_drives'])
+        elif kit.use_ceph_for_pcap and node.type == "sensor":
+            node.set_ceph_drives(vms[v]['ceph_drives'])
+        elif not kit.use_ceph_for_pcap and node.type == "sensor":
+            node.set_pcap_drives(vms[v]['pcap_drives'])
+
+        if node.type == "sensor" or node.type == "remote-sensor":
+            node.set_monitoring_ifaces(vms[v]['monitoring_ifaces'])
+
+        # Add node to list of nodes
+        nodes.append(node)
+    return nodes
+
+
 def transform(configuration: OrderedDict) -> List[Kit]:
     """
     Transform the yaml configuration into a list of Kit objects
@@ -309,91 +397,16 @@ def transform(configuration: OrderedDict) -> List[Kit]:
             kit.set_es_cpu_to_memory_ratio_default(configuration[kitconfig]["kit_configuration"]['es_cpu_to_memory_ratio_default'])
 
         vms = configuration[kitconfig]["VM_settings"]["VMs"]  # type: dict
-        nodes = []  # type: List[Node]
-        for v in vms:
-            node = Node(v, vms[v]['type'])  # type: Node
-            if node.type == "controller":
-                node.set_vm_to_clone(vms[v]['vm_to_clone'])
-                node.set_dns_list(vms[v]['dns'])
-                node.set_gateway(vms[v]['gateway'])
-                node.set_domain(vms[v]['domain'])
-
-            node.set_username(kit.username)
-            node.set_password(kit.password)
-
-            node.set_guestos(vms[v]['vm_guestos'])
-            storage = vms[v]['storage_options']  # type: dict
-            node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
-
-            # Set networking specs
-            nics = vms[v]['networking']['nics']  # type: dict
-            interfaces = []  # type: List[Interface]
-            for nic in nics:
-                interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'], nics[nic]['start_connected'],
-                                      nics[nic]['management_interface'])  # type: Interface
-                interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
-                interface.set_mac_address(nics[nic]['mac_address'])
-                try:
-                    interface.set_subnet_mask(nics[nic]['subnet_mask'])
-                except KeyError:
-                    pass
-                interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
-                interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
-
-                if interface.management_interface:
-                    node.set_management_interface(interface)
-
-                # Add interface to list of interfaces
-                interfaces.append(interface)
-            # Set list of interfaces
-            node.set_interfaces(interfaces)
-
-            # Set cpu specs
-            cpu_spec = vms[v]['cpu_spec']  # type: dict
-            node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'],
-                                 cpu_spec['hot_remove_enabled'])
-
-            # Set memory specs
-            memory_spec = vms[v]['memory_spec']  # type: dict
-            node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
-
-            # Set disk info
-            disk_spec = vms[v]['disks']  # type: dict
-            disks = []  # type: List[NodeDisk]
-            for d in disk_spec:
-                disk = NodeDisk(d, disk_spec[d])  # type: NodeDisk
-                disks.append(disk)
-            node.set_disks(disks)
-
-            # Set iso file path
-            node.set_iso_file(vms[v]['iso_file'])
-
-            # Set boot order
-            boot_order = []  # type: list
-            for o in vms[v]['boot_order']:
-                boot_order.append(o)
-            node.set_boot_order(boot_order)
-
-            if node.type != "controller":
-                node.set_boot_drive(vms[v]['boot_drive_name'])
-
-            if node.type == "remote-sensor":
-                node.set_pcap_drives(vms[v]['pcap_drives'])
-            elif node.type == "server" or node.type == "master-server":
-                node.set_ceph_drives(vms[v]['ceph_drives'])
-            elif kit.use_ceph_for_pcap and node.type == "sensor":
-                node.set_ceph_drives(vms[v]['ceph_drives'])
-            elif not kit.use_ceph_for_pcap and node.type == "sensor":
-                node.set_pcap_drives(vms[v]['pcap_drives'])
-
-            if node.type == "sensor" or node.type == "remote-sensor":
-                node.set_monitoring_ifaces(vms[v]['monitoring_ifaces'])
-
-            # Add node to list of nodes
-            nodes.append(node)
-
         # Add list of nodes to kit
-        kit.set_nodes(nodes)
+        kit.set_nodes(_transform_nodes(vms, kit))
+
+        try:
+            vms = configuration[kitconfig]["VM_settings"]["ADD_NODE_VMs"]  # type: dict
+            kit.set_add_nodes(_transform_nodes(vms, kit))
+        except KeyError as e:
+            logging.warning("Add node functionality will be skipped since there "
+                            "is nothing under the ADD_NODE_VMs section")
+            kit.set_add_nodes([])
 
         # Add list of kits to kit
         kits.append(kit)
@@ -437,3 +450,36 @@ def zero_pad(num: int) -> str:
     if num < 10:
         return "0" + str(num)
     return str(num)
+
+
+def wait_for_mongo_job(job_name: str, mongo_ip: str, minutes_timeout: int):
+    """
+    Connects to a mongo database and waits for a specific job name to complete.
+
+    Example record in mongo it is looking for:
+    { "_id" : "Kickstart", "return_code" : 0, "date_completed" : "2018-11-27 22:24:07", "message" : "Successfully executed job." }
+
+    :param job_name: The name of the job.
+    :param mongo_ip: The IP Address of the mongo instance.
+    :param timeout: The timeout in minutes.
+    :return:
+    """
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
+    with MongoConnectionManager(mongo_ip) as mongo_manager:
+        while True:
+            if future_time <= datetime.utcnow():
+                logging.error("The {} took way too long.".format(job_name))
+                exit(3)
+
+            result = mongo_manager.mongo_last_jobs.find_one({"_id": job_name})
+            if result:
+                if result["return_code"] != 0:
+                    logging.error(
+                        "{name} failed with message: {message}".format(name=result["_id"], message=result["message"]))
+                    exit(2)
+                else:
+                    logging.info("{name} Job completed successfully".format(name=job_name))
+                break
+            else:
+                logging.info("Waiting for {} to complete sleeping 5 seconds then rechecking.".format(job_name))
+                sleep(5)
