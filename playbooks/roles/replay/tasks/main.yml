@@ -1,10 +1,4 @@
 ---
-- name: Ensure tcpreplay is installed
-  yum:
-    name: tcpreplay
-    state: present
-  changed_when: False
-
 - name: Set Test Interface
   set_fact:
     test_interface: "{{ lookup('env', 'TEST_INTERFACE') | default('ens224', true) }}"
