@@ -533,4 +533,16 @@
       with_items: "{{ sensor_monitor_interface }}"
   tags:
     - enable-sensor-monitor-interface
+
+- name: Enable janitor script on master server
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - janitor
+  tags:
+    - janitor
+
 ...

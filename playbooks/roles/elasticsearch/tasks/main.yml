@@ -33,16 +33,16 @@
     - elastichq.yml
     - elastichq-svc.yml
     - elasticsearch.yml
-    - es-curator_v1beta1.yml
     - action_file.yml
     - config.yml
+#    - es-curator_v1beta1.yml
 
 - name: Flush Config
   command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
   with_items:
     - elastic
-    - es-curator
-    - curator-config
+#    - es-curator
+#    - curator-config
 
 - name: Create Config
   shell: |
@@ -50,10 +50,10 @@
   with_items:
     - elasticsearch.yml
 
-- name: Create Config
-  shell: |
-    kubectl create configmap curator-config --from-file {{ elastic_dir }}/action_file.yml \
-    --from-file {{ elastic_dir }}/config.yml
+#- name: Create Config
+#  shell: |
+#    kubectl create configmap curator-config --from-file {{ elastic_dir }}/action_file.yml \
+#    --from-file {{ elastic_dir }}/config.yml
 
 - name: Flush Deployments
   shell: |
@@ -70,7 +70,7 @@
     - es-master-statefulset.yml
     - elastichq.yml
     - elastichq-svc.yml
-    - es-curator_v1beta1.yml
+#    - es-curator_v1beta1.yml
 
 - name: Deploy Services
   include_role:
@@ -95,7 +95,7 @@
     - es-master-statefulset.yml
     - es-data-statefulset.yml
     - elastichq.yml
-    - es-curator_v1beta1.yml
+#    - es-curator_v1beta1.yml
 
 - name: Scale up Elasticsearch Statefulset
   shell: |

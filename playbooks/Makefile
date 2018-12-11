@@ -73,6 +73,9 @@ stenographer:
 docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
+janitor:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
+
 dnsmasq-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
