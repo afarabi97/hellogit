@@ -276,6 +276,7 @@ logFileCreation = true
 magicMode= {{ moloch_magicMode | default("libmagic") }}
 pcapReadMethod=tpacketv3
 tpacketv3NumThreads=2
+tpacketv3BlockSize={{ moloch_packet_v3_block_size }}
 # pcapWriteMethod=simple
 # pcapWriteSize = 2560000
 # packetThreads=5
