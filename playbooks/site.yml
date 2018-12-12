@@ -60,15 +60,6 @@
       enabled: no
   tags: disable-firewall
 
-#- name: Check for offline variable
-#  hosts: localhost
-#  gather_facts: no
-#  tasks:
-#    - name: Check if offline is defined
-#      fail:
-#        msg: 'Verify you have the offline group in your inventory file. It must be defined. See sample inventory.'
-#      when: offline is not defined or offline is none
-
 - name: Setup Repos
   hosts:
     - master-server
@@ -84,14 +75,6 @@
   tags: repos
 
 - name: Install Controller Dependancies
-  hosts: localhost
-  tasks:
-  - name: Install python-netaddr
-    yum:
-      name: "python-netaddr"
-      state: installed
-
-- name: Install Controller Dependancies
   hosts:
     - master-server
     - servers
@@ -103,7 +86,6 @@
       name: "NetworkManager-glib"
       state: installed
     register: network_manager_result
-  # TODO: This should be removed after updates have been out for a bit
   - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
     systemd:
       name: NetworkManager
@@ -146,38 +128,6 @@
       mode: 0644
       state: directory
 
-- name: Create Custom IDS Rules/Scripts Directories on Sensors
-  hosts:
-    - sensors
-    - remote-sensors
-  gather_facts: no
-  any_errors_fatal: true
-  tasks:
-  - name: Create Bro Script Directory
-    file:
-      path: "{{ bro_script_dir }}"
-      owner: root
-      group: root
-      mode: 0644
-      state: directory
-
-#- name: Copy Custom IDS Rules/Scripts to Sensors
-#  hosts:
-#    - sensors
-#    - remote-sensors
-#  gather_facts: no
-#  any_errors_fatal: true
-#  tasks:
-#  - name: Copy Bro Scripts
-#    copy:
-#      src: "{{ item }}"
-#      dest: "/scripts/"
-#      owner: "root"
-#      mode: 0644
-#      force: yes
-#    with_fileglob:
-#      - "{{ install_dir }}/playbooks/roles/bro/files/scripts/*"
-
 - name: dnsmasq
   hosts:
     - master-server
@@ -205,29 +155,6 @@
     - dnsmasq
   tags: dnsmasq
 
-#- name: Update all hosts to most recent packages
-  #hosts: all
-#  tasks:
-#  - name: Update all packages
-#    yum:
-#      name: '*'
-#      state: latest
-#      exclude: ceph-deploy,cockpit*,kube*
-#    register: system_updated
-#  - name: Reboot system to finish installing updates
-#    command: "/sbin/shutdown -r +1 --no-wall"
-#    async: 0
-#    poll: 0
-#    ignore_errors: yes
-#    when: system_updated is defined and system_updated.changed
-#  - name: Wait for reboot to complete
-#    wait_for:
-#      host: "{{ inventory_hostname }}"
-#      port: 22
-#      delay: 120
-#      timeout: 300
-#    delegate_to: localhost
-#    when: system_updated is defined and system_updated.changed
 - name: Remove existing SSH keys
   hosts:
     - localhost
@@ -482,30 +409,6 @@
     - suricata
   tags:
     - suricata
-
-#- name: Deploy Stenographer
-#  hosts:
-#    - sensors
-#    - remote-sensors
-#  gather_facts: no
-#  any_errors_fatal: true
-#  pre_tasks:
-#    - setup:
-#  roles:
-#    - stenographer
-#  tags:
-#    - stenographer
-
-#- name: Deploy Docket
-#  hosts: all
-#  gather_facts: no
-#  any_errors_fatal: true
-#  pre_tasks:
-#    - setup:
-#  roles:
-#    - docket
-#  tags:
-#    - docket
 
 - name: Enable sensor_monitor_interface
   hosts:

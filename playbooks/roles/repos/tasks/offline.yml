@@ -12,7 +12,6 @@
   - "{{ CentOS_Repos }}"
   - epel
   - epel-testing
-  - rocknsm
 
 - name: create list
   set_fact:

@@ -3,8 +3,7 @@
 ######################################################
 
 # NOTES: Remote Kafka is self contained and does not join the kafka cluster or zookeeper cluster.
-# Remote kafka is deployed per remote sensor  a name kafka-rocksensor1 these 
-# 
+
 ---
 
 - name: remote list

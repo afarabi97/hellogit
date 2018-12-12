@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun add-node
 
 # Default target, build *and* run tests
 all:
@@ -66,12 +66,6 @@ moloch:
 
 suricata:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
-
-stenographer:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t stenographer
-
-docket:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 janitor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor

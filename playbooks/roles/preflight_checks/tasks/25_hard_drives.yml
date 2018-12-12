@@ -31,17 +31,6 @@
   loop: "{{ data_disks }}"
   when: ( data_disks | length ) > 0
 
-# The below code will verify, per host, that every drive listed in
-#the inventory file for that host does not contain the root directory / the OS
-#- name: Verify the drives do not contain root
-#  shell: "lsblk | grep '{{ item[item.rfind('/') + 1:] }}'"
-#  with_items:
-#    - "{{ ceph_drive_list }}"
-#  register: command_result
-#  failed_when:
-#   - "'/' in command_result.stdout"
-#  changed_when: False
-
 # This next portion of the code is pure magic. I challenge someone to find
 # a way to get Ansible to do this in a cleaner way.
 
@@ -105,7 +94,6 @@
   set_fact:
     total_space_available: "{{ disk_results.results | map(attribute='ansible_facts.total_space') | map('int') | sum(start=0) }}"
 
-# TODO - this should include stenographer, but currently does not
 - name: Total the amount of space required by different applications
   set_fact:
     total_space_required: "{{ (elastic_pv_size * ( groups['elasticsearch'] | length )) + ( kafka_pv_size * ( groups['kafka'] | length )) + ( zookeeper_pv_size * ( hostvars[inventory_hostname].zookeeper_replicas )) + ( moloch_pcap_pv_size * ( groups['moloch'] | length )) }}"

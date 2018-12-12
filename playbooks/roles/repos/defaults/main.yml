@@ -33,12 +33,6 @@ additional_offline_repos:
     gpgcheck: false
     name: "offline-epel"
     description: "epel repo"
-  rocknsm:
-    baseurl: "{{ offline_repo_base }}/rocknsm"
-    gpgkey:  ""
-    gpgcheck: false
-    name: "offline-rocknsm"
-    description: "rocknsm repo"
   misc:
     baseurl: "{{ offline_repo_base }}/misc"
     gpgkey:  ""
@@ -66,14 +60,6 @@ centos_offline_repos:
     gpgcheck: false
     name: "offline-extras"
     description: "extras repo"
-
-additional_online_repos:
-  rocknsm:
-    baseurl: "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/"
-    gpgkey:  "https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg"
-    gpgcheck: true
-    name: "rocknsm"
-    description: "rocknsm repo"
 
 epel_online_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"

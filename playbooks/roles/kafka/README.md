@@ -12,7 +12,7 @@
 	* "Cluster Name" - Name your cluster ie: "zk"
 	- "Cluster Zookeeper Hosts"
 		- For the default zookeeper cluster use "zookeeper:2181"
-        - For remote sensor zookeeper use the kafka broker service name for the node the format will be "kakfa-<node shortname>-broker" and port 2181 ie: "kafka-rocksensor2-broker:2181"
+        - For remote sensor zookeeper use the kafka broker service name for the node the format will be "kakfa-<node shortname>-broker" and port 2181 ie: "kafka-tfsensor2-broker:2181"
 	- Check "Enable JMX Polling"
 	- Check "Poll consumer information"
 3. Press "Save" at the bottom

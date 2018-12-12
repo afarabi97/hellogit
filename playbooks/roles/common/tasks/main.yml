@@ -1,6 +1,6 @@
 ---
 
-# main.yml - Common tasks for ROCK
+# main.yml - Common tasks for TFplenum
 - import_tasks: 25_max_log_size.yml
 - import_tasks: 30_disable_selinux.yml
 - import_tasks: 35_install_common_packages.yml
