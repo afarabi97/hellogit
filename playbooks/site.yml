@@ -104,30 +104,6 @@
     when: "ansible_version.full is version('2.5', '<=')"
   tags: preflight
 
-- name: Create Error Logging Directory
-  hosts:
-    - master-server
-    - servers
-    - sensors
-    - remote-sensors
-  tasks:
-  - name: Create directories on nodes
-    file:
-      path: "{{ log_dir }}"
-      owner: root
-      group: root
-      mode: 0644
-      state: directory
-
-  - name: Create directory on controller
-    local_action:
-      module: file
-      path: "{{ log_dir }}"
-      owner: root
-      group: root
-      mode: 0644
-      state: directory
-
 - name: dnsmasq
   hosts:
     - master-server
