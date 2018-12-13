@@ -154,6 +154,11 @@
     msg: "moloch_packet_v3_block_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_packet_v3_block_size is not defined or moloch_packet_v3_block_size is none
 
+- name: Checking that moloch_packet_v3_num_threads is set
+  fail:
+    msg: "moloch_packet_v3_num_threads is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_packet_v3_num_threads is not defined or moloch_packet_v3_num_threads is none
+
 - name: Checking that moloch_pcapWriteSize is set
   fail:
     msg: "moloch_pcapWriteSize is not defined. Make sure it is defined in your inventory file. See sample inventory for help."

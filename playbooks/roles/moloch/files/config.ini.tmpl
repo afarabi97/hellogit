@@ -275,7 +275,7 @@ logFileCreation = true
 # https://github.com/aol/moloch/wiki/Settings#High_Performance_Settings
 magicMode= {{ moloch_magicMode | default("libmagic") }}
 pcapReadMethod=tpacketv3
-tpacketv3NumThreads=2
+tpacketv3NumThreads={{ moloch_packet_v3_num_threads }}
 tpacketv3BlockSize={{ moloch_packet_v3_block_size }}
 # pcapWriteMethod=simple
 # pcapWriteSize = 2560000
