@@ -120,3 +120,6 @@ add-node:
 
 remove-node:
 	ansible-playbook $(REMOVE_PLAYBOOK) -i $(INVENTORY)
+
+change-interfaces:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces,vars-configmap	

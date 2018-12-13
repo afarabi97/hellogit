@@ -15,6 +15,6 @@
 - import_tasks: 10_setup.yml
   when: inventory_hostname in groups['master-server']
   tags:
-    - rerun-moloch
+    - moloch-setup
 
 ...
