@@ -2,6 +2,11 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+if [ "$SCRIPT_DIR" != "/opt/tfplenum-integration-testing/testy-tester" ]; then
+  echo "Error: tfplenum-integration-testing must be in /opt"
+  exit 1
+fi
+
 # Default to repos for now
 export TFPLENUM_BOOTSTRAP_TYPE=repos
 
@@ -33,6 +38,10 @@ EOF
 }
 
 function setup_chrome(){
+  if rpm -q google-chrome-stable > /dev/null 2>&1 ; then
+    yum remove google-chrome-stable -y > /dev/null 2>&1
+  fi
+
   run_cmd yum install http://yum.labrepo.lan/misc/google-chrome-stable-69.0.3497.100-1.x86_64.rpm -y
   run_cmd curl -s -o /usr/local/bin/chromedriver http://misc.labrepo.lan/chromedriver
   run_cmd chmod 755 /usr/local/bin/chromedriver
