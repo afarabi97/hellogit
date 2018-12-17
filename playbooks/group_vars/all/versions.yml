@@ -13,6 +13,7 @@ k8s_version: "1.14.7"
 elastic_version: "6.5.3"
 coreos_version: "1688.5.3"
 rbd_provisioner_version: "v0.1.1"
+mumble_version: "v1.0.0"
 
 # Docker Image List
 kube_images:
@@ -27,6 +28,7 @@ kube_images:
   - tfplenum/kafka:alpine
   - tfplenum/kafka-manager:alpine
   - tfplenum/elasticsearch:{{ elastic_version }}
+  - tfplenum/mumble-server:{{ mumble_version }}
   - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
   - docker.elastic.co/kibana/kibana:{{ elastic_version }}
