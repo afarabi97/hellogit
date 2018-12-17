@@ -3,13 +3,6 @@
 ######################################################
 ---
 
-# This is here because Kubernetes repeatedly failed to download the image.
-# See: https://github.com/kubernetes/kubernetes/issues/59376
-# Pulling it through Docker resolves the issue
-#- name: Perform Elasticsearch image download workaround
-#  docker_image:
-#    name: "{{ elasticsearch_image }}:{{ elastic_version }}"
-
 - name: "Create directories"
   file:
     group: "{{ elastic_group }}"
@@ -30,30 +23,20 @@
     - es-master-statefulset.yml
     - es-data-statefulset.yml
     - es-svc.yml
-    - elastichq.yml
-    - elastichq-svc.yml
     - elasticsearch.yml
     - action_file.yml
     - config.yml
-#    - es-curator_v1beta1.yml
 
 - name: Flush Config
   command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
   with_items:
     - elastic
-#    - es-curator
-#    - curator-config
 
 - name: Create Config
   shell: |
     kubectl create configmap elastic --from-file {{ elastic_dir }}/{{ item }}
   with_items:
     - elasticsearch.yml
-
-#- name: Create Config
-#  shell: |
-#    kubectl create configmap curator-config --from-file {{ elastic_dir }}/action_file.yml \
-#    --from-file {{ elastic_dir }}/config.yml
 
 - name: Flush Deployments
   shell: |
@@ -68,9 +51,6 @@
     - es-svc.yml
     - es-data-statefulset.yml
     - es-master-statefulset.yml
-    - elastichq.yml
-    - elastichq-svc.yml
-#    - es-curator_v1beta1.yml
 
 - name: Deploy Services
   include_role:
@@ -82,7 +62,6 @@
   with_items:
     - es-discovery-svc.yml
     - es-svc.yml
-    - elastichq-svc.yml
 
 - name: Deploy Pods
   include_role:
@@ -94,8 +73,6 @@
   with_items:
     - es-master-statefulset.yml
     - es-data-statefulset.yml
-    - elastichq.yml
-#    - es-curator_v1beta1.yml
 
 - name: Scale up Elasticsearch Statefulset
   shell: |
