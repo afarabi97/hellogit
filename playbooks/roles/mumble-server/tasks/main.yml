@@ -1,0 +1,23 @@
+---
+
+- set_fact:
+    cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get mumble pods
+  shell: |
+    {{ cmd }} | grep 'mumble-server-'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Mumble Process
+  include_role:
+    name: common
+    tasks_from: check_pod_process
+  vars:
+    app_name: "mumble-server"
+    process_name: "mumble-server"
+    pod_name: "{{ item }}"
+  with_items: "{{ get_pods.stdout_lines }}"
+  ignore_errors: yes
+
+...
