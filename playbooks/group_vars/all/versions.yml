@@ -51,4 +51,3 @@ kube_images:
   - quay.io/external_storage/rbd-provisioner:{{ rbd_provisioner_version }}
   - quay.io/coreos/flannel:v0.10.0-amd64
   - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
-  - quay.io/pires/docker-elasticsearch-curator:5.5.4
