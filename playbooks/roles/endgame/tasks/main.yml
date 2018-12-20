@@ -21,6 +21,18 @@
     dest: "{{ endgame_dir }}/endgame2elastic.py"
     mode: "0744"
 
+- name: Get Elasticsearch Service IP
+  shell: "kubectl get svc -n default | grep 'elasticsearch ' | awk '{print $4}'"
+  register: es_svc_ip
+
+- name: Push Elasticsearch template
+  uri:
+    url: "http://{{ es_svc_ip.stdout }}:9200/_template/endgame"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('file', 'files/template.json') }}"
+    status_code: 200, 201
+
 - name: Start cron job on the master server to run eg2es script every 15 minutes
   cron:
     name: "ES-Endgame"
