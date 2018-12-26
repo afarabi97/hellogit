@@ -20,6 +20,7 @@ input {
     bootstrap_servers => "kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}"
     codec => json
     auto_offset_reset => "earliest"
+    tags => ["bro"]
   }
 {% endfor %}
 }

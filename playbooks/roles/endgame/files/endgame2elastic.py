@@ -1,8 +1,9 @@
 from __future__ import print_function
 import sys
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk, streaming_bulk, scan
+from elasticsearch.helpers import scan
 from elasticsearch.exceptions import NotFoundError
+from kafka import KafkaProducer
 import RestResponse
 import requests
 import json
@@ -131,7 +132,6 @@ class Endgame2Elastic:
 
         collection, next_endpoint = self.api.collection(id, scope, raw)
         hostname = collection.data.endpoint.hostname
-        index = timestamp.strftime('endgame-%y%m%dh%H')
 
         while True:
             results = collection.data.data.results
@@ -146,12 +146,7 @@ class Endgame2Elastic:
                 r.timestamp = timestamp
                 r.collection_type = collectionTypes[typ]['friendly']
                 r.collection_id = id
-
-                yield {
-                    '_index': index,
-                    '_type': 'doc',
-                    '_source': r
-                }
+                yield r
 
             if not next_endpoint:
                 break
@@ -193,12 +188,14 @@ def toUrl(str):
     return 'https://' + str
 
 if len(sys.argv) != 5:
-    print("usage: endgame2elastic.py elastic_hostname endgame_hostname endgame_username endgame_password")
+    print("usage: endgame2elastic.py elastic_url endgame_url endgame_username endgame_password")
     sys.exit()
 
+kafka = KafkaProducer(bootstrap_servers=['kafka.default.svc.cluster.local:9092'], value_serializer=lambda m: json.dumps(m).encode('ascii'))
 es = Elasticsearch(sys.argv[1])
 eg = Endgame2Elastic(toUrl(sys.argv[2]), sys.argv[3], sys.argv[4])
 eg.prepareForDelta(es)
-for ok, result in streaming_bulk(es, eg.getCollections(), max_retries=2, yield_ok=False):
-    print('Failed: '+str(result))
+for r in eg.getCollections():
+    kafka.send('endgame-raw', r)
 eg.saveForDelta(es)
+kafka.flush()

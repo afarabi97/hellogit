@@ -83,22 +83,14 @@
     timeout: 300
   delegate_to: localhost
 
-- name: Clear All Kibana Config
+- name: Wait for Kibana to become healthy
   uri:
-    url: "http://{{ es_svc_ip.stdout }}:9200/.kibana"
-    method: DELETE
-  ignore_errors: true
-
-- name: Set Default Kibana Pattern
-  uri:
-    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/settings/defaultIndex"
-    method: POST
-    body_format: json
-    headers:
-      kbn-xsrf: y
-    body:
-      value: "logstash-*"
-    status_code: 200, 201
+    url: "http://{{ kibana_svc_ip.stdout }}/api/status"
+    return_content: yes
+  register: results_kibana
+  until: (results_kibana.status == 200) and (results_kibana.json.status.overall.state == 'green')
+  retries: 20
+  delay: 5
 
 - name: Load Dashboards
   uri:
@@ -111,3 +103,14 @@
     status_code: 200, 201
   with_fileglob:
     - "files/dashboards/*.json"
+
+- name: Set Default Kibana Pattern
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/settings/defaultIndex"
+    method: POST
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body:
+      value: "logstash-*"
+    status_code: 200, 201

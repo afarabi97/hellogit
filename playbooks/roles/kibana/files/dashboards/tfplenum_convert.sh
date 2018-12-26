@@ -11,9 +11,9 @@ cd "$(dirname "$0")" # Change CWD to script location
 
 nav=$(/usr/bin/jq -c . tfplenum_nav.txt)
 
-/usr/bin/find . -name '*.json' | while read -r f ;  do
+/usr/bin/find . -name '*.json' -not -name 'pattern.json' | while read -r f ;  do
   /usr/bin/cat $f |
-  #/usr/bin/jq 'del(.objects[] | select(.type=="index-pattern"))' | # We are using a different version of ES which doesn't support saved index patterns... and we are loading it somewhere else anyways
+  /usr/bin/jq 'del(.objects[] | select(.type=="index-pattern"))' | # We are loading it from pattern.json anyways
   /usr/bin/jq --arg nav "$nav" '(.objects[] | .attributes | select(.title=="Navigation") | .visState) |= $nav' |
   /usr/bin/sponge "$f" ;
 done

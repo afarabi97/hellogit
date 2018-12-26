@@ -8,6 +8,7 @@
     name:
       - elasticsearch
       - restresponse
+      - kafka
 
 - name: Create endgame directory
   file:
