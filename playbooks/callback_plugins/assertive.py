@@ -62,7 +62,7 @@ class CallbackModule(CallbackModule_default):
             self.group['name'] = name
 
     def process_assert_result(self, result, skipped=False):
-        '''process the results from a single assert: action.  a single 
+        '''process the results from a single assert: action.  a single
         assert: may contain multiple tests.'''
 
         hostname = result._host.get_name()
@@ -150,7 +150,7 @@ class CallbackModule(CallbackModule_default):
         if result._task.action == 'assert':
             self.process_assert_result(result)
         else:
-            super(CallbackModule, self).v2_runner_on_item_ok(result)
+            super(CallbackModule, self).v2_runner_item_on_ok(result)
 
     def v2_runner_on_ok(self, result):
         if result._task.action == 'assert':
