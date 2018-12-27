@@ -3,7 +3,7 @@ host_configuration:
   vcenter:
     ip_address: "172.16.20.106"
     datacenters: "SIL_Datacenter"
-    cluster_name: "SIL_Dev_Cluster"
+    cluster_name: "SIL_Dev-Cluster"
 
 kits:
   kit_1:
@@ -68,7 +68,7 @@ kits:
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev_Cluster"
+              cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
               folder: "Testing"
             networking:
@@ -114,7 +114,7 @@ kits:
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev_Cluster"
+              cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
               folder: "Testing"
             networking:
@@ -155,7 +155,7 @@ kits:
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev_Cluster"
+              cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
               folder: "Testing"
             networking:
@@ -211,7 +211,7 @@ kits:
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev_Cluster"
+              cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
               folder: "Testing"
             networking:

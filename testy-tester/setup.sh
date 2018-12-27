@@ -54,7 +54,11 @@ function setup_sdk(){
   popd > /dev/null
 }
 
-function setup_virtenv(){
+function install_packages() {
+  yum install gcc python36 python36-devel -y
+}
+
+function setup_virtenv(){  
   run_cmd python3.6 -m venv tfp-env
   run_cmd tfp-env/bin/pip install --upgrade pip
 }
@@ -76,6 +80,7 @@ function finish(){
 setup_pip
 setup_chrome
 setup_sdk
+install_packages
 setup_virtenv
 install_requirements
 finish
