@@ -89,7 +89,7 @@ storage-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 logstash-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,kafka,bro,moloch,suricata
