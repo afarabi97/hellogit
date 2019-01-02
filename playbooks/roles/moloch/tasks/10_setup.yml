@@ -65,28 +65,6 @@
     - svc-viewer.yml
     - moloch-viewer.yml
 
-- name: "Clean up kube configmap"
-  command: "kubectl delete configmap {{ item }} --ignore-not-found"
-  with_items:
-    - moloch
-    - moloch-bootstrap
-
-- name: "Clean up kube for deployment "
-  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
-  with_items:
-    - bootstrap
-    - deploy
-    - deploy-remote
-    - svc-viewer
-    - moloch-viewer
-
-- name: "Wait for deployment to cleanup"
-  shell: |
-    while [ $(kubectl get pods | grep moloch | wc -l) -gt 0 ]; do
-      echo -n .;
-      sleep 1;
-    done;
-
 - name: "Create kube config"
   shell: |
     kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
