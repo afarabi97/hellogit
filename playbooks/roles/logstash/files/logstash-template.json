@@ -5,7 +5,8 @@
   "settings":{
     "number_of_replicas":0,
     "number_of_shards":1,
-    "index.refresh_interval":"30s"
+    "index.refresh_interval":"30s",
+    "index.mapping.total_fields.limit": 2000
   },
   "mappings":{
     "doc":{

@@ -39,3 +39,4 @@
     name: "ES-Endgame"
     minute: "*/15"
     job: "/usr/bin/flock -n /tmp/eg2es.lock /usr/bin/python2 {{ endgame_dir }}/endgame2elastic.py elasticsearch {{ endgame_host }} {{ endgame_username }} '{{ endgame_password }}' > /var/log/endgame2elastic.log 2>&1"
+  when: endgame_host is defined
