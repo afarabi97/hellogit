@@ -1,34 +1,15 @@
 ---
 
-- name: "Clean up kube configmap"
-  command: "kubectl delete configmap {{ item }} --ignore-not-found"
+- include_tasks: 05_files.yml
   when: inventory_hostname in groups['master-server']
-  with_items:
-    - moloch
-    - moloch-bootstrap
 
-- name: "Clean up kube for deployment "
-  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
+- include_tasks: 10_cleanup.yml
   when: inventory_hostname in groups['master-server']
-  with_items:
-    - bootstrap
-    - deploy
-    - deploy-remote
-    - svc-viewer
-    - moloch-viewer
 
-- name: "Wait for deployment to cleanup"
-  when: inventory_hostname in groups['master-server']
-  shell: |
-    while [ $(kubectl get pods | grep moloch | wc -l) -gt 0 ]; do
-      echo -n .;
-      sleep 1;
-    done;
-
-- include_tasks: 05_format_drives.yml
+- include_tasks: 15_format_drives.yml
   when: (inventory_hostname in groups['moloch'] or inventory_hostname in groups['remote-sensors']) and not use_ceph_for_pcap and pcap_disk is not none
 
-- include_tasks: 05_format_drives.yml
+- include_tasks: 15_format_drives.yml
   when: inventory_hostname in groups['moloch'] 
     and not use_ceph_for_pcap 
     and pcap_disk is not none
@@ -37,7 +18,7 @@
   tags:
     - moloch-scale
 
-- import_tasks: 10_setup.yml
+- import_tasks: 20_setup.yml
   when: inventory_hostname in groups['master-server']
   tags:
     - moloch-setup

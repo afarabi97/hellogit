@@ -7,14 +7,6 @@
 #  docker_image:
 #    name: "{{ moloch_image}}:{{ moloch_tag }}"
 
-- name: 'Create directories'
-  file:
-    path: "{{ moloch_dir }}"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: "{{ moloch_dir_mode }}"
-    state: directory
-
 - name: 'Create unclustered pcap directories'
   file:
     path: "{{ moloch_pcap_folder }}"
@@ -38,32 +30,7 @@
   with_items:
     - "{{ groups['remote-sensors'] }}"
 
-- name: 'Copy files'
-  copy:
-    src: files/{{ item }}
-    dest: "{{ moloch_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - config.ini.tmpl
-    - config.ini.conf
-    - config-viewer.ini.conf
 
-- name: 'Copy templates'
-  template:
-    src: "templates/{{ item }}"
-    dest: "{{ moloch_dir }}/{{ item }}"
-    mode: "{{ moloch_file_mode }}"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-  with_items:
-    - auto_init
-    - bootstrap.yml
-    - deploy.yml
-    - deploy-remote.yml
-    - svc-viewer.yml
-    - moloch-viewer.yml
 
 - name: "Create kube config"
   shell: |
