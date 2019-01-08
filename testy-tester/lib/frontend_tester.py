@@ -185,6 +185,7 @@ class KickstartSeleniumRunner(SeleniumRunner):
         element.send_keys(node.management_interface.mac_address)
 
         element = self._browser.find_element_by_name("boot_drive" + index)
+        element.clear()
         element.send_keys(node.boot_drive)
 
     def _run_add_node_section(self, nodes: List[Node]) -> None:
@@ -362,20 +363,20 @@ class KitSeleniumRunner(SeleniumRunner):
 
         :returns:
         """
-        element = self._browser.find_element_by_name("sensor_storage_type")
-        element.click()
-
-        if kit.use_ceph_for_pcap:
-            element = self._browser.find_element_by_name("Use Ceph clustered storage for PCAP")
-            element.click()
-
-            if kit.moloch_pcap_storage_percentage is not None:
-                element = self._browser.find_element_by_name("moloch_pcap_storage_percentage")
-                element.clear()
-                element.send_keys(str(kit.moloch_pcap_storage_percentage))
-        else:
-            element = self._browser.find_element_by_name("Use hard drive for PCAP storage")
-            element.click()
+        # element = self._browser.find_element_by_name("sensor_storage_type")
+        # element.click()
+        #
+        # if kit.use_ceph_for_pcap:
+        #     element = self._browser.find_element_by_name("Use Ceph clustered storage for PCAP")
+        #     element.click()
+        #
+        #     if kit.moloch_pcap_storage_percentage is not None:
+        #         element = self._browser.find_element_by_name("moloch_pcap_storage_percentage")
+        #         element.clear()
+        #         element.send_keys(str(kit.moloch_pcap_storage_percentage))
+        # else:
+        #     element = self._browser.find_element_by_name("Use hard drive for PCAP storage")
+        #     element.click()
 
         if kit.elasticsearch_cpu_percentage is not None:
             element = self._browser.find_element_by_name("elastic_cpu_percentage")
