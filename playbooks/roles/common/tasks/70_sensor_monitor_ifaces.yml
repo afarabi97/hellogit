@@ -11,12 +11,21 @@
       path: "{{ install_dir }}/interfaces"
       state: directory
 
-  - name: Set on boot to yes
-    replace:
-      path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
-      regexp: "ONBOOT=no"
-      replace: "ONBOOT=yes"
-    with_items: "{{ sensor_monitor_interface }}"
+  - block:
+      - name: Set on boot to yes
+        replace:
+          path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+          regexp: "ONBOOT=no"
+          replace: "ONBOOT=yes"
+        with_items: "{{ sensor_monitor_interface }}"
+    rescue:
+      - fail:
+          msg: |
+            Could not find a required interface network script. This frequently 
+            happens when you add an interface to the host after Kickstarting. Try
+            running the command nmtui and verify that you have a profile for each
+            interface on your host. Monitor interfaces should be set to link local.
+            The profile name should be the same as the interface name.
 
   - name: Set bootproto to link-local
     replace:
