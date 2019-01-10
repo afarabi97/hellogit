@@ -74,7 +74,7 @@
     - repos
   tags: repos
 
-- name: Install Controller Dependancies
+- name: Install Controller Dependencies
   hosts:
     - master-server
     - servers

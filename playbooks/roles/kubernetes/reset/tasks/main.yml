@@ -18,12 +18,11 @@
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
-    name: "{{ item }}"
+    name:
+      - kubeadm
+      - kubelet
+      - kubectl
     state: absent
-  with_items:
-    - kubeadm
-    - kubelet
-    - kubectl
   ignore_errors: yes
 
 - name: Remove Artifacts

@@ -21,11 +21,8 @@
 
 - name: Install packages
   yum:
-    name: "{{ item }}"
+    name: "{{ package_list }}"
     state: installed
-  when: (item.test is undefined) or (item.test)
-  with_items:
-    - "{{ package_list }}"
 
 #- name: Enable Cockpit
 #  systemd:

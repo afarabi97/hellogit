@@ -5,27 +5,25 @@
 
 - name: 'Install Kubernetes packages'
   yum:
-    name: "{{ item }}"
-    state: 'installed'
+    name:
+      - "kubeadm-{{ kube_rpm_version }}"
+      - "kubelet-{{ kube_rpm_version }}"
+      - "kubectl-{{ kube_rpm_version }}"
+    state: installed
     allow_downgrade: yes
-  with_items:
-    - "kubeadm-{{ kube_rpm_version }}"
-    - "kubelet-{{ kube_rpm_version }}"
-    - "kubectl-{{ kube_rpm_version }}"
   register: installed_packages
   notify:
     - restart kubelet
 
 - name: 'Install Kubernetes support packages'
   yum:
-    name: "{{ item }}"
-    state: 'installed'
-  with_items:
-    - "docker"
-    - "device-mapper-persistent-data"
-    - "lvm2"
-    - "ebtables"
-    - "ethtool"
+    name:
+      - "docker"
+      - "device-mapper-persistent-data"
+      - "lvm2"
+      - "ebtables"
+      - "ethtool"
+    state: installed
   register: installed_packages
   notify:
     - restart docker
