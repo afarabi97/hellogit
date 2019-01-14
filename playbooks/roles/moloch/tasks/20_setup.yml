@@ -30,8 +30,6 @@
   with_items:
     - "{{ groups['remote-sensors'] }}"
 
-
-
 - name: "Create kube config"
   shell: |
     kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
@@ -57,9 +55,6 @@
     echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
   register: moloch_bootstrap_pod
 
-- name: Stop moloch services
-  shell: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- /bin/bash -c 'systemctl stop molochcapture molochviewer'"
-  ignore_errors: yes
 
 - name: Configure Elasticsearch for moloch
   shell: "kubectl exec {{ moloch_bootstrap_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
@@ -72,12 +67,6 @@
 
 - name: Add user
   command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
-
-- name: Remove Bootstrap
-  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
-
-- name: Remove Bootstrap config
-  command: kubectl delete configmap moloch-bootstrap
 
 - name: Deploy Services
   include_role:
@@ -108,4 +97,34 @@
   tags:
     - moloch-scale
 
+- name: Get Moloch Viewer pod name
+  shell: |
+    while [ "$(kubectl get pods | grep moloch-viewer | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
+      sleep 1;
+    done;
+    echo -n "$(kubectl get pods | grep moloch-viewer | head -n 1 | awk '{ print $1 }')"
+  register: moloch_viewer_pod
+
+- name: Stop moloch services
+  shell: "kubectl exec -ti {{ moloch_viewer_pod.stdout }} -- /bin/bash -c 'systemctl stop molochviewer'"
+  ignore_errors: yes
+
+- name: Configure Elasticsearch for moloch
+  shell: "kubectl exec {{ moloch_viewer_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
+  register: debug_output
+  failed_when: debug_output.rc != 0 and debug_output.rc != 1
+  #ignore_errors: yes
+
+- name: Add user
+  command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
+
+- name: Restart moloch services
+  shell: "kubectl exec -ti {{ moloch_viewer_pod.stdout }} -- /bin/bash -c 'systemctl restart molochviewer'"
+  ignore_errors: yes
+
+- name: Remove Bootstrap
+  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
+
+- name: Remove Bootstrap config
+  command: kubectl delete configmap moloch-bootstrap
 ...

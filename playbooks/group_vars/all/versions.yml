@@ -14,15 +14,16 @@ elastic_version: "6.5.3"
 coreos_version: "1688.5.3"
 rbd_provisioner_version: "v0.1.1"
 mumble_version: "v1.0.0"
-
+moloch_version: "1.7.0"
+moloch_viewer_version: "1.6.2"
 # Docker Image List
 kube_images:
   - busybox:{{busybox_version}}
   - metallb/controller:{{metallb_version}}
   - metallb/speaker:{{metallb_version}}
   - tfplenum/bro
-  - tfplenum/moloch
-  - tfplenum/moloch-viewer
+  - tfplenum/moloch:{{moloch_version}}
+  - tfplenum/moloch-viewer:{{moloch_viewer_version}}
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine
   - tfplenum/kafka:alpine
