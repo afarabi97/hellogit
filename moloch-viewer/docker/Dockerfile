@@ -2,7 +2,7 @@
 
 FROM tfplenum/base:latest
 RUN yum -y install expect nodejs libpng gcc-c++ bzip2
-RUN yum -y install https://files.molo.ch/builds/centos-7/moloch-1.5.2-1.x86_64.rpm
+RUN yum -y install https://files.molo.ch/builds/centos-7/moloch-1.6.2-1.x86_64.rpm
 
 RUN cd /data/moloch/viewer && \
     npm install fs-ext
@@ -13,6 +13,8 @@ RUN yum -y autoremove gcc-c++ && \
     yum -y autoremove && \
     yum clean all && \
     rm -rf /var/cache/yum
+
+RUN mkdir /data/moloch/raw
 
 COPY molochviewer.service /usr/lib/systemd/system/
 RUN systemctl enable molochviewer

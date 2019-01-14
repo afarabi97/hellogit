@@ -2,8 +2,9 @@
 
 FROM tfplenum/base:latest
 RUN yum -y install expect nodejs libpng gcc-c++ bzip2
-RUN yum -y install https://files.molo.ch/builds/centos-7/moloch-1.5.2-1.x86_64.rpm
+RUN yum -y install https://files.molo.ch/builds/centos-7/moloch-nightly.x86_64.rpm
 
+RUN mv /data/moloch-nightly /data/moloch
 RUN cd /data/moloch/viewer && \
     npm install fs-ext
 
@@ -29,6 +30,9 @@ RUN systemctl enable molochcapture molochviewer
 COPY config.ini.conf /etc/icdm/conf/
 COPY config.ini.tmpl /etc/icdm/templates/
 
+# temp till we stop using nightly
+COPY moloch_add_user.sh /data/moloch/bin/
+RUN chmod 777 /data/moloch/bin/moloch_add_user.sh
 # Fix for error in beta 3
 RUN sed -i "s/'.\/vueapp/__dirname + '\/vueapp/" /data/moloch/viewer/viewer.js
 
