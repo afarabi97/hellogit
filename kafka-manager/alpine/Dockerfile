@@ -1,6 +1,6 @@
-FROM openjdk:8u151-jdk-alpine
+FROM openjdk:8u191-jdk-alpine
 
-ENV KM_VERSION=1.3.3.17 \   
+ENV KM_VERSION=1.3.3.22 \
     KM_CONFIGFILE="conf/application.conf" \
     KM_HOME=/opt/kafka-manager
 
