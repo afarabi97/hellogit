@@ -560,7 +560,10 @@ class KitSeleniumRunner(SeleniumRunner):
         element.click()
 
         # clicks on the execute button
-        element = self._browser.find_element_by_name('primary_btn_execute_kit_modal')
+        time.sleep(10)
+        element = WebDriverWait(self._browser, 10).until(EC.presence_of_element_located((By.NAME, "primary_btn_execute_kit_modal")))
+        actions = ActionChains(self._browser)
+        actions.move_to_element(element).perform()
         element.click()
 
     def _run_execute_add_node(self) -> None:

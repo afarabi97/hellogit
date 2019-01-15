@@ -62,6 +62,15 @@ class Kit(object):
     def set_branch_name(self, branch_name: str) -> None:
         self.branch_name = branch_name
 
+    def set_tfplenum_branch_name(self, tfplenum_branch_name: str) -> None:
+        self.tfplenum_branch_name = tfplenum_branch_name
+
+    def set_deployer_branch_name(self, deployer_branch_name: str) -> None:
+        self.deployer_branch_name = deployer_branch_name
+
+    def set_frontend_branch_name(self, frontend_branch_name: str) -> None:
+        self.frontend_branch_name = frontend_branch_name
+
     def set_moloch_pcap_storage_percentage(self, moloch_pcap_storage_percentage: int) -> None:
         self.moloch_pcap_storage_percentage = moloch_pcap_storage_percentage
 

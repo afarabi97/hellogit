@@ -126,10 +126,10 @@ class Runner:
         :return:
         """
         logging.info("Downloading controller bootstrap...")
-        get_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name)
+        get_bootstrap(self.controller_node, self.di2e_username, self.di2e_password)
 
         logging.info("Running controller bootstrap...")
-        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit.branch_name, self.args.is_repo_sync)
+        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit, self.args.is_repo_sync)
 
     def _setup_controller(self, kit: Kit):
         """
@@ -165,7 +165,7 @@ class Runner:
         """
         Powers on a list of passed in vms.
 
-        :param vms:
+        # :param vms:#
         :return:
         """
         logging.info("Grabbing management MAC addresses")

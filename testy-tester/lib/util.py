@@ -80,7 +80,7 @@ def get_node(kit: Kit, node_type: str="controller") -> Node:
     return some_node
 
 
-def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str) -> None:
+def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str) -> None:
     """
     Download bootstrap script from DI2E tfplenum-deployer git repository to target controller using curl.
 
@@ -96,13 +96,13 @@ def get_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
             "curl -o /root/bootstrap.sh -u {username}:'{password}' "
             "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer"
             "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
-                branch_name=quote(branch_name, safe=''),
+                branch_name=quote('devel', safe=''),
                 username=di2e_username,
                 password=di2e_password)
         )
 
 
-def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, branch_name: str, is_repo_sync: bool) -> None:
+def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit: Kit, is_repo_sync: bool) -> None:
     """
     Execute bootstrap script on controller node.  This will take 30 minutes to 1 hour to complete.
 
@@ -111,10 +111,11 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: The branch we will clone from when we run our bootstrap.
     """
+    fork_var = "yes" if kit.branch_name == "fork" else "no"
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
-        cmd_to_execute = ("export BRANCH_NAME='" + branch_name + "' && \
+        cmd_to_execute = ("export BRANCH_NAME='" + kit.branch_name + "' && \
             export TFPLENUM_LABREPO=true && \
             export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
             export DIEUSERNAME='" + di2e_username + "' && \
@@ -122,7 +123,11 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, bran
             export RUN_TYPE=full && \
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
-            export CLONE_REPOS="+ str(is_repo_sync).lower() + " && \
+            export CLONE_REPOS='" + str(is_repo_sync).lower() + "' && \
+            export TFPLENUM_BRANCH_NAME='" + kit.tfplenum_branch_name + "' && \
+            export DEPLOYER_BRANCH_NAME='" + kit.deployer_branch_name + "' && \
+            export FRONTEND_BRANCH_NAME='" + kit.frontend_branch_name + "' && \
+            export USE_FORK='" + fork_var + "' && \
             bash /root/bootstrap.sh")
         client.run(cmd_to_execute, shell=True)
 
@@ -327,6 +332,21 @@ def transform(configuration: OrderedDict) -> List[Kit]:
 
         kit.set_use_ceph_for_pcap(configuration[kitconfig]["kit_configuration"]['use_ceph_for_pcap'])
         kit.set_branch_name(configuration[kitconfig]["kit_configuration"]['branch_name'])
+
+        if not configuration[kitconfig]["kit_configuration"]['tfplenum_branch_name']:
+            kit.set_tfplenum_branch_name("devel")
+        else:
+            kit.set_tfplenum_branch_name(configuration[kitconfig]["kit_configuration"]['tfplenum_branch_name'])
+
+        if not configuration[kitconfig]["kit_configuration"]['deployer_branch_name']:
+            kit.set_deployer_branch_name("devel")
+        else:
+            kit.set_deployer_branch_name(configuration[kitconfig]["kit_configuration"]['deployer_branch_name'])
+
+        if not configuration[kitconfig]["kit_configuration"]['frontend_branch_name']:
+            kit.set_frontend_branch_name("devel")
+        else:
+            kit.set_frontend_branch_name(configuration[kitconfig]["kit_configuration"]['frontend_branch_name'])
 
         if not configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage']:
             kit.set_moloch_pcap_storage_percentage(None)
