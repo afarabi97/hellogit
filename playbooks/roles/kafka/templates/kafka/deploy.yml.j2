@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: kafka
-        image: {{ kafka_image }}:{{ kafka_ver }}
+        image: {{ kafka_image }}:{{ kafka_version }}
         imagePullPolicy: IfNotPresent
         resources:
           requests:

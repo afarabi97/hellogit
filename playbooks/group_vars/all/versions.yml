@@ -16,6 +16,7 @@ rbd_provisioner_version: "v0.1.1"
 mumble_version: "v1.0.0"
 moloch_version: "1.7.0"
 moloch_viewer_version: "1.6.2"
+kafka_version: "2.1.0"
 # Docker Image List
 kube_images:
   - busybox:{{busybox_version}}
@@ -26,8 +27,8 @@ kube_images:
   - tfplenum/moloch-viewer:{{moloch_viewer_version}}
   - tfplenum/suricata
   - tfplenum/zookeeper:alpine
-  - tfplenum/kafka:alpine
-  - tfplenum/kafka-manager:alpine
+  - tfplenum/kafka:{{ kafka_version }}
+  - tfplenum/kafka-manager:{{ kafka_version }}
   - tfplenum/elasticsearch:{{ elastic_version }}
   - tfplenum/mumble-server:{{ mumble_version }}
   - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}

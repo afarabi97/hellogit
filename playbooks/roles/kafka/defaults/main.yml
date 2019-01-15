@@ -5,7 +5,6 @@
 
 kafka_image: "tfplenum/kafka"
 kafka_port: 9092
-kafka_ver: alpine
 kafka_dir: "{{ install_dir }}/kafka"
 kafka_data_path: "/data/kafka"
 kafka_home: /opt/kafka
