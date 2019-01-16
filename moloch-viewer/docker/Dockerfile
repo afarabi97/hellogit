@@ -1,28 +1,30 @@
 # Dockerfile for moloch
 
-FROM tfplenum/base:latest
-RUN yum -y install expect nodejs libpng gcc-c++ bzip2
+FROM centos/systemd as builder
+
+RUN yum -y update
+RUN yum -y install epel-release
+RUN yum -y install expect libpng gcc-c++ bzip2 nodejs
 RUN yum -y install https://files.molo.ch/builds/centos-7/moloch-1.6.2-1.x86_64.rpm
-
 RUN cd /data/moloch/viewer && \
-    npm install fs-ext
+    npm install fs-ext && \
+    sed -i 's/include views/include \/data\/moloch\/viewer\/views/g' /data/moloch/viewer/viewer.js && \
+    sed -i "s/'.\/vueapp/__dirname + '\/vueapp/" /data/moloch/viewer/viewer.js && \
+    mkdir -p /data/moloch/raw
 
-RUN sed -i 's/include views/include \/data\/moloch\/viewer\/views/g' /data/moloch/viewer/viewer.js
+FROM centos/systemd
 
-RUN yum -y autoremove gcc-c++ && \
-    yum -y autoremove && \
+RUN mkdir -p /data/moloch && \
+    yum -y install expect libpng bzip2 nodejs && \
     yum clean all && \
     rm -rf /var/cache/yum
 
-RUN mkdir /data/moloch/raw
-
+COPY --from=builder /data/moloch/ /data/moloch/
 COPY molochviewer.service /usr/lib/systemd/system/
+
 RUN systemctl enable molochviewer
 
-COPY config.ini.conf /etc/icdm/conf/
-COPY config.ini.tmpl /etc/icdm/templates/
-
-# Fix for error in beta 3
-RUN sed -i "s/'.\/vueapp/__dirname + '\/vueapp/" /data/moloch/viewer/viewer.js
-
 EXPOSE 8005
+
+# Start systemd
+CMD ["/usr/sbin/init"]
