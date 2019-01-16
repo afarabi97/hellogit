@@ -28,9 +28,4 @@
   notify:
     - restart docker
 
-- name: Install Cockpit for Kubernetes
-  yum:
-    name: cockpit-kubernetes
-    state: installed
-
 ...

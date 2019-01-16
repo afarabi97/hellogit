@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: kafka-manager
-        image: tfplenum/kafka-manager:{{ kafka_version }}
+        image: tfplenum/kafka-manager:{{ kafka_manager_version }}
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9000

@@ -36,11 +36,6 @@
   set_fact:
     dns_list: ["127.0.0.1"]
 
-#- name: dns list
-#  set_fact:
-#    dns_list: "{{ dns_list }} + [ '8.8.8.8' ]"
-#  when: not offline or (offline is defined and offline == false)
-
 - name: Check Interface DNS
   shell: |
     nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'

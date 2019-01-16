@@ -1,16 +1,2 @@
 %YAML 1.1
 ---
-
-#kube_online:
-#  baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
-#  gpgkey:  "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-#  gpgcheck: true
-#  name: "kubernetes"
-#  description: "kube online repo"
-
-kube_offline:
-  baseurl: "{{ offline_repo_base }}/kubernetes"
-  gpgkey:  "{{ offline_repo_base }}/kubernetes/yum-key.gpg"
-  gpgcheck: false
-  name: "kubernetes"
-  description: "kube offline repo"

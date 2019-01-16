@@ -32,15 +32,15 @@
     name: docker
     state: started
 
-- name: 'Download images from harbor'
+- name: 'Download images from docker registry'
   docker_image:
-    name: "{{ harbor_repo }}/{{ item[item.rfind('/')+1:] }}"
+    name: "{{ docker_registry_repo }}/{{ item }}"
     push: no
     pull: yes
   with_items:
     - "{{ kube_images }}"
 
 - name: 'Retag local images back to original name'
-  shell: "docker tag {{ harbor_repo }}/{{ item[item.rfind('/')+1:] }} {{ item }}"
+  shell: "docker tag {{ docker_registry_repo }}/{{ item }} {{ item }}"
   with_items:
     - "{{ kube_images }}"

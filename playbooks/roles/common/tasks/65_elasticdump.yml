@@ -9,20 +9,12 @@
   get_url:
     url: "{{ offline_repo_base }}/elasticdump.tar.gz"
     dest: "{{ install_dir }}"
-#  when: offline is defined and offline
 
 - name: Extract elasticdump tar
   unarchive:
     remote_src: yes
     src: "{{ install_dir }}/elasticdump.tar.gz"
     dest: "{{ install_dir }}"
-#  when: offline is defined and offline
-
-#- name: Download Elasticdump from online npm repo
-#  npm:
-#    name: elasticdump
-#    path: "{{ install_dir }}"
-#  when: offline is defined and offline == false
 
 - name: Symlink elasticdump bin to usr bin
   file: 

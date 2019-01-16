@@ -1,23 +1,49 @@
 ---
+- name: remove epel rpm
+  yum:
+    name: epel-release
+    state: absent
 
-# NOTE: K8S and CEPH REPOS ARE MAINTAINED IN THEIR RESPECTIVE ROLES
+- name:  Remove Repos
+  file:
+    path: "/etc/yum.repos.d/{{ item }}.repo"
+    state: absent
+  with_items:
+  - "{{ CentOS_Repos }}"
+  - epel
+  - epel-testing
 
-- import_tasks: offline.yml
-#  when: offline is defined and offline
+- name: create list
+  set_fact:
+    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
 
-#- import_tasks: online.yml
-#  when: not offline or (offline is defined and offline == false)
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
 
-- name: Disable RHEL License
-  replace:    
-    path: "/etc/yum/pluginconf.d/subscription-manager.conf"
-    regexp: 'enabled=1'
-    replace: 'enabled=0'
-  when: "ansible_distribution == 'RedHat'"
+- name: remove old repo file
+  file:
+    path: "/etc/yum.repos.d/offline.repo"
+    state: absent
+
+- get_url:
+    url: "{{ offline_repo_base }}/offline.repo"
+    dest: /etc/yum.repos.d/offline.repo
+    mode: 0664
 
 - name: Clean repo cache
-  shell: yum clean all
+  shell: |
+    rm -rf /var/cache/yum
   args:
     warn: false
 
-...
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"

@@ -6,7 +6,6 @@
 kube_state_version: "v1.3.0"
 kube_rpm_version: "1.9.7"
 kube_image_version: "v1.9.7"
-harbor_version: "1.4.0"
 metallb_version: "v0.3.1"
 busybox_version: "1.27.2"
 k8s_version: "1.14.7"
@@ -17,20 +16,21 @@ mumble_version: "v1.0.0"
 moloch_version: "1.7.0"
 moloch_viewer_version: "1.6.2"
 kafka_version: "2.1.0"
+kafka_manager_version: "1.3.3.22"
 # Docker Image List
 kube_images:
-  - busybox:{{busybox_version}}
-  - metallb/controller:{{metallb_version}}
-  - metallb/speaker:{{metallb_version}}
-  - tfplenum/bro
-  - tfplenum/moloch:{{moloch_version}}
-  - tfplenum/moloch-viewer:{{moloch_viewer_version}}
-  - tfplenum/suricata
-  - tfplenum/zookeeper:alpine
+  - docker.io/busybox:{{busybox_version}}
+  - docker.io/metallb/controller:{{metallb_version}}
+  - docker.io/metallb/speaker:{{metallb_version}}
+  - docker.io/tfplenum/bro
+  - docker.io/tfplenum/moloch:{{moloch_version}}
+  - docker.io/tfplenum/moloch-viewer:{{moloch_viewer_version}}
+  - docker.io/tfplenum/suricata
+  - docker.io/tfplenum/zookeeper:alpine
   - tfplenum/kafka:{{ kafka_version }}
-  - tfplenum/kafka-manager:{{ kafka_version }}
-  - tfplenum/elasticsearch:{{ elastic_version }}
-  - tfplenum/mumble-server:{{ mumble_version }}
+  - docker.io/tfplenum/kafka-manager:{{kafka_manager_version}}
+  - docker.io/tfplenum/elasticsearch:{{ elastic_version }}
+  - docker.io/tfplenum/mumble-server:{{ mumble_version }}
   - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
   - docker.elastic.co/kibana/kibana:{{ elastic_version }}

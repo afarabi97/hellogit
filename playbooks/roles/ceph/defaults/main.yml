@@ -3,35 +3,9 @@
 
 ceph_rbd_provisioner_image: "quay.io/external_storage/rbd-provisioner"
 ceph_dir: "{{ install_dir }}/ceph"
-ceph_deploy_rpm: "https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-1.5.39-0.noarch.rpm"
+
 osd_count: 0
 ceph_reload: false
 
-ceph_online:
-  base:
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/$basearch"
-    gpgkey:  "https://download.ceph.com/keys/release.asc"
-    gpgcheck: true
-    name: "ceph-x86_64"
-    description: "ceph base repo"
-  noarch:
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/noarch"
-    gpgkey:  "https://download.ceph.com/keys/release.asc"
-    gpgcheck: true
-    name: "ceph-noarch"
-    description: "ceph arch repo"
-  srpms:
-    baseurl: "https://download.ceph.com/rpm-luminous/el7/SRPMS"
-    gpgkey:  "https://download.ceph.com/keys/release.asc"
-    gpgcheck: true
-    name: "ceph-srpms"
-    description: "ceph srpms repo"
-
-ceph_offline:
-  baseurl: "{{ offline_repo_base }}/ceph_base"
-  gpgkey:  ""
-  gpgcheck: false
-  name: "ceph"
-  description: "ceph offline repo"
 
 ...
