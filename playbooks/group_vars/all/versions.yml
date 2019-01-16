@@ -27,7 +27,7 @@ kube_images:
   - docker.io/tfplenum/moloch-viewer:{{moloch_viewer_version}}
   - docker.io/tfplenum/suricata
   - docker.io/tfplenum/zookeeper:alpine
-  - tfplenum/kafka:{{ kafka_version }}
+  - docker.io/tfplenum/kafka:{{ kafka_version }}
   - docker.io/tfplenum/kafka-manager:{{kafka_manager_version}}
   - docker.io/tfplenum/elasticsearch:{{ elastic_version }}
   - docker.io/tfplenum/mumble-server:{{ mumble_version }}
