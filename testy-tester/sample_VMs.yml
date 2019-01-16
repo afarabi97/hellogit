@@ -59,11 +59,10 @@ kits:
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
             vm_to_clone: "Test Template"
-            domain: 'sil.local'
+            domain: '.lan'
             gateway: "172.16.82.1"
             dns:
-              - "172.16.82.1"
-              - "8.8.8.8"
+              - "172.16.82.1"              
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"

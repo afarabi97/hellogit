@@ -17,10 +17,10 @@ kits:
         # Note root_password is specified under VM_settings.
 
     kit_configuration:
-        # The branch we want to pull from.
+       
         branch_name: fork
 
-        # these branches are name of the branches on your fork you want to use
+       
         tfplenum_branch_name: devel
         deployer_branch_name: devel
         frontend_branch_name: devel
@@ -65,11 +65,10 @@ kits:
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
             vm_to_clone: "NVMEe Test Template"
-            domain: 'sil.local'
+            domain: '.lan'
             gateway: "172.16.82.1"
             dns:
-              - "172.16.82.1"
-              - "8.8.8.8"
+              - "172.16.82.1"              
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
