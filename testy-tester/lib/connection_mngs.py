@@ -182,12 +182,10 @@ class KubernetesWrapper:
         Retrieves the kuberntes configuration file from the master server.
         """
         config_path = '/root/.kube/config'
-        if (not os.path.exists(self._kubernetes_config_path)
-                or not os.path.isfile(self._kubernetes_config_path)):
-            with FabricConnectionWrapper(self._username,
-                                         self._password,
-                                         self._ip_address) as fab_conn:
-                fab_conn.get(config_path, self._kubernetes_config_path)
+        with FabricConnectionWrapper(self._username,
+                                        self._password,
+                                        self._ip_address) as fab_conn:
+            fab_conn.get(config_path, self._kubernetes_config_path)
 
     def close(self) -> None:
         """
