@@ -4,11 +4,8 @@ After=network.target
 
 [Service]
 Type=forking
-User=bro
-Group=bro
-Environment=HOME=/var/spool/bro
-ExecStart=/usr/bin/broctl deploy
-ExecStop=/usr/bin/broctl stop
+ExecStart=/usr/local/bro-2.6.1/bin/broctl deploy
+ExecStop=/usr/local/bro-2.6.1/bin/broctl stop
 Restart=always
 RestartSec=5
 
