@@ -127,3 +127,5 @@ change-interfaces:
 mumble:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t mumble
 
+grr:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t grr

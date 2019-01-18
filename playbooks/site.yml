@@ -416,4 +416,12 @@
   roles:
     - mumble
   tags: mumble
+
+- name: GRR Server
+  any_errors_fatal: true
+  hosts:
+    - master-server
+  roles:
+    - grr
+  tags: grr
 ...
