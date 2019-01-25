@@ -30,6 +30,14 @@ spec:
         resources:
           requests:
             cpu: {{ bro_cpu_request }}
+        livenessProbe:
+          exec:
+            command:
+            - bash
+            - -c
+            - systemctl status bro | grep running
+          initialDelaySeconds: 20
+          periodSeconds: 10
         volumeMounts:
         - name: broctl
           mountPath: {{ bro_container_path }}/etc/broctl.cfg
