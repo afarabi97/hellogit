@@ -29,7 +29,7 @@ spec:
         - '-c'
         - |
           rm -rf /var/lib/mysql/lost+found/
-          /entrypoint.sh mysqld --max_allowed_packet=128M
+          /entrypoint.sh mysqld --max-binlog-size=10000000 --binlog-expire-logs-seconds=60
         # resources:
         #   requests:
         #     memory: "1Gi"
@@ -48,7 +48,7 @@ spec:
       storageClassName: rbd
       resources:
         requests:
-          storage: 2Gi
+          storage: 100Gi
 ---
 kind: Service
 apiVersion: v1
