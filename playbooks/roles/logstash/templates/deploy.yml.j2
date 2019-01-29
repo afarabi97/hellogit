@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: logstash
-        image: {{ logstash_image }}:{{ logstash_ver }}
+        image: {{ logstash_image }}:{{ elastic_version }}
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c", "/usr/share/logstash/bin/logstash-plugin install file:///usr/share/logstash/plugins/tld.zip && /usr/share/logstash/bin/logstash"]
         env:

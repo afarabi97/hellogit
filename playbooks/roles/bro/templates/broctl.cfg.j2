@@ -59,12 +59,12 @@ SitePolicyScripts = local.bro
 
 # Location of the log directory where log files will be archived each rotation
 # interval.
-LogDir = /var/log/bro
+LogDir = {{ bro_container_path }}/logs
 
 # Location of the spool directory where files and data that are currently being
 # written are stored.
-SpoolDir = /var/spool/bro
+SpoolDir = {{ bro_container_path }}/spool
 
 # Location of other configuration files that can be used to customize
 # BroControl operation (e.g. local networks, nodes).
-CfgDir = /etc/bro
+CfgDir = {{ bro_container_path }}/etc

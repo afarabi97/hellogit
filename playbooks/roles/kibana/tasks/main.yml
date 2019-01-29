@@ -34,13 +34,6 @@
     - svc
   ignore_errors: true
 
-# This is here because Kubernetes repeatedly failed to download the Kibana image.
-# See: https://github.com/kubernetes/kubernetes/issues/59376
-# Pulling it through Docker resolves the issue
-#- name: Perform Kibana download workaround
-#  docker_image:
-#    name: "{{ kibana_image }}:{{ kibana_ver }}"
-
 - name: Deploy Services
   import_role:
     name: kubernetes/common

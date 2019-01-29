@@ -8,4 +8,3 @@
     - bro-scale
 
 - import_tasks: 10_install.yml
-  when: inventory_hostname in groups['master-server']

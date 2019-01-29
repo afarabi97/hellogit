@@ -1,7 +1,6 @@
 ---
 
 - include_tasks: 05_files.yml
-  when: inventory_hostname in groups['master-server']
 
 - include_tasks: 10_cleanup.yml
   when: inventory_hostname in groups['master-server']

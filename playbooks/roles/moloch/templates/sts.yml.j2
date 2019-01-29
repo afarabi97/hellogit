@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: moloch
+  labels:
+    component: moloch
+spec:
+  serviceName: moloch
+  replicas: {{ groups['sensors'] | length }}
+  podManagementPolicy: "Parallel"
+  selector:
+    matchLabels:
+      component: moloch
+  template:
+    metadata:
+      labels:
+        component: moloch
+    spec:
+      hostNetwork: true
+      containers:
+      - name: "moloch"
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "CAPTURE"
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - SYS_RESOURCE
+        ports:
+          - containerPort: {{ moloch_port }}
+            name: webgui
+        resources:
+          requests:
+            cpu: {{ moloch_cpu_request }}
+        volumeMounts:
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
+        - name: data
+          mountPath: "{{ moloch_pcap_path }}"
+      restartPolicy: Always
+      volumes:
+{% if not use_ceph_for_pcap %}
+      - name: data
+        hostPath:
+          path: {{ moloch_pcap_folder }}
+{% endif %}
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/{{ hostname }}-config.ini
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - moloch
+            topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: moloch
+                operator: In
+                values:
+                - "true"
+              - key: role
+                operator: In
+                values:
+                - "sensor"
+{% if use_ceph_for_pcap %}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ moloch_pcap_pv_size }}Gi
+{% endif %}

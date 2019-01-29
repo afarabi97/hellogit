@@ -99,9 +99,10 @@
 
 # Uncomment the following line to enable the SMB analyzer.  The analyzer
 # is currently considered a preview and therefore not loaded by default.
-@load policy/protocols/smb
+@load base/protocols/smb
 
-@load scripts/plugins/kafka.bro
+# Load the kafka.bro script
+@load kafka
 
 # This line loads the custom bro scripts in the custom.bro file.
 @load custom

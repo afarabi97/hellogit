@@ -17,7 +17,7 @@
 # Comma seperated list of elasticsearch host:port combinations.  If not using a
 # elasticsearch VIP, a different elasticsearch node in the cluster can be specified
 # for each Moloch node to help spread load on high volume clusters
-elasticsearch = http://{{ elastic_fqdn | default("elasticsearch.default.svc.cluster.local",true)}}:{{ elastic_port | default("9200",true) }}
+elasticsearch = http://{{ elastic_shortname }}:{{ elastic_port }}
 
 # How often to create a new elasticsearch index. hourly,daily,weekly,monthly
 # Changing the value will cause previous sessions to be unreachable
@@ -54,11 +54,11 @@ httpRealm = Moloch
 # webBasePath = /moloch/
 
 # Semicolon ';' seperated list of interfaces to listen on for traffic
-interface = {{ ( sensor_monitor_interface[host] | default(['eth0'], true) ) | join(';') }}
+interface = {{ hostvars[hostname].sensor_monitor_interface | join(';') }}
 
 # The bpf filter
-bpf = {{ moloch_bpf | default("") }}
-dontSaveBPFs = {{ moloch_dontSaveBPFs | default("") }}
+bpf = {{ moloch_bpf }}
+dontSaveBPFs = {{ moloch_dontSaveBPFs }}
 # The yara file name
 #yara =
 
@@ -201,7 +201,7 @@ pluginsDir = /data/moloch/plugins
 
 # Specify the max number of indices we calculate spidata for.
 # ES will blow up if we allow the spiData to search too many indices.
-spiDataMaxIndices = {{ moloch_spiDataMaxIndices | default("5") }}
+spiDataMaxIndices = {{ moloch_spiDataMaxIndices }}
 
 # Uncomment the following to allow direct uploads.  This is experimental
 #uploadCommand=/data/moloch/bin/moloch-capture --copy -n {NODE} -r {TMPFILE} -c {CONFIG} {TAGS}
@@ -218,7 +218,7 @@ spiDataMaxIndices = {{ moloch_spiDataMaxIndices | default("5") }}
 #titleTemplate=_cluster_ - _page_ _-view_ _-expression_
 
 # Number of threads processing packets
-packetThreads = {{ moloch_threads[host] | default("4") }}
+packetThreads = {{ hostvars[hostname].moloch_threads }}
 
 # ADVANCED - Semicolon ';' seperated list of files to load for config.  Files are loaded
 # in order and can replace values set in this file or previous files.
@@ -228,29 +228,29 @@ packetThreads = {{ moloch_threads[host] | default("4") }}
 #  simple          = use O_DIRECT if available, writes in pcapWriteSize chunks,
 #                    a file per packet thread.
 #  simple-nodirect = don't use O_DIRECT.  Required for zfs and others
-pcapWriteMethod = {{ moloch_pcapWriteMethod | default("simple") }}
+pcapWriteMethod = {{ moloch_pcapWriteMethod }}
 
 # ADVANCED - Buffer size when writing pcap files.  Should be a multiple of the raid 5 or xfs
 # stripe size.  Defaults to 256k
-pcapWriteSize = {{ moloch_pcapWriteSize | default("262143") }}
+pcapWriteSize = {{ moloch_pcapWriteSize }}
 
 # ADVANCED - Number of bytes to bulk index at a time
-dbBulkSize = {{ moloch_dbBulkSize | default("300000") }}
+dbBulkSize = {{ moloch_dbBulkSize }}
 
 # ADVANCED - Compress requests to ES, reduces ES bandwidth by ~80% at the cost
 # of increased CPU. MUST have "http.compression: true" in elasticsearch.yml file
 compressES = false
 
 # ADVANCED - Max number of connections to elastic search
-maxESConns = {{ moloch_maxESConns | default("30") }}
+maxESConns = {{ moloch_maxESConns }}
 
 # ADVANCED - Max number of es requests outstanding in q
-maxESRequests = {{ moloch_maxESRequests | default("500") }}
+maxESRequests = {{ moloch_maxESRequests }}
 
 # ADVANCED - Number of packets to ask libnids/libpcap to read per poll/spin
 # Increasing may hurt stats and ES performance
 # Decreasing may cause more dropped packets
-packetsPerPoll = {{ moloch_packetsPerPoll | default("50000") }}
+packetsPerPoll = {{ moloch_packetsPerPoll }}
 
 # ADVANCED - Moloch will try to compensate for SYN packet drops by swapping
 # the source and destination addresses when a SYN-acK packet was captured first.
@@ -273,14 +273,14 @@ logFileCreation = true
 
 ### High Performance settings
 # https://github.com/aol/moloch/wiki/Settings#High_Performance_Settings
-magicMode= {{ moloch_magicMode | default("libmagic") }}
+magicMode= {{ moloch_magicMode }}
 pcapReadMethod=tpacketv3
 tpacketv3NumThreads={{ moloch_packet_v3_num_threads }}
 tpacketv3BlockSize={{ moloch_packet_v3_block_size }}
 # pcapWriteMethod=simple
 # pcapWriteSize = 2560000
 # packetThreads=5
-maxPacketsInQueue = {{ moloch_maxPacketsInQueue | default("200000") }}
+maxPacketsInQueue = {{ moloch_maxPacketsInQueue }}
 
 ### Low Bandwidth settings
 # packetThreads=1

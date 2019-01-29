@@ -15,22 +15,9 @@ spec:
         component: bro
     spec:
       hostNetwork: true
-      initContainers:
-      - name: init-scripts
-        image: busybox:1.27.2
-        imagePullPolicy: IfNotPresent
-        command:
-        - /bin/sh
-        - -c
-        - "chmod -R 755 {{ bro_path }}/policy/custom-scripts"
-        volumeMounts:
-        - name: scripts
-          mountPath: {{ bro_path }}/policy/custom-scripts
-        securityContext:
-          privileged: true
       containers:
       - name: bro
-        image: {{ bro_image }}:{{ bro_ver }}
+        image: {{ bro_image }}:{{ bro_version }}
         imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
@@ -42,50 +29,45 @@ spec:
           requests:
             cpu: {{ bro_cpu_request }}
         volumeMounts:
-        - name: vars
-          mountPath: /etc/icdm/
-        - name: templates
-          mountPath: /etc/icdm/templates/
-        - name: configs
-          mountPath: /etc/icdm/conf/
+        - name: broctl
+          mountPath: {{ bro_container_path }}/etc/broctl.cfg
+        - name: kafka
+          mountPath: {{ bro_container_path }}/share/bro/site/kafka.bro
+        - name: local
+          mountPath: {{ bro_container_path }}/share/bro/site/local.bro
+        - name: custom
+          mountPath: {{ bro_container_path }}/share/bro/site/custom.bro
+        - name: networks
+          mountPath: {{ bro_container_path }}/etc/networks.cfg
+        - name: node
+          mountPath: {{ bro_container_path }}/etc/node.cfg
         - name: scripts
-          mountPath: {{ bro_path }}/policy/custom-scripts
+          mountPath: {{ bro_container_path }}/share/bro/policy/custom-scripts
       volumes:
-      - name: vars
-        configMap:
-          name: vars
-      - name: templates
-        configMap:
-          name: bro
-          items:
-          - key: broctl.cfg.tmpl
-            path: broctl.cfg.tmpl
-          - key: node.cfg.tmpl
-            path: node.cfg.tmpl
-          - key: networks.cfg.tmpl
-            path: networks.cfg.tmpl
-          - key: kafka.bro.tmpl
-            path: kafka.bro.tmpl
-          - key: local.bro.tmpl
-            path: local.bro.tmpl
-          - key: custom.bro.tmpl
-            path: custom.bro.tmpl
-      - name: configs
-        configMap:
-          name: bro
-          items:
-          - key: kafka.bro.conf
-            path: kafka.bro.conf
-          - key: networks.cfg.conf
-            path: networks.cfg.conf
-          - key: node.cfg.conf
-            path: node.cfg.conf
-          - key: broctl.cfg.conf
-            path: broctl.cfg.conf
-          - key: local.bro.conf
-            path: local.bro.conf
-          - key: custom.bro.conf
-            path: custom.bro.conf
+      - name: broctl
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-broctl.cfg
+          type: File
+      - name: kafka
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-kafka.bro
+          type: File
+      - name: local
+        hostPath:
+          path: {{ bro_dir }}/local.bro
+          type: File
+      - name: custom
+        hostPath:
+          path: {{ bro_dir }}/custom.bro
+          type: File
+      - name: networks
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-networks.cfg
+          type: File
+      - name: node
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-node.cfg
+          type: File
       - name: scripts
         hostPath:
           path: {{ bro_scripts }}

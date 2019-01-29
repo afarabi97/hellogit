@@ -27,13 +27,6 @@ spec:
         ports:
         - containerPort: {{ kafka_port }}
           name: transport
-        #livenessProbe:
-        #  tcpSocket:
-        #    port: transport
-        #  initialDelaySeconds: 15
-        #  timeoutSeconds: 1
-        #  periodSeconds: 15
-        #  failureThreshold: 5
         volumeMounts:
           - name: kafka-data
             mountPath: "{{ kafka_data_path }}"

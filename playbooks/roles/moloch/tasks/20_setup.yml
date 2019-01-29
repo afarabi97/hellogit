@@ -1,12 +1,5 @@
 ---
 
-# This is here because Kubernetes repeatedly failed to download the image.
-# See: https://github.com/kubernetes/kubernetes/issues/59376
-# Pulling it through Docker resolves the issue
-#- name: Perform image download workaround
-#  docker_image:
-#    name: "{{ moloch_image}}:{{ moloch_tag }}"
-
 - name: 'Create unclustered pcap directories'
   file:
     path: "{{ moloch_pcap_folder }}"
@@ -30,15 +23,6 @@
   with_items:
     - "{{ groups['remote-sensors'] }}"
 
-- name: "Create kube config"
-  shell: |
-    kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
-      --from-file {{ moloch_dir }}/config.ini.conf \
-      --from-file {{ moloch_dir }}/config-viewer.ini.conf
-
-- name: "Create kube bootstrap config"
-  shell: "kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/auto_init"
-
 - name: Deploy Services
   import_role:
     name: kubernetes/common
@@ -55,20 +39,7 @@
     echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
   register: moloch_bootstrap_pod
 
-
-- name: Configure Elasticsearch for moloch
-  shell: "kubectl exec {{ moloch_bootstrap_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
-  register: debug_output
-  failed_when: debug_output.rc != 0 and debug_output.rc != 1
-  #ignore_errors: yes
-
-- name: Debut Outout
-  debug: "msg={{ debug_output.stdout }}"
-
-- name: Add user
-  command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
-
-- name: Deploy Services
+- name: Deploy Moloch Viewer and Moloch Viewer Service
   include_role:
     name: kubernetes/common
     tasks_from: kube_create
@@ -77,9 +48,18 @@
     file_name: "{{ moloch_dir }}/{{ item }}"
   with_items:
     - svc-viewer.yml
-    - deploy.yml
-    - deploy-remote.yml
-    - moloch-viewer.yml
+    - deploy-viewer.yml
+
+- name: Deploy Moloch STS
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Moloch"
+    file_name: "{{ moloch_dir }}/{{ item[0] }}-{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] }}"
+    - ['sts.yml', 'sts-remote.yml']
 
 - name: Scale up Moloch Statefulset
   command: "kubectl scale statefulset moloch --replicas={{ groups['sensors'] | length }}"
@@ -97,34 +77,7 @@
   tags:
     - moloch-scale
 
-- name: Get Moloch Viewer pod name
-  shell: |
-    while [ "$(kubectl get pods | grep moloch-viewer | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
-      sleep 1;
-    done;
-    echo -n "$(kubectl get pods | grep moloch-viewer | head -n 1 | awk '{ print $1 }')"
-  register: moloch_viewer_pod
-
-- name: Stop moloch services
-  shell: "kubectl exec -ti {{ moloch_viewer_pod.stdout }} -- /bin/bash -c 'systemctl stop molochviewer'"
-  ignore_errors: yes
-
-- name: Configure Elasticsearch for moloch
-  shell: "kubectl exec {{ moloch_viewer_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
-  register: debug_output
-  failed_when: debug_output.rc != 0 and debug_output.rc != 1
-  #ignore_errors: yes
-
-- name: Add user
-  command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
-
-- name: Restart moloch services
-  shell: "kubectl exec -ti {{ moloch_viewer_pod.stdout }} -- /bin/bash -c 'systemctl restart molochviewer'"
-  ignore_errors: yes
-
 - name: Remove Bootstrap
   command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
 
-- name: Remove Bootstrap config
-  command: kubectl delete configmap moloch-bootstrap
 ...

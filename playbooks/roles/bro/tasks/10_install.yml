@@ -19,61 +19,31 @@
     owner: root
     mode: 0644
   with_items:
-    - broctl.cfg.tmpl
-    - node.cfg.tmpl
-    - networks.cfg.tmpl
-    - kafka.bro.tmpl
-    - local.bro.tmpl
-    - custom.bro.tmpl
-    - broctl.cfg.conf
-    - node.cfg.conf
-    - networks.cfg.conf
-    - kafka.bro.conf
-    - local.bro.conf
-    - custom.bro.conf
+    - local.bro
+    - custom.bro
 
-- name: Install templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ bro_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - deploy.yml
-
-- name: Flush Config Map
-  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro --ignore-not-found=true
-
-- name: Create Config Map
-  shell: |
-    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro \
-    --from-file {{ bro_dir }}/broctl.cfg.tmpl \
-    --from-file {{ bro_dir }}/node.cfg.tmpl \
-    --from-file {{ bro_dir }}/networks.cfg.tmpl \
-    --from-file {{ bro_dir }}/kafka.bro.tmpl \
-    --from-file {{ bro_dir }}/local.bro.tmpl \
-    --from-file {{ bro_dir }}/custom.bro.tmpl \
-    --from-file {{ bro_dir }}/broctl.cfg.conf \
-    --from-file {{ bro_dir }}/node.cfg.conf \
-    --from-file {{ bro_dir }}/networks.cfg.conf \
-    --from-file {{ bro_dir }}/kafka.bro.conf \
-    --from-file {{ bro_dir }}/local.bro.conf \
-    --from-file {{ bro_dir }}/custom.bro.conf
+- name: Copy bro configuration files
+  include: 15_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['deploy.yml', 'kafka.bro', 'networks.cfg', 'node.cfg', 'broctl.cfg']
 
 - name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/{{ item }}-deploy.yml --ignore-not-found=true'
+  with_items:
+    - "{{ groups['sensors'] }}"
+  when: inventory_hostname in groups['master-server']
 
 - name: Deploy Services
-  import_role:
+  include_role: # Using include_role because you cannot use a loop with import_role
     name: kubernetes/common
     tasks_from: kube_create
   vars:
     name: "Bro"
-    file_name: "{{ bro_dir }}/deploy.yml"
-
-#- name: Wait for deployment to finish
-#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
+    file_name: "{{ bro_dir }}/{{ item }}-deploy.yml"
+  with_items:
+    - "{{ groups['sensors'] }}"
+  when: inventory_hostname in groups['master-server']
 
 - name: Wait for Bro to be ready
   import_role:
@@ -84,10 +54,12 @@
     namespace: "default"
     resource_name: "bro"
     label: ""
+  when: inventory_hostname in groups['master-server']
 
 - name: Scale up Bro Deployment
   command: "kubectl scale deployment bro --replicas={{ groups['bro'] | length }}"
   when: node_to_add is defined
     and node_to_add in groups['bro']
+    and inventory_hostname in groups['master-server']
   tags:
     - bro-scale

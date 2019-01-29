@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: {{ kafka_app_name }}
-        image: {{ kafka_image }}:{{ kafka_ver }}
+        image: {{ kafka_image }}:{{ kafka_version }}
         imagePullPolicy: IfNotPresent
         resources:
           requests:
@@ -68,13 +68,6 @@ spec:
           name: server
         - containerPort: 3888
           name: leader-election
-        #livenessProbe:
-        #  tcpSocket:
-        #    port: client
-        #  initialDelaySeconds: 15
-        #  timeoutSeconds: 1
-        #  periodSeconds: 15
-        #  failureThreshold: 5
         volumeMounts:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data

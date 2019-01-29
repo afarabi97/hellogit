@@ -1,4 +1,5 @@
 ---
+
 - name: 'Create directories'
   file:
     path: "{{ moloch_dir }}"
@@ -7,30 +8,22 @@
     mode: "{{ moloch_dir_mode }}"
     state: directory
 
-- name: 'Copy files'
-  copy:
-    src: files/{{ item }}
-    dest: "{{ moloch_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - config.ini.tmpl
-    - config.ini.conf
-    - config-viewer.ini.conf
-
-- name: 'Copy templates'
+- name: 'Copy Moloch templates'
   template:
-    src: "templates/{{ item }}"
+    src: "templates/{{ item }}.j2"
     dest: "{{ moloch_dir }}/{{ item }}"
-    mode: "{{ moloch_file_mode }}"
+    mode: "{{ moloch_dir_mode }}"
     owner: "{{ moloch_user }}"
     group: "{{ moloch_group }}"
   with_items:
-    - auto_init
     - bootstrap.yml
-    - deploy.yml
-    - deploy-remote.yml
     - svc-viewer.yml
-    - moloch-viewer.yml
+    - deploy-viewer.yml
+
+- name: Copy Moloch configuration files
+  include: 25_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['config.ini', 'sts.yml', 'sts-remote.yml']
+
 ...

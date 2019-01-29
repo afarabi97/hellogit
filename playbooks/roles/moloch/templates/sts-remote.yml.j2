@@ -6,7 +6,7 @@ metadata:
     component: remote-moloch
 spec:
   serviceName: remote-moloch
-  replicas: {{ groups['remote-sensors'] | length }} #{{ groups['moloch'] | length }}
+  replicas: {{ groups['remote-sensors'] | length }}
   podManagementPolicy: "Parallel"
   selector:
     matchLabels:
@@ -19,8 +19,11 @@ spec:
       hostNetwork: true
       containers:
       - name: "moloch"
-        image: "{{ moloch_image}}:{{ moloch_tag }}"
+        image: "{{ moloch_image }}:{{ moloch_version }}"
         imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "CAPTURE"
         securityContext:
           capabilities:
             add:
@@ -32,34 +35,18 @@ spec:
           - containerPort: {{ moloch_port }}
             name: webgui
         volumeMounts:
-        - name: vars
-          mountPath: /etc/icdm/
-        - name: templates
-          mountPath: /etc/icdm/templates/
-        - name: configs
-          mountPath: /etc/icdm/conf/
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
         - name: data
           mountPath: "{{ moloch_pcap_path }}"
       restartPolicy: Always
       volumes:
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/{{ hostname }}-config.ini
       - name: data
         hostPath:
           path: {{ moloch_pcap_folder }}
-      - name: vars
-        configMap:
-          name: vars
-      - name: configs
-        configMap:
-          name: moloch
-          items:
-          - key: config.ini.conf
-            path: config.ini.conf
-      - name: templates
-        configMap:
-          name: moloch
-          items:
-          - key: config.ini.tmpl
-            path: config.ini.tmpl
       nodeSelector:
         moloch: "true"
       affinity:
