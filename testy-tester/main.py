@@ -126,7 +126,7 @@ class Runner:
         :return:
         """
         logging.info("Downloading controller bootstrap...")
-        get_bootstrap(self.controller_node, self.di2e_username, self.di2e_password)
+        get_bootstrap(self.controller_node, self.di2e_username, kit, self.di2e_password)
 
         logging.info("Running controller bootstrap...")
         run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit, self.args.is_repo_sync)
