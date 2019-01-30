@@ -8,44 +8,50 @@ host_configuration:
 kits:
   kit_1:
     kickstart_configuration:
-        dhcp_start: "172.16.82.x"
-        dhcp_end: "172.16.82.x"
+        dhcp_start: # "172.16.x.226" # CHANGE ME
+        dhcp_end: # "172.16.x.231" # CHANGE ME
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
-        gateway: "172.16.82.1"
+        gateway: # "172.16.x.1" # CHANGE ME
         # Note root_password is specified under VM_settings.
 
     kit_configuration:
-        # The branch we want to pull from.
-        branch_name: devel
-        use_ceph_for_pcap: false
+      # The branch we want to pull from other options include fork and custom.
+      branch_name: # devel # CHANGE ME
 
-        # Only fill this in if use_ceph_for_pcap is true
-        moloch_pcap_storage_percentage:
-        elasticsearch_cpu_percentage:
-        elasticsearch_ram_percentage:
-        logstash_server_cpu_percentage:
-        logstash_replicas:
-        es_storage_space_percentage:
+      # these branches are name of the branches on your fork you want to use
+      tfplenum_branch_name: # devel # CHANGE ME
+      deployer_branch_name: # devel # CHANGE ME
+      frontend_branch_name: # devel # CHANGE ME
 
-        # Kubernetes cidr will probably be different on a per kit basis
-        kubernetes_cidr: "172.16.82.x"
+      use_ceph_for_pcap: false
 
-        home_nets:
-            - "172.16.82.0/24"
+      # Only fill this in if use_ceph_for_pcap is true
+      moloch_pcap_storage_percentage:
+      elasticsearch_cpu_percentage:
+      elasticsearch_ram_percentage:
+      logstash_server_cpu_percentage:
+      logstash_replicas:
+      es_storage_space_percentage:
 
-        # This is optional - you can fill it in if you need to
-        external_nets:
+      # Kubernetes cidr will probably be different on a per kit basis
+      kubernetes_cidr: # "172.16.x.224" # CHANGE ME
 
-        kafka_cpu_percentage:
-        moloch_cpu_percentage:
-        bro_cpu_percentage:
-        suricata_cpu_percentage:
-        zookeeper_cpu_percentage:
+      home_nets:
+          - # "172.16.x.0/24" # CHANGE ME
 
-        ideal_es_cpus_per_instance:
-        es_cpu_to_memory_ratio_default:
+      # This is optional - you can fill it in if you need to
+      external_nets:
+
+      kafka_cpu_percentage:
+      moloch_cpu_percentage:
+      bro_cpu_percentage:
+      suricata_cpu_percentage:
+      zookeeper_cpu_percentage:
+
+      ideal_es_cpus_per_instance:
+      es_cpu_to_memory_ratio_default:
 
     VM_settings:
         VMs:
@@ -58,29 +64,29 @@ kits:
             # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
-            vm_to_clone: "Test Template"
+            vm_to_clone: # "TestToSan" # CHANGE ME
             domain: 'lan'
-            gateway: "172.16.82.1"
+            gateway: # "172.16.x.1" # CHANGE ME
             dns:
-              - "172.16.82.1"              
+              - # "172.16.x.1" # CHANGE ME
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
-              folder: "Testing"
+              folder: # "Testing" # CHANGE ME
             networking:
               std_portgroup_name: "VM Network"
               nics:
                 management_nic:
                   type: "manual" # This can be auto, manual, or link-local
-                  ip_address: "172.16.82.x"
+                  ip_address: # "172.16.x.240" # CHANGE ME
                   subnet_mask: "255.255.255.0"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: "" # This is ignored if mac_auto_generated is true
-                  dv_portgroup_name: "82 Portgroup"
+                  dv_portgroup_name: # "XX Portgroup" # CHANGE ME
                   std_portgroup_name:
                 ens224:
                   type: "link-local" # This can be auto, manual, or link-local
@@ -114,17 +120,17 @@ kits:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
-              folder: "Testing"
+              folder: # "Testing" # CHANGE ME
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.82.x"
+                  ip_address: # "172.16.x.241" # CHANGE ME
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
+                  dv_portgroup_name: # "XX Portgroup" # CHANGE ME
                   std_portgroup_name:
             cpu_spec:
               sockets: 12
@@ -152,17 +158,17 @@ kits:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
-              folder: "Testing"
+              folder: # "Testing" # CHANGE ME
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.82.x"
+                  ip_address: # "172.16.x.242" # CHANGE ME
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
+                  dv_portgroup_name: # "XX Portgroup" # CHANGE ME
                   std_portgroup_name:
             cpu_spec:
               sockets: 16
@@ -190,17 +196,17 @@ kits:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
-              folder: "Testing"
+              folder: # "Testing" # CHANGE ME
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.82.x"
+                  ip_address: # "172.16.x.243" # CHANGE ME
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
+                  dv_portgroup_name: # "XX Portgroup" # CHANGE ME
                   std_portgroup_name:
                 ens224:
                   type: "manual"
@@ -245,17 +251,17 @@ kits:
               datacenter: "SIL_Datacenter"
               cluster: "SIL_Dev-Cluster"
               datastore: "NVMe Storage"
-              folder: "Testing"
+              folder: # "Testing" # CHANGE ME
             networking:
               nics:
                 management_nic:
                   type: "manual"
-                  ip_address: "172.16.82.x"
+                  ip_address: # "172.16.x.244" # CHANGE ME
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
                   mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
+                  dv_portgroup_name: # "XX Portgroup" # CHANGE ME
                   std_portgroup_name:
                 ens224:
                   type: "manual"
