@@ -56,7 +56,7 @@ kits:
     VM_settings:
         VMs:
           # Note: You should not have more than one of these
-          testcontroller.lan:
+          # testcontroller.lan: # CHANGE ME
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -113,7 +113,7 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          server1.lan:
+          # server1.lan: # CHANGE ME
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -151,7 +151,7 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          testserver2.lan:
+          # testserver2.lan: # CHANGE ME
             type: "server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -189,7 +189,7 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          testsensor1.lan:
+          # testsensor1.lan: # CHANGE ME
             type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -244,7 +244,7 @@ kits:
             - "CDROM"
             - "DISK"
             - "ETHERNET"
-          testsensor2.lan:
+          # testsensor2.lan: # CHANGE ME
             type: "remote-sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
