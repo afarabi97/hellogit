@@ -376,7 +376,10 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts: master-server
+  hosts: 
+    - master-server
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

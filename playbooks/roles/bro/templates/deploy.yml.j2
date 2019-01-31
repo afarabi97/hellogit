@@ -1,11 +1,13 @@
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bro
+  name: {{ hostname | hash('md5') }}-bro
   labels:
     component: bro
 spec:
-  replicas: {{ groups['bro'] | length }}
+  replicas: 1
   selector:
     matchLabels:
       component: bro
@@ -90,3 +92,5 @@ spec:
                 values:
                 - bro
             topologyKey: "kubernetes.io/hostname"
+
+...

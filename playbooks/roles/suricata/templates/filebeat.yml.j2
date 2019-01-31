@@ -167,7 +167,7 @@ filebeat.prospectors:
 
 #----------------------------- Kafka output --------------------------------
 output.kafka:
-  hosts: ['{% if remote[host] %}kafka-{{ shortname[0] }}.default.svc.cluster.local{% else %}{{ kafka_fqdn }}{% endif %}:{{ kafka_port }}']
+  hosts: ['{% if inventory_hostname in groups['remote-sensors'] %}{% set hostname_var = inventory_hostname %}{% set shortname = hostname_var.split('.') %}kafka-{{ shortname[0] }}.default.svc.cluster.local{% else %}{{ kafka_fqdn }}{% endif %}:{{ kafka_port }}']
   topic: 'suricata-raw'
   partition.round_robin:
     reachable_only: true

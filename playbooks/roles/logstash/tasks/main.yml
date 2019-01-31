@@ -3,12 +3,6 @@
 ######################################################
 ---
 
-- name: Include the dictionaries
-  include_vars: "files/ECSDictionarySuricata.yml"
-
-- name: Include another dictionary
-  include_vars: "files/ECSDictionaryBro.yml"
-
 - name: "Create Logstash directory"
   file:
     path: "{{ logstash_dir }}/pipeline"

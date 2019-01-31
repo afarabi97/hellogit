@@ -20,6 +20,7 @@ grr_version: "v3.2.4.6"
 mysql_version: "8"
 httpd_version: "2.4"
 bro_version: "2.6.1"
+suricata_version: "4.0.6"
 
 # Docker Image List
 kube_images:
@@ -27,7 +28,7 @@ kube_images:
   - docker.io/metallb/controller:{{metallb_version}}
   - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
-  - docker.io/tfplenum/suricata
+  - docker.io/tfplenum/suricata:{{ suricata_version }}
   - docker.io/tfplenum/zookeeper:alpine
   - docker.io/tfplenum/kafka:{{ kafka_version }}
   - docker.io/tfplenum/kafka-manager:{{kafka_manager_version}}

@@ -1,5 +1,13 @@
 ---
 
+- name: 'Delete existing config directory'
+  file:
+    path: "{{ moloch_dir }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: absent
+
 - name: 'Create directories'
   file:
     path: "{{ moloch_dir }}"
@@ -24,6 +32,6 @@
   include: 25_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
   with_nested:
     - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
-    - ['config.ini', 'sts.yml', 'sts-remote.yml']
+    - ['config.ini', 'sts.yml']
 
 ...

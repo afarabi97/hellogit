@@ -1,13 +1,10 @@
 ---
 
-- name: "Clean up kube configmap"
-  command: "kubectl delete configmap moloch-bootstrap --ignore-not-found"
-
 - name: Delete Moloch Deployments
   include: 30_cleanup_moloch.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
   with_nested:
-    - "{{ groups['sensors'] }}"
-    - ['sts.yml', 'sts-remote.yml']
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['sts.yml']
 
 - name: "Clean up kube for deployment "
   command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"

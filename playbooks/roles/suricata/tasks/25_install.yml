@@ -1,0 +1,25 @@
+---
+
+- name: Deploy Services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "{{ item | hash('md5') }}-suricata"
+    file_name: "{{ suricata_dir }}/{{ item }}-deploy.yml"
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+- name: Wait for Suricata to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "{{ item | hash('md5') }}-suricata"
+    label: ""
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+...

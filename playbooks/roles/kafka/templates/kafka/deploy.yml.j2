@@ -1,4 +1,5 @@
 ---
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -81,3 +82,5 @@ spec:
       resources:
         requests:
           storage: {{ kafka_pv_size }}Gi
+
+...

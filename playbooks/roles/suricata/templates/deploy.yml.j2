@@ -1,11 +1,13 @@
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: suricata
+  name: {{ hostname | hash('md5') }}-suricata
   labels:
     component: suricata
 spec:
-  replicas: {{ groups['suricata'] | length }}
+  replicas: 1
   selector:
     matchLabels:
       component: suricata
@@ -17,7 +19,15 @@ spec:
       hostNetwork: true
       containers:
       - name: suricata
-        image: {{ suricata_image }}:{{ suricata_ver }}
+        # TODO - THIS NEEDS TO BE FIXED
+        # THIS MIGHT BE THE WORST HACK IN THE HISTORY OF OUR PROGRAM BUT IT WORKS
+        # TAKING IT OUT CAUSES A MISSING FILE ERROR FROM KUBERNETES BECAUSE BULLSHIT
+        # IT'S 1230 AM AND I'VE BEEN AT THIS FOR 14ISH HOURS AND IT WORKS.
+        command:
+        - '/usr/bin/bash'
+        - '-c'
+        - '/usr/local/bin/run_suricata.sh'
+        image: {{ suricata_image }}:{{ suricata_version }}
         imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
@@ -29,36 +39,25 @@ spec:
           requests:
             cpu: {{ suricata_cpu_request }}
         volumeMounts:
-        - name: vars
-          mountPath: /etc/icdm/
-        - name: templates
-          mountPath: /etc/icdm/templates/
-        - name: configs
-          mountPath: /etc/icdm/conf/
+        - name: filebeat
+          mountPath: /etc/filebeat/filebeat.yml
+        - name: suricata
+          mountPath: /etc/suricata/suricata.yaml
+        - name: custom-rules
+          mountPath: /etc/suricata/rules/custom.rules
       volumes:
-      - name: vars
-        configMap:
-          name: vars
-      - name: configs
-        configMap:
-          name: suricata
-          items:
-          - key: suricata.yaml.conf
-            path: suricata.yaml.conf
-          - key: filebeat.yml.conf
-            path: filebeat.yml.conf
-          - key: custom.rules.conf
-            path: custom.rules.conf
-      - name: templates
-        configMap:
-          name: suricata
-          items:
-          - key: suricata.yaml.tmpl
-            path: suricata.yaml.tmpl
-          - key: filebeat.yml.tmpl
-            path: filebeat.yml.tmpl
-          - key: custom.rules.tmpl
-            path: custom.rules.tmpl  
+      - name: filebeat
+        hostPath:
+          path: {{ suricata_dir }}/{{ hostname }}-filebeat.yml
+          type: File
+      - name: suricata
+        hostPath:
+          path: {{ suricata_dir }}/{{ hostname }}-suricata.yaml
+          type: File
+      - name: custom-rules
+        hostPath:
+          path: {{ suricata_dir }}/{{ hostname }}-custom.rules
+          type: File
       nodeSelector:
         suricata: "true"
       affinity:
@@ -71,3 +70,5 @@ spec:
                 values:
                 - suricata
             topologyKey: "kubernetes.io/hostname"
+
+...
