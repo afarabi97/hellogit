@@ -16,6 +16,14 @@
     group: root
     mode: u+rw,g+rw
 
+- name: 'Copy Suricata bootstrap template'
+  template:
+    src: "templates/bootstrap.yml.j2"
+    dest: "{{ suricata_dir }}/bootstrap.yml"
+    group: root
+    owner: root
+    mode: 0644
+
 - name: Copy Suricata configuration files
   include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
   with_nested:

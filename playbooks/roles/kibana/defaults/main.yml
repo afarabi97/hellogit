@@ -4,7 +4,6 @@
 #### Kibana configuration variables ####
 
 # Which image version of Kibana this role is using.
-kibana_port: '5601'
 kibana_image: 'docker.elastic.co/kibana/kibana'
 kibana_dir: "{{ install_dir }}/kibana"
 

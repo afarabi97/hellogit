@@ -34,3 +34,12 @@ spec:
       - name: configini
         hostPath:
           path: {{ moloch_dir }}/{{ groups['moloch'][0] }}-config.ini
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ groups['moloch'][0] }}"
