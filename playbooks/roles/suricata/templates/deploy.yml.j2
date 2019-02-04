@@ -33,14 +33,6 @@ spec:
         resources:
           requests:
             cpu: {{ suricata_cpu_request }}
-        livenessProbe:
-          exec:
-            command:
-            - bash
-            - -c
-            - systemctl status suricata | grep running
-          initialDelaySeconds: 20
-          periodSeconds: 10
         volumeMounts:
         - name: filebeat
           mountPath: /etc/filebeat/filebeat.yml
