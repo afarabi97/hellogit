@@ -59,58 +59,61 @@ kafka:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kafka
 
 bro:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,rulesync
 
 moloch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch
 
 suricata:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,rulesync
+
+rulesync:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t rulesync
 
 janitor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 logstash-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,kafka,bro,moloch,suricata,rulesync
 
 metricbeat-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat,kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat,kafka,bro,moloch,suricata,rulesync
 
 kafka-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kafka,bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kafka,bro,moloch,suricata,rulesync
 
 bro-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata,rulesync
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata,rulesync
 
 suricata-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,rulesync
 
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,disable-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass

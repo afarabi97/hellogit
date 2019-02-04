@@ -376,7 +376,7 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts: 
+  hosts:
     - master-server
     - sensors
     - remote-sensors
@@ -389,7 +389,18 @@
   tags:
     - suricata
 
-- name: Enable endgame script on master server
+- name: Setup Rulesync
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - rulesync
+  tags:
+    - rulesync
+
+- name: Enable Endgame script on master server
   hosts: master-server
   gather_facts: no
   any_errors_fatal: true

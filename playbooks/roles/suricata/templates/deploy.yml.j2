@@ -38,8 +38,8 @@ spec:
           mountPath: /etc/filebeat/filebeat.yml
         - name: suricata
           mountPath: /etc/suricata/suricata.yaml
-        - name: custom-rules
-          mountPath: /etc/suricata/rules/custom.rules
+        - name: custom
+          mountPath: /etc/suricata/rules/custom
       volumes:
       - name: filebeat
         hostPath:
@@ -49,10 +49,10 @@ spec:
         hostPath:
           path: {{ suricata_dir }}/{{ hostname }}-suricata.yaml
           type: File
-      - name: custom-rules
+      - name: custom
         hostPath:
-          path: {{ suricata_dir }}/{{ hostname }}-custom.rules
-          type: File
+          path: {{ suricata_dir }}/custom
+          type: DirectoryOrCreate
       nodeSelector:
         suricata: "true"
       affinity:

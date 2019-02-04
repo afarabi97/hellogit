@@ -10,8 +10,16 @@
 
 - name: "Create config directory"
   file:
-    path: "{{ bro_dir }}"
+    path: "{{ bro_dir }}/custom"
     state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: "Create dummy rule file"
+  file:
+    path: "{{ bro_dir }}/custom/__load__.bro"
+    state: touch
     owner: root
     group: root
     mode: u+rw,g+rw
@@ -40,12 +48,11 @@
     mode: 0644
   with_items:
     - local.bro
-    - custom.bro
 
 - name: Copy bro configuration files
   include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
   with_nested:
     - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
     - ['deploy.yml', 'kafka.bro', 'networks.cfg', 'node.cfg', 'broctl.cfg']
-  
+
 ...
