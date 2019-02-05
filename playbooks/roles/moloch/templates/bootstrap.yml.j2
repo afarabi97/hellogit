@@ -1,14 +1,10 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: moloch-bootstrap
   labels:
-    component: moloch
+    jobgroup: moloch
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      component: moloch
   template:
     metadata:
       labels:
@@ -43,3 +39,5 @@ spec:
                 operator: In
                 values:
                 - "{{ groups['moloch'][0] }}"
+      restartPolicy: Never
+

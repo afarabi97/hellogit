@@ -39,16 +39,6 @@
     echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
   register: moloch_bootstrap_pod
 
-- name: Wait for Bootstrap pod to be ready
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "deployments"
-    namespace: "default"
-    resource_name: "moloch-bootstrap"
-    label: ""
-
 - name: Deploy Moloch Viewer and Moloch Viewer Service
   include_role:
     name: kubernetes/common
@@ -92,25 +82,6 @@
     namespace: "default"
     resource_name: "moloch-viewer"
     label: ""
-
-#- name: Scale up Moloch Statefulset
-#  command: "kubectl scale statefulset moloch --replicas={{ groups['sensors'] | length }}"
-#  when: node_to_add is defined 
-#    and node_to_add in groups['sensors']
-#    and node_to_add in groups['moloch']
-#  tags:
-#    - moloch-scale
-
-#- name: Scale up Remote Moloch Statefulset
-#  command: "kubectl scale statefulset remote-moloch --replicas={{ groups['remote-sensors'] | length }}"
-#  when: node_to_add is defined 
-#    and node_to_add in groups['remote-sensors']
-#    and node_to_add in groups['moloch']
-#  tags:
-#    - moloch-scale
-
-- name: Give bootstrap time to complete
-  shell: sleep 10;
 
 - name: Remove Bootstrap
   command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml
