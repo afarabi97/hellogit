@@ -129,6 +129,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export DIEUSERNAME='" + di2e_username + "' && \
             export GIT_USERNAME='" + di2e_username + "' && \
             export RUN_TYPE=full && \
+            export RHEL_SOURCE_REPO=labrepo && \
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
             export CLONE_REPOS='" + str(is_repo_sync).lower() + "' && \
