@@ -102,7 +102,7 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
         client.run(
             "curl -o /root/bootstrap.sh -u {username}:'{password}' "
             "https://bitbucket.di2e.net/projects/{repo_name}/repos/tfplenum-deployer"
-            "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
+            "/raw/bootstrap.sh?at=refs%2Fheads%2Ffeature/pull_tags".format(
                 branch_name=deployer_branch,
                 username=di2e_username,
                 password=di2e_password,
@@ -119,7 +119,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: The branch we will clone from when we run our bootstrap.
     """
-    fork_var = "yes" if kit.branch_name == "fork" else "no"
+    fork_var = "yes" if kit.branch_name == "fork" or kit.branch_name == "custom" else "no"
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -130,6 +130,8 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export GIT_USERNAME='" + di2e_username + "' && \
             export RUN_TYPE=full && \
             export RHEL_SOURCE_REPO=labrepo && \
+            export TFPLENUM_OS_TYPE=rhel && \
+            export labrepo_check=true && \
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
             export CLONE_REPOS='" + str(is_repo_sync).lower() + "' && \
