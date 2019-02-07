@@ -81,11 +81,11 @@ maxFileSizeG = 1
 
 # TCP timeout value.  Moloch writes a session record after this many seconds
 # of inactivity.
-tcpTimeout = 600
+tcpTimeout = 20
 
 # Moloch writes a session record after this many seconds, no matter if
 # active or inactive
-tcpSaveTimeout = 720
+tcpSaveTimeout = 30
 
 # UDP timeout value.  Moloch assumes the UDP session is ended after this
 # many seconds of inactivity.
@@ -97,7 +97,7 @@ icmpTimeout = 10
 
 # An aproximiate maximum number of active sessions Moloch/libnids will try
 # and monitor
-maxStreams = 1000000
+maxStreams = 50000000
 
 # Moloch writes a session record after this many packets
 maxPackets = 10000
