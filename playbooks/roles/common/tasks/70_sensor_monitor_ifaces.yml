@@ -27,21 +27,6 @@
             interface on your host. Monitor interfaces should be set to link local.
             The profile name should be the same as the interface name.
 
-  - name: Set bootproto to link-local
-    replace:
-      path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
-      regexp: "BOOTPROTO=none|BOOTPROTO=dhcp|BOOTPROTO=static"
-      replace: "BOOTPROTO=autoip"
-    with_items: "{{ sensor_monitor_interface }}"
-
-  - name: if interface link status is up then bring up the interface
-    shell: |
-      link=`ethtool {{ item }} | grep "Link detected" | awk -F ":" '{gsub(/ /,"",$2); print $2 }'`
-      if [[ $link == 'yes' ]]; then
-          ifup {{ item }}
-      fi
-    with_items: "{{ sensor_monitor_interface }}"
-
   - name: Add promisc service
     copy:
       src: enable-promisc-mode.service
