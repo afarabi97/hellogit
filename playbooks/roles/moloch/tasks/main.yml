@@ -9,15 +9,19 @@
   register: get_pods
   changed_when: get_pods.failed
 
-- name: Check Moloch Process
-  include_role:
-    name: common
-    tasks_from: check_pod_process
-  vars:
-    app_name: "moloch"
-    process_name: "molochcapture"
-    pod_name: "{{ item }}"
+- name: Get pod status
+  shell: |
+    kubectl get pod {{item}} --no-headers | awk '{ print $3 }' 
   with_items: "{{ get_pods.stdout_lines }}"
+  register: pod_status
+  changed_when: pod_status.failed  
+  ignore_errors: yes  
+
+- name: Test | Check Pod Status
+  assert:
+    that: item.stdout == 'Running'
+    msg: "Failed it appears moloch pod status is {{ item.stdout }}"
+  with_items: "{{ pod_status.results }}"
 
 - name: Check Moloch Indicies
   import_role:
