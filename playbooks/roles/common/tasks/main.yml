@@ -6,7 +6,8 @@
 - import_tasks: 35_install_common_packages.yml
 - import_tasks: 40_create_directories.yml
 - import_tasks: 45_disable_ipv6.yml
-- import_tasks: 50_disable_firewall.yml
+- import_tasks: 50_setup_firewall.yml
+  tags: setup-firewall
 - import_tasks: 55_banner.yml
 - import_tasks: 60_kube_external_dns.yml
   when: inventory_hostname in groups['master-server']

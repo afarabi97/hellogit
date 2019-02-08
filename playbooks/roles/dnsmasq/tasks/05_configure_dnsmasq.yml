@@ -167,13 +167,12 @@
     line: 'addn-hosts=/etc/dnsmasq_kube_hosts'
 
 # TODO: Add this back in when firewalld is ready
-#- name: Configure firewalld
-#  firewalld:
-#    service: dns
-#    permanent: true
-#    state: enabled
-#    zone: public
-#    immediate: yes
+- name: Configure firewalld
+  firewalld:
+    service: dns
+    permanent: true
+    state: enabled   
+    immediate: yes
 
 - name: Start dnsmasq and enable it
   systemd:
