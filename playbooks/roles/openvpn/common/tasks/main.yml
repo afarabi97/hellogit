@@ -295,6 +295,13 @@
     mode: 0755
   when: inventory_hostname in groups['remote-sensors']
 
+- name: Deploy second companion script to clients
+  template:
+    src: "templates/post-bridge.sh.j2"
+    dest: "/etc/openvpn/client/post-bridge.sh"
+    mode: 0755
+  when: inventory_hostname in groups['remote-sensors']
+
 - name: Initialize OpenVPN service on clients
   shell: "systemctl enable -f openvpn-client.service"
   when: inventory_hostname in groups['remote-sensors']
