@@ -323,12 +323,6 @@ class KitSeleniumRunner(SeleniumRunner):
         if node.type not in Node.valid_server_types:
             raise TypeError("Invalid node type. It must be " + str(Node.valid_server_types))
 
-        element = self._browser.find_element_by_name("host_server" + str(index))
-        element.send_keys()
-
-        element = self._browser.find_element_by_name("btn_host_server" + str(index))
-        element.click()
-
         if node.type == "master-server":
             element = self._browser.find_element_by_name("is_master_server" + str(index))
             element.click()
@@ -411,6 +405,7 @@ class KitSeleniumRunner(SeleniumRunner):
         element = self._browser.find_element_by_name("kubernetes_services_cidrkube_dropdown")
         element.click()
 
+        time.sleep(10)
         element = self._browser.find_element_by_name(kit.kubernetes_cidr + "kube_dropdown")
         element.click()
 
@@ -449,11 +444,6 @@ class KitSeleniumRunner(SeleniumRunner):
         try:
             # The two lines below are necessary due to a bug in the Chromedriver. They don't do anything except bring
             # the gather facts button into view
-            element = self._browser.find_element_by_name("host_sensor" + str(index))
-            element.send_keys()
-
-            element = self._browser.find_element_by_name("btn_host_sensor" + str(index))
-            element.click()
 
             try:
                 for drive_name in node.ceph_drives:
