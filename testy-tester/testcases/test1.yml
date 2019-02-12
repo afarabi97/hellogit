@@ -18,7 +18,7 @@ kits:
 
     kit_configuration:
         # The branch we want to pull from.
-        branch_name: fork
+        branch_name: devel
 
         # these branches are name of the branches on your fork you want to use
         tfplenum_branch_name: devel
@@ -56,7 +56,7 @@ kits:
     VM_settings:
         VMs:
           # Note: You should not have more than one of these
-          onesensoronersensortwo-ctrl.lan:
+          test1-controller.lan:
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -68,8 +68,7 @@ kits:
             domain: 'lan'
             gateway: "172.16.82.1"
             dns:
-              - "172.16.82.1"
-              
+              - "172.16.82.1"              
             # The following controls where the VM will be placed on the ESXi servers
             storage_options:
               datacenter: "SIL_Datacenter"
@@ -114,7 +113,7 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          onesensoronersensortwoserver-srv1.lan:
+          test1-server1.lan:
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -152,7 +151,7 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          onesensoronersensortwoserver-srv2.lan:
+          test1-server2.lan:
             type: "server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -190,7 +189,7 @@ kits:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          onesensoronersensortwoserver-sensor1.lan:
+          test1-sensor1.lan:
             type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -245,7 +244,7 @@ kits:
             - "CDROM"
             - "DISK"
             - "ETHERNET"
-          onesensoronersensortwoserver-remote2.lan:
+          test1-sensor2.lan:
             type: "remote-sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:

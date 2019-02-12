@@ -8,8 +8,8 @@ host_configuration:
 kits:
   kit_1:
     kickstart_configuration:
-        dhcp_start: "172.16.82.80"
-        dhcp_end: "172.16.82.85"
+        dhcp_start: "172.16.82.50"
+        dhcp_end: "172.16.82.55"
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
@@ -17,10 +17,10 @@ kits:
         # Note root_password is specified under VM_settings.
 
     kit_configuration:
-       
-        branch_name: fork
+        # The branch we want to pull from.
+        branch_name: devel
 
-       
+        # these branches are name of the branches on your fork you want to use
         tfplenum_branch_name: devel
         deployer_branch_name: devel
         frontend_branch_name: devel
@@ -36,7 +36,7 @@ kits:
         es_storage_space_percentage:
 
         # Kubernetes cidr will probably be different on a per kit basis
-        kubernetes_cidr: "172.16.82.80"
+        kubernetes_cidr: "172.16.82.48"
 
         home_nets:
             - "172.16.82.0/24"
@@ -54,9 +54,10 @@ kits:
         es_cpu_to_memory_ratio_default:
 
     VM_settings:
+
         VMs:
           # Note: You should not have more than one of these
-          onesensortwoserver-ctrl.lan:
+          test2-controller.lan:
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -80,7 +81,7 @@ kits:
               nics:
                 ens192:
                   type: "manual" # This can be auto, manual, or link-local
-                  ip_address: "172.16.82.64"
+                  ip_address: "172.16.82.33"
                   subnet_mask: "255.255.255.0"
                   start_connected: True
                   management_interface: True
@@ -90,7 +91,7 @@ kits:
                   std_portgroup_name:
                 ens224:
                   type: "link-local" # This can be auto, manual, or link-local
-                  ip_address: "169.254.251.120"
+                  ip_address: "169.254.251.118"
                   subnet_mask: "255.255.0.0"
                   start_connected: True
                   management_interface: False
@@ -113,7 +114,7 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          onesensortwoserver-srv1.lan:
+          test2-server1.lan:
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -125,7 +126,7 @@ kits:
               nics:
                 ens192:
                   type: "manual"
-                  ip_address: "172.16.82.65"
+                  ip_address: "172.16.82.34"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
@@ -141,18 +142,21 @@ kits:
               size: 12
               hot_add_enabled: False
             boot_drive_name: "sda"
+            # These are the drives selenium will select.
             ceph_drives:
               - sdb
+              - sdc
             disks:
               boot: 20
               ceph: 20
+              ceph2: 20
             iso_file:
             boot_order:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          onesensortwoserver-srv2.lan:
-            type: "server" # Can be controller, sensor, or server
+          test2-sensor1.lan:
+            type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
               datacenter: "SIL_Datacenter"
@@ -163,45 +167,7 @@ kits:
               nics:
                 ens192:
                   type: "manual"
-                  ip_address: "172.16.82.66"
-                  start_connected: True
-                  management_interface: True
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
-                  std_portgroup_name:
-            cpu_spec:
-              sockets: 16
-              cores_per_socket: 1
-              hot_add_enabled: False
-              hot_remove_enabled: False
-            memory_spec:
-              size: 12
-              hot_add_enabled: False
-            boot_drive_name: "sda"
-            ceph_drives:
-              - sdb
-            disks:
-              boot: 20
-              ceph: 20
-            iso_file:
-            boot_order:
-              - "CDROM"
-              - "DISK"
-              - "ETHERNET"
-          onesensortwoserver-sensor1.lan:
-            type: "sensor" # Can be controller, sensor, or server
-            vm_guestos: "RHEL_7_64"
-            storage_options:
-              datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev-Cluster"
-              datastore: "NVMe Storage"
-              folder: "Testing"
-            networking:
-              nics:
-                ens193:
-                  type: "manual"
-                  ip_address: "172.16.82.67"
+                  ip_address: "172.16.82.35"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
@@ -231,57 +197,6 @@ kits:
             # otherwise you should use pcap_drives instead.
 #            ceph_drives:
 #              - sdb
-            pcap_drives:
-              - sdb
-            # Selects the monitoring interfaces we will use during kit configuration.
-            monitoring_ifaces:
-              - ens224
-            disks:
-              boot: 20
-              ceph: 20
-            iso_file:
-            boot_order:
-            - "CDROM"
-            - "DISK"
-            - "ETHERNET"
-        ADD_NODE_VMs:
-          onesensortwoserver-sensor2.lan:
-            type: "remote-sensor" # Can be controller, sensor, or server
-            vm_guestos: "RHEL_7_64"
-            storage_options:
-              datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev-Cluster"
-              datastore: "NVMe Storage"
-              folder: "Testing"
-            networking:
-              nics:
-                ens192:
-                  type: "manual"
-                  ip_address: "172.16.82.68"
-                  start_connected: True
-                  management_interface: True
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
-                  std_portgroup_name:
-                ens224:
-                  type: "manual"
-                  ip_address:
-                  start_connected: True
-                  management_interface: False
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "Monitoring Portgroup"
-                  std_portgroup_name:
-            cpu_spec:
-              sockets: 12
-              cores_per_socket: 1
-              hot_add_enabled: False
-              hot_remove_enabled: False
-            memory_spec:
-              size: 12
-              hot_add_enabled: False
-            boot_drive_name: "sda"
             pcap_drives:
               - sdb
             # Selects the monitoring interfaces we will use during kit configuration.
