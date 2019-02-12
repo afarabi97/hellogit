@@ -408,8 +408,11 @@ class KitSeleniumRunner(SeleniumRunner):
             element.clear()
             element.send_keys(str(kit.kafka_cpu_percentage))
 
-        element = self._browser.find_element_by_name("kubernetes_services_cidr")
-        element.send_keys(str(kit.kubernetes_cidr))
+        element = self._browser.find_element_by_name("kubernetes_services_cidrkube_dropdown")
+        element.click()
+
+        element = self._browser.find_element_by_name(kit.kubernetes_cidr + "kube_dropdown")
+        element.click()
 
         if kit.ideal_es_cpus_per_instance is not None or kit.es_cpu_to_memory_ratio_default is not None:
 
