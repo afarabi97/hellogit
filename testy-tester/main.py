@@ -67,8 +67,7 @@ class Runner:
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
-        parser.add_argument('--headless', dest='is_headless', action='store_true')
-        parser.add_argument('--no-repo-sync', dest='is_repo_sync', action='store_false')
+        parser.add_argument('--headless', dest='is_headless', action='store_true')        
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
@@ -129,7 +128,7 @@ class Runner:
         get_bootstrap(self.controller_node, self.di2e_username, kit, self.di2e_password)
 
         logging.info("Running controller bootstrap...")
-        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit, self.args.is_repo_sync)
+        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit)
 
     def _setup_controller(self, kit: Kit):
         """

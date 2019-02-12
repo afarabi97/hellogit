@@ -110,7 +110,7 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
         )
 
 
-def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit: Kit, is_repo_sync: bool) -> None:
+def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit: Kit) -> None:
     """
     Execute bootstrap script on controller node.  This will take 30 minutes to 1 hour to complete.
 
@@ -124,17 +124,13 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
         cmd_to_execute = ("export BRANCH_NAME='" + kit.branch_name + "' && \
-            export TFPLENUM_LABREPO=true && \
             export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
             export DIEUSERNAME='" + di2e_username + "' && \
             export GIT_USERNAME='" + di2e_username + "' && \
             export RUN_TYPE=full && \
-            export RHEL_SOURCE_REPO=labrepo && \
-            export TFPLENUM_OS_TYPE=rhel && \
-            export labrepo_check=true && \
+            export RHEL_SOURCE_REPO='" + kit.source_repo + "' && \
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
-            export CLONE_REPOS='" + str(is_repo_sync).lower() + "' && \
             export TFPLENUM_BRANCH_NAME='" + kit.tfplenum_branch_name + "' && \
             export DEPLOYER_BRANCH_NAME='" + kit.deployer_branch_name + "' && \
             export FRONTEND_BRANCH_NAME='" + kit.frontend_branch_name + "' && \
@@ -358,6 +354,11 @@ def transform(configuration: OrderedDict) -> List[Kit]:
             kit.set_frontend_branch_name("devel")
         else:
             kit.set_frontend_branch_name(configuration[kitconfig]["kit_configuration"]['frontend_branch_name'])
+
+        if not configuration[kitconfig]["kit_configuration"]['source_repo']:
+            kit.set_source_repo("labrepo")
+        else:
+            kit.set_source_repo(configuration[kitconfig]["kit_configuration"]['source_repo'])
 
         if not configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage']:
             kit.set_moloch_pcap_storage_percentage(None)

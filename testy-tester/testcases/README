@@ -7,6 +7,7 @@ new stages and test cases for jenkins pipeline.
 ## Test Cases
 
 ### test1
+* OS: RHEL
 * 1 sensor
 * 1 remote sensor
 * 2 servers  
@@ -14,13 +15,23 @@ new stages and test cases for jenkins pipeline.
 * Master Server: 172.16.82.97
   
 ### test2
+* OS: RHEL
 * 1 sensor
 * 1 server
 * Controller: 172.16.82.33
 * Master Server: 172.16.82.34
 
 ### test3
+* OS: RHEL
 * 1 sensor
 * 2 servers
 * Controller: 172.16.82.64
 * Master Server: 172.16.82.65
+  
+### test4
+* OS: CentOS
+* 1 sensor
+* 1 server
+* Controller: 172.16.82.33
+* Master Server: 172.16.82.34
+

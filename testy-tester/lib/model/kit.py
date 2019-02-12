@@ -18,6 +18,7 @@ class Kit(object):
         kubernetes_cidr (str): See frontend help page
         use_ceph_for_pcap (bool): See frontend help page
         branch_name (str): The name of the branch.
+        source_repo (str): Name of yum repos labrepo or public
         moloch_pcap_storage_percentage (int): See frontend help page
         elasticsearch_cpu_percentage (int): See frontend help page
         elasticsearch_ram_percentage (int): See frontend help page
@@ -70,6 +71,9 @@ class Kit(object):
 
     def set_frontend_branch_name(self, frontend_branch_name: str) -> None:
         self.frontend_branch_name = frontend_branch_name
+    
+    def set_source_repo(self, source_repo: str) -> None:
+        self.source_repo = source_repo
 
     def set_moloch_pcap_storage_percentage(self, moloch_pcap_storage_percentage: int) -> None:
         self.moloch_pcap_storage_percentage = moloch_pcap_storage_percentage

@@ -8,8 +8,8 @@ host_configuration:
 kits:
   kit_1:
     kickstart_configuration:
-        dhcp_start: "172.16.82.112"
-        dhcp_end: "172.16.82.117"
+        dhcp_start: "172.16.82.50"
+        dhcp_end: "172.16.82.55"
         netmask: "255.255.255.0"
 
         # Gateway will probably be different on a per kit basis (depends on the vlan)
@@ -38,7 +38,7 @@ kits:
         es_storage_space_percentage:
 
         # Kubernetes cidr will probably be different on a per kit basis
-        kubernetes_cidr: "172.16.82.112"
+        kubernetes_cidr: "172.16.82.176"
 
         home_nets:
             - "172.16.82.0/24"
@@ -56,9 +56,10 @@ kits:
         es_cpu_to_memory_ratio_default:
 
     VM_settings:
+
         VMs:
           # Note: You should not have more than one of these
-          test1-controller.lan:
+          test4-controller.lan:
             type: "controller" # Can be controller, sensor, or server
 
             # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
@@ -66,7 +67,7 @@ kits:
             # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
             # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
             vm_guestos: "RHEL_7_64"
-            vm_to_clone: "NVMEe Test Template"
+            vm_to_clone: "CentOS Template"
             domain: 'lan'
             gateway: "172.16.82.1"
             dns:
@@ -82,7 +83,7 @@ kits:
               nics:
                 ens192:
                   type: "manual" # This can be auto, manual, or link-local
-                  ip_address: "172.16.82.96"
+                  ip_address: "172.16.82.160"
                   subnet_mask: "255.255.255.0"
                   start_connected: True
                   management_interface: True
@@ -92,7 +93,7 @@ kits:
                   std_portgroup_name:
                 ens224:
                   type: "link-local" # This can be auto, manual, or link-local
-                  ip_address: "169.254.251.119"
+                  ip_address: "169.254.251.118"
                   subnet_mask: "255.255.0.0"
                   start_connected: True
                   management_interface: False
@@ -101,12 +102,12 @@ kits:
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 2
+              sockets: 4
               cores_per_socket: 1
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 16 # This value is in GiB
+              size: 8 # This value is in GiB
               hot_add_enabled: False
             disks:
               boot: 200 # Name of disk followed by capacity in GiBs
@@ -115,7 +116,7 @@ kits:
               - "CDROM" # CDROM will be ignored if iso_file is None
               - "DISK"
               - "ETHERNET"
-          test1-server1.lan:
+          test4-server1.lan:
             type: "master-server" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -127,7 +128,7 @@ kits:
               nics:
                 ens192:
                   type: "manual"
-                  ip_address: "172.16.82.97"
+                  ip_address: "172.16.82.161"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
@@ -135,63 +136,28 @@ kits:
                   dv_portgroup_name: "82 Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 12
-              cores_per_socket: 4
-              hot_add_enabled: False
-              hot_remove_enabled: False
-            memory_spec:
-              size: 12
-              hot_add_enabled: False
-            boot_drive_name: "sda"
-            ceph_drives:
-              - sdb
-            disks:
-              boot: 20
-              ceph: 20
-            iso_file:
-            boot_order:
-              - "CDROM"
-              - "DISK"
-              - "ETHERNET"
-          test1-server2.lan:
-            type: "server" # Can be controller, sensor, or server
-            vm_guestos: "RHEL_7_64"
-            storage_options:
-              datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev-Cluster"
-              datastore: "NVMe Storage"
-              folder: "Testing"
-            networking:
-              nics:
-                ens192:
-                  type: "manual"
-                  ip_address: "172.16.82.98"
-                  start_connected: True
-                  management_interface: True
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
-                  std_portgroup_name:
-            cpu_spec:
-              sockets: 16
+              sockets: 4
               cores_per_socket: 1
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 12
+              size: 8
               hot_add_enabled: False
             boot_drive_name: "sda"
+            # These are the drives selenium will select.
             ceph_drives:
               - sdb
+              - sdc
             disks:
               boot: 20
               ceph: 20
+              ceph2: 20
             iso_file:
             boot_order:
               - "CDROM"
               - "DISK"
               - "ETHERNET"
-          test1-sensor1.lan:
+          test4-sensor1.lan:
             type: "sensor" # Can be controller, sensor, or server
             vm_guestos: "RHEL_7_64"
             storage_options:
@@ -203,7 +169,7 @@ kits:
               nics:
                 ens192:
                   type: "manual"
-                  ip_address: "172.16.82.99"
+                  ip_address: "172.16.82.162"
                   start_connected: True
                   management_interface: True
                   mac_auto_generated: True
@@ -220,67 +186,12 @@ kits:
                   dv_portgroup_name: "Monitoring Portgroup"
                   std_portgroup_name:
             cpu_spec:
-              sockets: 12
+              sockets: 4
               cores_per_socket: 1
               hot_add_enabled: False
               hot_remove_enabled: False
             memory_spec:
-              size: 12
-              hot_add_enabled: False
-            boot_drive_name: "sda"
-            # Selects the ceph or pcap drives we will use during kit configuration
-            # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
-            # otherwise you should use pcap_drives instead.
-#            ceph_drives:
-#              - sdb
-            pcap_drives:
-              - sdb
-            # Selects the monitoring interfaces we will use during kit configuration.
-            monitoring_ifaces:
-              - ens224
-            disks:
-              boot: 20
-              ceph: 20
-            iso_file:
-            boot_order:
-            - "CDROM"
-            - "DISK"
-            - "ETHERNET"
-          test1-sensor2.lan:
-            type: "remote-sensor" # Can be controller, sensor, or server
-            vm_guestos: "RHEL_7_64"
-            storage_options:
-              datacenter: "SIL_Datacenter"
-              cluster: "SIL_Dev-Cluster"
-              datastore: "NVMe Storage"
-              folder: "Testing"
-            networking:
-              nics:
-                ens192:
-                  type: "manual"
-                  ip_address: "172.16.82.100"
-                  start_connected: True
-                  management_interface: True
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "82 Portgroup"
-                  std_portgroup_name:
-                ens224:
-                  type: "manual"
-                  ip_address:
-                  start_connected: True
-                  management_interface: False
-                  mac_auto_generated: True
-                  mac_address: ""
-                  dv_portgroup_name: "Monitoring Portgroup"
-                  std_portgroup_name:
-            cpu_spec:
-              sockets: 12
-              cores_per_socket: 1
-              hot_add_enabled: False
-              hot_remove_enabled: False
-            memory_spec:
-              size: 12
+              size: 8
               hot_add_enabled: False
             boot_drive_name: "sda"
             # Selects the ceph or pcap drives we will use during kit configuration

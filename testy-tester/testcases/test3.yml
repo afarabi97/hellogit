@@ -25,6 +25,8 @@ kits:
         deployer_branch_name: devel
         frontend_branch_name: devel
 
+        source_repo: labrepo
+
         use_ceph_for_pcap: false
 
         # Only fill this in if use_ceph_for_pcap is true

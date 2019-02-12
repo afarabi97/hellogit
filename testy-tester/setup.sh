@@ -42,20 +42,36 @@ function setup_chrome(){
     yum remove google-chrome-stable -y > /dev/null 2>&1
   fi
 
-  run_cmd yum install http://yum.labrepo.lan/misc/google-chrome-stable-69.0.3497.100-1.x86_64.rpm -y
-  run_cmd curl -s -o /usr/local/bin/chromedriver http://misc.labrepo.lan/chromedriver
+  cat << EOF > /etc/yum.repos.d/google-chrome.repo
+[google-chrome]
+name=google-chrome
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
+enabled=1
+gpgcheck=1
+gpgkey=https://dl.google.com/linux/linux_signing_key.pub
+EOF
+
+  yum clean all
+  run_cmd yum install google-chrome-stable -y
+  rm -rf /etc/yum.repos.d/google-chrome.repo
+  yum clean all
+  
+  run_cmd curl -s -o chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.46/chromedriver_linux64.zip
+  run_cmd unzip -f chromedriver_linux64.zip -d /usr/local/bin/
   run_cmd chmod 755 /usr/local/bin/chromedriver
+  rm -rf chromedriver_linux64.zip
 }
 
 function setup_sdk(){
   pushd /opt > /dev/null
-  run_cmd curl -s -o vsphere-automation-sdk-python.tar.gz http://misc.labrepo.lan/vsphere-automation-sdk-python.tar.gz
-  run_cmd tar xf vsphere-automation-sdk-python.tar.gz
+  git clone https://github.com/vmware/vsphere-automation-sdk-python.git
+  pushd vsphere-automation-sdk-python > /dev/null
+  git checkout v6.7.0
   popd > /dev/null
 }
 
 function install_packages() {
-  yum install gcc python36 python36-devel -y
+  yum install git unzip gcc python36 python36-devel -y
 }
 
 function setup_virtenv(){  
@@ -77,11 +93,10 @@ function finish(){
   echo "==========================================="
   echo "==========================================="
 }
-setup_pip
+
+install_packages
 setup_chrome
 setup_sdk
-install_packages
 setup_virtenv
 install_requirements
 finish
-
