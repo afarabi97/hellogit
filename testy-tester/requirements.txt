@@ -22,7 +22,6 @@ junit-xml==1.8
 kubernetes==7.0.0
 lxml==4.2.4
 MarkupSafe==1.0
-nsx-policy-python-sdk==2.2.0.0.0.15184434
 oauthlib==2.1.0
 paramiko==2.4.1
 pyasn1==0.4.4
@@ -47,12 +46,14 @@ suds-jurko==0.6
 tabulate==0.8.2
 Twisted==18.7.0
 urllib3==1.23
-vapi-client-bindings==1.3.1
-vapi-common-client==2.9.0
-vapi-runtime==2.9.0
-vapi-vmc-client==2.9.0
-vmc-app-python-sdk==2.2.0.0.0.15184434
-vmc-client-bindings==1.2.0
 websocket-client==0.54.0
 Werkzeug==0.14.1
 zope.interface==4.5.0
+
+# VMWare Deps
+nsx-policy-python-sdk
+vapi-client-bindings
+vapi-common-client
+vapi-runtime
+vmc-app-python-sdk
+vmc-client-bindings

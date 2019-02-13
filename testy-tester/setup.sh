@@ -9,8 +9,9 @@ fi
 
 # Default to repos for now
 export TFPLENUM_BOOTSTRAP_TYPE=repos
+int_testing_dir="/opt/tfplenum-integration-testing/testy-tester"
 
-pushd "/opt/tfplenum-integration-testing/testy-tester" > /dev/null
+pushd $int_testing_dir > /dev/null
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root or use sudo."
@@ -53,36 +54,39 @@ EOF
 
   yum clean all
   run_cmd yum install google-chrome-stable -y
-  rm -rf /etc/yum.repos.d/google-chrome.repo
-  yum clean all
   
   run_cmd curl -s -o chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.46/chromedriver_linux64.zip
-  run_cmd unzip -f chromedriver_linux64.zip -d /usr/local/bin/
+  run_cmd unzip -o -q chromedriver_linux64.zip -d /usr/local/bin/
   run_cmd chmod 755 /usr/local/bin/chromedriver
   rm -rf chromedriver_linux64.zip
 }
 
 function setup_sdk(){
   pushd /opt > /dev/null
+  rm -rf vsphere-automation-sdk-python
   git clone https://github.com/vmware/vsphere-automation-sdk-python.git
-  pushd vsphere-automation-sdk-python > /dev/null
-  git checkout v6.7.0
   popd > /dev/null
 }
 
 function install_packages() {
+  yum install epel-release -y
   yum install git unzip gcc python36 python36-devel -y
 }
 
-function setup_virtenv(){  
+function setup_virtenv(){
+  pushd $int_testing_dir > /dev/null
+  rm -rf tfp-env
   run_cmd python3.6 -m venv tfp-env
   run_cmd tfp-env/bin/pip install --upgrade pip
+  popd > /dev/null
 }
 
 function install_requirements(){
+  pushd $int_testing_dir > /dev/null
   run_cmd tfp-env/bin/pip install --upgrade pip
   run_cmd tfp-env/bin/pip install --upgrade --force-reinstall -r /opt/vsphere-automation-sdk-python/requirements.txt --extra-index-url file:///opt/vsphere-automation-sdk-python/lib
   run_cmd tfp-env/bin/pip install -r requirements.txt
+  popd > /dev/null
 }
 
 function finish(){
