@@ -131,4 +131,4 @@ mumble:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t mumble
 
 grr:
-	ansible-playbook $(PLAYBOOK) -i grr-only.yml -t grr
+	ansible-playbook grr-only.yml -i $(INVENTORY) -t grr
