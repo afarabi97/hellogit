@@ -3,7 +3,7 @@
 #######################################################
 ---
 - name: Reset Kubernetes Node
-  command: kubeadm reset
+  command: kubeadm reset -f
   register: kube_reset_result
   ignore_errors: yes
 

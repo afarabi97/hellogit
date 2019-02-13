@@ -9,7 +9,7 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Run Ceph deploy
-  shell: ceph-deploy install --no-adjust-repos --stable luminous {{ node_to_add }}
+  shell: ceph-deploy install --no-adjust-repos --stable mimic {{ node_to_add }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -30,13 +30,12 @@
   args:
     chdir: "{{ ceph_dir }}"
 
-- name: Format drives
-  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].ceph_drive_list | join((" "+item+":")) }}
-  args:
-    chdir: "{{ ceph_dir }}"
-  with_items:
-    - "{{ node_to_add }}"
-  when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
+- name: Create drives
+  include_tasks: ceph_create.yml
+  loop: "{{ node_to_add }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host].ceph_drive_list and hostvars[host].ceph_drive_list | length > 0
 
 - name: Default osd_count to 0
   set_fact:

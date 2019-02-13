@@ -79,7 +79,7 @@ data:
       }
     }
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: kube-flannel-ds
@@ -88,9 +88,6 @@ metadata:
     tier: node
     app: flannel
 spec:
-  selector:
-    matchLabels:
-      app: flannel
   template:
     metadata:
       labels:
@@ -101,14 +98,12 @@ spec:
       nodeSelector:
         beta.kubernetes.io/arch: amd64
       tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: Exists
+      - operator: Exists
         effect: NoSchedule
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: quay.io/coreos/flannel:v0.10.0-amd64
-        imagePullPolicy: IfNotPresent
+        image: quay.io/coreos/flannel:{{ flannel_version }}
         command:
         - cp
         args:
@@ -122,8 +117,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: quay.io/coreos/flannel:v0.10.0-amd64
-        imagePullPolicy: IfNotPresent
+        image: quay.io/coreos/flannel:{{ flannel_version }}
         command:
         - /opt/bin/flanneld
         args:

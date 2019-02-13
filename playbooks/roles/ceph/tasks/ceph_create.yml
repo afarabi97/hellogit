@@ -1,0 +1,23 @@
+# - name: Check for existing ceph drives on {{ host }}
+#   shell: lsblk -ls | grep ceph | cut -f1 -d' '
+#   register: drives
+#
+# - name: Remove existing ceph drives on {{ host }}
+#   shell: "dmsetup remove {{ drives.stdout_lines | join(' ') }}"
+
+# Workaround for a Ceph bug -- https://tracker.ceph.com/issues/24793
+- name: Check for existing ceph VGs on {{ host }}
+  shell: vgs | grep ceph | cut -f3 -d' '
+  delegate_to: "{{ host }}"
+  register: vgroups
+
+- name: Remove existing ceph VGs on {{ host }}
+  shell: "vgremove -f {{ vgroups.stdout_lines | join(' ') }}"
+  delegate_to: "{{ host }}"
+  when: vgroups.stdout | length > 0
+
+- name: Create drives for {{ host }}
+  shell: ceph-deploy osd create --data {{ item }} {{ host }}
+  args:
+    chdir: "{{ ceph_dir }}"
+  loop: "{{ hostvars[host].ceph_drive_list }}"

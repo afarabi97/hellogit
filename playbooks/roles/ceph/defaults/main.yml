@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 
-ceph_rbd_provisioner_image: "quay.io/external_storage/rbd-provisioner"
+ceph_provisioner_image: "quay.io/external_storage/rbd-provisioner"
 ceph_dir: "{{ install_dir }}/ceph"
 
 osd_count: 0

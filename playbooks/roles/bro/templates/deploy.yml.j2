@@ -22,6 +22,7 @@ spec:
         image: {{ bro_image }}:{{ bro_version }}
         imagePullPolicy: IfNotPresent
         securityContext:
+          privileged: true
           capabilities:
             add:
               - NET_ADMIN

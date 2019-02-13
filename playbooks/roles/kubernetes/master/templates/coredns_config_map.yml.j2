@@ -1,0 +1,11 @@
+.:53 {
+    log
+    errors
+    health
+    kubernetes cluster.local
+    proxy . {{ hostvars[groups['master-server'][0]].management_ipv4 }}
+    cache 30
+    loop
+    reload
+    loadbalance
+}

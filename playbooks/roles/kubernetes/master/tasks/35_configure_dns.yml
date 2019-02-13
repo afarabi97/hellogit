@@ -27,9 +27,8 @@
     daemon-reload: yes
     state: restarted
 
-
 # DNS template must be copied after dns_ip variable is populated
-- name: 'Install dns template'
+- name: 'Install DNS template'
   template:
     src: "{{ item }}.yml.j2"
     dest: "{{ kube_dir }}/{{ item }}.yml"
@@ -37,14 +36,10 @@
     group: root
     mode: 0644
   with_items:
-    - kube_dns_config_map
+    - coredns_config_map
 
-- name: Deploy Kube DNS Config Map
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Kubernetes DNS Configuration"
-    file_name: "{{ kube_dir }}/kube_dns_config_map.yml"
+- name: Create DNS ConfigMap
+  shell: |
+    kubectl create configmap coredns --from-file Corefile={{ kube_dir }}/coredns_config_map.yml --dry-run -o yaml | kubectl replace --force --namespace=kube-system -f -
 
 ...

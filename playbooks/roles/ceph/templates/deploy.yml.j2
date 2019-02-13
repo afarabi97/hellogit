@@ -16,6 +16,13 @@ rules:
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    resourceNames: ["coredns", "kube-dns"]
+    verbs: ["list", "get"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -80,7 +87,7 @@ spec:
     spec:
       containers:
       - name: rbd-provisioner
-        image: "{{ ceph_rbd_provisioner_image }}:{{ rbd_provisioner_version }}"
+        image: "{{ ceph_provisioner_image }}:{{ ceph_provisioner_version }}"
         imagePullPolicy: IfNotPresent
         env:
         - name: PROVISIONER_NAME

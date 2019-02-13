@@ -2,7 +2,7 @@
 
 - name: Install Docker
   yum:
-    name: docker
+    name: docker-ce
     state: present
 
 - name: Docker Service
@@ -11,8 +11,8 @@
     state: started
     enabled: true
 
-- import_tasks: offline.yml  
-  tags: 
+- import_tasks: offline.yml
+  tags:
     - docker_images
 
 ...

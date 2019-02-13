@@ -6,9 +6,9 @@
 - name: 'Install Kubernetes packages'
   yum:
     name:
-      - "kubeadm-{{ kube_rpm_version }}"
-      - "kubelet-{{ kube_rpm_version }}"
-      - "kubectl-{{ kube_rpm_version }}"
+      - "kubeadm-{{ k8s_version }}"
+      - "kubelet-{{ k8s_version }}"
+      - "kubectl-{{ k8s_version }}"
     state: installed
     allow_downgrade: yes
   register: installed_packages
@@ -18,7 +18,7 @@
 - name: 'Install Kubernetes support packages'
   yum:
     name:
-      - "docker"
+      - "docker-ce"
       - "device-mapper-persistent-data"
       - "lvm2"
       - "ebtables"
