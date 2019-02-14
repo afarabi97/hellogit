@@ -457,7 +457,7 @@ class VirtualMachine:
         self.node_instance = None  # type: Node
 
         if node.iso_file is not None:
-            self.iso_path = iso_folder_path + node.iso_file  # type: str
+            self.iso_path = str(iso_folder_path) + node.iso_file  # type: str
         else:
             self.iso_path = None
 

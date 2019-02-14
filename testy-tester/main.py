@@ -11,7 +11,7 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
-from lib.vm_utilities import (destroy_and_create_vms, create_client, clone_vm,
+from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms)
 from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests)
@@ -67,6 +67,7 @@ class Runner:
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
+        parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')        
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
@@ -325,6 +326,20 @@ class Runner:
         master_node = get_node(kit, "master-server")
         wait_for_pods_to_be_alive(master_node, 30)
 
+    def _cleanup(self, kit: Kit):
+        """
+        Power off and delete VMs
+
+        :return:
+        """
+
+        if not self.args.cleanup_kit:
+            return
+
+        logging.info("Deleting VMs....")
+        destroy_vms(kit.get_nodes(), self.vsphere_client) # type: list
+
+
     def execute(self):
         """
         Does the full or partial execution of cluster setup, and integration tests.
@@ -345,6 +360,7 @@ class Runner:
             self._run_integration(kit)
             self._simulate_powerfailure(kit)
             self._run_integration(kit)
+            self._cleanup(kit)
 
 
 def main():

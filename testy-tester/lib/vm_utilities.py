@@ -413,7 +413,7 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     Disconnect(s)
 
 
-def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
+def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str=None) -> List[VirtualMachine]:
     """
     Destroys and ceates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
@@ -433,8 +433,23 @@ def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_
             vms.append(vm_instance)
     return vms
 
+def destroy_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str=None) -> None:
+    """
+    Destroys the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
-def get_vms(kit: Kit, client: VsphereClient, iso_folder_path=None) -> List[VirtualMachine]:
+    :param nodes (List[Node]): A list of nodes we want to create in vsphere.
+    :param client (VsphereClient): a vCenter server client
+    :param iso_folder_path (str): Path to the ISO files folder
+    :return:
+    """
+    
+    for node in nodes:        
+        logging.info("Cleaning up VM " + node.hostname + "...")
+        vm_instance = VirtualMachine(client, node, iso_folder_path)
+        vm_instance.cleanup()
+
+
+def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str=None) -> List[VirtualMachine]:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
