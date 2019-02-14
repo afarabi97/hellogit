@@ -166,6 +166,11 @@
     insertafter: 'addn-hosts={{ host_file }}'
     line: 'addn-hosts=/etc/dnsmasq_kube_hosts'
 
+- name: Create dnsmasq_kube_hosts file
+  file: 
+    path: /etc/dnsmasq_kube_hosts
+    state: touch
+
 # TODO: Add this back in when firewalld is ready
 - name: Configure firewalld
   firewalld:
@@ -174,11 +179,28 @@
     state: enabled   
     immediate: yes
 
+- name: "Create dnsmasq directory for override"
+  file:
+    path: "/etc/systemd/system/dnsmasq.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: override default dnsmasq service
+  copy:
+    src: "files/override.conf"
+    dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
+    group: root
+    owner: root
+    mode: 0644
+
 - name: Start dnsmasq and enable it
   systemd:
     name: dnsmasq
     state: restarted
     enabled: yes
+    daemon-reload: yes
   tags:
     - update-dnsmasq-hosts
 
