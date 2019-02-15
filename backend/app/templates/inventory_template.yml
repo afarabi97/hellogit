@@ -28,13 +28,11 @@ all:
     #############################
     # CPU Allocations           #
     #############################
-    bro_cpu_request: {{ template_ctx.sensor_resources.bro_cpu_request | int }}m
-    moloch_cpu_request: {{ template_ctx.sensor_resources.moloch_cpu_request | int }}m
-    suricata_cpu_request: {{ template_ctx.sensor_resources.suricata_cpu_request | int }}m
-    kafka_cpu_request: {{ template_ctx.sensor_resources.kafka_cpu_request | int }}m
-    zookeeper_cpu_request: {{ template_ctx.sensor_resources.zookeeper_cpu_request | int }}m
-    logstash_cpu_request: {{ (template_ctx.server_resources.log_stash_cpu_request * 1000) | int }}m
-    elasticsearch_cpu_request: {{ (template_ctx.server_resources.elastic_search_cpu_request * 1000) | int }}m
+        
+    kafka_cpu_request: {{ template_ctx.server_cal.kafka_cpu_request | int }}m
+    zookeeper_cpu_request: {{ template_ctx.server_cal.zookeeper_cpu_request | int }}m
+    logstash_cpu_request: {{ template_ctx.server_cal.log_stash_cpu_request | int }}m
+    elasticsearch_cpu_request: {{ template_ctx.server_cal.elastic_cpu_request | int }}m
 
     #############################
     # Moloch Settings           #
@@ -43,7 +41,7 @@ all:
     # Explanations taken from: https://github.com/aol/moloch/wiki/Settings
 
     # The bpf filter used to reduce traffic. Used both on live and file traffic.
-    moloch_bpf: "{{ template_ctx.advanced_moloch_settings.moloch_bpf }}"
+    moloch_bpf: ""
 
     # Semicolon ';' separated list of bpf filters which when matched for a
     # session causes the remaining pcap from being saved for the session. It is
@@ -51,14 +49,14 @@ all:
     # with a :num. For example dontSaveBPFs = port 22:5 will only save 5 packets
     # for port 22 sessions. Currently only the initial packet is matched against
     # the bpfs.
-    moloch_dontSaveBPFs: "{{ template_ctx.advanced_moloch_settings.moloch_dontSaveBPFs }}"
+    moloch_dontSaveBPFs: ""
 
+    # The block size in bytes used for reads from each interface. There are 120 blocks per interface.    
+    moloch_packet_v3_block_size: 8388608
+    
     # The number of threads used to read packets from each interface. These threads take the packets
     # from the AF packet interface and place them into the packet queues.
-    moloch_packet_v3_block_size: {{ template_ctx.advanced_moloch_settings.moloch_packet_v3_block_size }}
-
-    # The block size in bytes used for reads from each interface. There are 120 blocks per interface.
-    moloch_packet_v3_num_threads: {{ template_ctx.advanced_moloch_settings.moloch_packet_v3_num_threads }}
+    moloch_packet_v3_num_threads: 8
 
     # There are two storage types available on the system. One is clustered storage
     # and the other is Direct Attached Storage (DAS). Using clustered storage
@@ -66,7 +64,7 @@ all:
     # one giant storage device across the entire kit. This is ideal for many types
     # of storage, but causes latency. This is not acceptable for high speed PCAP
     # capture.
-    use_ceph_for_pcap: {{ template_ctx.use_ceph_for_pcap }}
+    use_ceph_for_pcap: False
 
     # This should be defined if you are going to use Moloch in direct disk
     # access mode which is the default. If this is defined it is assumed you are
@@ -83,18 +81,18 @@ all:
     # will assign to PCAP. It should be zero if use_ceph_for_pcap is false.
     # Remember, this will be spread out across every drive in the ceph cluster
     # as defined in the variable "ceph_drive_list".
-    moloch_pcap_pv_size: {{ template_ctx.advanced_moloch_settings.moloch_pcap_pv_size }}
+    moloch_pcap_pv_size: {{ template_ctx.server_cal.moloch_ceph_pcap_pv_size }}
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
-    moloch_spiDataMaxIndices: "{{ template_ctx.advanced_moloch_settings.moloch_spiDataMaxIndices }}"
-    moloch_pcapWriteMethod: "{{ template_ctx.advanced_moloch_settings.moloch_pcapWriteMethod }}"
-    moloch_pcapWriteSize: "{{ template_ctx.advanced_moloch_settings.moloch_pcapWriteSize }}"
-    moloch_dbBulkSize: "{{ template_ctx.advanced_moloch_settings.moloch_dbBulkSize }}"
-    moloch_maxESConns: "{{ template_ctx.advanced_moloch_settings.moloch_maxESConns }}"
-    moloch_maxESRequests: "{{ template_ctx.advanced_moloch_settings.moloch_maxESRequests }}"
-    moloch_packetsPerPoll: "{{ template_ctx.advanced_moloch_settings.moloch_packetsPerPoll }}"
-    moloch_magicMode: "{{ template_ctx.advanced_moloch_settings.moloch_magicMode }}"
-    moloch_maxPacketsInQueue: "{{ template_ctx.advanced_moloch_settings.moloch_maxPacketsInQueue }}"
+    moloch_spiDataMaxIndices: "5"
+    moloch_pcapWriteMethod: "simple"
+    moloch_pcapWriteSize: "2560000"
+    moloch_dbBulkSize: "400000"
+    moloch_maxESConns: "30"
+    moloch_maxESRequests: "500"
+    moloch_packetsPerPoll: "500000"
+    moloch_magicMode: "basic"
+    moloch_maxPacketsInQueue: "400000"
 
     #############################
     # Elasticsearch Settings    #
@@ -105,24 +103,24 @@ all:
     # Unless your kit will exceed 5 nodes, you should probably leave this at 0
     # unless you know what you are doing.
 
-    elastic_datas: {{ template_ctx.advanced_elasticsearch_settings.elastic_datas }}
+    elastic_datas: {{ template_ctx.server_cal.elastic_data_pod_count }}
 
     # The number of Elasticsearch masters you will run
-    elastic_masters: {{ template_ctx.advanced_elasticsearch_settings.elastic_masters }}
+    elastic_masters: {{ template_ctx.server_cal.elastic_master_pod_count }}
 
     # The amount of memory you want to assign to each Elasticsearch instance
-    elastic_memory: {{ template_ctx.advanced_elasticsearch_settings.elastic_memory }}
+    elastic_memory: {{ template_ctx.server_cal.elastic_memory_request }}
 
     # The amount of space allocated in GB to each persistent volume for Elasticsearch
-    elastic_pv_size: {{ template_ctx.advanced_elasticsearch_settings.elastic_pv_size }}
+    elastic_pv_size: {{ template_ctx.server_cal.elastic_pv_size }}
 
     # The percentage of maximum allocated space for Elasticsearch that can be filled
     # before Curator begins deleting indices. The oldest moloch indices that exceed
     # this threshold will be deleted.
-    elastic_curator_threshold: {{ template_ctx.advanced_elasticsearch_settings.elastic_curator_threshold }}
+    elastic_curator_threshold: {{ template_ctx.server_cal.elastic_curator_threshold }}
 
     # logstash_replicas is the number of logstash instances you would like to run
-    logstash_replicas: {{ template_ctx.logstash_replicas }}
+    logstash_replicas: {{ template_ctx.server_cal.log_stash_replicas }}
 
     #############################
     # Bro/Suricata Settings     #
@@ -150,23 +148,23 @@ all:
 
     # The amount of memory provided to the Kafka JVM. You probably don't need
     # to change this
-    kafka_jvm_memory: {{ template_ctx.advanced_kafka_settings.kafka_jvm_memory }}
+    kafka_jvm_memory: {{ template_ctx.server_cal.kafka_jvm_memory }}
 
     # The amount of space allocated in GB to each persistent volume for Kafka
     # You probably don't need to change this
-    kafka_pv_size: {{ template_ctx.advanced_kafka_settings.kafka_pv_size }}
+    kafka_pv_size: {{ template_ctx.server_cal.kafka_pv_size }}
 
     # The amount of memory provided to the Zookeeper JVM. You probably don't need
     # to change this
-    zookeeper_mem: {{ template_ctx.advanced_kafka_settings.zookeeper_jvm_memory }}
+    zookeeper_mem: {{ template_ctx.server_cal.zookeeper_jvm_memory }}
 
     # The amount of space allocated in GB to each persistent volume for Zookeeper
     # You probably don't need to change this
-    zookeeper_pv_size: {{ template_ctx.advanced_kafka_settings.zookeeper_pv_size }}
+    zookeeper_pv_size: {{ template_ctx.server_cal.zookeeper_pv_size }}
 
     # Number of zookeeper replicas to be created. Three should be sufficient for
     # any setup. These are only used for replication backup
-    zookeeper_replicas: {{ template_ctx.advanced_kafka_settings.zookeeper_replicas }}
+    zookeeper_replicas: {{ template_ctx.server_cal.zookeeper_replicas }}
 
     #############################
     # Kubernetes Settings       #
@@ -285,11 +283,15 @@ all:
               # This is the address Ansible will use to communicate with.
               management_ipv4: "{{ sensor.host_sensor }}"
 
+              bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
+              moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
+              suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
+
               # This is the number of bro workers which will spawn on the sensor
-              bro_workers: {{ sensor.bro_workers }}
+              bro_workers: {{ sensor.cal.bro_workers }}
 
               # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: {{ sensor.moloch_threads }}
+              moloch_threads: {{ sensor.cal.moloch_threads }}
 
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
@@ -329,6 +331,9 @@ all:
             {% if sensor.sensor_type == "Remote" %}
             {{ sensor.hostname }}:
               ansible_user: root
+              bro_cpu_request: {{ sensor.bro_cpu_request | int }}m
+              moloch_cpu_request: {{ sensor.moloch_cpu_request | int }}m
+              suricata_cpu_request: {{ sensor.suricata_cpu_request | int }}m
               bro_workers: {{ sensor.bro_workers }}
               moloch_threads: {{ sensor.moloch_threads }}
               ceph_drive_list:

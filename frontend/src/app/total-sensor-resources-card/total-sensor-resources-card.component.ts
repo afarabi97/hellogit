@@ -21,7 +21,6 @@ export class TotalSensorResourcesCardComponent implements OnInit {
   ngOnInit() {
     this.home_nets = this.sensorResourceForm.get('home_nets') as FormArray;
     this.external_nets = this.sensorResourceForm.get('external_nets') as FormArray;
-    this.sensorResourceForm.get('bro_cpu_request').setValue(5);    
   }
 
   addHomeNet(){
@@ -32,17 +31,11 @@ export class TotalSensorResourcesCardComponent implements OnInit {
     this.sensorResourceForm.removeHomeNet(index);
   }
 
-
   addExternalNet(){
     this.sensorResourceForm.addExternalNet();
   }
 
   removeExternalNet(index: number){    
     this.sensorResourceForm.removeExternalNet(index);
-  }
-
-  resourceKeyup(event: any){
-    this.sensorResourceForm.setPercentAllocated();
-    this.sensorResourceForm.setCPUAllocations();
   }
 }

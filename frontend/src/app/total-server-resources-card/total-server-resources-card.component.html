@@ -1,6 +1,4 @@
 <div [formGroup]="totalServerResources" class="card">
-  <input type="hidden" formControlName="log_stash_cpu_request">
-  <input type="hidden" formControlName="elastic_search_cpu_request">
   <div class="card-header">
     Total Server Resources
   </div>
@@ -8,25 +6,25 @@
     <p class="card-text">CPU Cores Available:
       <span>{{ totalServerResources.cpuCoresAvailable }}</span>
     </p>
-    <p class="card-text {{ totalServerResources.elasticSearchCss }}">CPUs Assigned to Elasticsearch:
-      <span>{{ totalServerResources.assignedElasticSearchCpus | number:'1.0-2' }}</span>
-      <span>{{ totalServerResources.elasticSearchErrorText }}</span>
-    </p>
-    <p class="text-info">Keep in mind that each server will have one core set aside for all the things non-Elasticsearch. This may lead to the
-      system telling you that you have insufficient cores though it seems like you have enough.</p>
-    <p class="card-text {{ totalServerResources.logstashCss }}">CPUs Assigned to Logstash:
-      <span>{{ totalServerResources.assignedLogstashCpus | number:'1.0-2' }}</span>
-      <span>{{ totalServerResources.logstashErrorText }}</span>
-    </p>
     <p class="card-text">Memory Available:
-      <span>{{ totalServerResources.memoryAvailable | number:'1.0-2' }}</span> GB</p>
-    <p class="card-text {{ totalServerResources.elasticSearchMemCss }}">Memory Assigned to Elasticsearch:
-      <span>{{ totalServerResources.assignedElasicSearchMemory | number:'1.0-2' }}</span> GBs
-      <span>{{ totalServerResources.elasticSearchMemErrorText }}</span>
+      <span>{{ totalServerResources.memoryAvailable | number:'1.0-2' }}</span> GB
     </p>
     <p class="card-text">Clustered Storage Available:
-      <span>{{ totalServerResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB</p>
-    <p class="card-text">Elastic Search Instances:
-      <span>{{ totalServerResources.totalElasticSearchInstances }}</span></p>
+      <span>{{ totalServerResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB
+    </p>
+
+    <div *ngIf="!isPercentagesHidden">
+      <h5>Advanced Settings</h5>
+      <app-text-input [parentForm]="totalServerResources" controlName="elastic_cpu_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="elastic_memory_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="elastic_storage_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="elastic_curator_threshold"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="logstash_cpu_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="kafka_cpu_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="zookeeper_cpu_percentage"></app-text-input>      
+    </div>
+    <!-- <p>Storage Assigned to Elasticsearch (GBs): <span>{{ storageCalculator.elasticStorageAvailable | number:'1.0-2' }}</span></p>
+    <p class="text-info">Note: The amount of storage assigned to Elasticsearch will update as you discover your hosts below. It will start at 0.</p>
+    <br> -->
   </div>
 </div>

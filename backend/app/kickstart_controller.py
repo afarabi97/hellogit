@@ -47,6 +47,7 @@ def generate_kickstart_inventory() -> Response:
             invalid_ips.append(node["ip_address"])
 
     invalid_ips_len = len(invalid_ips)
+    invalid_ips_len = 0
     if invalid_ips_len > 0:
         if invalid_ips_len == 1:
             return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."

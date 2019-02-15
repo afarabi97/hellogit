@@ -41,26 +41,5 @@
         <dt class="col-sm-3">{{ kitSensor[key].label }}<a id="{{ kitSensor[key].anchor }}"></a></dt>
         <dd class="col-sm-9">{{ kitSensor[key].description }}</dd>
     </dl>
-
-    <h2>Advanced Moloch Settings</h2>
-    <hr>
-    <dl *ngFor="let key of objectKeys(kitForm.advanced_moloch_settings)" class="row">      
-        <dt class="col-sm-3">{{ kitForm.advanced_moloch_settings[key].label }}<a id="{{ kitForm.advanced_moloch_settings[key].anchor }}"></a></dt>
-        <dd class="col-sm-9">{{ kitForm.advanced_moloch_settings[key].description }}</dd>
-    </dl>
-
-    <h2>Advanced Elastic Search Settings</h2>
-    <hr>
-    <dl *ngFor="let key of objectKeys(kitForm.advanced_elasticsearch_settings)" class="row">      
-        <dt class="col-sm-3">{{ kitForm.advanced_elasticsearch_settings[key].label }}<a id="{{ kitForm.advanced_elasticsearch_settings[key].anchor }}"></a></dt>
-        <dd class="col-sm-9">{{ kitForm.advanced_elasticsearch_settings[key].description }}</dd>
-    </dl>
-
-    <h2>Advanced Kafka Settings</h2>
-    <hr>
-    <dl *ngFor="let key of objectKeys(kitForm.advanced_kafka_settings)" class="row">      
-        <dt class="col-sm-3">{{ kitForm.advanced_kafka_settings[key].label }}<a id="{{ kitForm.advanced_kafka_settings[key].anchor }}"></a></dt>
-        <dd class="col-sm-9">{{ kitForm.advanced_kafka_settings[key].description }}</dd>
-    </dl>
     
 </div>

@@ -38,11 +38,12 @@ def gather_device_facts() -> Response:
         for interface in node.interfaces:
             if interface.ip_address != management_ip:
                 potential_monitor_interfaces.append(interface.name)
-            if interface.ip_address == management_ip:
-                if interface.speed < MIN_MBPS:
-                    return jsonify(error_message="ERROR: Please check your "
-                                   "network configuration. The link speed on {} is less than {} Mbps."
-                                   .format(interface.name, MIN_MBPS))
+            # TODO Commented out to support dirty builds. Consider removing this later.
+            # if interface.ip_address == management_ip:
+            #     if interface.speed < MIN_MBPS:
+            #         return jsonify(error_message="ERROR: Please check your "
+            #                        "network configuration. The link speed on {} is less than {} Mbps."
+            #                        .format(interface.name, MIN_MBPS))
 
         return jsonify(cpus_available=node.cpu_cores,
                        memory_available=node.memory_gb,

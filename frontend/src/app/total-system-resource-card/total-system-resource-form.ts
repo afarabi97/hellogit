@@ -4,13 +4,10 @@ export class TotalSystemResources {
     cpuCoresAvailable: number;
     memoryAvailable: number;
     clusterStorageAvailable: number;
-    clusterStorageComitted: number;
-    clusteredStorageErrors: string;
-    clusteredStorageCss: string;
+    clusterStorageComitted: number;    
     totalCephDrives: number;
     totalCephDrivesErrors: string;
     totalCephDrivesCss: string;
-
     totalCephDrivesCache: Object;
 
     constructor(){
@@ -22,9 +19,7 @@ export class TotalSystemResources {
         this.memoryAvailable = 0;
         this.clusterStorageAvailable = 0;
         this.clusterStorageComitted = 0;
-
-        this.clusteredStorageErrors = "";
-        this.clusteredStorageCss = "";
+        
 
         this.totalCephDrives = 0;
         this.totalCephDrivesErrors = "";

@@ -11,53 +11,6 @@
     <p class="card-text">Clustered Storage Available:
       <span id="sensor_clustered_storage_available">{{ sensorResourceForm.clusterStorageAvailable | number:'1.0-2' }}</span> GB</p>
     <hr>
-    <h6 class="card-subtitle mb-2 text-muted">Sensor Resource Allocations</h6>
-    <hr>
-
-    <p class="card-text">Kafka CPUs:
-      <span id="kafka_cpu_percentage_field_span">{{ sensorResourceForm.kafkaCPUAllocation | number:'1.0-2' }}</span>
-    </p>
-
-    <p class="card-text">Moloch CPUs:
-      <span id="moloch_cpu_percentage_field_span">{{ sensorResourceForm.molochCPUAllocation | number:'1.0-2' }}</span>
-    </p>
-
-    <p class="card-text">Bro CPUs:
-      <span id="bro_cpu_percentage_field_span">{{ sensorResourceForm.broCPUAllocation | number:'1.0-2' }}</span>
-    </p>
-
-    <p class="card-text">Suricata CPUs:
-      <span id="suricata_cpu_percentage_field_span">{{ sensorResourceForm.suricataCPUAllocation | number:'1.0-2' }}</span>
-    </p>
-    <p class="card-text">Zookeeper CPUs:
-      <span id="zookeeper_cpu_percentage_field_span">{{ sensorResourceForm.zookeeperCPUAllocation | number:'1.0-2' }}</span>
-    </p>
-
-    <app-text-input [parentForm]="sensorResourceForm" controlName="kafka_cpu_percentage" (keyupEvent)="resourceKeyup($event)" ></app-text-input>
-    <app-text-input [parentForm]="sensorResourceForm" controlName="moloch_cpu_percentage"></app-text-input>
-    <app-text-input [parentForm]="sensorResourceForm" controlName="bro_cpu_percentage"></app-text-input>
-    <app-text-input [parentForm]="sensorResourceForm" controlName="suricata_cpu_percentage"></app-text-input>
-    <app-text-input [parentForm]="sensorResourceForm" controlName="zookeeper_cpu_percentage"></app-text-input>
-
-    <input type="hidden" formControlName="kafka_cpu_request">
-    <input type="hidden" formControlName="moloch_cpu_request">
-    <input type="hidden" formControlName="bro_cpu_request">
-    <input type="hidden" formControlName="suricata_cpu_request">
-    <input type="hidden" formControlName="zookeeper_cpu_request">
-
-    <p class="text-info">Keep in mind that each sensor will have one core set aside for everything else. This may lead to the system telling you
-      that you have insufficient cores though it seems like you have enough.</p>
-    <p class="card-text">The default values above were derived from testing with SuperMicro ThinkMates based on 1.25 Gb/s of HTTP/SMB/FTP/YouTube.
-      We used TCPReplay on each sensor with PCAP to avoid the interfaces throttling how much we could play. The system will
-      use the sensor with the lowest CPU count for calculations. Keep in mind, this does not mean faster systems won't use
-      that speed, the above are effectively ratios. See field descriptions for more information.</p>
-    <p class="card-text">Percentage Allocated:
-      <span id="sensor_resource_percentage_allocated">{{ sensorResourceForm.percentAllocated | number:'1.0-2' }}</span>
-    </p>
-
-    <p *ngIf="sensorResourceForm.percentAllocated > 99" class="card-text text-danger">The sensor's total resources cannot exceeed 99!</p>
-
-    <hr>
     <h6 class="card-subtitle mb-2 text-muted">Home NET Settings</h6>
     <hr>
     <button type="button" class="btn btn-primary" (click)="addHomeNet()" name="add_home_net" [disabled]="sensorResourceForm.isDisabled">+ Add Home Net</button>

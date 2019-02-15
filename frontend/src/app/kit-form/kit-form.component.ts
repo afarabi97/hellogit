@@ -2,16 +2,11 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { KitInventoryForm, ServersFormArray, ServerFormGroup,
          SensorFormGroup, SensorsFormArray,         
          ExecuteKitForm } from './kit-form';
-import { AdvancedElasticSearchSettingsFormGroup } from './kit-advanced-form';
 import { KickstartService } from '../kickstart.service';
 import { KitService } from '../kit.service';
 import { ArchiveService } from '../archive.service';
-import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType } from '../html-elements'; 
+import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType, HtmlCheckBox } from '../html-elements'; 
 import { FormArray, FormGroup, FormControl } from '@angular/forms';
-import { ElasticSearchCalculator } from './elasticsearch-calculations';
-import { StorageCalculator } from './storage-calculations';
-import { MolochBroCalculator } from './moloch-bro-calculations';
-import { ManualCalculator } from './manual-calculations';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { HomeNetFormGroup, ExternalNetFormGroup } from '../total-sensor-resources-card/total-sensor-resources-form';
@@ -28,12 +23,8 @@ import { CommentForm } from '../kickstart-form/kickstart-form';
 export class KitFormComponent implements OnInit, AfterViewInit{
   kitForm: KitInventoryForm;
   executeKitForm: ExecuteKitForm;
-  advancedElasticSearchForm: AdvancedElasticSearchSettingsFormGroup;
-  elasicSearchCalculator: ElasticSearchCalculator;
-  storageCalculator: StorageCalculator;
-  molochBroCalculator: MolochBroCalculator;
-  manualCalculator: ManualCalculator;
   hasKitForm: boolean;
+  isExecuteKit: boolean;
 
   servers: ServersFormArray;
   sensors: SensorsFormArray;
@@ -42,14 +33,13 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   archiveKitModal: HtmlModalPopUp;
   restoreModal: HtmlModalRestoreArchiveDialog;
   isAdvancedOptionsHidden: boolean;
-  isMolochPercentageHidden: boolean;
+  isPercentagesHidden: boolean;
 
   //This boolean tracks if we are executing add node instead of execute kit.
   isAddNodeInsteadOfNewKit: boolean;
 
   //The addNodeCache
   addNodeCache: Array<Object>;
-
 
   @ViewChild('dateModal')
   dateModal: ModalDialogComponent;
@@ -60,21 +50,17 @@ export class KitFormComponent implements OnInit, AfterViewInit{
               private kitSrv: KitService,
               private archiveSrv: ArchiveService) {
     this.kitForm = new KitInventoryForm();
-    this.executeKitForm = new ExecuteKitForm();
-    this.advancedElasticSearchForm = this.kitForm.advanced_elasticsearch_settings;
+    this.executeKitForm = new ExecuteKitForm();    
     this.servers = this.kitForm.servers;
     this.sensors = this.kitForm.sensors;
     this.isAdvancedOptionsHidden = true;
-    this.isMolochPercentageHidden = true;
+    this.isPercentagesHidden = true;
     this.kitModal = new HtmlModalPopUp('kit_modal');
-    this.executeKitModal = new HtmlModalPopUp('execute_kit_modal');
+    this.executeKitModal = new HtmlModalPopUp('execute_kit_modal');    
     this.archiveKitModal = new HtmlModalPopUp('archive_modal');
     this.restoreModal = new HtmlModalRestoreArchiveDialog("restore_modal");
 
-    this.storageCalculator = new StorageCalculator(this.kitForm);
-    this.molochBroCalculator = new MolochBroCalculator(this.kitForm);
-    this.elasicSearchCalculator = new ElasticSearchCalculator(this.kitForm, this.storageCalculator);
-    this.manualCalculator = new ManualCalculator(this.kitForm);
+    this.isExecuteKit = true;
     this.hasKitForm = false;
     this.isAddNodeInsteadOfNewKit = false;
     this.addNodeCache = new Array();
@@ -91,7 +77,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       const someFormObject = formGroup.get(key);
 
       if (someFormObject instanceof HtmlDropDown){
-        setTimeout(()=> { 
+        setTimeout(()=> {
           someFormObject.setValue(data[key]);
         });
       } else if (someFormObject instanceof FormControl){
@@ -112,12 +98,10 @@ export class KitFormComponent implements OnInit, AfterViewInit{
           nodeFormArray.push(srvFormGroup);
           srvFormGroup.from_object(data[key][index]);
           this._gatherFacts(srvFormGroup, srvFormGroup.deviceFacts, host_key);
-          setTimeout(()=> {
-            this.cephDriveSelected(data[key][index]['ceph_drives'], srvFormGroup);
-          });
+          this.cephDriveSelected(data[key][index]['ceph_drives'], srvFormGroup);
         }
       } else if (key === 'home_nets' && someFormObject instanceof FormArray){
-        for (let index = 0; index < data[key].length; index++){          
+        for (let index = 0; index < data[key].length; index++){
           const homeNetFormGroup = new HomeNetFormGroup();
           homeNetFormGroup.home_net.setValue(data[key][index]['home_net']);
           someFormObject.push(homeNetFormGroup);
@@ -134,8 +118,6 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   ngOnInit() {
     this.title.setTitle("Kit Configuration");
-    this.kitForm.addSensorFormGroup(null, null);
-    this.kitForm.addServerFormGroup(null);
     this.kitForm.reset();    
   }
 
@@ -180,8 +162,6 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
       this.gatherAllFacts();
     });
-
-    this.storageCalculator.recalculate_storage_recommendation();    
   }
 
   openArchiveConfirmation() {
@@ -214,23 +194,27 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   }
     
   restoreForm(formId: string){
-    this.archiveSrv.restoreArchivedForm(KIT_ID, formId).subscribe(kitData => {
-      this.kitForm.addSensorFormGroup(null, null);
-      this.kitForm.addServerFormGroup(null);
-      this.kitForm.reset();
-      this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
-        this.setupForm(kitData['form'], kickstartData, kitData['is_completed_form']);
-      });      
+    setTimeout(() => {
+      this.isAdvancedOptionsHidden = false;
+      this.kitForm.enable();
+    });
+    
+    setTimeout(() => {
+      this.archiveSrv.restoreArchivedForm(KIT_ID, formId).subscribe(kitData => {
+        this.isPercentagesHidden = !kitData["form"]["enable_percentages"];        
+        this.kitForm.reset();
+        this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
+          this.setupForm(kitData['form'], kickstartData, kitData['is_completed_form']);
+        });
+      });
     });
   }
 
-  onSubmit(){    
+  private openDateModal(isExecute: boolean, instructions: string){
+    this.isExecuteKit = isExecute;
+
     this.executeKitModal.updateModal('WARNING',
-      'Are you sure you want to execute this Kit configuration? Doing so will create a new cluster \
-      with the configuration you created.  All data will be wiped out if you are running this on an existing cluster! \
-      Before you can submit your Kit configuration, please make sure you enter the current UTC date and time below.  \
-      This will set the master server in the cluster to the appropriate time before configuring the rest \
-      of the Kit.',
+      instructions,
       'Execute',
       'Cancel',
       ModalType.form,
@@ -238,6 +222,35 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     );
     this.dateModal.setTime();
     this.executeKitModal.openModal();
+  }
+
+  onSubmit(){    
+    console.log("onSubmit()!");
+    this.openDateModal(true, 'Are you sure you want to execute this Kit configuration? Doing so will create a new cluster \
+      with the configuration you created.  All data will be wiped out if you are running this on an existing cluster! \
+      Before you can submit your Kit configuration, please make sure you enter the current UTC date and time below.  \
+      This will set the nodes in the cluster to the appropriate time before configuring the rest \
+      of the Kit.');      
+  }
+
+  openGenKitInventoryModal(){
+    console.log("yes!");
+    this.openDateModal(false, 'Are you sure you want to generate the Kit inventory?  \
+      Doing so will create a new inventory file in /opt/tfplenum/playbooks/inventory.yml. \
+      To finish the Kit installation, you will need to cd /opt/tfplenum/playbooks then run make.');
+  }
+
+  private generateKitInventory(){
+    this.kitSrv.generateKit(this.kitForm.getRawValue(),
+                            this.executeKitForm.getRawValue()
+    ).subscribe(data => {
+      this.kitModal.updateModal('Success',
+        "Inventory file generated successfully. To finish the Kit installation, \
+        you will need to cd /opt/tfplenum/playbooks then run make.",
+        undefined,
+        'Close');
+      this.kitModal.openModal();
+    });
   }
 
   executeAddNode(){    
@@ -250,12 +263,15 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   }
 
   executeKit(){
-    this.kitSrv.executeKit(this.kitForm.getRawValue(), 
-                           this.executeKitForm.getRawValue()
-                          )
-    .subscribe(data => {
-      this.openConsole();
-    });
+    if (this.isExecuteKit){
+      this.kitSrv.executeKit(this.kitForm.getRawValue(), 
+                             this.executeKitForm.getRawValue())
+        .subscribe(data => {
+          this.openConsole();
+        });
+    } else {
+      this.generateKitInventory();
+    }    
   }
 
   openConsole(){
@@ -364,8 +380,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   toggleSensor(sensor: SensorFormGroup) {
     sensor.hidden = !sensor.hidden;
   }
-
-  //TODO gathering facts twice after restore causes issues.
+  
   private _gatherFacts(node: ServerFormGroup | SensorFormGroup, 
                        data: Object, host_key: string) {    
     if (data['error_message']) {
@@ -408,16 +423,8 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
     if (node instanceof ServerFormGroup) {
       this.kitForm.server_resources.setFromDeviceFacts(node.deviceFacts);
-      this.kitForm.server_resources.setErrorsOrSuccesses(
-        this.advancedElasticSearchForm.elastic_masters.value,
-        this.advancedElasticSearchForm.elastic_datas.value,
-        this.advancedElasticSearchForm.elastic_cpus.value,
-        this.advancedElasticSearchForm.elastic_memory.value);
-      this.elasicSearchCalculator.calculate();
-      this.manualCalculator.validate_manual_entries();
     } else if (node instanceof SensorFormGroup) {
-      this.kitForm.sensor_resources.setFromDeviceFacts(node.deviceFacts);
-      this.molochBroCalculator.calculate_bro_and_moloch_threads();
+      this.kitForm.sensor_resources.setFromDeviceFacts(node.deviceFacts);      
     }
   }
 
@@ -454,41 +461,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.isAdvancedOptionsHidden = !this.isAdvancedOptionsHidden;
   }
 
-  sensorStorageChange(dropDownValue: string){
-    // Ceph
-    if (dropDownValue === this.kitForm.sensor_storage_type.options[0]){
-      this.kitForm.elastic_storage_percentage.setValue(30);
-      this.kitForm.moloch_pcap_storage_percentage.setValue(60);
-      this.isMolochPercentageHidden = false;
-
-      if (this.kitForm.disable_autocalculate.value){
-        this.kitForm.advanced_moloch_settings.moloch_pcap_pv_size.enable();
-      }
-
-      //TODO we need to recalculate the moloch pcap pv size here.
-    } else {
-      // PCAP
-      this.kitForm.advanced_moloch_settings.moloch_pcap_pv_size.disable();
-      this.kitForm.elastic_storage_percentage.setValue(90);
-      this.kitForm.moloch_pcap_storage_percentage.setValue(this.kitForm.moloch_pcap_storage_percentage.default_value);
-      this.kitForm.advanced_moloch_settings.moloch_pcap_pv_size.setValue(0);
-      this.isMolochPercentageHidden = true;
-
-      for (let i = 0; i < this.kitForm.sensors.length; i++){
-        const sensor = this.kitForm.sensors.at(i) as SensorFormGroup;
-        this._remove_sensor_cluster_storage(sensor.deviceFacts);
-      }
-    }
-
-    this.elasicSearchCalculator.calculate();
-    this.manualCalculator.validate_manual_entries();
-    this.molochBroCalculator.calculate_bro_and_moloch_threads();
-
-    this.setSystemClusterStorageAvailable();
-    this.storageCalculator.recalculate_storage_recommendation();
-  }
-
-  private _cephDriveSelected(drivesSelected: Array<string>, node: SensorFormGroup | ServerFormGroup): void {
+  cephDriveSelected(drivesSelected: Array<string>, node: SensorFormGroup | ServerFormGroup): void {
     this.kitForm.system_resources.calculateTotalCephDrives(drivesSelected.length, node.deviceFacts);
     if (node instanceof SensorFormGroup){
       this.kitForm.sensor_resources.calculateClusterStorageAvailable(drivesSelected, node.deviceFacts);
@@ -497,11 +470,6 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     }
 
     this.setSystemClusterStorageAvailable();
-  }
-
-  cephDriveSelected(drivesSelected: Array<string>, node: SensorFormGroup | ServerFormGroup): void {
-    this._cephDriveSelected(drivesSelected, node);
-    this.storageCalculator.recalculate_storage_recommendation();    
   }
 
   private setSystemClusterStorageAvailable(){
@@ -526,61 +494,6 @@ export class KitFormComponent implements OnInit, AfterViewInit{
         server.is_master_server.disable();
       } else{
         server.is_master_server.enable();
-      }
-    }
-  }
-
-  /**
-   * When user clicks Disable Autocalculations under Advanced Settings,
-   * this is triggered.
-   *
-   * @param isChecked Is true if the checkbox has a check mark in it, false otherwise.
-   */
-  toggleAutocalculate(isChecked: boolean){
-
-    if (isChecked){
-      //CEPH for PCAP option
-      if (this.kitForm.sensor_storage_type.value === this.kitForm.sensor_storage_type.options[0] ){
-        this.kitForm.advanced_moloch_settings.moloch_pcap_pv_size.enable();
-      }
-
-      this.kitForm.elastic_cpu_percentage.disable();
-      this.kitForm.elastic_memory_percentage.disable();
-      this.kitForm.elastic_storage_percentage.disable();
-
-      this.kitForm.advanced_elasticsearch_settings.elastic_masters.enable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_datas.enable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus.enable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_memory.enable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_pv_size.enable();
-
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus_per_instance_ideal.disable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus_to_mem_ratio.disable();
-
-      for (let i = 0; i < this.kitForm.sensors.length; i++){
-        const sensor = this.kitForm.sensors.at(i) as SensorFormGroup;
-        sensor.bro_workers.enable();
-        sensor.moloch_threads.enable();
-      }
-    } else {
-      this.kitForm.advanced_moloch_settings.moloch_pcap_pv_size.disable();
-      this.kitForm.elastic_cpu_percentage.enable();
-      this.kitForm.elastic_memory_percentage.enable();
-      this.kitForm.elastic_storage_percentage.enable();
-
-      this.kitForm.advanced_elasticsearch_settings.elastic_masters.disable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_datas.disable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus.disable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_memory.disable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_pv_size.disable();
-
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus_per_instance_ideal.enable();
-      this.kitForm.advanced_elasticsearch_settings.elastic_cpus_to_mem_ratio.enable();
-
-      for (let i = 0; i < this.kitForm.sensors.length; i++){
-        const sensor = this.kitForm.sensors.at(i) as SensorFormGroup;
-        sensor.bro_workers.disable();
-        sensor.moloch_threads.disable();
       }
     }
   }
@@ -633,17 +546,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   }
 
-  triggerValidations(event: any){
-    this.manualCalculator.validate_manual_entries();
-    this.elasicSearchCalculator.calculate();
-  }
-
-  private _remove_sensor_cluster_storage(deviceFacts: Object){
-    if (deviceFacts != null){
-      this.kitForm.system_resources.calculateTotalCephDrives(0, deviceFacts);
-      this.kitForm.sensor_resources.removeClusterStorage(deviceFacts);
-      this.setSystemClusterStorageAvailable();
-      this.storageCalculator.recalculate_storage_recommendation();      
-    }
+  togglePercentages(isChecked: boolean){
+    this.isPercentagesHidden = !this.isPercentagesHidden;
   }
 }

@@ -1,7 +1,6 @@
 import {  FormArray, AbstractControl } from '@angular/forms';
 import { HtmlDropDown } from '../html-elements';
 import { ServerFormGroup, SensorFormGroup, SensorsFormArray, ServersFormArray, KitInventoryForm } from './kit-form';
-import { GetElasticSearchValidated, GetSensorResourcesValidated } from './kit-form-globals';
 import { CEPH_DRIVE_MIN_COUNT, IP_CONSTRAINT } from '../frontend-constants';
 import { CheckForInvalidControls } from '../globals';
 
@@ -59,11 +58,10 @@ function _validate_pcap_drives(control: AbstractControl, errors: Array<string>):
     let sensors = control.get('sensors') as SensorsFormArray;
     let pcap_drive_count = 0;
     
-    if (sensors != null && kitForm.sensor_storage_type != null){
+    if (sensors != null){
         for (let i = 0; i < sensors.length; i++){
             let sensor = sensors.at(i) as SensorFormGroup;
-            if(sensor.pcap_drives.length !== 1 &&
-               kitForm.sensor_storage_type.value === kitForm.sensor_storage_type.options[1]){
+            if(sensor.pcap_drives.length !== 1){
                 errors.push("- PCAP drives failed to validate. You need to select at one PCAP drive on each sensor.")
             }
         }
@@ -209,44 +207,6 @@ function _validateSensorAndServerCounts(control: AbstractControl, errors: Array<
 }
 
 /**
- * Ensures that logstash replicas is set appropriatley.
- *
- * @param control - The KitForm Group
- * @param errors - An array of strings to display.
- */
-function _validateLogstashReplicas(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    let sensors = control.get('sensors') as SensorsFormArray;
-
-    let number_of_servers = 0;
-    let number_of_sensors = 0;
-
-    if (servers != null) {
-        number_of_servers = servers.length;
-    }
-
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
-            let sensor = sensors.at(i) as SensorFormGroup;
-            if (sensor.sensor_type.value == 'Local'){
-                number_of_sensors += 1;
-            }
-        }
-    }
-
-    if (servers != null && sensors != null){
-        let logstash_replicas = parseInt(control.get('logstash_replicas').value);
-        if ((number_of_sensors + number_of_servers) < 3){
-            if (logstash_replicas != 1) {
-                errors.push('- Logstash replicas failed to validate. This should be set to one when you have fewer than 3 nodes (discluding remote sensors).');
-            }
-        } else if (logstash_replicas > (number_of_sensors + number_of_servers)) {
-            errors.push('- Logstash replicas failed to validate. You cannot have more replicas than there are nodes.')
-        }
-    }
-}
-
-/**
  * Validates IPs on KitForm page to ensure that a user does not have duplicate IPs for both sensors or servers.
  *
  * @param control - The KitForm Group
@@ -285,39 +245,13 @@ function _validateIps(control: AbstractControl, errors: Array<string>): void {
     }
 }
 
-// Returns true if there is enough storage available and false otherwise
-function _validate_clustered_storage_committed(control: AbstractControl, errors: Array<string>) {
-    let kitForm = control as KitInventoryForm;
-    if (kitForm === undefined || kitForm === null || kitForm.system_resources === undefined){
-        return;
-    }
-    var current_storage_total = kitForm.system_resources.clusterStorageAvailable;
-    var current_storage_requested = kitForm.system_resources.clusterStorageComitted;
-
-    if (current_storage_total === 0){
-        kitForm.system_resources.clusteredStorageCss = "text-danger";
-        kitForm.system_resources.clusteredStorageErrors = ' - Error: There is no assigned cluster storage.';
-        errors.push("- Clustered storage failed to validate. Make sure you have space for everything by checking the total system resources. Maybe you forgot to add a Ceph drive?");
-    } else if (current_storage_requested > current_storage_total) {
-        // These repeated three lines redraw the text with either error or success
-        // messages. We use the parent method in this case, otherwise it would just
-        // color the number and the error message
-        kitForm.system_resources.clusteredStorageCss = "text-danger";
-        kitForm.system_resources.clusteredStorageErrors = ' - Error: Insufficient storage space available on system.';
-        errors.push("- Clustered storage failed to validate. Make sure you have space for everything by checking the total system resources. Maybe you forgot to add a Ceph drive?");
-    } else {
-        kitForm.system_resources.clusteredStorageCss = "text-success";
-        kitForm.system_resources.clusteredStorageErrors = ' - Looks good!';
-    }
-}
-
 function _validate_ceph_drive_count(control: AbstractControl, errors: Array<string>) {
     let kitForm = control as KitInventoryForm;
     if (kitForm === undefined || kitForm === null || kitForm.system_resources === undefined){
         return;
     }
     let number_of_ceph_drives = kitForm.system_resources.totalCephDrives;
-    
+    // console.log(number_of_ceph_drives);
     if (number_of_ceph_drives < CEPH_DRIVE_MIN_COUNT) {
         kitForm.system_resources.totalCephDrivesCss = "text-danger";
         kitForm.system_resources.totalCephDrivesErrors = ' - Error: You need at least two drives in the Ceph cluster!';
@@ -358,20 +292,10 @@ export function ValidateKitInventory(control: AbstractControl): { errors: Array<
     _validateExternalNet(control, errors);
     _validateHosts(control, errors);
     _validateIps(control, errors);
-    _validateLogstashReplicas(control, errors);
     _validateSensorAndServerCounts(control, errors);
-    _validate_clustered_storage_committed(control, errors);
     _validate_ceph_drive_count(control, errors);
     _validate_endgame_ip(control);
     CheckForInvalidControls(control, errors);
-
-    if (!GetElasticSearchValidated()){
-        errors.push("- Elasticsearch failed to validate. Check the server section and make sure Elasticsearch has enough RAM and CPU resources.");
-    }
-
-    if (!GetSensorResourcesValidated()){
-        errors.push("- Your sensor resources failed to validate. Check the sensor resources and make sure you have sufficient CPU resources for Bro, Suricata, etc.");
-    }
 
     if (errors.length > 0){
         return { errors: errors};

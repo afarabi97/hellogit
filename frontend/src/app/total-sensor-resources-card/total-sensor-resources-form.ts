@@ -1,10 +1,6 @@
-import { FormGroup, FormArray, FormControl } from '@angular/forms';
-import { HtmlInput, HtmlHidden } from '../html-elements';
-import { MIN_ONE_INVALID_FEEDBACK,
-         CONSTRAINT_MIN_ONE,
-         CIDR_CONSTRAINT,
-         EXPLANATION } from '../frontend-constants';
-import { SetSensorResourcesValidated } from '../kit-form/kit-form-globals';
+import { FormGroup, FormArray } from '@angular/forms';
+import { HtmlInput } from '../html-elements';
+import { CIDR_CONSTRAINT } from '../frontend-constants';
 
 export class HomeNetFormGroup extends FormGroup {
     constructor() {
@@ -103,19 +99,11 @@ export class ExternalNetFormGroup extends FormGroup {
  * Main class which tracks the total resources for all of the sensors.
  */
 export class SensorResourcesForm extends FormGroup {
-
     //These fields are not part of the form but they displayed on the componets interface.
     isDisabled: boolean;
     cpuCoresAvailable: number;
     memoryAvailable: number;
     clusterStorageAvailable: number;
-
-    percentAllocated: number;
-    kafkaCPUAllocation: number;
-    molochCPUAllocation: number;
-    broCPUAllocation: number;
-    suricataCPUAllocation: number;
-    zookeeperCPUAllocation: number;
     sensorDriveStorageCache: Object;
 
     //A cached value that we track for other calculations.
@@ -126,25 +114,10 @@ export class SensorResourcesForm extends FormGroup {
         this.cpuCoresAvailable = 0;
         this.memoryAvailable = 0;
         this.clusterStorageAvailable = 0;
-        this.initializeAllocations();
-        this.percentAllocated = 0;
         this.sensorDriveStorageCache = {};
-
-        super.addControl('kafka_cpu_percentage', this.kafka_cpu_percentage);
-        super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);
-        super.addControl('bro_cpu_percentage', this.bro_cpu_percentage);
-        super.addControl('suricata_cpu_percentage', this.suricata_cpu_percentage);
-        super.addControl('zookeeper_cpu_percentage', this.zookeeper_cpu_percentage);
         super.addControl('home_nets', this.home_nets);
         super.addControl('external_nets', this.external_nets);
         this.addHomeNet();
-        this.setPercentAllocated();
-
-        super.addControl('kafka_cpu_request', this.kafka_cpu_request);
-        super.addControl('moloch_cpu_request', this.moloch_cpu_request);
-        super.addControl('bro_cpu_request', this.bro_cpu_request);
-        super.addControl('suricata_cpu_request', this.suricata_cpu_request);
-        super.addControl('zookeeper_cpu_request', this.zookeeper_cpu_request);
         this._lowest_cpus = -1;
         this.isDisabled = false;
     }
@@ -156,17 +129,12 @@ export class SensorResourcesForm extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        super.reset({'kafka_cpu_percentage': this.kafka_cpu_percentage.default_value,
-                     'moloch_cpu_percentage': this.moloch_cpu_percentage.default_value,
-                     'bro_cpu_percentage': this.bro_cpu_percentage.default_value,
-                     'suricata_cpu_percentage': this.suricata_cpu_percentage.default_value,
-                     'zookeeper_cpu_percentage': this.zookeeper_cpu_percentage.default_value});
+        super.reset({});
         this.cpuCoresAvailable = 0;
         this.memoryAvailable = 0;
         this.clusterStorageAvailable = 0;
         this.clearHomeNets();
-        this.clearExternalNets();
-        this.initializeAllocations();
+        this.clearExternalNets();        
         this.home_nets.reset();
         this.isDisabled = false;
     }
@@ -175,11 +143,6 @@ export class SensorResourcesForm extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        this.kafka_cpu_percentage.disable();
-        this.moloch_cpu_percentage.disable();
-        this.bro_cpu_percentage.disable();
-        this.suricata_cpu_percentage.disable();
-        this.zookeeper_cpu_percentage.disable();
         this.home_nets.disable();
         this.external_nets.disable();
         this.isDisabled = true;
@@ -215,64 +178,6 @@ export class SensorResourcesForm extends FormGroup {
     }
 
     /**
-     * Sets allocations to zero.
-     */
-    private initializeAllocations(){
-        this.kafkaCPUAllocation = 0;
-        this.molochCPUAllocation = 0;
-        this.broCPUAllocation = 0;
-        this.suricataCPUAllocation = 0;
-        this.zookeeperCPUAllocation = 0;
-    }
-
-    private _validateSensorResources(){
-        if (this.percentAllocated >= 100 ){
-            SetSensorResourcesValidated(false);
-            return;
-        }
-
-        if (this._lowest_cpus <= 0){
-            SetSensorResourcesValidated(false);
-            return;
-        }
-
-        SetSensorResourcesValidated(true);
-    }
-
-    public setCPUAllocations() {
-        if (this.cpuCoresAvailable > 1){
-            this.kafkaCPUAllocation = this.setCPUAllocation(this.kafka_cpu_percentage.value);
-            this.molochCPUAllocation = this.setCPUAllocation(this.moloch_cpu_percentage.value);
-            this.broCPUAllocation = this.setCPUAllocation(this.bro_cpu_percentage.value);
-            this.suricataCPUAllocation = this.setCPUAllocation(this.suricata_cpu_percentage.value);
-            this.zookeeperCPUAllocation = this.setCPUAllocation(this.zookeeper_cpu_percentage.value);
-
-            this.kafka_cpu_request.setValue(this.kafkaCPUAllocation * 1000);
-            this.moloch_cpu_request.setValue(this.molochCPUAllocation * 1000);
-            this.bro_cpu_request.setValue(this.broCPUAllocation * 1000);
-            this.suricata_cpu_request.setValue(this.suricataCPUAllocation * 1000);
-            this.zookeeper_cpu_request.setValue(this.zookeeperCPUAllocation * 1000);
-        } else {
-            //If CPU cores is 1 or less than we reinitalize everything ot 0.
-            this.initializeAllocations();
-        }
-
-        this._validateSensorResources();
-    }
-
-    /**
-     * Sets the total percent allocated accross all the allocations.
-     * If the percentage exceeds 99 an error will display to the user.
-     */
-    public setPercentAllocated() {
-        this.percentAllocated = (+this.kafka_cpu_percentage.value +
-                                 +this.moloch_cpu_percentage.value +
-                                 +this.bro_cpu_percentage.value +
-                                 +this.suricata_cpu_percentage.value +
-                                 +this.zookeeper_cpu_percentage.value);
-    }
-
-    /**
      * Called when a user clicks on the "Gather Facts" button on a given sensor
      *
      * @param deviceFacts - The Ansible JSON object returned from the REST API.
@@ -285,8 +190,7 @@ export class SensorResourcesForm extends FormGroup {
         }
 
         this.cpuCoresAvailable += deviceFacts["cpus_available"];
-        this.memoryAvailable += deviceFacts["memory_available"];
-        this.setCPUAllocations();
+        this.memoryAvailable += deviceFacts["memory_available"];        
     }
 
     /**
@@ -302,7 +206,6 @@ export class SensorResourcesForm extends FormGroup {
         if (this.memoryAvailable > 0){
             this.memoryAvailable -= deviceFacts["memory_available"];
         }
-        this.setCPUAllocations();
     }
 
     /**
@@ -339,17 +242,6 @@ export class SensorResourcesForm extends FormGroup {
         }
 
         this.clusterStorageAvailable += this.sensorDriveStorageCache[deviceFacts["hostname"]];
-    }
-
-
-    /**
-     * Private method that calculates a CPU allocation for the main display.
-     *
-     * @param cpuPercentValue
-     */
-    private setCPUAllocation(cpuPercentValue: number) : number {
-        let allocationValue = this._lowest_cpus * (cpuPercentValue / 100)
-        return allocationValue;
     }
 
     /**
@@ -392,70 +284,4 @@ export class SensorResourcesForm extends FormGroup {
 
     home_nets = new FormArray([]);
     external_nets = new FormArray([]);
-    //Request values that get set in the actual inventory file. They are hidden inputs on the html form document.
-    kafka_cpu_request = new HtmlHidden('kafka_cpu_request', false);
-    moloch_cpu_request = new HtmlHidden('kafka_cpu_request', false);
-    bro_cpu_request = new HtmlHidden('kafka_cpu_request', false);
-    suricata_cpu_request = new HtmlHidden('kafka_cpu_request', false);
-    zookeeper_cpu_request= new HtmlHidden('kafka_cpu_request', false);
-
-    kafka_cpu_percentage = new HtmlInput(
-        'kafka_cpu_percentage',
-        'Kafka CPU %',
-        "% of CPUs for Kafka",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '13',
-        "The percentage of the sensor cores which will be allocated to Kafka." + EXPLANATION
-    )
-
-    moloch_cpu_percentage = new HtmlInput(
-        'moloch_cpu_percentage',
-        'Moloch CPU %',
-        "% of CPUs for Moloch",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '19',
-        "The percentage of the sensor cores which will be allocated to moloch." + EXPLANATION
-    )
-
-    bro_cpu_percentage = new HtmlInput(
-        'bro_cpu_percentage',
-        'Bro CPU %',
-        "% of CPUs for Bro",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '58',
-        "The percentage of the sensor cores which will be allocated to Bro." + EXPLANATION
-    )
-
-    suricata_cpu_percentage = new HtmlInput(
-        'suricata_cpu_percentage',
-        'Suricata CPU %',
-        "% of CPUs for Suricata",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '6',
-        "The percentage of the sensor cores which will be allocated to Suricata." + EXPLANATION
-    )
-
-    zookeeper_cpu_percentage = new HtmlInput(
-        'zookeeper_cpu_percentage',
-        'Zookeeper CPU %',
-        "% of CPUs for Zookeeper",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '3',
-        "The percentage of the sensor cores which will be allocated to Zookeeper." + EXPLANATION
-    )
 }

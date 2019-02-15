@@ -1,5 +1,9 @@
 import { FormGroup } from "@angular/forms";
-import { HtmlHidden } from "../html-elements";
+
+import { HtmlInput } from '../html-elements';
+import {  PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
+          PERCENT_VALID_FEEDBACK
+ } from '../frontend-constants';
 
 export class TotalServerResources extends FormGroup {
 
@@ -9,34 +13,37 @@ export class TotalServerResources extends FormGroup {
     clusterStorageAvailable: number;
 
     //Cached that holds the current cluster storage on a per hostname basis.
-    serverDriveStorageCache: Object;
-
-    assignedElasticSearchCpus: number;
-    elasticSearchCss: string;
-    elasticSearchErrorText: string;
+    serverDriveStorageCache: Object;    
 
     assignedLogstashCpus: number;
     logstashCss: string;
     logstashErrorText: string;
     
-    elasticSearchMemCss: string;
-    elasticSearchMemErrorText: string;
+    elasticSearchMemCss: string;    
     assignedElasicSearchMemory: number;
-    totalElasticSearchInstances: number;
 
     constructor(){
         super({}, null, null);
         this.initalize();
-
-        super.addControl('log_stash_cpu_request', this.log_stash_cpu_request);
-        super.addControl('elastic_search_cpu_request', this.elastic_search_cpu_request);
+        super.addControl('elastic_cpu_percentage', this.elastic_cpu_percentage);
+        super.addControl('elastic_memory_percentage', this.elastic_memory_percentage);
+        super.addControl('logstash_cpu_percentage', this.logstash_cpu_percentage);
+        super.addControl('elastic_storage_percentage', this.elastic_storage_percentage);
+        super.addControl('elastic_curator_threshold', this.elastic_curator_threshold);
+        super.addControl('zookeeper_cpu_percentage', this.zookeeper_cpu_percentage);
+        super.addControl('kafka_cpu_percentage', this.kafka_cpu_percentage);        
     }
 
     disable(opts?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        // Override do nothing!
+        this.elastic_cpu_percentage.disable();
+        this.elastic_memory_percentage.disable();
+        this.logstash_cpu_percentage.disable();
+        this.elastic_storage_percentage.disable();
+        this.elastic_curator_threshold.disable();
+        this.kafka_cpu_percentage.disable();
     }
 
     private initalize(){
@@ -45,19 +52,11 @@ export class TotalServerResources extends FormGroup {
         this.clusterStorageAvailable = 0;
 
         this.serverDriveStorageCache = {};
-
-        this.assignedElasticSearchCpus = 0;
-        this.elasticSearchErrorText = "";
-        this.elasticSearchCss = "";
-
         this.assignedLogstashCpus = 0;
         this.logstashCss = "";
         this.logstashErrorText = "";
 
-        this.assignedElasicSearchMemory = 0;
-        this.elasticSearchMemCss = "";
-        this.elasticSearchMemErrorText= "";
-        this.totalElasticSearchInstances = 0;
+        this.assignedElasicSearchMemory = 0;        
     }
 
     /**
@@ -67,28 +66,16 @@ export class TotalServerResources extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        super.reset({});
+        super.reset({
+            'elastic_cpu_percentage': this.elastic_cpu_percentage.default_value,
+            'elastic_memory_percentage': this.elastic_memory_percentage.default_value,
+            'logstash_cpu_percentage': this.logstash_cpu_percentage.default_value,
+            'elastic_storage_percentage': this.elastic_storage_percentage.default_value,
+            'zookeeper_cpu_percentage': this.zookeeper_cpu_percentage.default_value,
+            'elastic_curator_threshold': this.elastic_curator_threshold.default_value,
+            'kafka_cpu_percentage': this.kafka_cpu_percentage.default_value
+        });
         this.initalize();
-    }
-
-    log_stash_cpu_request = new HtmlHidden('log_stash_cpu_request', true);
-    elastic_search_cpu_request = new HtmlHidden('elastic_search_cpu_request', true);
-
-    public setAssignedLogstashCpus(assignedCpus: number) {
-        this.assignedLogstashCpus = assignedCpus;
-        this.log_stash_cpu_request.setValue(this.assignedLogstashCpus);
-    }
-
-    public setTotalElasticSearchInstances(elasticSearchInstances: number){
-        this.totalElasticSearchInstances = elasticSearchInstances;
-    }
-
-    public setTotalAssignedElasticSearchCPUs(assignedCpus: number) {
-        this.assignedElasticSearchCpus = assignedCpus;
-    }
-
-    public setAssignedElasticSearchCPURequest(assignedCpus: number){        
-        this.elastic_search_cpu_request.setValue(assignedCpus);
     }
 
     /**
@@ -153,61 +140,117 @@ export class TotalServerResources extends FormGroup {
         this.clusterStorageAvailable += this.serverDriveStorageCache[deviceFacts["hostname"]];
     }
 
-    /**
-     * Sets the ElasicSearchInfo for the total server resources form.
-     * 
-     * @param elasticMasters - The number of masters from the advanced elasticsearch options form.
-     * @param elasticDataNodes - The number of elastic data nodes from the advanced elasticsearch options form.
-     * @param elasticCpus - Teh number of elasticSearch CPUs.
-     * @param elasticMemory - 
-     */
-    public setErrorsOrSuccesses(elasticMasters: number,
-                                elasticDataNodes: number,
-                                elasticCpus: number,
-                                elasticMemory: number
-                               )
-    {
-        let total_instances = elasticMasters + elasticDataNodes;
-        let cpus_required = total_instances * elasticCpus;
-        let memory_required = total_instances * elasticMemory;
-        
-        if(this.cpuCoresAvailable < cpus_required) {
-            this.elasticSearchCss = "text-danger";
-            this.elasticSearchErrorText = ' - Error: Insufficient CPUs to support the selected value.';
+    elastic_cpu_percentage = new HtmlInput(
+        'elastic_cpu_percentage',
+        'Elasticsearch CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        "90",
+        "This is the percentage of server CPUs which the system will dedicated to \
+        Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- CPUs here does not mean dedicated CPUs. \
+        This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \
+        What this means is that Elasticsearch pods will have a request of \
+        X value for the server's compute power. If Elasticsearch is using less than this, \
+        other devices can use those resources. However, when under load, Elasticsearch is \
+        guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
+        Basically, you can think of this as a simple percentage of how much of the server\'s \
+        CPU you want going to Elasticsearch.",
+        PERCENT_VALID_FEEDBACK
+    )
 
-            this.logstashCss = "text-danger";
-            this.logstashErrorText = ' - Error: Insufficient CPUs to support the selected value for Logstash and Elasticsearch.';
-        } else if (this.cpuCoresAvailable == cpus_required) {
-            this.elasticSearchCss = "text-danger";
-            this.elasticSearchErrorText = ' - Error: You cannot use all available CPUs for Elasticsearch/Logstash. Something has to be left for the system.';
+    elastic_memory_percentage = new HtmlInput(
+        'elastic_memory_percentage',
+        'Elasticsearch RAM %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        "90",
+        "This is the percentage of server RAM which the system will dedicated to \
+        Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- \
+        This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \
+        What this means is that Elasticsearch pods will have a request of \
+        X value for the server's compute power. If Elasticsearch is using less than this, \
+        other devices can use those resources. However, when under load, Elasticsearch is \
+        guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
+        Basically, you can think of this as a simple percentage of how much of the server\'s \
+        RAM you want going to Elasticsearch.",
+        PERCENT_VALID_FEEDBACK
+    )
 
-            this.logstashCss = "text-danger";
-            this.logstashErrorText = ' - Error: You cannot use all available CPUs for Elasticsearch/Logstash. Something has to be left for the system.';
-        } else {
-            this.elasticSearchCss = "text-success";
-            this.elasticSearchErrorText = ' - Looks good!';
+    logstash_cpu_percentage = new HtmlInput(
+        'logstash_cpu_percentage',
+        'Logstash Servers CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '5',
+        "The Percentage of the server CPU resources which will be dedicated to logstash. \
+        Unlike some of the other calculations, this is a percentage of the total server \
+        resources divided by the number of servers.",
+        PERCENT_VALID_FEEDBACK
+    )
 
-            this.logstashCss = "text-success";
-            this.logstashErrorText = ' - Looks good';
-        }
-    
-        if(elasticCpus == 0) {
-            this.elasticSearchCss = "text-danger";
-            this.elasticSearchErrorText = ' - Error: Elasticsearch CPUs must be non-zero!';
-        }
-                
-        if(elasticMemory == 0) {
-            this.elasticSearchMemCss = "text-danger";
-            this.elasticSearchMemErrorText= ' - Error: Elasticsearch memory must be non-zero!';
-        } else if (this.memoryAvailable < memory_required) {
-            this.elasticSearchMemCss = "text-danger";
-            this.elasticSearchMemErrorText= ' - Error: Insufficient server memory available.';
-        } else if (this.memoryAvailable == memory_required) {
-            this.elasticSearchMemCss = "text-danger";
-            this.elasticSearchMemErrorText= ' - Error: You cannot use all memory available for Elasticsearch alone.';
-        } else {
-            this.elasticSearchMemCss = "text-success";
-            this.elasticSearchMemErrorText= ' - Looks good!';
-        }
-    }
+    elastic_storage_percentage = new HtmlInput (
+        'elastic_storage_percentage',
+        'ES Storage Space %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '80',
+        "The percentage of CEPH storage space allocated to Elasticsearch.  \
+        We recommend a large percentage of the CEPH pool be allocated to this.  \
+        For example, if a CEPH pool has 100 GB allocated to it, 80% will take 80 \
+        GB of the 100 GB capacity",
+        PERCENT_VALID_FEEDBACK
+    )
+
+    elastic_curator_threshold = new HtmlInput(
+        'elastic_curator_threshold',
+        'ES Curator Threshold %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '90',
+        "The percentage of maximum allocated space for Elasticsearch that can be filled \
+        before Curator begins deleting indices. The oldest Moloch, Bro, etc, indices that exceed \
+        this threshold will be deleted.",
+        PERCENT_VALID_FEEDBACK
+    )
+
+    zookeeper_cpu_percentage = new HtmlInput(
+        'zookeeper_cpu_percentage',
+        'Zookeeper CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '3',
+        "The percentage of the lowest processor in the clustor dedicated to zookeeper.",
+        PERCENT_VALID_FEEDBACK
+    )
+
+    kafka_cpu_percentage = new HtmlInput(
+        'kafka_cpu_percentage',
+        'Kafka CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '13',
+        "The percentage of the lowest processor in the clustor dedicated to Kafka.",
+        PERCENT_VALID_FEEDBACK
+    )
 }

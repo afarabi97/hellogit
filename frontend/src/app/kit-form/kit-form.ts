@@ -8,18 +8,15 @@ import { HtmlInput, HtmlCheckBox, HtmlDropDown, HtmlCardSelector, HtmlHidden, Ht
 import { SensorResourcesForm } from '../total-sensor-resources-card/total-sensor-resources-form';
 import { TotalServerResources } from '../total-server-resources-card/total-server-resources-form';
 import {  PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
-          PERCENT_VALID_FEEDBACK, KUBE_CIDR_CONSTRAINT, IP_CONSTRAINT, HOST_CONSTRAINT,
-          CONSTRAINT_MIN_ONE, MIN_ONE_INVALID_FEEDBACK,
-          INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
-          TIMEZONES
-       } from '../frontend-constants';
+    PERCENT_VALID_FEEDBACK, KUBE_CIDR_CONSTRAINT, IP_CONSTRAINT, HOST_CONSTRAINT,
+    CONSTRAINT_MIN_ONE, MIN_ONE_INVALID_FEEDBACK,
+    INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
+    TIMEZONES
+ } from '../frontend-constants';
 
 import { BasicNodeResource, BasicNodeResourceInterface } from '../basic-node-resource-card/basic-node-resource-card.component';
 import { TotalSystemResources } from '../total-system-resource-card/total-system-resource-form';
 import { ValidateKitInventory } from './kit-form-validation';
-import { AdvancedMolochSettingsFormGroup, 
-        AdvancedElasticSearchSettingsFormGroup,
-        AdvancedKafkaSettingsFormGroup} from './kit-advanced-form';
 
 
 export interface DeviceFactsContainerInterface{
@@ -64,8 +61,9 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         super.addControl('ceph_drives', this.ceph_drives);
         super.addControl('pcap_drives', this.pcap_drives);
         super.addControl('hostname', this.hostname);
-        super.addControl('bro_workers', this.bro_workers);
-        super.addControl('moloch_threads', this.moloch_threads);
+        super.addControl('bro_cpu_percentage', this.bro_cpu_percentage);
+        super.addControl('suricata_cpu_percentage', this.suricata_cpu_percentage);
+        super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);        
 
         //this.sensor_type.
         this.sensor_type.setValue(sensor_type);
@@ -103,8 +101,9 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         this.monitor_interface.disable();
         this.ceph_drives.disable();
         this.pcap_drives.disable();
-        this.bro_workers.disable();
-        this.moloch_threads.disable();
+        this.bro_cpu_percentage.disable();
+        this.suricata_cpu_percentage.disable();
+        this.moloch_cpu_percentage.disable();        
     }
 
     enable(opts?: {
@@ -124,13 +123,13 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
      */
     public from_object(mObj: Object){
         this.deviceFacts = mObj['deviceFacts'];
-        this.bro_workers.setValue(mObj['bro_workers']);
         this.host_sensor.setValue(mObj['host_sensor']);
         this.hostname.setValue(mObj['hostname']);
-        this.moloch_threads.setValue(mObj['moloch_threads']);
         this.sensor_type.setValue(mObj['sensor_type']);
+        this.bro_cpu_percentage.setValue(mObj['bro_cpu_percentage']);
+        this.suricata_cpu_percentage.setValue(mObj['suricata_cpu_percentage']);
+        this.moloch_cpu_percentage.setValue(mObj['moloch_cpu_percentage']);
         this.monitor_interface.default_selections = mObj['monitor_interface'];
-        this.ceph_drives.default_selections = mObj['ceph_drives'];
         this.pcap_drives.default_selections = mObj['pcap_drives'];
     }
 
@@ -217,43 +216,6 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         false
     )
 
-    bro_workers = new HtmlInput(
-        'bro_workers',
-        'Number of Bro Workers',
-        "1",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '0',
-        "The number of bro workers to run on each sensor. The worker is the Bro process \
-        that sniffs network traffic and does protocol analysis on the reassembled traffic \
-        streams. Most of the work of an active cluster takes place on the workers and \
-        as such, the workers typically represent the bulk of the Bro processes that \
-        are running in a cluster. See https://www.bro.org/sphinx/cluster/index.html for \
-        more information.",
-        undefined,
-        true
-    )
-
-    moloch_threads = new HtmlInput (
-        'moloch_threads',
-        'Number of Moloch Threads',
-        "1",
-        'number',
-        CONSTRAINT_MIN_ONE,
-        MIN_ONE_INVALID_FEEDBACK,
-        true,
-        '0',
-        "Number of threads to use to process packets AFTER the reader has received \
-        the packets. This also controls how many packet queues there are, since each \
-        thread has its own queue. Basically how much CPU to dedicate to parsing the \
-        packets. Increase this if you get errors about dropping packets or the packetQ \
-        is over flowing.",
-        undefined,
-        true
-    )
-
     sensor_type = new HtmlInput(
         'sensor_storage_type',
         'Sensor Type',
@@ -266,6 +228,51 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         "Indicates if the sensor in question is a local or a remote sensor.",
         undefined,
         true        
+    )    
+
+    moloch_cpu_percentage = new HtmlInput (
+        'moloch_cpu_percentage',
+        'Moloch CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '19',
+        "This is the percentage of millicpus that will be allocated to the Moloch pod running on this sensor. \
+        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
+        PERCENT_VALID_FEEDBACK
+    )
+
+    suricata_cpu_percentage = new HtmlInput (
+        'suricata_cpu_percentage',
+        'Suricata CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '6',
+        "This is the percentage of millicpus that will be allocated to the Suricata pod running on this sensor. \
+        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
+        PERCENT_VALID_FEEDBACK
+    )
+
+    bro_cpu_percentage = new HtmlInput (
+        'bro_cpu_percentage',
+        'Bro CPU %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '58',
+        "This is the percentage of millicpus that will be allocated to the Bro pod running on this sensor. \
+        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
+        PERCENT_VALID_FEEDBACK
     )
 }
 
@@ -434,13 +441,6 @@ export class KitInventoryForm extends FormGroup {
 
     constructor() {
         super({}, ValidateKitInventory);
-        super.addControl('sensor_storage_type', this.sensor_storage_type);
-        super.addControl('elastic_cpu_percentage', this.elastic_cpu_percentage);
-        super.addControl('elastic_memory_percentage', this.elastic_memory_percentage);
-        super.addControl('logstash_cpu_percentage', this.logstash_cpu_percentage);
-        super.addControl('logstash_replicas', this.logstash_replicas);
-        super.addControl('elastic_storage_percentage', this.elastic_storage_percentage);
-        super.addControl('moloch_pcap_storage_percentage', this.moloch_pcap_storage_percentage);
         super.addControl('kubernetes_services_cidr', this.kubernetes_services_cidr);
 
         this.servers = new ServersFormArray([], true);
@@ -450,17 +450,13 @@ export class KitInventoryForm extends FormGroup {
         super.addControl('sensors', this.sensors);
         super.addControl('sensor_resources', this.sensor_resources);
         super.addControl('server_resources', this.server_resources);
-
-        super.addControl('advanced_moloch_settings', this.advanced_moloch_settings);
-        super.addControl('advanced_elasticsearch_settings', this.advanced_elasticsearch_settings);
-        super.addControl('advanced_kafka_settings', this.advanced_kafka_settings);
         super.addControl('dns_ip', this.dns_ip);
-        super.addControl('disable_autocalculate', this.disable_autocalculate);
         super.addControl('ceph_redundancy', this.ceph_redundancy);
         super.addControl('endgame_iporhost', this.endgame_iporhost);
         super.addControl('endgame_username', this.endgame_username);
         super.addControl('endgame_password', this.endgame_password);
         super.addControl('install_grr', this.install_grr);
+        super.addControl('enable_percentages', this.enable_percentages);
         this.kubernetesCidrInfoText = "";
     }
 
@@ -471,14 +467,9 @@ export class KitInventoryForm extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        super.reset({'elastic_cpu_percentage': this.elastic_cpu_percentage.default_value,
-                     'elastic_memory_percentage': this.elastic_memory_percentage.default_value,
-                     'logstash_cpu_percentage': this.logstash_cpu_percentage.default_value,
-                     'elastic_storage_percentage': this.elastic_storage_percentage.default_value,
-                     'sensor_storage_type': this.sensor_storage_type.default_value,
-                     'logstash_replicas': this.logstash_replicas.default_value,
-                     'moloch_pcap_storage_percentage': this.moloch_pcap_storage_percentage.default_value
-                    });
+        this.addSensorFormGroup(null, null);
+        this.addServerFormGroup(null);
+        super.reset({});
         this.clearNodes();
         this.system_resources.reinitalize();
     }
@@ -498,31 +489,21 @@ export class KitInventoryForm extends FormGroup {
     disable(opts?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
-    }): void {
-        this.sensor_storage_type.disable();
-        this.elastic_cpu_percentage.disable();
-        this.elastic_memory_percentage.disable();
-        this.logstash_cpu_percentage.disable();
-        this.logstash_replicas.disable();
-        this.elastic_storage_percentage.disable();
-        this.moloch_pcap_storage_percentage.disable();
+    }): void {        
         this.kubernetes_services_cidr.disable();
 
         this.servers.disable();
         this.sensors.disable();
         this.sensor_resources.disable();
         this.server_resources.disable();
-
-        this.advanced_moloch_settings.disable();
-        this.advanced_elasticsearch_settings.disable();
-        this.advanced_kafka_settings.disable();
+            
         this.dns_ip.disable();
-        this.disable_autocalculate.disable();
         this.ceph_redundancy.disable();
         this.endgame_iporhost.disable();
         this.endgame_username.disable();
         this.endgame_password.disable();
         this.install_grr.disable();
+        this.enable_percentages.disable();
     }
 
     public clearNodes() {
@@ -547,34 +528,6 @@ export class KitInventoryForm extends FormGroup {
     system_resources = new TotalSystemResources();
     server_resources = new TotalServerResources();
     sensor_resources = new SensorResourcesForm();
-
-    advanced_moloch_settings = new AdvancedMolochSettingsFormGroup();
-    advanced_elasticsearch_settings = new AdvancedElasticSearchSettingsFormGroup();
-    advanced_kafka_settings = new AdvancedKafkaSettingsFormGroup();
-
-    sensor_storage_type = new HtmlDropDown(
-        'sensor_storage_type',
-        'Sensor Storage Type',
-        ['Use Ceph clustered storage for PCAP', 'Use hard drive for PCAP storage'],
-        "The kit can use two types of storage for PCAP. One is clustered Ceph storage \
-        and the other is a disk on the sensor itself. See what_is_ceph['label'] \
-        for a description of Ceph. The advantage to clustered storage \
-        is that all hard drives given to Ceph are treated like one \"mega hard drive\". \
-        This means that you may have PCAP come in on sensor 1, but if its disk is filling \
-        up, it can just write that data to the disk on sensor 2 because it is also part \
-        of the Ceph cluster. The downside is that now all of the internal kit traffic \
-        must traverse the internal kit network backbone. If you have a 10Gb/s link, this \
-        may not be a big deal to you. If you only have a 1Gb/s link, this will likely be \
-        a bottleneck. However, if you aren't capturing a lot of traffic, this may not \
-        be a big deal to you. In direct attached storage mode, you will write the data \
-        directly to a locally attached disk or folder on the sensor. This obviously is \
-        much faster, but has the downside in that once that disk is full, the data has \
-        to roll even if there is space available elsewhere in the kit. Regardless of your \
-        decision, this only applies to PCAP. Everything else will use clustered storage \
-        with Ceph. Though, that traffic is only a fraction of what PCAP consumes in most \
-        cases.",
-        'Use hard drive for PCAP storage'
-    )    
 
     endgame_iporhost = new HtmlInput(
         'endgame_iporhost',
@@ -612,111 +565,6 @@ export class KitInventoryForm extends FormGroup {
         "The password needed for Endgame integration."
     )
 
-    elastic_cpu_percentage = new HtmlInput(
-        'elastic_cpu_percentage',
-        'Elasticsearch CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        "90",
-        "This is the percentage of server CPUs which the system will dedicated to \
-        Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- CPUs here does not mean dedicated CPUs. \
-        This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \
-        What this means is that Elasticsearch pods will have a request of \
-        X value for the server's compute power. If Elasticsearch is using less than this, \
-        other devices can use those resources. However, when under load, Elasticsearch is \
-        guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
-        Basically, you can think of this as a simple percentage of how much of the server\'s \
-        CPU you want going to Elasticsearch.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    elastic_memory_percentage = new HtmlInput(
-        'elastic_memory_percentage',
-        'Elasticsearch RAM %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        "90",
-        "This is the percentage of server RAM which the system will dedicated to \
-        Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- \
-        This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \
-        What this means is that Elasticsearch pods will have a request of \
-        X value for the server's compute power. If Elasticsearch is using less than this, \
-        other devices can use those resources. However, when under load, Elasticsearch is \
-        guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
-        Basically, you can think of this as a simple percentage of how much of the server\'s \
-        RAM you want going to Elasticsearch.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    logstash_cpu_percentage = new HtmlInput(
-        'logstash_cpu_percentage',
-        'Logstash Servers CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '5',
-        "The Percentage of the server CPU resources which will be dedicated to logstash. \
-        Unlike some of the other calculations, this is a percentage of the total server \
-        resources.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    logstash_replicas = new HtmlInput (
-        'logstash_replicas',
-        'Logstash Replicas',
-        "The number of logstash instances you would like to run",
-        'number',
-        '^[1-9]|[1-9]\\d+$',
-        'Enter the number of elasticsearch master instances you would like',
-        true,
-        '1',
-        "This is the number of instances of Logstash you would like to run."
-    )
-
-    elastic_storage_percentage = new HtmlInput (
-        'elastic_storage_percentage',
-        'ES Storage Space %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '90',
-        "Setting this value correctly can be a bit confusing. It depends primarily if you \
-        are running Ceph for PCAP storage or not. If you are not using Ceph for PCAP storage \
-        then this value can be very high - we recommend around 90%. This is due to the \
-        fact that Elasticsearch accounts for the overwhelming bulk of the resource demand \
-        on the server and there's not much need for storing other things. However, if you \
-        are using Ceph for PCAP then you will have to share server storage with Moloch. \
-        Moloch also takes up a lot of space. If you are running Moloch, in general, we give \
-        Moloch 60% and Elasticsearch 30%, but this depends heavily on the size of your disk storage.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    moloch_pcap_storage_percentage = new HtmlInput (
-        'moloch_pcap_storage_percentage',
-        'Moloch PCAP Storage Percentage',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '1',
-        "This is the percentage of the clustered storage which will be assigned to Moloch PCAP. \
-        In general, we give this 60% and Elasticsearch 30%, but this depends heavily on \
-        the amount of storage you have available. You can play with the values to see what \
-        works for you.",
-        PERCENT_VALID_FEEDBACK
-    )
-
     kubernetes_services_cidr = new HtmlDropDown(
         'kubernetes_services_cidr',
         'Kubernetes Service IP Range Start',
@@ -742,20 +590,7 @@ export class KitInventoryForm extends FormGroup {
         it to default  unless you have a specific reason to use a different DNS   \
         server. Keep in mind  you will need to manually provide all required DNS  \
         entries on your separate  DNS Server or the kit will break."
-    )
-
-    disable_autocalculate = new HtmlCheckBox(
-        "disable_autocalculate",
-        "Disable Autocalculations for Elasticsearch/Logstash/Moloch Threads/Bro Workers",
-        "By default, the system will calculate recommended values for the number of Elasticsearch \
-        nodes required, Elasticsearch resource requirements, Logstash, Bro workers, and Moloch threads. \
-        If you know what you are doing and you have a specific use case, you may not want these \
-        values autocalculated for you. In general, you should use the field " +
-        this.elastic_cpu_percentage.label + " and " + this.elastic_memory_percentage.label + " \
-        to control the allocation of resources for Elasticsearch. The algorithm was based \
-        on recommendations from Elasticsearch. However, you may disable these by unchecking \
-        this checkbox."
-    )
+    )    
 
     ceph_redundancy = new HtmlCheckBox(
         "ceph_redundancy",
@@ -771,6 +606,12 @@ export class KitInventoryForm extends FormGroup {
         "WARNING: Installing Google Rapid Response is an alpha feature.  \
         Google Rapid Response is an open sourced, agent based, endpoint protection platform.  \
         You can use to to hunt for threats on host systems."
+    )
+
+    enable_percentages = new HtmlCheckBox(
+        "enable_percentages",
+        "Enable percentages",
+        "Overrides the server calculations to include to user specified percentages for servers and sensors.."
     )
 }
 

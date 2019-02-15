@@ -7,6 +7,7 @@ from typing import Dict
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR
+from app.calculations import ServerCalculations, NodeCalculations
 
 
 JINJA_ENV = Environment(
@@ -55,8 +56,35 @@ class KitInventoryGenerator:
     """
     The KitInventory generator class
     """
-    def __init__(self, json_dict: Dict):
-        self._template_ctx = json_dict
+    def __init__(self, kit_form: Dict):
+        self._template_ctx = kit_form
+        self._server_cal = ServerCalculations(self._template_ctx)
+        self._sensor_cal = NodeCalculations(self._template_ctx)
+
+    def _set_sensor_type_counts(self) -> None:
+        """
+        Set sensor type counts.
+
+        :return: None
+        """
+        sensor_remote_count = 0
+        sensor_local_count = 0
+
+        for sensor in self._template_ctx["sensors"]:
+            if sensor['sensor_type'] == "Remote":
+                sensor_remote_count += 1
+            else:
+                sensor_local_count += 1
+
+        self._template_ctx["sensor_local_count"] = sensor_local_count
+        self._template_ctx["sensor_remote_count"] = sensor_remote_count
+
+    def _set_server_calculations(self) -> None:
+        self._template_ctx["server_cal"] = self._server_cal.to_dict()
+
+    def _set_sensor_calculations(self) -> None:
+        for index, sensor in enumerate(self._template_ctx["sensors"]):
+            sensor["cal"] = self._sensor_cal.get_node_values[index].to_dict()
 
     def _set_defaults(self) -> None:
         """
@@ -64,6 +92,11 @@ class KitInventoryGenerator:
 
         :return:
         """
+        self._set_sensor_type_counts()
+        self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr'] + "/28"
+        if self._template_ctx['dns_ip'] is None:
+            self._template_ctx['dns_ip'] = ''
+
         if not self._template_ctx["endgame_iporhost"]:
             self._template_ctx["endgame_iporhost"] = ''
 
@@ -72,6 +105,7 @@ class KitInventoryGenerator:
 
         if not self._template_ctx["endgame_password"]:
             self._template_ctx["endgame_password"] = ''
+        self._map_ceph_redundancy()
             
     def _map_ceph_redundancy(self) -> None:
         """
@@ -82,15 +116,16 @@ class KitInventoryGenerator:
         if self._template_ctx["ceph_redundancy"]:
             self._template_ctx["ceph_redundancy"] = 2
         else:
-            self._template_ctx["ceph_redundancy"] = 1        
+            self._template_ctx["ceph_redundancy"] = 1
 
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
         :return:
         """
-        self._map_ceph_redundancy()
         self._set_defaults()
+        self._set_server_calculations()
+        self._set_sensor_calculations()
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
 

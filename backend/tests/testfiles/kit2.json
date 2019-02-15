@@ -1,0 +1,141 @@
+{
+    "kitForm": {
+        "ceph_redundancy": null,
+        "dns_ip": null,
+        "enable_percentages": null,
+        "endgame_iporhost": null,
+        "endgame_password": null,
+        "endgame_username": null,
+        "install_grr": null,
+        "kubernetes_services_cidr": "172.16.88.32",
+        "sensor_resources": {
+            "external_nets": [],
+            "home_nets": [
+                {
+                    "home_net": "172.16.77.0/24"
+                }
+            ]
+        },
+        "sensor_storage_type": "Use hard drive for PCAP storage",
+        "sensors": [
+            {
+                "ceph_drives": [],
+                "deviceFacts": {
+                    "cpus_available": 30,
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 200,
+                            "size_tb": 0.01953125
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 200,
+                            "size_tb": 0.01953125
+                        }
+                    ],
+                    "hostname": "dnav-sensor1.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.196.88",
+                            "mac_address": "00:50:56:86:95:df",
+                            "name": "ens224",
+                            "speed": 10000
+                        },
+                        {
+                            "ip_address": "172.16.77.35",
+                            "mac_address": "00:50:56:86:7c:27",
+                            "name": "ens192",
+                            "speed": 10000
+                        }
+                    ],
+                    "memory_available": 11.57421875,
+                    "potential_monitor_interfaces": [
+                        "ens224"
+                    ]
+                },
+                "host_sensor": "172.16.77.35",
+                "hostname": "dnav-sensor1.lan",
+                "monitor_interface": [
+                    "ens224"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "sensor_type": "Local"
+            }
+        ],
+        "server_resources": {},
+        "servers": [
+            {
+                "ceph_drives": [
+                    "sdb",
+                    "sdc"
+                ],
+                "deviceFacts": {
+                    "cpus_available": 80,
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 200,
+                            "size_tb": 0.01953125
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 200,
+                            "size_tb": 0.01953125
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdc",
+                            "size_gb": 200,
+                            "size_tb": 0.01953125
+                        }
+                    ],
+                    "hostname": "dnav-srv1.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "",
+                            "mac_address": "da:f7:bb:22:fc:f9",
+                            "name": "tap0",
+                            "speed": 10
+                        },
+                        {
+                            "ip_address": "172.16.77.34",
+                            "mac_address": "00:50:56:86:47:11",
+                            "name": "br0",
+                            "speed": 0
+                        },
+                        {
+                            "ip_address": "",
+                            "mac_address": "00:50:56:86:47:11",
+                            "name": "ens192",
+                            "speed": 10000
+                        }
+                    ],
+                    "memory_available": 500.5107421875,
+                    "potential_monitor_interfaces": [
+                        "tap0",
+                        "ens192"
+                    ]
+                },
+                "host_server": "172.16.77.34",
+                "hostname": "dnav-srv1.lan",
+                "is_master_server": true
+            }
+        ]
+    },
+    "timeForm": {
+        "date": {
+            "day": 19,
+            "month": 2,
+            "year": 2019
+        },
+        "time": "20:49",
+        "timezone": "UTC"
+    }
+}

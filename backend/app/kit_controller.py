@@ -20,26 +20,6 @@ from shared.utils import decode_password
 from typing import Dict, Tuple
 
 
-def _set_sensor_type_counts(payload: Dict) -> None:
-    """
-    Set sensor type counts.
-
-    :param payload: A dictionary of the payload.
-    :return: None
-    """
-    sensor_remote_count = 0
-    sensor_local_count = 0
-
-    for sensor in payload["sensors"]:
-        if sensor['sensor_type'] == "Remote":
-            sensor_remote_count += 1
-        else:
-            sensor_local_count += 1
-
-    payload["sensor_local_count"] = sensor_local_count
-    payload["sensor_remote_count"] = sensor_remote_count
-
-
 def _delete_kubernetes_conf():
     """
     Delets the kubernetes file on disk so that the next time we connect
@@ -53,11 +33,11 @@ def _delete_kubernetes_conf():
         os.remove(config_path)
 
 
-def _replace_kit_inventory(payload: Dict) -> Tuple[bool, str]:
+def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     """
     Replaces the kit inventory if one exists.
 
-    :param payload: The kit payload received from the frontend
+    :param kit_form: The kit kit_form received from the frontend
     :return: True if successfull, False otherwise.        
     """
     current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
@@ -65,22 +45,14 @@ def _replace_kit_inventory(payload: Dict) -> Tuple[bool, str]:
         archive_form(current_kit_configuration['form'], True, conn_mng.mongo_kit_archive)
 
     current_kit_configuration = conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
-                                            {"_id": KIT_ID, "form": payload},
+                                            {"_id": KIT_ID, "form": kit_form},
                                             upsert=True,
                                             return_document=ReturnDocument.AFTER)  # type: InsertOneResult
 
     current_kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if current_kit_configuration and current_kickstart_config:
         if current_kit_configuration["form"] and current_kickstart_config["form"]["root_password"]:
-            payload['kubernetes_services_cidr'] = payload['kubernetes_services_cidr'] + "/28"
-            if payload['dns_ip'] is None:
-                payload['dns_ip'] = ''
-            payload['use_ceph_for_pcap'] = False
-            if payload["sensor_storage_type"] == "Use Ceph clustered storage for PCAP":
-                payload['use_ceph_for_pcap'] = True
-
-            _set_sensor_type_counts(payload)
-            kit_generator = KitInventoryGenerator(payload)
+            kit_generator = KitInventoryGenerator(kit_form)
             kit_generator.generate()
             return True, decode_password(current_kickstart_config["form"]["root_password"])
     return False, None
@@ -136,19 +108,30 @@ def _change_time_on_nodes(payload: Dict, password: str) -> None:
         _execute_cmds(timeForm, password, server["host_server"])
 
 
+def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
+    """
+    Main function for processing the kit and changing times on the nodes.
+
+    :return: Returns True if its successfully. 
+    """
+    isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
+    _delete_kubernetes_conf()
+    if isSucessful:
+        _change_time_on_nodes(payload, root_password)
+        return True, root_password
+    return False, None
+
+
 @app.route('/api/execute_kit_inventory', methods=['POST'])
 def execute_kit_inventory() -> Response:
     """
-    Generates the kit inventory file which will be used in provisioning the system.
+    Generates and executes Kit inventory file which will be used in provisioning the system.
 
     :return: Response object
     """
     payload = request.get_json()
-    # logger.debug(json.dumps(payload, indent=4, sort_keys=True))    
-    isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])    
-    _delete_kubernetes_conf()
-    if isSucessful:        
-        _change_time_on_nodes(payload, root_password)
+    is_successful, root_password = _process_kit_and_time(payload)
+    if is_successful:
         cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml")
         if payload["kitForm"]["install_grr"]:
             cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml; "
@@ -161,7 +144,23 @@ def execute_kit_inventory() -> Response:
         
         return OK_RESPONSE
 
-    logger.error("Executing Kit configuration has failed.")
+    logger.error("Executing /api/execute_kit_inventory has failed.")
+    return ERROR_RESPONSE
+
+
+@app.route('/api/generate_kit_inventory', methods=['POST'])
+def generate_kit_inventory() -> Response:
+    """
+    Generates the kit inventory file which will be used in provisioning the system.
+
+    :return: Response object
+    """
+    payload = request.get_json()
+    is_successful, _ = _process_kit_and_time(payload)
+    if is_successful:
+        return OK_RESPONSE
+
+    logger.error("Executing /api/enerate_kit_inventory has failed.")
     return ERROR_RESPONSE
 
 
