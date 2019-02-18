@@ -30,7 +30,7 @@ spec:
               - SYS_NICE
         resources:
           requests:
-            cpu: {{ bro_cpu_request }}
+            cpu: {{ hostvars[hostname].bro_cpu_request }}
         livenessProbe:
           exec:
             command:

@@ -32,7 +32,7 @@ spec:
           value: "SURICATA"
         resources:
           requests:
-            cpu: {{ suricata_cpu_request }}
+            cpu: {{ hostvars[hostname].suricata_cpu_request }}
         volumeMounts:
         - name: filebeat
           mountPath: /etc/filebeat/filebeat.yml

@@ -3,6 +3,6 @@
   lineinfile:
     path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     regexp: '^Environment="KUBELET_EXTRA_ARGS='
-    line: 'Environment="KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice --system-reserved cpu=1,memory=800Mi --kube-reserved cpu=200m,memory=200Mi"'
     insertbefore: '^ExecStart=$'
   notify: restart kubelet

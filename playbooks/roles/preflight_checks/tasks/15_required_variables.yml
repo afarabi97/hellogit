@@ -39,21 +39,6 @@
     msg: "moloch_bpf is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_bpf is not defined or moloch_bpf is none
 
-- name: Checking that bro_cpu_request is set
-  fail:
-    msg: "bro_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: bro_cpu_request is not defined or bro_cpu_request is none
-
-- name: Checking that moloch_cpu_request is set
-  fail:
-    msg: "moloch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: moloch_cpu_request is not defined or moloch_cpu_request is none
-
-- name: Checking that suricata_cpu_request is set
-  fail:
-    msg: "suricata_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: suricata_cpu_request is not defined or suricata_cpu_request is none
-
 - name: Checking that logstash_cpu_request is set
   fail:
     msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
