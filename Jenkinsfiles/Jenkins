@@ -38,8 +38,7 @@ pipeline {
 				node('master') {
                     script{
                         notifySlack('STARTED')
-                    }
-				    cleanWs()
+                    }				    
 				    checkout([$class: 'GitSCM', branches: [[name: '*/devel']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'micah-downing-user-pass', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum-integration-testing.git']]])
 				}
 			}
@@ -166,6 +165,7 @@ pipeline {
                     notifySlack(currentBuild.result)                                        
                 }
                 junit 'reports/*.xml'
+                cleanWs()
             }            
         }
     }
