@@ -12,6 +12,7 @@ from com.vmware.vcenter.vm_client import Power
 from lib.model.kit import Kit
 from lib.model.node import VirtualMachine
 from lib.model.node import Node
+from lib.model.host_configuration import HostConfiguration
 from typing import List
 
 
@@ -170,7 +171,7 @@ def wait_for_task(task) -> None:
             task_done = True
 
 
-def create_client(configuration: OrderedDict) -> VsphereClient:
+def create_client(host_configuration: HostConfiguration) -> VsphereClient:
     """
     Creates a vSphere client from the given configuration
 
@@ -191,30 +192,26 @@ def create_client(configuration: OrderedDict) -> VsphereClient:
     # Connect to a vCenter Server using username and password
 
     return create_vsphere_client(
-        server=configuration["host_configuration"]["vcenter"]["ip_address"],
-        username=configuration["host_configuration"]["vcenter"]["username"],
-        password=configuration["host_configuration"]["vcenter"]["password"],
+        server=host_configuration.ip_address,
+        username=host_configuration.username,
+        password=host_configuration.password,
         session=session)  # type: VsphereClient
 
 
 # TODO: I left the type out here in the definition. No idea why, but when you run type() you get
 # pyVmomi.VmomiSupport.vim.ServiceInstance. However, vim is not a package within VmomiSupport so it throws an error.
-def create_smart_connect_client(configuration: OrderedDict) -> vim.ServiceInstance:
-
-    username = configuration["host_configuration"]["vcenter"]["username"]
-    password = configuration["host_configuration"]["vcenter"]["password"]
-    vcenter_ip = configuration["host_configuration"]["vcenter"]["ip_address"]
+def create_smart_connect_client(host_configuration: HostConfiguration) -> vim.ServiceInstance:
 
     # This will connect us to vCenter
-    return SmartConnectNoSSL(host=vcenter_ip,
-                          user=username,
-                          pwd=password,
+    return SmartConnectNoSSL(host=host_configuration.ip_address,
+                          user=host_configuration.username,
+                          pwd=host_configuration.password,
                           port=443)  # type: pyVmomi.VmomiSupport.vim.ServiceInstance
 
 
-def change_network_address(configuration: OrderedDict, vm_name: str):
+def change_network_address(host_configuration: HostConfiguration, vm_name: str):
 
-    s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
     vm = get_vm_by_name()
 
     state = client.vcenter.vm.Power.get(vm)
@@ -257,8 +254,8 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
         client.vcenter.VM.delete(vm)
 
 
-def change_ip_address(configuration: OrderedDict, node: Node):
-    service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+def change_ip_address(host_configuration: HostConfiguration, node: Node):
+    service_instance = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
     vm = get_vm_by_name(service_instance, node.hostname)
 
     if vm.runtime.powerState != 'poweredOff':
@@ -299,7 +296,7 @@ def change_ip_address(configuration: OrderedDict, node: Node):
     Disconnect(service_instance)
 
 
-def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bool=True):
+def change_network_port_group(host_configuration: HostConfiguration, node: Node, is_vds: bool=True):
     """
     The VM in question must be powered off before you can change the network port group.
 
@@ -310,7 +307,7 @@ def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bo
            it will assume a distributed switch.
     :return:
     """
-    service_instance = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
+    service_instance = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
     content = service_instance.RetrieveContent()
     vm = get_vm_by_name(service_instance, node.hostname)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
 
@@ -365,7 +362,7 @@ def change_network_port_group(configuration: OrderedDict, node: Node, is_vds: bo
     print("Successfully changed network")
 
 
-def clone_vm(configuration: OrderedDict, controller: Node) -> None:
+def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     """
     Clones a target VM by name
 
@@ -373,14 +370,13 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     :param controller (Node): The controller node we wish to clone
     :return:
     """
-    s = create_smart_connect_client(configuration)  # type: vim.ServiceInstance
-    cluster_name = configuration["host_configuration"]["vcenter"]["cluster_name"]
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance    
 
     # With this we are searching for the MOID of the VM to clone from
     template_vm = get_vm_by_name(s, controller.vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
 
     # This will retrieve the Cluster MOID
-    cluster = get_cluster(s, cluster_name)  # type: pyVmomi.VmomiSupport.vim.ClusterComputeResource
+    cluster = get_cluster(s, host_configuration.cluster_name)  # type: pyVmomi.VmomiSupport.vim.ClusterComputeResource
 
     # This constructs the reloacate spec needed in a later step by specifying the default resource pool (name=Resource)
     #  of the Cluster
@@ -396,11 +392,11 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     print("You can watch the progress bar in vCenter.")
 
     # Finally this is the clone operation with the relevant specs attached
-    if controller.storage_folder is not None:
+    if host_configuration.storage_folder is not None:
         wait_for_task(
             template_vm.Clone(
                 name=controller.hostname,
-                folder=get_folder(s, controller.storage_folder), 
+                folder=get_folder(s, host_configuration.storage_folder),
                 spec=clone_spec))
     else:
         # If the folder name is not provided it will put it in the same folder
@@ -413,7 +409,7 @@ def clone_vm(configuration: OrderedDict, controller: Node) -> None:
     Disconnect(s)
 
 
-def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str=None) -> List[VirtualMachine]:
+def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str, host_configuration: HostConfiguration) -> List[VirtualMachine]:
     """
     Destroys and ceates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
@@ -426,7 +422,7 @@ def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_
     for node in nodes:
         if node.type != "controller":
             logging.info("Creating VM " + node.hostname + "...")
-            vm_instance = VirtualMachine(client, node, iso_folder_path)
+            vm_instance = VirtualMachine(client, node, iso_folder_path, host_configuration)
             vm_instance.cleanup()
             vm_instance.create()
             vm_instance.set_node_instance(node)
@@ -449,7 +445,7 @@ def destroy_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str=N
         vm_instance.cleanup()
 
 
-def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str=None) -> List[VirtualMachine]:
+def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str, host_configuration: HostConfiguration) -> List[VirtualMachine]:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
@@ -463,7 +459,7 @@ def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str=None) -> List[
     for node in kit.nodes:
         if node.type != "controller":
             logging.info("Getting VM " + node.hostname + "...")
-            vm_instance = VirtualMachine(client, node, iso_folder_path)
+            vm_instance = VirtualMachine(client, node, iso_folder_path, host_configuration)
             vm_instance.get_node_instance()
             vms.append(vm_instance)
 

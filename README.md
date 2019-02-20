@@ -13,6 +13,8 @@ tfplenum-integration-testing
 -dp                     DI2E Password
 -vu                     VCenter Username
 -vp                     VCenter Password
+--tfplenum-commit-hash
+--tfplenum-deployer-commit-hash
 ```
 
 ## Example Commands

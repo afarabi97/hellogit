@@ -16,6 +16,7 @@ from lib.vsphere.common.sample_util import pp
 from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
+from lib.model.host_configuration import HostConfiguration
 
 
 class Interface(object):
@@ -160,13 +161,8 @@ class Node(object):
         hostname: The hostname of the node
         type: The type of the node controller, server or sensor
         username: Username for login
-        password: Password for login
-        guestos: Th operating system used such as RHEL_7_64
-        vm_to_clone: The name of the virtual machine to clone        
-        storage_datacenter: The datacenter on which to store th VM
-        storage_cluster: The cluster in which to store th VM
-        storage_datastore: The specific datastore in which to store the VM
-        storage_folder: The folder in which to store the VM
+        password: Password for login        
+        vm_to_clone: The name of the virtual machine to clone
         interfaces: List of Interface objects
         cpu_sockets: The number of CPU sockets the VM has
         cores_per_socket: The number of cores per socket. TODO: This value does not currently work
@@ -201,13 +197,9 @@ class Node(object):
             exit(1)
 
         self.username = None
-        self.password = None
-        self.guestos = None
+        self.password = None       
         self.vm_to_clone = None
-        self.storage_datacenter = None
-        self.storage_cluster = None
-        self.storage_datastore = None
-        self.storage_folder = None
+        self.guestos = None
         self.cpu_sockets = None
         self.cores_per_socket = None
         self.cpu_hot_add_enabled = None
@@ -233,6 +225,15 @@ class Node(object):
         :return:
         """
         self.vm_to_clone = vm_to_clone
+
+    def set_guestos(self, guestos: str) -> None:
+        """
+        Sets the guest os for the node
+
+        :param guestos: Guest OS for node login
+        :return:
+        """
+        self.guestos = guestos
 
     def set_gateway(self, gateway: str) -> None:
         """
@@ -277,30 +278,6 @@ class Node(object):
         :return:
         """
         self.password = password
-
-    def set_guestos(self, guestos: str) -> None:
-        """
-        Sets the guest os for the node
-
-        :param guestos: Guest OS for node login
-        :return:
-        """
-        self.guestos = guestos
-
-    def set_storage_options(self, datacenter: str, cluster: str, datastore: str, folder: str) -> None:
-        """
-        Sets the node storage options
-
-        :param datacenter:
-        :param cluster:
-        :param datastore:
-        :param folder:
-        :return:
-        """
-        self.storage_datacenter = datacenter
-        self.storage_cluster = cluster
-        self.storage_datastore = datastore
-        self.storage_folder = folder
 
     def set_interfaces(self, interfaces: List[Interface]) -> None:
         """
@@ -441,7 +418,7 @@ class VirtualMachine:
         node_instance: The node instance to which this VM is assigned
     """
 
-    def __init__(self, client: VsphereClient, node: Node, iso_folder_path: str=None) -> None:
+    def __init__(self, client: VsphereClient, node: Node, iso_folder_path: str, host_configuration: HostConfiguration) -> None:
         """
         Initializes a virtual machine object
 
@@ -455,6 +432,7 @@ class VirtualMachine:
         self.node = node
         self.vm_info = None  # type: VM.info
         self.node_instance = None  # type: Node
+        self.host_configuration = host_configuration
 
         if node.iso_file is not None:
             self.iso_path = str(iso_folder_path) + node.iso_file  # type: str
@@ -464,10 +442,10 @@ class VirtualMachine:
         # Get a placement spec
         self.placement_spec = vm_placement_helper.get_placement_spec(
             self.client,
-            node.storage_datacenter,
-            node.storage_folder,
-            node.storage_cluster,
-            node.storage_datastore)  # type: PlacementSpec
+            self.host_configuration.datacenter,
+            self.host_configuration.storage_folder,
+            self.host_configuration.cluster_name,
+            self.host_configuration.storage_datastore)  # type: PlacementSpec
 
         # Get a standard network backing
         # TODO: Left it here just in case we swap to a non distributed switch
@@ -517,7 +495,7 @@ class VirtualMachine:
                         network=network_helper.get_distributed_network_backing(
                             self.client,
                             interface.dv_portgroup_name,
-                            self.node.storage_datacenter))))
+                            self.host_configuration.datacenter))))
             else:
                 nics.append(Ethernet.CreateSpec(
                     start_connected=interface.start_connected,
@@ -528,7 +506,7 @@ class VirtualMachine:
                         network=network_helper.get_distributed_network_backing(
                             self.client,
                             interface.dv_portgroup_name,
-                            self.node.storage_datacenter))))
+                            self.host_configuration.datacenter))))
 
         # Only create a CDROM drive if the user put an iso as part of their
         # configuration

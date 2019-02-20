@@ -242,8 +242,8 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         node.set_password(kit.password)
 
         node.set_guestos(vms[v]['vm_guestos'])
-        storage = vms[v]['storage_options']  # type: dict
-        node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
+        #storage = vms[v]['storage_options']  # type: dict
+        #node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
 
         # Set networking specs
         nics = vms[v]['networking']['nics']  # type: dict
@@ -319,135 +319,130 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     Transform the yaml configuration into a list of Kit objects
 
     :param configuration: A YAML file defining the schema of the kit
-    :return: List[Kit]
+    :return: Kit
     """
-    kits = []  # type: List[Kit]
-    for kitconfig in configuration:
 
-        kit = Kit(kitconfig)
+    kit = Kit(configuration)  # type: Kit
 
-        kickstart_configuration = KickstartConfiguration()
-        kickstart_configuration.set_dhcp_start(configuration[kitconfig]["kickstart_configuration"]['dhcp_start'])
-        kickstart_configuration.set_dhcp_end(configuration[kitconfig]["kickstart_configuration"]['dhcp_end'])
-        kickstart_configuration.set_gateway(configuration[kitconfig]["kickstart_configuration"]['gateway'])
-        kickstart_configuration.set_netmask(configuration[kitconfig]["kickstart_configuration"]['netmask'])
-        kit.set_kickstart_configuration(kickstart_configuration)
+    kickstart_configuration = KickstartConfiguration()
+    kickstart_configuration.set_dhcp_start(configuration["kickstart_configuration"]['dhcp_start'])
+    kickstart_configuration.set_dhcp_end(configuration["kickstart_configuration"]['dhcp_end'])
+    kickstart_configuration.set_gateway(configuration["kickstart_configuration"]['gateway'])
+    kickstart_configuration.set_netmask(configuration["kickstart_configuration"]['netmask'])
+    kit.set_kickstart_configuration(kickstart_configuration)
 
-        kit.set_username("root")
-        kit.set_password("we.are.tfplenum")
-        kit.set_kubernetes_cidr(configuration[kitconfig]['kit_configuration']['kubernetes_cidr'])
+    kit.set_username("root")
+    kit.set_password("we.are.tfplenum")
+    kit.set_kubernetes_cidr(configuration['kit_configuration']['kubernetes_cidr'])
 
-        kit.set_use_ceph_for_pcap(configuration[kitconfig]["kit_configuration"]['use_ceph_for_pcap'])
-        kit.set_branch_name(configuration[kitconfig]["kit_configuration"]['branch_name'])
+    kit.set_use_ceph_for_pcap(configuration["kit_configuration"]['use_ceph_for_pcap'])
+    kit.set_branch_name(configuration["kit_configuration"]['branch_name'])
 
-        if not configuration[kitconfig]["kit_configuration"]['tfplenum_branch_name']:
-            kit.set_tfplenum_branch_name("devel")
-        else:
-            kit.set_tfplenum_branch_name(configuration[kitconfig]["kit_configuration"]['tfplenum_branch_name'])
+    if not configuration["kit_configuration"]['tfplenum_branch_name']:
+        kit.set_tfplenum_branch_name("devel")
+    else:
+        kit.set_tfplenum_branch_name(configuration["kit_configuration"]['tfplenum_branch_name'])
 
-        if not configuration[kitconfig]["kit_configuration"]['deployer_branch_name']:
-            kit.set_deployer_branch_name("devel")
-        else:
-            kit.set_deployer_branch_name(configuration[kitconfig]["kit_configuration"]['deployer_branch_name'])
+    if not configuration["kit_configuration"]['deployer_branch_name']:
+        kit.set_deployer_branch_name("devel")
+    else:
+        kit.set_deployer_branch_name(configuration["kit_configuration"]['deployer_branch_name'])
 
-        if not configuration[kitconfig]["kit_configuration"]['frontend_branch_name']:
-            kit.set_frontend_branch_name("devel")
-        else:
-            kit.set_frontend_branch_name(configuration[kitconfig]["kit_configuration"]['frontend_branch_name'])
+    if not configuration["kit_configuration"]['frontend_branch_name']:
+        kit.set_frontend_branch_name("devel")
+    else:
+        kit.set_frontend_branch_name(configuration["kit_configuration"]['frontend_branch_name'])
 
-        if not configuration[kitconfig]["kit_configuration"]['source_repo']:
-            kit.set_source_repo("labrepo")
-        else:
-            kit.set_source_repo(configuration[kitconfig]["kit_configuration"]['source_repo'])
+    if not configuration["kit_configuration"]['source_repo']:
+        kit.set_source_repo("labrepo")
+    else:
+        kit.set_source_repo(configuration["kit_configuration"]['source_repo'])
 
-        if not configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage']:
-            kit.set_moloch_pcap_storage_percentage(None)
-        else:
-            kit.set_moloch_pcap_storage_percentage(configuration[kitconfig]["kit_configuration"]['moloch_pcap_storage_percentage'])
+    if not configuration["kit_configuration"]['moloch_pcap_storage_percentage']:
+        kit.set_moloch_pcap_storage_percentage(None)
+    else:
+        kit.set_moloch_pcap_storage_percentage(configuration["kit_configuration"]['moloch_pcap_storage_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['elasticsearch_cpu_percentage']:
-            kit.set_elasticsearch_cpu_percentage(None)
-        else:
-            kit.set_elasticsearch_cpu_percentage(configuration[kitconfig]["kit_configuration"]['elasticsearch_cpu_percentage'])
+    if not configuration["kit_configuration"]['elasticsearch_cpu_percentage']:
+        kit.set_elasticsearch_cpu_percentage(None)
+    else:
+        kit.set_elasticsearch_cpu_percentage(configuration["kit_configuration"]['elasticsearch_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['elasticsearch_ram_percentage']:
-            kit.set_elasticsearch_ram_percentage(None)
-        else:
-            kit.set_elasticsearch_ram_percentage(configuration[kitconfig]["kit_configuration"]['elasticsearch_ram_percentage'])
+    if not configuration["kit_configuration"]['elasticsearch_ram_percentage']:
+        kit.set_elasticsearch_ram_percentage(None)
+    else:
+        kit.set_elasticsearch_ram_percentage(configuration["kit_configuration"]['elasticsearch_ram_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['logstash_server_cpu_percentage']:
-            kit.set_logstash_server_cpu_percentage(None)
-        else:
-            kit.set_logstash_server_cpu_percentage(configuration[kitconfig]["kit_configuration"]['logstash_server_cpu_percentage'])
+    if not configuration["kit_configuration"]['logstash_server_cpu_percentage']:
+        kit.set_logstash_server_cpu_percentage(None)
+    else:
+        kit.set_logstash_server_cpu_percentage(configuration["kit_configuration"]['logstash_server_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['logstash_replicas']:
-            kit.set_logstash_replicas(None)
-        else:
-            kit.set_logstash_replicas(configuration[kitconfig]["kit_configuration"]['logstash_replicas'])
+    if not configuration["kit_configuration"]['logstash_replicas']:
+        kit.set_logstash_replicas(None)
+    else:
+        kit.set_logstash_replicas(configuration["kit_configuration"]['logstash_replicas'])
 
-        if not configuration[kitconfig]["kit_configuration"]['es_storage_space_percentage']:
-            kit.set_es_storage_space_percentage(None)
-        else:
-            kit.set_es_storage_space_percentage(configuration[kitconfig]["kit_configuration"]['es_storage_space_percentage'])
+    if not configuration["kit_configuration"]['es_storage_space_percentage']:
+        kit.set_es_storage_space_percentage(None)
+    else:
+        kit.set_es_storage_space_percentage(configuration["kit_configuration"]['es_storage_space_percentage'])
 
-        kit.set_home_nets(configuration[kitconfig]["kit_configuration"]['home_nets'])
+    kit.set_home_nets(configuration["kit_configuration"]['home_nets'])
 
-        if not configuration[kitconfig]["kit_configuration"]['external_nets']:
-            kit.set_external_nets(None)
-        else:
-            kit.set_external_nets(configuration[kitconfig]["kit_configuration"]['external_nets'])
+    if not configuration["kit_configuration"]['external_nets']:
+        kit.set_external_nets(None)
+    else:
+        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
 
-        if not configuration[kitconfig]["kit_configuration"]['kafka_cpu_percentage']:
-            kit.set_kafka_cpu_percentage(None)
-        else:
-            kit.set_kafka_cpu_percentage(configuration[kitconfig]["kit_configuration"]['kafka_cpu_percentage'])
+    if not configuration["kit_configuration"]['kafka_cpu_percentage']:
+        kit.set_kafka_cpu_percentage(None)
+    else:
+        kit.set_kafka_cpu_percentage(configuration["kit_configuration"]['kafka_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['moloch_cpu_percentage']:
-            kit.set_moloch_cpu_percentage(None)
-        else:
-            kit.set_moloch_cpu_percentage(configuration[kitconfig]["kit_configuration"]['moloch_cpu_percentage'])
+    if not configuration["kit_configuration"]['moloch_cpu_percentage']:
+        kit.set_moloch_cpu_percentage(None)
+    else:
+        kit.set_moloch_cpu_percentage(configuration["kit_configuration"]['moloch_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['bro_cpu_percentage']:
-            kit.set_bro_cpu_percentage(None)
-        else:
-            kit.set_bro_cpu_percentage(configuration[kitconfig]["kit_configuration"]['bro_cpu_percentage'])
+    if not configuration["kit_configuration"]['bro_cpu_percentage']:
+        kit.set_bro_cpu_percentage(None)
+    else:
+        kit.set_bro_cpu_percentage(configuration["kit_configuration"]['bro_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['suricata_cpu_percentage']:
-            kit.set_suricata_cpu_percentage(None)
-        else:
-            kit.set_suricata_cpu_percentage(configuration[kitconfig]["kit_configuration"]['suricata_cpu_percentage'])
+    if not configuration["kit_configuration"]['suricata_cpu_percentage']:
+        kit.set_suricata_cpu_percentage(None)
+    else:
+        kit.set_suricata_cpu_percentage(configuration["kit_configuration"]['suricata_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['zookeeper_cpu_percentage']:
-            kit.set_zookeeper_cpu_percentage(None)
-        else:
-            kit.set_zookeeper_cpu_percentage(configuration[kitconfig]["kit_configuration"]['zookeeper_cpu_percentage'])
+    if not configuration["kit_configuration"]['zookeeper_cpu_percentage']:
+        kit.set_zookeeper_cpu_percentage(None)
+    else:
+        kit.set_zookeeper_cpu_percentage(configuration["kit_configuration"]['zookeeper_cpu_percentage'])
 
-        if not configuration[kitconfig]["kit_configuration"]['ideal_es_cpus_per_instance']:
-            kit.set_ideal_es_cpus_per_instance(None)
-        else:
-            kit.set_ideal_es_cpus_per_instance(configuration[kitconfig]["kit_configuration"]['ideal_es_cpus_per_instance'])
+    if not configuration["kit_configuration"]['ideal_es_cpus_per_instance']:
+        kit.set_ideal_es_cpus_per_instance(None)
+    else:
+        kit.set_ideal_es_cpus_per_instance(configuration["kit_configuration"]['ideal_es_cpus_per_instance'])
 
-        if not configuration[kitconfig]["kit_configuration"]['es_cpu_to_memory_ratio_default']:
-            kit.set_es_cpu_to_memory_ratio_default(None)
-        else:
-            kit.set_es_cpu_to_memory_ratio_default(configuration[kitconfig]["kit_configuration"]['es_cpu_to_memory_ratio_default'])
+    if not configuration["kit_configuration"]['es_cpu_to_memory_ratio_default']:
+        kit.set_es_cpu_to_memory_ratio_default(None)
+    else:
+        kit.set_es_cpu_to_memory_ratio_default(configuration["kit_configuration"]['es_cpu_to_memory_ratio_default'])
 
-        vms = configuration[kitconfig]["VM_settings"]["VMs"]  # type: dict
-        # Add list of nodes to kit
-        kit.set_nodes(_transform_nodes(vms, kit))
+    vms = configuration["VMs"]  # type: dict
+    # Add list of nodes to kit
+    kit.set_nodes(_transform_nodes(vms, kit))
 
-        try:
-            vms = configuration[kitconfig]["VM_settings"]["ADD_NODE_VMs"]  # type: dict
-            kit.set_add_nodes(_transform_nodes(vms, kit))
-        except KeyError as e:
-            logging.warning("Add node functionality will be skipped since there "
-                            "is nothing under the ADD_NODE_VMs section")
-            kit.set_add_nodes([])
+    try:
+        vms = configuration["VMs"]["ADD_NODE_VMs"]  # type: dict
+        kit.set_add_nodes(_transform_nodes(vms, kit))
+    except KeyError as e:
+        logging.warning("Add node functionality will be skipped since there "
+                        "is nothing under the ADD_NODE_VMs section")
+        kit.set_add_nodes([])
 
-        # Add list of kits to kit
-        kits.append(kit)
-
-    return kits
+    return kit
 
 
 def retry(count=5, time_to_sleep_between_retries=2):

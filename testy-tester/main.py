@@ -17,6 +17,7 @@ from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
+from lib.model.host_configuration import HostConfiguration
 from lib.frontend_tester import KickstartSeleniumRunner, KitSeleniumRunner
 from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
@@ -41,10 +42,11 @@ class Runner:
         self.args = None  # type: Namespace
         self.di2e_password = None  # type: str
         self.di2e_username = None  # type: str
-        self.kits = None  # type: List[Kit]
+        self.kit = None  # type: Kit        
         self.configuration = None  # type: Dict
         self.controller_node = None  # type: Node
         self.vsphere_client = None  # type: VsphereClient
+        self.host_configuration = None  # type: HostConfiguration
 
     def _parse_args(self):
         """
@@ -68,7 +70,9 @@ class Runner:
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
         parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
-        parser.add_argument('--headless', dest='is_headless', action='store_true')        
+        parser.add_argument('--headless', dest='is_headless', action='store_true')
+        parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')
+        parser.add_argument('--tfplenum-deployer-commit-hash', dest='tfplenum_deployer_commit_hash')
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
@@ -110,11 +114,29 @@ class Runner:
         # If using 3.7+ this is not an issue as it is the default behavior
         with open(self.args.filename, 'r') as kit_schema:
             try:
-                self.configuration = yaml.load(kit_schema)
-                self.configuration["host_configuration"]["vcenter"]["username"] = self.args.vcenter_username
-                self.configuration["host_configuration"]["vcenter"]["password"] = self.args.vcenter_password
+
+                self.configuration = yaml.load(kit_schema)                
+                
+                self.host_configuration = HostConfiguration(self.configuration["host_configuration"]["vcenter"]["ip_address"],
+                self.configuration["host_configuration"]["vcenter"]["cluster_name"],
+                self.configuration["host_configuration"]["vcenter"]["datacenter"],
+                self.args.vcenter_username,
+                self.args.vcenter_password)  # type: HostConfiguration
+
+                self.host_configuration.set_storage_options(self.configuration["host_configuration"]["storage"]["datastore"],
+                self.configuration["host_configuration"]["storage"]["folder"])                
+                
                 # Returns a list of kit objects
-                self.kits = transform(self.configuration["kits"])  # type: List[Kit]
+                self.kit = transform(self.configuration["kit"])  # type: Kit
+
+                if self.args.tfplenum_commit_hash is not None:                    
+                    self.kit.set_branch_name("custom")
+                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)
+
+                if self.args.tfplenum_deployer_commit_hash is not None:
+                    self.kit.set_branch_name("custom")
+                    self.kit.set_deployer_branch_name(self.args.tfplenum_deployer_commit_hash)              
+                    
             except yaml.YAMLError as exc:
                 print(exc)
 
@@ -147,14 +169,14 @@ class Runner:
         delete_vm(self.vsphere_client, self.controller_node.hostname)
 
         logging.info("Cloning base rhel template for controller....")
-        clone_vm(self.configuration, self.controller_node)
+        clone_vm(self.host_configuration, self.controller_node)
 
         logging.info("Changing controller portgroup and IP Address...")
-        change_network_port_group(self.configuration, self.controller_node)
-        change_ip_address(self.configuration, self.controller_node)
+        change_network_port_group(self.host_configuration, self.controller_node)
+        change_ip_address(self.host_configuration, self.controller_node)
 
         logging.info("Powering the controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/", self.host_configuration)
         ctrl_vm.power_on()
 
         logging.info("Waiting for controller to become alive...")
@@ -219,7 +241,7 @@ class Runner:
         :return:
         """
         logging.info("Modifying Controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/", self.host_configuration)
         try:
             ctrl_vm.power_on()
         except:
@@ -239,7 +261,7 @@ class Runner:
 
         self.power_on_controller()
         logging.info("Creating VMs...")
-        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client)  # , iso_folder_path)  # type: list
+        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, None, self.host_configuration)  # , iso_folder_path)  # type: list
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
@@ -262,7 +284,7 @@ class Runner:
             return
 
         self.power_on_controller()
-        vms = get_vms(kit, self.vsphere_client, "/root/")
+        vms = get_vms(kit, self.vsphere_client, "/root/", self.host_configuration)
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
@@ -285,7 +307,7 @@ class Runner:
             logging.info("Add node skipped as there is nothing defined in the configuration file.")
             return
 
-        vms = destroy_and_create_vms(add_nodes, self.vsphere_client)
+        vms = destroy_and_create_vms(add_nodes, self.vsphere_client, None, self.host_configuration)
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
@@ -319,7 +341,7 @@ class Runner:
         if not self.args.simulate_powerfailure and not self.args.run_all:
             return
 
-        vms = get_vms(kit, self.vsphere_client, "/root/")
+        vms = get_vms(kit, self.vsphere_client, "/root/", self.host_configuration)
         self._power_off_vms(vms)
         self._power_on_vms(vms)
         test_vms_up_and_alive(kit, kit.nodes, 30)
@@ -349,18 +371,17 @@ class Runner:
         self._parse_args()
         self._setup_logging()
         self._parse_config()
-        self.vsphere_client = create_client(self.configuration)  # type: VsphereClient
+        self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
 
-        for kit in self.kits:
-            self.controller_node = get_node(kit, "controller")  # type: Node
-            self._setup_controller(kit)
-            self._run_kickstart(kit)
-            self._run_kit(kit)
-            self._run_add_node(kit)
-            self._run_integration(kit)
-            self._simulate_powerfailure(kit)
-            self._run_integration(kit)
-            self._cleanup(kit)
+        self.controller_node = get_node(self.kit, "controller")  # type: Node
+        self._setup_controller(self.kit)
+        self._run_kickstart(self.kit)
+        self._run_kit(self.kit)
+        self._run_add_node(self.kit)
+        self._run_integration(self.kit)
+        self._simulate_powerfailure(self.kit)
+        self._run_integration(self.kit)
+        self._cleanup(self.kit)
 
 
 def main():
