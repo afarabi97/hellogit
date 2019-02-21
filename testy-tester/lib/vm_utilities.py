@@ -300,9 +300,7 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     """
     The VM in question must be powered off before you can change the network port group.
 
-    :param configuration:
-    :param node:
-    :param network_name:
+    :param host_configuration (HostConfiguration): host_configuration object from yaml config
     :param is_vds: set to true by default which means we are using a distributed standard switch, if you mark vds true,
            it will assume a distributed switch.
     :return:
@@ -409,49 +407,49 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     Disconnect(s)
 
 
-def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str, host_configuration: HostConfiguration) -> List[VirtualMachine]:
+def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, host_configuration: HostConfiguration) -> List[VirtualMachine]:
     """
     Destroys and ceates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
     :param nodes (List[Node]): A list of nodes we want to create in vsphere.
     :param client (VsphereClient): a vCenter server client
-    :param iso_folder_path (str): Path to the ISO files folder
+    :param host_configuration (HostConfiguration): host_configuration object from yaml config
     :return (list): A list of all the VM objects created by the method
     """
     vms = []  # type: list
     for node in nodes:
         if node.type != "controller":
             logging.info("Creating VM " + node.hostname + "...")
-            vm_instance = VirtualMachine(client, node, iso_folder_path, host_configuration)
+            vm_instance = VirtualMachine(client, node, host_configuration)
             vm_instance.cleanup()
             vm_instance.create()
             vm_instance.set_node_instance(node)
             vms.append(vm_instance)
     return vms
 
-def destroy_vms(nodes: List[Node], client: VsphereClient, iso_folder_path: str=None) -> None:
+def destroy_vms(nodes: List[Node], client: VsphereClient, host_configuration: HostConfiguration) -> None:
     """
     Destroys the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
     :param nodes (List[Node]): A list of nodes we want to create in vsphere.
     :param client (VsphereClient): a vCenter server client
-    :param iso_folder_path (str): Path to the ISO files folder
+    :param host_configuration (HostConfiguration): host_configuration object from yaml config
     :return:
     """
     
     for node in nodes:        
         logging.info("Cleaning up VM " + node.hostname + "...")
-        vm_instance = VirtualMachine(client, node, iso_folder_path)
+        vm_instance = VirtualMachine(client, node, host_configuration)
         vm_instance.cleanup()
 
 
-def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str, host_configuration: HostConfiguration) -> List[VirtualMachine]:
+def get_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfiguration) -> List[VirtualMachine]:
     """
     Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
 
     :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
     :param client (VsphereClient): a vCenter server client
-    :param iso_folder_path (str): Path to the ISO files folder
+    :param host_configuration (HostConfiguration): host_configuration object from yaml config
     :return (list): A list of all the VM objects created by the method
     """
 
@@ -459,7 +457,7 @@ def get_vms(kit: Kit, client: VsphereClient, iso_folder_path: str, host_configur
     for node in kit.nodes:
         if node.type != "controller":
             logging.info("Getting VM " + node.hostname + "...")
-            vm_instance = VirtualMachine(client, node, iso_folder_path, host_configuration)
+            vm_instance = VirtualMachine(client, node, host_configuration)
             vm_instance.get_node_instance()
             vms.append(vm_instance)
 

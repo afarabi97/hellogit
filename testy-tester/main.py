@@ -121,7 +121,8 @@ class Runner:
                 self.configuration["host_configuration"]["vcenter"]["cluster_name"],
                 self.configuration["host_configuration"]["vcenter"]["datacenter"],
                 self.args.vcenter_username,
-                self.args.vcenter_password)  # type: HostConfiguration
+                self.args.vcenter_password,
+                self.configuration["host_configuration"]["iso_folder_path"])  # type: HostConfiguration
 
                 self.host_configuration.set_storage_options(self.configuration["host_configuration"]["storage"]["datastore"],
                 self.configuration["host_configuration"]["storage"]["folder"])                
@@ -176,7 +177,7 @@ class Runner:
         change_ip_address(self.host_configuration, self.controller_node)
 
         logging.info("Powering the controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/", self.host_configuration)
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         ctrl_vm.power_on()
 
         logging.info("Waiting for controller to become alive...")
@@ -241,7 +242,7 @@ class Runner:
         :return:
         """
         logging.info("Modifying Controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, "/root/", self.host_configuration)
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         try:
             ctrl_vm.power_on()
         except:
@@ -261,7 +262,7 @@ class Runner:
 
         self.power_on_controller()
         logging.info("Creating VMs...")
-        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, None, self.host_configuration)  # , iso_folder_path)  # type: list
+        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)  # , iso_folder_path)  # type: list
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
@@ -284,7 +285,7 @@ class Runner:
             return
 
         self.power_on_controller()
-        vms = get_vms(kit, self.vsphere_client, "/root/", self.host_configuration)
+        vms = get_vms(kit, self.vsphere_client, self.host_configuration)
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
@@ -307,7 +308,7 @@ class Runner:
             logging.info("Add node skipped as there is nothing defined in the configuration file.")
             return
 
-        vms = destroy_and_create_vms(add_nodes, self.vsphere_client, None, self.host_configuration)
+        vms = destroy_and_create_vms(add_nodes, self.vsphere_client, self.host_configuration)
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
@@ -341,7 +342,7 @@ class Runner:
         if not self.args.simulate_powerfailure and not self.args.run_all:
             return
 
-        vms = get_vms(kit, self.vsphere_client, "/root/", self.host_configuration)
+        vms = get_vms(kit, self.vsphere_client, self.host_configuration)
         self._power_off_vms(vms)
         self._power_on_vms(vms)
         test_vms_up_and_alive(kit, kit.nodes, 30)
@@ -359,7 +360,7 @@ class Runner:
             return
 
         logging.info("Deleting VMs....")
-        destroy_vms(kit.get_nodes(), self.vsphere_client) # type: list
+        destroy_vms(kit.get_nodes(), self.vsphere_client, None, self.host_configuration)
 
 
     def execute(self):

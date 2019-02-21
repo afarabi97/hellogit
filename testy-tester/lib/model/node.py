@@ -418,13 +418,13 @@ class VirtualMachine:
         node_instance: The node instance to which this VM is assigned
     """
 
-    def __init__(self, client: VsphereClient, node: Node, iso_folder_path: str, host_configuration: HostConfiguration) -> None:
+    def __init__(self, client: VsphereClient, node: Node, host_configuration: HostConfiguration) -> None:
         """
         Initializes a virtual machine object
 
         :param client: a vCenter server client
         :param node: An instance of a node object
-        :param iso_folder_path: Path to the ISO files folder
+        :param host_configuration (HostConfiguration): host_configuration object from yaml config
         :return:
         """
 
@@ -435,7 +435,7 @@ class VirtualMachine:
         self.host_configuration = host_configuration
 
         if node.iso_file is not None:
-            self.iso_path = str(iso_folder_path) + node.iso_file  # type: str
+            self.iso_path = str(self.host_configuration.iso_folder_path) + node.iso_file  # type: str
         else:
             self.iso_path = None
 

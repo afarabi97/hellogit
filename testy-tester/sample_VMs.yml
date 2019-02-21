@@ -7,6 +7,7 @@ host_configuration:
   storage:    
     datastore: "NVMe Storage"
     folder: # "Testing" # CHANGE ME
+  iso_folder_path: "/root/"
 
 
 kit:
