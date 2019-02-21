@@ -21,27 +21,6 @@
     msg: "Node {{ item.item }} is not in a ready status."
   with_items: "{{ node_results.results }}"
 
-# Check for OutOfDisk Status Condition
-- set_fact:
-    template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"OutOfDisk\") }}{{ .status }}{{end}}{{end}}'"
-
-- name: Get nodes OutOfDisk status
-  shell: |
-    kubectl get node {{ item }} -o go-template --template={{ template }}
-  register: node_results
-  changed_when: node_results.failed
-  with_items:
-  - "{{ groups['master-server'] }}"
-  - "{{ groups['servers'] }}"
-  - "{{ groups['sensors'] }}"
-  - "{{ groups['remote-sensors'] }}"
-
-- name: Test | OutOfDisk status should be False
-  assert:
-    that: "'False' in item.stdout"
-    msg: "Node {{ item.item }} OutOfDisk status is True."
-  with_items: "{{ node_results.results }}"
-
 
 # Check for DiskPressure Status Condition
 - set_fact:
