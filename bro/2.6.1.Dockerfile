@@ -16,13 +16,13 @@ ENV WD /scratch
 
 WORKDIR /scratch
 
-RUN yum update -y 
-RUN yum install -y epel-release 
+RUN yum update -y
+RUN yum install -y epel-release
 RUN yum install -y wget librdkafka-devel kernel-devel git cmake make gcc gcc-c++ flex bison libpcap-devel openssl-devel python-devel swig zlib-devel
 RUN git clone https://github.com/grantcurell/bro-af_packet-plugin.git
 RUN git clone https://github.com/apache/metron-bro-plugin-kafka.git
 ADD ./common/buildbro ${WD}/common/buildbro
-RUN ${WD}/common/buildbro ${VER} http://www.bro.org/downloads/bro-${VER}.tar.gz
+RUN chmod +x ${WD}/common/buildbro && ${WD}/common/buildbro ${VER} http://www.bro.org/downloads/bro-${VER}.tar.gz
 RUN ls -al /usr/src/kernels/ && cd ${WD}/bro-af_packet-plugin && ./configure --bro-dist=/usr/src/bro-${VER} --with-latest-kernel && make && make install
 RUN cd ${WD}/metron-bro-plugin-kafka && ./configure --bro-dist=/usr/src/bro-${VER} && make && make install
 
@@ -31,7 +31,7 @@ RUN cd ${WD}/metron-bro-plugin-kafka && ./configure --bro-dist=/usr/src/bro-${VE
 FROM centos/systemd as geogetter
 RUN yum update -y && yum install -y install wget ca-certificates
 ADD ./common/getmmdb.sh /usr/local/bin/getmmdb.sh
-RUN /usr/local/bin/getmmdb.sh
+RUN chmod +x /usr/local/bin/getmmdb.sh && /usr/local/bin/getmmdb.sh
 
 # Build the final image
 
@@ -40,7 +40,7 @@ ENV VER 2.6.1
 
 #install runtime dependencies
 RUN yum update -y \
-    && yum -y install libpcap openssl-devel libmaxminddb-devel libmaxminddb python2 librdkafka-devel iproute\
+    && yum -y install libpcap openssl-devel libmaxminddb-devel libmaxminddb python2 librdkafka-devel iproute cronie \
     && yum clean all
 
 COPY --from=builder /usr/local/bro-${VER} /usr/local/bro-${VER}
@@ -49,7 +49,7 @@ COPY crontab /etc/crontab
 COPY bro.service /etc/systemd/system
 RUN chmod 0644 /etc/crontab && \
     ln -s /usr/local/bro-${VER} /bro && \
-    systemctl enable bro && \
+    systemctl enable bro crond && \
     mkdir -p /usr/share/bro/site/scripts/plugins
 
 # Start systemd
