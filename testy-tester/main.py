@@ -262,7 +262,7 @@ class Runner:
 
         self.power_on_controller()
         logging.info("Creating VMs...")
-        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)  # , iso_folder_path)  # type: list
+        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)  # type: list
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
@@ -360,7 +360,7 @@ class Runner:
             return
 
         logging.info("Deleting VMs....")
-        destroy_vms(kit.get_nodes(), self.vsphere_client, None, self.host_configuration)
+        destroy_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)
 
 
     def execute(self):
