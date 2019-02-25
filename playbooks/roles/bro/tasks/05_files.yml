@@ -53,6 +53,6 @@
   include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
   with_nested:
     - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
-    - ['deploy.yml', 'kafka.bro', 'networks.cfg', 'node.cfg', 'broctl.cfg']
+    - ['filebeat.yml', 'deploy.yml', 'networks.cfg', 'node.cfg', 'broctl.cfg']
 
 ...

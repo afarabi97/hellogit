@@ -96,7 +96,7 @@
 
 - name: Total the amount of space required by different applications
   set_fact:
-    total_space_required: "{{ (elastic_pv_size * ( groups['elasticsearch'] | length )) + ( kafka_pv_size * ( groups['kafka'] | length )) + ( zookeeper_pv_size * ( hostvars[inventory_hostname].zookeeper_replicas )) + ( moloch_pcap_pv_size * ( groups['moloch'] | length )) }}"
+    total_space_required: "{{ (elastic_pv_size * ( groups['elasticsearch'] | length )) + ( moloch_pcap_pv_size * ( groups['moloch'] | length )) }}"
 
 - name: Verify there is sufficient space for the PVs requested
   fail:

@@ -1,8 +1,53 @@
 {
   "index_patterns": "endgame-*",
+  "settings": {
+    "index": {
+      "mapping": {
+        "total_fields": {
+          "limit": "2000"
+        }
+      },
+      "refresh_interval": "30s",
+      "number_of_shards": "1",
+      "number_of_replicas": "0"
+    }
+  },
   "mappings": {
     "doc": {
       "properties": {
+        "collection_id":{
+          "type":"keyword"
+        },
+        "correlation_id":{
+          "type":"keyword"
+        },
+        "collection_type":{
+          "type":"text",
+          "fields":{
+            "keyword":{
+              "type":"keyword"
+            }
+          }
+        },
+        "endpoint":{
+          "properties":{
+            "ip_address":{
+              "type":"ip"
+            },
+            "updated_at":{
+              "type":"date"
+            }
+          }
+        },
+        "sensor_info": {
+          "dynamic":true,
+          "properties":{
+            "sensor_build_time":{
+              "type":"date",
+              "format": "epoch_second"
+            }
+          }
+        },
         "started": {
           "type": "date",
           "format": "epoch_second"
@@ -52,6 +97,15 @@
               }
             }
           }
+        },
+        "local_address": {
+          "type": "ip"
+        },
+        "remote_address": {
+          "type": "ip"
+        },
+        "ips": {
+          "type": "ip"
         }
       }
     }

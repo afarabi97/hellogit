@@ -40,10 +40,10 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 10
         volumeMounts:
+        - name: filebeat
+          mountPath: /etc/filebeat/filebeat.yml
         - name: broctl
           mountPath: {{ bro_container_path }}/etc/broctl.cfg
-        - name: kafka
-          mountPath: {{ bro_container_path }}/share/bro/site/kafka.bro
         - name: local
           mountPath: {{ bro_container_path }}/share/bro/site/local.bro
         - name: custom
@@ -55,13 +55,13 @@ spec:
         - name: scripts
           mountPath: {{ bro_container_path }}/share/bro/policy/custom-scripts
       volumes:
+      - name: filebeat
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-filebeat.yml
+          type: File
       - name: broctl
         hostPath:
           path: {{ bro_dir }}/{{ hostname }}-broctl.cfg
-          type: File
-      - name: kafka
-        hostPath:
-          path: {{ bro_dir }}/{{ hostname }}-kafka.bro
           type: File
       - name: local
         hostPath:

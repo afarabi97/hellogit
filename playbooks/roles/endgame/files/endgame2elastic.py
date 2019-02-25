@@ -1,15 +1,90 @@
 from __future__ import print_function
 import sys
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import scan
+from elasticsearch.client.ingest import IngestClient
+from elasticsearch.helpers import scan, streaming_bulk
 from elasticsearch.exceptions import NotFoundError
-from kafka import KafkaProducer
 import RestResponse
 import requests
 import json
 import urllib
 import urlparse
 from datetime import datetime, timedelta
+
+pipeline = {
+    "description": "Endgame Pipeline",
+    "processors": [
+      {
+        "date": {
+          "field": "timestamp",
+          "formats": ["ISO8601"]
+        }
+      },
+      {
+        "remove": {
+          "field": "timestamp"
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.local_address == '[::]'",
+          "field": "local_address",
+          "value": "0.0.0.0"
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.local_address == '[::1]'",
+          "field": "local_address",
+          "value": "127.0.0.1"
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.remote_address == '[::]'",
+          "field": "remote_address",
+          "value": "0.0.0.0"
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.remote_address == '[::1]'",
+          "field": "remote_address",
+          "value": "127.0.0.1"
+        }
+      },
+      {
+        "append": {
+          "if": "ctx.local_address != null",
+          "field": "ips",
+          "value": "{{local_address}}",
+          "ignore_failure": True
+        }
+      },
+      {
+        "append": {
+          "if": "ctx.remote_address != null",
+          "field": "ips",
+          "value": "{{remote_address}}",
+          "ignore_failure": True
+        }
+      },
+      {
+        "geoip": {
+          "field": "local_address",
+          "target_field": "local_geo",
+          "ignore_failure": True
+        }
+      },
+      {
+        "geoip": {
+          "field": "remote_address",
+          "target_field": "remote_geo",
+          "ignore_failure": True
+        }
+      }
+    ]
+}
 
 class Endgame:
     def url(self, endpoint):
@@ -100,6 +175,10 @@ class Endgame2Elastic:
                 pass
         raise ValueError('no valid date format found')
 
+    def pushPipeline(self, es):
+        p = IngestClient(es)
+        p.put_pipeline(id='endgame', body=pipeline)
+
     def prepareForDelta(self, es):
         try:
             response = es.get(index='endgame-meta', doc_type='doc', id='last_update') # Raises NotFoundError if index doesn't exist, which we ignore
@@ -132,6 +211,7 @@ class Endgame2Elastic:
 
         collection, next_endpoint = self.api.collection(id, scope, raw)
         hostname = collection.data.endpoint.hostname
+        index = timestamp.strftime("endgame-%y%m%dh%H")
 
         while True:
             results = collection.data.data.results
@@ -142,11 +222,20 @@ class Endgame2Elastic:
                 break
 
             for r in results:
+                # Make our data consistently typed
+                if r.user and not isinstance(r.user, basestring):
+                    r.endgame_user = r.pop('user')
+
                 r.hostname = hostname
                 r.timestamp = timestamp
                 r.collection_type = collectionTypes[typ]['friendly']
                 r.collection_id = id
-                yield r
+                yield {
+                    '_index': index,
+                    '_type': 'doc',
+                    'pipeline': 'endgame',
+                    '_source': r,
+                }
 
             if not next_endpoint:
                 break
@@ -191,11 +280,10 @@ if len(sys.argv) != 5:
     print("usage: endgame2elastic.py elastic_url endgame_url endgame_username endgame_password")
     sys.exit()
 
-kafka = KafkaProducer(bootstrap_servers=['kafka.default.svc.cluster.local:9092'], value_serializer=lambda m: json.dumps(m).encode('ascii'))
 es = Elasticsearch(sys.argv[1])
 eg = Endgame2Elastic(toUrl(sys.argv[2]), sys.argv[3], sys.argv[4])
+eg.pushPipeline(es)
 eg.prepareForDelta(es)
-for r in eg.getCollections():
-    kafka.send('endgame-raw', r)
+for result in streaming_bulk(es, eg.getCollections(), max_retries=2, yield_ok=False):
+    pass
 eg.saveForDelta(es)
-kafka.flush()

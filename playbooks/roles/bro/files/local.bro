@@ -8,6 +8,11 @@
 # Apply the default tuning scripts for common tuning settings.
 @load tuning/defaults
 
+# JSON output
+@load tuning/json-logs
+redef LogAscii::json_timestamps = JSON::TS_ISO8601;
+redef LogAscii::use_json = T;
+
 # Estimate and log capture loss.
 @load misc/capture-loss
 
@@ -100,9 +105,6 @@
 # Uncomment the following line to enable the SMB analyzer.  The analyzer
 # is currently considered a preview and therefore not loaded by default.
 @load base/protocols/smb
-
-# Load the kafka.bro script
-@load kafka
 
 # This line loads the custom bro scripts in the custom.bro file.
 @load custom

@@ -316,17 +316,6 @@
   tags:
     - metricbeat
 
-- name: Deploy Kafka
-  hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - { role: kafka }
-  tags:
-    - kafka
-
 - name: Deploy Bro
   hosts:
     - master-server

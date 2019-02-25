@@ -13,10 +13,6 @@
   command: 'kubectl label nodes {{ ansible_fqdn }} kibana=true --overwrite=true'
   when: inventory_hostname in groups['kibana']
 
-- name: Label with kafka
-  command: 'kubectl label nodes {{ ansible_fqdn }} kafka=true --overwrite=true'
-  when: inventory_hostname in groups['kafka']
-
 - name: Label with bro
   command: 'kubectl label nodes {{ ansible_fqdn }} bro=true --overwrite=true'
   when: inventory_hostname in groups['bro']

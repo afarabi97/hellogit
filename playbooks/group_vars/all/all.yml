@@ -21,17 +21,16 @@ kibana_port: 5601
 # Kibana
 kibana_fqdn: "kibana.{{ fqdn }}"
 
+# Logstash
+logstash_fqdn: "logstash.{{ fqdn }}"
+logstash_port: "5044"
+
 # If you have licensing for x-pack set variable to true.
 xpack_license: 'true'
 
 # Kubernetes
 kubernetes_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ install_dir }}/kubernetes"
-
-# Kafka
-kafka_fqdn: "kafka.{{ fqdn }}"
-kafka_port: 9092
-kafka_retention: 168
 
 # Username and password for Web login
 moloch_login: 'assessor'

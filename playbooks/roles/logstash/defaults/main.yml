@@ -7,6 +7,4 @@ logstash_pv_size: "1"
 logstash_path: "/usr/share/logstash"
 logstash_image: "docker.elastic.co/logstash/logstash"
 
-kafka_url: "kafka"
-kafka_port: "9092"
 elastic_port: "9200"

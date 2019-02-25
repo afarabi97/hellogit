@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["logstash-bro-*", "logstash-ids-*", "logstash-endgame-*"],
+  "index_patterns": ["logstash-bro-*"],
   "version":50001,
   "order" : 0,
   "settings":{
@@ -10,7 +10,7 @@
   },
   "mappings":{
     "doc":{
-       "dynamic": true,
+       "dynamic": false,
        "date_detection": false,
        "properties":{
         "@timestamp":{
@@ -18,91 +18,6 @@
         },
         "@version":{
           "type":"keyword"
-        },
-        "collection_id":{
-          "type":"keyword"
-        },
-        "correlation_id":{
-          "type":"keyword"
-        },
-        "collection_type":{
-          "type":"text",
-          "fields":{
-            "keyword":{
-              "type":"keyword"
-            }
-          }
-        },
-        "endgame_endpoint":{
-          "dynamic":true,
-          "properties":{
-            "ip_address":{
-              "type":"ip"
-            },
-            "updated_at":{
-              "type":"date"
-            }
-          }
-        },
-        "sensor_info": {
-          "dynamic":true,
-          "properties":{
-            "sensor_build_time":{
-              "type":"date",
-              "format": "epoch_second"
-            }
-          }
-        },
-        "started": {
-          "type": "date",
-          "format": "epoch_second"
-        },
-        "connection_timestamp": {
-          "type": "date",
-          "format": "epoch_second"
-        },
-        "create_time": {
-          "type": "date",
-          "format": "epoch_second"
-        },
-        "date_modified": {
-          "type": "date",
-          "format": "epoch_second"
-        },
-        "registry_key_last_modified_time": {
-          "type": "date",
-          "format": "epoch_second"
-        },
-        "install_date": {
-          "type": "date",
-          "format": "basic_date"
-        },
-        "meta_data": {
-          "dynamic":true,
-          "type": "object",
-          "properties": {
-            "file_name_timestamps": {
-              "type": "object",
-              "properties": {
-                "modified": {
-                  "type": "date",
-                  "format": "epoch_second"
-                },
-                "accessed": {
-                  "type": "date",
-                  "format": "epoch_second"
-                },
-                "created": {
-                  "type": "date",
-                  "format": "epoch_second"
-                },
-                "entry_modified": {
-                  "type": "date",
-                  "format": "epoch_second"
-                }
-              }
-            }
-          }
         },
         "geoip":{
           "dynamic":true,

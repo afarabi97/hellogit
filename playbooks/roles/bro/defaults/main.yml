@@ -6,7 +6,7 @@ bro_dir: "{{ install_dir }}/bro"
 num_bro_replicas: "{{ groups['bro'] | length }}"
 
 # This is the path of the Bro installation in the pod
-bro_container_path: "/usr/local/bro-{{ bro_version }}"
+bro_container_path: "/usr/local/bro-{{ bro_version | regex_replace('v.$','') }}"
 
 # This is the directory on the sensors that will be mounted by the Bro pod
 # to add custom scripts.

@@ -21,6 +21,7 @@
   with_items:
     - deploy.yml
     - logstash.yml
+    - svc.yml
 
 - name: Install pipeline templates
   template:
@@ -46,12 +47,15 @@
 
 - name: Flush Deployment
   shell: |
-    kubectl delete -f {{ logstash_dir }}/deploy.yml --ignore-not-found=true
-    while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+    kubectl delete -f {{ logstash_dir }}/{{ item }} --ignore-not-found=true
+    while [ $(kubectl get -f {{ logstash_dir }}/{{ item }} | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
     sleep 5;
+  with_items:
+    - deploy.yml
+    - svc.yml
 
 - name: Create Main ConfigMap
   shell: |
@@ -66,12 +70,15 @@
     kubectl create configmap logstash-pipeline --from-file {{ logstash_dir }}/pipeline --dry-run -o yaml | kubectl replace --force -f -
 
 - name: Deploy Services
-  import_role:
+  include_role:
     name: kubernetes/common
     tasks_from: kube_create
   vars:
     name: "Logstash"
-    file_name: "{{ logstash_dir }}/deploy.yml"
+    file_name: "{{ logstash_dir }}/{{ item }}"
+  with_items:
+    - deploy.yml
+    - svc.yml
 
 - name: Wait for logstash to be ready
   import_role:

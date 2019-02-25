@@ -54,16 +54,6 @@
     msg: "suricata_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: suricata_cpu_request is not defined or suricata_cpu_request is none
 
-- name: Checking that kafka_cpu_request is set
-  fail:
-    msg: "kafka_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: kafka_cpu_request is not defined or kafka_cpu_request is none
-
-- name: Checking that zookeeper_cpu_request is set
-  fail:
-    msg: "zookeeper_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: zookeeper_cpu_request is not defined or zookeeper_cpu_request is none
-
 - name: Checking that logstash_cpu_request is set
   fail:
     msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
@@ -99,35 +89,10 @@
     msg: "elastic_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_pv_size is not defined or elastic_pv_size is none
 
-- name: Checking that kafka_pv_size is set
-  fail:
-    msg: "kafka_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: kafka_pv_size is not defined or kafka_pv_size is none
-
-- name: Checking that zookeeper_pv_size is set
-  fail:
-    msg: "zookeeper_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: zookeeper_pv_size is not defined or zookeeper_pv_size is none
-
-- name: Checking that zookeeper_replicas is set
-  fail:
-    msg: "zookeeper_replicas is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: zookeeper_replicas is not defined or zookeeper_replicas is none
-
 - name: Checking that moloch_pcap_pv_size is set
   fail:
     msg: "moloch_pcap_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_pcap_pv_size is not defined or moloch_pcap_pv_size is none
-
-- name: Checking that zookeeper_mem is set
-  fail:
-    msg: "zookeeper_mem is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: zookeeper_mem is not defined or zookeeper_mem is none
-
-- name: Checking that kakfa_mem is set
-  fail:
-    msg: "kafka_jvm_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: kafka_jvm_memory is not defined or kafka_jvm_memory is none
 
 - name: Checking that sensor_monitor_interface is set
   fail:
