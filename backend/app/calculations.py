@@ -46,13 +46,13 @@ class KitPercentages:
 
     @property
     def log_stash_cpu_perc(self) -> int:
-        ret_val = 5
+        ret_val = 10
         if self._is_override_percentages:
             ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
         return ret_val
     
     def moloch_cpu_perc(self, sensor_index=None) -> int:        
-        ret_val = 19
+        ret_val = 42
         if self._is_override_percentages:
             if sensor_index is None:
                 raise ValueError("sensor_index is a required parameter on overrides.")
@@ -61,7 +61,7 @@ class KitPercentages:
         return ret_val
     
     def bro_cpu_perc(self, sensor_index=None) -> int:        
-        ret_val = 58
+        ret_val = 42
         if self._is_override_percentages:
             if sensor_index is None:
                 raise ValueError("sensor_index is a required parameter on overrides.")
@@ -69,27 +69,12 @@ class KitPercentages:
         return ret_val
     
     def suricata_cpu_perc(self, sensor_index=None) -> int:
-        ret_val = 6
+        ret_val = 16
         if self._is_override_percentages:
             if sensor_index is None:
                 raise ValueError("sensor_index is a required parameter on overrides.")
             ret_val = int(self._kit_form["sensors"][sensor_index]["suricata_cpu_percentage"])
-        return ret_val
-
-    @property
-    def zookeeper_cpu_perc(self) -> int:
-        ret_val = 3
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["zookeeper_cpu_percentage"])
-        return ret_val
-
-    @property
-    def kafka_cpu_perc(self) -> int:
-        ret_val = 13
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["kafka_cpu_percentage"])
-
-        return ret_val
+        return ret_val    
 
     @property
     def elastic_curator_threshold_perc(self) -> int:
@@ -105,39 +90,17 @@ class ServerCalculations:
         self._percentages = KitPercentages(kit_form)
         self._num_servers = len(kit_form["servers"])
         self._num_sensors = len(kit_form["sensors"])
-        self._num_sensors_with_ceph_storage = self._num_sensors_with_ceph(kit_form["sensors"])
         self._server_res_pool = NodeResourcePool(self._kit_form["servers"])
-
-        # TODO self._sensor_res_pool needs to be removed in next iteration of the refactor. 
-        # in fact we should beable to delete it when kafa and zookeeper are no longer supported.
-        self._sensor_res_pool = NodeResourcePool(self._kit_form["sensors"])
-        self._ceph_storage_pool = CephStoragePool(kit_form["servers"] + kit_form["sensors"])
+        self._ceph_storage_pool = CephStoragePool(kit_form["servers"])
         self._log_stash_cpu_request = 0
         self._elastic_cpu_request = 0
-        self._elastic_mem_request = 0        
-
-    #TODO We should consider removing ceh support from censors.
-    def _num_sensors_with_ceph(self, sensors: List[Dict]):
-        count = 0
-        for sensor in sensors:
-            if len(sensor['ceph_drives']) > 0:
-                count += 1            
-        return 0
-
-    #TODO This is a carry over from old math I do not like, this needs to be redesigned in next phase.
-    def _get_lowest_allocatable_cpu(self):
-        if self._server_res_pool.lowest_cpu_allocatable > self._sensor_res_pool.lowest_cpu_allocatable:
-            return self._sensor_res_pool.lowest_cpu_allocatable
-        return self._server_res_pool.lowest_cpu_allocatable
-
-    @property
-    def log_stash_replicas(self) -> int:
-        return 1        
+        self._elastic_mem_request = 0
+        self._log_stash_replicas = 0
 
     @property    
     def log_stash_cpu_request(self) -> int:
         allocatable = self._server_res_pool.pool_cpu_allocatable
-        self._log_stash_cpu_request = cal_percentage_of_total(allocatable, self._percentages.log_stash_cpu_perc) / self._num_servers        
+        self._log_stash_cpu_request = cal_percentage_of_total(allocatable, self._percentages.log_stash_cpu_perc) / self._num_servers
         return int(self._log_stash_cpu_request)
 
     @property
@@ -167,21 +130,11 @@ class ServerCalculations:
 
     @property
     def elastic_total_node_count(self) -> int:
-        return self.elastic_master_node_count + self.elastic_data_node_count
+        return self.elastic_master_node_count + self.elastic_data_node_count    
 
     @property
-    def kafka_cpu_request(self) -> int:
-        lowest_cpus = self._get_lowest_allocatable_cpu()
-        ret_val = cal_percentage_of_total(lowest_cpus, self._percentages.kafka_cpu_perc)
-        return int(ret_val)        
-
-    @property
-    def kafka_jvm_memory(self) -> int:
-        return 1
-
-    @property
-    def kafka_pv_size(self) -> int:
-        return 3
+    def log_stash_replicas(self) -> int:
+        return self._num_servers
 
     @property
     def elastic_memory_request(self) -> int: 
@@ -222,42 +175,11 @@ class ServerCalculations:
         return self._percentages.elastic_curator_threshold_perc
 
     @property
-    def zookeeper_cpu_request(self) -> int:
-        lowest_cpus = self._get_lowest_allocatable_cpu()
-        ret_val = cal_percentage_of_total(lowest_cpus, self._percentages.zookeeper_cpu_perc)
-        return int(ret_val)
-
-    @property
-    def zookeeper_replicas(self) -> int:
-        """
-        :return: int
-        """
-        node_count = self._num_sensors + self._num_servers
-        if node_count <= 2:
-            return 1
-        return 3    
-    
-    @property
-    def zookeeper_jvm_memory(self) -> int:
-        return 1
-
-    @property
-    def zookeeper_pv_size(self) -> int:        
-        return 3   
-
-    @property
     def moloch_ceph_pcap_pv_size(self) -> int:
-        if self._num_sensors_with_ceph_storage == 0:
-            return 0
-
-        ret_val = cal_percentage_of_total(self._ceph_storage_pool.ceph_pool_allocatable, 
-                                          self._percentages.moloch_ceph_storage_perc)
-        ret_val = ret_val / self._num_sensors_with_ceph_storage
-        return convert_KiB_to_GiB(ret_val)
+        return 0
 
     def to_dict(self) -> Dict:
         return {
-            'kafka_cpu_request': self.kafka_cpu_request,
             'log_stash_cpu_request': self.log_stash_cpu_request,
             'elastic_cpu_request': self.elastic_cpu_request,
             'elastic_data_pod_count': self.elastic_data_node_count,
@@ -266,12 +188,6 @@ class ServerCalculations:
             'elastic_pv_size': self.elastic_pv_size,
             'elastic_curator_threshold': self.elastic_curator_threshold,
             'log_stash_replicas': self.log_stash_replicas,
-            'kafka_pv_size': self.kafka_pv_size,
-            'kafka_jvm_memory': self.kafka_jvm_memory,
-            'zookeeper_cpu_request': self.zookeeper_cpu_request,
-            'zookeeper_jvm_memory': self.zookeeper_jvm_memory,
-            'zookeeper_pv_size': self.zookeeper_pv_size,
-            'zookeeper_replicas': self.zookeeper_replicas,
             'moloch_ceph_pcap_pv_size': self.moloch_ceph_pcap_pv_size
         }
 
@@ -290,6 +206,9 @@ class NodeValues:
     @property
     def moloch_cpu_request(self) -> int:
         ret_val = cal_percentage_of_total(self._node_resources.cpu_allocatable, self._percentages.moloch_cpu_perc(self._node_index))
+        #The maximum cap a moloch pod can have is 24 cores.
+        if ret_val > 24000:
+            ret_val = 24000
         return int(ret_val)
 
     @property          

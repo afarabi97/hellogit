@@ -32,26 +32,34 @@ Allocatable: {'cpu': '14800m', 'memory': '15138448Ki', 'pods': '110'}
 class TestKitPercentages(unittest.TestCase):
 
     def setUp(self):
-        kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
-        json_file = Path(SCRIPT_DIR + '/testfiles/kit1.json')
-        kit_form_submission = json.loads(json_file.read_text(), encoding='utf-8')        
+        kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')        
+        kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')        
         self.perc_cal1 = KitPercentages(kit_form_submission["kitForm"])
+
+        kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
+        kit_form_submission = json.loads(kit2.read_text(), encoding='utf-8')        
+        self.perc_cal2 = KitPercentages(kit_form_submission["kitForm"])
 
     def test_percentage_overrides(self):
         """
         Ensures that the percentages passed in through form submission are
         overridden
-        """                    
+        """
         self.assertEqual(87, self.perc_cal1.elastic_cpu_perc)
-        self.assertEqual(15, self.perc_cal1.kafka_cpu_perc)        
         self.assertEqual(79, self.perc_cal1.elastic_ceph_storage_perc)
         self.assertEqual(89, self.perc_cal1.elastic_curator_threshold_perc)
         self.assertEqual(88, self.perc_cal1.elastic_mem_perc)
         self.assertEqual(6, self.perc_cal1.log_stash_cpu_perc)
-        self.assertEqual(4, self.perc_cal1.zookeeper_cpu_perc)
         self.assertEqual(20, self.perc_cal1.moloch_cpu_perc(0))
         self.assertEqual(57, self.perc_cal1.bro_cpu_perc(0))
         self.assertEqual(5, self.perc_cal1.suricata_cpu_perc(0))
+
+    def test_percentage_totals(self):
+        self.assertEqual(42, self.perc_cal2.moloch_cpu_perc())
+        self.assertEqual(42, self.perc_cal2.bro_cpu_perc())
+        self.assertEqual(16, self.perc_cal2.suricata_cpu_perc())
+        total = self.perc_cal2.moloch_cpu_perc() + self.perc_cal2.bro_cpu_perc() + self.perc_cal2.suricata_cpu_perc()
+        self.assertEqual(100, total)
         
 
 class TestNodeResources(unittest.TestCase):
@@ -92,56 +100,56 @@ class TestSensorCalculations(unittest.TestCase):
     def test_bro_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(5950, sensor.bro_cpu_request)
-        self.assertEqual(6, sensor.bro_workers)
+        self.assertEqual(4309, sensor.bro_cpu_request)
+        self.assertEqual(4, sensor.bro_workers)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(15868, sensor.bro_cpu_request)
-        self.assertEqual(16, sensor.bro_workers)
+        self.assertEqual(11491, sensor.bro_cpu_request)
+        self.assertEqual(11, sensor.bro_workers)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(5950, sensor1.bro_cpu_request)
-        self.assertEqual(6, sensor1.bro_workers)
-        self.assertEqual(98518, sensor2.bro_cpu_request)
-        self.assertEqual(99, sensor2.bro_workers)
+        self.assertEqual(4309, sensor1.bro_cpu_request)
+        self.assertEqual(4, sensor1.bro_workers)
+        self.assertEqual(71341, sensor2.bro_cpu_request)
+        self.assertEqual(71, sensor2.bro_workers)
         
     def test_moloch_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(1949, sensor.moloch_cpu_request)
-        self.assertEqual(2, sensor.moloch_threads)
+        self.assertEqual(4309, sensor.moloch_cpu_request)
+        self.assertEqual(4, sensor.moloch_threads)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(5198, sensor.moloch_cpu_request)
-        self.assertEqual(5, sensor.moloch_threads)
+        self.assertEqual(11491, sensor.moloch_cpu_request)
+        self.assertEqual(11, sensor.moloch_threads)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(1949, sensor1.moloch_cpu_request)
-        self.assertEqual(2, sensor1.moloch_threads)
-        self.assertEqual(32273, sensor2.moloch_cpu_request)
+        self.assertEqual(4309, sensor1.moloch_cpu_request)
+        self.assertEqual(4, sensor1.moloch_threads)
+        self.assertEqual(24000, sensor2.moloch_cpu_request)
         #Moloch cant scale past the 24 thread limit.
         self.assertEqual(24, sensor2.moloch_threads)
 
     def test_suricata_cpu_request(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(615, sensor.suricata_cpu_request)        
+        self.assertEqual(1641, sensor.suricata_cpu_request)        
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(1641, sensor.suricata_cpu_request)        
+        self.assertEqual(4377, sensor.suricata_cpu_request)        
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(615, sensor1.suricata_cpu_request)        
-        self.assertEqual(10191, sensor2.suricata_cpu_request)
+        self.assertEqual(1641, sensor1.suricata_cpu_request)        
+        self.assertEqual(27177, sensor2.suricata_cpu_request)
         
 
 class TestCephStoragePool(unittest.TestCase):
@@ -188,13 +196,13 @@ class TestServerCalculations(unittest.TestCase):
 
     def test_elk_calculations(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
-        self.assertEqual(703, self.kit1_cal.log_stash_cpu_request)
+        self.assertEqual(1406, self.kit1_cal.log_stash_cpu_request)
         self.assertEqual(9842, self.kit1_cal.elastic_cpu_request)
 
-    def test_kafka_cpu_request(self):
-        self.assertEqual(1560, self.kit1_cal.kafka_cpu_request)
-        self.assertEqual(3900, self.kit2_cal.kafka_cpu_request)
-        self.assertEqual(1560, self.kit3_cal.kafka_cpu_request)
+    def test_logstash_replicas(self):
+        self.assertEqual(1, self.kit1_cal.log_stash_replicas)
+        self.assertEqual(1, self.kit2_cal.log_stash_replicas)
+        self.assertEqual(2, self.kit3_cal.log_stash_replicas)
 
     def test_elk_node_counts(self):
         self.assertEqual(1, self.kit2_cal.log_stash_replicas)
@@ -236,20 +244,19 @@ class TestServerCalculations(unittest.TestCase):
     def test_elastic_curator_threshold(self):
         self.assertEqual(90, self.kit3_cal.elastic_curator_threshold)
 
-    def test_zookeeper_replicas(self):
-        self.assertEqual(1, self.kit1_cal.zookeeper_replicas)
-        self.assertEqual(1, self.kit2_cal.zookeeper_replicas)
-        self.assertEqual(3, self.kit3_cal.zookeeper_replicas)
-
-    def test_zookeeper_cpu_request(self):
-        self.assertEqual(360, self.kit1_cal.zookeeper_cpu_request)
-
 
 class TestInventoryFileCreation(unittest.TestCase):
 
     def test_inventory_creation(self):
         kit3 = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
+        is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
+        self.assertTrue(is_successful)
+        self.assertIsNotNone(password)
+
+    def test_inventory_creation_remote_sensor(self):
+        kit4 = Path(SCRIPT_DIR + '/testfiles/kit4.json')
+        kit_form_submission = json.loads(kit4.read_text(), encoding='utf-8')
         is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
         self.assertTrue(is_successful)
         self.assertIsNotNone(password)

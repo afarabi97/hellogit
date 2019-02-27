@@ -9,7 +9,7 @@ from shared.connection_mngs import FabricConnectionWrapper
 from shared.constants import PORTAL_ID
 
 
-DEFAULT_NAMES = ("grr-frontend.lan", "kafka-manager.lan", "kibana.lan", "moloch-viewer.lan",
+DEFAULT_NAMES = ("grr-frontend.lan", "kibana.lan", "moloch-viewer.lan",
                  "kubernetes-dashboard.lan", "monitoring-grafana.lan")
 
 DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan")

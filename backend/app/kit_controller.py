@@ -178,7 +178,7 @@ def execute_add_node() -> Response:
         for nodeToAdd in payload['nodesToAdd']:
             cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t preflight-add-node,disable-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap site.yml; "
                             "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t docker -l {node} site.yml; "
-                            "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t pull_join_script,kube-node,ceph,es-scale,kafka-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface site.yml"
+                            "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t pull_join_script,kube-node,ceph,es-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface site.yml"
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
             spawn_job("Add_Node",
                     cmd_to_execute,

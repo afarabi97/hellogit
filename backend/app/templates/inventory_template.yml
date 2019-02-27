@@ -28,9 +28,6 @@ all:
     #############################
     # CPU Allocations           #
     #############################
-        
-    kafka_cpu_request: {{ template_ctx.server_cal.kafka_cpu_request | int }}m
-    zookeeper_cpu_request: {{ template_ctx.server_cal.zookeeper_cpu_request | int }}m
     logstash_cpu_request: {{ template_ctx.server_cal.log_stash_cpu_request | int }}m
     elasticsearch_cpu_request: {{ template_ctx.server_cal.elastic_cpu_request | int }}m
 
@@ -143,35 +140,11 @@ all:
     {% endif %}
 
     #############################
-    # Kafka Settings            #
-    #############################
-
-    # The amount of memory provided to the Kafka JVM. You probably don't need
-    # to change this
-    kafka_jvm_memory: {{ template_ctx.server_cal.kafka_jvm_memory }}
-
-    # The amount of space allocated in GB to each persistent volume for Kafka
-    # You probably don't need to change this
-    kafka_pv_size: {{ template_ctx.server_cal.kafka_pv_size }}
-
-    # The amount of memory provided to the Zookeeper JVM. You probably don't need
-    # to change this
-    zookeeper_mem: {{ template_ctx.server_cal.zookeeper_jvm_memory }}
-
-    # The amount of space allocated in GB to each persistent volume for Zookeeper
-    # You probably don't need to change this
-    zookeeper_pv_size: {{ template_ctx.server_cal.zookeeper_pv_size }}
-
-    # Number of zookeeper replicas to be created. Three should be sufficient for
-    # any setup. These are only used for replication backup
-    zookeeper_replicas: {{ template_ctx.server_cal.zookeeper_replicas }}
-
-    #############################
     # Kubernetes Settings       #
     #############################
 
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
-    # This includes cockpit, Moloch viewer, Kibana, elastichq, kafka-manager, and
+    # This includes cockpit, Moloch viewer, Kibana, elastichq, and
     # the kubernetes dashboard. This range must be at least a /28. Ex: "192.168.1.16/28"
     kubernetes_services_cidr: "{{ template_ctx.kubernetes_services_cidr }}"
 
@@ -222,14 +195,7 @@ all:
     # will decide where to place instances based on resource consumption.
     kibana:
       children:
-        elasticsearch:
-
-    # Any host in this group will run Kafka. By default this is all sensors and
-    # remote sensors
-    kafka:
-      children:
-        sensors:
-        remote-sensors:
+        elasticsearch:    
 
     # Any host in this group will run Bro. By default this is all sensors and remote
     # sensors
@@ -320,7 +286,7 @@ all:
         # If you have a deployment where the majority of the kit is in one location,
         # but some sensors remotely deployed away from the central servers put them
         # in this group. This will remove any clustering dependencies among nodes.
-        # For example: Kafka will not try to cluster with other kafka instances
+        # For example: Moloch will not try to cluster with other moloch instances
         # nearby. If you have no remote sensors, leave the group defined, but
         #everything after the group name empty. Ex: you could have an inventory
         #with just "remote-sensors:", but no hosts defined.
@@ -331,11 +297,11 @@ all:
             {% if sensor.sensor_type == "Remote" %}
             {{ sensor.hostname }}:
               ansible_user: root
-              bro_cpu_request: {{ sensor.bro_cpu_request | int }}m
-              moloch_cpu_request: {{ sensor.moloch_cpu_request | int }}m
-              suricata_cpu_request: {{ sensor.suricata_cpu_request | int }}m
-              bro_workers: {{ sensor.bro_workers }}
-              moloch_threads: {{ sensor.moloch_threads }}
+              bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
+              moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
+              suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
+              bro_workers: {{ sensor.cal.bro_workers }}
+              moloch_threads: {{ sensor.cal.moloch_threads }}
               ceph_drive_list:
               pcap_disk: {{ "/dev/" + sensor.pcap_drives[0] }}
               management_ipv4: "{{ sensor.host_sensor }}"

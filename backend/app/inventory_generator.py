@@ -128,7 +128,6 @@ class KitInventoryGenerator:
         self._set_sensor_calculations()
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
-
         if not os.path.exists("/opt/tfplenum/playbooks/"):
             os.makedirs("/opt/tfplenum/playbooks/")
 

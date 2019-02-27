@@ -30,8 +30,6 @@ export class TotalServerResources extends FormGroup {
         super.addControl('logstash_cpu_percentage', this.logstash_cpu_percentage);
         super.addControl('elastic_storage_percentage', this.elastic_storage_percentage);
         super.addControl('elastic_curator_threshold', this.elastic_curator_threshold);
-        super.addControl('zookeeper_cpu_percentage', this.zookeeper_cpu_percentage);
-        super.addControl('kafka_cpu_percentage', this.kafka_cpu_percentage);        
     }
 
     disable(opts?: {
@@ -43,7 +41,6 @@ export class TotalServerResources extends FormGroup {
         this.logstash_cpu_percentage.disable();
         this.elastic_storage_percentage.disable();
         this.elastic_curator_threshold.disable();
-        this.kafka_cpu_percentage.disable();
     }
 
     private initalize(){
@@ -71,9 +68,7 @@ export class TotalServerResources extends FormGroup {
             'elastic_memory_percentage': this.elastic_memory_percentage.default_value,
             'logstash_cpu_percentage': this.logstash_cpu_percentage.default_value,
             'elastic_storage_percentage': this.elastic_storage_percentage.default_value,
-            'zookeeper_cpu_percentage': this.zookeeper_cpu_percentage.default_value,
             'elastic_curator_threshold': this.elastic_curator_threshold.default_value,
-            'kafka_cpu_percentage': this.kafka_cpu_percentage.default_value
         });
         this.initalize();
     }
@@ -190,7 +185,7 @@ export class TotalServerResources extends FormGroup {
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        '5',
+        '10',
         "The Percentage of the server CPU resources which will be dedicated to logstash. \
         Unlike some of the other calculations, this is a percentage of the total server \
         resources divided by the number of servers.",
@@ -225,32 +220,6 @@ export class TotalServerResources extends FormGroup {
         "The percentage of maximum allocated space for Elasticsearch that can be filled \
         before Curator begins deleting indices. The oldest Moloch, Bro, etc, indices that exceed \
         this threshold will be deleted.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    zookeeper_cpu_percentage = new HtmlInput(
-        'zookeeper_cpu_percentage',
-        'Zookeeper CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '3',
-        "The percentage of the lowest processor in the clustor dedicated to zookeeper.",
-        PERCENT_VALID_FEEDBACK
-    )
-
-    kafka_cpu_percentage = new HtmlInput(
-        'kafka_cpu_percentage',
-        'Kafka CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '13',
-        "The percentage of the lowest processor in the clustor dedicated to Kafka.",
         PERCENT_VALID_FEEDBACK
     )
 }

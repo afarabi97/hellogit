@@ -2,7 +2,7 @@
     "kitForm": {
         "ceph_redundancy": null,
         "dns_ip": null,
-        "enable_percentages": true,
+        "enable_percentages": null,
         "endgame_iporhost": null,
         "endgame_password": null,
         "endgame_username": null,
@@ -67,6 +67,58 @@
                     "sdb"
                 ],
                 "sensor_type": "Local",
+                "suricata_cpu_percentage": "5"
+            },
+            {
+                "bro_cpu_percentage": "57",
+                "ceph_drives": [],
+                "deviceFacts": {
+
+                    "cpus_available": 12,
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 20,
+                            "size_tb": 0.01953125
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 20,
+                            "size_tb": 0.01953125
+                        }
+                    ],
+                    "hostname": "dnav-sensor1.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.196.88",
+                            "mac_address": "00:50:56:86:95:df",
+                            "name": "ens224",
+                            "speed": 10000
+                        },
+                        {
+                            "ip_address": "172.16.77.35",
+                            "mac_address": "00:50:56:86:7c:27",
+                            "name": "ens192",
+                            "speed": 10000
+                        }
+                    ],
+                    "memory_available": 11.57421875,
+                    "potential_monitor_interfaces": [
+                        "ens224"
+                    ]
+                },
+                "host_sensor": "172.16.77.35",
+                "hostname": "dnav-sensor1.lan",
+                "moloch_cpu_percentage": "20",
+                "monitor_interface": [
+                    "ens224"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "sensor_type": "Remote",
                 "suricata_cpu_percentage": "5"
             }
         ],

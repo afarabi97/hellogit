@@ -8,8 +8,7 @@ import { HtmlInput, HtmlCheckBox, HtmlDropDown, HtmlCardSelector, HtmlHidden, Ht
 import { SensorResourcesForm } from '../total-sensor-resources-card/total-sensor-resources-form';
 import { TotalServerResources } from '../total-server-resources-card/total-server-resources-form';
 import {  PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
-    PERCENT_VALID_FEEDBACK, KUBE_CIDR_CONSTRAINT, IP_CONSTRAINT, HOST_CONSTRAINT,
-    CONSTRAINT_MIN_ONE, MIN_ONE_INVALID_FEEDBACK,
+    PERCENT_VALID_FEEDBACK, IP_CONSTRAINT, HOST_CONSTRAINT,
     INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
     TIMEZONES
  } from '../frontend-constants';
@@ -238,7 +237,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        '19',
+        '42',
         "This is the percentage of millicpus that will be allocated to the Moloch pod running on this sensor. \
         On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
         is used for pods.  Of those resources, 5 5% is reserved for system pods.",
@@ -253,7 +252,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        '6',
+        '16',
         "This is the percentage of millicpus that will be allocated to the Suricata pod running on this sensor. \
         On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
         is used for pods.  Of those resources, 5 5% is reserved for system pods.",
@@ -268,7 +267,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        '58',
+        '42',
         "This is the percentage of millicpus that will be allocated to the Bro pod running on this sensor. \
         On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
         is used for pods.  Of those resources, 5 5% is reserved for system pods.",
@@ -570,7 +569,7 @@ export class KitInventoryForm extends FormGroup {
         'Kubernetes Service IP Range Start',
         [],
         "Services_cidr is the range of addresses kubernetes will use for external services \
-        This includes cockpit (a front end for Kubernetes), Moloch viewer, Kibana, elastichq, kafka-manager, and the \
+        This includes cockpit (a front end for Kubernetes), Moloch viewer, Kibana, elastichq, and the \
         kubernetes dashboard. This will use a /28 under the hood. This means it will take \
         whatever IP address you enter and create a range addresses from that IP +16. For example, \
         192.168.1.16 would become a range from 192.168.1.16-31."        
