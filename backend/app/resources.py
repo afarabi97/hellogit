@@ -92,7 +92,11 @@ class NodeResources:
         self.add_reservation(self._kube_reservation)
         
         cpu_reserve = int(cal_percentage_of_total(self._cpu_allocatable, 5))
-        mem_reserve = int(cal_percentage_of_total(self._memory_allocatable, 5))
+        mem_reserve = int(cal_percentage_of_total(self._memory_allocatable, 5)) 
+        
+        # Added to ensure that we have enough CPU and memory for metallb pods and metric beat pods.
+        cpu_reserve += 200
+        mem_reserve += convert_MiB_to_KiB(200)
         self._system_pod_reservation = {'type': 'sys-pod', 'cpu': cpu_reserve, 'memory': mem_reserve}
         self.add_reservation(self._system_pod_reservation)
 

@@ -73,8 +73,8 @@ class TestNodeResources(unittest.TestCase):
         self.assertEqual(12136448.0, node_res._memory_capacity)
         self.assertEqual(12000, node_res._cpu_capacity)
 
-        self.assertEqual(10260, node_res.cpu_allocatable)
-        self.assertEqual(10556826.0, node_res.mem_allocatable)
+        self.assertEqual(10060, node_res.cpu_allocatable)
+        self.assertEqual(10352026.0, node_res.mem_allocatable)
 
 
 class TestSensorCalculations(unittest.TestCase):    
@@ -100,37 +100,37 @@ class TestSensorCalculations(unittest.TestCase):
     def test_bro_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(4309, sensor.bro_cpu_request)
+        self.assertEqual(4225, sensor.bro_cpu_request)
         self.assertEqual(4, sensor.bro_workers)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(11491, sensor.bro_cpu_request)
+        self.assertEqual(11407, sensor.bro_cpu_request)
         self.assertEqual(11, sensor.bro_workers)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(4309, sensor1.bro_cpu_request)
+        self.assertEqual(4225, sensor1.bro_cpu_request)
         self.assertEqual(4, sensor1.bro_workers)
-        self.assertEqual(71341, sensor2.bro_cpu_request)
+        self.assertEqual(71257, sensor2.bro_cpu_request)
         self.assertEqual(71, sensor2.bro_workers)
         
     def test_moloch_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(4309, sensor.moloch_cpu_request)
+        self.assertEqual(4225, sensor.moloch_cpu_request)
         self.assertEqual(4, sensor.moloch_threads)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(11491, sensor.moloch_cpu_request)
+        self.assertEqual(11407, sensor.moloch_cpu_request)
         self.assertEqual(11, sensor.moloch_threads)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(4309, sensor1.moloch_cpu_request)
+        self.assertEqual(4225, sensor1.moloch_cpu_request)
         self.assertEqual(4, sensor1.moloch_threads)
         self.assertEqual(24000, sensor2.moloch_cpu_request)
         #Moloch cant scale past the 24 thread limit.
@@ -139,17 +139,17 @@ class TestSensorCalculations(unittest.TestCase):
     def test_suricata_cpu_request(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(1641, sensor.suricata_cpu_request)        
+        self.assertEqual(1609, sensor.suricata_cpu_request)        
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(4377, sensor.suricata_cpu_request)        
+        self.assertEqual(4345, sensor.suricata_cpu_request)        
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(1641, sensor1.suricata_cpu_request)        
-        self.assertEqual(27177, sensor2.suricata_cpu_request)
+        self.assertEqual(1609, sensor1.suricata_cpu_request)        
+        self.assertEqual(27145, sensor2.suricata_cpu_request)
         
 
 class TestCephStoragePool(unittest.TestCase):
@@ -196,8 +196,8 @@ class TestServerCalculations(unittest.TestCase):
 
     def test_elk_calculations(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
-        self.assertEqual(1406, self.kit1_cal.log_stash_cpu_request)
-        self.assertEqual(9842, self.kit1_cal.elastic_cpu_request)
+        self.assertEqual(1386, self.kit1_cal.log_stash_cpu_request)
+        self.assertEqual(9702, self.kit1_cal.elastic_cpu_request)
 
     def test_logstash_replicas(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)

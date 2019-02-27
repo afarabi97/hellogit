@@ -49,10 +49,10 @@ def change_pod_resources(api_instance: KubernetesWrapper):
 
 def main():
     with KubernetesWrapper() as api_instance:
-        # print_pod_allocations(api_instance)
-        #print_node_capacity(api_instance)
+        print_pod_allocations(api_instance)
+        print_node_capacity(api_instance)
         # change_pod_resources(api_instance)
-        print_pod_resources(api_instance)
+        # print_pod_resources(api_instance)
 
 if __name__ == '__main__':
     main()
