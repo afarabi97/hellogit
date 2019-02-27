@@ -71,33 +71,10 @@
   when: dns_updated_result.changed
   register: network_service_result
 
-- name: check if docker installed
-  stat:
-    path: "/usr/bin/docker"
-  register: docker_stat_result
-
-- name: Stop docker if it is installed
-  service:
-    name: docker
-    state: stopped
-  when: docker_stat_result.stat.exists
-
 - name: check if kubelet installed
   stat:
     path: "/usr/bin/kubelet"
   register: kubelet_stat_result
-
-- name: Delete var/run/docker.sock if network changed
-  file:
-    path: "/var/run/docker.sock"
-    state: absent
-  when: network_service_result.changed and docker_stat_result.stat.exists
-
-- name: Bump docker if network changed
-  service:
-    name: docker
-    state: restarted
-  when: network_service_result.changed and docker_stat_result.stat.exists
 
 - name: Bump kubelet if network changed
   service:
