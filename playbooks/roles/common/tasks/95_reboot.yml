@@ -4,8 +4,7 @@
   async: 0
   poll: 0
   ignore_errors: yes
-  when: (dracut_result is defined and dracut_result.changed) 
-    or (selinux is defined and selinux.changed)
+  when: (dracut_result is defined and dracut_result.changed)
     or (rebuild_grub_result is defined and rebuild_grub_result.changed)
 
 - name: Wait for boot
@@ -15,6 +14,5 @@
     delay: 120
     timeout: 300
   delegate_to: localhost
-  when: (dracut_result is defined and dracut_result.changed) 
-    or (selinux is defined and selinux.changed)
+  when: (dracut_result is defined and dracut_result.changed)
     or (rebuild_grub_result is defined and rebuild_grub_result.changed)

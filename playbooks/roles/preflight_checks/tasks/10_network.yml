@@ -35,7 +35,9 @@
 
 #The below is needed for updating a python module for the cidr verify
 - name: install ipaddress
-  pip: name=ipaddress
+  pip:
+    name: ipaddress
+    state: forcereinstall
 
 #The below code pings every ip in the services cidr ip range to verify that nothing is there.
 #It is a little gross looking as it goes from in line python to bash. But this was the fastest way to ping a /24 or larger (around 3 seconds for a /24)

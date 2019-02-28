@@ -1,5 +1,11 @@
 ---
 
+#  ceph requires rpm python-urllib3 which conflicts with pip version
+- name: remove urllib3
+  pip:
+    name: urllib3
+    state: absent
+
 - name: Install ceph-deploy
   yum:
     name: "ceph-deploy"

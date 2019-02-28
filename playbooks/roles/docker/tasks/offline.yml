@@ -1,5 +1,13 @@
 ---
 
+- name: Install Pip Modules
+  pip:
+    name: "{{ item }}"
+    state: forcereinstall
+  with_items:
+    - "docker-py"
+    - "urllib3"
+
 - name: Stop Kubelet (if it is running)
   service:
     name: kubelet

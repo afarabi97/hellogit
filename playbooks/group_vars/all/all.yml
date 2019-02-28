@@ -43,14 +43,16 @@ suri_rule_dir: /suri-rules
 # Common
 package_list:
   - python-gobject
-  - python-docker-py.noarch
   - nload
   - iperf
-  - python-netaddr
   - openvpn
   - easy-rsa
   - bridge-utils
   - net-tools
+
+pip_installs:
+  - docker-py
+  - netaddr
 
 ansible_controller_hostname: "controller.lan"
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
