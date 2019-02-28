@@ -4,12 +4,12 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
-export class PortalService {
+export class RegistryService {
 
   constructor(private http: HttpClient) { }
 
-  getPortalLinks(){    
-    const url = '/api/get_portal_links';
+  getDockerRegistry(){    
+    const url = '/api/get_docker_registry';
     return this.http.get(url).pipe();
   }
 }

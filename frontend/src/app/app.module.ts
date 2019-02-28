@@ -30,6 +30,7 @@ import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.co
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
+import { RegistryComponent } from './registry/registry.component';
 
 
 @NgModule({
@@ -58,7 +59,8 @@ import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-
     ConfigmapsComponent,
     ConfigmapEditorComponent,
     DatePickerComponent,
-    ModalIpSelectDialogComponent
+    ModalIpSelectDialogComponent,
+    RegistryComponent
   ],
   imports: [
     BrowserModule,

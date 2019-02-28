@@ -81,7 +81,7 @@ function _validateNodes(control: AbstractControl, errors: Array<string>): void {
         let node = nodes.at(i) as NodeFormGroup;
         if (node.node_type.value == node.node_type.options[0]){
             has_servers = true;
-        } else if (node.node_type.value == node.node_type.options[1]){
+        } else {
             has_sensors = true;
         }
         if (has_servers && has_sensors){
