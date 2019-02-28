@@ -14,7 +14,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let repo of registry">
-          <td>{{ repo.name }}</td>
+          <td style="word-break: break-word;">{{ repo.name }}</td>
           <td>
             <p *ngFor="let meta of repo.metadata">
                 {{ meta.tag }}

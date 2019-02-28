@@ -1,5 +1,7 @@
 <app-modal-dialog [modal]="kickStartModal" (primaryButtonClick)="archiveForm($event)"></app-modal-dialog>
 <app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<app-modal-dialog [modal]="continueModal" (primaryButtonClick)="continueAnyways()"></app-modal-dialog>
+
 <app-modal-archive-dialog [modal]="restoreModal" (primaryButtonClick)="restoreForm($event)" config_id="kickstart_form"></app-modal-archive-dialog>
 <app-modal-ip-select-dialog [modal]="ipSelectorModal" (primaryButtonClick)="ipAddressSelected($event)"></app-modal-ip-select-dialog>
 

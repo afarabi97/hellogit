@@ -41,20 +41,20 @@ def generate_kickstart_inventory() -> Response:
     :return:
     """
     payload = request.get_json()
-    invalid_ips = []
-    for node in payload["nodes"]:
-        if not _is_valid_ip(node["ip_address"]):
-            invalid_ips.append(node["ip_address"])
+    if not payload['continue']:
+        invalid_ips = []
+        for node in payload["nodes"]:
+            if not _is_valid_ip(node["ip_address"]):
+                invalid_ips.append(node["ip_address"])
 
-    invalid_ips_len = len(invalid_ips)
-    invalid_ips_len = 0
-    if invalid_ips_len > 0:
-        if invalid_ips_len == 1:
-            return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
-                                         .format(', '.join(invalid_ips)))
-        else:
-            return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
-                                         .format(', '.join(invalid_ips)))
+        invalid_ips_len = len(invalid_ips)
+        if invalid_ips_len > 0:
+            if invalid_ips_len == 1:
+                return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
+                                            .format(', '.join(invalid_ips)))
+            else:
+                return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
+                                            .format(', '.join(invalid_ips)))
 
     #logger.debug(json.dumps(payload, indent=4, sort_keys=True))
     current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})

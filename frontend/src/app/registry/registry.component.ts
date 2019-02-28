@@ -14,7 +14,7 @@ export class RegistryComponent implements OnInit {
               private title: Title) { }
 
   ngOnInit() {
-    this.title.setTitle("Portal");
+    this.title.setTitle("Docker Registry");
     this.registrySrv.getDockerRegistry().subscribe(data => {
       this.registry = data;
     });

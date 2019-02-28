@@ -20,6 +20,7 @@ const NODE_PATTERN = new RegExp('^(server|sensor)[0-9]+[.]lan$');
 export class KickstartFormComponent implements OnInit {
   kickStartModal: HtmlModalPopUp;
   messageModal: HtmlModalPopUp;
+  continueModal: HtmlModalPopUp;
   kickStartForm: KickstartInventoryForm;
   restoreModal: HtmlModalRestoreArchiveDialog;
   ipSelectorModal: HtmlModalIPSelectDialog;  
@@ -36,6 +37,7 @@ export class KickstartFormComponent implements OnInit {
   {
     this.kickStartForm = new KickstartInventoryForm();    
     this.kickStartModal = new HtmlModalPopUp('kickstart_modal');
+    this.continueModal = new HtmlModalPopUp('continue_modal');
     this.messageModal = new HtmlModalPopUp('message_modal');
     this.restoreModal = new HtmlModalRestoreArchiveDialog('restore_modal');
     this.ipSelectorModal = new HtmlModalIPSelectDialog('ip_modal');
@@ -139,17 +141,28 @@ export class KickstartFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.kickStartSrv.generateKickstartInventory(this.kickStartForm.getRawValue())
+    let payload = this.kickStartForm.getRawValue();
+    payload['continue'] = false;
+    this.kickStartSrv.generateKickstartInventory(payload)
       .subscribe(data => {
         if (data !== null && data['error_message']){
-          this.messageModal.updateModal('Error',
-            data['error_message'],
-            undefined,
-            'Close');
-          this.messageModal.openModal();
+          this.continueModal.updateModal('Error',
+            data['error_message'],            
+            'Continue Anyways',
+            'Cancel');
+          this.continueModal.openModal();
         } else{
           this.openConsole();
         }        
+    });
+  }
+
+  continueAnyways(){    
+    let payload = this.kickStartForm.getRawValue();
+    payload['continue'] = true;
+    this.kickStartSrv.generateKickstartInventory(payload)
+      .subscribe(data => {
+        this.openConsole();
     });
   }
 

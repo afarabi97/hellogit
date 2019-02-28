@@ -1,7 +1,7 @@
 import { FormGroup, FormArray, AbstractControl } from '@angular/forms';
 import { ValidateKickStartInventoryForm } from './kickstart-form-validation';
 import { IP_CONSTRAINT, IP_CONSTRAINT_WITH_SUBNET, DESC_ROOT_PASSWORD, INVALID_FEEDBACK_IP } from '../frontend-constants';
-import { HtmlInput, HtmlDropDown, HtmlCardSelector, HtmlTextArea } from '../html-elements';
+import { HtmlInput, HtmlDropDown, HtmlCardSelector, HtmlTextArea, HtmlCheckBox } from '../html-elements';
 
 export class NodeFormGroup extends FormGroup {
   public hidden: boolean;
