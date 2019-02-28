@@ -112,13 +112,18 @@ gpg_keys:
 
 pip_downloads:
   - docker-py
-  - ipaddress
-  - flask
-  - requests
-  - urllib3
-  - junit-xml
   - elasticsearch
+  - flask
+  - ipaddress
+  - junit-xml
+  - netaddr
+  - requests
   - restresponse
+  - urllib3
+
+pip_installs:
+  - "docker-py"
+  - "junit-xml==1.8"
 
 iso_centos_version: 1810
 iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"

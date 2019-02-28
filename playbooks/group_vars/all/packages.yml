@@ -56,9 +56,7 @@ packages:
   - python2-pip
   - python36
   - python36-devel
-  - python-docker-py.noarch
   - python-gobject
-  - python-netaddr
   - rsync
   - sshpass
   - syslinux
