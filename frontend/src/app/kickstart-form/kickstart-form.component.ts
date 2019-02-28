@@ -62,6 +62,7 @@ export class KickstartFormComponent implements OnInit {
         });
       } else if (someFormObject instanceof FormControl){
         someFormObject.setValue(data[key]);
+        someFormObject.markAsDirty();
       } else if (someFormObject instanceof FormGroup){
         this._map_to_form(data[key], someFormObject);
       } else if (someFormObject instanceof HtmlCardSelector){
@@ -228,10 +229,14 @@ export class KickstartFormComponent implements OnInit {
       if (node.hostname.value == "" || isMatch == true) {
         if (isServer) {
           let newHostName: string = "server" + (i + 1) + '.lan';
-          node.hostname.setValue(newHostName);
+          if(!node.hostname.dirty){
+            node.hostname.setValue(newHostName);
+          }
         } else {
           let newHostName: string = "sensor" + (i + 1) + '.lan';
-          node.hostname.setValue(newHostName);
+          if(!node.hostname.dirty){
+            node.hostname.setValue(newHostName);
+          }
         }
       }
     }
