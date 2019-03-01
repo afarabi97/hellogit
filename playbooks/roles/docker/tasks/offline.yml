@@ -2,11 +2,10 @@
 
 - name: Install Pip Modules
   pip:
-    name: "{{ item }}"
+    name:
+      - docker-py
+      - urllib3
     state: forcereinstall
-  with_items:
-    - "docker-py"
-    - "urllib3"
 
 - name: Stop Kubelet (if it is running)
   service:
