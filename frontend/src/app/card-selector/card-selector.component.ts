@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, 
+import { Component, OnInit, Input, Output,
          EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HtmlCardSelector } from '../html-elements';
@@ -19,7 +19,7 @@ export class CardSelectorComponent implements OnInit {
   public controlName: string;
 
   @Input()
-  optionSelections: Array<{ value: string, label: string }>;
+  optionSelections: Array<{ value: string, label: string, isSelected: boolean }>;
 
   @Input()
   public uid: string;
@@ -33,7 +33,7 @@ export class CardSelectorComponent implements OnInit {
   private htmlCardSelectorFormArray: HtmlCardSelector;
 
   constructor() { }
-  
+
   ngOnInit() {
     this.htmlCardSelectorFormArray = this.parentForm.get(this.controlName) as HtmlCardSelector;
     //Fixes a bug when we rerender the same card selector.
@@ -56,7 +56,7 @@ export class CardSelectorComponent implements OnInit {
     }
   }
 
-  private clearSelectedOptionLabels(){    
+  private clearSelectedOptionLabels(){
     for (let i = 0; i < this.optionSelections.length; i++){
       this.optionSelections[i].label = this.optionSelections[i].label.replace(' - selected', '');
     }
@@ -76,7 +76,7 @@ export class CardSelectorComponent implements OnInit {
     }
   }
 
-  selectedButton(event, selection: { value: string, label: string }) {
+  selectedButton(event, selection: { value: string, label: string, isSelected: boolean }) {
     if (!this.htmlCardSelectorFormArray.is_multi_select) {
       this.clearFormArray();
       this.clearSelectedOptionLabels();
@@ -85,18 +85,18 @@ export class CardSelectorComponent implements OnInit {
     if (selection.label.indexOf('selected') > -1){
       selection.label = selection.label.replace(' - selected', '');
     }
-    
     let srcElement = event.srcElement;
     if (srcElement === undefined){
       srcElement = event.target;
     }
 
     if (srcElement.value.indexOf('selected') > -1) {
-      //Only triggered when the selected word is in the value of the srcElement.
-      srcElement.value = selection.label;
+      //Only triggered when the selected word is in the value of the srcElement
+      selection.isSelected = false;
       this.deSelectValue(selection.value);
     } else {
-      srcElement.value = selection.label + ' - selected';
+      selection.label = selection.label + ' - selected';
+      selection.isSelected = true;
       this.set_selectedValue(selection.value);
     }
 

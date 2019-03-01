@@ -1,11 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { KitInventoryForm, ServersFormArray, ServerFormGroup,
-         SensorFormGroup, SensorsFormArray,         
+         SensorFormGroup, SensorsFormArray,
          ExecuteKitForm } from './kit-form';
 import { KickstartService } from '../kickstart.service';
 import { KitService } from '../kit.service';
 import { ArchiveService } from '../archive.service';
-import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType, HtmlCheckBox } from '../html-elements'; 
+import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType, HtmlCheckBox } from '../html-elements';
 import { FormArray, FormGroup, FormControl } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -44,19 +44,19 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   @ViewChild('dateModal')
   dateModal: ModalDialogComponent;
 
-  constructor(private kickStartSrv: KickstartService, 
-              private title: Title, 
-              private router: Router, 
+  constructor(private kickStartSrv: KickstartService,
+              private title: Title,
+              private router: Router,
               private kitSrv: KitService,
               private archiveSrv: ArchiveService) {
     this.kitForm = new KitInventoryForm();
-    this.executeKitForm = new ExecuteKitForm();    
+    this.executeKitForm = new ExecuteKitForm();
     this.servers = this.kitForm.servers;
     this.sensors = this.kitForm.sensors;
     this.isAdvancedOptionsHidden = true;
     this.isPercentagesHidden = true;
     this.kitModal = new HtmlModalPopUp('kit_modal');
-    this.executeKitModal = new HtmlModalPopUp('execute_kit_modal');    
+    this.executeKitModal = new HtmlModalPopUp('execute_kit_modal');
     this.archiveKitModal = new HtmlModalPopUp('archive_modal');
     this.restoreModal = new HtmlModalRestoreArchiveDialog("restore_modal");
 
@@ -118,7 +118,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   ngOnInit() {
     this.title.setTitle("Kit Configuration");
-    this.kitForm.reset();    
+    this.kitForm.reset();
   }
 
   ngAfterViewInit() {
@@ -155,7 +155,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
         this.openKickstartErrorModal();
         return;
       }
-      
+
       for (const node of data["nodes"]) {
         this.appendNode(node);
       }
@@ -176,11 +176,11 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.archiveKitModal.openModal();
   }
 
-  archiveForm(archiveForm: Object): void {    
-    this.archiveSrv.archiveForm(archiveForm, this.kitForm.getRawValue(), KIT_ID).subscribe(data => {});    
-    this.setKubernetesCIDRRange();    
+  archiveForm(archiveForm: Object): void {
+    this.archiveSrv.archiveForm(archiveForm, this.kitForm.getRawValue(), KIT_ID).subscribe(data => {});
+    this.setKubernetesCIDRRange();
   }
-  
+
   openRestoreModal(){
     this.archiveSrv.getArchivedForms(KIT_ID).subscribe(data => {
       this.restoreModal.updateModal('Restore Form',
@@ -192,16 +192,16 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       this.restoreModal.openModal();
     });
   }
-    
+
   restoreForm(formId: string){
     setTimeout(() => {
       this.isAdvancedOptionsHidden = false;
       this.kitForm.enable();
     });
-    
+
     setTimeout(() => {
       this.archiveSrv.restoreArchivedForm(KIT_ID, formId).subscribe(kitData => {
-        this.isPercentagesHidden = !kitData["form"]["enable_percentages"];        
+        this.isPercentagesHidden = !kitData["form"]["enable_percentages"];
         this.kitForm.reset();
         this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
           this.setupForm(kitData['form'], kickstartData, kitData['is_completed_form']);
@@ -229,7 +229,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       with the configuration you created.  All data will be wiped out if you are running this on an existing cluster! \
       Before you can submit your Kit configuration, please make sure you enter the current UTC date and time below.  \
       This will set the nodes in the cluster to the appropriate time before configuring the rest \
-      of the Kit.');      
+      of the Kit.');
   }
 
   openGenKitInventoryModal(){
@@ -251,25 +251,25 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     });
   }
 
-  executeAddNode(){    
+  executeAddNode(){
     const payload = {'kitForm': this.kitForm.getRawValue(), 'nodesToAdd': this.addNodeCache};
     this.kitSrv.executeAddNode(payload)
     .subscribe(data => {
       this.openConsole();
       this.addNodeCache = new Array();
-    });    
+    });
   }
 
   executeKit(){
     if (this.isExecuteKit){
-      this.kitSrv.executeKit(this.kitForm.getRawValue(), 
+      this.kitSrv.executeKit(this.kitForm.getRawValue(),
                              this.executeKitForm.getRawValue())
         .subscribe(data => {
           this.openConsole();
         });
     } else {
       this.generateKitInventory();
-    }    
+    }
   }
 
   openConsole(){
@@ -281,7 +281,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       return;
     }
 
-    if (node["node_type"] === "Server") {
+    if (node["node_type"] === "Server" || node["node_type"] === "Controller") {
       this.kitForm.addServerFormGroup(node["ip_address"], disableIsKubernetesMasterCheckbox);
     } else if (node["node_type"] === "Sensor") {
       this.kitForm.addSensorFormGroup(node["ip_address"], 'Local');
@@ -302,9 +302,9 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       if (avaiable_ip_addrs.length > 0){
         for (let ip of avaiable_ip_addrs) {
           this.kitForm.kubernetes_services_cidr.options.push(ip);
-        } 
-        if (setValue)         
-          this.kitForm.kubernetes_services_cidr.default_value = this.kitForm.kubernetes_services_cidr.options[0];          
+        }
+        if (setValue)
+          this.kitForm.kubernetes_services_cidr.default_value = this.kitForm.kubernetes_services_cidr.options[0];
       } else {
         if (setValue)
           this.kitForm.kubernetes_services_cidr.default_value = ''
@@ -332,7 +332,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     } else {
       this.kitForm.enable();
     }
-    
+
     outer:
     for(const node of kickstartData['nodes']){
 
@@ -347,11 +347,11 @@ export class KitFormComponent implements OnInit, AfterViewInit{
           continue outer;
         }
       }
-      
+
       this.addNodeCache.push(node);
       this.appendNode(node, true);
 
-      //We know here that we are adding nodes because our kickstart configuration is 
+      //We know here that we are adding nodes because our kickstart configuration is
       //different from our kit configuration.
       this.isAddNodeInsteadOfNewKit = true;
     }
@@ -363,12 +363,12 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       if (!kickstartData) {
         this.openKickstartErrorModal();
         return;
-      }      
+      }
 
       this.kitSrv.getKitForm().subscribe(kitData => {
         this.setupForm(kitData, kickstartData)
       });
-    });    
+    });
   }
 
   toggleServer(server: ServerFormGroup) {
@@ -378,9 +378,9 @@ export class KitFormComponent implements OnInit, AfterViewInit{
   toggleSensor(sensor: SensorFormGroup) {
     sensor.hidden = !sensor.hidden;
   }
-  
-  private _gatherFacts(node: ServerFormGroup | SensorFormGroup, 
-                       data: Object, host_key: string) {    
+
+  private _gatherFacts(node: ServerFormGroup | SensorFormGroup,
+                       data: Object, host_key: string) {
     if (data['error_message']) {
       this.kitModal.updateModal('Error',
         data['error_message'],
@@ -391,7 +391,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       //End execution of this if we have errors.
       return;
     }
-    
+
     // Clear resources on every run of gather facts.
     if (node.deviceFacts){
       this.kitForm.system_resources.subtractFromDeviceFacts(node.deviceFacts);
@@ -422,7 +422,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     if (node instanceof ServerFormGroup) {
       this.kitForm.server_resources.setFromDeviceFacts(node.deviceFacts);
     } else if (node instanceof SensorFormGroup) {
-      this.kitForm.sensor_resources.setFromDeviceFacts(node.deviceFacts);      
+      this.kitForm.sensor_resources.setFromDeviceFacts(node.deviceFacts);
     }
   }
 
@@ -441,17 +441,17 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     for (let i = 0; i < this.kitForm.sensors.length; i++){
       let host_key = "host_sensor";
       let node = this.kitForm.sensors.at(i) as SensorFormGroup;
-      this.kickStartSrv.gatherDeviceFacts(node.value[host_key]).subscribe(data => {        
+      this.kickStartSrv.gatherDeviceFacts(node.value[host_key]).subscribe(data => {
         this._gatherFacts(node, data, host_key);
-      });      
+      });
     }
-    
+
     for (let i = 0; i < this.kitForm.servers.length; i++){
       let host_key = "host_server";
       let node = this.kitForm.servers.at(i) as ServerFormGroup;
       this.kickStartSrv.gatherDeviceFacts(node.value[host_key]).subscribe(data => {
         this._gatherFacts(node, data, host_key);
-      });      
+      });
     }
   }
 

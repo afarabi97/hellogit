@@ -10,7 +10,7 @@ import { CardSelectorComponent } from '../card-selector/card-selector.component'
 import { Router } from '@angular/router';
 import { KICKSTART_ID, CTRL_SELECTED } from '../frontend-constants';
 
-const NODE_PATTERN = new RegExp('^(server|sensor)[0-9]+[.]lan$');
+const NODE_PATTERN = new RegExp('^(server|sensor|controller)[0-9]?[.]lan$');
 
 @Component({
   selector: 'app-kickstart-form',
@@ -23,7 +23,7 @@ export class KickstartFormComponent implements OnInit {
   continueModal: HtmlModalPopUp;
   kickStartForm: KickstartInventoryForm;
   restoreModal: HtmlModalRestoreArchiveDialog;
-  ipSelectorModal: HtmlModalIPSelectDialog;  
+  ipSelectorModal: HtmlModalIPSelectDialog;
   deviceFacts: Object;
 
   @ViewChild('cardSelector')
@@ -35,7 +35,7 @@ export class KickstartFormComponent implements OnInit {
               private title: Title,
               private router: Router)
   {
-    this.kickStartForm = new KickstartInventoryForm();    
+    this.kickStartForm = new KickstartInventoryForm();
     this.kickStartModal = new HtmlModalPopUp('kickstart_modal');
     this.continueModal = new HtmlModalPopUp('continue_modal');
     this.messageModal = new HtmlModalPopUp('message_modal');
@@ -55,12 +55,12 @@ export class KickstartFormComponent implements OnInit {
    * @param data - The data to map
    * @param formGroup - The form group we are mapping our data too.
    */
-  private _map_to_form(data: Object, formGroup: FormGroup){    
+  private _map_to_form(data: Object, formGroup: FormGroup){
     for (let key in data){
       let someFormObject = formGroup.get(key);
       if (someFormObject instanceof HtmlDropDown){
         setTimeout(()=> {
-          someFormObject.setValue(data[key]);          
+          someFormObject.setValue(data[key]);
         });
       } else if (someFormObject instanceof FormControl){
         someFormObject.setValue(data[key]);
@@ -100,11 +100,11 @@ export class KickstartFormComponent implements OnInit {
       return;
     }
 
-    if (this.monitorInterfaceSelector == undefined){      
+    if (this.monitorInterfaceSelector == undefined){
       return;
     }
 
-    this._map_to_form(data, this.kickStartForm);    
+    this._map_to_form(data, this.kickStartForm);
     this.kickStartForm.re_password.updateValueAndValidity();
     this.refreshDHCPRange(this.kickStartForm.controller_interface.value, false);
 
@@ -129,7 +129,7 @@ export class KickstartFormComponent implements OnInit {
         this.kickStartForm.setInterfaceSelections(this.deviceFacts);
         this.initalizeForm();
       });
-  }  
+  }
 
   clearForm(): void {
     this.kickStartForm.reset();
@@ -149,17 +149,17 @@ export class KickstartFormComponent implements OnInit {
       .subscribe(data => {
         if (data !== null && data['error_message']){
           this.continueModal.updateModal('Error',
-            data['error_message'],            
+            data['error_message'],
             'Continue Anyways',
             'Cancel');
           this.continueModal.openModal();
         } else{
           this.openConsole();
-        }        
+        }
     });
   }
 
-  continueAnyways(){    
+  continueAnyways(){
     let payload = this.kickStartForm.getRawValue();
     payload['continue'] = true;
     this.kickStartSrv.generateKickstartInventory(payload)
@@ -176,6 +176,7 @@ export class KickstartFormComponent implements OnInit {
   }
 
   refreshDHCPRange(ctrlips: Array<string>, setValue: boolean=true){
+    this.nodeTypeChange();
     if (ctrlips.length === 0){
       this.kickStartForm.dhcpRangeText = CTRL_SELECTED;
     } else {
@@ -194,9 +195,9 @@ export class KickstartFormComponent implements OnInit {
       if (avaiable_ip_addrs.length > 0){
         for (let ip of avaiable_ip_addrs) {
           this.kickStartForm.dhcp_range.options.push(ip);
-        } 
-        if (setValue)         
-          this.kickStartForm.dhcp_range.default_value = this.kickStartForm.dhcp_range.options[0];          
+        }
+        if (setValue)
+          this.kickStartForm.dhcp_range.default_value = this.kickStartForm.dhcp_range.options[0];
       } else {
         if (setValue)
           this.kickStartForm.dhcp_range.default_value = ''
@@ -266,14 +267,14 @@ export class KickstartFormComponent implements OnInit {
     this.kickStartForm.nodes.removeAt(index);
   }
 
-  addNode(){    
+  addNode(){
     this.kickStartForm.addNodeGroup();
     this.nodeTypeChange();
   }
 
   toggleNode(node: NodeFormGroup) {
     node.hidden = !node.hidden;
-  }  
+  }
 
   get nodes() {
     return this.kickStartForm.get('nodes') as FormArray;
@@ -305,10 +306,10 @@ export class KickstartFormComponent implements OnInit {
 
   archiveForm(archiveForm: Object){
     this.archiveSrv.archiveForm(
-      archiveForm, 
+      archiveForm,
       this.kickStartForm.getRawValue(),
       KICKSTART_ID
-    ).subscribe(data => {});
+    ).subscribe(() => { });
   }
 
   restoreForm(formId: string){
@@ -318,25 +319,44 @@ export class KickstartFormComponent implements OnInit {
     });
   }
 
-  private _resetNodes(srvOrSensors: Array<NodeFormGroup>, isServer: boolean) {
+  private _resetNodes(srvOrSensors: Array<NodeFormGroup>, node_type: String) {
     for (let i = 0; i < srvOrSensors.length; i++) {
       let node: NodeFormGroup = srvOrSensors[i];
       let isMatch = NODE_PATTERN.test(node.hostname.value);
-
       if (node.hostname.value == "" || isMatch == true) {
-        if (isServer) {
+        if (node_type === "Server") {
           let newHostName: string = "server" + (i + 1) + '.lan';
           if(!node.hostname.dirty){
             node.hostname.setValue(newHostName);
+            node.enable();
           }
-        } else {
-          let newHostName: string = "sensor" + (i + 1) + '.lan';
+        } else if (node_type === "Sensor"){
           if(!node.hostname.dirty){
+            let newHostName: string = "sensor" + (i + 1) + '.lan';
             node.hostname.setValue(newHostName);
+            node.enable();
           }
+        } else if (node_type === "Controller") {
+          let newHostName: string = this.deviceFacts["hostname"];
+          node.hostname.setValue(newHostName);
+          node.ip_address.setDefaultValue(this.kickStartForm.value.controller_interface[0]);
+          let mac_address = this.findrightmacaddress();
+          node.mac_address.setDefaultValue(mac_address[0]["mac_address"]);
+          node.hostname.disable();
+          node.ip_address.disable();
+          node.pxe_type.disable();
+          node.boot_drive.disable();
+          node.mac_address.disable();
+
         }
       }
     }
+  }
+
+  findrightmacaddress(): string {
+    return this.deviceFacts["interfaces"].filter( i => {
+      return i["ip_address"] === this.kickStartForm.value.controller_interface[0];
+    });
   }
 
   /**
@@ -348,25 +368,27 @@ export class KickstartFormComponent implements OnInit {
   nodeTypeChange(): void {
     let sensorArray:Array<NodeFormGroup> = [];
     let serverArray:Array<NodeFormGroup> = [];
-
+    let controllerArray:Array<NodeFormGroup> = [];
     for (let i = 0; i < this.kickStartForm.nodes.length; i++) {
       let node = this.kickStartForm.nodes.at(i) as NodeFormGroup;
-
-      if (node.node_type.value == "Server"){
+      if (node.node_type.value === "Server"){
         serverArray.push(node);
-      } else if  (node.node_type.value == "Sensor" || node.node_type.value == "Remote Sensor"){
+      } else if  (node.node_type.value === "Sensor" || node.node_type.value === "Remote Sensor"){
         sensorArray.push(node);
+      } else if(node.node_type.value === "Controller") {
+        controllerArray.push(node);
       }
     }
 
-    this._resetNodes(sensorArray, false);
-    this._resetNodes(serverArray, true);
+    this._resetNodes(sensorArray, "Sensor");
+    this._resetNodes(serverArray, "Server");
+    this._resetNodes(controllerArray, "Controller");
   }
 
   openIPSelector(node_index: number){
     let mng_ip: Array<string> = this.kickStartForm.controller_interface.value;
     let netmask: string = this.kickStartForm.netmask.value
-    
+
     if (mng_ip.length === 0){
       this.messageModal.updateModal("ERROR", "Failed to open IP selector because you \
       do not have a controller interface selected.", "Close");

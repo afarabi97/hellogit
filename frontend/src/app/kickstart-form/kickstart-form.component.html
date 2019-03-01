@@ -6,7 +6,7 @@
 <app-modal-ip-select-dialog [modal]="ipSelectorModal" (primaryButtonClick)="ipAddressSelected($event)"></app-modal-ip-select-dialog>
 
 <div class="container" id="topheader">
-  <div id="main_form">    
+  <div id="main_form">
     <form [formGroup]="kickStartForm" (ngSubmit)="onSubmit()">
       <div class="card">
         <div class="card-header">
@@ -22,7 +22,7 @@
             <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
                 <h5>Page Instructions</h5>
                 <p class="card-text">
-                  Fill out the form and click "Add Node" button at the bottom of the page to add Servers and Sensors.  The validation box at the botton 
+                  Fill out the form and click "Add Node" button at the bottom of the page to add Servers and Sensors.  The validation box at the botton
                   of the page will guide you through filling out the form correctly.
                 </p>
                 <p class="card-text">
@@ -63,7 +63,7 @@
           <div class="card-header">
             <h5 class="mb-0">
               <button class="btn btn-link" type="button" (click)="toggleNode(node)">node {{ i + 1 }}</button>
-              <button [disabled]="node.isDisabled" class="btn btn-danger" type="button" 
+              <button [disabled]="node.isDisabled" class="btn btn-danger" type="button"
                       (click)="removeNode(i)" style="float:right;"><i class="icon_close_alt2"></i> Remove</button>
             </h5>
           </div>
@@ -94,7 +94,7 @@
             </div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-primary" type="submit" [disabled]="!kickStartForm.valid" name="execute_kickstart">Execute Kickstart</button>            
+            <button class="btn btn-primary" type="submit" [disabled]="!kickStartForm.valid" name="execute_kickstart">Execute Kickstart</button>
         </div>
       </div>
     </form>

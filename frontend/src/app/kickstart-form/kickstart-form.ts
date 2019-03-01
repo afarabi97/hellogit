@@ -1,7 +1,7 @@
 import { FormGroup, FormArray, AbstractControl } from '@angular/forms';
 import { ValidateKickStartInventoryForm } from './kickstart-form-validation';
 import { IP_CONSTRAINT, IP_CONSTRAINT_WITH_SUBNET, DESC_ROOT_PASSWORD, INVALID_FEEDBACK_IP } from '../frontend-constants';
-import { HtmlInput, HtmlDropDown, HtmlCardSelector, HtmlTextArea, HtmlCheckBox } from '../html-elements';
+import { HtmlInput, HtmlDropDown, HtmlCardSelector, HtmlTextArea } from '../html-elements';
 
 export class NodeFormGroup extends FormGroup {
   public hidden: boolean;
@@ -21,8 +21,8 @@ export class NodeFormGroup extends FormGroup {
 
   /**
    * Overridden method so that this FromGroup is properly disabled.
-   * 
-   * @param opts 
+   *
+   * @param opts
    */
   disable(opts?: {
     onlySelf?: boolean;
@@ -67,7 +67,7 @@ export class NodeFormGroup extends FormGroup {
     'Hostname',
     "Enter a node hostname ending with .lan",
     'text',
-    "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*[.]lan$",
+    "^[a-z]([a-z]|[0-9]|[-])*[.]lan$",
     'Hostnames must be alphanumeric and end with .lan. Special characters are not allowed with the exception of dashes (IE -).',
     true,
     '',
@@ -131,7 +131,7 @@ export class NodeFormGroup extends FormGroup {
   node_type = new HtmlDropDown(
     'node_type',
     'Node Type',
-    ['Server', 'Sensor', 'Remote Sensor'],
+    ['Server', 'Sensor', 'Remote Sensor', 'Controller'],
     "The Node Type referes to whether or not the node is a server, sensor or remote sensor.",
     'Server'
   )
@@ -146,8 +146,8 @@ export class NodesFormArray extends FormArray {
 
 export class KickstartInventoryForm extends FormGroup {
   nodes: NodesFormArray;
-  interfaceSelections: Array<{value: string, label: string}>;
   dhcpRangeText: string;
+  interfaceSelections: Array<{value: string, label: string, isSelected: boolean}>;
 
   constructor() {
     super({}, ValidateKickStartInventoryForm);
@@ -165,7 +165,7 @@ export class KickstartInventoryForm extends FormGroup {
 
   public setInterfaceSelections(deviceFacts: Object){
     for (let item of deviceFacts["interfaces"]){
-      this.interfaceSelections.push({value: item["ip_address"], label: item["name"] + ' - ' + item["ip_address"] });
+      this.interfaceSelections.push({value: item["ip_address"], label: item["name"] + ' - ' + item["ip_address"], isSelected: false });
     }
   }
 
@@ -186,14 +186,14 @@ export class KickstartInventoryForm extends FormGroup {
   reset(value?: any, options?: {
     onlySelf?: boolean;
     emitEvent?: boolean;
-  }): void {    
+  }): void {
     super.reset({'netmask': this.netmask.default_value });
     this.clearNodes();
   }
 
   /**
    * Overridden method
-   * @param opts 
+   * @param opts
    */
   disable(opts?: {
     onlySelf?: boolean;
@@ -205,7 +205,7 @@ export class KickstartInventoryForm extends FormGroup {
     this.root_password.disable();
     this.re_password.disable();
     this.controller_interface.disable();
-    this.nodes.disable();    
+    this.nodes.disable();
   }
 
   dhcp_range = new HtmlDropDown(
@@ -266,12 +266,11 @@ export class KickstartInventoryForm extends FormGroup {
 
   controller_interface = new HtmlCardSelector (
     'controller_interface',
-    "Controller Interface",      
+    "Controller Interface",
     "The interfaces on the controller you would like to use.",
     "Select which interface you would like to use as the controller interface. This will be the interface used for services provided to the kit.",
     "Warning: Interfaces without IP addresses will not be listed!",
-    "No interfaces found! Are you sure you have a second eligible interface that is not the management interface?",
-    false
+    "No interfaces found! Are you sure you have a second eligible interface that is not the management interface?"
   )
 
 }
