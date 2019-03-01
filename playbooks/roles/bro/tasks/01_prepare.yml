@@ -1,0 +1,14 @@
+---
+
+- name: Remove Bro labels
+  command: "kubectl label nodes {{ item }} bro-"
+  loop: "{{ groups['all'] | difference(groups['bro']) }}"
+
+- name: Add Bro labels
+  command: "kubectl label nodes {{ item }} bro=true --overwrite=true"
+  loop: "{{ groups['bro'] }}"
+
+- name: Remove Bro from Kubernetes
+  command: "kubectl delete deployments,pods -l component=bro"
+
+...

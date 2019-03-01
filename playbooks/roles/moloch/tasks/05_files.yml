@@ -1,14 +1,11 @@
 ---
 
-- name: 'Delete existing config directory'
+- name: Delete existing config directory
   file:
     path: "{{ moloch_dir }}"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: "{{ moloch_dir_mode }}"
     state: absent
 
-- name: 'Create directories'
+- name: Create directories
   file:
     path: "{{ moloch_dir }}"
     owner: "{{ moloch_user }}"
@@ -16,22 +13,46 @@
     mode: "{{ moloch_dir_mode }}"
     state: directory
 
-- name: 'Copy Moloch templates'
+- name: Setup bootstrap and viewer deployments
   template:
     src: "templates/{{ item }}.j2"
     dest: "{{ moloch_dir }}/{{ item }}"
-    mode: "{{ moloch_dir_mode }}"
     owner: "{{ moloch_user }}"
     group: "{{ moloch_group }}"
-  with_items:
+    mode: "{{ moloch_dir_mode }}"
+  loop:
     - bootstrap.yml
-    - svc-viewer.yml
-    - deploy-viewer.yml
+    - viewer.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Copy Moloch configuration files
-  include: 25_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
-  with_nested:
-    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
-    - ['config.ini', 'sts.yml']
+- name: Setup capture configs
+  template:
+    src: "templates/config.ini.j2"
+    dest: "{{ moloch_dir }}/config.ini"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  when: inventory_hostname in groups['moloch']
+
+- name: Setup viewer config
+  template:
+    src: "templates/config.ini.j2"
+    dest: "{{ moloch_dir }}/config.ini"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  when: inventory_hostname in groups['master-server'] or inventory_hostname in groups['servers']
+
+- name: Setup deployment configs
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ moloch_dir }}/{{ item }}-deploy.yml"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  vars:
+    hostname: "{{ item }}"
+  loop: "{{ groups['moloch'] }}"
+  when: inventory_hostname in groups['master-server']
 
 ...

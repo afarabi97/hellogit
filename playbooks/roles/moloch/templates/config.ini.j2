@@ -54,7 +54,7 @@ httpRealm = Moloch
 # webBasePath = /moloch/
 
 # Semicolon ';' seperated list of interfaces to listen on for traffic
-interface = {{ hostvars[hostname].sensor_monitor_interface | join(';') }}
+interface = {{ inventory_hostname in groups['moloch'] and (hostvars[inventory_hostname].sensor_monitor_interface | join(';')) or "none" }}
 
 # The bpf filter
 bpf = {{ moloch_bpf }}
@@ -218,7 +218,7 @@ spiDataMaxIndices = {{ moloch_spiDataMaxIndices }}
 #titleTemplate=_cluster_ - _page_ _-view_ _-expression_
 
 # Number of threads processing packets
-packetThreads = {{ hostvars[hostname].moloch_threads }}
+packetThreads = {{ inventory_hostname in groups['moloch'] and hostvars[inventory_hostname].moloch_threads or "2" }}
 
 # ADVANCED - Semicolon ';' seperated list of files to load for config.  Files are loaded
 # in order and can replace values set in this file or previous files.

@@ -1,0 +1,14 @@
+---
+
+- name: Remove Suricata labels
+  command: "kubectl label nodes {{ item }} suricata-"
+  loop: "{{ groups['all'] | difference(groups['suricata']) }}"
+
+- name: Add Suricata labels
+  command: "kubectl label nodes {{ item }} suricata=true --overwrite=true"
+  loop: "{{ groups['suricata'] }}"
+
+- name: Remove Suricata from Kubernetes
+  command: "kubectl delete deployments,jobs,pods -l component=suricata"
+
+...

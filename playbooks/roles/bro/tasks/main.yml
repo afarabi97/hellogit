@@ -1,11 +1,13 @@
 ---
 
-- import_tasks: 05_files.yml
-
-- import_tasks: 15_cleanup.yml
+- include_tasks: 01_prepare.yml
   when: inventory_hostname in groups['master-server']
 
-- import_tasks: 25_install.yml
-  when: inventory_hostname in groups['master-server']
+- block:
+  - include_tasks: 05_files.yml
+
+  - include_tasks: 20_setup.yml
+    when: inventory_hostname in groups['master-server']
+  when: groups['bro'] | length > 0
 
 ...

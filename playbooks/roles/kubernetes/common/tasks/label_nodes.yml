@@ -13,16 +13,4 @@
   command: 'kubectl label nodes {{ ansible_fqdn }} kibana=true --overwrite=true'
   when: inventory_hostname in groups['kibana']
 
-- name: Label with bro
-  command: 'kubectl label nodes {{ ansible_fqdn }} bro=true --overwrite=true'
-  when: inventory_hostname in groups['bro']
-
-- name: Label with moloch
-  command: 'kubectl label nodes {{ ansible_fqdn }} moloch=true --overwrite=true'
-  when: inventory_hostname in groups['moloch']
-
-- name: Label with suricata
-  command: 'kubectl label nodes {{ ansible_fqdn }} suricata=true --overwrite=true'
-  when: inventory_hostname in groups['suricata']
-
 ...

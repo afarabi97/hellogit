@@ -96,7 +96,7 @@ rule-files:
  - emerging-web_specific_apps.rules
  - emerging-worm.rules
  - tor.rules
- - custom/custom.rules # adds custom rules file for operators to use 
+ - custom/custom.rules # adds custom rules file for operators to use
  - decoder-events.rules # available in suricata sources under rules dir
  - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
@@ -548,7 +548,7 @@ logging:
 af-packet:
 
 
-{%- for iface in hostvars[hostname].sensor_monitor_interface %}
+{%- for iface in (hostvars[inventory_hostname].sensor_monitor_interface and hostvars[inventory_hostname].sensor_monitor_interface or []) %}
 
 
   - interface: {{ iface }}
@@ -639,7 +639,7 @@ af-packet:
 pcap:
 
 
-{%- for iface in hostvars[hostname].sensor_monitor_interface %}
+{%- for iface in (hostvars[inventory_hostname].sensor_monitor_interface and hostvars[inventory_hostname].sensor_monitor_interface or []) %}
 
 
   - interface: {{ iface }}

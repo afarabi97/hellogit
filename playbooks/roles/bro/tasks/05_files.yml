@@ -4,55 +4,66 @@
   file:
     path: "{{ bro_dir }}"
     state: absent
-    owner: root
-    group: root
-    mode: u+rw,g+rw
 
-- name: "Create config directory"
+- name: Create directories
   file:
     path: "{{ bro_dir }}/custom"
-    state: directory
     owner: root
     group: root
     mode: u+rw,g+rw
+    state: directory
 
-- name: "Create dummy rule file"
+- name: Create dummy rule file
   file:
     path: "{{ bro_dir }}/custom/__load__.bro"
-    state: touch
     owner: root
     group: root
     mode: u+rw,g+rw
+    state: touch
 
-- name: create bro scripts directory
+- name: Create scripts directory
   file:
     path: "{{ bro_scripts }}"
-    state: directory
     owner: root
     group: root
     mode: 0755
+    state: directory
 
-- name: Copy Custom Bro Scripts to Sensors
+- name: Copy custom scripts to sensors
   copy:
     src: "{{ item }}"
     dest: "{{ bro_scripts }}"
   with_fileglob:
     - "files/scripts/*"
 
-- name: Copy Files
+- name: Copy files
   copy:
-    src: "files/{{ item }}"
-    dest: "{{ bro_dir }}/{{ item }}"
-    group: root
+    src: "files/local.bro"
+    dest: "{{ bro_dir }}/local.bro"
     owner: root
+    group: root
     mode: 0644
-  with_items:
-    - local.bro
 
-- name: Copy bro configuration files
-  include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
-  with_nested:
-    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
-    - ['filebeat.yml', 'deploy.yml', 'networks.cfg', 'node.cfg', 'broctl.cfg']
+- name: Setup configs
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ bro_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop: ['filebeat.yml', 'networks.cfg', 'node.cfg', 'broctl.cfg']
+  when: inventory_hostname in groups['bro']
+
+- name: Setup deployment configs
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ bro_dir }}/{{ item }}-deploy.yml"
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    hostname: "{{ item }}"
+  loop: "{{ groups['bro'] }}"
+  when: inventory_hostname in groups['master-server']
 
 ...

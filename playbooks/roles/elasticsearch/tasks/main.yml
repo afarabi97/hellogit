@@ -76,8 +76,8 @@
 
 - name: Scale up Elasticsearch Statefulset
   shell: |
-    kubectl get sts es-master-statefulset --no-headers=true | awk '{ print $2 }'
-  when: node_to_add is defined 
+    kubectl get sts es-master --no-headers=true | awk '{ print $2 }'
+  when: node_to_add is defined
     and node_to_add in groups['elasticsearch']
   register: current_es_count
   tags:
@@ -95,18 +95,18 @@
 - name: create pvc of new es
   shell: |
     echo '{"kind":"PersistentVolumeClaim","apiVersion":"v1","metadata":{"name":"data-es-data-2"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"6Gi"}},"storageClassName":"rbd"}}' | kubectl create -f -
-  when: node_to_add is defined 
+  when: node_to_add is defined
     and node_to_add in groups['elasticsearch']
     and es_replicas is defined and es_replicas is not none
 
 - name: Scale up Elasticsearch Statefulset
   shell: |
-    kubectl scale statefulset es-master-statefulset --replicas={{ es_replicas }}
-  when: node_to_add is defined 
+    kubectl scale statefulset es-master --replicas={{ es_replicas }}
+  when: node_to_add is defined
     and node_to_add in groups['elasticsearch']
     and es_replicas is defined and es_replicas is not none
   register: es_scale_result
-  changed_when: "es_scale_result.stdout == 'statefulset \"es-master-statefulset\" scaled'"
+  changed_when: "es_scale_result.stdout == 'statefulset \"es-master\" scaled'"
   tags:
     - es-scale
 
@@ -117,15 +117,15 @@
   vars:
     type: "statefulset"
     namespace: "default"
-    resource_name: "es-master-statefulset"
+    resource_name: "es-master"
     label: ""
 
 - name: Update moloch
   shell: |
     kubectl exec -ti moloch-0 -- /data/moloch/db/db.pl {{ elastic_fqdn }}:{{ elastic_data_port }} upgradenoprompt --shards {{ es_replicas }}
-  when: node_to_add is defined 
+  when: node_to_add is defined
     and node_to_add in groups['elasticsearch']
-    and es_scale_result is defined 
+    and es_scale_result is defined
     and es_scale_result.changed
   tags:
     - es-scale

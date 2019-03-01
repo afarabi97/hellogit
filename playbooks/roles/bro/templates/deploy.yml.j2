@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ hostname | hash('md5') }}-bro
+  name: {{ hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-bro
   labels:
     component: bro
 spec:
@@ -57,11 +57,11 @@ spec:
       volumes:
       - name: filebeat
         hostPath:
-          path: {{ bro_dir }}/{{ hostname }}-filebeat.yml
+          path: {{ bro_dir }}/filebeat.yml
           type: File
       - name: broctl
         hostPath:
-          path: {{ bro_dir }}/{{ hostname }}-broctl.cfg
+          path: {{ bro_dir }}/broctl.cfg
           type: File
       - name: local
         hostPath:
@@ -73,11 +73,11 @@ spec:
           type: DirectoryOrCreate
       - name: networks
         hostPath:
-          path: {{ bro_dir }}/{{ hostname }}-networks.cfg
+          path: {{ bro_dir }}/networks.cfg
           type: File
       - name: node
         hostPath:
-          path: {{ bro_dir }}/{{ hostname }}-node.cfg
+          path: {{ bro_dir }}/node.cfg
           type: File
       - name: scripts
         hostPath:

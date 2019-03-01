@@ -12,7 +12,7 @@ host=localhost
 type=proxy
 host=localhost
 
-{%- for iface in hostvars[hostname].sensor_monitor_interface %}
+{%- for iface in hostvars[inventory_hostname].sensor_monitor_interface %}
 
 
 [{{ iface }}]
@@ -20,5 +20,5 @@ type=worker
 host=localhost
 interface=af_packet::{{ iface }}
 lb_method=custom
-lb_procs={{ hostvars[hostname].bro_workers }}
+lb_procs={{ hostvars[inventory_hostname].bro_workers }}
 {% endfor %}

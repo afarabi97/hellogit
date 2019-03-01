@@ -56,13 +56,13 @@ metricbeat:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat
 
 bro:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro
 
 moloch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch
 
 suricata:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
 rulesync:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t rulesync
@@ -71,43 +71,43 @@ janitor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata
 
 logstash-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,bro,moloch,suricata
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,bro,moloch,suricata
 
 metricbeat-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat,bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat,bro,moloch,suricata
 
 bro-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata
 
 suricata-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,rulesync
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass

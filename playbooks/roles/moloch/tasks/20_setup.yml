@@ -1,6 +1,6 @@
 ---
 
-- name: 'Create unclustered pcap directories'
+- name: Create unclustered pcap directories
   file:
     path: "{{ moloch_pcap_folder }}"
     owner: "{{ moloch_user }}"
@@ -10,20 +10,9 @@
   delegate_to: "{{ item }}"
   with_items:
     - "{{ groups['moloch'] }}"
-  when: not use_ceph_for_pcap
+  when: not use_ceph_for_pcap or inventory_hostname in groups['remote-sensors']
 
-- name: 'Create unclustered pcap directories'
-  file:
-    path: "{{ moloch_pcap_folder }}"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: "{{ moloch_dir_mode }}"
-    state: directory
-  delegate_to: "{{ item }}"
-  with_items:
-    - "{{ groups['remote-sensors'] }}"
-
-- name: Run bootstrap pod
+- name: Run bootstrap job
   import_role:
     name: kubernetes/common
     tasks_from: kube_create
@@ -31,47 +20,41 @@
     name: "Moloch Bootstrap"
     file_name: "{{ moloch_dir }}/bootstrap.yml"
 
-- name: Get Bootstrap pod name
-  shell: |
-    while [ "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
-      sleep 1;
-    done;
-    echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
-  register: moloch_bootstrap_pod
+- name: Wait for bootstrap to end
+  shell: "kubectl wait job/moloch-bootstrap --for=condition=complete --timeout=-1s"
 
-- name: Deploy Moloch Viewer and Moloch Viewer Service
+- name: Setup deployment info
+  set_fact:
+    moloch_deployments: "{{ moloch_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-moloch'} ) }}"
+  loop: "{{ groups['moloch'] }}"
+
+- name: Deploy viewer service
   include_role:
     name: kubernetes/common
     tasks_from: kube_create
   vars:
     name: "Moloch"
-    file_name: "{{ moloch_dir }}/{{ item }}"
-  with_items:
-    - svc-viewer.yml
-    - deploy-viewer.yml
+    file_name: "{{ moloch_dir }}/viewer.yml"
 
-- name: Deploy Moloch STS
+- name: Deploy capture services
   include_role:
     name: kubernetes/common
     tasks_from: kube_create
   vars:
-    resource_name: "{{ item | hash('md5') }}-moloch"
-    file_name: "{{ moloch_dir }}/{{ item }}-sts.yml"
-  with_items:
-    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    resource_name: "{{ item.value }}"
+    file_name: "{{ moloch_dir }}/{{ item.key }}-deploy.yml"
+  loop: "{{ moloch_deployments | dict2items }}"
 
 - name: Wait for Moloch to be ready
   include_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:
-    type: "statefulset"
+    type: "deployments"
     namespace: "default"
-    resource_name: "{{ item | hash('md5') }}-moloch"
+    resource_name: "{{ item }}"
     label: ""
-  with_items:
-    - "{{ groups['sensors'] }}"
-    - "{{ groups['remote-sensors'] }}"
+  loop: "{{ moloch_deployments.values() }}"
 
 - name: Wait for Moloch Viewer to be ready (if you get stuck here there's probably something wrong)
   include_role:

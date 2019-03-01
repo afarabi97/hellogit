@@ -1,19 +1,35 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: moloch
+  name: moloch
+spec:
+  ports:
+  - name: "webgui"
+    port: 80
+    targetPort: {{ moloch_port }}
+  selector:
+    app: moloch-viewer
+  type: LoadBalancer
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: moloch-viewer
   labels:
-    component: moloch-viewer
+    component: moloch
 spec:
   replicas: 1
   selector:
-    matchLabels:      
-      component: moloch-viewer
+    matchLabels:
+      app: moloch-viewer
   template:
     metadata:
       labels:
-        component: moloch-viewer
+        component: moloch
+        app: moloch-viewer
     spec:
       containers:
       - name: moloch-viewer
@@ -31,6 +47,6 @@ spec:
       volumes:
       - name: configini
         hostPath:
-          path: {{ moloch_dir }}/{{ groups['moloch'][0] }}-config.ini
+          path: {{ moloch_dir }}/config.ini
       nodeSelector:
         role: server

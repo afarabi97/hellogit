@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ hostname | hash('md5') }}-suricata
+  name: {{ hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
   labels:
     component: suricata
 spec:
@@ -43,11 +43,11 @@ spec:
       volumes:
       - name: filebeat
         hostPath:
-          path: {{ suricata_dir }}/{{ hostname }}-filebeat.yml
+          path: {{ suricata_dir }}/filebeat.yml
           type: File
       - name: suricata
         hostPath:
-          path: {{ suricata_dir }}/{{ hostname }}-suricata.yaml
+          path: {{ suricata_dir }}/suricata.yaml
           type: File
       - name: custom
         hostPath:
@@ -56,21 +56,21 @@ spec:
       nodeSelector:
         suricata: "true"
       affinity:
-        nodeAffinity:
+        nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: suricata
-                operator: In
-                values:
-                - "true"
               - key: kubernetes.io/hostname
                 operator: In
                 values:
                 - "{{ hostname }}"
-              - key: role
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
                 operator: In
                 values:
-                - "sensor"
-                - "remote-sensor"
+                - suricata
+            topologyKey: "kubernetes.io/hostname"
 ...

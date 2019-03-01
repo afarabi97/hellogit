@@ -1,6 +1,0 @@
----
-
-- name: "Clean up kube for deployment "
-  command: "kubectl delete -f {{ moloch_dir }}/{{ hostname }}-{{ filename }} --ignore-not-found"
-
-...

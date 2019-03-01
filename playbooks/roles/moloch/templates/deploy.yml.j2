@@ -1,13 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: {{ hostname | hash('md5') }}-moloch
+  name: {{ hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
   labels:
     component: moloch
 spec:
-  serviceName: moloch
   replicas: 1
-  podManagementPolicy: "Parallel"
   selector:
     matchLabels:
       component: moloch
@@ -47,27 +45,27 @@ spec:
       volumes:
       - name: configini
         hostPath:
-          path: {{ moloch_dir }}/{{ hostname }}-config.ini
+          path: {{ moloch_dir }}/config.ini
           type: File
       - name: data
         hostPath:
           path: /pcap
           type: Directory
       affinity:
-        nodeAffinity:
+        nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: moloch
-                operator: In
-                values:
-                - "true"
               - key: kubernetes.io/hostname
                 operator: In
                 values:
                 - "{{ hostname }}"
-              - key: role
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
                 operator: In
                 values:
-                - "sensor"
-                - "remote-sensor"
+                - moloch
+            topologyKey: "kubernetes.io/hostname"

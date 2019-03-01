@@ -319,8 +319,7 @@
 - name: Deploy Bro
   hosts:
     - master-server
-    - sensors
-    - remote-sensors
+    - bro
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -334,8 +333,7 @@
   hosts:
     - master-server
     - servers
-    - sensors
-    - remote-sensors
+    - moloch
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -348,8 +346,7 @@
 - name: Deploy Suricata
   hosts:
     - master-server
-    - sensors
-    - remote-sensors
+    - suricata
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -369,6 +366,8 @@
     - rulesync
   tags:
     - rulesync
+    - bro
+    - suricata
 
 - name: Enable Endgame script on master server
   hosts: master-server

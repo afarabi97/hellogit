@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: moloch-bootstrap
   labels:
-    jobgroup: moloch
+    component: moloch
 spec:
   template:
     metadata:
@@ -29,7 +29,7 @@ spec:
       volumes:
       - name: configini
         hostPath:
-          path: {{ moloch_dir }}/{{ groups['moloch'][0] }}-config.ini
+          path: {{ moloch_dir }}/config.ini
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -38,6 +38,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - "{{ groups['moloch'][0] }}"
+{% for host in groups['moloch'] %}
+                  - "{{ host }}"
+{% endfor %}
       restartPolicy: Never
-
