@@ -90,24 +90,21 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
     :param branch_name: the name of the branch we want to pull bootstrap from.
     """
     if kit.branch_name == "fork" or kit.branch_name == "custom":
-        deployer_branch = kit.deployer_branch_name
-        repo_dir = "~" + di2e_username
+        deployer_branch = kit.deployer_branch_name        
     else:
         deployer_branch = kit.branch_name
-        repo_dir = "THISISCVAH"
+
+    curl_cmd = "curl -o /root/bootstrap.sh -u {username}:'{password}' " \
+            "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer" \
+            "/raw/bootstrap.sh?at={branch_name}".format(
+                branch_name=deployer_branch,
+                username=di2e_username,
+                password=di2e_password)    
 
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
-        client.run(
-            "curl -o /root/bootstrap.sh -u {username}:'{password}' "
-            "https://bitbucket.di2e.net/projects/{repo_name}/repos/tfplenum-deployer"
-            "/raw/bootstrap.sh?at={branch_name}".format(
-                branch_name=deployer_branch,
-                username=di2e_username,
-                password=di2e_password,
-                repo_name=repo_dir)
-        )
+        client.run(curl_cmd, shell=True)
 
 
 def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit: Kit) -> None:
