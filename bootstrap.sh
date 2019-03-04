@@ -380,13 +380,13 @@ function clone_repos(){
             pushd $directory > /dev/null
             case "$i" in
             "tfplenum" )
-                test_branch_name "$TFPLENUM_BRANCH_NAME" "$i" ;;
+                git checkout "$TFPLENUM_BRANCH_NAME";;
             "tfplenum-deployer" )
-                test_branch_name "$DEPLOYER_BRANCH_NAME" "$i" ;;
+                git checkout "$DEPLOYER_BRANCH_NAME";;
             "tfplenum-integration-testing" )
                 git checkout origin/devel ;;
             "tfplenum-frontend" )
-                test_branch_name "$FRONTEND_BRANCH_NAME" "$i" ;;
+                git checkout "$FRONTEND_BRANCH_NAME";;
             esac
             popd > /dev/null
         fi
