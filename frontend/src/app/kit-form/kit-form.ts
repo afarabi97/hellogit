@@ -569,8 +569,8 @@ export class KitInventoryForm extends FormGroup {
         'Kubernetes Service IP Range Start',
         [],
         "Services_cidr is the range of addresses kubernetes will use for external services \
-        This includes cockpit (a front end for Kubernetes), Moloch viewer, Kibana, elastichq, and the \
-        kubernetes dashboard. This will use a /28 under the hood. This means it will take \
+        This includes Moloch viewer, Kibana, and elastichq. \
+        This will use a /28 under the hood. This means it will take \
         whatever IP address you enter and create a range addresses from that IP +16. For example, \
         192.168.1.16 would become a range from 192.168.1.16-31."        
     )

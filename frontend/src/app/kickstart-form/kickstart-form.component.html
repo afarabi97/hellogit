@@ -37,9 +37,12 @@
             </div>
           </div>
           <br>
-          <h5>DHCP Settings</h5>
-          <app-text-input [parentForm]="kickStartForm" controlName="dhcp_start"></app-text-input>
-          <app-text-input [parentForm]="kickStartForm" controlName="dhcp_end"></app-text-input>
+          <h5>Controller Settings</h5>
+          <br>
+          <div *ngIf="deviceFacts">
+              <app-card-selector #cardSelector [parentForm]="kickStartForm" [optionSelections]="kickStartForm.interfaceSelections"
+                                  controlName="controller_interface" (onSelect)="refreshDHCPRange($event)"></app-card-selector>
+          </div>
           <hr>
           <h5>Static Interface Settings</h5>
           <app-text-input [parentForm]="kickStartForm" controlName="gateway"></app-text-input>
@@ -48,13 +51,10 @@
           <h5>System Settings</h5>
           <app-text-input [parentForm]="kickStartForm" controlName="root_password"></app-text-input>
           <app-text-input [parentForm]="kickStartForm" controlName="re_password"></app-text-input>
-          <hr>
-          <h5>Controller Settings</h5>
-          <br>
-          <div *ngIf="deviceFacts">
-              <app-card-selector #cardSelector [parentForm]="kickStartForm" [optionSelections]="kickStartForm.interfaceSelections"
-                                  controlName="controller_interface"></app-card-selector>
-          </div>
+          <hr>          
+          <h5>DHCP Settings</h5>
+          <app-dropdown [parentForm]="kickStartForm" controlName="dhcp_range" (dropDownChanged)="dhcpInputEvent($event)" uid="dhcp_dropdown"></app-dropdown>
+          <div>{{ kickStartForm.dhcpRangeText }}</div>
         </div>
       </div>
       <br>

@@ -36,12 +36,20 @@ class KickstartInventoryGenerator:
             elif node['pxe_type'] == "DL160":
                 node['pxe_type'] = "UEFI"        
 
+    def _set_dhcp_range(self):
+        self._template_ctx['dhcp_start'] = self._template_ctx['dhcp_range']
+        pos = self._template_ctx['dhcp_range'].rfind('.') + 1
+        last_octet = int(self._template_ctx['dhcp_range'][pos:]) + 15
+        end_ip = self._template_ctx['dhcp_range'][0:pos] + str(last_octet)
+        self._template_ctx['dhcp_end'] = end_ip
+
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
         :return:
         """
         self._map_dl160_and_supermicro()
+        self._set_dhcp_range()
         template = JINJA_ENV.get_template('kickstart_inventory.yml')
         kickstart_template = template.render(template_ctx=self._template_ctx)
 

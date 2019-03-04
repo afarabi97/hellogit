@@ -8,7 +8,7 @@ import { FormArray, FormGroup, FormControl } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { CardSelectorComponent } from '../card-selector/card-selector.component';
 import { Router } from '@angular/router';
-import { KICKSTART_ID } from '../frontend-constants';
+import { KICKSTART_ID, CTRL_SELECTED } from '../frontend-constants';
 
 const NODE_PATTERN = new RegExp('^(server|sensor)[0-9]+[.]lan$');
 
@@ -60,7 +60,7 @@ export class KickstartFormComponent implements OnInit {
       let someFormObject = formGroup.get(key);
       if (someFormObject instanceof HtmlDropDown){
         setTimeout(()=> {
-          someFormObject.setValue(data[key]);
+          someFormObject.setValue(data[key]);          
         });
       } else if (someFormObject instanceof FormControl){
         someFormObject.setValue(data[key]);
@@ -96,7 +96,7 @@ export class KickstartFormComponent implements OnInit {
   }
 
   private setupForm(data: Object, isCompleted: boolean=true){
-    if (data === null || data === undefined){      
+    if (data === null || data === undefined){
       return;
     }
 
@@ -106,6 +106,7 @@ export class KickstartFormComponent implements OnInit {
 
     this._map_to_form(data, this.kickStartForm);    
     this.kickStartForm.re_password.updateValueAndValidity();
+    this.refreshDHCPRange(this.kickStartForm.controller_interface.value, false);
 
     if (isCompleted){
       this.kickStartForm.disable();
@@ -134,6 +135,7 @@ export class KickstartFormComponent implements OnInit {
     this.kickStartForm.reset();
     this.monitorInterfaceSelector.setDefaultValues([]);
     this.kickStartForm.enable();
+    this.refreshDHCPRange(this.kickStartForm.controller_interface.value);
   }
 
   enableForm(): void {
@@ -164,6 +166,88 @@ export class KickstartFormComponent implements OnInit {
       .subscribe(data => {
         this.openConsole();
     });
+  }
+
+  private setGatewayAndNetMask(selectedIP: string){
+    if (selectedIP === this.deviceFacts['default_ipv4_settings']['address']){
+      this.kickStartForm.gateway.setValue(this.deviceFacts['default_ipv4_settings']['gateway']);
+      this.kickStartForm.netmask.setValue(this.deviceFacts['default_ipv4_settings']['netmask']);
+    }
+  }
+
+  refreshDHCPRange(ctrlips: Array<string>, setValue: boolean=true){
+    if (ctrlips.length === 0){
+      this.kickStartForm.dhcpRangeText = CTRL_SELECTED;
+    } else {
+      this.setDHCPRanges(ctrlips[0], setValue);
+      this.setGatewayAndNetMask(ctrlips[0]);
+    }
+  }
+
+  private setDHCPRanges(controller_ip: string, setValue: boolean=true){
+    while (this.kickStartForm.dhcp_range.options.length !== 0){
+      this.kickStartForm.dhcp_range.options.pop();
+    }
+
+    this.kickStartSrv.getAvailableIPBlocks2(controller_ip, this.kickStartForm.netmask.value).subscribe(ipblocks => {
+      let avaiable_ip_addrs = ipblocks as Array<string>;
+      if (avaiable_ip_addrs.length > 0){
+        for (let ip of avaiable_ip_addrs) {
+          this.kickStartForm.dhcp_range.options.push(ip);
+        } 
+        if (setValue)         
+          this.kickStartForm.dhcp_range.default_value = this.kickStartForm.dhcp_range.options[0];          
+      } else {
+        if (setValue)
+          this.kickStartForm.dhcp_range.default_value = ''
+      }
+      if (setValue)
+        this.kickStartForm.dhcp_range.setValue(this.kickStartForm.dhcp_range.default_value);
+      this.dhcpInputEvent(null);
+    });
+  }
+
+  dhcpInputEvent(event: any) {
+    const kubernetes_value = this.kickStartForm.dhcp_range.value;
+    if (kubernetes_value === undefined) {
+      return;
+    }
+
+    const octet_1 = kubernetes_value.split('.')[0] + '.';
+    const octet_2 = kubernetes_value.split('.')[1] + '.';
+    const octet_3 = kubernetes_value.split('.')[2] + '.';
+    let octet_4 = parseInt(kubernetes_value.split('.')[3], 10);
+    let dhcp_range_start = "";
+
+    if (isNaN(octet_4)) {
+      this.kickStartForm.dhcpRangeText = CTRL_SELECTED;
+    } else {
+      while (octet_4 > 0) {
+        // The magic number 16 correlates to a /28. We're basically looking for
+        // the first subnet which matches a /28 and that will end up being the
+        // base address for the range. If the number is evenly divisible by 16
+        // that means we've found the base of the address range and 15 beyond that
+        // is the maximum range.
+        if (octet_4 % 16 === 0) {
+          break;
+        } else {
+          octet_4 -= 1;
+        }
+      }
+      // You can't have an address of 0 so Metallb will actually increment this by
+      // 1 in this case.
+      if (octet_4 === 0) {
+        octet_4 = 1;
+        dhcp_range_start = octet_1 + octet_2 + octet_3 + String(octet_4);
+        this.kickStartForm.dhcpRangeText = "DHCP range will be: "
+          + dhcp_range_start + "-" + String(octet_4 + 14);
+      } else {
+        dhcp_range_start = octet_1 + octet_2 + octet_3 + String(octet_4);
+        this.kickStartForm.dhcpRangeText = "DHCP range will be: "
+          + dhcp_range_start + "-" + String(octet_4 + 15);
+      }
+    }
+
   }
 
   openConsole(){

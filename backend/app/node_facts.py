@@ -6,7 +6,7 @@ data to Node objects.
 """
 import json
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 class Interface(object):
     """
@@ -199,6 +199,7 @@ class Node(object):
         for i in json_object['ansible_facts']['ansible_device_links']['masters']:
             for k in json_object['ansible_facts']['ansible_device_links']['masters'][i]:
                 master_links[k] = i
+
         # Get Interfaces
         interfaces = []
         for i in json_object['ansible_facts']['ansible_interfaces']:
@@ -305,7 +306,7 @@ def ansible_setup(server_ip: str, password: str) -> Dict:
     return json_object
 
 
-def get_system_info(server_ip: str, password: str) -> Node:
+def get_system_info(server_ip: str, password: str) -> Tuple[Node, Dict]:
     """
     Main function to gather system information on server:
 
@@ -314,5 +315,4 @@ def get_system_info(server_ip: str, password: str) -> Node:
     :return: Node object as specified above
     """
     json_object = ansible_setup(server_ip, password)
-
-    return Node(json_object)
+    return Node(json_object), json_object['ansible_facts']['ansible_default_ipv4']

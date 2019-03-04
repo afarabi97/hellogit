@@ -82,6 +82,7 @@ export const TIMEZONES = [
 ];
 
 
-export const KIT_ID = "kit_form"
-export const PORTAL_ID = 'portal_links'
-export const KICKSTART_ID = "kickstart_form"
+export const KIT_ID = "kit_form";
+export const PORTAL_ID = 'portal_links';
+export const KICKSTART_ID = "kickstart_form";
+export const CTRL_SELECTED = "A controller interface must first be selected.";

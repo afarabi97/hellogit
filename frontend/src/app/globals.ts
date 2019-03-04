@@ -1,20 +1,8 @@
-//declare var IS_MATRIX_ON: boolean;
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { HelpPageInterface } from './html-elements';
 import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer} from '@angular/platform-browser';
 import { HttpHeaders } from '@angular/common/http';
-
-declare let window: any;
-window.IS_MATRIX_ON = false;
-
-export function SetISMatrix(newValue: boolean){
-    window.IS_MATRIX_ON = newValue;
-}
-
-export function GetIsMatrix(){
-    return window.IS_MATRIX_ON;
-}
 
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })

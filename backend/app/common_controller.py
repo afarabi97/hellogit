@@ -33,7 +33,7 @@ def gather_device_facts() -> Response:
         else:
             password = ''
 
-        node = get_system_info(management_ip, password)
+        node, default_ipv4 = get_system_info(management_ip, password)
         potential_monitor_interfaces = []
         for interface in node.interfaces:
             if interface.ip_address != management_ip:
@@ -49,6 +49,7 @@ def gather_device_facts() -> Response:
                        memory_available=node.memory_gb,
                        disks= json.dumps([disk. __dict__ for disk in node.disks]),
                        hostname=node.hostname,
+                       default_ipv4_settings=default_ipv4,
                        potential_monitor_interfaces=potential_monitor_interfaces,
                        interfaces=json.dumps([interface. __dict__ for interface in node.interfaces]))
     except Exception as e:
@@ -126,20 +127,14 @@ def _get_ip_blocks(cidr: int) -> List[int]:
     return valid_ip_blocks
 
 
-@app.route('/api/get_available_ip_blocks', methods=['GET'])
-def get_available_ip_blocks() -> Response:
+def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     """
-    Grabs available /28 or 16 host blocks from a /24, /25, /26, or /27 
-    IP subnet range.
+    Get available IP blocks
 
-    :return:    
-    """    
-    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if mongo_document is None:
-        return jsonify([])
-    
-    mng_ip = mongo_document["form"]["controller_interface"][0]
-    cidr = netmask_to_cidr(mongo_document["form"]["netmask"])
+    :param mng_ip: The management IP or controller IP address 
+    :param netmask: The netmask of the controller IP address.
+    """
+    cidr = netmask_to_cidr(netmask)
     if cidr <= 24:
         command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % mng_ip
         cidr = 24
@@ -157,4 +152,28 @@ def get_available_ip_blocks() -> Response:
         if last_octet in ip_address_blocks:
             if _is_valid_ip_block(available_ip_addresses, index):
                 available_ip_blocks.append(ip)
+    return available_ip_blocks
+
+
+@app.route('/api/get_available_ip_blocks', methods=['GET'])
+def get_available_ip_blocks() -> Response:
+    """
+    Grabs available /28 or 16 host blocks from a /24, /25, /26, or /27 
+    IP subnet range.
+
+    :return:    
+    """    
+    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if mongo_document is None:
+        return jsonify([])
+    
+    mng_ip = mongo_document["form"]["controller_interface"][0]
+    netmask = mongo_document["form"]["netmask"]
+    available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
+    return jsonify(available_ip_blocks)
+
+
+@app.route('/api/get_ip_blocks/<controller_ip>/<netmask>', methods=['GET'])
+def get_ip_blocks(controller_ip: str, netmask: str) -> Response:
+    available_ip_blocks = _get_available_ip_blocks(controller_ip, netmask)
     return jsonify(available_ip_blocks)

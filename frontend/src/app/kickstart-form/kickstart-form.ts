@@ -147,20 +147,20 @@ export class NodesFormArray extends FormArray {
 export class KickstartInventoryForm extends FormGroup {
   nodes: NodesFormArray;
   interfaceSelections: Array<{value: string, label: string}>;
+  dhcpRangeText: string;
 
   constructor() {
     super({}, ValidateKickStartInventoryForm);
-    super.addControl('dhcp_start', this.dhcp_start);
-    super.addControl('dhcp_end', this.dhcp_end);
+    super.addControl('dhcp_range', this.dhcp_range);
     super.addControl('gateway', this.gateway);
     super.addControl('netmask', this.netmask);
     super.addControl('root_password', this.root_password);
     super.addControl('re_password', this.re_password);
-    
-    super.addControl('controller_interface', this.controller_interface);    
+    super.addControl('controller_interface', this.controller_interface);
     this.nodes = new NodesFormArray([], true);
     super.addControl('nodes', this.nodes);
     this.interfaceSelections = new Array();
+    this.dhcpRangeText = "";
   }
 
   public setInterfaceSelections(deviceFacts: Object){
@@ -199,8 +199,7 @@ export class KickstartInventoryForm extends FormGroup {
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void{
-    this.dhcp_start.disable();
-    this.dhcp_end.disable();
+    this.dhcp_range.disable();
     this.gateway.disable();
     this.netmask.disable();
     this.root_password.disable();
@@ -208,31 +207,15 @@ export class KickstartInventoryForm extends FormGroup {
     this.controller_interface.disable();
     this.nodes.disable();    
   }
-  
-  dhcp_start = new HtmlInput(
-    'dhcp_start',
-    'DHCP Starting Ip Address',
-    'The beginning of your DHCP start range',
-    'text',
-    IP_CONSTRAINT,
-    INVALID_FEEDBACK_IP,
-    false,
-    "",
-    "This field is used to identify the starting ip address of the dhcp range.  The dhcp range is only used during the network boot process.\
-    The dhcp range should be enough addresses to temporary support all nodes to be network booted at the same time. \
-    Be sure not to use a range will be cause conflicts with existing network devices.")
 
-  dhcp_end = new HtmlInput(
-    'dhcp_end',
-    'DHCP Ending Ip Address',
-    "The end of your DHCP range",
-    'text',
-    IP_CONSTRAINT,
-    INVALID_FEEDBACK_IP,
-    false,
-    "",
-    "This field is used to identify the ending ip address of the dhcp range.  \
-      The dhcp range should be enough addresses to temporary support all nodes to be network booted at the same time.")
+  dhcp_range = new HtmlDropDown(
+    'dhcp_range',
+    'DHCP Range Start',
+    [],
+    "DHCP range is the range of addresses the DHCP server will use for kickstarting \
+    machines on the network. This means it will take whatever IP address you select \
+    and create range addresses from that IP +16. For example, \
+    192.168.1.16 would become a range from 192.168.1.16-31.")
 
   gateway = new HtmlInput(
     'gateway',
