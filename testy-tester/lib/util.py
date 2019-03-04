@@ -102,7 +102,7 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
         client.run(
             "curl -o /root/bootstrap.sh -u {username}:'{password}' "
             "https://bitbucket.di2e.net/projects/{repo_name}/repos/tfplenum-deployer"
-            "/raw/bootstrap.sh?at=refs%2Fheads%2Ffeature/pull_tags".format(
+            "/raw/bootstrap.sh?at=refs%2Fheads%2F{branch_name}".format(
                 branch_name=deployer_branch,
                 username=di2e_username,
                 password=di2e_password,
