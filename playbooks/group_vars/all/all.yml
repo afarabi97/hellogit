@@ -99,11 +99,6 @@ labrepo_gpg_keys:
     gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
     gpgkeyname: "server-4.0.asc"
 
-bootstrap_package_names:
-  - yum-utils
-  - createrepo
-  - bash-completion
-
 gpg_keys:
   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
@@ -124,6 +119,7 @@ pip_downloads:
 pip_installs:
   - "docker-py"
   - "junit-xml==1.8"
+  - "netaddr"
 
 iso_centos_version: 1810
 iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"

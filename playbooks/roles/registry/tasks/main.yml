@@ -47,17 +47,25 @@
   yum:
     name:
       - python-pip
-      - docker
+      - docker-ce
     state: installed
 
 - name: Ensure Pip Version is 8.1.2
   shell: |
     pip install pip==8.1.2
 
-- name: install docker-py pip module
+- name: install pip modules
   pip:
     name: "{{ pip_installs }}"
     state: forcereinstall
+
+- name: Create directory docker directory
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 - name: docker daemon conf
   template:

@@ -18,6 +18,11 @@
     name: "{{ package_list }}"
     state: latest
 
+- name: install pip modules
+  pip:
+    name: "{{ pip_installs }}"
+    state: forcereinstall
+
 - name: Execute clone repo role.
   include_role:
     name: clonerepo
