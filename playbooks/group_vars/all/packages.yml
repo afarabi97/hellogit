@@ -10,6 +10,10 @@ group_packages:
 direct_download_package_names:
   - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
   - 'https://github.com/docker/compose/releases/download/1.21.0/docker-compose-Linux-x86_64'
+  - "ftp://ftp.info-zip.org/pub/infozip/win32/unz552xn.exe"
+  - "https://download.sysinternals.com/files/Sysmon.zip"
+  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-6.6.1-windows-x86_64.zip"
+
 
 packages:
   - "ansible-{{ ansible_ver }}"
