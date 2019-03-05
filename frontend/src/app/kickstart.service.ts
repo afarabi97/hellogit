@@ -76,6 +76,16 @@ export class KickstartService {
       );
   }  
 
+  updateKickstartCtrlIP(ip_address: string): Observable<Object> {
+    const url = `/api/update_kickstart_ctrl_ip/${ip_address}`;
+    return this.http.put(url, null).pipe();
+  }
+
+  archiveConfigurationsAndClear(): Observable<Object> {
+    const url = '/api/archive_configurations_and_clear';
+    return this.http.delete(url).pipe();
+  }  
+
   /**
    * Handle Http operation that failed.
    * Let the app continue.

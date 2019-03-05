@@ -165,7 +165,7 @@ export class HtmlModalPopUp implements HtmlModalPopUpInterface {
   }
 
   openModal() {
-    $("#" + this._id).modal('show');
+    $("#" + this._id).modal({backdrop: 'static'});
   }
 
   hideModal() {

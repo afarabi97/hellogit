@@ -56,6 +56,15 @@ class MongoConnectionManager(object):
         self._tfplenum_database = self._client.tfplenum_database  # type: Database
 
     @property
+    def mongo_client(self) -> MongoClient:
+        """
+        Returns the mongo client.
+
+        :return:
+        """
+        return self._client
+
+    @property
     def mongo_database(self) -> Database:
         """
         Returns the mongo database management object so that we can create dynamic collections.

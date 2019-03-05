@@ -4,10 +4,12 @@ This is the main module for all the shared REST calls
 import json
 
 from app import app, logger, conn_mng
+from app.archive_controller import archive_form
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.job_manager import kill_job_in_queue, shell
 from app.node_facts import get_system_info
-from shared.constants import KICKSTART_ID
+
+from shared.constants import KICKSTART_ID, KIT_ID
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from flask import request, jsonify, Response
 from typing import List
@@ -177,3 +179,23 @@ def get_available_ip_blocks() -> Response:
 def get_ip_blocks(controller_ip: str, netmask: str) -> Response:
     available_ip_blocks = _get_available_ip_blocks(controller_ip, netmask)
     return jsonify(available_ip_blocks)
+
+
+@app.route('/api/archive_configurations_and_clear', methods=['DELETE'])
+def archive_configurations_and_clear() -> Response:
+    """
+    Archives both configurations and then clears them.
+
+    :return
+    """
+    kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if kickstart_config:
+        archive_form(kickstart_config['form'], True, conn_mng.mongo_kickstart_archive)
+        conn_mng.mongo_kickstart.delete_one({"_id": KICKSTART_ID})
+
+    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    if kit_configuration:
+        archive_form(kit_configuration['form'], True, conn_mng.mongo_kit_archive)
+        conn_mng.mongo_kit.delete_one({"_id": KIT_ID})
+
+    return OK_RESPONSE

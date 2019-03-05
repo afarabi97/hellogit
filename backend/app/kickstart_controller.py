@@ -10,9 +10,11 @@ from app.job_manager import spawn_job, shell
 from app.socket_service import log_to_console
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, jsonify, Response
+from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
 from shared.constants import KICKSTART_ID
 from shared.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
+from typing import Dict
 
 
 def _is_valid_ip(ip_address: str) -> bool:
@@ -32,6 +34,23 @@ def _is_valid_ip(ip_address: str) -> bool:
     return False
 
 
+def save_kickstart_to_mongo(kickstart_form: Dict) -> None:
+    """
+    Saves Kickstart to mongo database.
+
+    :param kickstart_form: Dictionary for the Kickstart form
+    """
+    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if current_config:
+        archive_form(current_config['form'], True, conn_mng.mongo_kickstart_archive)
+
+    kickstart_form["re_password"] = encode_password(kickstart_form["re_password"])
+    kickstart_form["root_password"] = encode_password(kickstart_form["root_password"])
+    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                                  {"_id": KICKSTART_ID, "form": kickstart_form},
+                                                  upsert=True)  # type: InsertOneResult
+
+
 @app.route('/api/generate_kickstart_inventory', methods=['POST'])
 def generate_kickstart_inventory() -> Response:
     """
@@ -40,10 +59,10 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    payload = request.get_json()
-    if not payload['continue']:
+    kickstart_form = request.get_json()
+    if not kickstart_form['continue']:
         invalid_ips = []
-        for node in payload["nodes"]:
+        for node in kickstart_form["nodes"]:
             if not _is_valid_ip(node["ip_address"]):
                 invalid_ips.append(node["ip_address"])
 
@@ -56,17 +75,9 @@ def generate_kickstart_inventory() -> Response:
                 return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
                                             .format(', '.join(invalid_ips)))
 
-    #logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_config:
-        archive_form(current_config['form'], True, conn_mng.mongo_kickstart_archive)
-
-    payload["re_password"] = encode_password(payload["re_password"])
-    payload["root_password"] = encode_password(payload["root_password"])
-    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                                  {"_id": KICKSTART_ID, "form": payload},
-                                                  upsert=True)  # type: InsertOneResult
-    kickstart_generator = KickstartInventoryGenerator(payload)
+    #logger.debug(json.dumps(kickstart_form, indent=4, sort_keys=True))
+    save_kickstart_to_mongo(kickstart_form)
+    kickstart_generator = KickstartInventoryGenerator(kickstart_form)
     kickstart_generator.generate()
 
     spawn_job("Kickstart",
@@ -75,6 +86,23 @@ def generate_kickstart_inventory() -> Response:
               log_to_console,
               working_directory="/opt/tfplenum-deployer/playbooks")
     return OK_RESPONSE
+
+
+@app.route('/api/update_kickstart_ctrl_ip/<new_ctrl_ip>', methods=['PUT'])
+def update_kickstart_ctrl_ip(new_ctrl_ip: str) -> Response:
+    """
+    Updates the Kickstart controller IP address in the mongo form.
+
+    :return:
+    """
+    ret_val = conn_mng.mongo_kickstart.find_one_and_update({"_id": KICKSTART_ID}, 
+                                                           {'$set': {'form.controller_interface': [new_ctrl_ip]}}, 
+                                                            return_document=ReturnDocument.AFTER,
+                                                            upsert=False
+                                                          )
+    if ret_val:
+        return jsonify(ret_val["form"])
+    return jsonify(error_message='Failed to update IP {} on Kickstart configuration page.')
 
 
 @app.route('/api/get_kickstart_form', methods=['GET'])

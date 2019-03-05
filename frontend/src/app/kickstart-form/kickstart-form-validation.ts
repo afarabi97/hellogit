@@ -2,7 +2,7 @@ import {  FormArray, AbstractControl } from '@angular/forms';
 import { HtmlInput } from '../html-elements';
 import { INVALID_PASSWORD_MISMATCH, IP_CONSTRAINT } from '../frontend-constants';
 import { NodeFormGroup } from './kickstart-form';
-import { CheckForInvalidControls } from '../globals';
+import { CheckForInvalidControls, isIpv4InSubnet } from '../globals';
 import { KickstartInventoryForm } from './kickstart-form';
 
 function _compare_field(nodes: FormArray, fieldName: string): { hasError: boolean, conflict: string } {
@@ -26,41 +26,13 @@ function _compare_field(nodes: FormArray, fieldName: string): { hasError: boolea
 }
 
 function _validateDhcpRange(control: AbstractControl, errors: Array<string>): void {
-
-    let controller_interface_ctrl = control.get('controller_interface') as FormArray;
-    if (controller_interface_ctrl == null ||
-        controller_interface_ctrl.at(0) == null ||
-        controller_interface_ctrl.at(0).value == null){
+    let dhcp_range_ctrl = control.get('dhcp_range');
+    if (dhcp_range_ctrl === null || dhcp_range_ctrl.value === null) {
         return;
     }
 
-    let controller_interface_ip = controller_interface_ctrl.at(0).value;
-    let dhcp_start_ctrl = control.get('dhcp_start');
-    let dhcp_end_ctrl = control.get('dhcp_end');
-
-    if (dhcp_start_ctrl == null || dhcp_start_ctrl.value == null ||
-        dhcp_end_ctrl == null || dhcp_end_ctrl.value == null){
-        return;
-    }
-
-    let dhcp_start = dhcp_start_ctrl.value.split('.').map(Number);
-    let dhcp_end = dhcp_end_ctrl.value.split('.').map(Number);
-    let controller_ip = controller_interface_ip.split('.').map(Number);
-
-    if (controller_ip[0] == dhcp_start[0] &&
-        controller_ip[1] == dhcp_start[1] &&
-        controller_ip[2] == dhcp_start[2] &&
-        controller_ip[0] == dhcp_end[0] &&
-        controller_ip[1] == dhcp_end[1] &&
-        controller_ip[2] == dhcp_end[2]) {
-        if (controller_ip[3] < dhcp_start[3] || controller_ip[3] > dhcp_end[3]) {
-            return;
-        } else {
-            errors.push("- The selected Controller Interface " + controller_interface_ip + " cannot be within the DHCP range " + dhcp_start_ctrl.value + " - " + dhcp_end_ctrl.value);
-        }
-    }
-    else {
-        errors.push("- DHCP range must be on the same network as the selected Controller Interface " + controller_interface_ip);
+    if(dhcp_range_ctrl.value === "") {
+        errors.push("- DHCP range is invalid. Please select a controller interface and then select a valid start value.");
     }
 }
 
@@ -102,32 +74,6 @@ function _validateContorllerInterface(control: AbstractControl, errors: Array<st
     }
 }
 
-
-var netmask2CIDR = (netmask) => (netmask.split('.').map(Number)
-      .map(part => (part >>> 0).toString(2))
-      .join('')).split('1').length -1;
-
-var CDIR2netmask = (bitCount) => {
-  var mask=[];
-  for(var i=0;i<4;i++) {
-    var n = Math.min(bitCount, 8);
-    mask.push(256 - Math.pow(2, 8-n));
-    bitCount -= n;
-  }
-  return mask.join('.');
-}
-
-const ip4ToInt = ip =>
-  ip.split('.').reduce((int, oct) => (int << 8) + parseInt(oct, 10), 0) >>> 0;
-
-const isIp4InCidr = ip => cidr => {
-  const [range, bits = 32] = cidr.split('/');
-  const mask = ~(2 ** (32 - bits) - 1);
-  return (ip4ToInt(ip) & mask) === (ip4ToInt(range) & mask);
-};
-
-const isIp4InCidrs = (ip, cidrs) => cidrs.some(isIp4InCidr(ip));
-
 function _validateNodeIps(control: AbstractControl, errors: Array<string>): void {
     let nodes = control.get('nodes') as FormArray;
     let form  = control as KickstartInventoryForm;
@@ -136,13 +82,12 @@ function _validateNodeIps(control: AbstractControl, errors: Array<string>): void
         return;
     }
 
-    let maskSize = netmask2CIDR(form.netmask.value);
     let pat = new RegExp(IP_CONSTRAINT);
     for (let i = 0; i < nodes.length; i++){
         let node = nodes.at(i) as NodeFormGroup;
         if (form.controller_interface.value[0] !== undefined &&
             pat.test(node.ip_address.value)){
-            if (! isIp4InCidrs(node.ip_address.value, [form.controller_interface.value[0] + '/' + maskSize]) ){
+            if (! isIpv4InSubnet(node.ip_address.value, form.controller_interface.value[0], form.netmask.value)){
                 errors.push("- The " + node.ip_address.value + " passed in is not in the correct subnet.");
             }
         }

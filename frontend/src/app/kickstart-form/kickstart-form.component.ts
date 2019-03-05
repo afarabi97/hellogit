@@ -9,6 +9,7 @@ import { Title } from '@angular/platform-browser';
 import { CardSelectorComponent } from '../card-selector/card-selector.component';
 import { Router } from '@angular/router';
 import { KICKSTART_ID, CTRL_SELECTED } from '../frontend-constants';
+import { isIpv4InSubnet } from '../globals';
 
 const NODE_PATTERN = new RegExp('^(server|sensor|controller)[0-9]?[.]lan$');
 
@@ -50,6 +51,51 @@ export class KickstartFormComponent implements OnInit {
   }
 
   /**
+   * Opens the IP Change Modal in the event we have a controller IP change detection.
+   * 
+   * @param oldIP - The current configuration IP address.
+   */
+  private openIPChangedModal(oldIP: string){
+    //The kickstartfomr interface selections was refreshed before we 
+    //Map an old form to an exisiting one.
+    let openmodal = true;
+    for (let newip of this.kickStartForm.interfaceSelections){
+      if (oldIP === newip.value){
+        openmodal = false;
+        break;
+      }
+    }
+
+    if (openmodal){
+      let networkIP = this.deviceFacts['default_ipv4_settings']['network'];
+      let netmask = this.deviceFacts['default_ipv4_settings']['netmask'];
+      let newIP = this.deviceFacts['default_ipv4_settings']['address'];
+      if (isIpv4InSubnet(oldIP, networkIP, netmask)){
+        this.kickStartSrv.updateKickstartCtrlIP(newIP).subscribe(data => {
+          if (data !== null && data['error_message']){
+            this.messageModal.updateModal("INFO", "Failed to update IP Address on current Kickstart page.", "Close");
+            this.messageModal.openModal();
+          } else {
+            this.messageModal.updateModal("INFO", "Controller IP change detected! \
+              Since the old controller IP is in the same subnet as the new IP we automatically \
+              changed the Kickstart data so no action is necessary.", "Close");
+              this.messageModal.openModal();
+          }
+        });        
+      } else {
+        this.kickStartSrv.archiveConfigurationsAndClear().subscribe(() => {
+          this.clearForm();
+          this.messageModal.updateModal("INFO", "Controller IP change detected! \
+          Since the old controller IP is not in the same subnet as the new IP we automatically \
+          archived your old Kickstart and Kit configurations.  You will need to setup a new DIP \
+          from scratch on this new IP range.", "Close");
+            this.messageModal.openModal();
+        });
+      }
+    }
+  }
+
+  /**
    * Maps our saved form object to view.
    *
    * @param data - The data to map
@@ -68,10 +114,10 @@ export class KickstartFormComponent implements OnInit {
       } else if (someFormObject instanceof FormGroup){
         this._map_to_form(data[key], someFormObject);
       } else if (someFormObject instanceof HtmlCardSelector){
-        this.monitorInterfaceSelector.setDefaultValues(data[key]);
+        this.monitorInterfaceSelector.setDefaultValues(data[key]);        
+        this.openIPChangedModal(data[key][0]);
       } else if (someFormObject instanceof FormArray && data[key] instanceof Array){
         this._fill_up_array(data[key].length);
-
         for (let index = 0; index < data[key].length; index++){
           let someFormArrayObj = someFormObject.at(index);
           if (someFormArrayObj instanceof FormControl){
@@ -126,6 +172,7 @@ export class KickstartFormComponent implements OnInit {
     this.kickStartSrv.gatherDeviceFacts("localhost")
       .subscribe(data => {
         this.deviceFacts = data;
+        console.log(this.deviceFacts);
         this.kickStartForm.setInterfaceSelections(this.deviceFacts);
         this.initalizeForm();
       });
