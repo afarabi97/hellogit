@@ -11,8 +11,6 @@ host_configuration:
 
 kit:
   kickstart_configuration:
-      dhcp_start: "172.16.82.112"
-      dhcp_end: "172.16.82.117"
       netmask: "255.255.255.0"
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)

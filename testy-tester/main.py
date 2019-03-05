@@ -182,6 +182,10 @@ class Runner:
 
         logging.info("Waiting for controller to become alive...")
         test_vms_up_and_alive(kit, [self.controller_node], 20)
+
+        ctrl_modifier = ControllerModifier(self.controller_node)
+        ctrl_modifier.change_hostname()
+
         self._perform_bootstrap(kit)
 
     def _power_on_vms(self, vms: List[VirtualMachine]):

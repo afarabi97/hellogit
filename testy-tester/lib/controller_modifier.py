@@ -48,10 +48,27 @@ class ControllerModifier:
         self._conn.connection.run(cmd)
         self._conn.connection.run('firewall-cmd --reload')
 
+    @retry()
+    def _set_hostname(self):
+        """
+        Set Controller Hostname Properly        
+        :return:
+        """
+        cmd = "hostnamectl set-hostname {hostname}".format(hostname="controller.lan")
+        self._conn.connection.run(cmd)            
+
+    def change_hostname(self):
+        try: 
+            self._set_hostname()
+        finally:
+            if self._conn:
+                self._conn.close()
+    
+    
     def make_controller_changes(self):
         try:
             self._change_mongo_confg()
-            self._open_port(27017)
+            self._open_port(27017)           
         finally:
             if self._conn:
                 self._conn.close()

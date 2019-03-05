@@ -322,8 +322,6 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     kit = Kit(configuration)  # type: Kit
 
     kickstart_configuration = KickstartConfiguration()
-    kickstart_configuration.set_dhcp_start(configuration["kickstart_configuration"]['dhcp_start'])
-    kickstart_configuration.set_dhcp_end(configuration["kickstart_configuration"]['dhcp_end'])
     kickstart_configuration.set_gateway(configuration["kickstart_configuration"]['gateway'])
     kickstart_configuration.set_netmask(configuration["kickstart_configuration"]['netmask'])
     kit.set_kickstart_configuration(kickstart_configuration)

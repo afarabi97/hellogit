@@ -93,19 +93,6 @@ class KickstartSeleniumRunner(SeleniumRunner):
         """
         super(KickstartSeleniumRunner, self).__init__(is_headless, controller_ip)
 
-    def _run_dhcp_settings_section(self, kickstart_config: KickstartConfiguration) -> None:
-        """
-        Using selenium this method test the elements in the DHCP Settings Section
-
-        :param kickstart_config:
-        :return:
-        """
-        element = self._browser.find_element_by_name("dhcp_start")
-        element.send_keys(kickstart_config.dhcp_start)
-
-        element = self._browser.find_element_by_name("dhcp_end")
-        element.send_keys(kickstart_config.dhcp_end)
-
     def _run_static_interface_settings_section(self, kickstart_config: KickstartConfiguration) -> None:
         """
         Using selenium this method test the elements in the Static Interface Settings Section
@@ -232,8 +219,6 @@ class KickstartSeleniumRunner(SeleniumRunner):
         try:
             # Use selenium with beautiful soup to get the text from each of the examples
             self._browser.get("https://" + self._controller_ip + "/kickstart")
-            # DHCP Settings Section
-            self._run_dhcp_settings_section(kickstart_config)
             # Static Interface Settings Section
             self._run_static_interface_settings_section(kickstart_config)
             # System Settings Section
