@@ -224,10 +224,12 @@ class KickstartSeleniumRunner(SeleniumRunner):
             # System Settings Section
             self._run_system_settings_section(kit.password)
             # Controller Interface Settings Section
+            time.sleep(5)
             controller_node = get_node(kit)
             self._run_controller_interface_settings_section(controller_node)
             # Add Node Section
             self._run_add_node_section(nodes)
+            time.sleep(5)
             self._execute_kickstart()
             wait_for_mongo_job("Kickstart", self._controller_ip, 30)
         finally:
