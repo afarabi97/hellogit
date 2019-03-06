@@ -83,15 +83,15 @@ spec:
           path: {{ bro_scripts }}
           type: DirectoryOrCreate
       affinity:
-        nodeAffinity:
+        nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: bro
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - "true"
-        podAntiAffinity:
+                - "{{ hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
