@@ -4,14 +4,14 @@
   uri:
     url: "{{ elastic_uri }}/_cluster/health"
   register: elasticsearch_health_result
-  until: elasticsearch_health_result.json.status == 'green'
+  until: elasticsearch_health_result.json.status != 'red'
   retries: 10
   delay: 5
   ignore_errors: yes
 
-- name: Test | Elasticsearch cluster should be green
+- name: Test | Elasticsearch cluster should be not be red
   assert:
-    that: elasticsearch_health_result.json.status == 'green'
+    that: elasticsearch_health_result.json.status != 'red'
     msg: "Elasticsearch cluster health check failed.  ES Cluster is currently {{ elasticsearch_health_result.json.status }}."
 
 ...

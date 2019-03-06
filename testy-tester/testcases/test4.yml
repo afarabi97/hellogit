@@ -65,7 +65,7 @@ kit:
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
       # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
-      vm_guestos: CENTOS_7_64        
+      vm_guestos: CENTOS_64
       vm_to_clone: "CentOS Template"
       domain: 'lan'
       gateway: "172.16.82.1"
@@ -111,7 +111,7 @@ kit:
         - "ETHERNET"
     test4-server1.lan:
       type: "master-server" # Can be controller, sensor, or server
-      vm_guestos: CENTOS_7_64
+      vm_guestos: CENTOS_64
       networking:
         nics:
           ens192:
@@ -147,7 +147,7 @@ kit:
         - "ETHERNET"
     test4-sensor1.lan:
       type: "sensor" # Can be controller, sensor, or server
-      vm_guestos: CENTOS_7_64
+      vm_guestos: CENTOS_64
       networking:
         nics:
           ens192:
