@@ -172,7 +172,6 @@ export class KickstartFormComponent implements OnInit {
     this.kickStartSrv.gatherDeviceFacts("localhost")
       .subscribe(data => {
         this.deviceFacts = data;
-        console.log(this.deviceFacts);
         this.kickStartForm.setInterfaceSelections(this.deviceFacts);
         this.initalizeForm();
       });
