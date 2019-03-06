@@ -1,10 +1,12 @@
 # Workaround for a Ceph bug -- https://tracker.ceph.com/issues/24793
 - name: Check for existing ceph drives on {{ host }}
   shell: dmsetup ls | grep ceph | cut -f1
+  delegate_to: "{{ host }}"
   register: drives
 
 - name: Remove existing ceph drives on {{ host }}
   shell: "dmsetup remove {{ drives.stdout_lines | join(' ') }}"
+  delegate_to: "{{ host }}"
   when: drives.stdout | length > 0
 
 # - name: Check for existing ceph VGs on {{ host }}
@@ -16,6 +18,11 @@
 #   shell: "vgremove -f {{ vgroups.stdout_lines | join(' ') }}"
 #   delegate_to: "{{ host }}"
 #   when: vgroups.stdout | length > 0
+
+- name: Zap drives for {{ host }}
+  shell: "ceph-deploy disk zap {{ host }} {{ hostvars[host].ceph_drive_list | join(' ') }}"
+  args:
+    chdir: "{{ ceph_dir }}"
 
 - name: Create drives for {{ host }}
   shell: ceph-deploy osd create --data {{ item }} {{ host }}
