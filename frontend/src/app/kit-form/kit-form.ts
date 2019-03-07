@@ -7,10 +7,10 @@ import {
 import { HtmlInput, HtmlCheckBox, HtmlDropDown, HtmlCardSelector, HtmlHidden, HtmlDatePicker } from '../html-elements';
 import { SensorResourcesForm } from '../total-sensor-resources-card/total-sensor-resources-form';
 import { TotalServerResources } from '../total-server-resources-card/total-server-resources-form';
-import {  PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
-    PERCENT_VALID_FEEDBACK, IP_CONSTRAINT, HOST_CONSTRAINT,
-    INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
-    TIMEZONES
+import { PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
+         IP_CONSTRAINT, HOST_CONSTRAINT,
+         INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
+         TIMEZONES
  } from '../frontend-constants';
 
 import { BasicNodeResource, BasicNodeResourceInterface } from '../basic-node-resource-card/basic-node-resource-card.component';
@@ -44,6 +44,26 @@ function SetDriveSelections(deviceFacts: Object) : Array<{value: string, label: 
     return driveSelections;
 }
 
+export function toggleSensorAppSelections(sensor: SensorFormGroup, 
+                                          selected: Array<string>, 
+                                          isPercentagesEnabled: boolean=false){    
+    if (!isPercentagesEnabled || !selected.includes("bro")){        
+        sensor.bro_cpu_percentage.disable();
+    } else {
+        sensor.bro_cpu_percentage.enable();
+    }
+    if (!isPercentagesEnabled || !selected.includes("suricata")){                    
+        sensor.suricata_cpu_percentage.disable();
+    } else {
+        sensor.suricata_cpu_percentage.enable();
+    }
+    if (!isPercentagesEnabled || !selected.includes("moloch")){
+        sensor.moloch_cpu_percentage.disable();
+    } else {
+        sensor.moloch_cpu_percentage.enable();
+    }    
+}
+
 export class SensorFormGroup extends FormGroup implements BasicNodeResourceInterface, DeviceFactsContainerInterface {
     public hidden: boolean;
     public basicNodeResource: BasicNodeResource;
@@ -56,13 +76,13 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         this.hidden = hidden;
         this.host_sensor.setDefaultValue(managementIP);
         super.addControl('host_sensor', this.host_sensor);
-        super.addControl('monitor_interface', this.monitor_interface);
-        super.addControl('ceph_drives', this.ceph_drives);
+        super.addControl('monitor_interface', this.monitor_interface);        
         super.addControl('pcap_drives', this.pcap_drives);
         super.addControl('hostname', this.hostname);
         super.addControl('bro_cpu_percentage', this.bro_cpu_percentage);
         super.addControl('suricata_cpu_percentage', this.suricata_cpu_percentage);
-        super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);        
+        super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);
+        super.addControl('sensor_apps', this.sensor_apps);
 
         //this.sensor_type.
         this.sensor_type.setValue(sensor_type);
@@ -76,11 +96,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
     clearSelectors(){
         while (this.pcap_drives.length !== 0) {
             this.pcap_drives.removeAt(0);
-        }
-
-        while (this.ceph_drives.length !== 0) {
-            this.ceph_drives.removeAt(0);
-        }
+        }        
 
         while (this.monitor_interface.length !== 0) {
             this.monitor_interface.removeAt(0);
@@ -98,11 +114,11 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         emitEvent?: boolean;
     }): void {
         this.monitor_interface.disable();
-        this.ceph_drives.disable();
         this.pcap_drives.disable();
         this.bro_cpu_percentage.disable();
         this.suricata_cpu_percentage.disable();
-        this.moloch_cpu_percentage.disable();        
+        this.moloch_cpu_percentage.disable();
+        this.sensor_apps.disable();
     }
 
     enable(opts?: {
@@ -130,6 +146,8 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         this.moloch_cpu_percentage.setValue(mObj['moloch_cpu_percentage']);
         this.monitor_interface.default_selections = mObj['monitor_interface'];
         this.pcap_drives.default_selections = mObj['pcap_drives'];
+        this.sensor_apps.default_selections = mObj['sensor_apps'];
+        toggleSensorAppSelections(this, mObj['sensor_apps']);
     }
 
     hostname = new HtmlHidden('hostname', true);
@@ -187,22 +205,20 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         true,
     )
 
-    ceph_drives = new HtmlCardSelector (
-        'ceph_drives',
-        "Ceph Drives",
-        "Use this field to mark the disks you will use for Ceph. You can choose to select \
-        none. In this case, Ceph will still be installed and active on the machine so that \
-        Kubernetes works properly however, none of its disks will be in the Ceph cluster. \
-        This is common on the sensors. You may choose to use direct attached storage for \
-        your PCAP on one drive and then use the other for your OS. In which case, Moloch \
-        can still write over the network to a clustered drive on another machine for its \
-        metadata which is light weight especially compared to PCAP. You can select multiple \
-        drives if you would like. Make sure you don't select the OS' drive as Ceph will \
-        format and overwrite any drives you select.",
-        "Select which drives on the host, if any, that you would like to add to the Ceph cluster.",
-        "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
-        "No drives found.",
-        true
+    sensor_apps = new HtmlCardSelector (
+        'sensor_apps',
+        "Sensor Applications",
+        "The applications on the sensor you would like to have installed.",
+        "Select which applications you would like to include as part of this Sensor install.",
+        "Note: We recommend you leave all of them selected by default. However, there are cases where one application may not be desired on a target sensor.",
+        "No selections found.",
+        true,
+        ['suricata', 'moloch', 'bro'],
+        undefined,
+        [{value: 'suricata', label: 'Suricata', isSelected: true},
+         {value: 'moloch', label: 'Moloch', isSelected: true},
+         {value: 'bro', label: 'Bro/Zeek', isSelected: true},
+        ]
     )
 
     pcap_drives = new HtmlCardSelector (
@@ -239,9 +255,9 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         true,
         '42',
         "This is the percentage of millicpus that will be allocated to the Moloch pod running on this sensor. \
-        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
-        PERCENT_VALID_FEEDBACK
+        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
+        is reserved for kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 10% is reserved for system pods."
     )
 
     suricata_cpu_percentage = new HtmlInput (
@@ -254,9 +270,9 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         true,
         '16',
         "This is the percentage of millicpus that will be allocated to the Suricata pod running on this sensor. \
-        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
-        PERCENT_VALID_FEEDBACK
+        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
+        is reserved for kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 10% is reserved for system pods."
     )
 
     bro_cpu_percentage = new HtmlInput (
@@ -269,9 +285,9 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         true,
         '42',
         "This is the percentage of millicpus that will be allocated to the Bro pod running on this sensor. \
-        On sensors 1200m CPUs (1.2 CPU cores) is reserved for OS and kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 5 5% is reserved for system pods.",
-        PERCENT_VALID_FEEDBACK
+        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
+        is reserved for kube services. The rest of the nodes resources \
+        is used for pods.  Of those resources, 10% is reserved for system pods."
     )
 }
 

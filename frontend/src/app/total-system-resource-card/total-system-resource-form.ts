@@ -1,14 +1,12 @@
+import { CEPH_DRIVE_MIN_COUNT } from '../frontend-constants';
+
 export class TotalSystemResources {
 
     //These fields are not part of the form but they displayed on the componets interface.
     cpuCoresAvailable: number;
     memoryAvailable: number;
     clusterStorageAvailable: number;
-    clusterStorageComitted: number;    
-    totalCephDrives: number;
-    totalCephDrivesErrors: string;
-    totalCephDrivesCss: string;
-    totalCephDrivesCache: Object;
+    clusterStorageComitted: number;
 
     constructor(){
         this.reinitalize();
@@ -19,13 +17,6 @@ export class TotalSystemResources {
         this.memoryAvailable = 0;
         this.clusterStorageAvailable = 0;
         this.clusterStorageComitted = 0;
-        
-
-        this.totalCephDrives = 0;
-        this.totalCephDrivesErrors = "";
-        this.totalCephDrivesCss = "";
-
-        this.totalCephDrivesCache = {};
     }
 
     /**
@@ -51,20 +42,6 @@ export class TotalSystemResources {
             if (this.memoryAvailable > 0){
                 this.memoryAvailable -= deviceFacts["memory_available"];
             }
-        }        
-    }
-
-    /**
-     * Calculates the total ceph drives properly.
-     * 
-     * @param ifaceLength 
-     * @param deviceFacts 
-     */
-    public calculateTotalCephDrives(ifaceLength: number, deviceFacts: Object){            
-        this.totalCephDrives = 0;        
-        this.totalCephDrivesCache[deviceFacts["hostname"]] = ifaceLength;
-        for (let key in this.totalCephDrivesCache){
-            this.totalCephDrives += this.totalCephDrivesCache[key];
         }
     }
 }

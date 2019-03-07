@@ -199,27 +199,26 @@ all:
 
     # Any host in this group will run Bro. By default this is all sensors and remote
     # sensors
-    bro:
-      children:
-        sensors:
-        remote-sensors:
+    bro: {% if template_ctx.has_bro %}
+      hosts: {% for sensor in template_ctx.sensors %}{% if 'bro' in sensor.sensor_apps %}
+        {{ sensor.hostname }}: {% endif %}{% endfor %}
+      {% endif %}
 
     # Any host in this group will run Moloch. By default this is all sensors and
     # remote sensors
-    moloch:
-      children:
-        sensors:
-        remote-sensors:
+    moloch: {% if template_ctx.has_moloch %}
+      hosts: {% for sensor in template_ctx.sensors %}{% if 'moloch' in sensor.sensor_apps %}
+        {{ sensor.hostname }}: {% endif %}{% endfor %}
+      {% endif %}
 
     # Any host in this group will run Suricata. By default this is all sensors
     # and remote sensors
-    suricata:
-      children:
-        sensors:
-        remote-sensors:
+    suricata: {% if template_ctx.has_suricata %}
+      hosts: {% for sensor in template_ctx.sensors %}{% if 'suricata' in sensor.sensor_apps %}
+        {{ sensor.hostname }}: {% endif %}{% endfor %}
+      {% endif %}
 
     nodes:
-
       children:
 
     #############################
@@ -245,6 +244,26 @@ all:
               # This is the Ansible connection type. This should always be SSH.
               ansible_connection: ssh
 
+              # The amount of milli CPUs that will be reserved for the host Operating system.
+              # This is required so a Kubernetes pod does not accidentally starve a node of all
+              # its resources.
+              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}                                        
+
+              # The amount of GiB that will be reserved for the host operating system.
+              # This is required so a Kubernetes pod does not accidentally starve a node of all
+              # its resources.
+              sys_mem_reserve: {{ sensor.reservations.sys_mem_reserve }}
+
+              # The amount of milli CPUs that will be reserved for the kubernetes services.
+              # This is required so a Kubernetes pod does not accidentally starve a node of all
+              # its resources.
+              kube_cpu_reserve: {{ sensor.reservations.kube_cpu_reserve }}
+
+              # The amount of GiB that will be reserved for the kubernetes services.
+              # This is required so a Kubernetes pod does not accidentally starve a node of all
+              # its resources.
+              kube_mem_reserve: {{ sensor.reservations.kube_mem_reserve }}
+              
               # This is the management IP address of the node. Ex: 192.168.1.198
               # This is the address Ansible will use to communicate with.
               management_ipv4: "{{ sensor.host_sensor }}"
@@ -304,7 +323,12 @@ all:
               moloch_threads: {{ sensor.cal.moloch_threads }}
               ceph_drive_list:
               pcap_disk: {{ "/dev/" + sensor.pcap_drives[0] }}
-              management_ipv4: "{{ sensor.host_sensor }}"
+              
+              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}
+              sys_mem_reserve: {{ sensor.reservations.sys_mem_reserve }}
+              kube_cpu_reserve: {{ sensor.reservations.kube_cpu_reserve }}
+              kube_mem_reserve: {{ sensor.reservations.kube_mem_reserve }}
+              management_ipv4: {{ sensor.host_sensor }}
               sensor_monitor_interface:
                 {% for interface in sensor.monitor_interface %}
                 - {{ interface }}
@@ -331,6 +355,10 @@ all:
             {{ server.hostname }}:
               ansible_user: root
               ansible_connection: ssh
+              sys_cpu_reserve: {{ server.reservations.sys_cpu_reserve }}
+              sys_mem_reserve: {{ server.reservations.sys_mem_reserve }}
+              kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
+              kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
               ceph_drive_list:
               {% for drive in server.ceph_drives %}
@@ -357,6 +385,10 @@ all:
             {{ server.hostname }}:
               ansible_user: root
               ansible_connection: ssh
+              sys_cpu_reserve: {{ server.reservations.sys_cpu_reserve }}
+              sys_mem_reserve: {{ server.reservations.sys_mem_reserve }}
+              kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
+              kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
               ceph_drive_list:
               {% for drive in server.ceph_drives %}

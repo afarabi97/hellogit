@@ -107,11 +107,14 @@
             </div>
             <div *ngIf="sensor.deviceFacts">
               <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                   <app-card-selector [parentForm]="sensor" [optionSelections]="sensor.driveSelections"
                                      controlName="pcap_drives" uid="{{ i }}"></app-card-selector>
                 </div>
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
+                  <app-card-selector [parentForm]="sensor" controlName="sensor_apps" uid="{{ i }}" (onSelect)="sensorAppSelect(sensor, $event)"></app-card-selector>
+                </div>
+                <div class="form-group col-md-4">
                   <app-card-selector [parentForm]="sensor" [optionSelections]="sensor.interfaceSelections"
                                      controlName="monitor_interface" style="float: right;" uid="{{ i }}"></app-card-selector>
                 </div>

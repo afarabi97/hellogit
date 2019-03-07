@@ -16,7 +16,58 @@ class KitPercentages:
         if allocatable > 16000:
             self._is_home_build = False
         else:
-            self._is_home_build = True        
+            self._is_home_build = True
+
+        self._moloch_cpu_perc = 0
+        self._bro_cpu_perc = 0
+        self._suricata_cpu_perc = 0
+
+    def _set_starting_sensor_defaults(self, sensor_index: int):
+        """
+        If a sensor is disabled
+        """
+        self._moloch_cpu_perc = 42
+        self._bro_cpu_perc = 42
+        self._suricata_cpu_perc = 16
+
+        sensor_apps = self._kit_form["sensors"][sensor_index]["sensor_apps"]
+        if len(sensor_apps) == 3:
+            return
+
+        if len(sensor_apps) == 1:
+            if "moloch" in sensor_apps:
+                self._moloch_cpu_perc = 100
+                self._bro_cpu_perc = 0
+                self._suricata_cpu_perc = 0
+            elif "bro" in sensor_apps:
+                self._moloch_cpu_perc = 0
+                self._bro_cpu_perc = 100
+                self._suricata_cpu_perc = 0
+            elif "suricata" in sensor_apps:
+                self._moloch_cpu_perc = 0
+                self._bro_cpu_perc = 0
+                self._suricata_cpu_perc = 100
+        elif len(sensor_apps) == 2:
+            if "moloch" not in sensor_apps:
+                half = int(self._moloch_cpu_perc / 2) # round down if a decimal
+                remainder = self._moloch_cpu_perc % 2
+                self._bro_cpu_perc += half + remainder
+                self._suricata_cpu_perc += half
+                self._moloch_cpu_perc = 0
+            elif "bro" not in sensor_apps:
+                half = int(self._bro_cpu_perc / 2)
+                remainder = self._bro_cpu_perc % 2
+                self._suricata_cpu_perc += half
+                self._moloch_cpu_perc += half + remainder
+                self._bro_cpu_perc = 0
+            elif "suricata" not in sensor_apps:
+                half = int(self._suricata_cpu_perc / 2)
+                remainder = self._suricata_cpu_perc % 2
+                self._moloch_cpu_perc += half + remainder
+                self._bro_cpu_perc += half
+                self._suricata_cpu_perc = 0
+        else:            
+            raise ValueError("Unknown length of sensor applications! This code needs to be updated!")
 
     @property
     def elastic_cpu_perc(self) -> int:
@@ -51,29 +102,30 @@ class KitPercentages:
             ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
         return ret_val
     
-    def moloch_cpu_perc(self, sensor_index=None) -> int:        
-        ret_val = 42
+    def moloch_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            if sensor_index is None:
-                raise ValueError("sensor_index is a required parameter on overrides.")
             ret_val = int(self._kit_form["sensors"][sensor_index]["moloch_cpu_percentage"])
+        else:
+            self._set_starting_sensor_defaults(sensor_index)
+            ret_val = self._moloch_cpu_perc
 
         return ret_val
     
-    def bro_cpu_perc(self, sensor_index=None) -> int:        
-        ret_val = 42
+    def bro_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            if sensor_index is None:
-                raise ValueError("sensor_index is a required parameter on overrides.")
             ret_val = int(self._kit_form["sensors"][sensor_index]["bro_cpu_percentage"])
+        else:
+            self._set_starting_sensor_defaults(sensor_index)
+            ret_val = self._bro_cpu_perc
+
         return ret_val
     
-    def suricata_cpu_perc(self, sensor_index=None) -> int:
-        ret_val = 16
+    def suricata_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            if sensor_index is None:
-                raise ValueError("sensor_index is a required parameter on overrides.")
             ret_val = int(self._kit_form["sensors"][sensor_index]["suricata_cpu_percentage"])
+        else:
+            self._set_starting_sensor_defaults(sensor_index)
+            ret_val = self._suricata_cpu_perc
         return ret_val    
 
     @property
@@ -212,7 +264,7 @@ class NodeValues:
         return int(ret_val)
 
     @property          
-    def suricata_cpu_request(self) -> int: 
+    def suricata_cpu_request(self) -> int:
         ret_val = cal_percentage_of_total(self._node_resources.cpu_allocatable, self._percentages.suricata_cpu_perc(self._node_index))
         return int(ret_val)
 

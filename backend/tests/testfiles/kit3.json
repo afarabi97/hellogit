@@ -16,12 +16,23 @@
                 }
             ]
         },
-        "sensor_storage_type": "Use hard drive for PCAP storage",
         "sensors": [
             {
-                "ceph_drives": [],
+                "bro_cpu_percentage": "57",
                 "deviceFacts": {
                     "cpus_available": 12,
+                    "default_ipv4_settings": {
+                        "address": "172.16.77.35",
+                        "alias": "ens192",
+                        "broadcast": "172.16.77.255",
+                        "gateway": "172.16.77.1",
+                        "interface": "ens192",
+                        "macaddress": "00:50:56:86:86:f4",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "172.16.77.0",
+                        "type": "ether"
+                    },
                     "disks": [
                         {
                             "hasRoot": true,
@@ -36,17 +47,17 @@
                             "size_tb": 0.01953125
                         }
                     ],
-                    "hostname": "dnav-sensor1.lan",
+                    "hostname": "dnavtest2-sensor1.lan",
                     "interfaces": [
                         {
-                            "ip_address": "169.254.196.88",
-                            "mac_address": "00:50:56:86:95:df",
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "00:50:56:86:0b:73",
                             "name": "ens224",
                             "speed": 10000
                         },
                         {
                             "ip_address": "172.16.77.35",
-                            "mac_address": "00:50:56:86:7c:27",
+                            "mac_address": "00:50:56:86:86:f4",
                             "name": "ens192",
                             "speed": 10000
                         }
@@ -57,19 +68,38 @@
                     ]
                 },
                 "host_sensor": "172.16.77.35",
-                "hostname": "dnav-sensor1.lan",
+                "hostname": "dnavtest2-sensor1.lan",
+                "moloch_cpu_percentage": "20",
                 "monitor_interface": [
                     "ens224"
                 ],
                 "pcap_drives": [
                     "sdb"
                 ],
-                "sensor_type": "Local"
+                "sensor_apps": [
+                    "suricata",
+                    "moloch",
+                    "bro"
+                ],
+                "sensor_type": "Local",
+                "suricata_cpu_percentage": "5"
             },
             {
-                "ceph_drives": [],
+                "bro_cpu_percentage": "57",
                 "deviceFacts": {
                     "cpus_available": 180,
+                    "default_ipv4_settings": {
+                        "address": "172.16.77.35",
+                        "alias": "ens192",
+                        "broadcast": "172.16.77.255",
+                        "gateway": "172.16.77.1",
+                        "interface": "ens192",
+                        "macaddress": "00:50:56:86:86:f4",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "172.16.77.0",
+                        "type": "ether"
+                    },
                     "disks": [
                         {
                             "hasRoot": true,
@@ -84,17 +114,17 @@
                             "size_tb": 0.01953125
                         }
                     ],
-                    "hostname": "dnav-sensor2.lan",
+                    "hostname": "dnavtest2-sensor2.lan",
                     "interfaces": [
                         {
-                            "ip_address": "169.254.196.87",
-                            "mac_address": "00:50:56:86:95:d2",
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "00:50:56:86:0b:73",
                             "name": "ens224",
                             "speed": 10000
                         },
                         {
-                            "ip_address": "172.16.77.42",
-                            "mac_address": "00:50:56:86:7c:27",
+                            "ip_address": "172.16.77.35",
+                            "mac_address": "00:50:56:86:86:f4",
                             "name": "ens192",
                             "speed": 10000
                         }
@@ -105,17 +135,30 @@
                     ]
                 },
                 "host_sensor": "172.16.77.35",
-                "hostname": "dnav-sensor1.lan",
+                "hostname": "dnavtest2-sensor2.lan",
+                "moloch_cpu_percentage": "20",
                 "monitor_interface": [
                     "ens224"
                 ],
                 "pcap_drives": [
                     "sdb"
                 ],
-                "sensor_type": "Local"
+                "sensor_apps": [
+                    "suricata",
+                    "moloch",
+                    "bro"
+                ],
+                "sensor_type": "Local",
+                "suricata_cpu_percentage": "5"
             }
         ],
-        "server_resources": {},
+        "server_resources": {
+            "elastic_cpu_percentage": "87",
+            "elastic_curator_threshold": "89",
+            "elastic_memory_percentage": "88",
+            "elastic_storage_percentage": "79",
+            "logstash_cpu_percentage": "6"
+        },
         "servers": [
             {
                 "ceph_drives": [
@@ -124,6 +167,18 @@
                 ],
                 "deviceFacts": {
                     "cpus_available": 16,
+                    "default_ipv4_settings": {
+                        "address": "172.16.77.34",
+                        "alias": "br0",
+                        "broadcast": "172.16.77.255",
+                        "gateway": "172.16.77.1",
+                        "interface": "br0",
+                        "macaddress": "00:50:56:86:96:ad",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "172.16.77.0",
+                        "type": "bridge"
+                    },
                     "disks": [
                         {
                             "hasRoot": true,
@@ -144,23 +199,23 @@
                             "size_tb": 0.01953125
                         }
                     ],
-                    "hostname": "dnav-srv1.lan",
+                    "hostname": "dnavtest2-server1.lan",
                     "interfaces": [
                         {
                             "ip_address": "",
-                            "mac_address": "da:f7:bb:22:fc:f9",
+                            "mac_address": "c6:b3:4e:76:fb:a8",
                             "name": "tap0",
                             "speed": 10
                         },
                         {
                             "ip_address": "172.16.77.34",
-                            "mac_address": "00:50:56:86:47:11",
+                            "mac_address": "00:50:56:86:96:ad",
                             "name": "br0",
                             "speed": 0
                         },
                         {
                             "ip_address": "",
-                            "mac_address": "00:50:56:86:47:11",
+                            "mac_address": "00:50:56:86:96:ad",
                             "name": "ens192",
                             "speed": 10000
                         }
@@ -172,7 +227,7 @@
                     ]
                 },
                 "host_server": "172.16.77.34",
-                "hostname": "dnav-srv1.lan",
+                "hostname": "dnavtest2-server1.lan",
                 "is_master_server": true
             },
             {
@@ -182,6 +237,18 @@
                 ],
                 "deviceFacts": {
                     "cpus_available": 16,
+                    "default_ipv4_settings": {
+                        "address": "172.16.77.34",
+                        "alias": "br0",
+                        "broadcast": "172.16.77.255",
+                        "gateway": "172.16.77.1",
+                        "interface": "br0",
+                        "macaddress": "00:50:56:86:96:ad",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "172.16.77.0",
+                        "type": "bridge"
+                    },
                     "disks": [
                         {
                             "hasRoot": true,
@@ -202,23 +269,23 @@
                             "size_tb": 0.01953125
                         }
                     ],
-                    "hostname": "dnav-srv2.lan",
+                    "hostname": "dnavtest2-server2.lan",
                     "interfaces": [
                         {
                             "ip_address": "",
-                            "mac_address": "da:f7:bb:22:fc:f9",
+                            "mac_address": "c6:b3:4e:76:fb:a8",
                             "name": "tap0",
                             "speed": 10
                         },
                         {
-                            "ip_address": "172.16.77.35",
-                            "mac_address": "00:50:56:86:47:12",
+                            "ip_address": "172.16.77.34",
+                            "mac_address": "00:50:56:86:96:ad",
                             "name": "br0",
                             "speed": 0
                         },
                         {
                             "ip_address": "",
-                            "mac_address": "00:50:56:86:47:13",
+                            "mac_address": "00:50:56:86:96:ad",
                             "name": "ens192",
                             "speed": 10000
                         }
@@ -229,19 +296,19 @@
                         "ens192"
                     ]
                 },
-                "host_server": "172.16.77.35",
-                "hostname": "dnav-srv1.lan",
-                "is_master_server": false
+                "host_server": "172.16.77.34",
+                "hostname": "dnavtest2-server2.lan",
+                "is_master_server": true
             }
         ]
     },
     "timeForm": {
         "date": {
-            "day": 19,
+            "day": 25,
             "month": 2,
             "year": 2019
         },
-        "time": "20:49",
+        "time": "20:28",
         "timezone": "UTC"
     }
 }

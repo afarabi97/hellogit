@@ -255,7 +255,7 @@ export class HtmlCheckBox extends FormControl implements HtmlCheckBoxInterface, 
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
-    this.control_disabled = true;
+    this.control_disabled = true;    
   }
 
   enable(opts?: {
@@ -295,7 +295,7 @@ export class HtmlDropDown extends FormControl implements HtmlDropDownInterface, 
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
-    this.control_disabled = false;   
+    this.control_disabled = false;
   }
 }
 
@@ -359,6 +359,8 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
   anchor: string;
   control_disabled: boolean;
 
+  private validators: Array<ValidatorFn>;
+
   constructor(public form_name: string,
     public label: string,
     public placeholder: string,
@@ -377,18 +379,18 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
     asyncValidator: AsyncValidatorFn | AsyncValidatorFn[] | null = null
   ) {
     super('', validatorOrOpts, asyncValidator);
-    let validators = [];
+    this.validators = [];
     if (required) {
-      validators.push(Validators.required);
+      this.validators.push(Validators.required);
     }
     if (html5_constraint) {
       if (typeof html5_constraint === "string"){
-        validators.push(Validators.pattern(html5_constraint));
+        this.validators.push(Validators.pattern(html5_constraint));
       } else {
-        validators.push(html5_constraint);
+        this.validators.push(html5_constraint);
       }      
     }
-    super.setValidators(validators);
+    super.setValidators(this.validators);
     super.setValue(default_value);
 
     this.control_disabled = disabled;
@@ -396,10 +398,7 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
   }
 
   /**
-   * Override for disabling HtmlInputs
-   * Angular does not allow users to submit diabled form fields but we need them
-   * for form submissions in this application because disabled inputs tend to have 
-   * autocaluated values.
+   * Override for disabling HtmlInputs.
    * 
    * @param opts 
    */
@@ -407,11 +406,11 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
-    this.control_disabled = true;
+    this.control_disabled = true;    
   }
   
   /**
-   * Override for enabling HtmlInputs
+   * Override for enabling HtmlInputs.
    * 
    * @param opts 
    */
@@ -419,7 +418,7 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void{
-    this.control_disabled = false;
+    this.control_disabled = false;    
   }
 
   setDefaultValue(someValue: string) {
@@ -467,7 +466,7 @@ export class HtmlTextArea extends FormControl implements TextFormField, HelpPage
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
-    this.control_disabled = true;
+    this.control_disabled = true;    
   }
   
   enable(opts?: {
@@ -499,7 +498,8 @@ export class HtmlCardSelector extends FormArray implements HelpPageInterface, Ht
     public invalid_feedback: string,
     public is_multi_select: boolean = false,
     public default_selections: Array<string> = [],
-    isDisabled: boolean = false    
+    isDisabled: boolean = false,
+    public default_options: Array<{ value: string, label: string, isSelected: boolean }> = null
   ) {
     super([], null, null);
     this.anchor = 'anchor_' + form_name;
@@ -513,17 +513,15 @@ export class HtmlCardSelector extends FormArray implements HelpPageInterface, Ht
   disable(opts?: {
     onlySelf?: boolean;
     emitEvent?: boolean;
-  }): void {
-    // super.disable(opts);
-    this.isDisabled = true;
+  }): void {    
+    this.isDisabled = true;    
   }
 
   enable(opts?: {
     onlySelf?: boolean;
     emitEvent?: boolean;
-  }): void {
-    super.enable(opts);
-    this.isDisabled = false;
+  }): void {    
+    this.isDisabled = false;    
   }
 
 }

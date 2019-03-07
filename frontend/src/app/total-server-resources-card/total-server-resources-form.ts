@@ -1,8 +1,7 @@
 import { FormGroup } from "@angular/forms";
 
 import { HtmlInput } from '../html-elements';
-import {  PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
-          PERCENT_VALID_FEEDBACK
+import { PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK          
  } from '../frontend-constants';
 
 export class TotalServerResources extends FormGroup {
@@ -152,8 +151,7 @@ export class TotalServerResources extends FormGroup {
         other devices can use those resources. However, when under load, Elasticsearch is \
         guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
         Basically, you can think of this as a simple percentage of how much of the server\'s \
-        CPU you want going to Elasticsearch.",
-        PERCENT_VALID_FEEDBACK
+        CPU you want going to Elasticsearch."
     )
 
     elastic_memory_percentage = new HtmlInput(
@@ -173,8 +171,7 @@ export class TotalServerResources extends FormGroup {
         other devices can use those resources. However, when under load, Elasticsearch is \
         guarenteed to have access up to X of the server's compute power. ---STOP SKIPPING HERE--- \
         Basically, you can think of this as a simple percentage of how much of the server\'s \
-        RAM you want going to Elasticsearch.",
-        PERCENT_VALID_FEEDBACK
+        RAM you want going to Elasticsearch."
     )
 
     logstash_cpu_percentage = new HtmlInput(
@@ -187,9 +184,8 @@ export class TotalServerResources extends FormGroup {
         true,
         '10',
         "The Percentage of the server CPU resources which will be dedicated to logstash. \
-        Unlike some of the other calculations, this is a percentage of the total server \
-        resources divided by the number of servers.",
-        PERCENT_VALID_FEEDBACK
+        This is a percentage of the total server \
+        resources divided by the number of servers."
     )
 
     elastic_storage_percentage = new HtmlInput (
@@ -204,8 +200,7 @@ export class TotalServerResources extends FormGroup {
         "The percentage of CEPH storage space allocated to Elasticsearch.  \
         We recommend a large percentage of the CEPH pool be allocated to this.  \
         For example, if a CEPH pool has 100 GB allocated to it, 80% will take 80 \
-        GB of the 100 GB capacity",
-        PERCENT_VALID_FEEDBACK
+        GB of the 100 GB capacity"
     )
 
     elastic_curator_threshold = new HtmlInput(
@@ -219,7 +214,6 @@ export class TotalServerResources extends FormGroup {
         '90',
         "The percentage of maximum allocated space for Elasticsearch that can be filled \
         before Curator begins deleting indices. The oldest Moloch, Bro, etc, indices that exceed \
-        this threshold will be deleted.",
-        PERCENT_VALID_FEEDBACK
+        this threshold will be deleted first."
     )
 }

@@ -1,7 +1,7 @@
 import {  FormArray, AbstractControl } from '@angular/forms';
 import { HtmlDropDown } from '../html-elements';
 import { ServerFormGroup, SensorFormGroup, SensorsFormArray, ServersFormArray, KitInventoryForm } from './kit-form';
-import { CEPH_DRIVE_MIN_COUNT, IP_CONSTRAINT } from '../frontend-constants';
+import { IP_CONSTRAINT } from '../frontend-constants';
 import { CheckForInvalidControls } from '../globals';
 
 /**
@@ -23,50 +23,30 @@ function _validateMasterServer(control: AbstractControl, errors: Array<string>):
     errors.push("- Master server failed to validate. Did you remember to select a master server? (It's the checkbox that says 'Is Kubernetes master server?')");
 }
 
-/**
- * Ensures that there are enough drives selected for the CEPH cluster configuration.
- *
- * @param control - The KitForm Group
- * @param errors - An array of strings to display.
- */
-function _validateCephDriveCount(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    let sensors = control.get('sensors') as SensorsFormArray;
-    let ceph_drive_count = 0;
-
-    if (servers != null) {
-        for (let i = 0; i < servers.length; i++) {
-            let server = servers.at(i) as ServerFormGroup;            
-            ceph_drive_count += server.ceph_drives.length;
-        }
-    }
-
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
-            let sensor = sensors.at(i) as SensorFormGroup;
-            ceph_drive_count += sensor.ceph_drives.length;
-        }
-    }
-
-    if (ceph_drive_count < CEPH_DRIVE_MIN_COUNT){
-        errors.push("- Ceph drives failed to validate. You have to have at least two drives in your Ceph cluster.");
-    }
-}
-
 function _validate_pcap_drives(control: AbstractControl, errors: Array<string>): void {
-    let kitForm = control as KitInventoryForm;
     let sensors = control.get('sensors') as SensorsFormArray;
-    let pcap_drive_count = 0;
-    
     if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
+        for (let i = 0; i < sensors.length; i++) {
             let sensor = sensors.at(i) as SensorFormGroup;
-            if(sensor.pcap_drives.length !== 1){
-                errors.push("- PCAP drives failed to validate. You need to select at one PCAP drive on each sensor.")
+            if(sensor.pcap_drives.length !== 1) {
+                errors.push("- PCAP drives failed to validate on " + sensor.hostname.value + 
+                            ". You need to select one PCAP drive for this sensor.")
             }
         }
     }
-    
+}
+
+function _validate_selected_sensor_applications(control: AbstractControl, errors: Array<string>): void {
+    let sensors = control.get('sensors') as SensorsFormArray;
+    if (sensors != null){
+        for (let i = 0; i < sensors.length; i++){
+            let sensor = sensors.at(i) as SensorFormGroup;
+            if(sensor.sensor_apps.length < 1){
+                errors.push("- Sensor applications failed to validate on " + sensor.hostname.value + 
+                            ". You need to select at least one application.")
+            }
+        }
+    }   
 }
 
 /**
@@ -77,18 +57,15 @@ function _validate_pcap_drives(control: AbstractControl, errors: Array<string>):
  */
 function _validateMonitorInterfaces(control: AbstractControl, errors: Array<string>): void {
     let sensors = control.get('sensors') as SensorsFormArray;
-    let error_message = "- Monitor interfaces failed to validate. You need to select at least one monitor interface on each sensor.";
-
     if (sensors != null){
         for (let i = 0; i < sensors.length; i++){
             let sensor = sensors.at(i) as SensorFormGroup;
             if (sensor.monitor_interface.length == 0) {
-                errors.push(error_message);
+                errors.push("- Monitor interfaces failed to validate on " + sensor.hostname.value + 
+                            ". You need to select at least one monitor interface on each sensor.");
                 break;
             }
         }
-    } else {
-        errors.push(error_message);
     }
 }
 
@@ -120,7 +97,7 @@ function _validateHomeNet(control: AbstractControl, errors: Array<string>): void
 
     if (sensor_resources != null){
         let home_nets = sensor_resources.get('home_nets') as FormArray;
-        const message: string = "- Your home nets are not valid. You need at least one home net.";
+        const message: string = "- Home nets failed to validate. You need at least one home net.";
 
         if (home_nets.length === 0){
             errors.push(message);
@@ -245,22 +222,6 @@ function _validateIps(control: AbstractControl, errors: Array<string>): void {
     }
 }
 
-function _validate_ceph_drive_count(control: AbstractControl, errors: Array<string>) {
-    let kitForm = control as KitInventoryForm;
-    if (kitForm === undefined || kitForm === null || kitForm.system_resources === undefined){
-        return;
-    }
-    let number_of_ceph_drives = kitForm.system_resources.totalCephDrives;
-    // console.log(number_of_ceph_drives);
-    if (number_of_ceph_drives < CEPH_DRIVE_MIN_COUNT) {
-        kitForm.system_resources.totalCephDrivesCss = "text-danger";
-        kitForm.system_resources.totalCephDrivesErrors = ' - Error: You need at least two drives in the Ceph cluster!';
-    } else {
-        kitForm.system_resources.totalCephDrivesCss = "text-success";
-        kitForm.system_resources.totalCephDrivesErrors = ' - Looks good!';
-    }
-}
-
 function _validate_endgame_ip(control: AbstractControl){
     let kitForm = control as KitInventoryForm;
     if (kitForm === undefined || kitForm === null || kitForm.endgame_warning === undefined){
@@ -275,6 +236,30 @@ function _validate_endgame_ip(control: AbstractControl){
     }
 }
 
+function _validate_advanced_percentages(control: AbstractControl, errors: Array<string>){
+    let kitForm = control as KitInventoryForm;
+    if (kitForm === undefined || 
+        kitForm === null || 
+        kitForm.enable_percentages === undefined ||
+        kitForm.enable_percentages.value === null ||
+        kitForm.sensors === undefined ||
+        kitForm.sensors === null
+        ){
+        return;
+    }    
+    if (kitForm.enable_percentages.value){
+        for (let i = 0; i < kitForm.sensors.length; i++) {
+            let sensor = kitForm.sensors.at(i) as SensorFormGroup;
+            if ((parseInt(sensor.bro_cpu_percentage.value) + 
+                parseInt(sensor.moloch_cpu_percentage.value) + 
+                parseInt(sensor.suricata_cpu_percentage.value)) > 100) {
+                errors.push('- Bro, Suricata, and Moloch percentage overrides \
+                            cannot exceed 100 on ' + sensor.hostname.value + '.');
+            }
+        }
+    }
+}
+
 /**
  * The main exported function that performs all the Form Level validation for the KitForm.
  *
@@ -284,18 +269,18 @@ function _validate_endgame_ip(control: AbstractControl){
 export function ValidateKitInventory(control: AbstractControl): { errors: Array<string> } {
     let errors: Array<string> = [];
     _validateMonitorInterfaces(control, errors);
-    _validateCephDriveCount(control, errors);
     _validate_pcap_drives(control, errors);
+    _validate_selected_sensor_applications(control, errors);
     _validateMasterServer(control, errors);
     _validateKubernetesCIDR(control, errors);
     _validateHomeNet(control, errors);
     _validateExternalNet(control, errors);
     _validateHosts(control, errors);
     _validateIps(control, errors);
-    _validateSensorAndServerCounts(control, errors);
-    _validate_ceph_drive_count(control, errors);
-    _validate_endgame_ip(control);
+    _validateSensorAndServerCounts(control, errors);    
+    _validate_advanced_percentages(control, errors);
     CheckForInvalidControls(control, errors);
+    _validate_endgame_ip(control);
 
     if (errors.length > 0){
         return { errors: errors};

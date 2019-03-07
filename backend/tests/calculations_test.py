@@ -32,12 +32,12 @@ Allocatable: {'cpu': '14800m', 'memory': '15138448Ki', 'pods': '110'}
 class TestKitPercentages(unittest.TestCase):
 
     def setUp(self):
-        kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')        
-        kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')        
+        self.kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')        
+        kit_form_submission = json.loads(self.kit.read_text(), encoding='utf-8')
         self.perc_cal1 = KitPercentages(kit_form_submission["kitForm"])
 
-        kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit_form_submission = json.loads(kit2.read_text(), encoding='utf-8')        
+        self.kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')        
         self.perc_cal2 = KitPercentages(kit_form_submission["kitForm"])
 
     def test_percentage_overrides(self):
@@ -55,12 +55,79 @@ class TestKitPercentages(unittest.TestCase):
         self.assertEqual(5, self.perc_cal1.suricata_cpu_perc(0))
 
     def test_percentage_totals(self):
-        self.assertEqual(42, self.perc_cal2.moloch_cpu_perc())
-        self.assertEqual(42, self.perc_cal2.bro_cpu_perc())
-        self.assertEqual(16, self.perc_cal2.suricata_cpu_perc())
-        total = self.perc_cal2.moloch_cpu_perc() + self.perc_cal2.bro_cpu_perc() + self.perc_cal2.suricata_cpu_perc()
+        self.assertEqual(42, self.perc_cal2.moloch_cpu_perc(0))
+        self.assertEqual(42, self.perc_cal2.bro_cpu_perc(0))
+        self.assertEqual(16, self.perc_cal2.suricata_cpu_perc(0))
+        total = self.perc_cal2.moloch_cpu_perc(0) + self.perc_cal2.bro_cpu_perc(0) + self.perc_cal2.suricata_cpu_perc(0)
         self.assertEqual(100, total)
+
+    def test_default_percentage_totals_no_moloch(self):
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
+        sensor_index = 0
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "suricata"]        
+        percentages = KitPercentages(kit_form_submission["kitForm"])
         
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(0, moloch)
+        self.assertEqual(63, bro)
+        self.assertEqual(37, suricata)
+        self.assertEqual(100, moloch + bro + suricata)
+        
+    def test_default_percentage_totals_no_suricata(self):
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
+        sensor_index = 0
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "moloch"]        
+        percentages = KitPercentages(kit_form_submission["kitForm"])
+        
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(50, moloch)
+        self.assertEqual(50, bro)
+        self.assertEqual(0, suricata)
+        self.assertEqual(100, moloch + bro + suricata)
+
+    def test_default_percentage_totals_no_bro(self):
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
+        sensor_index = 0
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["suricata", "moloch"]
+        percentages = KitPercentages(kit_form_submission["kitForm"])
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(63, moloch)
+        self.assertEqual(0, bro)
+        self.assertEqual(37, suricata)
+        self.assertEqual(100, moloch + bro + suricata)
+
+    def test_one_application(self):
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
+        sensor_index = 0
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["suricata"]
+        percentages = KitPercentages(kit_form_submission["kitForm"])
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(100, suricata)
+        self.assertEqual(100, moloch + bro + suricata)
+
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro"]
+        percentages = KitPercentages(kit_form_submission["kitForm"])
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(100, bro)
+        self.assertEqual(100, moloch + bro + suricata)
+
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["moloch"]
+        percentages = KitPercentages(kit_form_submission["kitForm"])
+        moloch = percentages.moloch_cpu_perc(sensor_index)
+        bro = percentages.bro_cpu_perc(sensor_index)
+        suricata = percentages.suricata_cpu_perc(sensor_index)
+        self.assertEqual(100, moloch)
+        self.assertEqual(100, moloch + bro + suricata)
 
 class TestNodeResources(unittest.TestCase):
 
@@ -70,11 +137,12 @@ class TestNodeResources(unittest.TestCase):
 
         sensor = kit_form_submission["kitForm"]["sensors"][0]
         node_res = NodeResources(sensor)
+        print(str(node_res))
         self.assertEqual(12136448.0, node_res._memory_capacity)
         self.assertEqual(12000, node_res._cpu_capacity)
 
-        self.assertEqual(10060, node_res.cpu_allocatable)
-        self.assertEqual(10352026.0, node_res.mem_allocatable)
+        self.assertEqual(9200, node_res.cpu_allocatable)
+        self.assertEqual(9709160.0, node_res.mem_allocatable)
 
 
 class TestSensorCalculations(unittest.TestCase):    
@@ -100,37 +168,37 @@ class TestSensorCalculations(unittest.TestCase):
     def test_bro_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(4225, sensor.bro_cpu_request)
+        self.assertEqual(3864, sensor.bro_cpu_request)
         self.assertEqual(4, sensor.bro_workers)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(11407, sensor.bro_cpu_request)
-        self.assertEqual(11, sensor.bro_workers)
+        self.assertEqual(10500, sensor.bro_cpu_request)
+        self.assertEqual(10, sensor.bro_workers)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(4225, sensor1.bro_cpu_request)
+        self.assertEqual(3864, sensor1.bro_cpu_request)
         self.assertEqual(4, sensor1.bro_workers)
-        self.assertEqual(71257, sensor2.bro_cpu_request)
-        self.assertEqual(71, sensor2.bro_workers)
+        self.assertEqual(67200, sensor2.bro_cpu_request)
+        self.assertEqual(67, sensor2.bro_workers)
         
     def test_moloch_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(4225, sensor.moloch_cpu_request)
+        self.assertEqual(3864, sensor.moloch_cpu_request)
         self.assertEqual(4, sensor.moloch_threads)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(11407, sensor.moloch_cpu_request)
-        self.assertEqual(11, sensor.moloch_threads)
+        self.assertEqual(10500, sensor.moloch_cpu_request)
+        self.assertEqual(10, sensor.moloch_threads)
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(4225, sensor1.moloch_cpu_request)
+        self.assertEqual(3864, sensor1.moloch_cpu_request)
         self.assertEqual(4, sensor1.moloch_threads)
         self.assertEqual(24000, sensor2.moloch_cpu_request)
         #Moloch cant scale past the 24 thread limit.
@@ -139,17 +207,17 @@ class TestSensorCalculations(unittest.TestCase):
     def test_suricata_cpu_request(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(1609, sensor.suricata_cpu_request)        
+        self.assertEqual(1472, sensor.suricata_cpu_request)        
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(4345, sensor.suricata_cpu_request)        
+        self.assertEqual(4000, sensor.suricata_cpu_request)        
         
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(1609, sensor1.suricata_cpu_request)        
-        self.assertEqual(27145, sensor2.suricata_cpu_request)
+        self.assertEqual(1472, sensor1.suricata_cpu_request)        
+        self.assertEqual(25600, sensor2.suricata_cpu_request)
         
 
 class TestCephStoragePool(unittest.TestCase):
@@ -196,8 +264,8 @@ class TestServerCalculations(unittest.TestCase):
 
     def test_elk_calculations(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
-        self.assertEqual(1386, self.kit1_cal.log_stash_cpu_request)
-        self.assertEqual(9702, self.kit1_cal.elastic_cpu_request)
+        self.assertEqual(1260, self.kit1_cal.log_stash_cpu_request)
+        self.assertEqual(8820, self.kit1_cal.elastic_cpu_request)
 
     def test_logstash_replicas(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
@@ -212,8 +280,8 @@ class TestServerCalculations(unittest.TestCase):
         self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
 
         self.assertEqual(5, self.kit2_cal.elastic_master_node_count)
-        self.assertEqual(12, self.kit2_cal.elastic_data_node_count)
-        self.assertEqual(17, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(11, self.kit2_cal.elastic_data_node_count)
+        self.assertEqual(16, self.kit2_cal.elastic_total_node_count)
                 
         self.assertEqual(2, self.kit3_cal.elastic_master_node_count)
         self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
@@ -221,9 +289,9 @@ class TestServerCalculations(unittest.TestCase):
         
     def test_elastic_memory_request(self):
         # self.assertEqual(9.665, self.kit1_cal.elastic_memory_request)
-        self.assertEqual(9, self.kit1_cal.elastic_memory_request)
+        self.assertEqual(8, self.kit1_cal.elastic_memory_request)
         self.assertEqual(25, self.kit2_cal.elastic_memory_request)
-        self.assertEqual(12, self.kit3_cal.elastic_memory_request)
+        self.assertEqual(11, self.kit3_cal.elastic_memory_request)
 
     def test_elastic_pv_size(self):
         self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
@@ -231,10 +299,10 @@ class TestServerCalculations(unittest.TestCase):
         self.assertEqual(40000000, self.kit1_cal._ceph_storage_pool.ceph_pool_allocatable)
         self.assertEqual(30.518, self.kit1_cal.elastic_pv_size)
 
-        self.assertEqual(17, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(16, self.kit2_cal.elastic_total_node_count)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_capacity)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_allocatable)
-        self.assertEqual(17.952, self.kit2_cal.elastic_pv_size)
+        self.assertEqual(19.073, self.kit2_cal.elastic_pv_size)
 
         self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
         self.assertEqual(80000000, self.kit3_cal._ceph_storage_pool.ceph_pool_capacity)

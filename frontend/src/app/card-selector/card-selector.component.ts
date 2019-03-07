@@ -38,6 +38,9 @@ export class CardSelectorComponent implements OnInit {
     this.htmlCardSelectorFormArray = this.parentForm.get(this.controlName) as HtmlCardSelector;
     //Fixes a bug when we rerender the same card selector.
     this.clearFormArray();
+    if (this.htmlCardSelectorFormArray.default_options){
+      this.optionSelections = this.htmlCardSelectorFormArray.default_options;
+    }
     this.setDefaultValues(this.htmlCardSelectorFormArray.default_selections);
   }
 

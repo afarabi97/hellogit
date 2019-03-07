@@ -40,6 +40,8 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     :param kit_form: The kit kit_form received from the frontend
     :return: True if successfull, False otherwise.        
     """
+    # import json
+    # print(json.dumps(kit_form, indent=4, sort_keys=True))
     current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if current_kit_configuration:
         archive_form(current_kit_configuration['form'], True, conn_mng.mongo_kit_archive)
@@ -112,7 +114,7 @@ def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
     """
     Main function for processing the kit and changing times on the nodes.
 
-    :return: Returns True if its successfully. 
+    :return: Returns True if its successfull. 
     """
     isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
     _delete_kubernetes_conf()

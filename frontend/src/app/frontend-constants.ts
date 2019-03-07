@@ -1,6 +1,5 @@
 export const PERCENT_PLACEHOLDER: string = "Enter a percentage between 1 and 99. The default is 90.";
-export const PERCENT_INVALID_FEEDBACK: string = 'Value must be between 1 and 99. At least 10% is required for other programs.';
-export const PERCENT_VALID_FEEDBACK: string = 'Input is valid but it does not necessarily mean you have enough resources.';
+export const PERCENT_INVALID_FEEDBACK: string = 'Value must be between 1 and 100.';
 export const MIN_ONE_INVALID_FEEDBACK: string = 'Enter a valid integer 1 or greater.';
 export const MIN_ZERO_INVALID_FEEDBACK: string = 'Enter a valid integer 0 or greater.';
 export const MIN_TWO_INVALID_FEEDBACK: string = 'Enter a valid integer 2 or greater.';
@@ -16,7 +15,7 @@ export const CONSTRAINT_MIN_TWO: string = '^[2-9]|[0-9]\\d+$';
 export const CONSTRAINT_MIN_THREE: string = '^[3-9]|[0-9]\\d+$';
 export const CONSTRAINT_MIN_EIGHT: string = '^[8-9]|[0-9]\\d+$';
 export const CONSTRAINT_MIN_ZERO: string = '^[0-9]|[0-9]\\d+$';
-export const PERCENT_MIN_MAX: string = '^([1-9]|[1-9][0-9])$';
+export const PERCENT_MIN_MAX: string = '^([1-9]|[1-9][0-9]|100)$';
 export const IP_CONSTRAINT: string = "^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((25[0-4])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))$";
 export const HOST_CONSTRAINT = "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*$"
 export const IP_CONSTRAINT_WITH_SUBNET: string = "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$";

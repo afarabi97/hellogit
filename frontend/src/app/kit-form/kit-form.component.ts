@@ -1,11 +1,11 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef  } from '@angular/core';
 import { KitInventoryForm, ServersFormArray, ServerFormGroup,
-         SensorFormGroup, SensorsFormArray,
+         SensorFormGroup, SensorsFormArray, toggleSensorAppSelections, 
          ExecuteKitForm } from './kit-form';
 import { KickstartService } from '../kickstart.service';
 import { KitService } from '../kit.service';
 import { ArchiveService } from '../archive.service';
-import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType, HtmlCheckBox } from '../html-elements';
+import { HtmlModalPopUp, HtmlDropDown, HtmlModalRestoreArchiveDialog, ModalType } from '../html-elements';
 import { FormArray, FormGroup, FormControl } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -48,7 +48,8 @@ export class KitFormComponent implements OnInit, AfterViewInit{
               private title: Title,
               private router: Router,
               private kitSrv: KitService,
-              private archiveSrv: ArchiveService) {
+              private archiveSrv: ArchiveService,
+              private cdRef : ChangeDetectorRef) {
     this.kitForm = new KitInventoryForm();
     this.executeKitForm = new ExecuteKitForm();
     this.servers = this.kitForm.servers;
@@ -76,10 +77,8 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     for (let key in data){
       const someFormObject = formGroup.get(key);
 
-      if (someFormObject instanceof HtmlDropDown){
-        setTimeout(()=> {
-          someFormObject.setValue(data[key]);
-        });
+      if (someFormObject instanceof HtmlDropDown){        
+        someFormObject.setValue(data[key]);        
       } else if (someFormObject instanceof FormControl){
         someFormObject.setValue(data[key]);
       } else if (someFormObject instanceof FormGroup){
@@ -97,8 +96,9 @@ export class KitFormComponent implements OnInit, AfterViewInit{
           }
           nodeFormArray.push(srvFormGroup);
           srvFormGroup.from_object(data[key][index]);
-          this._gatherFacts(srvFormGroup, srvFormGroup.deviceFacts, host_key);
-          this.cephDriveSelected(data[key][index]['ceph_drives'], srvFormGroup);
+          this._gatherFacts(srvFormGroup, srvFormGroup.deviceFacts, host_key);          
+          if (someFormObject instanceof ServersFormArray)
+            this.cephDriveSelected(data[key][index]['ceph_drives'], srvFormGroup as ServerFormGroup);          
         }
       } else if (key === 'home_nets' && someFormObject instanceof FormArray){
         for (let index = 0; index < data[key].length; index++){
@@ -323,8 +323,9 @@ export class KitFormComponent implements OnInit, AfterViewInit{
       this.setKubernetesCIDRRange();
       return;
     }
-
+    
     this._map_to_form(kitData, this.kitForm);
+    this.cdRef.detectChanges();
     this.hasKitForm = true;
 
     if (isCompleted){
@@ -395,14 +396,12 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     // Clear resources on every run of gather facts.
     if (node.deviceFacts){
       this.kitForm.system_resources.subtractFromDeviceFacts(node.deviceFacts);
-      this.kitForm.system_resources.calculateTotalCephDrives(0, node.deviceFacts);
       node.clearSelectors();
       if (node instanceof ServerFormGroup) {
         this.kitForm.server_resources.subtractFromDeviceFacts(node.deviceFacts);
         this.kitForm.server_resources.removeClusterStorage(node.deviceFacts);
       } else if (node instanceof SensorFormGroup) {
         this.kitForm.sensor_resources.subtractFromDeviceFacts(node.deviceFacts);
-        this.kitForm.sensor_resources.removeClusterStorage(node.deviceFacts);
       }
     }
 
@@ -459,20 +458,13 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.isAdvancedOptionsHidden = !this.isAdvancedOptionsHidden;
   }
 
-  cephDriveSelected(drivesSelected: Array<string>, node: SensorFormGroup | ServerFormGroup): void {
-    this.kitForm.system_resources.calculateTotalCephDrives(drivesSelected.length, node.deviceFacts);
-    if (node instanceof SensorFormGroup){
-      this.kitForm.sensor_resources.calculateClusterStorageAvailable(drivesSelected, node.deviceFacts);
-    } else if (node instanceof ServerFormGroup){
-      this.kitForm.server_resources.calculateClusterStorageAvailable(drivesSelected, node.deviceFacts);
-    }
-
+  cephDriveSelected(drivesSelected: Array<string>, node: ServerFormGroup): void {   
+    this.kitForm.server_resources.calculateClusterStorageAvailable(drivesSelected, node.deviceFacts);
     this.setSystemClusterStorageAvailable();
   }
 
   private setSystemClusterStorageAvailable(){
     this.kitForm.system_resources.clusterStorageAvailable = 0;
-    this.kitForm.system_resources.clusterStorageAvailable += this.kitForm.sensor_resources.clusterStorageAvailable;
     this.kitForm.system_resources.clusterStorageAvailable += this.kitForm.server_resources.clusterStorageAvailable;
   }
 
@@ -544,7 +536,31 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   }
 
-  togglePercentages(isChecked: boolean){
+  togglePercentages(){
     this.isPercentagesHidden = !this.isPercentagesHidden;
+    if(this.isPercentagesHidden){
+      for (let index = 0; index <  this.kitForm.sensors.length; index++){
+        let sensor = this.kitForm.sensors.at(index) as SensorFormGroup;
+        sensor.bro_cpu_percentage.disable();
+        sensor.suricata_cpu_percentage.disable();
+        sensor.moloch_cpu_percentage.disable();
+      }
+    } else {
+      for (let index = 0; index <  this.kitForm.sensors.length; index++){
+        let sensor = this.kitForm.sensors.at(index) as SensorFormGroup;
+        sensor.bro_cpu_percentage.enable();
+        sensor.suricata_cpu_percentage.enable();
+        sensor.moloch_cpu_percentage.enable();
+      }
+    }
+  }
+
+  sensorAppSelect(sensor: SensorFormGroup, selected: Array<string>){
+    if (this.kitForm.enable_percentages.value === null) {
+      toggleSensorAppSelections(sensor, selected, false);
+    } else {
+      toggleSensorAppSelections(sensor, selected, this.kitForm.enable_percentages.value);
+    }
+    this.cdRef.detectChanges();
   }
 }

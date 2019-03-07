@@ -8,9 +8,6 @@
     </p>
     <p class="card-text">Memory Available:
       <span id="sensor_memory_available">{{ sensorResourceForm.memoryAvailable | number:'1.0-2' }}</span> GB</p>
-    <p class="card-text">Clustered Storage Available:
-      <span id="sensor_clustered_storage_available">{{ sensorResourceForm.clusterStorageAvailable | number:'1.0-2' }}</span> GB</p>
-    <hr>
     <h6 class="card-subtitle mb-2 text-muted">Home NET Settings</h6>
     <hr>
     <button type="button" class="btn btn-primary" (click)="addHomeNet()" name="add_home_net" [disabled]="sensorResourceForm.isDisabled">+ Add Home Net</button>

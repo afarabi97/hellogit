@@ -8,6 +8,5 @@
     <p class="card-text">CPU Cores Available: <span>{{ totalSystemResources.cpuCoresAvailable | number:'1.0-2' }}</span></p>
     <p class="card-text">Memory Available: <span>{{ totalSystemResources.memoryAvailable | number:'1.0-2' }}</span> GB</p>
     <p class="card-text">Clustered Storage Total: <span>{{ totalSystemResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB</p>
-    <p class="card-text {{ totalSystemResources.totalCephDrivesCss }}">Total Ceph Drives: <span>{{ totalSystemResources.totalCephDrives | number:'1.0-2' }}</span>  <span>{{ totalSystemResources.totalCephDrivesErrors }}</span></p>
   </div>
 </div>

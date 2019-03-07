@@ -8,6 +8,7 @@ from typing import Dict
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR
 from app.calculations import ServerCalculations, NodeCalculations
+from app.resources import NodeResourcePool, NodeResources
 
 
 JINJA_ENV = Environment(
@@ -68,6 +69,8 @@ class KitInventoryGenerator:
         self._template_ctx = kit_form
         self._server_cal = ServerCalculations(self._template_ctx)
         self._sensor_cal = NodeCalculations(self._template_ctx)
+        self._server_res = NodeResourcePool(self._template_ctx["servers"])
+        self._sensor_res = NodeResourcePool(self._template_ctx["sensors"])
 
     def _set_sensor_type_counts(self) -> None:
         """
@@ -86,6 +89,29 @@ class KitInventoryGenerator:
 
         self._template_ctx["sensor_local_count"] = sensor_local_count
         self._template_ctx["sensor_remote_count"] = sensor_remote_count
+
+    def _set_apps_bools(self) -> None:
+        has_suricata = False
+        has_moloch = False
+        has_bro = False
+        for sensor in self._template_ctx["sensors"]:
+            if "suricata" in sensor['sensor_apps']:
+                has_suricata = True
+            if "moloch" in sensor['sensor_apps']:
+                has_moloch = True
+            if "bro" in sensor['sensor_apps']:
+                has_bro = True
+
+        self._template_ctx["has_suricata"] = has_suricata
+        self._template_ctx["has_moloch"] = has_moloch
+        self._template_ctx["has_bro"] = has_bro
+
+    def _set_reservations(self) -> None:
+        for index, sensor in enumerate(self._template_ctx["sensors"]):
+            sensor["reservations"] = self._sensor_res.get_node_reservations(index)
+            
+        for index, server in enumerate(self._template_ctx["servers"]):
+            server["reservations"] = self._server_res.get_node_reservations(index)            
 
     def _set_server_calculations(self) -> None:
         self._template_ctx["server_cal"] = self._server_cal.to_dict()
@@ -134,6 +160,8 @@ class KitInventoryGenerator:
         self._set_defaults()
         self._set_server_calculations()
         self._set_sensor_calculations()
+        self._set_reservations()
+        self._set_apps_bools()
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
         if not os.path.exists("/opt/tfplenum/playbooks/"):
