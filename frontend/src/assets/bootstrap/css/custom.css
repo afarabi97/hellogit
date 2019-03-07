@@ -15,7 +15,7 @@
 
 .leftnavbar2 ol {
     list-style-type: None;
-    padding-left: 0px;    
+    padding-left: 0px;
 }
 
 .leftnavbar2 ol{
@@ -77,7 +77,7 @@ code {
     background-color: #eee;
     padding: 0.2em;
     letter-spacing: -0.05em;
-    word-break: normal;    
+    word-break: normal;
 }
 
 pre code {
@@ -93,7 +93,7 @@ pre code {
     background-color: #333;
 } */
 
-.form-control { 
+.form-control {
     background-color: #222;
     color: #28a745;
     height: inherit;
@@ -132,16 +132,16 @@ p {
     background-color: #101010;
 }
 
-.btn-primary {    
+.btn-primary {
     background-color: #5f9ea0;
     border-color: #006400;
 }
 
-.btn-primary:hover {    
+.btn-primary:hover {
     background-color: #6495ed;
 }
 
-.btn-primary.disabled, .btn-primary:disabled { 
+.btn-primary.disabled, .btn-primary:disabled {
     background-color: #5f9ea0;
     border-color: #5f9ea0;
 }
@@ -156,7 +156,7 @@ p {
     border-color: #333;
 }
 
-.btn-secondary:hover {    
+.btn-secondary:hover {
     background-color: #313131;
     border-color: #2b2a2a;
 }
@@ -174,7 +174,7 @@ p {
 .tooltip-inner {
     max-width: 350px;
     /* If max-width does not work, try using width instead */
-    width: 350px; 
+    width: 350px;
 }
 
 body {
@@ -207,13 +207,13 @@ a {
 }
 
 .invalid-feedback2{
-    width: 100%; 
-    margin-top: 0.25rem; 
-    font-size: 14px; 
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 14px;
     color: #dc3545;
 }
 
-.valid-feedback2 {    
+.valid-feedback2 {
     width: 100%;
     margin-top: 0.25rem;
     font-size: 14px;
@@ -227,7 +227,7 @@ Fixes Chromes webkit color overrides for auto filling forms.
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 50px #222 inset;
     -webkit-text-fill-color: #28a745;
-} 
+}
 
 input:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0 50px lightgrey inset;
@@ -238,4 +238,8 @@ input.form-control {
     border-color: #222;
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
+}
+
+.table th, .table td {
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
 }

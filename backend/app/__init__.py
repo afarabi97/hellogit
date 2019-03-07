@@ -22,6 +22,7 @@ from flask_socketio import SocketIO
 from logging.handlers import RotatingFileHandler
 from logging import Logger
 from pathlib import Path
+from random import randint
 
 
 APP_DIR = Path(__file__).parent  # type: Path
@@ -30,9 +31,10 @@ TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
 conn_mng = MongoConnectionManager()
 LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
 logger = logging.getLogger('tfplenum_logger')
+SEQUENCE_ID_COUNTERS = ["rulesetid", "ruleid"]
 
 
-def setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int=10):
+def _setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int=10):
     """
     Sets up logging for the REST interface.
 
@@ -49,11 +51,28 @@ def setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int=
     log_handle.addHandler(handler)
 
 
-setup_logger(logger)
+def _initalize_counters():
+    for counter in SEQUENCE_ID_COUNTERS:
+        dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
+        if dbrecord == None:
+            ret_val  = conn_mng.mongo_counters.insert_one({"_id": counter, "seq": randint(100, 100000)})
+
+
+def get_next_sequence(key: str):
+    if key not in SEQUENCE_ID_COUNTERS:
+        raise ValueError("Invalid must be one of these values: " + str(SEQUENCE_ID_COUNTERS))
+    ret = conn_mng.mongo_counters.find_one_and_update({"_id": key}, {'$inc': {'seq': 3}})
+    return ret['seq']
+
+
+_initalize_counters()
+_setup_logger(logger)
 
 # Setup Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
+#Max upload size for a single file is 100 MB
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1000 * 100
 CORS(app)
 socketio = SocketIO(app)
 # Start the job manager
@@ -72,3 +91,5 @@ from app import configmap_controller
 from app import archive_controller
 from app import registry_controller
 from app import agent_builder_controller
+from app import ruleset_controller
+from app import pcap_controller

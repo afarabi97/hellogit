@@ -10,10 +10,12 @@ import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { RegistryComponent } from './registry/registry.component';
 import { AgentBuilderComponent } from './agent-builder/agent-builder.component'
+import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
+import { PcapFormComponent } from './pcap-form/pcap-form.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
-  { path: 'portal', component:  PortalComponent},  
+  { path: 'portal', component:  PortalComponent},
   { path: 'health', component:  SystemHealthComponent},
   { path: 'kickstart', component: KickstartFormComponent },
   { path: 'kit_configuration', component: KitFormComponent },
@@ -23,6 +25,8 @@ const routes: Routes = [
   { path: 'confluence/:id', component: ConfluenceComponent },
   { path: 'registry', component: RegistryComponent },
   { path: 'agent_builder', component: AgentBuilderComponent },
+  { path: 'rulesets', component: PolicyManagementComponent},
+  { path: 'pcaps', component: PcapFormComponent},
 ];
 
 

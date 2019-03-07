@@ -27,8 +27,14 @@ export class TopNavbarComponent implements OnInit {
   clearPreviousActive(){
     if (this.navlist){
       let navChildren = this.navlist.nativeElement.children;
-      for (let i = 0; i < navChildren.length; i++){
-        navChildren[i].children[0]['className'] = "nav-link";        
+      for (let i = 0; i < navChildren.length; i++){        
+        if (navChildren[i].children[0] !== undefined){
+          if (navChildren[i].className.includes("dropdown")){
+            navChildren[i].children[0]['className'] = "nav-link dropdown-toggle";
+          } else {
+            navChildren[i].children[0]['className'] = "nav-link";
+          }
+        }
       }
     }
   }
@@ -41,7 +47,11 @@ export class TopNavbarComponent implements OnInit {
       if (srcElement === undefined){
         srcElement = event.target;
       }
-      srcElement['className'] = "nav-link active";
+      if (srcElement['className'].includes("dropdown")){
+        srcElement['className'] = "nav-link dropdown-toggle active";
+      } else {
+        srcElement['className'] = "nav-link active";
+      }
     }
-  }  
+  }
 }

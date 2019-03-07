@@ -12,7 +12,7 @@ import { TextInputComponent } from './text-input/text-input.component';
 import { TextAreaInputComponent } from './textarea-input/textarea-input.component';
 import { DropdownComponent } from './dropdown/dropdown.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
-import { ModalDialogComponent } from './modal-dialog/modal-dialog.component';
+import { ModelDialogModule } from './modal-dialog/modal-dialog.module';
 import { KitFormComponent } from './kit-form/kit-form.component';
 import { BasicNodeResourceCardComponent } from './basic-node-resource-card/basic-node-resource-card.component';
 import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
@@ -26,13 +26,19 @@ import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { SafePipe } from './globals';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
-import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component'; 
+import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
 import { RegistryComponent } from './registry/registry.component';
 import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
-
+import { PolicyManagementModule } from './policy-management/policy-management.module';
+import { ListModule } from './list/list.module';
+import { MaterialModule } from './utilily-modules/material-module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PcapFormComponent } from './pcap-form/pcap-form.component';
+import { ModalLoadingModule } from './modal-loading/modal-loading.module';
+// import { ModalLoadingComponent } from './modal-loading/modal-loading.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +50,6 @@ import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
     TextAreaInputComponent,
     DropdownComponent,
     CheckboxComponent,
-    ModalDialogComponent,
     KitFormComponent,
     BasicNodeResourceCardComponent,
     TotalServerResourcesCardComponent,
@@ -56,13 +61,14 @@ import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
     ModalArchiveDialogComponent,
     PortalComponent,
     SystemHealthComponent,
-    SafePipe,    
+    SafePipe,
     ConfigmapsComponent,
     ConfigmapEditorComponent,
     DatePickerComponent,
     ModalIpSelectDialogComponent,
     RegistryComponent,
-    AgentBuilderComponent
+    AgentBuilderComponent,
+    PcapFormComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +76,13 @@ import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    NgbModule
+    NgbModule,
+    ListModule,
+    MaterialModule,
+    BrowserAnimationsModule,
+    PolicyManagementModule,
+    ModelDialogModule,
+    ModalLoadingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

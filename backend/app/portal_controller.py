@@ -1,7 +1,7 @@
 """
 Main module that controls the REST calls for the portal page.
 """
-from app import (app, conn_mng)
+from app import (app, conn_mng, logger)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from fabric.runners import Result
 from flask import jsonify, Response

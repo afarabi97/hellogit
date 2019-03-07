@@ -1,23 +1,47 @@
 <div class="container" id="topheader">
   <div class="card">
     <div class="card-header">
+      Common Links
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>          
+            <th scope="col">IP</th>
+            <th scope="col">URL</th>
+            <th scope="col">Default user/password</th>
+          </tr>
+        </thead>
+        <tbody #selections >
+          <tr *ngFor="let link of links">          
+            <td><a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a></td>
+            <td><a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a></td>
+            <td>{{ link.logins }}</td>
+          </tr>             
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <br>
+  <div class="card">
+    <div class="card-header">
       Dashboard Links
     </div>
-    <table class="table">
-      <thead>
-        <tr>          
-          <th scope="col">IP</th>
-          <th scope="col">URL</th>
-          <th scope="col">Default user/password</th>
-        </tr>
-      </thead>
-      <tbody #selections >
-        <tr *ngFor="let link of links">          
-          <td><a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a></td>
-          <td><a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a></td>
-          <td>{{ link.logins }}</td>
-        </tr>             
-      </tbody>
-    </table>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let link of links">
+            <tr *ngIf="link.dns === 'http://kibana.lan'">
+              <td><a href="{{ link.ip }}/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b?_g=()&_a=(description:'',filters:!(),fullScreenMode:!f,options:(darkTheme:!t,useMargins:!t),panels:!((gridData:(h:24,i:'1',w:40,x:8,y:12),id:f86bc870-46ce-11e7-946f-1bfb1be7c36b,panelIndex:'1',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(params:(sort:(columnIndex:!n,direction:!n)))),gridData:(h:28,i:'2',w:12,x:8,y:36),id:'0f25aac0-3434-11e7-8867-29a39c0f86b2',panelIndex:'2',type:visualization,version:'6.5.3'),(gridData:(h:24,i:'4',w:48,x:0,y:64),id:'3a273780-46d0-11e7-946f-1bfb1be7c36b',panelIndex:'4',type:visualization,version:'6.5.3'),(gridData:(h:64,i:'9',w:8,x:0,y:0),id:b3b449d0-3429-11e7-9d52-4f090484f59e,panelIndex:'9',type:visualization,version:'6.5.3'),(embeddableConfig:(columns:!(_source),sort:!('@timestamp',desc)),gridData:(h:64,i:'10',w:48,x:0,y:88),id:ef487fd0-46cf-11e7-ba56-317a6969f55c,panelIndex:'10',type:search,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'15',w:8,x:8,y:0),id:AWDHIynExQT5EBNmq49q,panelIndex:'15',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'16',w:8,x:16,y:0),id:AWDHJY1BxQT5EBNmq5Ay,panelIndex:'16',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'17',w:8,x:24,y:0),id:AWDHJpuBxQT5EBNmq5Cr,panelIndex:'17',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'18',w:8,x:32,y:0),id:AWDHKEF2xQT5EBNmq5FA,panelIndex:'18',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(params:(sort:(columnIndex:2,direction:desc)))),gridData:(h:28,i:'19',w:28,x:20,y:36),id:d8214de0-4a3a-11e8-9b0a-f1d33346f773,panelIndex:'19',type:visualization,version:'6.5.3')),query:(language:lucene,query:(query_string:(analyze_wildcard:!t,default_field:'*',query:'*'))),timeRestore:!f,title:Stats,viewMode:view)" target="_blank">Bro Dashboards</a></td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

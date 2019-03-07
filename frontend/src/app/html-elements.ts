@@ -1,5 +1,5 @@
-import { FormControl, Validators, AsyncValidatorFn, 
-        ValidatorFn, AbstractControlOptions, 
+import { FormControl, Validators, AsyncValidatorFn,
+        ValidatorFn, AbstractControlOptions,
         FormArray, FormGroup, AbstractControl, ValidationErrors } from '@angular/forms';
 
 declare var $: any;
@@ -79,11 +79,12 @@ export enum ModalType {
   error,
   success,
   code,
-  form
+  form,
+  edit
 }
 
 export interface HtmlModalPopUpInterface {
-  updateModal(title: string, text: string,
+  updateModal(title: string, text: string | Array<string>,
     primary_button_text: string, secondary_button_text: string,
     type: ModalType);
   openModal();
@@ -93,7 +94,7 @@ export interface HtmlModalPopUpInterface {
 export class HtmlModalPopUp implements HtmlModalPopUpInterface {
   private _id: string;
   private _title: string;
-  private _text: string;
+  private _text: string | Array<string>;
   private _primary_button_text?: string;
   private _secondary_button_text?: string;
   private _type: ModalType;
@@ -118,7 +119,7 @@ export class HtmlModalPopUp implements HtmlModalPopUpInterface {
     return this._title;
   }
 
-  get text(): string {
+  get text(): string | Array<string> {
     return this._text;
   }
 
@@ -142,9 +143,13 @@ export class HtmlModalPopUp implements HtmlModalPopUpInterface {
     return this._cacheData;
   }
 
-  updateModal(title: string, text: string,
-    primary_button_text: string, secondary_button_text?: string,    
-    type: ModalType = ModalType.general, modalForm: FormGroup = null, cacheData: any=null) {    
+  isTextArray(): boolean{
+    return this._text instanceof Array;
+  }
+
+  updateModal(title: string, text: string | Array<string>,
+    primary_button_text: string, secondary_button_text?: string,
+    type: ModalType = ModalType.general, modalForm: FormGroup = null, cacheData: any=null) {
     this._title = title;
     this._text = text;
     this._primary_button_text = primary_button_text;
@@ -176,7 +181,7 @@ export class HtmlModalPopUp implements HtmlModalPopUpInterface {
 //TODO rename to archive select modal dialog.
 export class HtmlModalRestoreArchiveDialog extends HtmlModalPopUp {
   private _selection: Array<Object>;
-  private _isDisabled: boolean;  
+  private _isDisabled: boolean;
 
   constructor(id: string) {
     super(id);
@@ -206,7 +211,7 @@ export class HtmlModalRestoreArchiveDialog extends HtmlModalPopUp {
 
 export class HtmlModalIPSelectDialog extends HtmlModalPopUp {
   private _selection: Array<string>;
-  private _isDisabled: boolean;  
+  private _isDisabled: boolean;
 
   constructor(id: string) {
     super(id);
@@ -326,13 +331,13 @@ function validateDate(control: AbstractControl): ValidationErrors | null {
   let result = pat.test(ctrlVal);
   if (!result){
     return {"custom_error": "Invalid date format.  It must be in yyyy-mm-dd format."};
-  } 
+  }
 
   return null;
 }
 
 export class HtmlDatePicker extends FormControl implements HelpPageInterface {
-  anchor: string;  
+  anchor: string;
 
   constructor(public form_name: string,
     public label: string,
@@ -347,7 +352,7 @@ export class HtmlDatePicker extends FormControl implements HelpPageInterface {
     if (required) {
       validators.push(Validators.required);
     }
-  
+
     validators.push(validateDate);
     super.setValidators(validators);
     super.setValue(default_value);
@@ -375,7 +380,7 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
     public has_button: boolean = false,
     public button_text: string = 'Submit',
     public button_css: string = 'btn btn-primary',
-    validatorOrOpts: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null = null, 
+    validatorOrOpts: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null = null,
     asyncValidator: AsyncValidatorFn | AsyncValidatorFn[] | null = null
   ) {
     super('', validatorOrOpts, asyncValidator);
@@ -408,7 +413,7 @@ export class HtmlInput extends FormControl implements HtmlInputInterface, HelpPa
   }): void {
     this.control_disabled = true;    
   }
-  
+
   /**
    * Override for enabling HtmlInputs.
    * 
@@ -433,20 +438,20 @@ export class HtmlTextArea extends FormControl implements TextFormField, HelpPage
 
   constructor(public form_name: string,
     public label: string,
-    public placeholder: string,    
+    public placeholder: string,
     public default_value: string,
-    public description: string,    
+    public description: string,
     public required: boolean = false,
     public html5_constraint: string | ValidatorFn = null,
     public invalid_feedback: string = 'Invalid input',
     public valid_feedback: string = 'Valid input',
-    disabled: boolean = false    
+    disabled: boolean = false
   ) {
     super('');
     let validators = [];
     if (required) {
       validators.push(Validators.required);
-    }    
+    }
     super.setValidators(validators);
     super.setValue(default_value);
 
@@ -458,17 +463,17 @@ export class HtmlTextArea extends FormControl implements TextFormField, HelpPage
         validators.push(Validators.pattern(html5_constraint));
       } else {
         validators.push(html5_constraint);
-      }      
+      }
     }
   }
-  
+
   disable(opts?: {
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
     this.control_disabled = true;    
   }
-  
+
   enable(opts?: {
     onlySelf?: boolean;
     emitEvent?: boolean;
@@ -483,7 +488,7 @@ export class HtmlTextArea extends FormControl implements TextFormField, HelpPage
 }
 
 /**
- * Backing object for a selection box 
+ * Backing object for a selection box
  */
 export class HtmlCardSelector extends FormArray implements HelpPageInterface, HtmlCardSelectorInterface {
   anchor: string;
@@ -507,8 +512,8 @@ export class HtmlCardSelector extends FormArray implements HelpPageInterface, Ht
 
   /**
    * Overridden method so that this element is properly disabled.
-   * 
-   * @param opts 
+   *
+   * @param opts
    */
   disable(opts?: {
     onlySelf?: boolean;

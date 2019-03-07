@@ -5,14 +5,32 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <ul #navlist class="navbar-nav" style="width: 100%;">      
-      <li class="nav-item"><a class="nav-link" routerLink="/portal" (click)="setActive($event)">Portal</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/health" (click)="setActive($event)">System Health</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/kickstart" (click)="setActive($event)">Kickstart Configuration</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/kit_configuration" (click)="setActive($event)">Kit Configuration</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/configmaps" (click)="setActive($event)">Config Maps</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/registry" (click)="setActive($event)">Docker Registry</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/agent_builder" (click)="setActive($event)">Agent Builder</a></li>
+    <ul #navlist class="navbar-nav" style="width: 100%;">
+      <li class="nav-item"><a class="nav-link" routerLink="/portal" (click)="setActive($event)">Portal</a></li>      
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">System Setup</a>
+        <div class="dropdown-menu">          
+            <li class="nav-item"><a class="nav-link" routerLink="/kickstart">Step 1 - Kickstart Configuration</a></li>
+            <li class="nav-item"><a class="nav-link" routerLink="/kit_configuration">Step 2 - Kit Configuration</a></li>
+            <li class="nav-item"><a class="nav-link" routerLink="/agent_builder">Step 3 - Build Host Agent</a></li>            
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Kubernetes</a>
+        <div class="dropdown-menu">
+          <li class="nav-item"><a class="nav-link" routerLink="/health">Health</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/configmaps">Config Maps</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/registry">Docker Registry</a></li>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Policy Management</a>
+        <div class="dropdown-menu">          
+          <li class="nav-item"><a class="nav-link" routerLink="/rulesets">Rule Sets</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/pcaps">Test PCAP files</a></li>
+        </div>
+      </li>
+      <li class="nav-item"></li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Confluence</a>
         <div class="dropdown-menu">
@@ -21,6 +39,6 @@
       </li>
       <li class="nav-item"><a class="nav-link" routerLink="/help" (click)="setActive($event)">Help</a></li>
     </ul>
-  </div>  
+  </div>
 </nav>
 <router-outlet></router-outlet> 

@@ -9,5 +9,6 @@ ceph-deploy/\.remote-sync\.json
 frontend/src/assets/confluence/
 frontend/package-lock.json
 *monitor_install.exe
+backend/rules
 backups/
 *.swp

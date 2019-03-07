@@ -3,6 +3,9 @@ This module is for storing standard functions which can be reused anywhere withi
 
 """
 import base64
+import hashlib
+from pathlib import Path
+from typing import Union, Dict
 
 
 def netmask_to_cidr(netmask: str) -> int:
@@ -47,3 +50,28 @@ def decode_password(password_enc: str) -> str:
     if password_enc is None or len(password_enc) == 0:
         return ''
     return base64.b64decode(bytes(password_enc, 'utf-8')).decode('utf-8')
+
+
+def hash_file(some_path: Union[str, Path], chunk_size=8192) -> Dict:
+    path = None #type: Path
+    if isinstance(some_path, str):
+        path = Path(some_path)
+    elif isinstance(some_path, Path):
+        path = some_path
+    else:
+        raise ValueError("Invalid type passed into hash_file function.")
+
+    md5 = hashlib.md5()
+    sha1 = hashlib.sha1()
+    sha256 = hashlib.sha256()
+
+    with open(str(path), 'rb') as fp:        
+        while True:
+            chunk = fp.read(chunk_size)
+            if chunk:
+                md5.update(chunk)
+                sha1.update(chunk)
+                sha256.update(chunk)
+            else:
+                break
+    return {"md5": md5.hexdigest(), "sha1": sha1.hexdigest(), "sha256": sha256.hexdigest() }

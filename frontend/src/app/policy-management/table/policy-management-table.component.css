@@ -1,0 +1,130 @@
+table {
+  width: 100%;
+  border-color: grey;
+  background: black;
+}
+
+.table {
+  background-color: black;
+}
+
+.custom-mat-inner-table {
+  background-color: #222;
+}
+
+.custom-mat-inner-table td {
+  padding-top: 0.25rem;
+  min-width: 115px;
+  max-width: 350px;
+}
+
+tr.example-detail-row {
+  height: 0;
+  color: grey;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: white;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: white;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+  color: white;
+  border-color: grey;
+  border-top: 1px solid;
+  background: black;
+  padding-top: 0.25rem;
+}
+
+.example-element-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.mat-header-cell {
+  color: white;
+
+}
+
+.example-element-diagram {
+  min-width: 80px;
+  border: 2px solid black;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 104px;
+}
+
+.example-element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+.example-element-description {
+  padding: 16px;
+}
+
+.example-element-description-attribution {
+  opacity: 0.5;
+}
+
+.mat-checkbox-inner-container {
+  background: white;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+  background: #222;
+  color: green;
+}
+
+.mat-form-field-underline {
+  background-color: green;
+}
+
+.mat-row {
+  color: white;
+}
+
+.feature_desc {
+  display: block;
+  background: black;
+  color: white;
+}
+
+.form-control {
+  background-color: black;
+  color: #28a745;
+  height: inherit;
+}
+
+.mat-form-field:active {
+  background-color: lightgrey;
+}
+
+.mat-form-field:focus {
+  background-color: lightgrey;
+}
+
+.mat-paginator {
+  color: white
+
+}
+
+.mat-icon-button {
+  color: white;
+}
+
+.mat-cell {
+  color:white
+}
+
+.rule-padding {
+  padding-right: 7px;
+}

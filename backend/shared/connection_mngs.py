@@ -71,7 +71,7 @@ class MongoConnectionManager(object):
 
         :return:
         """
-        return self._tfplenum_database
+        return self._tfplenum_database    
 
     @property
     def mongo_kickstart(self) -> Collection:
@@ -83,39 +83,31 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kickstart
 
     @property
-    def mongo_kit(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
+    def mongo_counters(self) -> Collection:
+        return self._tfplenum_database.counters
 
-        :return:
-        """
+    @property
+    def mongo_kit(self) -> Collection:
         return self._tfplenum_database.kit
 
     @property
     def mongo_kit_archive(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
-
-        :return:
-        """
         return self._tfplenum_database.kit_archive
 
     @property
     def mongo_kickstart_archive(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
-
-        :return:
-        """
         return self._tfplenum_database.kickstart_archive
 
     @property
-    def mongo_console(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
+    def mongo_ruleset(self) -> Collection:
+        return self._tfplenum_database.ruleset
 
-        :return:
-        """
+    @property
+    def mongo_pcaps(self) -> Collection:
+        return self._tfplenum_database.pcaps
+
+    @property
+    def mongo_console(self) -> Collection:
         return self._tfplenum_database.console
 
     @property
@@ -200,6 +192,42 @@ class FabricConnectionWrapper():
         if self._connection:
             self._connection.close()
         
+
+class FabricConnection():
+
+    def __init__(self, 
+                 ip_address: str, 
+                 password: str = None, 
+                 username: str = USERNAME):
+        self._connection = None  # type: Connection
+        self._ip_address = ip_address
+        self._password = password
+        self._username = username
+
+    def _set_root_password(self) -> str:
+        with MongoConnectionManager() as conn_mng:
+            kickstart_form = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+            self._password = decode_password(kickstart_form['form']['root_password'])
+
+    def _establish_fabric_connection(self) -> None:
+        self._connection = Connection(self._ip_address, 
+                                      user=self._username, 
+                                      connect_timeout=CONNECTION_TIMEOUT,
+                                      connect_kwargs={'password': self._password, 
+                                                      'allow_agent': False, 
+                                                      'look_for_keys': False})        
+
+    def __enter__(self):
+        if not self._password:
+            self._set_root_password()
+
+        self._establish_fabric_connection()
+        return self._connection
+
+    def __exit__(self, *exc):
+        if self._connection:
+            self._connection.close()
+
 
 class KubernetesWrapper():
 

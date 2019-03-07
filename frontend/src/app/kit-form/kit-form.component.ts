@@ -224,7 +224,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.executeKitModal.openModal();
   }
 
-  onSubmit(){    
+  onSubmit(){
     this.openDateModal(true, 'Are you sure you want to execute this Kit configuration? Doing so will create a new cluster \
       with the configuration you created.  All data will be wiped out if you are running this on an existing cluster! \
       Before you can submit your Kit configuration, please make sure you enter the current UTC date and time below.  \

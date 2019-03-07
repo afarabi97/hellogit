@@ -20,7 +20,7 @@
         <tbody>
           <ng-container *ngFor="let config of configMaps; let configIndex=index">
             <tr>
-              <td><a (click)="toggleDataDropDown(configIndex)">{{ config.metadata.namespace }}</a></td>
+              <td><a class="dropdown-toggle" (click)="toggleDataDropDown(configIndex)">{{ config.metadata.namespace }}</a></td>
               <td>{{ config.metadata.name }}</td>
               <td>{{ config.metadata.creation_timestamp }}</td>
               <td><button title="Remove Config Map" class="btn btn-danger" (click)="removeConfigMap(config.metadata.name, configIndex)"><i

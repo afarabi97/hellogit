@@ -101,6 +101,19 @@ EOF
 	run_cmd systemctl enable mongod
 }
 
+function _preload_ids_rules {
+	mkdir -p $FRONTEND_DIR/backend/rules
+	pushd $FRONTEND_DIR/backend/rules > /dev/null
+	curl -L -O https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz
+	tar xzf emerging.rules.tar.gz
+	popd > /dev/null
+
+	pushd $FRONTEND_DIR/backend > /dev/null
+	/opt/tfplenum-frontend/tfp-env/bin/python preload_suricata_rules.py
+	rm -rf $FRONTEND_DIR/backend/rules
+	popd > /dev/null
+}
+
 rm -rf ~/.pip
 mkdir -p /var/log/tfplenum/
 _install_deps
@@ -114,5 +127,6 @@ _install_and_configure_gunicorn
 _install_and_start_mongo40
 _restart_services
 _open_firewall_ports
+_preload_ids_rules
 
 popd > /dev/null

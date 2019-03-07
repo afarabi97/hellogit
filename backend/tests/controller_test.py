@@ -19,26 +19,12 @@ from app.kit_controller import _replace_kit_inventory
 from pathlib import Path
 from app import conn_mng, socketio, app
 from flask_socketio import SocketIO
+from tests.integration.base_test_setup import BaseTestCase
+from tests.integration.ruleset_tests import TestRulesetController
+from tests.integration.pcap_tests import TestPcapController
+from typing import Dict, List
 
 
-
-class BaseTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.session = requests.Session()
-        self.base_url = 'http://localhost:5002'
-        conn_mng.mongo_client.drop_database("tfplenum_database")
-        kickstart1 = Path(SCRIPT_DIR + '/testfiles/kickstart1.json')
-        self.kickstart_form1 = json.loads(kickstart1.read_text(), encoding='utf-8')
-
-        kit1 = Path(SCRIPT_DIR + '/testfiles/kit1.json')
-        kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
-
-        self.kit_form1 = json.loads(kit1.read_text(), encoding='utf-8')
-        self.kit_form2 = json.loads(kit2.read_text(), encoding='utf-8')
-        self.kit_form3 = json.loads(kit3.read_text(), encoding='utf-8')
-        
 
 class TestKickstartController(BaseTestCase):
 
@@ -95,6 +81,7 @@ class TestAgentBuilder(BaseTestCase):
         print('Save the file "monitor_install.exe" on a Windows machine and '
                 'test if you can install Winlogbeat and Sysmon.')
 
+
 def start_debug_api_srv():
     socketio.run(app, host='0.0.0.0', port=5002, debug=False) # type: SocketIO
 
@@ -106,7 +93,8 @@ def run_integration_tests() -> bool:
     :return:
     """
     test_classes_to_run = [TestCommonController, TestKickstartController, TestAgentBuilder]
-
+    # test_classes_to_run = [TestRulesetController, TestPcapController, TestCommonController, TestKickstartController]
+    test_classes_to_run = [TestPcapController]
     loader = unittest.TestLoader()
     suites_list = []
     for test_class in test_classes_to_run:

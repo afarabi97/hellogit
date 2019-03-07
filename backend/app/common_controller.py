@@ -12,7 +12,7 @@ from app.node_facts import get_system_info
 from shared.constants import KICKSTART_ID, KIT_ID
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from flask import request, jsonify, Response
-from typing import List
+from typing import List, Dict, Tuple
 
 
 MIN_MBPS = 1000
@@ -199,3 +199,28 @@ def archive_configurations_and_clear() -> Response:
         conn_mng.mongo_kit.delete_one({"_id": KIT_ID})
 
     return OK_RESPONSE
+
+
+def _get_mng_ip_and_mac(sensor: Dict) -> Tuple[str, str]:
+    try:
+        iface = sensor['deviceFacts']['default_ipv4_settings']
+        return iface['address'], iface['macaddress']
+    except KeyError as e:
+        pass
+    return None, None
+
+
+@app.route('/api/get_sensor_hostinfo', methods=['GET'])
+def get_sensor_hostinfo() -> Response:
+    ret_val = []
+    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    if kit_configuration:
+        for sensor in kit_configuration['form']['sensors']:
+            host_simple = {}
+            mng_ip, mac = _get_mng_ip_and_mac(sensor)
+            host_simple['hostname'] = sensor['hostname']
+            host_simple['management_ip'] = mng_ip
+            host_simple['mac'] = mac
+            ret_val.append(host_simple)
+                
+    return jsonify(ret_val)
