@@ -28,10 +28,11 @@ function _install_nodejs(){
 }
 
 function _install_angular(){
-    run_cmd npm install -g @angular/cli
 	pushd $FRONTEND_DIR/frontend > /dev/null
-	run_cmd npm update -g
-    run_cmd npm install --save-dev @angular-devkit/build-angular
+	run_cmd npm install -g npm@latest
+	run_cmd npm install -g @angular/cli
+	run_cmd npm cache verify
+	run_cmd npm i 
     run_cmd npm install
 	popd > /dev/null
 }
