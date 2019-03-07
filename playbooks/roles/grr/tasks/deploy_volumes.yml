@@ -5,7 +5,7 @@
     group: root
     owner: root
     mode: 0644
-  with_items: 
+  with_items:
     - volume-deploy.yml
 
 - name: Deleting volume-deploy.yml

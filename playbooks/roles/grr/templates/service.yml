@@ -15,5 +15,5 @@ spec:
   - name: ui
     protocol: TCP
     port: 443
-    targetPort: 443    
+    targetPort: 443
   type: LoadBalancer

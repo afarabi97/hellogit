@@ -7,7 +7,7 @@
     group: root
     owner: root
     mode: 0644
-  with_items: 
+  with_items:
     - service.yml
 
 - name: Deleting GRR service.yml
@@ -37,7 +37,7 @@
     group: root
     owner: root
     mode: 0644
-  with_items: 
+  with_items:
     - deploy.yml
 
 - name: Deleting GRR deploy.yml
@@ -71,8 +71,8 @@
 
 - name: Copy all other files into container initalizer
   shell: |
-    kubectl cp {{ grr_dir }}/etc/{{ item }} grr-frontend-0:/usr/share/grr-server/install_data/etc -c init  
-  with_items:    
+    kubectl cp {{ grr_dir }}/etc/{{ item }} grr-frontend-0:/usr/share/grr-server/install_data/etc -c init
+  with_items:
     - approvers.yaml
 
 - name: Wait for Grr Server to be ready

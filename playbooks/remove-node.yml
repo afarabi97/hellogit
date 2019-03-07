@@ -23,11 +23,11 @@
         msg: "nodes_to_remove group cannot contain a master-server node"
       when: item in  groups['master-server']
       with_items: "{{ groups['nodes_to_remove'] }}"
-    
+
     - name: Get current node list
       shell: kubectl get nodes --no-headers=true | awk '{ print $1 }'
       register: node_list
-    
+
     - name: Check if nodes in nodes to remove is in node_list
       fail:
         msg: "{{ item }} node is not joined to k8s cluster. Remove {{ item }} from nodes_to_remove group in inventory file."
@@ -40,7 +40,7 @@
     - name: remove-node | Drain node except daemonsets resource
       shell: |
         kubectl drain --force --ignore-daemonsets --grace-period 300 --timeout 360s --delete-local-data {{ item }}
-      failed_when: false      
+      failed_when: false
       ignore_errors: yes
       with_items: "{{ groups['nodes_to_remove'] }}"
 
@@ -70,7 +70,7 @@
       register: task_result
       until: task_result.stdout.find("HEALTH_OK") != -1
       retries: 15
-      delay: 5      
+      delay: 5
       ignore_errors: yes
 
     - name: Purge OSDs

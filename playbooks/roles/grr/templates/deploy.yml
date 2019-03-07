@@ -98,7 +98,7 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - |          
+        - |
           set -e
           VIRTUALENV="/usr/share/grr-server"
           source "${VIRTUALENV}/bin/activate"

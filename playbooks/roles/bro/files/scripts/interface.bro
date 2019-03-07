@@ -39,7 +39,6 @@ event bro_init() &priority=5
 				$reader=Input::READER_RAW,
 				$want_record=F,
 				$fields=InterfaceCmdLine,
-				$ev=SecurityOnion::interface_line]);		
+				$ev=SecurityOnion::interface_line]);
 		}
 	}
-

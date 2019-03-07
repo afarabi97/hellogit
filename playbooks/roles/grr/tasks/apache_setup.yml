@@ -31,7 +31,7 @@
     group: root
     owner: root
     mode: 0644
-  with_items: 
+  with_items:
   - httpd.conf
   - reverse-proxy-ssl.conf
   - mime.types

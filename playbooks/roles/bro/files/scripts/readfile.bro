@@ -1,7 +1,7 @@
 module SecurityOnion;
 
 export {
-	## Read a file.  This function *must* be called from within 
+	## Read a file.  This function *must* be called from within
 	## a "when" statement since it's an asynchronous function.
 	##
 	## filename: The full path and filename to read off disk.
@@ -19,7 +19,7 @@ type Line: record {
 
 event read_entry(desc: Input::EventDescription, tpe: Input::Event, line: string)
 	{
-	if ( desc$name in outstanding_reads ) 
+	if ( desc$name in outstanding_reads )
 		{
 		outstanding_reads[desc$name] += line + "\n";
 		}
@@ -36,7 +36,7 @@ function readfile(filename: string): string
 	local id = unique_id("SOrfile");
 	outstanding_reads[id] = "";
 	add complete_reads[id];
-	
+
 	Input::add_event([$source=filename,
 	                  $reader=Input::READER_RAW,
 	                  $mode=Input::MANUAL,

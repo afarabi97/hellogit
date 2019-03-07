@@ -9,8 +9,8 @@
   vars:
      rpm_list_path: "/root/rpm_export_list"
      curr_repo_path: "/var/www/html/offlinerepo/tfplenum-{{ ansible_distribution }}"
-     
-  any_errors_fatal: true  
+
+  any_errors_fatal: true
   tasks:
     - name: remove old rpm export list
       file:
@@ -22,7 +22,7 @@
         state: installed
 
     - name: Get Rpms
-      shell: |        
+      shell: |
         rpm -qa
       register: rpmlist
       args:
@@ -58,11 +58,11 @@
   hosts:
     - localhost
   vars:
-     rpm_list_path: "/root/rpm_export_list"     
+     rpm_list_path: "/root/rpm_export_list"
      curr_repo_path: "/var/www/html/offlinerepo/tfplenum-{{ ansible_distribution }}"
-     
-  any_errors_fatal: true  
-  tasks: 
+
+  any_errors_fatal: true
+  tasks:
     - name: remove repo
       file:
         path: "{{ curr_repo_path }}"
@@ -83,4 +83,4 @@
       shell: |
         yumdownloader {{ item }} --destdir {{ curr_repo_path }}
       with_lines: "cat {{ rpm_list_path }}"
-            
+

@@ -21,7 +21,7 @@
     rescue:
       - fail:
           msg: |
-            Could not find a required interface network script. This frequently 
+            Could not find a required interface network script. This frequently
             happens when you add an interface to the host after Kickstarting. Try
             running the command nmtui and verify that you have a profile for each
             interface on your host. Monitor interfaces should be set to link local.
@@ -30,7 +30,7 @@
   - name: Add promisc service
     copy:
       src: enable-promisc-mode.service
-      dest: /etc/systemd/system/enable-promisc-mode.service    
+      dest: /etc/systemd/system/enable-promisc-mode.service
       owner: root
       group: root
       mode: 0755
@@ -61,6 +61,6 @@
 
   - name: Restart promisc service
     systemd:
-      name: enable-promisc-mode    
+      name: enable-promisc-mode
       state: restarted
   when: inventory_hostname in groups['sensors'] or inventory_hostname in groups['remote-sensors']

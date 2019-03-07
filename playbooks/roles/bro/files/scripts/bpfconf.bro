@@ -13,7 +13,7 @@ export {
 	## They can be used by surrounding the term by doubled curly braces.
 	const filename = "/etc/nsm/{{sensorname}}/bpf-bro.conf" &redef;
 
-	redef enum Notice::Type += { 
+	redef enum Notice::Type += {
 		## Invalid filter notice.
 		InvalidFilter
 	};

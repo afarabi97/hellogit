@@ -17,7 +17,7 @@ event SecurityOnion::hostname_line(description: Input::EventDescription, tpe: In
     hostname = s;
     event SecurityOnion::found_hostname(hostname);
     Input::remove(description$name);
-    }   
+    }
 
 event bro_init() &priority=5
     {
@@ -27,4 +27,4 @@ event bro_init() &priority=5
                       $want_record=F,
                       $fields=HostnameCmdLine,
                       $ev=SecurityOnion::hostname_line]);
-    }   
+    }

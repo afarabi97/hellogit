@@ -24,7 +24,7 @@ export {
 
 event bro_init()
 	{
-	if ( Cluster::is_enabled() && Cluster::local_node_type() == Cluster::WORKER ) 
+	if ( Cluster::is_enabled() && Cluster::local_node_type() == Cluster::WORKER )
 		{
 		local node = Cluster::node;
 		if ( node in Cluster::nodes && Cluster::nodes[node]?$interface )
@@ -33,7 +33,7 @@ event bro_init()
 			event SecurityOnion::found_interface(interface);
 			}
 		}
-	else if ( Cluster::local_node_type() != Cluster::MANAGER ) 
+	else if ( Cluster::local_node_type() != Cluster::MANAGER )
 		{
 		# If running in standalone mode...
 		when ( local nodefile = readfile(sensortab_file) )
@@ -68,7 +68,7 @@ event SecurityOnion::found_interface(interface: string)
 
 			local name = fields[0];
 			local iface = fields[6];
-			
+
 			if ( SecurityOnion::iface == interface )
 				{
 				#print "Sensorname: " + sensorname + " -- Interface: " + sensor_interface;
