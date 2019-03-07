@@ -85,9 +85,9 @@ do
    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    # This updates the non management interfaces to remove the NETBOOT line
    sed -i '/^NETBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
-   # This updates the non management interfaces to manual  
+   # This updates the non management interfaces to manual
    sed -i 's/^\(BOOTPROTO=\).*/\1none/g' /etc/sysconfig/network-scripts/ifcfg-$i
-   # This updates the non management interfaces to ignore ipv6 by default   
+   # This updates the non management interfaces to ignore ipv6 by default
    sed -i 's/^\(IPV6INIT=\).*/\1no/g' /etc/sysconfig/network-scripts/ifcfg-$i
    # Remove ONBOOT line from non management interface
    sed -i '/^ONBOOT/ d' /etc/sysconfig/network-scripts/ifcfg-$i
@@ -99,6 +99,8 @@ do
    # Add default 169 ip to monitoring interface
    sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-$i
    echo 'IPADDR=169.254.0.1' >> /etc/sysconfig/network-scripts/ifcfg-$i
+   # Sets MTU on all listening interfaces to jumbo frames
+   echo 'MTU="9000"' >> /etc/sysconfig/network-scripts/ifcfg-$i
  fi
 done
 {% endif %}
