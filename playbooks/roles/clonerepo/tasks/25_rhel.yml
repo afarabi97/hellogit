@@ -21,7 +21,7 @@
     when: SOURCE_REPO == "public"
 
 
-  - block:    
+  - block:
     - name: "Mirror RHEL repositories"
       shell: "reposync --repoid={{ item }} --download_path={{ tfplenumoffline_dir }} --download-metadata --downloadcomps"
       with_items: "{{ rhel_repos }}"

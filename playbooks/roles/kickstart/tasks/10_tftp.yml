@@ -23,7 +23,7 @@
         group: root
         mode: 0755
         setype: cobbler_var_lib_t
-        path: "{{ tftp_dir }}/uefi"            
+        path: "{{ tftp_dir }}/uefi"
 
     - name: Place centos & rhel pxe files
       copy:
@@ -32,7 +32,7 @@
         setype: cobbler_var_lib_t
       register: tftp
       with_items:
-        - "{{ tftp_pxe }}"      
+        - "{{ tftp_pxe }}"
 
     - name: Place uefi pxe files
       copy:
@@ -41,7 +41,7 @@
         setype: cobbler_var_lib_t
       register: tftp
       with_items:
-        - "{{ tftp_uefi }}"      
+        - "{{ tftp_uefi }}"
 
     - name: Default pxe menu
       template:
@@ -52,7 +52,7 @@
         mode: 0644
         setype: "{{ item.setype }}"
       register: tftp
-      with_items:      
+      with_items:
       - { src: 'tftp.j2', dest: '/etc/xinetd.d/tftp', setype: 'etc_t'}
 
     - name: TFTP Services
@@ -72,4 +72,4 @@
         immediate: yes
         permanent: yes
       notify: "Restart Docker"
-      
+

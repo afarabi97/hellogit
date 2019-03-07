@@ -32,7 +32,7 @@
   any_errors_fatal: true
   roles:
     - dnsmasq
-  tags: 
+  tags:
     - dnsmasq
     - dns
 
@@ -48,7 +48,7 @@
   any_errors_fatal: true
   roles:
     - profiles
-  tags: 
+  tags:
     - profiles
     - profile
 

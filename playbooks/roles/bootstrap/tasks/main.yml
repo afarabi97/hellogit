@@ -5,7 +5,7 @@
 - set_fact:
     BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
     GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
-    GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"    
+    GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"
 
 - import_tasks: rhel_repos.yml
   when: TFPLENUM_OS_TYPE == "rhel"

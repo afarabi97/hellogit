@@ -33,16 +33,16 @@ function labrepo_available() {
     labrepo_check=`curl -m 10 -s http://labrepo.lan/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
-      echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."      
-      labrepo_check=false      
-    fi    
+      echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
+      labrepo_check=false
+    fi
 }
 
 function prompt_runtype() {
     echo "Select a run type:"
     echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
     echo "Boostrap: Only runs boostrap ansible role."
-    echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."     
+    echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
         select cr in "Full" "Bootstrap" "Docker Images"; do
             case $cr in
@@ -67,18 +67,18 @@ function prompt_rhel_iso_download() {
     check_rhel_iso
     if [ "$rhel_iso_exists" == false ]; then
         echo "-------"
-        
+
         echo "RHEL ISO is required to setup the kit."
         echo "Download the RHEL ISO following these instructions:"
         echo "***If you already have the $RHEL_ISO skip to step 6.***"
-        echo ""        
+        echo ""
         echo "1. In a browser navgiate to https://access.redhat.com/downloads"
         echo "2. Select Red Hat Enterprise Linux."
         echo "3. Login using your Red Hat user/pass."
         echo "4. Select $RHEL_VERSION from the Versions dropdown."
         echo "5. Select Download for Red Hat Enterprise Linux $RHEL_VERSION Binary DVD."
         echo "6. SCP $RHEL_ISO to /root on your controller."
-        
+
         while true; do
         read -p "Have you completed the above steps? (Y/N): " rhel_iso_prompted
 
@@ -98,15 +98,15 @@ function choose_rhel_yum_repo() {
     labrepo_available
     if [ "$labrepo_check" == true ] ; then
         if [ -z "$RHEL_SOURCE_REPO" ]; then
-            echo "-------"            
+            echo "-------"
             echo "Select the source rhel yum server to use:"
             echo "Labrepo: Requires dev network"
             echo "Public: Requires internet access"
             select cr in "Labrepo" "Public"; do
                 case $cr in
-                    Labrepo )                    
+                    Labrepo )
                     export RHEL_SOURCE_REPO="labrepo";
-                    break                    
+                    break
                     ;;
                     Public )
                     export RHEL_SOURCE_REPO="public";
@@ -120,7 +120,7 @@ function choose_rhel_yum_repo() {
     fi
 }
 
-function subscription_prompts(){    
+function subscription_prompts(){
     echo "Verifying RedHat Subscription..."
     subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
 
@@ -128,16 +128,16 @@ function subscription_prompts(){
         echo "-------"
         echo "Since you are running a RHEL controller outside the Dev Network and/or not using Labrepo, "
         echo "You will need to subscribe to RHEL repositories."
-        echo "-------"        
+        echo "-------"
         echo "Select RedHat subscription method:"
         echo "Standard: Requires Org + Activation Key"
         echo "RedHat Developer Login: A RedHat Developer account is free signup here https://developers.redhat.com/"
         echo "RedHat Developer License cannot be used in production environments"
         select cr in "Standard" "RedHat Developer" ; do
                 case $cr in
-                    Standard )                    
+                    Standard )
                     export RHEL_SUB_METHOD="standard";
-                    break                    
+                    break
                     ;;
                     "RedHat Developer" )
                     export RHEL_SUB_METHOD="developer";
@@ -148,7 +148,7 @@ function subscription_prompts(){
         while true; do
             subscription-manager remove --all
             subscription-manager unregister
-            subscription-manager clean            
+            subscription-manager clean
 
             if [ "$RHEL_SUB_METHOD" == "standard" ]; then
                 if [ -z "$RHEL_ORGANIZATION" ]; then
@@ -159,7 +159,7 @@ function subscription_prompts(){
                 if [ -z "$RHEL_ACTIVATIONKEY" ]; then
                     read -p 'Please enter your RHEL activation key (EX: Its the --activationkey flag for the subscription-manager command): ' activationkey
                     export RHEL_ACTIVATIONKEY=$activationkey
-                fi               
+                fi
                 subscription-manager register --activationkey=$RHEL_ACTIVATIONKEY --org=$RHEL_ORGANIZATION --force
             elif [ "$RHEL_SUB_METHOD" == "developer" ]; then
                 subscription-manager register
@@ -169,7 +169,7 @@ function subscription_prompts(){
             subscription-manager attach --auto
             echo "Checking subscription status..."
             subscription_status=`subscription-manager status | grep 'Overall Status:' | awk '{ print $3 }'`
-            
+
             if [ "$subscription_status" == "Current" ]; then
                 break;
             else
@@ -282,7 +282,7 @@ EOF
     fi
 
     yum clean all > /dev/null
-    rm -rf /var/cache/yum/ > /dev/null    
+    rm -rf /var/cache/yum/ > /dev/null
 }
 
 function get_controller_ip() {
@@ -306,7 +306,7 @@ function prompt_di2e_creds() {
         while true; do
             read -p "DI2E Username: "  DIEUSERNAME
             if [ "$DIEUSERNAME" == "" ]; then
-                echo "The username cannot be empty.  Please try again."            
+                echo "The username cannot be empty.  Please try again."
             elif [ "$DIEUSERNAME" != "" ]; then
                 export GIT_USERNAME=$DIEUSERNAME
                 break
@@ -320,11 +320,11 @@ function prompt_di2e_creds() {
             echo
             if [ "$PASSWORD" == "" ]; then
                 echo "The passwords cannot be empty.  Please try again."
-            else                
+            else
                 read -s -p "DI2E Password (again): " PASSWORD2
-            fi            
+            fi
 
-            if [ "$PASSWORD" != "$PASSWORD2" ]; then                
+            if [ "$PASSWORD" != "$PASSWORD2" ]; then
                 echo "The passwords do not match.  Please try again."
             elif [ "$PASSWORD" == "$PASSWORD2" ] && [ "$PASSWORD" != "" ]; then
                 break
@@ -413,7 +413,7 @@ function setup_frontend(){
     run_cmd /opt/tfplenum-frontend/setup/setup.sh
 }
 
-function _install_and_start_mongo40() {    
+function _install_and_start_mongo40() {
 cat <<EOF > /etc/yum.repos.d/mongodb-org-4.0.repo
 [mongodb-org-4.0]
 name=MongoDB Repository
@@ -432,10 +432,10 @@ function execute_pre(){
     run_cmd curl -s -o epel-release-latest-7.noarch.rpm $EPEL_RPM_PUBLIC_URL
     rpm -e epel-release-latest-7.noarch.rpm
     yum remove epel-release -y
-    rm -rf /etc/yum.repos.d/epel*.repo    
+    rm -rf /etc/yum.repos.d/epel*.repo
     yum install epel-release-latest-7.noarch.rpm -y
     rm -rf epel-release-latest-7.noarch.rpm
-        
+
     run_cmd yum -y update
     run_cmd yum -y install $PACKAGES
 }
@@ -481,11 +481,11 @@ function execute_pull_docker_images_playbook(){
 function prompts(){
     echo "---------------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP ${boostrap_version}"
-    echo "---------------------------------"    
+    echo "---------------------------------"
     set_os_type
     prompt_runtype
     get_controller_ip
-    
+
     if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
         if [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
             choose_rhel_yum_repo
@@ -498,14 +498,14 @@ function prompts(){
     if [ "$RUN_TYPE" == "full" ]; then
         prompt_di2e_creds
         set_git_variables
-    fi        
+    fi
 }
 
 export BOOTSTRAP=true
 prompts
 
 if [ "$RUN_TYPE" == "full" ]; then
-    setup_git    
+    setup_git
     clone_repos
     git config --global --unset credential.helper
     execute_pre
@@ -513,7 +513,7 @@ if [ "$RUN_TYPE" == "full" ]; then
     setup_frontend
 fi
 
-if [ "$RUN_TYPE" == "bootstrap" ]; then    
+if [ "$RUN_TYPE" == "bootstrap" ]; then
     execute_pre
 fi
 

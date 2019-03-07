@@ -9,7 +9,7 @@
     setype: httpd_sys_content_t
 
 - name: "Create tfplenum repo directory"
-  file:  
+  file:
     path: "{{ item }}"
     state: directory
   with_items:

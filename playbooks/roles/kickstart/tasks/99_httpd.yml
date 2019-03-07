@@ -1,16 +1,16 @@
 ---
 - name: Configure web server
-  block:      
+  block:
     - name: Install packages
       yum:
         name: "{{ apache }}"
         state: latest
-    
+
     - name: Remove apache welcome page
-      file:        
+      file:
         path: /etc/httpd/conf.d/welcome.conf
         state: absent
-       
+
     - name: Start the {{ apache }} service
       service:
         name: "{{ apache }}"

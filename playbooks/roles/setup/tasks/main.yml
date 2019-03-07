@@ -40,7 +40,7 @@
 
 - name: Import bootstrap vars
   include_vars:
-    file: "{{ BOOTSTRAP_VARS }}"  
+    file: "{{ BOOTSTRAP_VARS }}"
 
 - name: Recreate Local Yum Repos
   import_role:

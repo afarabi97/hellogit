@@ -14,6 +14,3 @@
   when: docker_stat_result.stat.exists
   listen: "Restart Docker"
   ignore_errors: yes
-
-
-

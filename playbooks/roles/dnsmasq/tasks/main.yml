@@ -1,6 +1,6 @@
 ---
 - name: Configure dns server
-  block:    
+  block:
     - name: Create /etc/hosts
       template:
         src: "hosts.j2"
@@ -10,7 +10,7 @@
         mode: 0644
       register: dnsmasq_result
       notify: "Restart Network Services"
-    
+
     - meta: flush_handlers
 
     - name: Install packages
@@ -22,15 +22,13 @@
       service:
         name: "dnsmasq"
         state: started
-        enabled: yes      
+        enabled: yes
 
     - name: DNS Firewall
       firewalld:
         service: dns
         state: enabled
         immediate: yes
-        permanent: yes     
-      notify: "Restart Docker"   
+        permanent: yes
+      notify: "Restart Docker"
   when: dnsmasq is defined and dnsmasq
-
-

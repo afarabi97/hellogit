@@ -11,7 +11,7 @@
         setype: httpd_sys_content_t
       vars:
         uefi: false
-        
+
     - name: Make default uefi {{ ansible_distribution }} {{ kick_cfg }} avail
       template:
         src: ks.cfg.j2
@@ -22,7 +22,7 @@
         setype: httpd_sys_content_t
       vars:
         uefi: true
-    
+
     - name: Create {{ ansible_distribution }} bios ks for each server
       template:
         src: "ks.cfg.j2"
@@ -99,5 +99,4 @@
       register: tftp
       with_items:
       - "{{ groups['servers'] }}"
-      when: hostvars[item].pxe_type == 'uefi'  
-
+      when: hostvars[item].pxe_type == 'uefi'

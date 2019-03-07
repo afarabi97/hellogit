@@ -3,12 +3,12 @@
   - name: Additional Repos
     block:
       - name: "Configure epel repo"
-        yum_repository:    
+        yum_repository:
           name: "{{ epel_repo.name }}"
           description: "{{ epel_repo.name }} repo"
           failovermethod: "{{ epel_repo.failovermethod }}"
           metalink: "{{ epel_repo.metalink }}"
-          enabled: true 
+          enabled: true
           gpgcheck: "{{ epel_repo.gpgcheck}}"
           gpgkey: "{{ epel_repo.gpgkey}}"
 
@@ -18,13 +18,13 @@
           description: "{{ item.value.description }}"
           gpgcheck: false
           enabled: true
-          name: "{{ item.value.name }}"        
+          name: "{{ item.value.name }}"
         loop: "{{ lookup('dict', additional_repo_info) }}"
 
       - name: "Mirror Additional repositories from internet"
         shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
         loop: "{{ lookup('dict', additional_repo_info) }}"
-      
+
       - name: "Mirror Epel repositories from internet"
         shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
@@ -34,10 +34,10 @@
           state: "absent"
 
       - name: Force Symlink to k8s directory
-        file: 
-          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+        file:
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
           src: "{{ tfplenumoffline_dir }}/pool"
-          state: link 
+          state: link
           force: yes
 
       - name: get gpgkeys
@@ -46,20 +46,20 @@
           dest: "{{ tfplenumoffline_dir }}/{{ item.value.name }}"
           mode: 0644
         loop: "{{ lookup('dict', additional_repo_info) }}"
-      
+
       - name: get epel gpgkeys
         get_url:
           url: "{{ epel_repo.gpgkeyurl }}"
           dest: "{{ tfplenumoffline_dir }}/{{ epel_repo.name }}"
           mode: 0644
-    when: SOURCE_REPO == "public" 
+    when: SOURCE_REPO == "public"
 
-  - name: Additional Repos 
+  - name: Additional Repos
     block:
       - name: "Mirror Additional repositories from labrepo"
         shell: "reposync --repoid={{ item.value.name }} --download_path={{ item.value.download_path }} --download-metadata --downloadcomps --allow-path-traversal"
         loop: "{{ lookup('dict', additional_repo_info) }}"
-      
+
       - name: "Mirror Epel repositories from labrepo"
         shell: "reposync --repoid={{ epel_repo.name }} --download_path={{ epel_repo.download_path }} --download-metadata --downloadcomps"
 
@@ -69,9 +69,9 @@
           state: "absent"
 
       - name: Force Symlink to k8s directory
-        file: 
-          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}" 
+        file:
+          path: "{{ tfplenumoffline_dir }}/{{ additional_repo_info['kube']['name'] }}"
           src: "{{ tfplenumoffline_dir }}/tmp/kubernetes"
-          state: link 
-          force: yes      
+          state: link
+          force: yes
     when: SOURCE_REPO == "labrepo"

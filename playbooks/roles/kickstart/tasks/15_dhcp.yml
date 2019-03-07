@@ -17,10 +17,10 @@
         dhcp_mask: "{{ hostvars[inventory_hostname]['ansible_' + item].ipv4.netmask }}"
         dhcp_net: "{{ hostvars[inventory_hostname]['ansible_' + item].ipv4.network }}"
       when: hostvars[inventory_hostname]['ansible_' + item] is defined
-        and hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined 
+        and hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
         and hostvars[inventory_hostname]['ansible_' + item].ipv4.address == server_ip
       with_items: "{{ ansible_interfaces }}"
-    
+
     - name: dhcpd template
       template:
         src: dhcpd.conf.j2
@@ -50,7 +50,7 @@
         enabled: yes
         state: restarted
       when: dhcp_config.changed
-  when: 
+  when:
     - dhcp
     - dhcp_start != ""
     - dhcp_end != ""

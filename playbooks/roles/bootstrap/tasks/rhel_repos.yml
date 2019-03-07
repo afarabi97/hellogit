@@ -17,7 +17,7 @@
       with_items: "{{ rhel_repos }}"
 
     - name: Enable RHEL License
-      replace:    
+      replace:
         path: "/etc/yum/pluginconf.d/subscription-manager.conf"
         regexp: 'enabled=0'
         replace: 'enabled=1'

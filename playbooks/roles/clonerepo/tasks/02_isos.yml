@@ -58,7 +58,7 @@
     dest: "{{ item }}"
     src:  "{{ mnt_pth }}/"
     recursive: yes
-  with_items: 
+  with_items:
   - "{{ web_root }}/{{ ansible_distribution }}/"
 
 - name: Remove unnecessary media from system

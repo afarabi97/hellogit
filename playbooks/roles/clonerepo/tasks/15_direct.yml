@@ -2,7 +2,7 @@
 
 - name: "Download all other direct download files into local repository, including dependencies"
   get_url:
-    url: "{{ item }}" 
+    url: "{{ item }}"
     dest: "{{ tfplenumoffline_dir }}/tfplenum/Packages"
   with_items:
     - "{{ direct_download_package_names }}"
@@ -10,7 +10,7 @@
 
 - name: "Download all other direct download files into local repository, including dependencies"
   get_url:
-    url: "{{ item }}" 
+    url: "{{ item }}"
     dest: "{{ tfplenumoffline_dir }}"
   with_items:
     - "{{ direct_download_package_names }}"
