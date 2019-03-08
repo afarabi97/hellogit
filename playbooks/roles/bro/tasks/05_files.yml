@@ -62,7 +62,7 @@
     group: root
     mode: 0644
   vars:
-    hostname: "{{ item }}"
+    deployment_hostname: "{{ item }}"
   loop: "{{ groups['bro'] }}"
   when: inventory_hostname in groups['master-server']
 

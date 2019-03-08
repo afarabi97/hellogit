@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
   labels:
     component: suricata
 spec:
@@ -32,7 +32,7 @@ spec:
           value: "SURICATA"
         resources:
           requests:
-            cpu: {{ hostvars[hostname].suricata_cpu_request }}
+            cpu: {{ hostvars[deployment_hostname].suricata_cpu_request }}
         volumeMounts:
         - name: filebeat
           mountPath: /etc/filebeat/filebeat.yml
@@ -63,7 +63,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - "{{ hostname }}"
+                - "{{ deployment_hostname }}"
         podAntiAffinity: # Do not allow more than one per host
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:

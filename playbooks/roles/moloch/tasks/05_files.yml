@@ -51,7 +51,7 @@
     group: "{{ moloch_group }}"
     mode: 0644
   vars:
-    hostname: "{{ item }}"
+    deployment_hostname: "{{ item }}"
   loop: "{{ groups['moloch'] }}"
   when: inventory_hostname in groups['master-server']
 

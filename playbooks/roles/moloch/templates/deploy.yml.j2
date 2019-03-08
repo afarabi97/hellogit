@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
   labels:
     component: moloch
 spec:
@@ -35,7 +35,7 @@ spec:
             name: webgui
         resources:
           requests:
-            cpu: {{ hostvars[hostname].moloch_cpu_request }}
+            cpu: {{ hostvars[deployment_hostname].moloch_cpu_request }}
         volumeMounts:
         - name: configini
           mountPath: {{ moloch_path }}/etc/config.ini
@@ -59,7 +59,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - "{{ hostname }}"
+                - "{{ deployment_hostname }}"
         podAntiAffinity: # Do not allow more than one per host
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
