@@ -123,10 +123,6 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
-        resources:
-          requests:
-            cpu: "200m"
-            memory: "150Mi"
         securityContext:
           privileged: true
         env:
