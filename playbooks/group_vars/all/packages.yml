@@ -1,7 +1,6 @@
 ---
 
 ansible_ver: "2.7.5"
-docker_ver: "18.06.1.ce"
 
 group_packages:
   - base
@@ -20,13 +19,15 @@ packages:
   - bash-completion
   - bind-utils
   - bridge-utils
+  - buildah
   - chrony
   - cockpit
+  - containernetworking-plugins
   - createrepo
+  - cri-o-1.13.6
   - cri-tools
   - dhcp
   - dnsmasq
-  - "docker-ce-{{ docker_ver }}"
   - docker-distribution
   - easy-rsa
   - gcc
@@ -55,6 +56,7 @@ packages:
   - python36-devel
   - python-gobject
   - rsync
+  - runc
   - sshpass
   - syslinux
   - tcpdump
@@ -69,5 +71,8 @@ packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
   - "kubectl-{{ k8s_version }}"
   - kubernetes-cni-0.6.0
+
+packages_to_remove:
+  - containerd.io
 
 ...

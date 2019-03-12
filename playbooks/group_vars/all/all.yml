@@ -27,6 +27,13 @@ additional_repo_info:
     gpgkeyname: "server-4.0.asc"
     description: "MongoDB Repository"
     download_path: "{{ tfplenumoffline_dir }}"
+  ansible:
+    name: "ansible"
+    baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
+    gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
+    gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
+    description: "Ansible Repo"
+    download_path: "{{ tfplenumoffline_dir }}"
   docker_ce:
     name: "docker-ce"
     baseurl: "https://download.docker.com/linux/centos/7/$basearch/stable"
@@ -34,12 +41,12 @@ additional_repo_info:
     gpgkeyname: "gpg"
     description: "Docker CE repo"
     download_path: "{{ tfplenumoffline_dir }}"
-  ansible:
-    name: "ansible"
-    baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
-    gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
-    gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
-    description: "Ansible Repo"
+  crio:
+    name: "crio"
+    baseurl: "https://cbs.centos.org/repos/paas7-crio-113-candidate/x86_64/os/"
+    gpgkeyurl: ""
+    gpgkeyname: ""
+    description: "crio repo"
     download_path: "{{ tfplenumoffline_dir }}"
 
 epel_repo:

@@ -1,5 +1,10 @@
 ---
 
+- name: "remove tfplenum repo directory"
+  file:  
+    path: "{{ TFPLENUM_REPO_DIR }}"
+    state: absent
+
 - name: "Create tfplenum repo directory"
   file:
     path: "{{ item }}"
@@ -17,6 +22,13 @@
   shell: |
     yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --archlist=x86_64 {{ item }}
   with_items: "{{ packages_without_deps }}"
+
+- name: remove unwanted packages
+  shell: |
+    /usr/bin/rm -rf {{ TFPLENUM_REPO_DIR }}/Packages/{{ item }}*.rpm
+  with_items: "{{ packages_to_remove }}"
+  args:
+    warn: false
 
 - name: Remove Repodata
   file:
