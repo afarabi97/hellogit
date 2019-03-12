@@ -31,6 +31,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
 import { RegistryComponent } from './registry/registry.component';
+import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import { RegistryComponent } from './registry/registry.component';
     ConfigmapEditorComponent,
     DatePickerComponent,
     ModalIpSelectDialogComponent,
-    RegistryComponent
+    RegistryComponent,
+    AgentBuilderComponent
   ],
   imports: [
     BrowserModule,

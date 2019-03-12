@@ -9,6 +9,7 @@ import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { RegistryComponent } from './registry/registry.component';
+import { AgentBuilderComponent } from './agent-builder/agent-builder.component'
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -21,7 +22,9 @@ const routes: Routes = [
   { path: 'stdout/:id', component: ServerStdoutComponent },
   { path: 'confluence/:id', component: ConfluenceComponent },
   { path: 'registry', component: RegistryComponent },
+  { path: 'agent_builder', component: AgentBuilderComponent },
 ];
+
 
 @NgModule({
   imports: [ RouterModule.forRoot(routes) ],

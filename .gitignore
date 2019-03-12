@@ -8,4 +8,6 @@ ceph-deploy/\.remote-sync\.json
 .vscode/
 frontend/src/assets/confluence/
 frontend/package-lock.json
+*monitor_install.exe
 backups/
+*.swp

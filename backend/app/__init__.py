@@ -71,3 +71,4 @@ from app import health_controller
 from app import configmap_controller
 from app import archive_controller
 from app import registry_controller
+from app import agent_builder_controller

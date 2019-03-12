@@ -21,6 +21,7 @@ from app import conn_mng, socketio, app
 from flask_socketio import SocketIO
 
 
+
 class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -41,6 +42,7 @@ class BaseTestCase(unittest.TestCase):
 
 class TestKickstartController(BaseTestCase):
 
+    @unittest.skip('')
     def test_ipchange_detection_failure(self):
         response = self.session.put(self.base_url + '/api/update_kickstart_ctrl_ip/192.168.1.12') # type: Response
         self.assertEqual(response.status_code, 200)
@@ -56,6 +58,7 @@ class TestKickstartController(BaseTestCase):
 
 class TestCommonController(BaseTestCase):
 
+    @unittest.skip('')
     def test_reset_all_forms(self):
         save_kickstart_to_mongo(self.kickstart_form1)
         is_successful, _ = _replace_kit_inventory(self.kit_form1['kitForm'])
@@ -68,6 +71,29 @@ class TestCommonController(BaseTestCase):
         self.assertEqual(1, conn_mng.mongo_kit_archive.count_documents({}))
 
 
+class TestAgentBuilder(BaseTestCase):
+
+    def test_api(self):
+        # Exercise logic for building a windows installer w/o GRR
+        response = self.session.post(
+            self.base_url + '/api/generate_windows_installer', 
+            json={'pf_sense_ip': '172.16.72.2', 
+            'winlogbeat_port': '123', 
+            'grr_port': '8080', 
+            'isGrrInstalled': False})
+        print(response)
+        print(response.headers)
+        self.assertEqual(200, response.status_code)
+        # Check to see the API call returned a file by saving the file and
+        #  checking that its filesize isn't zero
+        filename = 'monitor_install.exe'
+        with open(filename, 'wb') as outputFile:
+            for data in response.iter_content():
+                outputFile.write(data)
+        self.assertTrue(os.stat(filename).st_size > 0)
+        print('Save the file "monitor_install.exe" on a Windows machine and '
+                'test if you can install Winlogbeat and Sysmon')
+
 def start_debug_api_srv():
     socketio.run(app, host='0.0.0.0', port=5002, debug=False) # type: SocketIO
 
@@ -78,7 +104,7 @@ def run_integration_tests() -> bool:
 
     :return:
     """
-    test_classes_to_run = [TestCommonController, TestKickstartController]
+    test_classes_to_run = [TestCommonController, TestKickstartController, TestAgentBuilder]
 
     loader = unittest.TestLoader()
     suites_list = []

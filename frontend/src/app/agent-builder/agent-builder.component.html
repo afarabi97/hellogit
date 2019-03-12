@@ -1,0 +1,33 @@
+<app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<div class="container" id="topheader">
+  <div class="card">
+    <div class="card-header">
+      Agent Builder: Build and download an installer for Winlogbeat, Sysmon and GRR
+    </div>
+    <form [formGroup]="agentBuilderForm" (ngSubmit)="onSubmit()">
+      <div class="card-body">
+
+        <div class="card" style="margin-bottom: 15px;">
+          <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+            <h5>Page Instructions</h5>
+            <p class="card-text">
+              Before filling out the form, make sure you have added all of your nodes to the Kickstart page.  
+              The validation box at the botton of the page will guide you through filling out the form correctly.
+            </p>
+          </div>
+        </div>
+
+        <app-text-input [parentForm]="agentBuilderForm" controlName="pf_sense_ip"></app-text-input>
+        <app-text-input [parentForm]="agentBuilderForm" controlName="winlogbeat_port"></app-text-input>
+        <app-text-input *ngIf="isGrrInstalledInKit" [parentForm]="agentBuilderForm" controlName="grr_port"></app-text-input>
+        <p class="text-warning" *ngIf="!isGrrInstalledInKit">
+          GRR Rapid Response will not be included in this installation package because it was not installed via the Kit configuration page.
+        </p>
+      </div>
+      <div class="card-footer">        
+          <button class="btn btn-primary" type="submit" [disabled]="!agentBuilderForm.valid" name="submit_agentbuilder">Build Agent</button>
+      </div>
+    </form>
+  </div>
+</div>
+  
