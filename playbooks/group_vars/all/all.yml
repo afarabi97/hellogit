@@ -118,7 +118,7 @@ pip_downloads:
   - urllib3
   - junit-xml
   - elasticsearch
-  - restresponse
+  - "restresponse==2.0.0"
   - kafka
 
 iso_centos_version: 1810
