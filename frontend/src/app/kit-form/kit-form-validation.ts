@@ -260,6 +260,34 @@ function _validate_advanced_percentages(control: AbstractControl, errors: Array<
     }
 }
 
+function _validate_server_cpu_mem(control: AbstractControl, errors: Array<string>){
+    let servers = control.get('servers') as ServersFormArray;    
+    let ips: Array<string> = [];
+
+    const msg = '- One or more server have differing amounts of CPU cores or memory. Each server is required to have the same hardware!';
+    if (servers != null && servers.length > 1) {
+        outer:
+        for (let i = 0; i < servers.length; i++) {
+            let server_i = servers.at(i) as ServerFormGroup;
+            if (server_i.deviceFacts === null){
+                break;
+            }
+            for (let x = 0; x < servers.length; x++) {
+                let server_x = servers.at(i) as ServerFormGroup;
+                if (server_i.deviceFacts['cpus_available'] !== server_x.deviceFacts['cpus_available']){
+                    errors.push(msg)
+                    break outer;
+                }
+
+                if (Math.ceil(server_i.deviceFacts['memory_available']) !== Math.ceil(server_x.deviceFacts['memory_available'])){
+                    errors.push(msg)
+                    break outer;
+                }
+            }
+        }
+    }
+}
+
 /**
  * The main exported function that performs all the Form Level validation for the KitForm.
  *
@@ -279,6 +307,7 @@ export function ValidateKitInventory(control: AbstractControl): { errors: Array<
     _validateIps(control, errors);
     _validateSensorAndServerCounts(control, errors);    
     _validate_advanced_percentages(control, errors);
+    _validate_server_cpu_mem(control, errors);
     CheckForInvalidControls(control, errors);
     _validate_endgame_ip(control);
 

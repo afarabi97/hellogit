@@ -78,7 +78,10 @@ function _validateNodeIps(control: AbstractControl, errors: Array<string>): void
     let nodes = control.get('nodes') as FormArray;
     let form  = control as KickstartInventoryForm;
 
-    if (nodes === undefined || nodes === null){
+    if (nodes === undefined || 
+        nodes === null || 
+        form.controller_interface.value === null ||
+        form.controller_interface.value[0] === null){
         return;
     }
 
