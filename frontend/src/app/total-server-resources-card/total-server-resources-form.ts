@@ -142,7 +142,7 @@ export class TotalServerResources extends FormGroup {
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        "90",
+        "50",
         "This is the percentage of server CPUs which the system will dedicated to \
         Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- CPUs here does not mean dedicated CPUs. \
         This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \
@@ -162,7 +162,7 @@ export class TotalServerResources extends FormGroup {
         PERCENT_MIN_MAX,
         PERCENT_INVALID_FEEDBACK,
         true,
-        "90",
+        "50",
         "This is the percentage of server RAM which the system will dedicated to \
         Elasticsearch. ---SKIP IF YOU WANT SIMPLE--- \
         This setting actually controls limits as described here. https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container \

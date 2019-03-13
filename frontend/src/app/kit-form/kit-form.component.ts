@@ -11,7 +11,7 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { HomeNetFormGroup, ExternalNetFormGroup } from '../total-sensor-resources-card/total-sensor-resources-form';
 import { ModalDialogComponent } from '../modal-dialog/modal-dialog.component';
-import { KIT_ID } from '../frontend-constants';
+import { KIT_ID, SENSOR_APPS } from '../frontend-constants';
 import { CommentForm } from '../kickstart-form/kickstart-form';
 
 
@@ -325,6 +325,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     }
     
     this._map_to_form(kitData, this.kitForm);
+    this.kubernetesInputEvent(null);
     this.cdRef.detectChanges();
     this.hasKitForm = true;
 
@@ -548,9 +549,25 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     } else {
       for (let index = 0; index <  this.kitForm.sensors.length; index++){
         let sensor = this.kitForm.sensors.at(index) as SensorFormGroup;
-        sensor.bro_cpu_percentage.enable();
-        sensor.suricata_cpu_percentage.enable();
-        sensor.moloch_cpu_percentage.enable();
+        let sensor_apps: Array<string> = sensor.sensor_apps.value;
+
+        if (sensor_apps.includes(SENSOR_APPS[0])){        
+          sensor.bro_cpu_percentage.enable();
+        } else {
+          sensor.bro_cpu_percentage.disable();
+        }
+
+        if (sensor_apps.includes(SENSOR_APPS[1])){        
+          sensor.suricata_cpu_percentage.enable();
+        } else {
+          sensor.suricata_cpu_percentage.disable();
+        }
+
+        if (sensor_apps.includes(SENSOR_APPS[2])){        
+          sensor.moloch_cpu_percentage.enable();
+        } else {          
+          sensor.moloch_cpu_percentage.disable();
+        }        
       }
     }
   }

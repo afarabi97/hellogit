@@ -71,20 +71,20 @@ class KitPercentages:
 
     @property
     def elastic_cpu_perc(self) -> int:
-        ret_val = 90
+        ret_val = 50
         if self._is_override_percentages:
             ret_val = int(self._kit_form["server_resources"]["elastic_cpu_percentage"])
         elif self._is_home_build:
-            ret_val = 70
+            ret_val = 40
         return ret_val
 
     @property
     def elastic_mem_perc(self) -> int:
-        ret_val = 90
+        ret_val = 50
         if self._is_override_percentages:
             ret_val = int(self._kit_form["server_resources"]["elastic_memory_percentage"])
         elif self._is_home_build:
-            ret_val = 70
+            ret_val = 40
         
         return ret_val
     

@@ -265,7 +265,7 @@ class TestServerCalculations(unittest.TestCase):
     def test_elk_calculations(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
         self.assertEqual(1260, self.kit1_cal.log_stash_cpu_request)
-        self.assertEqual(8820, self.kit1_cal.elastic_cpu_request)
+        self.assertEqual(5040, self.kit1_cal.elastic_cpu_request)
 
     def test_logstash_replicas(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
@@ -280,8 +280,8 @@ class TestServerCalculations(unittest.TestCase):
         self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
 
         self.assertEqual(5, self.kit2_cal.elastic_master_node_count)
-        self.assertEqual(11, self.kit2_cal.elastic_data_node_count)
-        self.assertEqual(16, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(4, self.kit2_cal.elastic_data_node_count)
+        self.assertEqual(9, self.kit2_cal.elastic_total_node_count)
                 
         self.assertEqual(2, self.kit3_cal.elastic_master_node_count)
         self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
@@ -289,9 +289,9 @@ class TestServerCalculations(unittest.TestCase):
         
     def test_elastic_memory_request(self):
         # self.assertEqual(9.665, self.kit1_cal.elastic_memory_request)
-        self.assertEqual(8, self.kit1_cal.elastic_memory_request)
-        self.assertEqual(25, self.kit2_cal.elastic_memory_request)
-        self.assertEqual(11, self.kit3_cal.elastic_memory_request)
+        self.assertEqual(4, self.kit1_cal.elastic_memory_request)
+        self.assertEqual(24, self.kit2_cal.elastic_memory_request)
+        self.assertEqual(6, self.kit3_cal.elastic_memory_request)
 
     def test_elastic_pv_size(self):
         self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
@@ -299,10 +299,10 @@ class TestServerCalculations(unittest.TestCase):
         self.assertEqual(40000000, self.kit1_cal._ceph_storage_pool.ceph_pool_allocatable)
         self.assertEqual(30.518, self.kit1_cal.elastic_pv_size)
 
-        self.assertEqual(16, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(9, self.kit2_cal.elastic_total_node_count)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_capacity)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_allocatable)
-        self.assertEqual(19.073, self.kit2_cal.elastic_pv_size)
+        self.assertEqual(33.908, self.kit2_cal.elastic_pv_size)
 
         self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
         self.assertEqual(80000000, self.kit3_cal._ceph_storage_pool.ceph_pool_capacity)

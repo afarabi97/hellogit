@@ -10,7 +10,7 @@ import { TotalServerResources } from '../total-server-resources-card/total-serve
 import { PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
          IP_CONSTRAINT, HOST_CONSTRAINT,
          INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
-         TIMEZONES
+         TIMEZONES, SENSOR_APPS
  } from '../frontend-constants';
 
 import { BasicNodeResource, BasicNodeResourceInterface } from '../basic-node-resource-card/basic-node-resource-card.component';
@@ -47,17 +47,17 @@ function SetDriveSelections(deviceFacts: Object) : Array<{value: string, label: 
 export function toggleSensorAppSelections(sensor: SensorFormGroup, 
                                           selected: Array<string>, 
                                           isPercentagesEnabled: boolean=false){    
-    if (!isPercentagesEnabled || !selected.includes("bro")){        
+    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[0])){        
         sensor.bro_cpu_percentage.disable();
     } else {
         sensor.bro_cpu_percentage.enable();
     }
-    if (!isPercentagesEnabled || !selected.includes("suricata")){                    
+    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[1])){                    
         sensor.suricata_cpu_percentage.disable();
     } else {
         sensor.suricata_cpu_percentage.enable();
     }
-    if (!isPercentagesEnabled || !selected.includes("moloch")){
+    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[2])){
         sensor.moloch_cpu_percentage.disable();
     } else {
         sensor.moloch_cpu_percentage.enable();
@@ -213,7 +213,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         "Note: We recommend you leave all of them selected by default. However, there are cases where one application may not be desired on a target sensor.",
         "No selections found.",
         true,
-        ['suricata', 'moloch', 'bro'],
+        SENSOR_APPS,
         undefined,
         [{value: 'suricata', label: 'Suricata', isSelected: true},
          {value: 'moloch', label: 'Moloch', isSelected: true},
