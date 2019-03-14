@@ -138,3 +138,13 @@ change-interfaces:
 
 grr:
 	ansible-playbook grr-only.yml -i $(INVENTORY) -t grr
+
+#Requires LOGSTASH_URL and LOGSTASH_PORT to be specified on the command line, e.g.
+#make winlogbeat LOGSTASH_URL=localhost LOGSTASH_PORT=9200 [ INCLUDE_GRR=TRUE [ GRR_PORT=8001 ] ]
+#If GRR_PORT is not defined, GRR will not be included in the installer, even if INCLUDE_GRR is set to true.
+winlogbeat:
+ifeq ($(INCLUDE_GRR),TRUE)
+	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat --extra-vars "logstash_fw_url=$(LOGSTASH_URL) logstash_fw_port=$(LOGSTASH_PORT) grr_fw_port=$(GRR_PORT)"
+else 
+	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat --extra-vars "logstash_fw_url=$(LOGSTASH_URL) logstash_fw_port=$(LOGSTASH_PORT) grr_fw_port=''"
+endif

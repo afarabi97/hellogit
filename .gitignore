@@ -31,3 +31,4 @@ playbooks/files/join-node.sh
 inventory/dev/*
 playbooks/inventory.yml
 .remote-sync.json
+playbooks/monitor_install.exe

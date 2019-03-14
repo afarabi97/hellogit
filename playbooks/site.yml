@@ -344,7 +344,7 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts:
+  hosts: 
     - master-server
     - suricata
   gather_facts: no
@@ -400,4 +400,11 @@
     - mumble
   tags: mumble
 
-...
+- name: Build Windows Installer for Winlogbeat Sysmon and GRR
+  any_errors_fatal: true
+  hosts: master-server
+  roles:
+    - windows_installer
+  tags: winlogbeat
+  gather_facts: no
+

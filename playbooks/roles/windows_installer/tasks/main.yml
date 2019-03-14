@@ -1,0 +1,116 @@
+#Make a Windows self-extracting archive for Sysmon, Winlogbeat and GRR
+---
+- name: Download Tools
+  include: Download_Tools.yml
+
+- name: Get Server Addresses
+  shell: |
+    kubectl get service | awk '$1 == "{{ item }}" { print $4 }'
+  with_items: "{{ ap_names }}"
+  when:
+    - grr_fw_port != '' 
+  register: host_query
+
+- name: Build App Name to IP Dictionary
+  set_fact:
+    hosts: "{{ hosts | default({}) | combine( { item.item | regex_replace('-', '_') : item.stdout } ) }}"
+  delegate_to: localhost
+  with_items: "{{ host_query.results }}"
+
+- name: Get Paths of Powershell Scripts and Config File Templates
+  find: 
+    path: "{{ role_path }}/templates"
+  delegate_to: localhost
+  run_once: true
+  register: all_templates
+
+- name: Get Path of Winlogbeat Installer
+  find: 
+    path: "{{ role_path }}/files"
+    patterns: 'winlogbeat*.zip'
+  delegate_to: localhost
+  run_once: true
+  register: winlogbeat_installer
+
+- name: Build Powershell Scripts and Config Files
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ role_path }}/files/{{ item.path | basename | regex_replace('.j2', '') }}"
+    newline_sequence: \r\n
+  delegate_to: localhost
+  loop: "{{ all_templates.files }}"
+  run_once: true
+
+- name: Get Windows GRR Installers
+  get_url:
+    url: "https://{{hosts.grr_frontend}}/{{grr_binary_path}}/{{ item }}"
+    dest: "{{ role_path }}/files"
+    url_username: "{{ grr_username }}"
+    url_password: "{{ grr_password }}"
+    validate_certs: no
+  when: 
+    - grr_fw_port != '' and hosts.grr_frontend != '' 
+  loop: "{{ grr_files }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Find Local Powershell Scripts 
+  find: 
+    path: "{{ role_path }}/files"
+    patterns: '*.ps1'
+  delegate_to: localhost
+  run_once: true
+  register: powershell_scripts_found
+
+- name: Get Paths of Powershell Scripts 
+  set_fact:
+    powershell_scripts: "{{ powershell_scripts | default([]) + [ item.path ] }}"
+  with_items:
+    "{{ powershell_scripts_found.files }}"
+
+- name: Find Local YAML Config Files
+  find: 
+    path: "{{ role_path }}/files"
+    patterns: '*.yml,*.yaml'
+  delegate_to: localhost
+  run_once: true
+  register: config_files_found
+
+- name: Get Paths of YAML Config Files
+  set_fact:
+    config_files: "{{ config_files | default([]) + [ item.path ] }}"
+  with_items:
+    "{{ config_files_found.files }}"
+
+- name: Create Self-Extracting Zipfile
+  script: 
+    buildSelfExtractingArchive.py
+      --destination "{{ installer_dir }}/{{ installer_name }}"
+      --files
+        {{ powershell_scripts | join( ' ' ) }}
+        Sysmon.zip
+        "{{ winlogbeat_installer.files.0.path }}"
+        README.md
+        {{ config_files | join( ' ' )}}
+        {{ grr_files | join( ' ' ) }}
+  args:
+    chdir: "{{ role_path }}/files"
+    executable: python
+  delegate_to: localhost
+  run_once: true
+
+- name : Remove Locally Constructed Files
+  file:
+    state: absent
+    path: "{{ item }}"
+  loop: "{{ powershell_scripts }} + {{ config_files }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Remove Downloaded Files 
+  file:
+    state: absent
+    path:  "{{ role_path }}/files/{{ item | basename }}"
+  loop: "{{ tool_binaries }} + {{ grr_files }}" 
+  delegate_to: localhost
+  run_once: true

@@ -1,0 +1,115 @@
+Param (
+{% if grr_fw_port != '' %}
+  [switch]$grr = $null,
+  [string]$grr_host = $null,
+  [string]$grr_port = $null,
+{% endif %}
+  #Winlogbeat Params
+  [string]$logstash_host = $null,
+  [string]$logstash_port = $null,
+  [switch]$help = $null
+)
+
+if ( -not ([Security.Principal.WindowsPrincipal] `
+            [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole( `
+            [Security.Principal.WindowsBuiltInRole] "Administrator") ) {
+ Write-Error "Must have administrator privileges to run this script."
+ exit 1
+}
+
+if ( $help ) {
+{% if grr_fw_port != '' %}
+  "Usage: setup.ps1 [ -grr [ -grr_host host_ip ] [ -grr_port port_num ] ] [ -logstash_host host_ip ] [ -logstash_port port_num ] "
+  "`t-grr`t`t`t`t`t`t`tInstall GRR"
+  "`t-grr_host host_ip`t`t`t`tUse host_ip as the GRR host"
+  "`t-grr_port port_num`t`t`t`tUse port_num as the GRR port"
+{% else %}
+  "Usage: setup.ps1 [ -logstash_host host_ip ] [ -logstash_port port_num ]"
+{% endif %}
+  "`t-logstash_host host_ip`t`tUse host_ip as the ElasticSearch host"
+  "`t-logstash_port port_num`tUse port_num as the ElasticSearch port"
+  exit
+}
+
+function ReplaceInFile([string]$filename, [string]$old_text, [string]$new_text) {
+  if($new_text -and $old_text -ne $new_text) {
+    (Get-Content $filename -Raw).Replace($old_text, $new_text) | Set-Content $filename
+  }
+}
+
+function RegexReplaceInFile([string]$filename, `
+                            [string]$prefix, `
+                            [string]$target, `
+                            [string]$new_text) {
+  $Matches.clear()
+  $srch = ("(?ms)(?<pfx>" + $prefix + ")(?<tgt>" + $target + ")")
+  (Get-Content $filename -Raw) -match $srch
+  ReplaceInFile -filename $filename `
+                -old_text ($Matches.pfx + $Matches.tgt) `
+                -new_text ($Matches.pfx + $new_text)
+}
+
+#Install Sysmon
+Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon
+{{ target_dir }}\Sysmon\Sysmon64.exe -i 2> $null
+
+#Install Winlogbeat
+$wlb = "{{ winlogbeat_installer.files.0.path | win_basename | regex_replace('.zip', '') }}"
+Expand-Archive .\$wlb.zip -Destination {{ target_dir }}\
+Rename-Item -Path {{ target_dir }}\$wlb -NewName Winlogbeat
+[string]$wlb_config = "{{ target_dir }}\Winlogbeat\winlogbeat.yml".Replace("'", "")
+Copy-Item -Path .\winlogbeat.yml -Destination $wlb_config  -Force
+
+{# Use a bunch of regular expression to find and replace text in winlogbeat.yml. REs are #}
+{# based the default configuration file of version 6.5.2. If the file is changed up in #}
+{# future releases, these REs might not work. #}
+if($logstash_host) {
+  RegexReplaceInFile -filename $wlb_config `
+                     -prefix 'output.logstash:.*?hosts: \[\"' `
+                     -target '[^:]*' `
+                     -new_text $logstash_host
+}
+if($logstash_port) {
+  RegexReplaceInFile -filename $wlb_config `
+                     -prefix 'output.logstash:.*?hosts: \[[^:]*?:' `
+                     -target '[^\"]*' `
+                     -new_text $logstash_port
+}
+
+{{ target_dir }}\Winlogbeat\install-service-winlogbeat.ps1
+
+$wlb_service = Get-WmiObject -Class Win32_Service -Filter "Name='winlogbeat'"
+$wlb_service.StartService()
+
+{% if grr_fw_port != '' %}
+#Install GRR
+if ( $grr ) {
+  {# Running the wrong installer has no effect, so run both. #}
+  {% for item in grr_files %}
+  .\{{ item  }}
+  {% endfor %} 
+  #If we're passed in a GRR server URL or port name, stop the service, overwrite the config 
+  #file, and restart
+  if ( $grr_host -or $grr_port ) {
+    Write-Host -NoNewLine "Waiting for GRR Service to start"
+    Do {
+      sleep 1
+      Write-Host -NoNewLine  "."
+      $grr_service = Get-WmiObject -Class Win32_Service -Filter "Name='GRR Monitor'"
+    } While (-not $grr_service ) 
+    "started!"
+
+    $grr_service.StopService()
+
+    {# As with winlogbeat, regular expressions for the default config file for the current #}
+    {# version, 3.2.4.6, of GRR. If that file changes in subsequent versions, that could #} 
+    {# break the REs. #}
+    $grr_config  = "C:\Windows\System32\GRR\{{ grr_vnum }}\GRR.exe.yaml"
+    {# GRR and logstash will talk to the same IP address, punched through the firewall #}
+    ReplaceInFile -filename $grr_config -old_text "{{ logstash_fw_url }}" -new_text $grr_host 
+    ReplaceInFile -filename $grr_config -old_text "{{ grr_fw_port }}" -new_text $grr_port 
+
+    $grr_service.StartService()
+  }
+}
+{% endif %}
