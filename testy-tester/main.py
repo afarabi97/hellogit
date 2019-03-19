@@ -12,9 +12,9 @@ from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
-                              delete_vm, change_network_port_group, change_ip_address, get_vms)
+                              delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
 from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
-                      run_bootstrap, perform_integration_tests)
+                      run_bootstrap, perform_integration_tests, get_interface_name)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.model.host_configuration import HostConfiguration
@@ -235,6 +235,10 @@ class Runner:
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
+    def _get_interface_name(self, kit: Kit):
+        logging.info("Get monitor interface name")
+        get_interface_name(kit.get_nodes())
+
     def controller_modifier(self):
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.make_controller_changes()
@@ -290,9 +294,12 @@ class Runner:
 
         self.power_on_controller()
         vms = get_vms(kit, self.vsphere_client, self.host_configuration)
+        all_vms = get_all_vms(kit, self.vsphere_client, self.host_configuration)
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
         test_vms_up_and_alive(kit, kit.nodes, 30)
+        self._set_vm_macs(all_vms)
+        self._get_interface_name(kit)
         logging.info("Run TFPlenum configuration")
         runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
         runner.run_tfplenum_configuration(kit)

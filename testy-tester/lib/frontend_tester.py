@@ -453,17 +453,18 @@ class KitSeleniumRunner(SeleniumRunner):
         except Exception as e:
             logging.exception(e)
 
-        for iface_name in node.monitoring_ifaces:
-            try:
-                monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
-                    sensor_index=str(index), interface_name=iface_name)
-                element = WebDriverWait(self._browser, 10).until(
-                    EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
-                actions = ActionChains(self._browser)
-                actions.move_to_element(element).perform()
-                element.click()
-            except Exception as e:
-                logging.exception(e)
+        for interface in node.interfaces:
+            if interface.monitoring_interface:
+                try:
+                    monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
+                        sensor_index=str(index), interface_name=interface.interface_name)
+                    element = WebDriverWait(self._browser, 10).until(
+                        EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
+                    actions = ActionChains(self._browser)
+                    actions.move_to_element(element).perform()
+                    element.click()
+                except Exception as e:
+                    logging.exception(e)
 
     def _run_total_sensor_resources_section(self, kit: Kit) -> None:
         """

@@ -462,3 +462,23 @@ def get_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfigurati
             vms.append(vm_instance)
 
     return vms
+
+def get_all_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfiguration) -> List[VirtualMachine]:
+    """
+    Creates the VMs specified in the VMs.yml file on the chosen target VMWare devices
+
+    :param kit (Kit): A kit object defining the schema of the kit which you would like deployed
+    :param client (VsphereClient): a vCenter server client
+    :param host_configuration (HostConfiguration): host_configuration object from yaml config
+    :return (list): A list of all the VM objects created by the method
+    """
+
+    vms = []  # type: list
+    for node in kit.nodes:        
+        logging.info("Getting VM " + node.hostname + "...")
+        vm_instance = VirtualMachine(client, node, host_configuration)
+        vm_instance.get_node_instance()
+        vms.append(vm_instance)
+
+    return vms
+

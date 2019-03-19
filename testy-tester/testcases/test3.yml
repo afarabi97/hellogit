@@ -80,6 +80,7 @@ kit:
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
+            monitoring_interface: False
             mac_auto_generated: True
             mac_address: "" # This is ignored if mac_auto_generated is true
             dv_portgroup_name: "82 Portgroup"
@@ -90,6 +91,7 @@ kit:
             subnet_mask: "255.255.0.0"
             start_connected: True
             management_interface: False
+            monitoring_interface: True
             mac_auto_generated: True
             mac_address: "" # This is ignored if mac_auto_generated is true
             dv_portgroup_name: "Monitoring Portgroup"
@@ -119,6 +121,7 @@ kit:
             ip_address: "172.16.82.65"
             start_connected: True
             management_interface: True
+            monitoring_interface: False
             mac_auto_generated: True
             mac_address: ""
             dv_portgroup_name: "82 Portgroup"
@@ -152,6 +155,7 @@ kit:
             ip_address: "172.16.82.66"
             start_connected: True
             management_interface: True
+            monitoring_interface: False
             mac_auto_generated: True
             mac_address: ""
             dv_portgroup_name: "82 Portgroup"
@@ -185,6 +189,7 @@ kit:
             ip_address: "172.16.82.67"
             start_connected: True
             management_interface: True
+            monitoring_interface: False
             mac_auto_generated: True
             mac_address: ""
             dv_portgroup_name: "82 Portgroup"
@@ -194,6 +199,7 @@ kit:
             ip_address:
             start_connected: True
             management_interface: False
+            monitoring_interface: True
             mac_auto_generated: True
             mac_address: ""
             dv_portgroup_name: "Monitoring Portgroup"
@@ -214,9 +220,6 @@ kit:
 #              - sdb
       pcap_drives:
         - sdb
-      # Selects the monitoring interfaces we will use during kit configuration.
-      monitoring_ifaces:
-        - ens224
       disks:
         boot: 20
         ceph: 20

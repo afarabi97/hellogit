@@ -37,7 +37,7 @@ class Interface(object):
         """
 
     def __init__(self, name: str, interface_type: str, ip_address: str, start_connected: str,
-                 management_interface: bool) -> None:
+                 management_interface: bool, monitoring_interface: bool) -> None:
         """
         Initializes an Interface object
 
@@ -58,6 +58,7 @@ class Interface(object):
         self.ip_address = ip_address
         self.start_connected = start_connected
         self.management_interface = management_interface
+        self.monitoring_interface = monitoring_interface
         self.mac_auto_generated = None
         self.mac_address = None
         self.dv_portgroup_name = None
@@ -556,10 +557,13 @@ class VirtualMachine:
 
         logging.debug("Create Deployer Test VM: Created VM '{}' ({})".format(self.vm_name, self.vm))
 
-        self.vm_info = self.client.vcenter.VM.get(self.vm)
+        self.set_vm_info(self.vm)
         logging.debug('vm.get({}) -> {}'.format(self.vm, pp(self.vm_info)))
 
         return self.vm
+
+    def set_vm_info(self, vm):
+        self.vm_info = self.client.vcenter.VM.get(vm)
 
     def cleanup(self) -> None:
         """
@@ -608,6 +612,7 @@ class VirtualMachine:
         macs = OrderedDict()  # type: OrderedDict
 
         # nics is a dict with key str (interface name) and value is com.vmware.vcenter.vm.hardware_client.Ethernet.info
+        self.set_vm_info(self.vm)        
         for interface, info in self.vm_info.nics.items():
             macs[info.label] = info.mac_address
 

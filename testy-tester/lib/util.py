@@ -201,28 +201,24 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
         sleep(5)
 
 
-def get_interface_names_by_mac(kit: Kit) -> None:
+def get_interface_name(kit: Kit) -> None:
     """
-    Get the interface names from each node.
-
-    :param kit: A YAML file defining the schema of the kit
+    Get the monitor interface name for each each sensor.
+    :param node:  A node object
     :return:
     """
-
-    for node in kit.nodes:
-        if node.type == 'sensor' or node.type == 'remote-sensor':
-            client = Connection(
-                host=node.management_interface.ip_address,
-                connect_kwargs={"password": kit.password})  # type: Connection
-
-            for interface in node.interfaces:
-                interface_name_result = client.run("ip link show | grep -B 1 " + interface.mac_address +
-                                                   " | tr '\n' ' ' | awk '{ print $2 }'")  # type: Result
+    for node in kit:
+        for interface in node.interfaces:            
+            with FabricConnectionWrapper(node.username,
+                        node.password,
+                        node.management_interface.ip_address) as client:
+                
+                cmd = "ip link show | grep -B 1 " + interface.mac_address + " | tr '\n' ' ' | awk '{ print $2 }'"                
+                interface_name_result = client.run(cmd, shell=True)
                 interface_name = interface_name_result.stdout.strip()  # type: str
                 interface_name = interface_name.replace(':','')  # type: str
                 logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
                 interface.set_interface_name(interface_name)
-            client.close()
 
 
 def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
@@ -247,7 +243,7 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         interfaces = []  # type: List[Interface]
         for nic in nics:
             interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'], nics[nic]['start_connected'],
-                                  nics[nic]['management_interface'])  # type: Interface
+                                  nics[nic]['management_interface'], nics[nic]['monitoring_interface'])  # type: Interface
             interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
             interface.set_mac_address(nics[nic]['mac_address'])
             try:
@@ -302,9 +298,6 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
             node.set_ceph_drives(vms[v]['ceph_drives'])
         elif not kit.use_ceph_for_pcap and node.type == "sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
-
-        if node.type == "sensor" or node.type == "remote-sensor":
-            node.set_monitoring_ifaces(vms[v]['monitoring_ifaces'])
 
         # Add node to list of nodes
         nodes.append(node)
