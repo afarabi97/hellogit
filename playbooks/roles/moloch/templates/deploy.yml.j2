@@ -36,6 +36,8 @@ spec:
         resources:
           requests:
             cpu: {{ hostvars[deployment_hostname].moloch_cpu_request }}
+          limits:
+            memory: {{ hostvars[deployment_hostname].moloch_mem_limit }}
         volumeMounts:
         - name: configini
           mountPath: {{ moloch_path }}/etc/config.ini
