@@ -19,6 +19,7 @@ class KitPercentages:
             self._is_home_build = True
 
         self._moloch_cpu_perc = 0
+        self._moloch_mem_limit = 0
         self._bro_cpu_perc = 0
         self._suricata_cpu_perc = 0
 
@@ -27,6 +28,7 @@ class KitPercentages:
         If a sensor is disabled
         """
         self._moloch_cpu_perc = 42
+        self._moloch_mem_limit = 80
         self._bro_cpu_perc = 42
         self._suricata_cpu_perc = 16
 
@@ -37,14 +39,17 @@ class KitPercentages:
         if len(sensor_apps) == 1:
             if "moloch" in sensor_apps:
                 self._moloch_cpu_perc = 100
+                self._moloch_mem_limit = 95
                 self._bro_cpu_perc = 0
                 self._suricata_cpu_perc = 0
             elif "bro" in sensor_apps:
                 self._moloch_cpu_perc = 0
+                self._moloch_mem_limit = 0
                 self._bro_cpu_perc = 100
                 self._suricata_cpu_perc = 0
             elif "suricata" in sensor_apps:
                 self._moloch_cpu_perc = 0
+                self._moloch_mem_limit = 0
                 self._bro_cpu_perc = 0
                 self._suricata_cpu_perc = 100
         elif len(sensor_apps) == 2:
@@ -54,16 +59,19 @@ class KitPercentages:
                 self._bro_cpu_perc += half + remainder
                 self._suricata_cpu_perc += half
                 self._moloch_cpu_perc = 0
+                self._moloch_mem_limit = 0
             elif "bro" not in sensor_apps:
                 half = int(self._bro_cpu_perc / 2)
                 remainder = self._bro_cpu_perc % 2
                 self._suricata_cpu_perc += half
                 self._moloch_cpu_perc += half + remainder
+                self._moloch_mem_limit = 80
                 self._bro_cpu_perc = 0
             elif "suricata" not in sensor_apps:
                 half = int(self._suricata_cpu_perc / 2)
                 remainder = self._suricata_cpu_perc % 2
                 self._moloch_cpu_perc += half + remainder
+                self._moloch_mem_limit = 80
                 self._bro_cpu_perc += half
                 self._suricata_cpu_perc = 0
         else:            
@@ -126,7 +134,16 @@ class KitPercentages:
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._suricata_cpu_perc
-        return ret_val    
+        return ret_val   
+
+    def moloch_mem_limit_perc(self, sensor_index: int) -> int:
+        if self._is_override_percentages:
+            ret_val = int(self._kit_form["sensors"][sensor_index]["moloch_mem_limit"])
+        else:
+            self._set_starting_sensor_defaults(sensor_index)
+            ret_val = self._moloch_mem_limit
+
+        return ret_val 
 
     @property
     def elastic_curator_threshold_perc(self) -> int:
@@ -269,6 +286,11 @@ class NodeValues:
         return int(ret_val)
 
     @property
+    def moloch_mem_limit(self) -> float:
+        ret_val = cal_percentage_of_total(self._node_resources.mem_allocatable, self._percentages.moloch_mem_limit_perc(self._node_index))
+        return convert_KiB_to_GiB(ret_val)
+
+    @property
     def bro_workers(self) -> int:
         if self.bro_cpu_request <= 1000:
             return 1
@@ -294,7 +316,8 @@ class NodeValues:
             'moloch_cpu_request': self.moloch_cpu_request,
             'suricata_cpu_request': self.suricata_cpu_request,
             'bro_workers': self.bro_workers,
-            'moloch_threads': self.moloch_threads
+            'moloch_threads': self.moloch_threads,
+            'moloch_mem_limit': self.moloch_mem_limit
         }
 
 

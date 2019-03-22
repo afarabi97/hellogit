@@ -59,9 +59,12 @@ export function toggleSensorAppSelections(sensor: SensorFormGroup,
     }
     if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[2])){
         sensor.moloch_cpu_percentage.disable();
+        sensor.moloch_mem_limit.disable();
     } else {
         sensor.moloch_cpu_percentage.enable();
-    }    
+        sensor.moloch_mem_limit.enable();
+
+    } 
 }
 
 export class SensorFormGroup extends FormGroup implements BasicNodeResourceInterface, DeviceFactsContainerInterface {
@@ -82,6 +85,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         super.addControl('bro_cpu_percentage', this.bro_cpu_percentage);
         super.addControl('suricata_cpu_percentage', this.suricata_cpu_percentage);
         super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);
+        super.addControl('moloch_mem_limit', this.moloch_mem_limit);
         super.addControl('sensor_apps', this.sensor_apps);
 
         //this.sensor_type.
@@ -118,6 +122,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         this.bro_cpu_percentage.disable();
         this.suricata_cpu_percentage.disable();
         this.moloch_cpu_percentage.disable();
+        this.moloch_mem_limit.disable();
         this.sensor_apps.disable();
     }
 
@@ -144,6 +149,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         this.bro_cpu_percentage.setValue(mObj['bro_cpu_percentage']);
         this.suricata_cpu_percentage.setValue(mObj['suricata_cpu_percentage']);
         this.moloch_cpu_percentage.setValue(mObj['moloch_cpu_percentage']);
+        this.moloch_mem_limit.setValue(mObj['moloch_mem_limit']);
         this.monitor_interface.default_selections = mObj['monitor_interface'];
         this.pcap_drives.default_selections = mObj['pcap_drives'];
         this.sensor_apps.default_selections = mObj['sensor_apps'];
@@ -258,6 +264,18 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
         is reserved for kube services. The rest of the nodes resources \
         is used for pods.  Of those resources, 10% is reserved for system pods."
+    )
+
+    moloch_mem_limit = new HtmlInput (
+        'moloch_mem_limit',
+        'Moloch Max Memory %',
+        PERCENT_PLACEHOLDER,
+        'number',
+        PERCENT_MIN_MAX,
+        PERCENT_INVALID_FEEDBACK,
+        true,
+        '80',
+        "This is the percentage of maximum memory that will be allocated to the Moloch pod running on this sensor."
     )
 
     suricata_cpu_percentage = new HtmlInput (

@@ -271,6 +271,7 @@ all:
               bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
               moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
               suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
+              moloch_mem_limit: {{ sensor.cal.moloch_mem_limit | int }}Gi
 
               # This is the number of bro workers which will spawn on the sensor
               bro_workers: {{ sensor.cal.bro_workers }}
@@ -319,6 +320,7 @@ all:
               bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
               moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
               suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
+              moloch_mem_limit: {{ sensor.cal.moloch_mem_limit | int }}Gi
               bro_workers: {{ sensor.cal.bro_workers }}
               moloch_threads: {{ sensor.cal.moloch_threads }}
               ceph_drive_list:

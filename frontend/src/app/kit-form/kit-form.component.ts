@@ -545,6 +545,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
         sensor.bro_cpu_percentage.disable();
         sensor.suricata_cpu_percentage.disable();
         sensor.moloch_cpu_percentage.disable();
+        sensor.moloch_mem_limit.disable();
       }
     } else {
       for (let index = 0; index <  this.kitForm.sensors.length; index++){
@@ -565,9 +566,11 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
         if (sensor_apps.includes(SENSOR_APPS[2])){        
           sensor.moloch_cpu_percentage.enable();
+          sensor.moloch_mem_limit.enable();
         } else {          
           sensor.moloch_cpu_percentage.disable();
-        }        
+          sensor.moloch_mem_limit.disable();
+        }  
       }
     }
   }
