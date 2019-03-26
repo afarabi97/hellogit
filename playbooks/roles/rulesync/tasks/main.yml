@@ -17,3 +17,5 @@
 
 - name: Run rulesync.py script on master server
   shell: "python {{ rulesync_dir }}/rulesync.py"
+  retries: 3
+  delay: 45
