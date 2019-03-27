@@ -5,12 +5,12 @@
     enabled: yes
     state: started
 
-- name: Allow services thru firewall 
+- name: Allow services thru firewall
   firewalld:
     service: "{{ item }}"
     permanent: yes
     immediate: yes
-    state: enabled    
+    state: enabled
   with_items:
     - ssh
     - http
@@ -19,17 +19,27 @@
     - ntp
   when: inventory_hostname in groups['master-server']
 
-- name: Allow ports thru firewall 
+- name: Allow ports thru firewall
   firewalld:
     port: "{{ item }}"
     permanent: yes
     immediate: yes
     state: enabled
   with_items:
-    - 6443/tcp    
+    - 6443/tcp
     - 7472/tcp
     - 1194/tcp
   when: inventory_hostname in groups['master-server']
+
+- name: Allow Moloch Viewer thru firewall
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 8005/tcp
+  when: inventory_hostname in groups['moloch']
 
 - name: Allow common services thru firewall
   firewalld:
@@ -48,13 +58,13 @@
     permanent: yes
     immediate: yes
     state: enabled
-  with_items:    
+  with_items:
     - 2376-2380/tcp
     - 10248-10256/tcp
     - 30000-32767/tcp
     - 6789/tcp
     - 6800-7300/tcp
-    - 7472/tcp    
+    - 7472/tcp
     - 8285/udp
     - 8472/udp
 
@@ -79,6 +89,6 @@
 - name: Iptables Foward Rule
   shell: |
     /usr/sbin/iptables -P FORWARD ACCEPT
-    
+
 - name: firewalld reload
   command: firewall-cmd --reload
