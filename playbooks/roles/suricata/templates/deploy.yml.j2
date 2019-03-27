@@ -38,8 +38,10 @@ spec:
           mountPath: /etc/filebeat/filebeat.yml
         - name: suricata
           mountPath: /etc/suricata/suricata.yaml
-        - name: custom
-          mountPath: /etc/suricata/rules/custom
+        - name: rules
+          mountPath: /etc/suricata/rules
+        - name: luascripts
+          mountPath: /etc/suricata/lua-output
       volumes:
       - name: filebeat
         hostPath:
@@ -49,10 +51,14 @@ spec:
         hostPath:
           path: {{ suricata_dir }}/suricata.yaml
           type: File
-      - name: custom
+      - name: rules
         hostPath:
-          path: {{ suricata_dir }}/custom
+          path: {{ suricata_dir }}/rules
           type: DirectoryOrCreate
+      - name: luascripts
+        hostPath:
+          path: {{ suricata_dir }}/lua-output
+          type: DirectoryOrCreate          
       nodeSelector:
         suricata: "true"
       affinity:

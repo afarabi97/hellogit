@@ -7,15 +7,24 @@
 
 - name: Create directories
   file:
-    path: "{{ suricata_dir }}/custom"
+    path: "{{ suricata_dir }}/{{ item }}"
     owner: root
     group: root
     mode: u+rw,g+rw
     state: directory
+  loop: ['rules', 'lua-output']
+
+- name: Copy dummy lua script
+  copy:
+    src: "files/script1.lua"
+    dest: "{{ suricata_dir }}/lua-output/script1.lua"
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Create dummy rule file
   file:
-    path: "{{ suricata_dir }}/custom/custom.rules"
+    path: "{{ suricata_dir }}/rules/suricata.rules"
     owner: root
     group: root
     mode: u+rw,g+rw
