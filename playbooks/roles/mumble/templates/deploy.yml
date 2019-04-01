@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: mumble-server
-        image: {{ mumble_image }}:{{ mumble_tag }}
+        image: "{{ mumble_image }}:{{ mumble_tag }}"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: {{ mumble_port }}

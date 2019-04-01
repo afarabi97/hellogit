@@ -5,7 +5,7 @@ logstash_group: 1000
 logstash_dir: "{{ install_dir }}/logstash"
 logstash_pv_size: "1"
 logstash_path: "/usr/share/logstash"
-logstash_image: "docker.elastic.co/logstash/logstash"
+logstash_image: "logstash/logstash"
 
 elastic_port: "9200"
 

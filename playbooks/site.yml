@@ -193,7 +193,7 @@
   tags:
     - openvpn
 
-- name: Docker Images
+- name: Setup CRI-O
   hosts:
     - servers
     - sensors
@@ -202,9 +202,9 @@
   pre_tasks:
     - setup:
   roles:
-    - docker
+    - crio
   tags:
-    - docker
+    - crio
 
 - name: Configure kube master
   hosts: master-server

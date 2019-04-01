@@ -5,12 +5,6 @@
     - Kubelet | reload systemd
     - Kubelet | reload kubelet
 
-- name: restart docker
-  command: /bin/true
-  notify:
-    - Kubelet | reload systemd
-    - Kubelet | reload docker
-
 - name: Kubelet | reload systemd
   command: systemctl daemon-reload
 
@@ -19,7 +13,16 @@
     name: kubelet
     state: restarted
 
-- name: Kubelet | reload docker
+- name: restart crio
+  command: /bin/true
+  notify:
+    - CRIO | reload systemd
+    - CRIO | reload crio
+
+- name: CRIO | reload systemd
+  command: systemctl daemon-reload
+
+- name: CRIO | reload crio
   service:
-    name: docker
+    name: crio
     state: restarted

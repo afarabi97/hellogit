@@ -18,6 +18,11 @@
   command: "chronyd -q 'server {{ groups['master-server'][0] }} iburst'"
   when: inventory_hostname not in groups['master-server']
 
+- name: remove chronyd pid file
+  file:
+    path: /var/run/chronyd.pid
+    state: absent
+
 - name: Make sure Chronyd Service is running on all nodes
   service:
     name: chronyd

@@ -17,5 +17,6 @@
     group: root
     mode: 0644
   with_items:
-    - metallb
+    - metallb_configmap
+    - metallb_deployment
     - kube-flannel

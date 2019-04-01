@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: init-sysctl
-        image: busybox:1.27.2
+        image: busybox:{{busybox_version}}
         imagePullPolicy: IfNotPresent
         command:
         - /bin/sh

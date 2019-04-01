@@ -3,5 +3,30 @@
   lineinfile:
     path: /etc/sysconfig/kubelet
     regexp: "^KUBELET_EXTRA_ARGS="
-    line: "KUBELET_EXTRA_ARGS=--read-only-port 10255 --system-reserved cpu={{ hostvars[inventory_hostname].sys_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].sys_mem_reserve }}Ki --kube-reserved cpu={{ hostvars[inventory_hostname].kube_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].kube_mem_reserve }}Ki"
+    line: "KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs --read-only-port 10255 --system-reserved cpu={{ hostvars[inventory_hostname].sys_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].sys_mem_reserve }}Ki --kube-reserved cpu={{ hostvars[inventory_hostname].kube_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].kube_mem_reserve }}Ki --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"
   notify: restart kubelet
+
+- name: Create net.d directory
+  file:
+    path: "/etc/cni/net.d"
+    state: directory
+    mode: u+rw,g+r
+
+- name: Remove Default CNIs
+  file:
+    path: "/etc/cni/net.d/100-crio-bridge.conf"
+    state: absent
+
+- name: 'Configure CRIO CNI'
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/cni/net.d/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - "100-crio-flannel.conf"
+    - "200-loopback.conf"
+  notify: restart crio
+
+...

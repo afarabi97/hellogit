@@ -2,19 +2,22 @@
 ###################  Kubernetes Reset ###############
 #######################################################
 ---
+- name: Stop Kubelet
+  systemd:
+    name: "kubelet"
+    state: stopped
+  ignore_errors: yes
+
 - name: Reset Kubernetes Node
-  command: kubeadm reset -f
+  command: kubeadm reset --cri-socket=/var/run/crio/crio.sock -f
   register: kube_reset_result
   ignore_errors: yes
 
-- name: Stop Services
+- name: Stop CRI-O
   systemd:
-    name: "{{ item }}"
+    name: "crio"
     state: stopped
   ignore_errors: yes
-  with_items:
-    - docker
-    - kubelet
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
@@ -32,7 +35,7 @@
   with_items:
     - /var/lib/cni
     - /var/lib/kubelet
-    - /etc/cni
+    #- /etc/cni
     - /etc/kubernetes
     - /var/lib/etcd
     - ~/.kube

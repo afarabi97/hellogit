@@ -104,7 +104,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: metricbeat
-        image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+        image: "beats/metricbeat:{{ metricbeat_version }}"
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",
@@ -141,7 +141,7 @@ spec:
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
         - name: dockersock
-          mountPath: /var/run/docker.sock
+          mountPath: /var/run/crio/crio.sock
         - name: proc
           mountPath: /hostfs/proc
           readOnly: true
@@ -157,7 +157,7 @@ spec:
           path: /sys/fs/cgroup
       - name: dockersock
         hostPath:
-          path: /var/run/docker.sock
+          path: /var/run/crio/crio.sock
       - name: config
         configMap:
           defaultMode: 0600
@@ -239,7 +239,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: metricbeat
-        image: docker.elastic.co/beats/metricbeat:{{ metricbeat_version }}
+        image: "beats/metricbeat:{{ metricbeat_version }}"
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",

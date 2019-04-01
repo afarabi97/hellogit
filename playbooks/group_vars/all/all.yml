@@ -55,7 +55,6 @@ package_list:
 
 
 pip_installs:
-  - docker-py
   - netaddr
   - pyhelm
   - grpcio

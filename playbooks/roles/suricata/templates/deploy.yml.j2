@@ -19,7 +19,7 @@ spec:
       hostNetwork: true
       containers:
       - name: suricata
-        image: {{ suricata_image }}:{{ suricata_version }}
+        image: "{{ suricata_image }}:{{ suricata_version }}"
         imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
@@ -58,7 +58,7 @@ spec:
       - name: luascripts
         hostPath:
           path: {{ suricata_dir }}/lua-output
-          type: DirectoryOrCreate          
+          type: DirectoryOrCreate
       nodeSelector:
         suricata: "true"
       affinity:

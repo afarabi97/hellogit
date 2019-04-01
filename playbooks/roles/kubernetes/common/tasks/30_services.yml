@@ -1,13 +1,13 @@
 ---
 
-- name: 'Start Services'
+- name: 'Start {{ item }}'
   systemd:
     name: "{{ item }}"
     state: 'started'
     daemon_reload: yes
     enabled: yes
   with_items:
-    - docker
-    - kubelet
+    - "kubelet"
+    - "crio"
 
 ...

@@ -19,7 +19,7 @@ spec:
       hostNetwork: true
       containers:
       - name: bro
-        image: {{ bro_image }}:{{ bro_version }}
+        image: "{{ bro_image }}:{{ bro_version }}"
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true

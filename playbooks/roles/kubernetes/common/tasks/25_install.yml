@@ -15,17 +15,26 @@
   notify:
     - restart kubelet
 
+- name: Modified service file
+  copy:
+    src: "kubelet.service"
+    dest: "/etc/systemd/system/kubelet.service"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
 - name: 'Install Kubernetes support packages'
   yum:
     name:
-      - "docker-ce"
       - "device-mapper-persistent-data"
       - "lvm2"
       - "ebtables"
       - "ethtool"
     state: installed
   register: installed_packages
-  notify:
-    - restart docker
 
 ...

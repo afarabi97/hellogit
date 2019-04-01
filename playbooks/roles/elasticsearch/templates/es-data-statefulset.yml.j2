@@ -17,7 +17,7 @@ spec:
     spec:
       initContainers:
       - name: init-sysctl
-        image: busybox:1.27.2
+        image: "busybox:{{busybox_version}}"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
@@ -30,7 +30,7 @@ spec:
           mountPath: {{ elastic_pv_data_path }}
       containers:
       - name: es-data
-        image: {{ elasticsearch_image }}:{{ elastic_version }}
+        image: "{{ elasticsearch_image }}:{{ elastic_version }}"
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true

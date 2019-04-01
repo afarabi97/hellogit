@@ -38,7 +38,7 @@ openvpn:
 		ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t openvpn
 
 kubernetes:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node --extra-vars "run_option=install"
 
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
@@ -86,7 +86,7 @@ common-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 storage-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
