@@ -128,7 +128,7 @@ class Runner:
                 self.configuration["host_configuration"]["storage"]["folder"])                
                 
                 # Returns a list of kit objects
-                self.kit = transform(self.configuration["kit"])  # type: Kit
+                self.kit = transform(self.configuration["kit"])  # type: Kit                
 
                 if self.args.tfplenum_commit_hash is not None:                    
                     self.kit.set_branch_name("custom")

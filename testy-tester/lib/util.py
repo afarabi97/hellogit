@@ -368,104 +368,104 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     kit.set_use_ceph_for_pcap(configuration["kit_configuration"]['use_ceph_for_pcap'])
     kit.set_branch_name(configuration["kit_configuration"]['branch_name'])
 
-    if not configuration["kit_configuration"]['tfplenum_branch_name']:
+    if 'tfplenum_branch_name' not in configuration["kit_configuration"]:
         kit.set_tfplenum_branch_name("devel")
     else:
         kit.set_tfplenum_branch_name(configuration["kit_configuration"]['tfplenum_branch_name'])
 
-    if not configuration["kit_configuration"]['deployer_branch_name']:
+    if 'deployer_branch_name' not in configuration["kit_configuration"]:
         kit.set_deployer_branch_name("devel")
     else:
         kit.set_deployer_branch_name(configuration["kit_configuration"]['deployer_branch_name'])
 
-    if not configuration["kit_configuration"]['frontend_branch_name']:
+    if 'frontend_branch_name' not in configuration["kit_configuration"]:
         kit.set_frontend_branch_name("devel")
     else:
         kit.set_frontend_branch_name(configuration["kit_configuration"]['frontend_branch_name'])
 
-    if not configuration["kit_configuration"]['source_repo']:
+    if 'source_repo' not in configuration["kit_configuration"]:
         kit.set_source_repo("labrepo")
     else:
         kit.set_source_repo(configuration["kit_configuration"]['source_repo'])
 
-    if not configuration["kit_configuration"]['moloch_pcap_storage_percentage']:
+    if 'moloch_pcap_storage_percentage' not in configuration["kit_configuration"]:
         kit.set_moloch_pcap_storage_percentage(None)
     else:
         kit.set_moloch_pcap_storage_percentage(configuration["kit_configuration"]['moloch_pcap_storage_percentage'])
 
-    if not configuration["kit_configuration"]['elasticsearch_cpu_percentage']:
+    if 'elasticsearch_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_elasticsearch_cpu_percentage(None)
     else:
         kit.set_elasticsearch_cpu_percentage(configuration["kit_configuration"]['elasticsearch_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['elasticsearch_ram_percentage']:
+    if 'elasticsearch_ram_percentage' not in configuration["kit_configuration"]:
         kit.set_elasticsearch_ram_percentage(None)
     else:
         kit.set_elasticsearch_ram_percentage(configuration["kit_configuration"]['elasticsearch_ram_percentage'])
 
-    if not configuration["kit_configuration"]['logstash_server_cpu_percentage']:
+    if 'logstash_server_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_logstash_server_cpu_percentage(None)
     else:
         kit.set_logstash_server_cpu_percentage(configuration["kit_configuration"]['logstash_server_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['logstash_replicas']:
+    if 'logstash_replicas' not in configuration["kit_configuration"]:
         kit.set_logstash_replicas(None)
     else:
         kit.set_logstash_replicas(configuration["kit_configuration"]['logstash_replicas'])
 
-    if not configuration["kit_configuration"]['es_storage_space_percentage']:
+    if 'es_storage_space_percentage' not in configuration["kit_configuration"]:
         kit.set_es_storage_space_percentage(None)
     else:
         kit.set_es_storage_space_percentage(configuration["kit_configuration"]['es_storage_space_percentage'])
 
-    if not configuration["remote_sensor_portgroup"]:
+    if 'remote_sensor_portgroup' not in configuration:
         kit.set_remote_sensor_portgroup(None)
     else:
         kit.set_remote_sensor_portgroup(configuration["remote_sensor_portgroup"])
     
-    if not configuration["remote_sensor_network"]:
+    if 'remote_sensor_network' not in configuration:
         kit.set_remote_sensor_network(None)
     else:
         kit.set_remote_sensor_network(configuration["remote_sensor_network"])
 
     kit.set_home_nets(configuration["kit_configuration"]['home_nets'])
 
-    if not configuration["kit_configuration"]['external_nets']:
+    if 'external_nets' not in configuration["kit_configuration"]:
         kit.set_external_nets(None)
     else:
         kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
 
-    if not configuration["kit_configuration"]['kafka_cpu_percentage']:
+    if 'kafka_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_kafka_cpu_percentage(None)
     else:
         kit.set_kafka_cpu_percentage(configuration["kit_configuration"]['kafka_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['moloch_cpu_percentage']:
+    if 'moloch_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_moloch_cpu_percentage(None)
     else:
         kit.set_moloch_cpu_percentage(configuration["kit_configuration"]['moloch_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['bro_cpu_percentage']:
+    if 'bro_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_bro_cpu_percentage(None)
     else:
         kit.set_bro_cpu_percentage(configuration["kit_configuration"]['bro_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['suricata_cpu_percentage']:
+    if 'suricata_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_suricata_cpu_percentage(None)
     else:
         kit.set_suricata_cpu_percentage(configuration["kit_configuration"]['suricata_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['zookeeper_cpu_percentage']:
+    if 'zookeeper_cpu_percentage' not in configuration["kit_configuration"]:
         kit.set_zookeeper_cpu_percentage(None)
     else:
         kit.set_zookeeper_cpu_percentage(configuration["kit_configuration"]['zookeeper_cpu_percentage'])
 
-    if not configuration["kit_configuration"]['ideal_es_cpus_per_instance']:
+    if 'ideal_es_cpus_per_instance' not in configuration["kit_configuration"]:
         kit.set_ideal_es_cpus_per_instance(None)
     else:
         kit.set_ideal_es_cpus_per_instance(configuration["kit_configuration"]['ideal_es_cpus_per_instance'])
 
-    if not configuration["kit_configuration"]['es_cpu_to_memory_ratio_default']:
+    if 'es_cpu_to_memory_ratio_default' not in configuration["kit_configuration"]:
         kit.set_es_cpu_to_memory_ratio_default(None)
     else:
         kit.set_es_cpu_to_memory_ratio_default(configuration["kit_configuration"]['es_cpu_to_memory_ratio_default'])
