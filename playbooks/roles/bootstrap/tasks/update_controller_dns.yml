@@ -1,0 +1,21 @@
+---
+
+- name: Get Controller Interface Name
+  shell: |
+    ip -o addr | grep {{ server_ip }} | awk '{ print $2 }'
+  register: controller_interface_name
+
+- name: Remove DNS line from interface script
+  shell: |
+    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-*
+  args:
+    warn: false
+
+- name: Add DNS to interface script
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ controller_interface_name.stdout }}
+    line: "DNS1=127.0.0.1"
+    state: present
+  notify: "Restart Network Services"
+
+...

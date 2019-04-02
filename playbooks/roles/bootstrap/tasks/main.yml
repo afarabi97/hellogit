@@ -34,4 +34,5 @@
 - import_tasks: cleanup.yml
 - import_tasks: offline_repos.yml
 - import_tasks: update_etc_hosts.yml
+- import_tasks: update_controller_dns.yml
 - import_tasks: finish.yml
