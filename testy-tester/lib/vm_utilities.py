@@ -296,7 +296,7 @@ def change_ip_address(host_configuration: HostConfiguration, node: Node):
     Disconnect(service_instance)
 
 
-def change_network_port_group(host_configuration: HostConfiguration, node: Node, is_vds: bool=True):
+def change_network_port_group(host_configuration: HostConfiguration, node: Node, remote_sensor_portgroup: str=None, is_vds: bool=True):
     """
     The VM in question must be powered off before you can change the network port group.
 
@@ -316,7 +316,10 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     # This code is for changing only one Interface. For multiple Interface
     # Iterate through a loop of network names.
     device_change = []
-    network_name = node.management_interface.dv_portgroup_name
+    if remote_sensor_portgroup is not None:
+        network_name = remote_sensor_portgroup
+    else:
+        network_name = node.management_interface.dv_portgroup_name
     for device in vm.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             # device.macAddress

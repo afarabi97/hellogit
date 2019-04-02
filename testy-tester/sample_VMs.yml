@@ -11,6 +11,10 @@ host_configuration:
 
 
 kit:
+  # Required when a remote sensor is present
+  # remote_sensor_portgroup: "73 Portgroup"
+  # remote_sensor_network: "172.16.73.0"
+  
   kickstart_configuration:
       netmask: "255.255.255.0"
 

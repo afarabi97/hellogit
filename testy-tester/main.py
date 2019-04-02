@@ -13,8 +13,8 @@ from collections import OrderedDict
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
-from lib.util import (get_node, test_vms_up_and_alive, transform, get_bootstrap,
-                      run_bootstrap, perform_integration_tests, get_interface_name)
+from lib.util import (get_node, get_nodes, test_vms_up_and_alive, transform, get_bootstrap,
+                      run_bootstrap, perform_integration_tests, get_interface_name, change_remote_sensor_ip)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.model.host_configuration import HostConfiguration
@@ -257,6 +257,28 @@ class Runner:
             pass
         self.controller_modifier()
 
+    
+    def _update_remote_sensors(self, kit: Kit):
+        """
+        Change the portgroup for remote sensor
+
+        :param 
+        """
+
+        remote_sensors = get_nodes(kit, "remote-sensor")  # type: list
+
+        for node in remote_sensors:
+            
+            logging.info("Updating " + node.hostname + " networking")
+            change_remote_sensor_ip(kit, node)
+            vm = VirtualMachine(self.vsphere_client, node, self.host_configuration)            
+            vm.power_off()
+            change_network_port_group(self.host_configuration, node, self.kit.remote_sensor_portgroup)
+            vm.power_on()
+                
+        test_vms_up_and_alive(kit, kit.nodes, 30)
+        
+
     def _run_kickstart(self, kit: Kit):
         """
         Performs the needed operations to Kickstart any and all vms mentions in
@@ -303,6 +325,16 @@ class Runner:
         logging.info("Run TFPlenum configuration")
         runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
         runner.run_tfplenum_configuration(kit)
+        
+        remote_sensor_node = False
+        for node in kit.get_nodes():
+            if node.type == 'remote-sensor':
+                remote_sensor_node = True
+
+        if remote_sensor_node:
+            logging.info("Changing portgroup for remote sensors.")
+            self._update_remote_sensors(kit)
+                
 
     def _run_add_node(self, kit: Kit):
         """

@@ -32,8 +32,9 @@ class Kit(object):
         suricata_cpu_percentage (int): See frontend help page
         zookeeper_cpu_percentage (int): See frontend help page
         ideal_es_cpus_per_instance (int): See frontend help page
-        es_cpu_to_memory_ratio_default (int): See frontend help page
-        es_cpu_to_memory_ratio_default (int): See frontend help page
+        es_cpu_to_memory_ratio_default (int): See frontend help page        
+        remote_sensor_portgroup (str): used for remote sensors vlan
+        remote_sensor_network (str): network address for remote sensors
     """
 
     def __init__(self, name: str) -> None:
@@ -119,6 +120,12 @@ class Kit(object):
 
     def set_es_cpu_to_memory_ratio_default(self, es_cpu_to_memory_ratio_default: int) -> None:
         self.es_cpu_to_memory_ratio_default = es_cpu_to_memory_ratio_default
+
+    def set_remote_sensor_portgroup(self, remote_sensor_portgroup: str) -> None:
+        self.remote_sensor_portgroup = remote_sensor_portgroup
+
+    def set_remote_sensor_network(self, remote_sensor_network: str) -> None:
+        self.remote_sensor_network = remote_sensor_network
 
     def get_nodes(self) -> List[Node]:
         """

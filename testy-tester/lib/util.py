@@ -79,6 +79,26 @@ def get_node(kit: Kit, node_type: str="controller") -> Node:
 
     return some_node
 
+def get_nodes(kit: Kit, node_type: str="sensor") -> Node:
+    """
+    Searches a YAML kit_configuration for a Controller VM and returns the first found
+
+    :param kit:  A kit object defining the schema of the kit
+    :param node_type: The type of node we wish to pull out of the list. Defaults to controller.
+    :return: A list of nodes
+    """
+
+    if node_type not in Node.valid_node_types:
+        logging.error("The node type: %s you passed into this function is invalid." % node_type)
+        exit(1)
+
+    nodes = []  # type: list
+    for node in kit.nodes:
+        if node.type == node_type:
+            nodes.append(node)            
+
+    return nodes
+
 
 def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password: str) -> None:
     """
@@ -220,6 +240,28 @@ def get_interface_name(kit: Kit) -> None:
                 logging.info("Found interface name " + interface_name + " for mac address " + interface.mac_address)
                 interface.set_interface_name(interface_name)
 
+def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
+    """
+    Stuff
+    """
+    network_ip = kit.remote_sensor_network.split('.')
+    curr_ip = node.management_interface.ip_address.split('.')
+
+    new_management_ip = curr_ip[0] + '.' + curr_ip[1] + '.' + network_ip[2] + '.' + curr_ip[3]
+    new_gateway_ip = curr_ip[0] + '.' + curr_ip[1] + '.' + network_ip[2] + '.' + '1'
+
+    with FabricConnectionWrapper(node.username,
+            node.password,
+            node.management_interface.ip_address) as client:
+        cmd = "/bin/nmcli con mod 'System " + node.management_interface.interface_name + "' ipv4.addresses " \
+            + new_management_ip + "/24 ipv4.gateway " + new_gateway_ip
+        client.run(cmd, shell=True)
+        
+    node.management_interface.ip_address = new_management_ip
+
+    for interface in node.interfaces:
+        if interface.management_interface:
+            interface.ip_address = new_management_ip
 
 def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
     nodes = []  # type: List[Node]
@@ -375,6 +417,16 @@ def transform(configuration: OrderedDict) -> List[Kit]:
         kit.set_es_storage_space_percentage(None)
     else:
         kit.set_es_storage_space_percentage(configuration["kit_configuration"]['es_storage_space_percentage'])
+
+    if not configuration["remote_sensor_portgroup"]:
+        kit.set_remote_sensor_portgroup(None)
+    else:
+        kit.set_remote_sensor_portgroup(configuration["remote_sensor_portgroup"])
+    
+    if not configuration["remote_sensor_network"]:
+        kit.set_remote_sensor_network(None)
+    else:
+        kit.set_remote_sensor_network(configuration["remote_sensor_network"])
 
     kit.set_home_nets(configuration["kit_configuration"]['home_nets'])
 
