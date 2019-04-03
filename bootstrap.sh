@@ -486,13 +486,14 @@ function prompts(){
     prompt_runtype
     get_controller_ip
     
-    if [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then       
-        choose_rhel_yum_repo
-    else
-        export RHEL_SOURCE_REPO="public";
+    if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
+        if [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
+            choose_rhel_yum_repo
+        else
+            export RHEL_SOURCE_REPO="public";
+        fi
+        generate_repo_file
     fi
-
-    generate_repo_file
 
     if [ "$RUN_TYPE" == "full" ]; then
         prompt_di2e_creds
