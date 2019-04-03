@@ -7,6 +7,8 @@ ANSIBLE_VERSION="2.7.5"
 RHEL_VERSION="7.5"
 RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
+
 
 pushd "/opt" > /dev/null
 
