@@ -31,6 +31,16 @@
     - 1194/tcp
   when: inventory_hostname in groups['master-server']
 
+- name: Allow Moloch Viewer thru firewall
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 8005/tcp
+  when: inventory_hostname in groups['moloch']
+
 - name: Allow common services thru firewall
   firewalld:
     service: "{{ item }}"
