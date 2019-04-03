@@ -113,7 +113,7 @@ pip_downloads:
   - junit-xml
   - netaddr
   - requests
-  - restresponse
+  - "restresponse==2.0.0"
   - urllib3
 
 pip_installs:
