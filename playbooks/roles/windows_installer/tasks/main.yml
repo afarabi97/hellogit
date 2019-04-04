@@ -1,25 +1,12 @@
-#Make a Windows self-extracting archive for Sysmon, Winlogbeat and GRR
+#Make a Windows self-extracting archive for Sysmon and Winlogbeat
 ---
 - name: Download Tools
   include: Download_Tools.yml
 
-- name: Get Server Addresses
-  shell: |
-    kubectl get service | awk '$1 == "{{ item }}" { print $4 }'
-  with_items: "{{ ap_names }}"
-  when:
-    - grr_fw_port != '' 
-  register: host_query
-
-- name: Build App Name to IP Dictionary
-  set_fact:
-    hosts: "{{ hosts | default({}) | combine( { item.item | regex_replace('-', '_') : item.stdout } ) }}"
-  delegate_to: localhost
-  with_items: "{{ host_query.results }}"
-
 - name: Get Paths of Powershell Scripts and Config File Templates
   find: 
     path: "{{ role_path }}/templates"
+    patterns: '*.md.j2,*.ps1.j2,*.yml.j2,*.yaml.j2'
   delegate_to: localhost
   run_once: true
   register: all_templates
@@ -32,6 +19,10 @@
   run_once: true
   register: winlogbeat_installer
 
+- name: Get Endgame Agent Installer
+  include: Download_Endgame.yml
+  when: install_endgame | upper == 'TRUE'
+
 - name: Build Powershell Scripts and Config Files
   template:
     src: "{{ item.path }}"
@@ -39,19 +30,6 @@
     newline_sequence: \r\n
   delegate_to: localhost
   loop: "{{ all_templates.files }}"
-  run_once: true
-
-- name: Get Windows GRR Installers
-  get_url:
-    url: "https://{{hosts.grr_frontend}}/{{grr_binary_path}}/{{ item }}"
-    dest: "{{ role_path }}/files"
-    url_username: "{{ grr_username }}"
-    url_password: "{{ grr_password }}"
-    validate_certs: no
-  when: 
-    - grr_fw_port != '' and hosts.grr_frontend != '' 
-  loop: "{{ grr_files }}"
-  delegate_to: localhost
   run_once: true
 
 - name: Find Local Powershell Scripts 
@@ -78,9 +56,16 @@
 
 - name: Get Paths of YAML Config Files
   set_fact:
-    config_files: "{{ config_files | default([]) + [ item.path ] }}"
+    config_files: '{{ config_files | default([""]) + [ item.path ] }}'
   with_items:
     "{{ config_files_found.files }}"
+
+- name: Remove Unneeded Config Files 
+  set_fact: 
+    needed_config_files: '{{ needed_config_files | default([""]) + [ item ] }}'
+  when: not (item | basename == "winlogbeat.yml") or (install_winlogbeat | upper == "TRUE")
+  with_items:
+    "{{ config_files }}"
 
 - name: Create Self-Extracting Zipfile
   script: 
@@ -88,11 +73,11 @@
       --destination "{{ installer_dir }}/{{ installer_name }}"
       --files
         {{ powershell_scripts | join( ' ' ) }}
-        Sysmon.zip
-        "{{ winlogbeat_installer.files.0.path }}"
+        {{ 'Sysmon.zip' if install_sysmon | upper == 'TRUE' else '' }}
+        {{ winlogbeat_installer.files.0.path if install_winlogbeat | upper == 'TRUE' else ''  }}
+        {{ endgame_installer if install_endgame | upper == 'TRUE' else '' }}
         README.md
-        {{ config_files | join( ' ' )}}
-        {{ grr_files | join( ' ' ) }}
+        {{ needed_config_files | join( ' ' ) }} 
   args:
     chdir: "{{ role_path }}/files"
     executable: python
@@ -111,6 +96,6 @@
   file:
     state: absent
     path:  "{{ role_path }}/files/{{ item | basename }}"
-  loop: "{{ tool_binaries }} + {{ grr_files }}" 
+  loop: "{{ tool_binaries + [ endgame_installer | default('') ] + [ 'README.md' ] }}" 
   delegate_to: localhost
   run_once: true

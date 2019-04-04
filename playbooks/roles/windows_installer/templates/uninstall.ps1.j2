@@ -1,15 +1,18 @@
 if ( -not ([Security.Principal.WindowsPrincipal] `
-           [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole( `
+            [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole( `
             [Security.Principal.WindowsBuiltInRole] "Administrator") ) {
  Write-Error "Must have administrator privileges to run this script."
-  exit 1
+ exit 1
 }
 
+{% if install_sysmon | upper == 'TRUE' %}
 #Uninstall Sysmon
 {{ target_dir  }}\Sysmon\Sysmon64.exe -u 2> $null
 Remove-Item -Path {{ target_dir }}\Sysmon -recurse
+{% endif %}
 
 
+{% if install_winlogbeat | upper == 'TRUE' %}
 #Uninstall Winlogbeat
 {{ target_dir }}\Winlogbeat\uninstall-service-winlogbeat.ps1
 function getWlb {
@@ -24,17 +27,11 @@ while ( $wlb ) {
 }
 "done"
 
-{% if grr_fw_port != '' %}
 Remove-Item -Path {{ target_dir }}\Winlogbeat -recurse
-
-#Uninstall GRR
-$grr_name = "GRR Monitor"
-if ( Get-Service -Name $grr_name -ErrorAction SilentlyContinue ) {
-  sc.exe stop $grr_name
-  sc.exe delete $grr_name
-  reg delete HKLM\Software\GRR /f
-  Remove-Item -Path "C:\Windows\System32\GRR" -recurse
-  Remove-Item -Path "C:\Windows\System32\LogFiles\grr_installer.txt"
-}
 {% endif %}
- 
+
+{% if install_endgame | upper == 'TRUE' %}
+#Uninstall Endgame
+{% set install_param = '-u force' %}
+{% include 'EndgameInstaller.j2' %}
+{% endif %}

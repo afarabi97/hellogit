@@ -1,4 +1,5 @@
-# Install Winlogbeat, Sysmon, and GRR (Where Available)
+# Install Agents
+{% if install_winlogbeat | upper == 'TRUE' %}
 By default, Winlogbeat is configured to send Security, Application, and System event logs. To add or remove logs or
 change other Winlogbeat settings, edit the [winlogbeat.yml configuration file](
   https://www.elastic.co/guide/en/beats/winlogbeat/current/winlogbeat-configuration.html "This page describes how to
@@ -6,6 +7,7 @@ change other Winlogbeat settings, edit the [winlogbeat.yml configuration file](
 
 **Note:** Do not edit the logstash host, or your beats may not be detected.
 
+{% endif %}
 From an account with administration privileges, run the Powershell script `setup.ps1`. There
 are multiple ways to do this, including:
 1. Log in as "Administrator" and run `setup.ps1`.
@@ -16,7 +18,7 @@ are multiple ways to do this, including:
   script. For example, if `setup.ps1` is in the "Downloads" folder for a user named "joe":  
            cd C:\Users\joe\Downloads
   1. Run the `setup.ps1` script:  
-           .\setup.ps1 [-grr [-grr_host IP_Address] [-grr_port Port_Number] ] [-logstash_host IP_Address] [-logstash_port Port_Number] [-help]
+           .\setup.ps1 [-logstash_host IP_Address] [-logstash_port Port_Number] [-help]
 
 1. From a Windows Command Prompt:
   1. Search for "cmd".
@@ -25,9 +27,9 @@ are multiple ways to do this, including:
   script. For example, if `setup.ps1` is in the "Downloads" folder for a user named "joe":  
            cd C:\Users\joe\Downloads
   1. Run the `setup.ps1` script:  
-           powershell .\setup.ps1 [-grr [-grr_host IP_Address] [-grr_port Port_Number] ]  [-logstash_host IP_Address] [-logstash_port Port_Number] [-help]
+           powershell .\setup.ps1 [-logstash_host IP_Address] [-logstash_port Port_Number] [-help]
 
-# Remove Sysmon, Winlogbeat, and GRR
+# Remove Agents
 From an account with administration privileges, run the Powershell script
 `uninstall.ps1`. There are multiple ways to do this, including:
 1. Log in as "Administrator" and run `uninstall.ps1`.
@@ -49,7 +51,7 @@ From an account with administration privileges, run the Powershell script
            powershell .\uninstall.ps1
 
 # Changing a Host or Port Port Number
-To change the host or port number used by GRR or Winlogbeat, remove Sysmon, Winlogbeat and GRR using the above
+To change the host or port number used by the installed agents, remove the agents using the above
 instructions and reinstall, specifying the host or port number on the command line.
 
 **Failure to uninstall before calling `setup.ps1` may not implement the desired changes.**

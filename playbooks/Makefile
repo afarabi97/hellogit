@@ -139,12 +139,17 @@ change-interfaces:
 grr:
 	ansible-playbook grr-only.yml -i $(INVENTORY) -t grr
 
-#Requires LOGSTASH_URL and LOGSTASH_PORT to be specified on the command line, e.g.
-#make winlogbeat LOGSTASH_URL=localhost LOGSTASH_PORT=9200 [ INCLUDE_GRR=TRUE [ GRR_PORT=8001 ] ]
-#If GRR_PORT is not defined, GRR will not be included in the installer, even if INCLUDE_GRR is set to true.
+#Requires FIREWALL_URL and LOGSTASH_PORT to be specified on the command line, e.g.
+#make winlogbeat FIREWALL_URL=localhost LOGSTASH_PORT=9200 INSTALL_WLB=TRUE INSTALL_SYSMON=TRUE
 winlogbeat:
-ifeq ($(INCLUDE_GRR),TRUE)
-	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat --extra-vars "logstash_fw_url=$(LOGSTASH_URL) logstash_fw_port=$(LOGSTASH_PORT) grr_fw_port=$(GRR_PORT)"
-else 
-	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat --extra-vars "logstash_fw_url=$(LOGSTASH_URL) logstash_fw_port=$(LOGSTASH_PORT) grr_fw_port=''"
-endif
+	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat \
+	--extra-vars "firewall_url=$(FIREWALL_URL) logstash_fw_port=$(LOGSTASH_PORT) \
+	install_winlogbeat=$(INSTALL_WLB) install_sysmon=$(INSTALL_SYSMON) \
+	install_endgame=$(INSTALL_ENDGAME) \
+	endgame_server=$(ENDGAME_SERVER) \
+	endgame_port=$(ENDGAME_PORT) \
+	endgame_user=$(ENDGAME_USER) \
+	endgame_password=$(ENDGAME_PASSWORD) \
+	endgame_config_name='$(ENDGAME_CONFIG_NAME)' \
+	endgame_vdi=$(ENDGAME_VDI) \
+	endgame_dissolvable=$(ENDGAME_DISSOLVABLE) "

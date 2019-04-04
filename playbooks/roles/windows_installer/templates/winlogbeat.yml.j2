@@ -109,9 +109,9 @@ setup.template.settings:
 output.logstash:
   # The Logstash hosts
   {% if logstash_fw_port == '' %}
-  hosts: ["{{ logstash_fw_url }}:{{ logstash_port }}"]
+  hosts: ["{{ firewall_url }}:{{ logstash_port }}"]
   {% else %}
-  hosts: ["{{ logstash_fw_url }}:{{ logstash_fw_port }}"]
+  hosts: ["{{ firewall_url }}:{{ logstash_fw_port }}"]
   {% endif %}
 
   # Optional SSL. By default is off.

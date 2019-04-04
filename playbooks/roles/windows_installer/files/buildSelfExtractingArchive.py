@@ -8,7 +8,7 @@ __author__ = 'Warren Couvillion'
 
 from zipfile import ZipFile
 import argparse
-from os import remove, getpid
+from os import remove
 from os.path import basename, isfile
 from uuid import uuid4
 

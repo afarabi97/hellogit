@@ -1,18 +1,5 @@
 ---
 ansible_connection: local
-grr_username: admin
-grr_password: password
-grr_vnum: "{{ grr_version | regex_replace('v', '') }}"
-grr_files:
-  - "GRR_{{ grr_vnum }}_amd64.exe"
-  - "GRR_{{ grr_vnum }}_i386.exe"
-
-
-#Names of applications in kubernetes for whch we'll need IP addresses. 
-#These get mapped to the IP addresses in a dictionary. NB, dashes, -, will be replaced with
-#underscores, _, because J2 doesn't like dashes in variable names.
-ap_names:
-  - grr-frontend
 
 #Local directory into which the install will be built
 installer_dir: "/opt/tfplenum/playbooks"
@@ -23,14 +10,10 @@ installer_name: "monitor_install.exe"
 #Directory where software will be installed on remote machine.
 target_dir: "C:\\'Program Files'"
 
-grr_port: 8080
-
-#Path to GRR installers. You can get it by downloading them from the GRR web controller and 
-#then checking the download history in your browser.
-grr_binary_path: "/api/config/binaries-blobs/EXECUTABLE/windows/installers"
-
 #URLs for tools to be downloaded
 tool_binaries:
   - unz552xn.exe
   - Sysmon.zip
   - winlogbeat-6.6.1-windows-x86_64.zip
+
+install_endgame: false
