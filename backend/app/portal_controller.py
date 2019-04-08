@@ -7,12 +7,37 @@ from fabric.runners import Result
 from flask import jsonify, Response
 from shared.connection_mngs import FabricConnectionWrapper
 from shared.constants import PORTAL_ID
+from typing import List
 
 
 DEFAULT_NAMES = ("grr-frontend.lan", "kibana.lan", "moloch-viewer.lan",
                  "kubernetes-dashboard.lan", "monitoring-grafana.lan")
 
 DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan")
+
+
+def _append_portal_link(portal_links: List, dns: str, ip: str = None):
+    if dns == "grr-frontend.lan":
+        if ip:            
+            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
+        else: 
+            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
+    elif dns == "moloch-viewer.lan":
+        if ip:
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': 'assessor/password'})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': 'assessor/password'})
+
+    elif dns == "kubernetes-dashboard.lan":
+        if ip:
+            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
+        else:
+            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': ''})
+    else:
+        if ip:
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
 
 
 def _get_defaults():
@@ -24,7 +49,7 @@ def _get_defaults():
     """    
     portal_links = []
     for default_dns in DEFAULT_NAMES:
-        portal_links.append({'ip': '', 'dns': default_dns})
+        _append_portal_link(portal_links, default_dns)
     return portal_links
 
 def _isDiscluded(dns: str) -> bool:
@@ -55,15 +80,7 @@ def get_portal_links() -> Response:
                     ip, dns = line.split(' ')
                     if _isDiscluded(dns):
                         continue
-
-                    if dns == "grr-frontend.lan":
-                        portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
-                    elif dns == "moloch-viewer.lan":
-                        portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': 'assessor/password'})
-                    elif dns == "kubernetes-dashboard.lan":
-                        portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
-                    else:
-                        portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
+                    _append_portal_link(portal_links, dns, ip)
                 except ValueError as e:
                     pass
             return jsonify(portal_links)

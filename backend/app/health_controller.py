@@ -5,7 +5,7 @@ import json
 import pymongo
 from app import app, logger, conn_mng
 from app.job_manager import shell
-from shared.constants import KIT_ID
+from shared.constants import KIT_ID, KICKSTART_ID
 from shared.utils import decode_password
 
 from app.job_manager import spawn_job
@@ -63,10 +63,11 @@ def perform_systems_check() -> Response:
     :return: Response object
     """
     current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    current_kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if current_kit_configuration:
-        if current_kit_configuration["form"] and current_kit_configuration["form"]["root_password"]:
+        if current_kit_configuration["form"] and current_kickstart_configuration["form"]["root_password"]:
             cmd_to_execute = ("ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" + 
-                              decode_password(current_kit_configuration["form"]["root_password"]) + "' site.yml")
+                              decode_password(current_kickstart_configuration["form"]["root_password"]) + "' site.yml")
             spawn_job("SystemsCheck",
                     cmd_to_execute,
                     ["systems_check"],
