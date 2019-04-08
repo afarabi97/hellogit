@@ -1,7 +1,7 @@
 - name: Build Windows Installer for Winlogbeat Sysmon and GRR
   any_errors_fatal: true
   hosts: 
-    - master-server
+    - localhost 
   roles:
     - windows_installer
   tags: winlogbeat
