@@ -1,4 +1,10 @@
 ---
+- name: Deploy easy vpn setup script
+  template:
+    src: templates/vpnsetup.sh
+    dest: /root/vpnsetup.sh
+  when: inventory_hostname in groups['remote-sensors']
+
 - name: Install net-tools
   yum:
     name: net-tools
