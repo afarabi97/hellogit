@@ -180,21 +180,15 @@ class ServerCalculations:
 
     @property
     def elastic_master_node_count(self) -> int:
-        mem_allocatable = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.elastic_mem_perc)
-        node_count = mem_allocatable / convert_GiB_to_KiB(24)
-        if node_count < 1 or node_count < self._num_servers:
-            node_count = self._num_servers
-
-        if node_count > 5:
-            node_count = 5            
-        return int(node_count)
+        return 3
     
     @property
     def elastic_data_node_count(self) -> int:
-        mem_allocatable = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.elastic_mem_perc)
-        node_count = mem_allocatable / convert_GiB_to_KiB(24)
-        if node_count > 5:
-            return int(node_count - 5)
+        mem_allocatable = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, 
+                                                  self._percentages.elastic_mem_perc)
+        node_count = mem_allocatable / convert_GiB_to_KiB(52)
+        if node_count > 3:
+            return int(node_count - 3)
         return 0
 
     @property

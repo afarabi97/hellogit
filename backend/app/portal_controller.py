@@ -10,9 +10,6 @@ from shared.constants import PORTAL_ID
 from typing import List
 
 
-DEFAULT_NAMES = ("grr-frontend.lan", "kibana.lan", "moloch-viewer.lan",
-                 "kubernetes-dashboard.lan", "monitoring-grafana.lan")
-
 DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan")
 
 
@@ -38,19 +35,6 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
-
-
-def _get_defaults():
-    """
-    Gets the defaults for portal links in the event that we cannot 
-    connect to kubernetes master server.
-    
-    :return:
-    """    
-    portal_links = []
-    for default_dns in DEFAULT_NAMES:
-        _append_portal_link(portal_links, default_dns)
-    return portal_links
 
 def _isDiscluded(dns: str) -> bool:
     """
@@ -85,6 +69,6 @@ def get_portal_links() -> Response:
                     pass
             return jsonify(portal_links)
     except Exception as e:
-        return jsonify(_get_defaults())
+        return jsonify([])
     
     return ERROR_RESPONSE

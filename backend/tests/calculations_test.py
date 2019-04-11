@@ -150,7 +150,7 @@ class TestSensorCalculations(unittest.TestCase):
     def setUp(self):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
+        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')        
 
         json_file = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit_form_submission = json.loads(json_file.read_text(), encoding='utf-8')
@@ -225,7 +225,7 @@ class TestCephStoragePool(unittest.TestCase):
     def setUp(self):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
+        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')        
         kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')
         kit_form_submission["kitForm"]["enable_percentages"] = False
         self.storage1 = CephStoragePool(kit_form_submission["kitForm"]["servers"])
@@ -251,6 +251,8 @@ class TestServerCalculations(unittest.TestCase):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
         kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
+        dl160kit = Path(SCRIPT_DIR + '/testfiles/DL160_kit.json')
+        r440kit = Path(SCRIPT_DIR + '/testfiles/r440.json')
 
         kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')
         kit_form_submission["kitForm"]["enable_percentages"] = False
@@ -262,10 +264,19 @@ class TestServerCalculations(unittest.TestCase):
         kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
         self.kit3_cal = ServerCalculations(kit_form_submission["kitForm"])
 
+        kit_form_submission = json.loads(dl160kit.read_text(), encoding='utf-8')
+        self.dl160kit_cal = ServerCalculations(kit_form_submission["kitForm"])
+
+        kit_form_submission = json.loads(r440kit.read_text(), encoding='utf-8')
+        self.r440kit_cal = ServerCalculations(kit_form_submission["kitForm"])
+
+
     def test_elk_calculations(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
         self.assertEqual(1260, self.kit1_cal.log_stash_cpu_request)
-        self.assertEqual(5040, self.kit1_cal.elastic_cpu_request)
+        self.assertEqual(1680, self.kit1_cal.elastic_cpu_request)
+        self.assertEqual(10133, self.dl160kit_cal.elastic_cpu_request)
+        self.assertEqual(5150, self.r440kit_cal.elastic_cpu_request)
 
     def test_logstash_replicas(self):
         self.assertEqual(1, self.kit1_cal.log_stash_replicas)
@@ -275,59 +286,78 @@ class TestServerCalculations(unittest.TestCase):
     def test_elk_node_counts(self):
         self.assertEqual(1, self.kit2_cal.log_stash_replicas)
 
-        self.assertEqual(1, self.kit1_cal.elastic_master_node_count)
+        self.assertEqual(3, self.kit1_cal.elastic_master_node_count)
         self.assertEqual(0, self.kit1_cal.elastic_data_node_count)
-        self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
+        self.assertEqual(3, self.kit1_cal.elastic_total_node_count)
 
-        self.assertEqual(5, self.kit2_cal.elastic_master_node_count)
-        self.assertEqual(4, self.kit2_cal.elastic_data_node_count)
-        self.assertEqual(9, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(3, self.kit2_cal.elastic_master_node_count)
+        self.assertEqual(1, self.kit2_cal.elastic_data_node_count)
+        self.assertEqual(4, self.kit2_cal.elastic_total_node_count)
                 
-        self.assertEqual(2, self.kit3_cal.elastic_master_node_count)
-        self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
+        self.assertEqual(3, self.kit3_cal.elastic_master_node_count)
+        self.assertEqual(3, self.kit3_cal.elastic_total_node_count)
         self.assertEqual(0, self.kit3_cal.elastic_data_node_count)
+
+        self.assertEqual(3, self.dl160kit_cal.elastic_master_node_count)
+        self.assertEqual(0, self.dl160kit_cal.elastic_data_node_count)
+        self.assertEqual(3, self.dl160kit_cal.elastic_total_node_count)
+
+        self.assertEqual(3, self.r440kit_cal.elastic_master_node_count)
+        self.assertEqual(5, self.r440kit_cal.elastic_data_node_count)
+        self.assertEqual(8, self.r440kit_cal.elastic_total_node_count)
         
     def test_elastic_memory_request(self):
-        # self.assertEqual(9.665, self.kit1_cal.elastic_memory_request)
-        self.assertEqual(4, self.kit1_cal.elastic_memory_request)
-        self.assertEqual(24, self.kit2_cal.elastic_memory_request)
-        self.assertEqual(6, self.kit3_cal.elastic_memory_request)
+        self.assertEqual(1, self.kit1_cal.elastic_memory_request)
+        self.assertEqual(56, self.kit2_cal.elastic_memory_request)
+        self.assertEqual(4, self.kit3_cal.elastic_memory_request)        
+        self.assertEqual(18, self.dl160kit_cal.elastic_memory_request)
+        self.assertEqual(56, self.r440kit_cal.elastic_memory_request)
 
     def test_elastic_pv_size(self):
-        self.assertEqual(1, self.kit1_cal.elastic_total_node_count)
+        self.assertEqual(3, self.kit1_cal.elastic_total_node_count)
         self.assertEqual(40000000, self.kit1_cal._ceph_storage_pool.ceph_pool_capacity)
         self.assertEqual(40000000, self.kit1_cal._ceph_storage_pool.ceph_pool_allocatable)
-        self.assertEqual(30.518, self.kit1_cal.elastic_pv_size)
+        self.assertEqual(10.173, self.kit1_cal.elastic_pv_size)
 
-        self.assertEqual(9, self.kit2_cal.elastic_total_node_count)
+        self.assertEqual(4, self.kit2_cal.elastic_total_node_count)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_capacity)
         self.assertEqual(400000000, self.kit2_cal._ceph_storage_pool.ceph_pool_allocatable)
-        self.assertEqual(33.908, self.kit2_cal.elastic_pv_size)
+        self.assertEqual(76.294, self.kit2_cal.elastic_pv_size)
 
-        self.assertEqual(2, self.kit3_cal.elastic_total_node_count)
+        self.assertEqual(3, self.kit3_cal.elastic_total_node_count)
         self.assertEqual(80000000, self.kit3_cal._ceph_storage_pool.ceph_pool_capacity)
         self.assertEqual(80000000, self.kit3_cal._ceph_storage_pool.ceph_pool_allocatable)
-        self.assertEqual(30.518, self.kit3_cal.elastic_pv_size)
+        self.assertEqual(20.345, self.kit3_cal.elastic_pv_size)
+
+        self.assertEqual(3, self.dl160kit_cal.elastic_total_node_count)
+        self.assertEqual(11182080000, self.dl160kit_cal._ceph_storage_pool.ceph_pool_capacity)
+        self.assertEqual(11182080000, self.dl160kit_cal._ceph_storage_pool.ceph_pool_allocatable)
+        self.assertEqual(2843.75, self.dl160kit_cal.elastic_pv_size)
+
+        self.assertEqual(8, self.r440kit_cal.elastic_total_node_count)
+        self.assertEqual(40282400000, self.r440kit_cal._ceph_storage_pool.ceph_pool_capacity)
+        self.assertEqual(40282400000, self.r440kit_cal._ceph_storage_pool.ceph_pool_allocatable)
+        self.assertEqual(3841.629, self.r440kit_cal.elastic_pv_size)
 
     def test_elastic_curator_threshold(self):
         self.assertEqual(90, self.kit3_cal.elastic_curator_threshold)
 
 
-class TestInventoryFileCreation(unittest.TestCase):
+# class TestInventoryFileCreation(unittest.TestCase):
 
-    def test_inventory_creation(self):
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit1.json')
-        kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
-        is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
-        self.assertTrue(is_successful)
-        self.assertIsNotNone(password)
+#     def test_inventory_creation(self):
+#         kit3 = Path(SCRIPT_DIR + '/testfiles/kit1.json')
+#         kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
+#         is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
+#         self.assertTrue(is_successful)
+#         self.assertIsNotNone(password)
 
-    def test_inventory_creation_remote_sensor(self):
-        kit4 = Path(SCRIPT_DIR + '/testfiles/kit4.json')
-        kit_form_submission = json.loads(kit4.read_text(), encoding='utf-8')
-        is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
-        self.assertTrue(is_successful)
-        self.assertIsNotNone(password)
+#     def test_inventory_creation_remote_sensor(self):
+#         kit4 = Path(SCRIPT_DIR + '/testfiles/kit4.json')
+#         kit_form_submission = json.loads(kit4.read_text(), encoding='utf-8')
+#         is_successful, password = _replace_kit_inventory(kit_form_submission['kitForm'])
+#         self.assertTrue(is_successful)
+#         self.assertIsNotNone(password)
 
 
 class TestConverters(unittest.TestCase):

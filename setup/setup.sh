@@ -34,6 +34,7 @@ function _install_angular(){
 	run_cmd npm cache verify
 	run_cmd npm i 
     run_cmd npm install
+	run_cmd npm audit fix
 	popd > /dev/null
 }
 
