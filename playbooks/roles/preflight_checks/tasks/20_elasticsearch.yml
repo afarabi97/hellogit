@@ -7,6 +7,6 @@
 - name: Verify Elasticsearch memory does not exceed 26GB
   fail:
     msg: 'For optimization, Elasticsearch memory should not exceed 26GB. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
-  when: inventory_hostname in groups['elasticsearch'] and elastic_memory > 26
+  when: inventory_hostname in groups['elasticsearch'] and elastic_memory > 52
 
 ...
