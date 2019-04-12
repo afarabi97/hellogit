@@ -28,6 +28,9 @@ filebeat.inputs:
     - /bro/spool/logger-*/*.log
     #- c:\programdata\elasticsearch\logs\*
 
+  close_removed: false
+  clean_removed: false
+
   exclude_files:
     - stderr.log
     - stdout.log
