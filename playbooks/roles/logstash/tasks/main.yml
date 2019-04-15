@@ -22,6 +22,7 @@
     - deploy.yml
     - logstash.yml
     - svc.yml
+    - jvm.options
 
 - name: Install pipeline templates
   template:
@@ -63,6 +64,7 @@
     --from-file {{ logstash_dir }}/logstash-template.json \
     --from-file {{ logstash_dir }}/logstash.yml \
     --from-file {{ logstash_dir }}/log4j2.properties \
+    --from-file {{ logstash_dir }}/jvm.options \
     --dry-run -o yaml | kubectl replace --force -f -
 
 - name: Create Pipeline ConfigMap

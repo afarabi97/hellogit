@@ -25,6 +25,10 @@ spec:
         resources:
           requests:
             cpu: {{ logstash_cpu_request }}
+            memory: {{ logstash_memory_request }}Gi
+          limits:
+            cpu: {{ logstash_cpu_request }}
+            memory: {{ logstash_memory_limit }}Gi
         volumeMounts:
           - name: logstash
             mountPath: "{{ logstash_path }}/config/logstash.yml"
@@ -39,6 +43,9 @@ spec:
             mountPath: "{{ logstash_path }}/pipeline"
           - name: plugins
             mountPath: "{{ logstash_path }}/plugins"
+          - name: logstash
+            mountPath: "{{ logstash_path }}/config/jvm.options"
+            subPath: jvm.options
       nodeSelector:
         logstash: "true"
       volumes:
