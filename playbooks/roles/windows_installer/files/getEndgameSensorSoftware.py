@@ -22,6 +22,7 @@ parser.add_argument('-t', '--transceiver',
                     help='<Required>IP addresses of Endgame Server. This will probably be the PFSense firewall IP:port', 
                     required=True)
 parser.add_argument('-n', '--name', required=True, help='Name of sensor configuration')
+parser.add_argument('-i', '--id', help='Unique ID of sensor (for downloading existing sensor)')
 parser.add_argument('-d', '--dissolvable', action='store_true', 
                     help='Construct dissolvable sensor (default is persistent sensor)')
 parser.add_argument('-v', '--vdi', action='store_false', help='VDI Compatibility')
@@ -56,31 +57,6 @@ def merge_dicts(d1, *args):
         merged.update(d)
     return merged
 
-auth_header = { "Authorization": "JWT {}".format(auth_token) }
-session.headers = merge_dicts(content_header, auth_header)
-
-#Get data about current sensor configuration
-url = 'https://{}/api/v1/deployment-profiles'.format(args.server)
-resp = session.get(url)
-sensor_data = resp.json()['data'][0]
-
-"""
-Add or delete and set entries in an Installation configurtion dictionary so that
-persistence of the sensor is set properly. 
-:param config:      Dictionary to be configured. Will be modified.
-:param persistence: Boolean, true for persistent, false for dissolvable
-:return: Reference the newly configured dictionary.
-"""
-def setPersistence(config, persistence):
-  config['install_persistent'] = persistence
-  if not persistence:
-    config.pop('service_display_name', None)
-    config.pop('service_name', None)
-  else:
-    config['service_display_name'] = 'EndpointSensor'
-    config['service_name'] = 'esensor'
-  return config
-
 """
 Check the response of a requests library call. If it's okay, perform an action
 and return the return value of the action.
@@ -97,26 +73,56 @@ def checkResponse(resp, action):
     PrettyPrinter(stream=sys.stderr).pprint(resp.json())
     sys.exit(resp)
 
-#Configure a payload describing a sensor with the desired parameters set on the command line.
-payload = {
-  'name': args.name,
-  'api_key': sensor_data['api_key'],
-  'base_image': not args.vdi,
-  'config': {
-    'Mitigation': sensor_data['config']['Mitigation'],
-    'Installation': setPersistence(sensor_data['config']['Installation'], not args.dissolvable),
-    'Kernel': sensor_data['config']['Kernel']
-  },
-  'policy': sensor_data['policy'],
-  'receiver': 'https://{}'.format(args.transceiver),
-  'sensor_directory': sensor_data['sensor_directory'],
-  'sensor_version': sensor_data['sensor_version']
-}
+auth_header = { "Authorization": "JWT {}".format(auth_token) }
+session.headers = merge_dicts(content_header, auth_header)
 
-#Create the sensor and get its ID, required for downloading its software.
+ #Get data about current sensor configuration
 url = 'https://{}/api/v1/deployment-profiles'.format(args.server)
-resp = session.post(url, json=payload) 
-installer_id = checkResponse(resp, lambda r : r.json()['data']['success'])
+resp = session.get(url)
+sensor_data = resp.json()['data'][0]
+
+if not args.id:
+  """
+  Add or delete and set entries in an Installation configurtion dictionary so that
+  persistence of the sensor is set properly. 
+  :param config:      Dictionary to be configured. Will be modified.
+  :param persistence: Boolean, true for persistent, false for dissolvable
+  :return: Reference the newly configured dictionary.
+  """
+  def setPersistence(config, persistence):
+    config['install_persistent'] = persistence
+    if not persistence:
+      config.pop('service_display_name', None)
+      config.pop('service_name', None)
+    else:
+      config['service_display_name'] = 'EndpointSensor'
+      config['service_name'] = 'esensor'
+    return config
+
+  #Configure a payload describing a sensor with the desired parameters set on the command line.
+  payload = {
+    'name': args.name,
+    'api_key': sensor_data['api_key'],
+    'base_image': not args.vdi,
+    'config': {
+      'Mitigation': sensor_data['config']['Mitigation'],
+      'Installation': setPersistence(sensor_data['config']['Installation'], not args.dissolvable),
+      'Kernel': sensor_data['config']['Kernel']
+    },
+    'policy': sensor_data['policy'],
+    'receiver': 'https://{}'.format(args.transceiver),
+    'sensor_directory': sensor_data['sensor_directory'],
+    'sensor_version': sensor_data['sensor_version']
+  }
+
+  #Create the sensor and get its ID, required for downloading its software.
+  url = 'https://{}/api/v1/deployment-profiles'.format(args.server)
+  resp = session.post(url, json=payload) 
+  installer_id = checkResponse(resp, lambda r : r.json()['data']['success'])
+else:
+  installer_id = args.id
+
+
 
 #Download the Windows sensor software and save it to a file.
 url = 'https://{}/api/v1/windows/installer/{}'.format(args.server, installer_id)

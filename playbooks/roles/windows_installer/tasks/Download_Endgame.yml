@@ -8,6 +8,7 @@
       --password "{{ endgame_password }}"
       --transceiver "{{ firewall_url }}:{{ endgame_port }}"
       --name "{{ endgame_config_name }}"
+      --id "{{ endgame_sensor_id }}"
       {{ '--vdi' if endgame_vdi | upper == 'TRUE' else '' }}
       {{ '--dissolvable' if endgame_dissolvable | upper == 'TRUE' else '' }}
   args:

@@ -152,4 +152,5 @@ winlogbeat:
 	endgame_password=$(ENDGAME_PASSWORD) \
 	endgame_config_name='$(ENDGAME_CONFIG_NAME)' \
 	endgame_vdi=$(ENDGAME_VDI) \
-	endgame_dissolvable=$(ENDGAME_DISSOLVABLE) "
+	endgame_dissolvable=$(ENDGAME_DISSOLVABLE) \
+	endgame_sensor_id=$(ENDGAME_SENSOR_ID)"
