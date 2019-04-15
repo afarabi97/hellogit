@@ -74,13 +74,14 @@ class TestCommonController(BaseTestCase):
 class TestAgentBuilder(BaseTestCase):
 
     def test_api(self):
-        # Exercise logic for building a windows installer w/o GRR
+        # Exercise logic for building a windows installer
         response = self.session.post(
             self.base_url + '/api/generate_windows_installer', 
-            json={'pf_sense_ip': '172.16.72.2', 
-            'winlogbeat_port': '123', 
-            'grr_port': '8080', 
-            'isGrrInstalled': False})
+            json = {
+                'pf_sense_ip': '172.16.72.2', 
+                'winlogbeat_port': '123',
+                'install_winlogbeat': False,
+                'install_sysmon': True })
         print(response)
         print(response.headers)
         self.assertEqual(200, response.status_code)
@@ -92,7 +93,7 @@ class TestAgentBuilder(BaseTestCase):
                 outputFile.write(data)
         self.assertTrue(os.stat(filename).st_size > 0)
         print('Save the file "monitor_install.exe" on a Windows machine and '
-                'test if you can install Winlogbeat and Sysmon')
+                'test if you can install Winlogbeat and Sysmon.')
 
 def start_debug_api_srv():
     socketio.run(app, host='0.0.0.0', port=5002, debug=False) # type: SocketIO

@@ -5,12 +5,13 @@ import { Observable, of } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class AgentBuilderService {
+export class EndgameService{
 
   constructor(private http: HttpClient) { }
 
-  getAgentInstaller(payload: Object) : Observable<any> {
-    let url = '/api/generate_windows_installer';
-    return this.http.post(url, payload, { responseType: 'blob' }).pipe();
+  getEndgameSensorProfiles(payload: Object) : Observable<any>{
+      console.log(payload);
+      let url = '/api/endgame_sensor_profiles'
+      return this.http.post(url, payload).pipe();
   }
 }
