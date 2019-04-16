@@ -246,34 +246,8 @@
   tags:
     - kube-node
 
-- name: Setup Ceph
-  hosts:
-    - master-server
-    - servers
-    - sensors
-    - remote-sensors
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - ceph
-  tags:
-    - ceph
-
-- name: Setup Storage
-  hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - storage
-  tags:
-    - storage
-
 - name: Deploy Elasticsearch
-  hosts: master-server
+  hosts: elasticsearch
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

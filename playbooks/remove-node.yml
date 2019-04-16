@@ -57,44 +57,6 @@
         kubectl delete node {{ item }}
       with_items: "{{ groups['nodes_to_remove'] }}"
 
-- name: Remove node from Ceph
-  hosts: nodes_to_remove
-  tasks:
-    - name: Remove OSDs
-      shell: |
-        ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}' | xargs -n 1 ceph osd out
-        sleep 30
-
-    - name: Wait for Ceph health
-      shell: "ceph health"
-      register: task_result
-      until: task_result.stdout.find("HEALTH_OK") != -1
-      retries: 15
-      delay: 5
-      ignore_errors: yes
-
-    - name: Purge OSDs
-      shell: |
-        OSDS=$(ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}')
-        echo $OSDS | xargs -I X systemctl stop ceph-osd@X
-        echo $OSDS | xargs -I X ceph osd purge X --yes-i-really-mean-it
-  tags: ceph
-
-- name: Purge Ceph from nodes
-  hosts: master-server
-  tasks:
-    - name: Purge with ceph-deploy
-      shell: |
-        ceph-deploy purge {{ groups['nodes_to_remove'] | join(' ') }}
-        ceph-deploy purgedata {{ groups['nodes_to_remove'] | join(' ') }}
-      args:
-        chdir: "{{ install_dir }}/ceph"
-    - name: Remove mons
-      shell: ceph mon rm {{ hostvars[item].inventory_hostname_short }}
-      with_items:
-        - "{{ groups['nodes_to_remove'] }}"
-  tags: ceph
-
 - name: Reboot node
   hosts: nodes_to_remove
   tasks:

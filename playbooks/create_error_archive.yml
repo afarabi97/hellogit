@@ -29,22 +29,6 @@
     changed_when: False
     ignore_errors: yes
 
-  - name: Log Ceph status on all nodes
-    shell: "ceph status > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_status.log"
-    args:
-      executable: /bin/bash
-    when: inventory_hostname in groups['ceph']
-    changed_when: False
-    ignore_errors: yes
-
-  - name: Log Ceph health on all nodes
-    shell: "ceph health > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_health.log"
-    args:
-      executable: /bin/bash
-    when: inventory_hostname in groups['ceph']
-    changed_when: False
-    ignore_errors: yes
-
   - name: Generate full journalctl output from all nodes
     shell: "journalctl -a --no-tail -o verbose > {{ log_dir }}/{{ inventory_hostname_short }}_journalctl.log"
     args:

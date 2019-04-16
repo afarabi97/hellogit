@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat bro moloch suricata kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun bro-rerun moloch-rerun suricata-rerun add-node
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch logstash kibana metricbeat bro moloch suricata kubernetes-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun bro-rerun moloch-rerun suricata-rerun add-node
 
 # Default target, build *and* run tests
 all:
@@ -39,9 +39,6 @@ openvpn:
 
 kubernetes:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
-
-ceph:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph
 
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
@@ -77,22 +74,19 @@ endgame:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
-
-ceph-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
@@ -127,7 +121,7 @@ engame-rerun:
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t docker -l $(NODE)
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,ceph,es-scale,bro-scale,suricata-scale,moloch-scale,enable-sensor-monitor-interface
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,es-scale,bro-scale,suricata-scale,moloch-scale,enable-sensor-monitor-interface
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash
 
 remove-node:
