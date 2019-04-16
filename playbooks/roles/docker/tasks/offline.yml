@@ -46,8 +46,12 @@
     pull: yes
   with_items:
     - "{{ kube_images }}"
+  tags:
+    - pull_images
 
 - name: 'Retag local images back to original name'
   shell: "docker tag {{ docker_registry_repo }}/{{ item }} {{ item }}"
   with_items:
     - "{{ kube_images }}"
+  tags:
+    - pull_images

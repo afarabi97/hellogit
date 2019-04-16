@@ -1,7 +1,23 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: logstash
+  labels:
+    component: logstash
+spec:
+  selector:
+    component: logstash
+  ports:
+  - port: {{ logstash_port }}
+    protocol: TCP
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-headless
   labels:
     component: logstash
 spec:
@@ -11,4 +27,3 @@ spec:
   ports:
   - port: {{ logstash_port }}
     protocol: TCP
-  type: LoadBalancer

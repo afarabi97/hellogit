@@ -1,0 +1,13 @@
+cluster.name: "{{ elastic_cluster_name }}"
+network.host: 0.0.0.0
+discovery.zen.minimum_master_nodes: {{ es_min_masters }}
+discovery.zen.ping.unicast.hosts: elasticsearch-discovery
+index.store.type: niofs
+indices.fielddata.cache.size: 20%
+processors: {{ ( ( elasticsearch_cpu_request | replace('m','') | int ) / 1000 ) | round | int}}
+path.data: {{ es_data_path }}
+node.master: true
+node.data: true
+node.ingest: true
+cluster.remote.connect: true
+node.max_local_storage_nodes: {{ es_max_local_storage_nodes }}

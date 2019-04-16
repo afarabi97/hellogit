@@ -39,15 +39,10 @@
     msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: logstash_cpu_request is not defined or logstash_cpu_request is none
 
-- name: Checking that elasticsearch_cpu_request is set
+- name: Checking that elastic_data_jvm_memory is set
   fail:
-    msg: "elasticsearch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elasticsearch_cpu_request is not defined or elasticsearch_cpu_request is none
-
-- name: Checking that elastic_memory is set
-  fail:
-    msg: "elastic_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_memory is not defined or elastic_memory is none
+    msg: "elastic_data_jvm_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: elastic_data_jvm_memory is not defined or elastic_data_jvm_memory is none
 
 - name: Checking that elastic_masters is set
   fail:
@@ -63,11 +58,6 @@
   fail:
     msg: "elastic_datas is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_datas is not defined or elastic_datas is none
-
-- name: Checking that elastic_pv_size
-  fail:
-    msg: "elastic_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_pv_size is not defined or elastic_pv_size is none
 
 - name: Checking that sensor_monitor_interface is set
   fail:

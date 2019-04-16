@@ -27,7 +27,7 @@ spec:
             cpu: {{ logstash_cpu_request }}
             memory: {{ logstash_memory_request }}Gi
           limits:
-            cpu: {{ logstash_cpu_request }}
+            cpu: {{ logstash_cpu_limit }}
             memory: {{ logstash_memory_limit }}Gi
         volumeMounts:
           - name: logstash

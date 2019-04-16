@@ -148,6 +148,9 @@ setup.kibana:
 output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ["{{ elastic_fqdn }}:{{ elastic_port }}"]
+  worker: 4
+  bulk_max_size: 4096
+  compression_level: 3
 
   # Enabled ilm (beta) to use index lifecycle management instead daily indices.
   #ilm.enabled: false

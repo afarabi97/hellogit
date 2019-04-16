@@ -5,11 +5,11 @@
     path: "{{ moloch_pcap_folder }}"
     src: "{{ pcap_disk }}"
     state: unmounted
-    fstype: btrfs
+    fstype: xfs
 
 - name: Format PCAP drive
   filesystem:
-    fstype: btrfs
+    fstype: xfs
     dev: "{{ pcap_disk }}"
     force: yes
 
@@ -18,6 +18,7 @@
     path: "{{ moloch_pcap_folder }}"
     src: "{{ pcap_disk }}"
     state: mounted
-    fstype: btrfs
+    fstype: xfs
+    opts: "noatime,logbsize=256k,swalloc,allocsize=131072k,nobarrier,largeio,inode64"
 
 ...

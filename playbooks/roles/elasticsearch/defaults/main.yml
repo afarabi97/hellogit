@@ -16,3 +16,24 @@ elastic_dir: "{{ install_dir  }}/elasticsearch"
 elastic_pv_data_path: "/usr/share/elasticsearch/data"
 elastic_config_path: "/usr/share/elasticsearch/config"
 elasticsearch_image: 'tfplenum/elasticsearch'
+
+es_max_local_storage_nodes: 1
+es_min_masters: 1
+es_data_nodes: 0
+elastic_mdi: false
+install_license: false
+
+elastic_masters: 0
+elastic_datas: 0
+elastic_ingests: 0
+elastic_searches: 0
+
+separate_master: false
+separate_data: true
+separate_ingest: false
+separate_search: false
+
+#### Storage configuration
+es_data_path: "/data"
+vg_name: vg_data
+elasticsearch_lvm: es_data

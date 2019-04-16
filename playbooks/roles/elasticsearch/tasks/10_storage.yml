@@ -1,0 +1,60 @@
+######################################################
+########## Setup Elasticsearch Storage ###############
+######################################################
+---
+
+- name: Unmount the drive if it was already mounted
+  mount:
+    path: "{{ es_data_path }}"
+    src: "/dev/mapper/{{ vg_name }}-{{ elasticsearch_lvm }}"
+    fstype: xfs
+    state: unmounted
+  with_items:
+    - "unmounted"
+    - "absent"
+
+- name: Remove LVMs
+  lvol:
+    vg: "{{ vg_name }}"
+    lv: "{{ elasticsearch_lvm }}"
+    state: "absent"
+    force: yes
+
+- name: Remove Data Volume Group
+  lvg:
+    vg: "{{ vg_name }}"
+    pvs: "{{ es_data_drive_list }}"
+    state: "absent"
+    force: yes
+
+- name: Wipe data drive
+  shell: |
+    /usr/sbin/wipefs -a {{ item }}
+  with_items:
+    - "{{ es_data_drive_list }}"
+
+- name: Create data volume group volume
+  lvg:
+    vg: "{{ vg_name }}"
+    pvs: "{{ es_data_drive_list }}"
+
+- name: Create lvm
+  lvol:
+    vg: "{{ vg_name }}"
+    lv: "{{ elasticsearch_lvm }}"
+    size: 100%FREE
+
+- name: Format Data Drive
+  filesystem:
+    fstype: xfs
+    dev: "/dev/mapper/{{ vg_name }}-{{ elasticsearch_lvm }}"
+    force: yes
+
+- name: Mount data lvm
+  mount:
+        name: "{{ es_data_path }}"
+        src: /dev/mapper/{{ vg_name }}-{{ elasticsearch_lvm }}
+        fstype: xfs
+        state: mounted
+
+...

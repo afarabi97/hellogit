@@ -23,6 +23,7 @@ kibana_fqdn: "kibana.{{ fqdn }}"
 
 # Logstash
 logstash_fqdn: "logstash.{{ fqdn }}"
+logstash_headless_fqdn: "logstash-headless.{{ fqdn }}"
 logstash_port: "5044"
 
 # If you have licensing for x-pack set variable to true.

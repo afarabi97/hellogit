@@ -1,20 +1,18 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: es-master
+  name: es-ingest
 spec:
   selector:
     matchLabels:
       component: elasticsearch
-      role: master
-  serviceName: "es-master"
-  replicas: {{ elastic_masters }}
-  podManagementPolicy: "Parallel"
+      role: ingest
+  replicas: {{ elastic_ingests }}
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: master
+        role: ingest
     spec:
       initContainers:
       - name: init-sysctl
@@ -23,10 +21,7 @@ spec:
         command:
         - /bin/sh
         - -c
-        - "sysctl -w vm.max_map_count=262144; chown -R 1000:1000 /usr/share/elasticsearch/data"
-        volumeMounts:
-        - name: data
-          mountPath: /usr/share/elasticsearch/data
+        - "sysctl -w vm.max_map_count=262144"
         securityContext:
           privileged: true
       containers:
@@ -40,8 +35,8 @@ spec:
               - IPC_LOCK
         resources:
           requests:
-            memory: "{{ elastic_memory }}Gi"
-            cpu: "{{ elasticsearch_cpu_request }}"
+            memory: "{{ elastic_ingest_memory }}Gi"
+            cpu: "{{ elastic_ingest_cpu_request }}"
         env:
         - name: NAMESPACE
           valueFrom:
@@ -56,7 +51,7 @@ spec:
         - name: HTTP_ENABLE
           value: "false"
         - name: ES_JAVA_OPTS
-          value: -Xms{{ elastic_memory // 2 }}g -Xmx{{ elastic_memory // 2 }}g
+          value: -Xms{{ elastic_ingest_jvm_memory }}g -Xmx{{ elastic_ingest_jvm_memory }}g
         ports:
         - containerPort: {{ elastic_data_port }}
           name: http
@@ -70,23 +65,12 @@ spec:
           periodSeconds: 15
           failureThreshold: 5
         volumeMounts:
-        - name: data
-          mountPath: {{ elastic_pv_data_path }}
-        - name: elastic
+        - name: elastic-ingest-conf
           mountPath: {{ elastic_config_path }}/elasticsearch.yml
-          subPath: elasticsearch.yml
+          subPath: es-ingest-conf.yml
       volumes:
-      - name: elastic
+      - name: elastic-ingest-conf
         configMap:
-          name: elastic
+          name: elastic-ingest
       nodeSelector:
         elasticsearch: "true"
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: rbd
-      resources:
-        requests:
-          storage: {{ elastic_pv_size }}Gi

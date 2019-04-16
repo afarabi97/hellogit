@@ -3,129 +3,22 @@
 ######################################################
 ---
 
-- name: "Create directories"
-  file:
-    group: "{{ elastic_group }}"
-    owner: "{{ elastic_user }}"
-    mode: u+rw,g+rw
-    path: "{{ elastic_dir }}"
-    state: directory
+- import_tasks: 00_preflight.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Install Templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ elastic_dir }}/{{ item }}"
-    group: "{{ elastic_group }}"
-    owner: "{{ elastic_user }}"
-    mode: u+rw,g+rw
-  with_items:
-    - es-discovery-svc.yml
-    - es-master-statefulset.yml
-    - es-data-statefulset.yml
-    - es-svc.yml
-    - elasticsearch.yml
-    - action_file.yml
-    - config.yml
+- import_tasks: 10_storage.yml
 
-- name: Flush Config
-  command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
-  with_items:
-    - elastic
+- import_tasks: 15_master.yml
+  when: separate_master and inventory_hostname in groups['master-server']
 
-- name: Create Config
-  shell: |
-    kubectl create configmap elastic --from-file {{ elastic_dir }}/{{ item }}
-  with_items:
-    - elasticsearch.yml
+- import_tasks: 20_data.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Flush Deployments
-  shell: |
-    kubectl delete -f {{ elastic_dir }}/{{ item }} --ignore-not-found=true
-    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }} | tail -n +2 | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-    sleep 5;
-  with_items:
-    - es-discovery-svc.yml
-    - es-svc.yml
-    - es-data-statefulset.yml
-    - es-master-statefulset.yml
+# - import_tasks: 25_ingest.yml
+#   when: separate_ingest and inventory_hostname in groups['master-server']
 
-- name: Deploy Services
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Elasticsearch Services"
-    file_name: "{{ elastic_dir }}/{{ item }}"
-  with_items:
-    - es-discovery-svc.yml
-    - es-svc.yml
+# - import_tasks: 30_search.yml
+#   when: separate_search and inventory_hostname in groups['master-server']
 
-- name: Deploy Pods
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Elasticsearch Pods"
-    file_name: "{{ elastic_dir }}/{{ item }}"
-  with_items:
-    - es-master-statefulset.yml
-    - es-data-statefulset.yml
-
-- name: Scale up Elasticsearch Statefulset
-  shell: |
-    kubectl get sts es-master --no-headers=true | awk '{ print $2 }'
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-  register: current_es_count
-  tags:
-    - es-scale
-
-- name: set es replica count by 1
-  set_fact:
-    es_replicas: "{{ current_es_count.stdout|int + 1 }}"
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-    and current_es_count is defined
-  tags:
-    - es-scale
-
-- name: create pvc of new es
-  shell: |
-    echo '{"kind":"PersistentVolumeClaim","apiVersion":"v1","metadata":{"name":"data-es-data-2"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"6Gi"}},"storageClassName":"rbd"}}' | kubectl create -f -
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-    and es_replicas is defined and es_replicas is not none
-
-- name: Scale up Elasticsearch Statefulset
-  shell: |
-    kubectl scale statefulset es-master --replicas={{ es_replicas }}
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-    and es_replicas is defined and es_replicas is not none
-  register: es_scale_result
-  changed_when: "es_scale_result.stdout == 'statefulset \"es-master\" scaled'"
-  tags:
-    - es-scale
-
-- name: Wait for Elasticsearch to be ready
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "statefulset"
-    namespace: "default"
-    resource_name: "es-master"
-    label: ""
-
-- name: Update moloch
-  shell: |
-    kubectl exec -ti moloch-0 -- /data/moloch/db/db.pl {{ elastic_fqdn }}:{{ elastic_data_port }} upgradenoprompt --shards {{ es_replicas }}
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-    and es_scale_result is defined
-    and es_scale_result.changed
-  tags:
-    - es-scale
+#- import_tasks: 50_license.yml
+#  when: install_license and inventory_hostname in groups['master-server']

@@ -1,0 +1,26 @@
+- name: Create ES Ingest Config
+  shell: |
+    kubectl create configmap elastic-ingest --from-file {{ elastic_dir }}/{{ item }}
+  with_items:
+    - es-ingest-conf.yml
+
+- name: Deploy ES Ingest Service
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Elasticsearch ingest Service"
+    file_name: "{{ elastic_dir }}/{{ item }}"
+  with_items:
+    - es-ingest-svc.yml
+    - es-ingest-deploy.yml
+
+- name: Wait for Elasticsearch to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "es-ingest"
+    label: ""

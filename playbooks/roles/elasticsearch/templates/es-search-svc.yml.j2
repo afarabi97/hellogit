@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: elasticsearch
+  name: elasticsearch-search
   labels:
     component: elasticsearch
-    role: master
+    role: search
 spec:
   selector:
     component: elasticsearch
-    role: master
+    role: search
   ports:
   - name: http
     port: {{ elastic_data_port }}

@@ -4,9 +4,9 @@
 # Perform Elasticsearch resource requirements checks #
 ######################################################
 
-- name: Verify Elasticsearch memory does not exceed 26GB
+- name: Verify Elasticsearch jvm memory does not exceed 30GB
   fail:
-    msg: 'For optimization, Elasticsearch memory should not exceed 26GB. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
-  when: inventory_hostname in groups['elasticsearch'] and elastic_memory > 52
+    msg: 'For optimization, Elasticsearch jvm memory should not exceed 30GB. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
+  when: inventory_hostname in groups['elasticsearch'] and elastic_data_jvm_memory > 30
 
 ...
