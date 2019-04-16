@@ -118,6 +118,10 @@ all:
 
     # logstash_replicas is the number of logstash instances you would like to run
     logstash_replicas: {{ template_ctx.server_cal.log_stash_replicas }}
+    logstash_pipeline_workers: {{ template_ctx.server_cal.logstash_pipeline_workers }}
+    log_stash_jvm_memory_request: {{ template_ctx.server_cal.log_stash_jvm_memory_request }}
+    log_stash_memory_limit: {{ template_ctx.server_cal.log_stash_memory_limit }}
+    log_stash_memory_request: {{ template_ctx.server_cal.log_stash_memory_request }}
 
     #############################
     # Bro/Suricata Settings     #

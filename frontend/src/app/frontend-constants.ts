@@ -80,9 +80,9 @@ export const TIMEZONES = [
   'America/New_York'
 ];
 
-
 export const KIT_ID = "kit_form";
 export const PORTAL_ID = 'portal_links';
 export const KICKSTART_ID = "kickstart_form";
 export const CTRL_SELECTED = "A controller interface must first be selected.";
 export const SENSOR_APPS = ["bro", "suricata", "moloch"];
+export const GENERAL_KIT_FAILURE_MSG = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';

@@ -91,10 +91,8 @@ def run_integration_tests() -> bool:
     Runs controller integration tests and returns true on success.
 
     :return:
-    """
-    test_classes_to_run = [TestCommonController, TestKickstartController, TestAgentBuilder]
-    # test_classes_to_run = [TestRulesetController, TestPcapController, TestCommonController, TestKickstartController]
-    test_classes_to_run = [TestPcapController]
+    """    
+    test_classes_to_run = [TestRulesetController, TestPcapController, TestCommonController, TestKickstartController]    
     loader = unittest.TestLoader()
     suites_list = []
     for test_class in test_classes_to_run:

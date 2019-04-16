@@ -13,6 +13,7 @@ import { HomeNetFormGroup, ExternalNetFormGroup } from '../total-sensor-resource
 import { ModalDialogComponent } from '../modal-dialog/modal-dialog.component';
 import { KIT_ID, SENSOR_APPS } from '../frontend-constants';
 import { CommentForm } from '../kickstart-form/kickstart-form';
+import { GENERAL_KIT_FAILURE_MSG } from '../frontend-constants';
 
 
 @Component({
@@ -242,11 +243,15 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.kitSrv.generateKit(this.kitForm.getRawValue(),
                             this.executeKitForm.getRawValue()
     ).subscribe(data => {
-      this.kitModal.updateModal('Success',
+      this.kitModal.updateModal('SUCCESS',
         "Inventory file generated successfully. To finish the Kit installation, \
         you will need to cd /opt/tfplenum/playbooks then run make.",
         undefined,
         'Close');
+      this.kitModal.openModal();
+    }, 
+    err => {
+      this.kitModal.updateModal('ERROR', GENERAL_KIT_FAILURE_MSG, "Close");
       this.kitModal.openModal();
     });
   }
@@ -266,6 +271,10 @@ export class KitFormComponent implements OnInit, AfterViewInit{
                              this.executeKitForm.getRawValue())
         .subscribe(data => {
           this.openConsole();
+        },
+        err => {
+          this.kitModal.updateModal('ERROR', GENERAL_KIT_FAILURE_MSG, "Close");
+          this.kitModal.openModal();
         });
     } else {
       this.generateKitInventory();

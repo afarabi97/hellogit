@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+// import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
@@ -91,8 +92,16 @@ import { UploadDialogComponent } from './policy-management/upload-dialog/upload-
     NgbModule,
     MaterialModule,
     BrowserAnimationsModule
+    // HttpModule    
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    PolicyManagementDialog,
+    PolicyManagementComponent,
+    PolicyManagementTable,
+    PolicyManagementAddDialog,
+    UploadDialogComponent
+  ]
 })
 export class AppModule { }

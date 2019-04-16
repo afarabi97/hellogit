@@ -78,23 +78,18 @@ class KitPercentages:
             raise ValueError("Unknown length of sensor applications! This code needs to be updated!")
 
     @property
+    def is_home_build(self) -> bool:
+        return self._is_home_build
+
+    # BEGIN SERVER PERCENTAGES
+    @property
     def elastic_cpu_perc(self) -> int:
         ret_val = 50
         if self._is_override_percentages:
             ret_val = int(self._kit_form["server_resources"]["elastic_cpu_percentage"])
         elif self._is_home_build:
             ret_val = 40
-        return ret_val
-
-    @property
-    def elastic_mem_perc(self) -> int:
-        ret_val = 50
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["elastic_memory_percentage"])
-        elif self._is_home_build:
-            ret_val = 40
-        
-        return ret_val
+        return ret_val    
     
     @property
     def elastic_ceph_storage_perc(self) -> int:
@@ -108,8 +103,34 @@ class KitPercentages:
         ret_val = 10
         if self._is_override_percentages:
             ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
+        return ret_val    
+
+    @property
+    def elastic_mem_perc(self) -> int:
+        ret_val = 50
+        if self._is_override_percentages:
+            ret_val = int(self._kit_form["server_resources"]["elastic_memory_percentage"])
+        elif self._is_home_build:
+            ret_val = 40
+        
         return ret_val
-    
+
+    @property
+    def log_stash_mem_perc(self) -> int:
+        ret_val = 10
+        # TODO
+        # if self._is_override_percentages:
+        #     ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
+        return ret_val
+
+    @property
+    def elastic_curator_threshold_perc(self) -> int:
+        ret_val = 90
+        if self._is_override_percentages:
+            ret_val = int(self._kit_form["server_resources"]["elastic_curator_threshold"])
+        return ret_val
+
+    # BEGIN SENSOR PERCENTAGES
     def moloch_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
             ret_val = int(self._kit_form["sensors"][sensor_index]["moloch_cpu_percentage"])
@@ -143,14 +164,7 @@ class KitPercentages:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._moloch_mem_limit
 
-        return ret_val 
-
-    @property
-    def elastic_curator_threshold_perc(self) -> int:
-        ret_val = 90
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["elastic_curator_threshold"])
-        return ret_val
+        return ret_val     
 
 
 class ServerCalculations:
@@ -161,16 +175,45 @@ class ServerCalculations:
         self._num_sensors = len(kit_form["sensors"])
         self._server_res_pool = NodeResourcePool(self._kit_form["servers"])
         self._ceph_storage_pool = CephStoragePool(kit_form["servers"])
-        self._log_stash_cpu_request = 0
+        self._log_stash_cpu_request = 0        
         self._elastic_cpu_request = 0
-        self._elastic_mem_request = 0
-        self._log_stash_replicas = 0
+        self._elastic_mem_request = 0        
 
     @property    
     def log_stash_cpu_request(self) -> int:
         allocatable = self._server_res_pool.pool_cpu_allocatable
         self._log_stash_cpu_request = cal_percentage_of_total(allocatable, self._percentages.log_stash_cpu_perc) / self._num_servers
         return int(self._log_stash_cpu_request)
+
+    @property
+    def log_stash_replicas(self) -> int:
+        logstash_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.log_stash_mem_perc)
+        val = logstash_memory / 4
+        val = int(convert_KiB_to_GiB(val))
+        if val < 8:
+            return 2
+        elif self._percentages.is_home_build:
+            return 2
+        else:
+            return 4        
+
+    @property
+    def log_stash_memory_request(self) -> int:
+        logstash_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.log_stash_mem_perc)
+        ret_val = logstash_memory / self.log_stash_replicas
+        return int(convert_KiB_to_GiB(ret_val))
+
+    @property
+    def log_stash_memory_limit(self) -> int:
+        return self.log_stash_memory_request
+
+    @property
+    def log_stash_jvm_memory_request(self) -> int:
+        return int(cal_percentage_of_total(self.log_stash_memory_request, 75))
+
+    @property
+    def logstash_pipeline_workers(self) -> int:
+        return int(cal_percentage_of_total(self.log_stash_memory_request, 75))
 
     @property
     def elastic_cpu_request(self) -> int:
@@ -193,11 +236,7 @@ class ServerCalculations:
 
     @property
     def elastic_total_node_count(self) -> int:
-        return self.elastic_master_node_count + self.elastic_data_node_count    
-
-    @property
-    def log_stash_replicas(self) -> int:
-        return self._num_servers
+        return self.elastic_master_node_count + self.elastic_data_node_count        
 
     @property
     def elastic_memory_request(self) -> int: 
@@ -211,9 +250,12 @@ class ServerCalculations:
 
         :return: KiB
         """
-        elastic_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.elastic_mem_perc)
-        self._elastic_mem_request = elastic_memory / self.elastic_total_node_count
-        return int(convert_KiB_to_GiB(self._elastic_mem_request))
+        elastic_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.elastic_mem_perc)        
+        elastic_memory = elastic_memory / self.elastic_total_node_count
+        ret_val = int(convert_KiB_to_GiB(elastic_memory))
+        if ret_val == 0:
+            return 1
+        return ret_val
 
     # The amount of space allocated in GB to each persistent volume for Elasticsearch
     @property
@@ -243,14 +285,20 @@ class ServerCalculations:
 
     def to_dict(self) -> Dict:
         return {
-            'log_stash_cpu_request': self.log_stash_cpu_request,
             'elastic_cpu_request': self.elastic_cpu_request,
             'elastic_data_pod_count': self.elastic_data_node_count,
             'elastic_master_pod_count': self.elastic_master_node_count,
             'elastic_memory_request': self.elastic_memory_request,
             'elastic_pv_size': self.elastic_pv_size,
             'elastic_curator_threshold': self.elastic_curator_threshold,
+            'log_stash_cpu_request': self.log_stash_cpu_request,
             'log_stash_replicas': self.log_stash_replicas,
+
+            'logstash_pipeline_workers': self.logstash_pipeline_workers,
+            'log_stash_jvm_memory_request': self.log_stash_jvm_memory_request,
+            'log_stash_memory_limit': self.log_stash_memory_limit,
+            'log_stash_memory_request': self.log_stash_memory_request,
+
             'moloch_ceph_pcap_pv_size': self.moloch_ceph_pcap_pv_size
         }
 

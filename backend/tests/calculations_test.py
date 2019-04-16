@@ -253,6 +253,7 @@ class TestServerCalculations(unittest.TestCase):
         kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
         dl160kit = Path(SCRIPT_DIR + '/testfiles/DL160_kit.json')
         r440kit = Path(SCRIPT_DIR + '/testfiles/r440.json')
+        brokenKit = Path(SCRIPT_DIR + '/testfiles/broken.json')
 
         kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')
         kit_form_submission["kitForm"]["enable_percentages"] = False
@@ -270,21 +271,23 @@ class TestServerCalculations(unittest.TestCase):
         kit_form_submission = json.loads(r440kit.read_text(), encoding='utf-8')
         self.r440kit_cal = ServerCalculations(kit_form_submission["kitForm"])
 
+        kit_form_submission = json.loads(brokenKit.read_text(), encoding='utf-8')
+        self.brokenKit_cal = ServerCalculations(kit_form_submission["kitForm"])
 
     def test_elk_calculations(self):
-        self.assertEqual(1, self.kit1_cal.log_stash_replicas)
+        self.assertEqual(2, self.kit1_cal.log_stash_replicas)
         self.assertEqual(1260, self.kit1_cal.log_stash_cpu_request)
         self.assertEqual(1680, self.kit1_cal.elastic_cpu_request)
         self.assertEqual(10133, self.dl160kit_cal.elastic_cpu_request)
         self.assertEqual(5150, self.r440kit_cal.elastic_cpu_request)
 
     def test_logstash_replicas(self):
-        self.assertEqual(1, self.kit1_cal.log_stash_replicas)
-        self.assertEqual(1, self.kit2_cal.log_stash_replicas)
+        self.assertEqual(2, self.kit1_cal.log_stash_replicas)
+        self.assertEqual(4, self.kit2_cal.log_stash_replicas)
         self.assertEqual(2, self.kit3_cal.log_stash_replicas)
 
     def test_elk_node_counts(self):
-        self.assertEqual(1, self.kit2_cal.log_stash_replicas)
+        self.assertEqual(4, self.kit2_cal.log_stash_replicas)
 
         self.assertEqual(3, self.kit1_cal.elastic_master_node_count)
         self.assertEqual(0, self.kit1_cal.elastic_data_node_count)
@@ -307,6 +310,7 @@ class TestServerCalculations(unittest.TestCase):
         self.assertEqual(8, self.r440kit_cal.elastic_total_node_count)
         
     def test_elastic_memory_request(self):
+        self.assertEqual(1, self.brokenKit_cal.elastic_memory_request)
         self.assertEqual(1, self.kit1_cal.elastic_memory_request)
         self.assertEqual(56, self.kit2_cal.elastic_memory_request)
         self.assertEqual(4, self.kit3_cal.elastic_memory_request)        
@@ -342,6 +346,21 @@ class TestServerCalculations(unittest.TestCase):
     def test_elastic_curator_threshold(self):
         self.assertEqual(90, self.kit3_cal.elastic_curator_threshold)
 
+    def test_logstash_cals(self):
+        # self.assertEqual(16, self.r440kit_cal.log_stash_memory_request)
+        # self.assertEqual(16, self.r440kit_cal.log_stash_memory_limit)
+        self.assertEqual(4, self.r440kit_cal.log_stash_replicas)
+        self.assertEqual(22, self.r440kit_cal.log_stash_memory_request)
+        self.assertEqual(22, self.r440kit_cal.log_stash_memory_limit)
+        self.assertEqual(16, self.r440kit_cal.log_stash_jvm_memory_request)
+        self.assertEqual(16, self.r440kit_cal.logstash_pipeline_workers)
+        
+        self.assertEqual(2, self.dl160kit_cal.log_stash_replicas)
+        self.assertEqual(5, self.dl160kit_cal.log_stash_memory_request)
+        self.assertEqual(5, self.dl160kit_cal.log_stash_memory_limit)
+        self.assertEqual(3, self.dl160kit_cal.log_stash_jvm_memory_request)
+        self.assertEqual(3, self.dl160kit_cal.logstash_pipeline_workers)
+            
 
 # class TestInventoryFileCreation(unittest.TestCase):
 
