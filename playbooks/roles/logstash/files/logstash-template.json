@@ -3,8 +3,8 @@
   "version":50001,
   "order" : 0,
   "settings":{
-    "number_of_replicas":0,
-    "number_of_shards":1,
+    "number_of_replicas":1,
+    "number_of_shards":5,
     "index.refresh_interval":"30s",
     "index.mapping.total_fields.limit": 2000
   },
@@ -18,6 +18,19 @@
         },
         "@version":{
           "type":"keyword"
+        },
+        "beat":{
+          "properties":{
+            "hostname":{
+              "type":"keyword"
+            },
+            "name":{
+              "type":"keyword"
+            },
+            "version":{
+              "type":"keyword"
+            }
+          }
         },
         "geoip":{
           "dynamic":true,

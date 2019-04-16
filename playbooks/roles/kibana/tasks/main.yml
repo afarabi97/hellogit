@@ -85,6 +85,16 @@
   retries: 20
   delay: 5
 
+- name: Enable Monitoring
+  uri:
+    url: "http://{{ elastic_fqdn }}:9200/_cluster/settings"
+    method: PUT
+    body_format: json
+    body:
+      persistent:
+        xpack.monitoring.collection.enabled: true
+    status_code: 200, 201
+
 - name: Load Dashboards
   uri:
     url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/dashboards/import?force=true"
