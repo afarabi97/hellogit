@@ -12,7 +12,7 @@ import { TextInputComponent } from './text-input/text-input.component';
 import { TextAreaInputComponent } from './textarea-input/textarea-input.component';
 import { DropdownComponent } from './dropdown/dropdown.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
-import { ModelDialogModule } from './modal-dialog/modal-dialog.module';
+import { ModalDialogComponent } from './modal-dialog/modal-dialog.component';
 import { KitFormComponent } from './kit-form/kit-form.component';
 import { BasicNodeResourceCardComponent } from './basic-node-resource-card/basic-node-resource-card.component';
 import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
@@ -32,13 +32,18 @@ import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
 import { RegistryComponent } from './registry/registry.component';
 import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
-import { PolicyManagementModule } from './policy-management/policy-management.module';
-import { ListModule } from './list/list.module';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
-import { ModalLoadingModule } from './modal-loading/modal-loading.module';
-// import { ModalLoadingComponent } from './modal-loading/modal-loading.component';
+import { ModalLoadingComponent } from './modal-loading/modal-loading.component';
+
+//Poilicy Management
+import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
+import { PolicyManagementDialog } from './policy-management/dialog/policy-management-dialog.component';
+import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
+import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
+import { UploadDialogComponent } from './policy-management/upload-dialog/upload-dialog.component';
+
 
 @NgModule({
   declarations: [
@@ -68,7 +73,14 @@ import { ModalLoadingModule } from './modal-loading/modal-loading.module';
     ModalIpSelectDialogComponent,
     RegistryComponent,
     AgentBuilderComponent,
-    PcapFormComponent
+    ModalLoadingComponent,
+    PcapFormComponent,
+    ModalDialogComponent,
+    PolicyManagementComponent,
+    PolicyManagementDialog,
+    PolicyManagementTable,    
+    PolicyManagementAddDialog,
+    UploadDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -77,12 +89,8 @@ import { ModalLoadingModule } from './modal-loading/modal-loading.module';
     ReactiveFormsModule,
     HttpClientModule,
     NgbModule,
-    ListModule,
     MaterialModule,
-    BrowserAnimationsModule,
-    PolicyManagementModule,
-    ModelDialogModule,
-    ModalLoadingModule
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -29,9 +29,6 @@
     </div>
   </div>
 </div>
-
 <policy-management-dialog *ngIf="_PolicyManagementService.isUserEditing"
-                      [text]="_PolicyManagementService.activeConfigData"
-                      [title]="_PolicyManagementService.activeConfigDataTitle"
                       (closeNoSaveEvent)="closeEditor($event)"
                       (closeSaveEvent)="saveAndCloseEditor($event)"></policy-management-dialog>

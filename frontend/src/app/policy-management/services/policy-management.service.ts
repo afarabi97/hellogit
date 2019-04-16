@@ -13,7 +13,9 @@ export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PolicyManagementService {
     public isUserEditing: boolean = false;
     public activeConfigDataTitle: string;
