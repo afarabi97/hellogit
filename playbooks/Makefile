@@ -136,9 +136,6 @@ remove-node:
 change-interfaces:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces,vars-configmap
 
-grr:
-	ansible-playbook grr-only.yml -i $(INVENTORY) -t grr
-
 #Requires FIREWALL_URL and LOGSTASH_PORT to be specified on the command line, e.g.
 #make winlogbeat FIREWALL_URL=localhost LOGSTASH_PORT=9200 INSTALL_WLB=TRUE INSTALL_SYSMON=TRUE
 winlogbeat:
