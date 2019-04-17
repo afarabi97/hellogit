@@ -436,8 +436,7 @@
         "ceph_redundancy": null,
         "endgame_iporhost": "10.102.37.200",
         "endgame_username": "admin",
-        "endgame_password": "We.are.tfplenum4$",
-        "install_grr": null,
+        "endgame_password": "We.are.tfplenum4$",        
         "enable_percentages": null
     },
     "timeForm": {

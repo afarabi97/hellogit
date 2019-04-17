@@ -5,8 +5,7 @@
         "enable_percentages": true,
         "endgame_iporhost": null,
         "endgame_password": null,
-        "endgame_username": null,
-        "install_grr": null,
+        "endgame_username": null,        
         "kubernetes_services_cidr": "172.16.88.32",
         "sensor_resources": {
             "external_nets": [],

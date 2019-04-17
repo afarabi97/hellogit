@@ -642,8 +642,7 @@
         "ceph_redundancy": null,
         "endgame_iporhost": null,
         "endgame_username": null,
-        "endgame_password": null,
-        "install_grr": null,
+        "endgame_password": null,        
         "enable_percentages": null
     },
     "timeForm": {

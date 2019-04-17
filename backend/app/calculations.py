@@ -81,48 +81,6 @@ class KitPercentages:
     def is_home_build(self) -> bool:
         return self._is_home_build
 
-    # BEGIN SERVER PERCENTAGES
-    @property
-    def elastic_cpu_perc(self) -> int:
-        ret_val = 50
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["elastic_cpu_percentage"])
-        elif self._is_home_build:
-            ret_val = 40
-        return ret_val    
-    
-    @property
-    def elastic_ceph_storage_perc(self) -> int:
-        ret_val = 80
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["elastic_storage_percentage"])
-        return ret_val    
-
-    @property
-    def log_stash_cpu_perc(self) -> int:
-        ret_val = 10
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
-        return ret_val    
-
-    @property
-    def elastic_mem_perc(self) -> int:
-        ret_val = 50
-        if self._is_override_percentages:
-            ret_val = int(self._kit_form["server_resources"]["elastic_memory_percentage"])
-        elif self._is_home_build:
-            ret_val = 40
-        
-        return ret_val
-
-    @property
-    def log_stash_mem_perc(self) -> int:
-        ret_val = 10
-        # TODO
-        # if self._is_override_percentages:
-        #     ret_val = int(self._kit_form["server_resources"]["logstash_cpu_percentage"])
-        return ret_val
-
     @property
     def elastic_curator_threshold_perc(self) -> int:
         ret_val = 90
@@ -177,99 +135,73 @@ class ServerCalculations:
         self._ceph_storage_pool = CephStoragePool(kit_form["servers"])
         self._log_stash_cpu_request = 0        
         self._elastic_cpu_request = 0
-        self._elastic_mem_request = 0        
+        self._elastic_mem_request = 0
+        self._is_large_build = False
+
+        mem_capacity = self._server_res_pool.get_node_resources(0).mem_capacity
+        mem_capacity = convert_KiB_to_GiB(mem_capacity)
+        # Large builds are anything bigger than 100 GB
+        if mem_capacity > 100: 
+            self._is_large_build = True
+
+    @property
+    def logstash_replicas(self) -> int:
+        if self._is_large_build:
+            return 2 * self._num_servers
+        return self._num_servers
+        
+    @property
+    def logstash_cpu_limit(self):
+        if self._is_large_build:
+            return 6000
+        return 4000
 
     @property    
-    def log_stash_cpu_request(self) -> int:
-        allocatable = self._server_res_pool.pool_cpu_allocatable
-        self._log_stash_cpu_request = cal_percentage_of_total(allocatable, self._percentages.log_stash_cpu_perc) / self._num_servers
-        return int(self._log_stash_cpu_request)
+    def logstash_cpu_request(self) -> int:
+        return 1500
 
     @property
-    def log_stash_replicas(self) -> int:
-        logstash_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.log_stash_mem_perc)
-        val = logstash_memory / 4
-        val = int(convert_KiB_to_GiB(val))
-        if val < 8:
-            return 2
-        elif self._percentages.is_home_build:
-            return 2
-        else:
-            return 4        
+    def logstash_memory_limit(self) -> int:
+        if self._is_large_build:
+            return 16
+        return 10
 
     @property
-    def log_stash_memory_request(self) -> int:
-        logstash_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.log_stash_mem_perc)
-        ret_val = logstash_memory / self.log_stash_replicas
-        return int(convert_KiB_to_GiB(ret_val))
-
+    def logstash_memory_request(self) -> int:
+        if self._is_large_build:
+            return 12
+        return 8
+        
     @property
-    def log_stash_memory_limit(self) -> int:
-        return self.log_stash_memory_request
-
-    @property
-    def log_stash_jvm_memory_request(self) -> int:
-        return int(cal_percentage_of_total(self.log_stash_memory_request, 75))
+    def logstash_jvm_memory(self) -> int:
+        if self._is_large_build:
+            return 12
+        return 8
 
     @property
     def logstash_pipeline_workers(self) -> int:
-        return int(cal_percentage_of_total(self.log_stash_memory_request, 75))
-
-    @property
-    def elastic_cpu_request(self) -> int:
-        allocatable = self._server_res_pool.pool_cpu_allocatable
-        self._elastic_cpu_request = cal_percentage_of_total(allocatable, self._percentages.elastic_cpu_perc) / self.elastic_total_node_count
-        return int(self._elastic_cpu_request)
+        if self._is_large_build:
+            return 6
+        return 4    
 
     @property
     def elastic_master_node_count(self) -> int:
         return 3
     
     @property
+    def elastic_min_masters(self) -> int:
+        if self._percentages._is_home_build:
+            return 1
+        return 2
+
+    @property
     def elastic_data_node_count(self) -> int:
-        mem_allocatable = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, 
-                                                  self._percentages.elastic_mem_perc)
-        node_count = mem_allocatable / convert_GiB_to_KiB(52)
-        if node_count > 3:
-            return int(node_count - 3)
-        return 0
+        return self._num_servers
 
     @property
     def elastic_total_node_count(self) -> int:
         return self.elastic_master_node_count + self.elastic_data_node_count        
 
-    @property
-    def elastic_memory_request(self) -> int: 
-        """
-        The amount of memory you would like to assign per Elasticsearch instance. Elasticsearch 
-        will use the memlock feature of the OS to take the memory and immediately commit it for 
-        itself. Good values depend very heavily on the type of traffic that the system runs and developing 
-        good predictive models of what work is one of the more challenging engineering problems
-        that exists. We generally recommend you stick with the recommended default. If you
-        know what you are doing, you might try experimenting with this value.
-
-        :return: KiB
-        """
-        elastic_memory = cal_percentage_of_total(self._server_res_pool.pool_mem_allocatable, self._percentages.elastic_mem_perc)        
-        elastic_memory = elastic_memory / self.elastic_total_node_count
-        ret_val = int(convert_KiB_to_GiB(elastic_memory))
-        if ret_val == 0:
-            return 1
-        return ret_val
-
-    # The amount of space allocated in GB to each persistent volume for Elasticsearch
-    @property
-    def elastic_pv_size(self) -> float: 
-        """
-        The amount of space to allocate from the Ceph cluster to the persistent volume
-        used per Elasticsearch instance.
-        :return: KB
-        """
-        elastic_ceph_stroage = cal_percentage_of_total(self._ceph_storage_pool.ceph_pool_allocatable, 
-                                                       self._percentages.elastic_ceph_storage_perc)
-        ret_val = elastic_ceph_stroage / self.elastic_total_node_count
-        return convert_KiB_to_GiB(ret_val)
-    
     @property
     def elastic_curator_threshold(self) -> int:
         """
@@ -280,26 +212,51 @@ class ServerCalculations:
         return self._percentages.elastic_curator_threshold_perc
 
     @property
-    def moloch_ceph_pcap_pv_size(self) -> int:
-        return 0
+    def elastic_data_memory(self) -> int:
+        if self._is_large_build:
+            return 60
+        return 30
+
+    @property
+    def elastic_data_jvm_memory(self) -> int:        
+        return int(self.elastic_data_memory / 2)
+
+    @property
+    def elastic_data_cpu_request(self): 
+        if self._is_large_build:
+            return 16000
+        return 8000
+
+    @property
+    def elastic_master_cpu_request(self):
+        return 2000
+
+    @property
+    def elastic_master_memory(self):
+        return 6
+
+    @property
+    def elastic_master_jvm_memory(self):        
+        return 4
 
     def to_dict(self) -> Dict:
         return {
-            'elastic_cpu_request': self.elastic_cpu_request,
-            'elastic_data_pod_count': self.elastic_data_node_count,
+            'elastic_curator_threshold': self.elastic_curator_threshold,            
+            'elastic_master_memory': self.elastic_master_memory,
             'elastic_master_pod_count': self.elastic_master_node_count,
-            'elastic_memory_request': self.elastic_memory_request,
-            'elastic_pv_size': self.elastic_pv_size,
-            'elastic_curator_threshold': self.elastic_curator_threshold,
-            'log_stash_cpu_request': self.log_stash_cpu_request,
-            'log_stash_replicas': self.log_stash_replicas,
-
+            'elastic_master_jvm_memory': self.elastic_master_jvm_memory,
+            'elastic_master_cpu_request': self.elastic_master_cpu_request,
+            'elastic_data_cpu_request': self.elastic_data_cpu_request,
+            'elastic_data_jvm_memory': self.elastic_data_jvm_memory,
+            'elastic_data_memory': self.elastic_data_memory,
+            'elastic_data_pod_count': self.elastic_data_node_count,
+            'logstash_cpu_limit': self.logstash_cpu_limit,
+            'logstash_cpu_request': self.logstash_cpu_request,
+            'logstash_replicas': self.logstash_replicas,
             'logstash_pipeline_workers': self.logstash_pipeline_workers,
-            'log_stash_jvm_memory_request': self.log_stash_jvm_memory_request,
-            'log_stash_memory_limit': self.log_stash_memory_limit,
-            'log_stash_memory_request': self.log_stash_memory_request,
-
-            'moloch_ceph_pcap_pv_size': self.moloch_ceph_pcap_pv_size
+            'logstash_jvm_memory': self.logstash_jvm_memory,
+            'logstash_memory_limit': self.logstash_memory_limit,
+            'logstash_memory_request': self.logstash_memory_request            
         }
 
 

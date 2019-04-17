@@ -6,8 +6,7 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-  vars:
-    offline: True
+  vars:    
 
     #############################
     # General System Settings   #
@@ -20,16 +19,12 @@ all:
     # DNS Server or the kit will break.
     dns_ip: {{ template_ctx.dns_ip }}
 
-    # You can set how many OSD are allowed to fail without losing data. For replicated pools,
-    # it is the desired number of copies/replicas of an object. Our configuration stores an
-    # object and one additional copy, The check box will enable this.
-    ceph_redundancy: {{ template_ctx.ceph_redundancy }}
 
     #############################
     # CPU Allocations           #
     #############################
-    logstash_cpu_request: {{ template_ctx.server_cal.log_stash_cpu_request | int }}m
-    elasticsearch_cpu_request: {{ template_ctx.server_cal.elastic_cpu_request | int }}m
+    logstash_cpu_limit: {{ template_ctx.server_cal.logstash_cpu_limit | int }}m
+    logstash_cpu_request: {{ template_ctx.server_cal.logstash_cpu_request | int }}m
 
     #############################
     # Moloch Settings           #
@@ -55,30 +50,14 @@ all:
     # from the AF packet interface and place them into the packet queues.
     moloch_packet_v3_num_threads: 8
 
-    # There are two storage types available on the system. One is clustered storage
-    # and the other is Direct Attached Storage (DAS). Using clustered storage
-    # will cause all drives placed in the "ceph_drive_list" variable list to act as
-    # one giant storage device across the entire kit. This is ideal for many types
-    # of storage, but causes latency. This is not acceptable for high speed PCAP
-    # capture.
-    use_ceph_for_pcap: False
-
     # This should be defined if you are going to use Moloch in direct disk
-    # access mode which is the default. If this is defined it is assumed you are
-    # going to run Moloch in direct disk access mode instead of using ceph. We recommend
-    # you dedicate a separate disk to PCAP. The disk you will use for PCAP is defined
+    # access mode which is the default. We recommend you dedicate a 
+    # separate disk to PCAP. The disk you will use for PCAP is defined
     # on the sensor hosts in pcap_disk. If you define this value, that disk will
     # be formatted and wiped and then /pcap used as a mount point to it. WARNING:
     # THIS WILL BE APPLIED TO ALL SENSORS. YOU CANNOT MIX AND MATCH BETWEEN CLUSTERED
     # AND NON-CLUSTERED STORAGE.
     moloch_pcap_folder: "/pcap"
-
-    # If you want to use clustered storage as described above for PCAP, you will
-    # need to set this value. This is the amount of space in GBs total that you
-    # will assign to PCAP. It should be zero if use_ceph_for_pcap is false.
-    # Remember, this will be spread out across every drive in the ceph cluster
-    # as defined in the variable "ceph_drive_list".
-    moloch_pcap_pv_size: {{ template_ctx.server_cal.moloch_ceph_pcap_pv_size }}
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
     moloch_spiDataMaxIndices: "5"
@@ -100,29 +79,35 @@ all:
     # Unless your kit will exceed 5 nodes, you should probably leave this at 0
     # unless you know what you are doing.
 
+    elastic_mdi: false
+    es_min_masters: 2
+
+    # data node
+    elastic_data_cpu_request: {{ template_ctx.server_cal.elastic_data_cpu_request }}m
+    elastic_data_jvm_memory: {{ template_ctx.server_cal.elastic_data_jvm_memory }}
+    elastic_data_memory: {{ template_ctx.server_cal.elastic_data_memory }}
     elastic_datas: {{ template_ctx.server_cal.elastic_data_pod_count }}
+    separate_data: true
 
-    # The number of Elasticsearch masters you will run
+    # master node
+    elastic_master_memory: {{ template_ctx.server_cal.elastic_master_memory }}
+    elastic_master_jvm_memory: {{ template_ctx.server_cal.elastic_master_jvm_memory }}
+    elastic_master_cpu_request: {{ template_ctx.server_cal.elastic_master_cpu_request }}m
     elastic_masters: {{ template_ctx.server_cal.elastic_master_pod_count }}
-
-    # The amount of memory you want to assign to each Elasticsearch instance
-    elastic_memory: {{ template_ctx.server_cal.elastic_memory_request }}
-
-    # The amount of space allocated in GB to each persistent volume for Elasticsearch
-    elastic_pv_size: {{ template_ctx.server_cal.elastic_pv_size }}
-
+    separate_master: true
+    
     # The percentage of maximum allocated space for Elasticsearch that can be filled
     # before Curator begins deleting indices. The oldest moloch indices that exceed
     # this threshold will be deleted.
     elastic_curator_threshold: {{ template_ctx.server_cal.elastic_curator_threshold }}
 
     # logstash_replicas is the number of logstash instances you would like to run
-    logstash_replicas: {{ template_ctx.server_cal.log_stash_replicas }}
+    logstash_replicas: {{ template_ctx.server_cal.logstash_replicas }}
+    logstash_memory_request: {{ template_ctx.server_cal.logstash_memory_request }}
+    logstash_memory_limit: {{ template_ctx.server_cal.logstash_memory_limit }}    
+    logstash_jvm_memory: {{ template_ctx.server_cal.logstash_jvm_memory }}
     logstash_pipeline_workers: {{ template_ctx.server_cal.logstash_pipeline_workers }}
-    log_stash_jvm_memory_request: {{ template_ctx.server_cal.log_stash_jvm_memory_request }}
-    log_stash_memory_limit: {{ template_ctx.server_cal.log_stash_memory_limit }}
-    log_stash_memory_request: {{ template_ctx.server_cal.log_stash_memory_request }}
-
+        
     #############################
     # Bro/Suricata Settings     #
     #############################
@@ -168,14 +153,6 @@ all:
     # you have a full understanding of the consequences.
 
   children:
-
-    # Any host in this group will be used in the ceph cluster. By default this is
-    # all hosts except remote_sensors
-    ceph:
-      children:
-        master-server:
-        servers:
-        sensors:
 
     # Any host in this group will be eligible for use in the elasticsearch cluster.
     # By default this is all hosts except remote-sensors. Keep in mind, just because
@@ -251,9 +228,9 @@ all:
               # The amount of milli CPUs that will be reserved for the host Operating system.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
-              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}                                        
+              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}
 
-              # The amount of GiB that will be reserved for the host operating system.
+              # The amount of KiB that will be reserved for the host operating system.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
               sys_mem_reserve: {{ sensor.reservations.sys_mem_reserve }}
@@ -263,7 +240,7 @@ all:
               # its resources.
               kube_cpu_reserve: {{ sensor.reservations.kube_cpu_reserve }}
 
-              # The amount of GiB that will be reserved for the kubernetes services.
+              # The amount of KiB that will be reserved for the kubernetes services.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
               kube_mem_reserve: {{ sensor.reservations.kube_mem_reserve }}
@@ -294,12 +271,7 @@ all:
               # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
               # for this to work. moloch_pcap_folder will be the mount point.
               pcap_disk: {% if sensor.pcap_drives is not none and sensor.pcap_drives|length > 0 %}{{ "/dev/" + sensor.pcap_drives[0] }}{% endif %}
-
-              # These are the disks you will use for Ceph. These must be devices.
-              # This cannot be a folder or partition. Ex: /dev/vdb. You may have
-              # none on a machine. On the system in total there must be at least
-              # two.
-              ceph_drive_list:
+              
               {% for drive in sensor.ceph_drives %}
                 - {{ "/dev/" + drive }}{% endfor %}
                 
@@ -366,7 +338,7 @@ all:
               kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
               kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
-              ceph_drive_list:
+              es_data_drive_list:
               {% for drive in server.ceph_drives %}
                 - {{ "/dev/" + drive }}
               {% endfor %}
@@ -396,7 +368,7 @@ all:
               kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
               kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
-              ceph_drive_list:
+              es_data_drive_list:
               {% for drive in server.ceph_drives %}
                 - {{ "/dev/" + drive }}
               {% endfor %}

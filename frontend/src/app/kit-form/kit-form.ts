@@ -488,7 +488,6 @@ export class KitInventoryForm extends FormGroup {
         super.addControl('endgame_iporhost', this.endgame_iporhost);
         super.addControl('endgame_username', this.endgame_username);
         super.addControl('endgame_password', this.endgame_password);
-        super.addControl('install_grr', this.install_grr);
         super.addControl('enable_percentages', this.enable_percentages);
         this.kubernetesCidrInfoText = "";
     }
@@ -535,7 +534,6 @@ export class KitInventoryForm extends FormGroup {
         this.endgame_iporhost.disable();
         this.endgame_username.disable();
         this.endgame_password.disable();
-        this.install_grr.disable();
         this.enable_percentages.disable();
     }
 
@@ -631,15 +629,7 @@ export class KitInventoryForm extends FormGroup {
         "You can set how many OSD are allowed to fail without losing data. For replicated pools, it is the \
         desired number of copies/replicas of an object. Our configuration stores an object and one \
         additional copy, The check box will enable this."
-    )
-
-    install_grr = new HtmlCheckBox(
-        "install_grr",
-        "Install Google Rapid Response",
-        "WARNING: Installing Google Rapid Response is an alpha feature.  \
-        Google Rapid Response is an open sourced, agent based, endpoint protection platform.  \
-        You can use to to hunt for threats on host systems."
-    )
+    )    
 
     enable_percentages = new HtmlCheckBox(
         "enable_percentages",

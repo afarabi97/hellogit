@@ -135,9 +135,6 @@ def execute_kit_inventory() -> Response:
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
         cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml")
-        if payload["kitForm"]["install_grr"]:
-            cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml; "
-                              "ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' grr-only.yml")
         spawn_job("Kit",
                 cmd_to_execute,
                 ["kit"],

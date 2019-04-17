@@ -15,14 +15,7 @@
 
     <div *ngIf="!isPercentagesHidden">
       <h5>Advanced Settings</h5>
-      <app-text-input [parentForm]="totalServerResources" controlName="elastic_cpu_percentage"></app-text-input>
-      <app-text-input [parentForm]="totalServerResources" controlName="elastic_memory_percentage"></app-text-input>
-      <app-text-input [parentForm]="totalServerResources" controlName="elastic_storage_percentage"></app-text-input>
-      <app-text-input [parentForm]="totalServerResources" controlName="elastic_curator_threshold"></app-text-input>
-      <app-text-input [parentForm]="totalServerResources" controlName="logstash_cpu_percentage"></app-text-input>
+      <app-text-input [parentForm]="totalServerResources" controlName="elastic_curator_threshold"></app-text-input>      
     </div>
-    <!-- <p>Storage Assigned to Elasticsearch (GBs): <span>{{ storageCalculator.elasticStorageAvailable | number:'1.0-2' }}</span></p>
-    <p class="text-info">Note: The amount of storage assigned to Elasticsearch will update as you discover your hosts below. It will start at 0.</p>
-    <br> -->
   </div>
 </div>
