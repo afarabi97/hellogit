@@ -103,12 +103,12 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.ruleset
 
     @property
-    def mongo_pcaps(self) -> Collection:
-        return self._tfplenum_database.pcaps
-
-    @property
     def mongo_console(self) -> Collection:
         return self._tfplenum_database.console
+
+    @property
+    def mongo_user_links(self) -> Collection:
+        return self._tfplenum_database.user_links
 
     @property
     def mongo_last_jobs(self) -> Collection:

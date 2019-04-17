@@ -8,7 +8,9 @@ from flask import jsonify, Response
 from shared.connection_mngs import FabricConnectionWrapper
 from shared.constants import PORTAL_ID
 from typing import List
-
+from flask import send_file, Response, request, jsonify
+from bson import ObjectId
+import json
 
 DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan")
 
@@ -72,3 +74,58 @@ def get_portal_links() -> Response:
         return jsonify([])
     
     return ERROR_RESPONSE
+
+def cursorToJsonResponse(csr):
+    """
+    Take a cursor returned from a MongoDB search of mongo_user_links and convert
+    it to an API response containing the data.
+    :param csr: Cursor returned from a MongoDB search (or any iterable 
+    container)
+    :return: flask.Response containing the data of the records in the cursor.
+    """
+    records = []
+    for record in csr:
+        try:
+            records.append({'_id': str(record['_id']),
+                            'name': record['name'],
+                            'url': record['url'], 
+                            'description': record['description']})
+        except:
+            conn_mng.mongo_user_links.remove(record)
+    records.sort( key = lambda r : r['name'].upper())
+    return Response(json.dumps(records), mimetype='application/json')
+
+@app.route('/api/get_user_links', methods=['GET'])
+def get_user_links() -> Response:
+    """
+    Send all links in mongo_user_links.
+    :return: flask.Response containing all link data.
+    """
+    user_links = conn_mng.mongo_user_links.find({})
+    return cursorToJsonResponse(user_links)
+
+@app.route('/api/add_user_link', methods=['POST']) 
+def add_user_link() -> Response:
+    """
+    Add a new link to mongo_user_links.
+    :return: flask.Response containing all user link data, including the new 
+    one.
+    """
+    link_data = request.get_json()
+    matches = conn_mng.mongo_user_links.find({'name': link_data['name']}).count()
+    matches += conn_mng.mongo_user_links.find({'url': link_data['url']}).count()
+    if matches == 0:
+        conn_mng.mongo_user_links.insert_one(link_data)
+    return get_user_links()
+
+
+@app.route('/api/remove_user_link/<link_id>', methods=['DELETE']) 
+def remove_user_link(link_id: str) -> Response:
+    """
+    Remove a user link from mong_user_links.
+    :param link_id: String with the '_id' value of the link to be removed.
+    :return: flask.Response containing all user link data, with the specified
+    link removed.
+    """
+    conn_mng.mongo_user_links.delete_one({'_id': ObjectId(link_id)})
+    return get_user_links()
