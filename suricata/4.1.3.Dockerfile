@@ -15,7 +15,7 @@ COPY 4.1.3.run_suricata.sh /usr/local/bin/run_suricata.sh
 
 RUN yum install -y epel-release && \
     yum update -y && \
-    yum install -y https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ELASTIC_VERSION}-x86_64.rpm dos2unix ${PKGS_TO_INSTALL} && \
+    yum install -y crontabs https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ELASTIC_VERSION}-x86_64.rpm dos2unix ${PKGS_TO_INSTALL} && \
     yum install -y cargo && \
     yum clean all && \
     curl -L -O https://www.openinfosecfoundation.org/download/suricata-4.1.3.tar.gz && \
@@ -35,6 +35,7 @@ RUN yum install -y epel-release && \
     chmod 0644 /etc/crontab && \
     chmod 755 /usr/local/bin/run_suricata.sh && \
     yum remove -y ${PKGS_TO_INSTALL} && \
+    yum clean all && \
     rm -rf /suricata-4.1.3 /suricata-4.1.3.tar.gz
 
 COPY suricata.yaml /etc/suricata/suricata.yaml
