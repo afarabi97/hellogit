@@ -36,22 +36,30 @@
         <h5>Endgame Settings</h5>
         <app-checkbox [parentForm]="agentBuilderForm" controlName="install_endgame"
           (change)="agentBuilderForm.enableEndgameControls()"></app-checkbox>
-        <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_server_ip"
-          (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+        <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px margin-left: 5px">
+          <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
+            <h6>Endgame Server Credentials</h6>
+            <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_server_ip"
+              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+            <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_user_name"
+              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+            <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_password"
+              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+          </div>
+        </div>
+        <br>
         <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_port"
-          (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
-        <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_user_name"
-          (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
-        <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_password"
           (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
         <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px margin-left: 5px">
           <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
             <h6>Endgame Sensor Profile Settings</h6>
             <app-card-selector [parentForm]="agentBuilderForm" *ngIf="agentBuilderForm.endgame_server_reachable"
-              controlName="endgame_sensors" (click)="testSelect()"></app-card-selector> 
+              controlName="endgame_sensors" (click)="testSelect()"></app-card-selector>
             <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_sensor_ip"></app-text-input>
-            <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_sensor_name" *ngIf="agentBuilderForm.endgame_server_reachable"></app-text-input>
-            <app-card-selector #endgame_per [parentForm]="agentBuilderForm" controlName="endgame_persistence"></app-card-selector>
+            <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_sensor_name"
+              *ngIf="agentBuilderForm.endgame_server_reachable"></app-text-input>
+            <app-card-selector #endgame_per [parentForm]="agentBuilderForm" controlName="endgame_persistence">
+            </app-card-selector>
             <app-checkbox #endgame_vdi [parentForm]="agentBuilderForm" controlName="endgame_vdi"></app-checkbox>
           </div>
         </div>
