@@ -15,13 +15,13 @@ COPY 4.1.3.run_suricata.sh /usr/local/bin/run_suricata.sh
 
 RUN yum install -y epel-release && \
     yum update -y && \
-    yum install -y crontabs https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ELASTIC_VERSION}-x86_64.rpm dos2unix ${PKGS_TO_INSTALL} && \
+    yum install -y crontabs https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ELASTIC_VERSION}-x86_64.rpm dos2unix ${PKGS_TO_INSTALL} && \    
     yum install -y cargo && \
     yum clean all && \
     curl -L -O https://www.openinfosecfoundation.org/download/suricata-4.1.3.tar.gz && \
     tar xzf suricata-4.1.3.tar.gz && \
     cd suricata-4.1.3/  && \
-    ./configure --enable-libmagic --enable-rust --enable-luajit --enable-geoip --enable-nfqueue --enable-hiredis --enable-libnss \
+    ./configure --disable-gccmarch-native --enable-rust --enable-libmagic --enable-luajit --enable-geoip --enable-nfqueue --enable-hiredis --enable-libnss \
       --enable-libnspr --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib64 && \
     make install && \
     make install-conf && \
