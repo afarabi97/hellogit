@@ -175,12 +175,12 @@ setup.kibana:
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["{{ logstash_headless_fqdn }}:{{ logstash_port }}"]
+  hosts: ["{{ logstash_fqdn }}:{{ logstash_port }}"]
   worker: 4
   bulk_max_size: 4096
-  #pipelining: 2
   compression_level: 3
-  loadbalance: true
+  pipelining: 0
+  ttl: 10s
 
 
   # Optional SSL. By default is off.

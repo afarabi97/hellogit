@@ -152,6 +152,8 @@ output.elasticsearch:
   worker: 4
   bulk_max_size: 4096
   compression_level: 3
+  pipelining: 0
+  ttl: 10s
 
   # Enabled ilm (beta) to use index lifecycle management instead daily indices.
   #ilm.enabled: false
