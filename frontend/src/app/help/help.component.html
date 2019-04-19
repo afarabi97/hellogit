@@ -1,12 +1,4 @@
 <div class="container card" id="topheader">
-    <h2>{{ form.what_is_ceph['label'] }}</h2>
-    <p>{{ form.what_is_ceph['description'] }}</p>
-    <br><br>
-    <h2>Deciding Between Ceph PCAP Storage and Direct to Disk<a name="{{ 'anchor_' + form.help_me_decide['label'].replace(' ','_') }}"></a></h2>
-    <hr>
-    <p>{{ form.help_me_decide['description'] }}<p>
-    <br>
-
     <h2>Kickstart Installation Settings</h2>
     <hr>
     <dl *ngFor="let key of objectKeys(kickstart)" class="row">      

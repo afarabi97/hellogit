@@ -3,15 +3,7 @@ import { KickstartInventoryForm, NodeFormGroup } from '../kickstart-form/kicksta
 import {ActivatedRoute} from '@angular/router';
 import { KitInventoryForm, SensorFormGroup, ServerFormGroup } from '../kit-form/kit-form';
 import { FormControl, FormArray } from '@angular/forms';
-import { WHAT_IS_CEPH, HELP_ME_DECIDE } from '../frontend-constants'; 
 import { Title } from '@angular/platform-browser';
-
-class HelpForm {
-  what_is_ceph = WHAT_IS_CEPH;
-  help_me_decide = HELP_ME_DECIDE;            
-
-  constructor(){}
-}
 
 declare var $: any;
 
@@ -21,7 +13,6 @@ declare var $: any;
   styleUrls: ['./help.component.css']
 })
 export class HelpComponent implements OnInit {
-  form: HelpForm;
   kickstart: KickstartInventoryForm;
   kickstartNode: NodeFormGroup;
   kitForm: KitInventoryForm;
@@ -36,7 +27,6 @@ export class HelpComponent implements OnInit {
     this.kitForm = new KitInventoryForm();
     this.kitServer = new ServerFormGroup(true, null);
     this.kitSensor = new SensorFormGroup(true, null, null);
-    this.form = new HelpForm();
     this.route.fragment.subscribe(fragment => { this.fragment = fragment; });
   }
 

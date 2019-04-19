@@ -61,7 +61,7 @@ all:
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
     moloch_spiDataMaxIndices: "5"
-    moloch_pcapWriteMethod: "simple"
+    moloch_pcapWriteMethod: "thread-direct"
     moloch_pcapWriteSize: "2560000"
     moloch_dbBulkSize: "400000"
     moloch_maxESConns: "30"

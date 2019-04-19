@@ -44,30 +44,6 @@ export const DESC_ROOT_PASSWORD: string = "The root password will be how to log 
 //INVALID FEEDBACK
 export const INVALID_PASSWORD_MISMATCH: string = "The passwords you entered do not match.  Please retype them carefully.";
 
-//MISC CONSTANTS
-export const WHAT_IS_CEPH = {"label": "What is Ceph?", "description": "Ceph is what is called a \
-  clustered storage solution. Ceph allows \
-  us to take a hard drive on an individual machine and add it to a Ceph cluster. \
-  Instead of that hard drive only being attached to the machine on which it physically \
-  resides, it is effectively added to a singular \"mega hard drive\" which is spread \
-  across multiple devices. Kubernetes can then create what are called persistent \
-  volumes from the space allocated from this hard drive. A persistent volume acts \
-  like a hard drive attached to a single Docker Container. For example, you might have \
-  a persistent volume of 8 GB attached to an Elasticsearch instance. If that instance \
-  of Elasticsearch dies for whatever reason, Kubernetes creates another identical \
-  instance and reattaches the persistent volume containing the Elasticsearch data. \
-  In this way, containers can die, migrate, or be manipulated without loss of data."}
-
-
-export const HELP_ME_DECIDE = {"label": "Help me decide", "description": "If you plan to have a high volume \
-  of input traffic to the kit, typically more than 1 Gb/s, it's typically better to go with \"Use hard drive for PCAP storage\"\
-  storage, but that assumes a 1Gb/s network backbone. If you have a faster backbone, than it's really \
-  a bit of a judgement call. The bottleneck is typically the network backbone. When \
-  you have all that PCAP coming in, parts must traverse the network if you are using \
-  clustered storage. This can frequently overwhelm a 1Gb/s pipe. If you are on a slower \
-  network, it's better to use Ceph because you get all the benefits of a clustered \
-  storage solution. If you don't know, it's better to stick with \"Use hard drive for PCAP storage\""};
-
 // MISC
 export const CEPH_DRIVE_MIN_COUNT: number = 2;
 

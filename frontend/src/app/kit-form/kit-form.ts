@@ -230,7 +230,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
     pcap_drives = new HtmlCardSelector (
         'pcap_drives',
         "PCAP Drives",
-        "TODO Add a PCAP description here.",
+        "The drives which will be dedicated to PCAP file storage.",
         "Select which drive you would like to use for PCAP storage.",
         "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
         "No drives found.",
@@ -409,17 +409,9 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
     //TODO make this spot dry
     ceph_drives = new HtmlCardSelector (
         'ceph_drives',
-        "Ceph Drives",
-        "Use this field to mark the disks you will use for Ceph. You can choose to select \
-        none. In this case, Ceph will still be installed and active on the machine so that \
-        Kubernetes works properly however, none of its disks will be in the Ceph cluster. \
-        This is common on the sensors. You may choose to use direct attached storage for \
-        your PCAP on one drive and then use the other for your OS. In which case, Moloch \
-        can still write over the network to a clustered drive on another machine for its \
-        metadata which is light weight especially compared to PCAP. You can select multiple \
-        drives if you would like. Make sure you don't select the OS' drive as Ceph will \
-        format and overwrite any drives you select.",
-        "Select which drives on the host, if any, that you would like to add to the Ceph cluster.",
+        "ES Data Drives",
+        "Use this field to mark the disks you will use for the Elasticsearch cluster.",
+        "Select which drives on the host, if any, that you would like to add to the Elasticsearch cluster.",
         "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
         "No drives found.",
         true
