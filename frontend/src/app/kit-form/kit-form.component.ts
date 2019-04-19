@@ -99,7 +99,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
           srvFormGroup.from_object(data[key][index]);
           this._gatherFacts(srvFormGroup, srvFormGroup.deviceFacts, host_key);          
           if (someFormObject instanceof ServersFormArray)
-            this.cephDriveSelected(data[key][index]['ceph_drives'], srvFormGroup as ServerFormGroup);          
+            this.esDriveSelected(data[key][index]['es_drives'], srvFormGroup as ServerFormGroup);          
         }
       } else if (key === 'home_nets' && someFormObject instanceof FormArray){
         for (let index = 0; index < data[key].length; index++){
@@ -167,8 +167,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   openArchiveConfirmation() {
     this.archiveKitModal.updateModal('WARNING',
-      'Are you sure you want to archive this form? Doing so will erase any fields \
-      you have entered on the existing page but it will archive the form.',
+      'Are you sure you want to save this form?',
       "Yes",
       'Cancel',
       ModalType.form,
@@ -468,7 +467,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     this.isAdvancedOptionsHidden = !this.isAdvancedOptionsHidden;
   }
 
-  cephDriveSelected(drivesSelected: Array<string>, node: ServerFormGroup): void {   
+  esDriveSelected(drivesSelected: Array<string>, node: ServerFormGroup): void {   
     this.kitForm.server_resources.calculateClusterStorageAvailable(drivesSelected, node.deviceFacts);
     this.setSystemClusterStorageAvailable();
   }
@@ -505,7 +504,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
    */
   kubernetesInputEvent(event: any) {
     const kubernetes_value = this.kitForm.kubernetes_services_cidr.value;
-    if (kubernetes_value === undefined) {
+    if (kubernetes_value === undefined || kubernetes_value === null){
       return;
     }
 

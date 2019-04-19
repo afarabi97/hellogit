@@ -266,15 +266,8 @@ all:
               {% for interface in sensor.monitor_interface %}
                 - {{ interface }}{% endfor %}
 
-              # Instead of using ceph you can use an entire drive for PCAP storage.
-              # This is the drive you will use. Ex: /dev/sdb. This is only used
-              # if use_ceph_for_pcap is set to false. moloch_pcap_folder must be defined
-              # for this to work. moloch_pcap_folder will be the mount point.
+              # The drive specified here will be dedicated to PCAP collection.
               pcap_disk: {% if sensor.pcap_drives is not none and sensor.pcap_drives|length > 0 %}{{ "/dev/" + sensor.pcap_drives[0] }}{% endif %}
-              
-              {% for drive in sensor.ceph_drives %}
-                - {{ "/dev/" + drive }}{% endfor %}
-                
             {% endif %}
           {% endfor %}
           {% endif %}
@@ -299,7 +292,6 @@ all:
               moloch_mem_limit: {{ sensor.cal.moloch_mem_limit | int }}Gi
               bro_workers: {{ sensor.cal.bro_workers }}
               moloch_threads: {{ sensor.cal.moloch_threads }}
-              ceph_drive_list:
               pcap_disk: {{ "/dev/" + sensor.pcap_drives[0] }}
               
               sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}
@@ -339,7 +331,7 @@ all:
               kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
               es_data_drive_list:
-              {% for drive in server.ceph_drives %}
+              {% for drive in server.es_drives %}
                 - {{ "/dev/" + drive }}
               {% endfor %}
             {% endif %}
@@ -369,7 +361,7 @@ all:
               kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
               management_ipv4: {{ server.host_server }}
               es_data_drive_list:
-              {% for drive in server.ceph_drives %}
+              {% for drive in server.es_drives %}
                 - {{ "/dev/" + drive }}
               {% endfor %}
             {% endif %}

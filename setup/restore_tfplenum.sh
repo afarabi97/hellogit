@@ -25,6 +25,8 @@ function restoreMCPServer {
     pushd /opt/tfplenum-frontend/backups > /dev/null
     mongo tfplenum_database --eval "db.dropDatabase()"
     tar -xzvf $BACKUP_FILE
+    cp -r backup/confluence/THISISCVAH/ /var/www/html/.
+    cp -r backup/confluence/OJCCTM/ /var/www/html/.
     mongorestore --gzip --archive=backup/tfplenum_database.gz --db tfplenum_database
     rm -rf backup/
     popd > /dev/null

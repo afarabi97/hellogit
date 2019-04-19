@@ -40,13 +40,13 @@ def cal_percentage_of_total(total: float, percentage: int) -> float:
     return (percentage / 100) * total
 
 
-class CephStoragePool:
+class StoragePool:
     
     def __init__(self, nodes: List[Dict]):
         self._nodes = nodes
-        self._ceph_pool_capacity = self._set_storage_capacity()
+        self._pool_capacity = self._set_storage_capacity()
         self._reservations = []
-        self._ceph_pool_allocatable = 0
+        self._pool_allocatable = 0
         self._set_storage_allocatable()
 
     def _set_storage_capacity(self):
@@ -54,7 +54,7 @@ class CephStoragePool:
         for node in self._nodes:
             device_facts = node['deviceFacts']
             for disk in device_facts['disks']:
-                for name in node['ceph_drives']:
+                for name in node['es_drives']:
                     if disk['name'] == name:
                         ret_val += convert_GB_to_KB(disk['size_gb'])
         return ret_val
@@ -64,25 +64,25 @@ class CephStoragePool:
         self._set_storage_allocatable()
 
     def _set_storage_allocatable(self):
-        storage_allocatable = self._ceph_pool_capacity
+        storage_allocatable = self._pool_capacity
         for reservation in self._reservations:
             storage_allocatable -= reservation['size']
 
-        self._ceph_pool_allocatable = storage_allocatable
+        self._pool_allocatable = storage_allocatable
 
     @property
-    def ceph_pool_capacity(self) -> int:
+    def pool_capacity(self) -> int:
         """        
         :return: Storage capacity as KB
         """
-        return int(self._ceph_pool_capacity)
+        return int(self._pool_capacity)
 
     @property
-    def ceph_pool_allocatable(self) -> int:
+    def pool_allocatable(self) -> int:
         """
         :return: Storage allocatable as KB
         """
-        return int(self._ceph_pool_allocatable)
+        return int(self._pool_allocatable)
 
 
 class NodeResources:

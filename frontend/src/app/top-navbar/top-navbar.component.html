@@ -34,7 +34,7 @@
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Confluence</a>
         <div class="dropdown-menu">
-          <a *ngFor="let space of spaces" class="nav-link" routerLink="/confluence/{{ space._id}}">{{ space._id}}</a>
+          <li class="nav-item"><a class="nav-link" target="_blank" href="http://{{ hostname }}/THISISCVAH">THISISCVAH</a></li>
         </div>
       </li>
       <li class="nav-item"><a class="nav-link" routerLink="/help" (click)="setActive($event)">Help</a></li>

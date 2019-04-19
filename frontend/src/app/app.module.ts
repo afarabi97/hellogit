@@ -21,7 +21,6 @@ import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card
 import { CardSelectorComponent } from './card-selector/card-selector.component';
 import { TotalSystemResourceCardComponent } from './total-system-resource-card/total-system-resource-card.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { ConfluenceComponent } from './confluence/confluence.component';
 import { ModalArchiveDialogComponent } from './modal-archive-dialog/modal-archive-dialog.component';
 import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
@@ -63,7 +62,6 @@ import { UploadDialogComponent } from './policy-management/upload-dialog/upload-
     CardSelectorComponent,
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
-    ConfluenceComponent,
     ModalArchiveDialogComponent,
     PortalComponent,
     SystemHealthComponent,

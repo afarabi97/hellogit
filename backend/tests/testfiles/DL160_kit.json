@@ -5,7 +5,7 @@
             {
                 "host_server": "10.102.35.100",
                 "is_master_server": true,
-                "ceph_drives": [
+                "es_drives": [
                     "sdb"
                 ],
                 "hostname": "server1.lan",
@@ -75,7 +75,7 @@
             {
                 "host_server": "10.102.35.101",
                 "is_master_server": false,
-                "ceph_drives": [
+                "es_drives": [
                     "sdb"
                 ],
                 "hostname": "server2.lan",
@@ -433,7 +433,6 @@
             "elastic_curator_threshold": "90"
         },
         "dns_ip": null,
-        "ceph_redundancy": null,
         "endgame_iporhost": "10.102.37.200",
         "endgame_username": "admin",
         "endgame_password": "We.are.tfplenum4$",        

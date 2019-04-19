@@ -84,7 +84,6 @@ from app import common_controller
 from app import console_controller
 from app import kickstart_controller
 from app import kit_controller
-from app import confluence_controller
 from app import portal_controller
 from app import health_controller
 from app import configmap_controller

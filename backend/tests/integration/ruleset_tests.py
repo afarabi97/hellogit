@@ -22,7 +22,7 @@ class TestRulesetController(BaseTestCase):
         super().setUp()
 
     def _verify_ruleset_count(self, expected_count: int):
-        response = self.session.get(self.base_url + "/api/get_rulesets")
+        response = self.session.get(self.base_url + "/api/get_rulesets/all")
         self.assertEqual(response.status_code, 200)
         rule_sets = response.json()
         self.assertEqual(expected_count, len(rule_sets))
@@ -72,7 +72,7 @@ class TestRulesetController(BaseTestCase):
             "name": "ruleSetOne",
             "sensors": [{"hostname": "dnavtest2-sensor1.lan", "ip": "172.16.77.35"}],
             "state": [{"hostname": "dnavtest2-sensor1.lan", "state": "Created"}],
-            "state": "synced",
+            "state": "Dirty",
             "isEnabled": True
         }
 

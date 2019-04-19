@@ -16,6 +16,7 @@ export class PortalComponent implements OnInit {
   user_links: Array<UserLinkInterface>;
   addUserLinkModal: HtmlModalPopUp;
   removeUserLinkModal: HtmlModalPopUp;
+  gonerLink: UserLinkInterface;
 
   constructor(private portalSrv: PortalService, private title: Title) { 
     this.links = new Array();
@@ -46,8 +47,7 @@ export class PortalComponent implements OnInit {
       "Add Link", "Please enter link data.", "Submit", "Cancel", ModalType.form, new AddUserLinkForm(this.user_links));
     this.addUserLinkModal.openModal();
   }
-
-  gonerLink: UserLinkInterface 
+  
   openConfimRemoveUserLink(link: Object) {
     this.gonerLink = link as UserLinkInterface;
     this.removeUserLinkModal.updateModal(

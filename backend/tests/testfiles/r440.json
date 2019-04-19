@@ -5,7 +5,7 @@
             {
                 "host_server": "172.16.33.26",
                 "is_master_server": true,
-                "ceph_drives": [
+                "es_drives": [
                     "sdb",
                     "sdc"
                 ],
@@ -96,7 +96,7 @@
             {
                 "host_server": "172.16.33.27",
                 "is_master_server": false,
-                "ceph_drives": [
+                "es_drives": [
                     "sdb",
                     "sdc"
                 ],
@@ -638,8 +638,7 @@
             "elastic_storage_percentage": "80",
             "elastic_curator_threshold": "90"
         },
-        "dns_ip": null,
-        "ceph_redundancy": null,
+        "dns_ip": null,        
         "endgame_iporhost": null,
         "endgame_username": null,
         "endgame_password": null,        

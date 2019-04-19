@@ -1,5 +1,3 @@
-import { CEPH_DRIVE_MIN_COUNT } from '../frontend-constants';
-
 export class TotalSystemResources {
 
     //These fields are not part of the form but they displayed on the componets interface.

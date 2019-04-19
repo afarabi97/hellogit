@@ -12,7 +12,7 @@ from flask import send_file, Response, request, jsonify
 from bson import ObjectId
 import json
 
-DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan")
+DISCLUDES = ("elasticsearch.lan", "mysql.lan", "mumble-server.lan", "logstash.lan")
 
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
@@ -21,7 +21,7 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
         else: 
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
-    elif dns == "moloch-viewer.lan":
+    elif dns == "moloch.lan":
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': 'assessor/password'})
         else:

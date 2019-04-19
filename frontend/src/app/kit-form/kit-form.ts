@@ -159,7 +159,7 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
     hostname = new HtmlHidden('hostname', true);
 
     /**
-     * Sets option selections for both interfaces and CEPH drives.
+     * Sets option selections for both interfaces and ES drives.
      */
     public setSensorOptionsSelections(managementIp: string){
         if (this.deviceFacts == null){
@@ -321,7 +321,7 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
         this.host_server.setDefaultValue(managementIP);
         super.addControl('host_server', this.host_server);
         super.addControl('is_master_server', this.is_master_server);
-        super.addControl('ceph_drives', this.ceph_drives)
+        super.addControl('es_drives', this.es_drives)
         super.addControl('hostname', this.hostname);
         if (disableIsKubernetesMasterCheckbox){
             this.is_master_server.disable();
@@ -332,8 +332,8 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
     }
 
     clearSelectors(){
-        while (this.ceph_drives.length !== 0) {
-            this.ceph_drives.removeAt(0);
+        while (this.es_drives.length !== 0) {
+            this.es_drives.removeAt(0);
         }
     }
 
@@ -342,7 +342,7 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
         emitEvent?: boolean;
     }): void {
         this.is_master_server.disable();
-        this.ceph_drives.disable();
+        this.es_drives.disable();
     }
 
     enable(opts?: {
@@ -371,7 +371,7 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
         this.hostname.setValue(mObj['hostname']);
         this.is_master_server.checked = mObj['is_master_server'];
         this.is_master_server.setValue(mObj['is_master_server']);
-        this.ceph_drives.default_selections = mObj['ceph_drives'];
+        this.es_drives.default_selections = mObj['es_drives'];
     }
 
     public setOptionSelections(){
@@ -405,10 +405,9 @@ export class ServerFormGroup extends FormGroup implements BasicNodeResourceInter
         DNS to the rest of the kit for internal services. WARNING: If this server     \
         fails, the entire kit goes down with it!!!"
     )
-
-    //TODO make this spot dry
-    ceph_drives = new HtmlCardSelector (
-        'ceph_drives',
+    
+    es_drives = new HtmlCardSelector (
+        'es_drives',
         "ES Data Drives",
         "Use this field to mark the disks you will use for the Elasticsearch cluster.",
         "Select which drives on the host, if any, that you would like to add to the Elasticsearch cluster.",
@@ -476,7 +475,6 @@ export class KitInventoryForm extends FormGroup {
         super.addControl('sensor_resources', this.sensor_resources);
         super.addControl('server_resources', this.server_resources);
         super.addControl('dns_ip', this.dns_ip);
-        super.addControl('ceph_redundancy', this.ceph_redundancy);
         super.addControl('endgame_iporhost', this.endgame_iporhost);
         super.addControl('endgame_username', this.endgame_username);
         super.addControl('endgame_password', this.endgame_password);
@@ -521,8 +519,7 @@ export class KitInventoryForm extends FormGroup {
         this.sensor_resources.disable();
         this.server_resources.disable();
             
-        this.dns_ip.disable();
-        this.ceph_redundancy.disable();
+        this.dns_ip.disable();        
         this.endgame_iporhost.disable();
         this.endgame_username.disable();
         this.endgame_password.disable();
@@ -613,15 +610,7 @@ export class KitInventoryForm extends FormGroup {
         it to default  unless you have a specific reason to use a different DNS   \
         server. Keep in mind  you will need to manually provide all required DNS  \
         entries on your separate  DNS Server or the kit will break."
-    )    
-
-    ceph_redundancy = new HtmlCheckBox(
-        "ceph_redundancy",
-        "Ceph Redundancy",
-        "You can set how many OSD are allowed to fail without losing data. For replicated pools, it is the \
-        desired number of copies/replicas of an object. Our configuration stores an object and one \
-        additional copy, The check box will enable this."
-    )    
+    )
 
     enable_percentages = new HtmlCheckBox(
         "enable_percentages",

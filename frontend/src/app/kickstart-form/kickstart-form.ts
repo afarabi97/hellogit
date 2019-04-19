@@ -128,10 +128,11 @@ export class NodeFormGroup extends FormGroup {
     'BIOS'
   )
 
+  //['Server', 'Sensor', 'Remote Sensor', 'Controller'],
   node_type = new HtmlDropDown(
     'node_type',
     'Node Type',
-    ['Server', 'Sensor', 'Remote Sensor', 'Controller'],
+    ['Server', 'Sensor', 'Remote Sensor'],
     "The Node Type referes to whether or not the node is a server, sensor or remote sensor.",
     'Server'
   )

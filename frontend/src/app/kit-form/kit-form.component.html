@@ -68,7 +68,7 @@
             <br>
             <div *ngIf="server.deviceFacts">
                   <app-card-selector [parentForm]="server" [optionSelections]="server.driveSelections"
-                                      controlName="ceph_drives" (onSelect)="cephDriveSelected($event, server)" uid="_server{{ i }}"></app-card-selector>
+                                      controlName="es_drives" (onSelect)="esDriveSelected($event, server)" uid="_server{{ i }}"></app-card-selector>
             </div>
             <div *ngIf="!server.deviceFacts">
               <h3>Loading...</h3>
@@ -174,8 +174,6 @@
             case for changing this and chances are you aren't in it.
           </p>
           <app-text-input [parentForm]="kitForm" controlName="dns_ip"></app-text-input>
-          <h5>Ceph Settings</h5>
-          <app-checkbox [parentForm]="kitForm" controlName="ceph_redundancy"></app-checkbox>
         </div>
       </div>
       <br>

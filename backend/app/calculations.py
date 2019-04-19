@@ -2,8 +2,7 @@ from app.resources import (NodeResources,
                            cal_percentage_of_total, 
                            NodeResourcePool,
                            convert_GiB_to_KiB,
-                           convert_KiB_to_GiB,
-                           CephStoragePool)
+                           convert_KiB_to_GiB)
 from typing import Dict, List
 
 
@@ -132,7 +131,6 @@ class ServerCalculations:
         self._num_servers = len(kit_form["servers"])
         self._num_sensors = len(kit_form["sensors"])
         self._server_res_pool = NodeResourcePool(self._kit_form["servers"])
-        self._ceph_storage_pool = CephStoragePool(kit_form["servers"])
         self._log_stash_cpu_request = 0        
         self._elastic_cpu_request = 0
         self._elastic_mem_request = 0

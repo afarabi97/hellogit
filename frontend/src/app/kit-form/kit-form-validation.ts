@@ -1,4 +1,4 @@
-import {  FormArray, AbstractControl } from '@angular/forms';
+import { FormArray, AbstractControl } from '@angular/forms';
 import { HtmlDropDown } from '../html-elements';
 import { ServerFormGroup, SensorFormGroup, SensorsFormArray, ServersFormArray, KitInventoryForm } from './kit-form';
 import { IP_CONSTRAINT } from '../frontend-constants';
@@ -21,6 +21,19 @@ function _validateMasterServer(control: AbstractControl, errors: Array<string>):
         }
     }
     errors.push("- Master server failed to validate. Did you remember to select a master server? (It's the checkbox that says 'Is Kubernetes master server?')");
+}
+
+function _validate_esdata_drives(control: AbstractControl, errors: Array<string>): void {
+    let servers = control.get('servers') as ServersFormArray;
+    if (servers != null){
+        for (let i = 0; i < servers.length; i++) {
+            let server = servers.at(i) as ServerFormGroup;
+            if(server.es_drives.length !== 1) {
+                errors.push("- ES data drives failed to validate on " + server.hostname.value + 
+                            ". You need to select at least one drive for this server.")
+            }
+        }
+    }
 }
 
 function _validate_pcap_drives(control: AbstractControl, errors: Array<string>): void {
@@ -297,6 +310,7 @@ function _validate_server_cpu_mem(control: AbstractControl, errors: Array<string
 export function ValidateKitInventory(control: AbstractControl): { errors: Array<string> } {
     let errors: Array<string> = [];
     _validateMonitorInterfaces(control, errors);
+    _validate_esdata_drives(control, errors);
     _validate_pcap_drives(control, errors);
     _validate_selected_sensor_applications(control, errors);
     _validateMasterServer(control, errors);

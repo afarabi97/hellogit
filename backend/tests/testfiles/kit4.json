@@ -1,6 +1,5 @@
 {
     "kitForm": {
-        "ceph_redundancy": null,
         "dns_ip": null,
         "enable_percentages": null,
         "endgame_iporhost": null,
@@ -156,7 +155,7 @@
         },
         "servers": [
             {
-                "ceph_drives": [
+                "es_drives": [
                     "sdb",
                     "sdc"
                 ],

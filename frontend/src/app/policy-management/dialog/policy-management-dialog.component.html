@@ -7,7 +7,14 @@
           <input matInput placeholder="Add rule name here." type="text" id="ruleName" formControlName="ruleName" required>
       </mat-form-field>
     <div class="card-body">
-      <textarea #editorCard class="form-control" rows="100" cols="50" id="rule" formControlName="rule" type="text"></textarea>
+      <div #outerCard class="row" style="overflow: auto;">
+        <div class="line-numbers">
+            <div *ngFor="let item of numbers; let i = index">{{ i + 1 }}</div>
+        </div>
+        <div class="text-area-wrapper">
+          <textarea #editorCard class="text-area" id="rule" formControlName="rule" type="text" rows="1000" cols="50"></textarea>
+        </div>      
+      </div>
       <div class="row">
         <mat-checkbox class="mat-checkbox-inner-container col" [checked]="isRuleEnabled()" formControlName="isEnabled">Is Rule Enabled?</mat-checkbox>
         <div class="col">

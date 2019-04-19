@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ConfluenceService }  from '../confluence.service';
 import { ActivatedRoute } from '@angular/router';
 
 
@@ -8,20 +7,17 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './top-navbar.component.html',
   styleUrls: ['./top-navbar.component.css']
 })
-export class TopNavbarComponent implements OnInit {  
-  spaces: Object;
+export class TopNavbarComponent implements OnInit {    
 
   @ViewChild('navlist')
   navlist: ElementRef;
+  hostname: string; 
   
-  constructor(private confluenceSrv: ConfluenceService,
-              private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute) {
   }
 
   ngOnInit() {
-    this.confluenceSrv.getSpaces().subscribe(data => {
-      this.spaces = data;
-    });
+    this.hostname = window.location.hostname;
   }
 
   clearPreviousActive(){

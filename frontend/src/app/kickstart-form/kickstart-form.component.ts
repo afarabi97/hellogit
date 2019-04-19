@@ -328,8 +328,7 @@ export class KickstartFormComponent implements OnInit {
 
   openArchiveConfirmation() {
     this.kickStartModal.updateModal('WARNING',
-      'Are you sure you want to archive this form? Doing so will erase any fields \
-      you have entered on the existing page but it will archive the form.',
+      'Are you sure you want to save this form?',
       "Yes",
       'Cancel',
       ModalType.form,

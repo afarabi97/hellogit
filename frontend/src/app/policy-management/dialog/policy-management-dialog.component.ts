@@ -23,6 +23,9 @@ export class PolicyManagementDialog implements OnInit {
   @ViewChild('editorCard')
   private editorCard: ElementRef;
 
+  @ViewChild('outerCard')
+  private outerCard: ElementRef;
+
   @Output()
   closeNoSaveEvent: EventEmitter<any> = new EventEmitter();
 
@@ -36,6 +39,7 @@ export class PolicyManagementDialog implements OnInit {
   ruleGroup: FormGroup;  
   pcaps: Array<Object>;
   selectedPcap: string;
+  numbers: Array<number>;
 
   constructor(public _PolicyManagementService: PolicyManagementService,
               private formBuilder: FormBuilder,
@@ -45,6 +49,7 @@ export class PolicyManagementDialog implements OnInit {
     this.messageModal = new HtmlModalPopUp("message_modal");
     this.isValidateOnly = false;
     this.selectedPcap = "";
+    this.numbers = new Array(1000).fill(true);
   }
 
   /**
@@ -53,7 +58,7 @@ export class PolicyManagementDialog implements OnInit {
   */
   @HostListener('window:resize', ['$event'])
   onResize(event){
-    this.resizeEditor();
+    this.resizeEditor(this.outerCard);
   }
 
   ngOnInit() {
@@ -66,8 +71,8 @@ export class PolicyManagementDialog implements OnInit {
     } else {
       this.initializeForm(this.ruleGroup);
     }
-
-    this.resizeEditor();
+    
+    this.resizeEditor(this.outerCard);
   }
 
   initializeForm(rule) {
@@ -81,6 +86,12 @@ export class PolicyManagementDialog implements OnInit {
     if (rule !== undefined){
       this._PolicyManagementService.getRuleContent(this._PolicyManagementService.editRuleSet._id, rule._id).subscribe(data => {
         if (data instanceof Rule){
+          let len = data.rule.split('\n').length;
+          if (len < 1000){
+            len = 1000;
+          }
+          this.numbers = new Array(len).fill(true);
+          this.editorCard.nativeElement.style.height = 21 * len + "px";
           this.ruleGroup.get('rule').setValue(data.rule);
         } else if (data instanceof ErrorMessage){
           this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
@@ -90,15 +101,15 @@ export class PolicyManagementDialog implements OnInit {
     }
   }
 
-  private resizeEditor() {
+  private resizeEditor(element: ElementRef) {
     let height: string = "";
     if (window.innerHeight > 400) {
       height = (window.innerHeight - 330) + "px";
     } else {
       height = "100px";
     }
-    this.editorCard.nativeElement.style.maxHeight = height;
-    this.editorCard.nativeElement.style.height = height;
+    element.nativeElement.style.maxHeight = height;
+    element.nativeElement.style.height = height;
   }
 
   openCloseDialog() {
@@ -191,5 +202,9 @@ export class PolicyManagementDialog implements OnInit {
     } else if (this.messageModal.type !== ModalType.error) {
       this._PolicyManagementService.isUserEditing = false;
     }
+  }
+
+  getNumber(num: number){
+    return new Array(num);
   }
 }

@@ -139,18 +139,6 @@ class KitInventoryGenerator:
 
         if not self._template_ctx["endgame_password"]:
             self._template_ctx["endgame_password"] = ''
-        self._map_ceph_redundancy()
-            
-    def _map_ceph_redundancy(self) -> None:
-        """
-        Sets the ceph_redundancy value to the appropriate value before 
-        adding it to the inventory file.
-        :return:
-        """
-        if self._template_ctx["ceph_redundancy"]:
-            self._template_ctx["ceph_redundancy"] = 2
-        else:
-            self._template_ctx["ceph_redundancy"] = 1
 
     def generate(self) -> None:
         """

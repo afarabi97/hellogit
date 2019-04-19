@@ -8,6 +8,8 @@ function backup_tfplenum {
     pushd /opt/tfplenum-frontend/backups > /dev/null
     mkdir backup/
     mongodump --archive=backup/tfplenum_database.gz --gzip --db tfplenum_database
+    cp -rv /var/www/html/THISISCVAH/ backup/.
+    cp -rv /var/www/html/OJCCTM/ backup/.
     tar -czvf tfplenum_backup_${DATE_STR}.tar.gz backup/
     rm -rf backup/
     popd > /dev/null

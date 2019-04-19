@@ -2,26 +2,15 @@
 # Username and password are optional fields.  If you do not provide them, 
 # the scraper will prompt for them automatically.
 
-#username: 
-#password: 
+# username:
+# password:
 confluence_spaces:  
-  - space_name: THISISCVAH
-    site: https://confluence.di2e.net
-    confluence_images_dir: /opt/tfplenum-frontend/frontend/src/assets/confluence/thisiscvah/images/
-    confluence_attachments_dir: /opt/tfplenum-frontend/frontend/src/assets/confluence/thisiscvah/attachments/
-    confluence_images_url_path: assets/confluence/thisiscvah/images/
-    confluence_attachments_url_path: assets/confluence/thisiscvah/attachments/
-    download_attachments: True
-    clear_parameter_tags: True
-    # The amount of time to sleep between attachment downloads and page pulls.
-    sleep_export: 10
- - space_name: OJCCTM
+ - space_name: THISISCVAH
    site: https://confluence.di2e.net
-   confluence_images_dir: /opt/tfplenum-frontend/frontend/src/assets/confluence/ojcctm/images/
-   confluence_attachments_dir: /opt/tfplenum-frontend/frontend/src/assets/confluence/ojcctm/attachments/
-   confluence_images_url_path: assets/confluence/ojcctm/images/
-   confluence_attachments_url_path: assets/confluence/ojcctm/attachments/
-   download_attachments: True
-   clear_parameter_tags: False
-    # The amount of time to sleep between attachment downloads and page pulls.
-   sleep_export: 10
+   export_dir: /var/www/html
+   zip_file_name: thisiscvah.zip
+ - space_name: OJCCTM
+   site: https://confluence.di2e.net   
+   export_dir: /var/www/html
+   zip_file_name: ojcctm.zip
+   

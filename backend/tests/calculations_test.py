@@ -10,7 +10,7 @@ sys.path.append(SCRIPT_DIR + '/../')
 
 from app.calculations import (NodeResources, ServerCalculations, 
                               NodeCalculations, NodeValues, KitPercentages)
-from app.resources import (CephStoragePool, convert_GiB_to_KiB, 
+from app.resources import (StoragePool, convert_GiB_to_KiB, 
                            convert_GB_to_KB, convert_GiB_to_KiB, 
                            convert_GiB_to_MiB, convert_KiB_to_GiB, 
                            convert_MiB_to_KiB)
@@ -215,7 +215,7 @@ class TestSensorCalculations(unittest.TestCase):
         self.assertEqual(25600, sensor2.suricata_cpu_request)
         
 
-class TestCephStoragePool(unittest.TestCase):
+class TestStoragePool(unittest.TestCase):
 
     def setUp(self):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
@@ -223,21 +223,21 @@ class TestCephStoragePool(unittest.TestCase):
         kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')        
         kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')
         kit_form_submission["kitForm"]["enable_percentages"] = False
-        self.storage1 = CephStoragePool(kit_form_submission["kitForm"]["servers"])
+        self.storage1 = StoragePool(kit_form_submission["kitForm"]["servers"])
 
         kit_form_submission = json.loads(kit2.read_text(), encoding='utf-8')
-        self.storage2 = CephStoragePool(kit_form_submission["kitForm"]["servers"])
+        self.storage2 = StoragePool(kit_form_submission["kitForm"]["servers"])
 
         kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
-        self.storage3 = CephStoragePool(kit_form_submission["kitForm"]["servers"])
+        self.storage3 = StoragePool(kit_form_submission["kitForm"]["servers"])
 
-    def test_ceph_pool_storage(self):                
-        self.assertEqual(40000000, self.storage1.ceph_pool_capacity)
-        self.assertEqual(40000000, self.storage1.ceph_pool_allocatable)        
-        self.assertEqual(400000000, self.storage2.ceph_pool_capacity)
-        self.assertEqual(400000000, self.storage2.ceph_pool_allocatable)        
-        self.assertEqual(80000000, self.storage3.ceph_pool_capacity)
-        self.assertEqual(80000000, self.storage3.ceph_pool_allocatable)
+    def test_drive_pool_storage(self):                
+        self.assertEqual(40000000, self.storage1.pool_capacity)
+        self.assertEqual(40000000, self.storage1.pool_allocatable)        
+        self.assertEqual(400000000, self.storage2.pool_capacity)
+        self.assertEqual(400000000, self.storage2.pool_allocatable)        
+        self.assertEqual(80000000, self.storage3.pool_capacity)
+        self.assertEqual(80000000, self.storage3.pool_allocatable)
             
 
 class TestInventoryFileCreation(unittest.TestCase):

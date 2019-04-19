@@ -4,7 +4,6 @@ import { HelpComponent } from './help/help.component';
 import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
 import { KitFormComponent } from './kit-form/kit-form.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { ConfluenceComponent } from './confluence/confluence.component';
 import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
@@ -22,7 +21,6 @@ const routes: Routes = [
   { path: 'configmaps', component: ConfigmapsComponent },
   { path: 'help', component: HelpComponent },
   { path: 'stdout/:id', component: ServerStdoutComponent },
-  { path: 'confluence/:id', component: ConfluenceComponent },
   { path: 'registry', component: RegistryComponent },
   { path: 'agent_builder', component: AgentBuilderComponent },
   { path: 'rulesets', component: PolicyManagementComponent},
