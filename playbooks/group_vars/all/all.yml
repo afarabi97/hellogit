@@ -50,6 +50,7 @@ package_list:
   - easy-rsa
   - bridge-utils
   - net-tools
+  - lsof
 
 pip_installs:
   - docker-py
