@@ -38,10 +38,12 @@ ENV VER 2.6.1
 ARG ELASTIC_VERSION=6.5.3
 
 #install runtime dependencies
-RUN yum update -y \
-    && yum -y install libpcap openssl-devel libmaxminddb-devel libmaxminddb python2 librdkafka-devel iproute cronie \
+RUN yum -y install epel-release \
+    && yum update -y \
+    && yum -y install libpcap openssl-devel libmaxminddb-devel libmaxminddb python2 python-pip iproute cronie \
                       https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${ELASTIC_VERSION}-x86_64.rpm \
-    && yum clean all
+    && yum clean all && rm -rf /var/cache/yum \
+    && pip install ipaddress && rm -rf ~/.cache/pip
 
 COPY --from=builder /usr/local/bro-${VER} /usr/local/bro-${VER}
 COPY --from=geogetter /usr/share/GeoIP/* /usr/share/GeoIP/
