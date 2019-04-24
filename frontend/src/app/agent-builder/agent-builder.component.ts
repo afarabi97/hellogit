@@ -6,7 +6,7 @@ import { KitService } from '../kit.service';
 import { HtmlModalPopUp, HtmlCheckBox } from '../html-elements';
 import { EndgameService } from '../endgame.service';
 import { CardSelectorComponent } from 'src/app/card-selector/card-selector.component'
-import { CdkRow } from '@angular/cdk/table';
+import { ModalLoadingComponent } from '../modal-loading/modal-loading.component';
 
 @Component({
   selector: 'app-agent-builder',
