@@ -139,7 +139,7 @@ winlogbeat:
 	install_endgame=$(INSTALL_ENDGAME) \
 	endgame_server=$(ENDGAME_SERVER) \
 	endgame_port=$(ENDGAME_PORT) \
-	endgame_user=$(ENDGAME_USER) \
+	endgame_user='$(ENDGAME_USER)' \
 	endgame_password=$(ENDGAME_PASSWORD) \
 	endgame_config_name='$(ENDGAME_CONFIG_NAME)' \
 	endgame_vdi=$(ENDGAME_VDI) \

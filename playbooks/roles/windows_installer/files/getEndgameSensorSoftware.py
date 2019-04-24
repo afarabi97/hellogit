@@ -38,40 +38,41 @@ requests.packages.urllib3.disable_warnings( requests.packages.urllib3.exceptions
 session = requests.Session()
 session.verify = False
 
-#Get authorization token from server, i.e., log in.
-url = 'https://{}/api/v1/auth/login'.format(args.server)
-content_header = { 'Content-Type': 'application/json' }
-resp = session.post(url, json = { 'username': args.username, 'password': args.password }, 
-                     headers = content_header)
-auth_token = resp.json()['metadata']['token']
-
-"""
-Merge dictionaries into a single dictionary
-:param d1:    First dictionary to merge
-:param args:  Other dictionaries to merge.
-:return: A dictionary containing all the key-value pairs of all the dictionaries passed in as parameters.
-"""
-def merge_dicts(d1, *args):
-    merged = d1.copy();
-    for d in args:
-        merged.update(d)
-    return merged
-
-"""
-Check the response of a requests library call. If it's okay, perform an action
-and return the return value of the action.
-If the response was not okay, print the response JSON to stderr and exit the 
-script, returning the response value.
-:param resp: Response to check.
-:param action: Action to take if response was good.
-:return: Return value of the action.
-"""
 def checkResponse(resp, action):
+  """
+  Check the response of a requests library call. If it's okay, perform an action
+  and return the return value of the action.
+  If the response was not okay, print the response JSON to stderr and exit the 
+  script, returning the response value.
+  :param resp: Response to check.
+  :param action: Action to take if response was good.
+  :return: Return value of the action.
+  """
   if(resp.ok):
     return action(resp)
   else:
     PrettyPrinter(stream=sys.stderr).pprint(resp.json())
     sys.exit(resp)
+
+
+#Get authorization token from server, i.e., log in.
+url = 'https://{}/api/v1/auth/login'.format(args.server)
+content_header = { 'Content-Type': 'application/json' }
+resp = session.post(url, json = { 'username': args.username, 'password': args.password }, 
+                     headers = content_header)
+auth_token = checkResponse(resp, lambda r: r.json()['metadata']['token'])
+
+def merge_dicts(d1, *args):
+  """
+  Merge dictionaries into a single dictionary
+  :param d1:    First dictionary to merge
+  :param args:  Other dictionaries to merge.
+  :return: A dictionary containing all the key-value pairs of all the dictionaries passed in as parameters.
+  """
+  merged = d1.copy();
+  for d in args:
+    merged.update(d)
+  return merged
 
 auth_header = { "Authorization": "JWT {}".format(auth_token) }
 session.headers = merge_dicts(content_header, auth_header)
@@ -79,17 +80,17 @@ session.headers = merge_dicts(content_header, auth_header)
  #Get data about current sensor configuration
 url = 'https://{}/api/v1/deployment-profiles'.format(args.server)
 resp = session.get(url)
-sensor_data = resp.json()['data'][0]
+sensor_data = checkResponse(resp, lambda r : r.json()['data'][0])
 
 if not args.id:
-  """
-  Add or delete and set entries in an Installation configurtion dictionary so that
-  persistence of the sensor is set properly. 
-  :param config:      Dictionary to be configured. Will be modified.
-  :param persistence: Boolean, true for persistent, false for dissolvable
-  :return: Reference the newly configured dictionary.
-  """
   def setPersistence(config, persistence):
+    """
+    Add or delete and set entries in an Installation configurtion dictionary so that
+    persistence of the sensor is set properly. 
+    :param config:      Dictionary to be configured. Will be modified.
+    :param persistence: Boolean, true for persistent, false for dissolvable
+    :return: Reference the newly configured dictionary.
+    """
     config['install_persistent'] = persistence
     if not persistence:
       config.pop('service_display_name', None)
@@ -128,6 +129,10 @@ else:
 url = 'https://{}/api/v1/windows/installer/{}'.format(args.server, installer_id)
 resp = session.get(url)
 def saveInstaller(resp):
+  """
+  Save the installer downloaded from the server. Name the file based on command line arguments.
+  :param resp: Response returned by request for the installer from the Endgame server
+  """
   installer_name = '-'.join('{}-{}.zip'.format(args.basename, args.name).split())
   with open(installer_name, 'wb') as f:
     f.write(resp.content)

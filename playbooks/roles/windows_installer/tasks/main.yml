@@ -96,6 +96,6 @@
   file:
     state: absent
     path:  "{{ role_path }}/files/{{ item | basename }}"
-  loop: "{{ tool_binaries + [ endgame_installer | default('') ] + [ 'README.md' ] }}" 
+  loop: "{{ tool_binaries + [ endgame_installer | default('unlikely_filename') ] + [ 'README.md' ] }}" 
   delegate_to: localhost
   run_once: true
