@@ -25,6 +25,7 @@ def build_installer() -> Response:
     install_sysmon = payload['install_sysmon']
     install_endgame = payload['install_endgame']
     endgame_user_name = payload['endgame_user_name']
+    #Escape dollar signs with another dollar sign so as not to confuse make.
     endgame_password = payload['endgame_password']
     endgame_sensor_name = payload['endgame_sensor_name']
     endgame_server_ip = payload['endgame_server_ip']
@@ -45,12 +46,33 @@ def build_installer() -> Response:
     except OSError:
         pass
 
-    command = "make winlogbeat FIREWALL_URL={} LOGSTASH_PORT={} INSTALL_WLB={} INSTALL_SYSMON={} \
-                INSTALL_ENDGAME={} ENDGAME_SERVER={} ENDGAME_PORT={} ENDGAME_USER={} ENDGAME_PASSWORD={} \
-                ENDGAME_CONFIG_NAME='{}' ENDGAME_VDI={} ENDGAME_DISSOLVABLE={} ENDGAME_SENSOR_ID={}".format(
-                pf_sense_ip, winlogbeat_port, install_winlogbeat, install_sysmon,
-                install_endgame, endgame_server_ip, endgame_port, endgame_user_name, endgame_password, 
-                endgame_sensor_name, endgame_vdi, not endgame_persistence, endgame_id)
+    command = "ansible-playbook winlogbeat.yml -i inventory.yml -t winlogbeat \
+	            --extra-vars 'firewall_url={} \
+                logstash_fw_port={} \
+                install_winlogbeat={} \
+                install_sysmon={} \
+                install_endgame={} \
+                endgame_server={} \
+                endgame_port={} \
+                endgame_user={} \
+                endgame_password={} \
+                endgame_config_name={} \
+                endgame_vdi={} \
+                endgame_dissolvable={} \
+                endgame_sensor_id={}'".format(
+                  pf_sense_ip,
+                  winlogbeat_port,
+                  install_winlogbeat,
+                  install_sysmon,
+                  install_endgame,
+                  endgame_server_ip,
+                  endgame_port,
+                  endgame_user_name,
+                  endgame_password.replace('$', '\\\$'),
+                  '"{}"'.format(endgame_sensor_name),
+                  endgame_vdi,
+                  not endgame_persistence,
+                  endgame_id)
 
     stdout, stderr = shell(command, working_dir = installer_dir)
 
