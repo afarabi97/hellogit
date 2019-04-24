@@ -16,7 +16,8 @@ topology subnet
 
 server-bridge
 client-config-dir /etc/openvpn/server/ccd
-push "redirect-gateway"
+push "route-gateway {{ hostvars[groups['master-server'][0]].management_ipv4 }}"
+push "redirect-gateway def1"
 
 client-to-client
 

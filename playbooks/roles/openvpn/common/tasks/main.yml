@@ -73,7 +73,7 @@
     - "/tmp/*.req"
   when: inventory_hostname in groups['master-server']
 
-#DONT LOOK, THIS IS THE UGLIEST HACK I'VE USED IN QUITE A WHILE!  Will polish
+#needs polish
 - name: Import pki requests from all remote sensors
   shell: './easyrsa --batch import-req {{ item }} $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
   args:
@@ -146,12 +146,6 @@
     dest: /etc/openvpn/client/client.conf
   when: inventory_hostname in groups['remote-sensors']
 
-- name: Deploy proper routing table list to remote-sensors
-  template:
-    src: templates/clientvpnroutes.j2
-    dest: /etc/iproute2/rt_tables
-  when: inventory_hostname in groups['remote-sensors']
-
 - name: Deploy proper config files to server
   template:
     src: templates/server.conf.j2
@@ -182,17 +176,6 @@
   shell: ps -aux | grep [o]penvpn | awk '{print $2}'
   register: openvpn_client_processes
   when: inventory_hostname in groups['remote-sensors']
-
-#Bridge stuff is handled in the preexec for the service
-#- name: Take down possible existing bridge interface
-#  shell: "ip link set br0 down"
-#  ignore_errors: yes
-#  when: inventory_hostname in groups['master-server']
-#
-#- name: Delete existing bridge interface
-#  shell: "brctl delbr br0"
-#  ignore_errors: yes
-#  when: inventory_hostname in groups['master-server']
 
 - name: Delete all vestiges of the bridge in network scripts
   file:
@@ -301,31 +284,16 @@
     mode: 0755
   when: inventory_hostname in groups['remote-sensors']
 
-- name: Deploy second companion script to clients
-  template:
-    src: "templates/post-bridge.sh.j2"
-    dest: "/etc/openvpn/client/post-bridge.sh"
-    mode: 0755
+- name: Turn off network manager resolv.conf modifications
+  shell: "sed -i '/\[main\]/s/.*/\[main\]\ndns=none/' /etc/NetworkManager/NetworkManager.conf"
+  when: inventory_hostname in groups['master-server']
+
+- name: Turn off dhclient script resolv.conf modifications
+  shell: "sed -i '/change_resolv_conf/s/.*/#Removed to override DNS changes/' /usr/sbin/dhclient-script"
   when: inventory_hostname in groups['remote-sensors']
 
 - name: Initialize OpenVPN service on clients
   shell: "systemctl enable -f openvpn-client.service"
   when: inventory_hostname in groups['remote-sensors']
 
-#- name: Add hosts file entry to reach back to the master server on clients
-#  lineinfile:
-#    path: /etc/hosts
-#    regexp: "{{ groups['master-server'][0] }}"
-#    line: "10.13.37.1 {{ groups['master-server'][0] }}"
-#  when: inventory_hostname in groups['remote-sensors']
-
-#- name: Add routes to each remote sensor on the master server
-#  shell: "ip route add {{ hostvars[item].management_ipv4 }}/32 dev tun0"
-#  with_items: "{{ groups['remote-sensors'] }}"
-#  when: inventory_hostname in groups['master-server']
-
-#Starting the OpenVPN service rearranges IP space and could disconnect the client
-#- name: Start OpenVPN service on clients
-#  shell: "systemctl start openvpn@client.service"
-#  when: inventory_hostname in groups['remote-sensors']
 ...
