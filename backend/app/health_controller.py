@@ -5,14 +5,18 @@ import json
 import pymongo
 from app import app, logger, conn_mng
 from app.job_manager import shell
-from shared.constants import KIT_ID, KICKSTART_ID
-from shared.utils import decode_password
 
 from app.job_manager import spawn_job
 from app.socket_service import log_to_console
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, Response, jsonify
-from shared.connection_mngs import KubernetesWrapper, objectify, KitFormNotFound
+from pathlib import Path
+from shared.connection_mngs import (KubernetesWrapper, objectify, 
+                                    KitFormNotFound, KUBEDIR)
+from shared.constants import KIT_ID, KICKSTART_ID
+from shared.utils import decode_password
+from typing import List
+from urllib3.exceptions import MaxRetryError
 
 
 @app.route('/api/describe_pod/<pod_name>/<namespace>', methods=['GET'])
@@ -91,24 +95,33 @@ def get_pod_info() -> Response:
     return jsonify([])    
 
 
+def _get_node_statues() -> List:
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        api_response = kube_apiv1.list_node()
+        ret_val = []
+        for item in api_response.to_dict()['items']:                
+            try:
+                public_ip = item["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
+                item["metadata"]["public_ip"] = public_ip
+                ret_val.append(item)
+            except KeyError as e:
+                item["metadata"]["public_ip"] = ''
+                ret_val.append(item)
+            except Exception as e:
+                logger.warn(item)
+                logger.exception(e)
+        return ret_val
+    return []
+
+
 @app.route('/api/get_node_statuses', methods=['GET'])
 def get_node_statuses() -> Response:
     try:
-        with KubernetesWrapper(conn_mng) as kube_apiv1:
-            api_response = kube_apiv1.list_node()
-            ret_val = []
-            for item in api_response.to_dict()['items']:                
-                try:
-                    public_ip = item["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
-                    item["metadata"]["public_ip"] = public_ip
-                    ret_val.append(item)
-                except KeyError as e:
-                    item["metadata"]["public_ip"] = ''
-                    ret_val.append(item)
-                except Exception as e:
-                    logger.warn(item)
-                    logger.exception(e)
-            return jsonify(ret_val)
+        try:
+            return jsonify(_get_node_statues())
+        except Exception as e:
+            Path(KUBEDIR + '/config').unlink()
+            return jsonify(_get_node_statues())
     except Exception as e:
         logger.exception(e)
 
