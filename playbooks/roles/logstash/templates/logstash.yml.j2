@@ -29,6 +29,6 @@ xpack.monitoring.elasticsearch.url: http://{{ elastic_fqdn }}:{{ elastic_port }}
 xpack.monitoring.elasticsearch.username: elastic
 xpack.monitoring.elasticsearch.password: changeme
 
-pipeline.batch.size: 4092
+pipeline.batch.size: 4096
 pipeline.batch.delay: 500
 pipeline.workers: {{ logstash_pipeline_workers }}

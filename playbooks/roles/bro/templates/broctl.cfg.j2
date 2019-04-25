@@ -27,13 +27,13 @@ MailHostUpDown = 1
 
 # Rotation interval in seconds for log files on manager (or standalone) node.
 # A value of 0 disables log rotation.
-LogRotationInterval = 3600
+LogRotationInterval = 300
 
 # Expiration interval for archived log files in LogDir.  Files older than this
 # will be deleted by "broctl cron".  The interval is an integer followed by
 # one of these time units:  day, hr, min.  A value of 0 means that logs
 # never expire.
-LogExpireInterval = 2hr
+LogExpireInterval = 6min
 
 # Enable BroControl to write statistics to the stats.log file.  A value of 1
 # means write to stats.log, and a value of 0 means do not write to stats.log.
