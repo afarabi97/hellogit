@@ -14,6 +14,18 @@ spec:
       labels:
         component: moloch
     spec:
+      initContainers:
+      - name: init-sync-files
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /data/moloch/db/db.pl
+        - {{ elastic_fqdn }}:{{ elastic_port }}
+        - sync-files
+        - {{deployment_hostname | regex_replace('\\.(lan)?', '')}}
+        - /data/moloch/raw/
+        securityContext:
+          privileged: true
       hostNetwork: true
       containers:
       - name: "moloch"
