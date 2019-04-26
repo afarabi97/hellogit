@@ -43,22 +43,13 @@ export class AgentBuilderForm extends FormGroup {
         "The IP address of the PF sense firewall that shields the DIP.  It is important to note \
         that all communication from outside of the DIP must go through this firewall and the administrator must \
         enable port forwarding to the appropriate kubectl services.")
-  
+
     install_winlogbeat = new HtmlCheckBox(
         'add_winlogbeat',
         'Install Winlogbeat',
         'Add a Winlogbeat agent installer.',
         false,
         true )
-
-    enableWinlogbeatPort() {
-        if(this.install_winlogbeat.value) {
-            this.winlogbeat_port.enable()
-        }
-        else {
-            this.winlogbeat_port.disable()
-        }
-    }
 
     install_endgame = new HtmlCheckBox(
         'add_endgame',
@@ -144,45 +135,45 @@ export class AgentBuilderForm extends FormGroup {
         false)
 
     endgame_persistence = new HtmlCardSelector(
-        'endgame_persistence', 
-        "Endgame Sensor Persistence", 
+        'endgame_persistence',
+        "Endgame Sensor Persistence",
         "Set whether sensors should be persistent, for continuous montitorins and explorations; \
-         or dissolvable, for short-term hunt missions", 
+         or dissolvable, for short-term hunt missions",
         "Persistent for continuous monitoring, dissolvable for short-term hunts",
-        "Select One", 
-        "Invalid", 
-        false, 
-        undefined, 
-        undefined, 
+        "Select One",
+        "Invalid",
+        false,
+        undefined,
+        undefined,
         [{value: "Persistent", label: "Persistent", isSelected: true},
          {value: "Dissolvable", label: "Dissolvable", isSelected: false}]);
 
     endgame_sensors= new HtmlCardSelector(
-        'endgame_sensors', 
-        "Endgame Sensor Profiles", 
+        'endgame_sensors',
+        "Endgame Sensor Profiles",
         "List of existing sensor profiles. Select one to use an existing profile, or fill in a profile description in \
             the forms below",
         "Sensor Profiles",
-        "Select One (optional)", 
-        "Invalid", 
-        false, 
-        undefined, 
-        true, 
+        "Select One (optional)",
+        "Invalid",
+        false,
+        undefined,
+        true,
         []);
 
-    endgameControls:labeledAbstractControl[] = [ 
-            this.endgame_server_ip, 
-            this.endgame_port, 
+    endgameControls:labeledAbstractControl[] = [
+            this.endgame_server_ip,
+            this.endgame_port,
             this.endgame_user_name,
             this.endgame_password,
             this.endgame_sensor_name,
-            this.endgame_persistence, 
+            this.endgame_persistence,
             this.endgame_vdi,
             this.endgame_sensors
-        ] 
+        ]
 
     enableEndgameControls() {
-        this.endgameControls.forEach( (ctrl) => { 
+        this.endgameControls.forEach( (ctrl) => {
             if(this.install_endgame.value) {
                 ctrl.enable()
             }
@@ -193,7 +184,7 @@ export class AgentBuilderForm extends FormGroup {
     }
 
 
-    install_sysmon = new HtmlCheckBox( 
+    install_sysmon = new HtmlCheckBox(
         'add_sysmon',
         'Install Sysmon',
         'Add a Sysmon agent installer.',
@@ -206,8 +197,8 @@ export class AgentBuilderForm extends FormGroup {
     endgame_server_reachable: boolean = false;
 
     endgame_sensor_profiles = [];
-    /** 
-    * This method checks that all Endgame server parameters; IP address, 
+    /**
+    * This method checks that all Endgame server parameters; IP address,
     * username, and password, are valid and if so, if they are correct, i.e.,
     * can be used to access Endgame server and get info about sensor profiles.
     */
@@ -259,13 +250,13 @@ export class AgentBuilderForm extends FormGroup {
 
 
 /**
- * This function checks if an AgentBuilderForm has enough data to build the 
+ * This function checks if an AgentBuilderForm has enough data to build the
  * selected agent installers.
- * 
+ *
  * The function is treated as a custom validator to ensure it is called at the
- * right times, but the HtmlInputControls set the validity of their parent 
+ * right times, but the HtmlInputControls set the validity of their parent
  * forms, so it doesn't actually set the validity.
- * 
+ *
  * The function sets the AgentBuilderFrom.sufficient_data_to_build_agents
  * flag.
  * @param ab_form Form to be checked
@@ -273,7 +264,7 @@ export class AgentBuilderForm extends FormGroup {
 export function checkForSufficientData(ab_form: AgentBuilderForm): ValidationErrors | null {
     ab_form.errors = {};
     ab_form.sufficient_data_to_build_agents = false;
-   
+
     if(!ab_form.pf_sense_ip.valid) {
         ab_form.errors['Firewall IP'] =  'Invalid value'
     }
@@ -282,15 +273,11 @@ export function checkForSufficientData(ab_form: AgentBuilderForm): ValidationErr
         ab_form.errors['Installers'] = 'No installer selected'
     }
 
-    if(ab_form.install_winlogbeat.value && !ab_form.winlogbeat_port.valid) {
-        ab_form.errors['Winlogbeat Port'] = 'Invalid value'
-    }
-    
     if(ab_form.install_endgame.value) {
         for(let ctrl of ab_form.endgameControls) {
             if(!ctrl.valid) {
                 if( Object.keys(ctrl.errors).length > 0) {
-                    ab_form.errors[ctrl.label] = Object.keys(ctrl.errors)[0] + ": " 
+                    ab_form.errors[ctrl.label] = Object.keys(ctrl.errors)[0] + ": "
                         + ctrl.errors[Object.keys(ctrl.errors)[0]];
                 } else {
                     ab_form.errors[ctrl.label] = 'Invalid Value';
@@ -302,7 +289,7 @@ export function checkForSufficientData(ab_form: AgentBuilderForm): ValidationErr
             ab_form.errors['Endgame Persistence'] = 'Not set'
         }
         if(!ab_form.endgame_server_reachable) {
-             ab_form.errors['Endgame Server'] = 
+             ab_form.errors['Endgame Server'] =
                 'Cannot reach Endgame server. Check IP address, username and password.'
         }
     }
