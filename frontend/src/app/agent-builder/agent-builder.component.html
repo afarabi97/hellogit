@@ -1,4 +1,5 @@
 <app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<app-modal-loading #loadingDialog modalId="waitForAgentBuilderToComplete" title="Building agent installer. Please wait..."></app-modal-loading>
 <form [formGroup]="agentBuilderForm" (ngSubmit)="onSubmit()">
   <div class="container" id="topheader">
     <div class="card">
@@ -31,7 +32,6 @@
         <h5>Winlogbeat Settings</h5>
         <app-checkbox [parentForm]="agentBuilderForm" controlName="install_winlogbeat"
           (change)="agentBuilderForm.enableWinlogbeatPort()"></app-checkbox>
-        <app-text-input [parentForm]="agentBuilderForm" controlName="winlogbeat_port"></app-text-input>
         <hr>
         <h5>Endgame Settings</h5>
         <app-checkbox [parentForm]="agentBuilderForm" controlName="install_endgame"
@@ -40,16 +40,15 @@
           <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
             <h6>Endgame Server Credentials</h6>
             <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_server_ip"
-              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+              (keyup)="agentBuilderForm.getEndgameSensorProfiles()"></app-text-input>
             <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_user_name"
-              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+              (keyup)="agentBuilderForm.getEndgameSensorProfiles()"></app-text-input>
             <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_password"
-              (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+              (keyup)="agentBuilderForm.getEndgameSensorProfiles()"></app-text-input>
           </div>
         </div>
         <br>
-        <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_port"
-          (keyup)="agentBuilderForm.checkEndgameServerParams()"></app-text-input>
+        <app-text-input [parentForm]="agentBuilderForm" controlName="endgame_port"></app-text-input>
         <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px margin-left: 5px">
           <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
             <h6>Endgame Sensor Profile Settings</h6>
@@ -75,19 +74,9 @@
           {{ item.key }} - {{ item.value }}
         </p>
       </div>
-      <p *ngIf="agentBuilderForm.sufficient_data_to_build_agents 
-                  && agentBuilderForm.build_state != agentBuilderForm.BuildState.Building " class='text-success'>
+      <p *ngIf="agentBuilderForm.sufficient_data_to_build_agents" class='text-success'>
         &nbsp;&nbsp;Data looks good! Press 'Build Agent' whenever you're ready!
       </p>
-      <div [ngSwitch]="agentBuilderForm.build_state" class="card">
-        <p *ngSwitchCase="agentBuilderForm.BuildState.Building" class='text-success'>&nbsp;&nbsp;Building Installer...
-        </p>
-        <p *ngSwitchCase="agentBuilderForm.BuildState.Failed" class='text-danger'>
-          &nbsp;&nbsp;{{agentBuilderForm.notification_text}}
-        </p>
-        <p *ngSwitchCase="agentBuilderForm.BuildState.Built" class='text-success'>&nbsp;&nbsp;Sucessfully Built
-          Installer</p>
-      </div>
       <div class="card-footer">
         <button class="btn btn-primary" type="submit" [disabled]="!agentBuilderForm.sufficient_data_to_build_agents"
           name="submit_agentbuilder">
