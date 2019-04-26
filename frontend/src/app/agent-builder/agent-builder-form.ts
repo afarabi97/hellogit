@@ -13,7 +13,6 @@ export class AgentBuilderForm extends FormGroup {
         this.addControl('pf_sense_ip', this.pf_sense_ip);
         this.addControl('install_sysmon', this.install_sysmon);
         this.addControl('install_winlogbeat', this.install_winlogbeat);
-        this.addControl('winlogbeat_port', this.winlogbeat_port);
         this.addControl('install_endgame', this.install_endgame);
         this.addControl('endgame_server_ip', this.endgame_server_ip);
         this.addControl('endgame_port', this.endgame_port);
@@ -51,18 +50,6 @@ export class AgentBuilderForm extends FormGroup {
         'Add a Winlogbeat agent installer.',
         false,
         true )
-
-    winlogbeat_port = new HtmlInput(
-        'winlogbeat_port',
-        'Winlogbeat Port',
-        "",
-        'number',
-        undefined,
-        'Please enter a valid port number.',
-        true,
-        "5044",
-        "The PF Sense firewall port for Winlogbeat communications. The PF Sense firewall port on this form needs \
-        to be port forwarded to the Logstash service inside of the DIP.")
 
     enableWinlogbeatPort() {
         if(this.install_winlogbeat.value) {

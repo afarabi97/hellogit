@@ -51,6 +51,7 @@ export class AgentBuilderComponent implements OnInit {
   onSubmit() {
     let payload = this.agentBuilderForm.getRawValue();
     payload['id'] = "";
+    payload['winlogbeat_port']=5045;
     if (payload['endgame_sensors'].length > 0) {
       let name = payload['endgame_sensors'][0];
       let profile = this.agentBuilderForm.endgame_sensor_profiles.find(p => p['name'] === name);
