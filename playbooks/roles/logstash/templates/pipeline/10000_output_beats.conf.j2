@@ -3,7 +3,7 @@ output {
     # stdout { codec => rubydebug }
     elasticsearch {
       hosts => ["{{ elastic_fqdn }}:{{ elastic_port }}"]
-      index => "winlogbeats-%{+YYMMdd'h'HH}"
+      index => "winlogbeat-%{+YYMMdd'h'HH}"
       manage_template => false
       #template_name => "winlogbeat"
       #template => "/usr/share/logstash/logstash-template.json"

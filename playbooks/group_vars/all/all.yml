@@ -17,7 +17,7 @@ elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_shortname: elasticsearch
 elastic_port: 9200
 kibana_port: 5601
-winlogbeats_port: 5045
+winlogbeat_port: 5045
 
 # Kibana
 kibana_fqdn: "kibana.{{ fqdn }}"
