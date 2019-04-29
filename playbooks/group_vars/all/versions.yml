@@ -26,7 +26,7 @@ kube_images:
   - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
-  - docker.io/tfplenum/elasticsearch:{{elastic_version}}
+  - docker.elastic.co/elasticsearch/elasticsearch:{{elastic_version}}
   - docker.io/tfplenum/mumble-server:{{mumble_version}}
   - docker.io/tfplenum/bro:{{bro_version}}
   - docker.elastic.co/beats/filebeat:{{elastic_version}}
