@@ -13,22 +13,28 @@
 
 - name: Install templates
   template:
-    src: "templates/metricbeat-kubernetes.yaml.j2"
-    dest: "{{ metricbeat_dir }}/metricbeat-kubernetes.yaml"
+    src: "templates/{{ item }}.j2"
+    dest: "{{ metricbeat_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
+  loop:
+    - kube-state-metrics.yaml
+    - metricbeat-kubernetes.yaml
 
-- name: Flush Metricbeat Config
-  command: "kubectl delete -f {{ metricbeat_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
+- name: Flush Metricbeat and Kube State Metrics
+  command: "kubectl delete -f {{ metricbeat_dir }}/kube-state-metrics.yaml -f {{ metricbeat_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
 
 - name: Deploy Services
-  import_role:
+  include_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
   vars:
-    name: "Metricbeat"
-    file_name: "{{ metricbeat_dir }}/metricbeat-kubernetes.yaml"
+    name: "Metrics"
+    file_name: "{{ metricbeat_dir }}/{{ item }}"
+  loop:
+    - kube-state-metrics.yaml
+    - metricbeat-kubernetes.yaml
 
 - name: Wait for Metricbeat to be ready
   import_role:
