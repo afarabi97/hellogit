@@ -9,7 +9,11 @@ spec:
   selector:
     component: logstash
   ports:
-  - port: {{ logstash_port }}
+  - name: bro
+    port: {{ logstash_port }}
+    protocol: TCP
+  - name: winlogbeat
+    port: {{ winlogbeat_port }}
     protocol: TCP
   type: LoadBalancer
 
@@ -25,5 +29,9 @@ spec:
   selector:
     component: logstash
   ports:
-  - port: {{ logstash_port }}
+  - name: bro
+    port: {{ logstash_port }}
+    protocol: TCP
+  - name: winlogbeat
+    port: {{ winlogbeat_port }}
     protocol: TCP
