@@ -26,10 +26,10 @@ class KitPercentages:
         """
         If a sensor is disabled
         """
-        self._moloch_cpu_perc = 42
+        self._moloch_cpu_perc = 35
         self._moloch_mem_limit = 80
-        self._bro_cpu_perc = 42
-        self._suricata_cpu_perc = 16
+        self._bro_cpu_perc = 25
+        self._suricata_cpu_perc = 40
 
         sensor_apps = self._kit_form["sensors"][sensor_index]["sensor_apps"]
         if len(sensor_apps) == 3:
