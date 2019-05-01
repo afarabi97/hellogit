@@ -231,6 +231,14 @@
   tags:
     - kube-node
 
+- name: helm
+  any_errors_fatal: true
+  hosts:
+    - all 
+  roles:
+    - helm
+  tags: helm
+
 - name: Deploy Elasticsearch
   hosts: elasticsearch
   gather_facts: no
@@ -303,7 +311,7 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts: 
+  hosts:
     - master-server
     - suricata
   gather_facts: no

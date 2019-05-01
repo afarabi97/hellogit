@@ -1,0 +1,25 @@
+- name: Downloading and Unpacking Helm
+  unarchive:
+    src: "{{ offline_repo_base }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
+    dest: /usr/local/bin/
+    creates: /usr/local/bin/helm
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Initializing Helm Client
+  command: helm init --client-only --skip-refresh
+
+- name: Initiallizing Tiller
+  command: helm init --service-account tiller --tiller-image {{ docker_registry_repo }}/gcr.io/kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200
+  when: inventory_hostname in groups['master-server']
+
+- name: Creating Tiller Service Account
+  command: kubectl -n kube-system create serviceaccount tiller
+  when: inventory_hostname in groups['master-server']
+
+- name: Creating Kube Cluster Role Binding
+  command: kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+  when: inventory_hostname in groups['master-server']
+
+- name: Removing Default Helm Repo
+  shell: helm repo remove stable

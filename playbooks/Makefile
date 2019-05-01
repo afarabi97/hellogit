@@ -73,6 +73,9 @@ mumble:
 endgame:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
+helm:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=install"
+
 dnsmasq-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
@@ -118,6 +121,9 @@ mumble-rerun:
 engame-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
+helm-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
+	
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t docker -l $(NODE)

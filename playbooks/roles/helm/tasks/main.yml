@@ -1,0 +1,11 @@
+- import_tasks: "install.yml"
+  when: "run_option == 'install'"
+
+- import_tasks: "uninstall.yml"
+  when: "run_option == 'uninstall'"
+
+- import_tasks: "reinstall.yml"
+  when: "run_option == 'reinstall'"
+
+- import_tasks: "upgrade.yml"
+  when: "run_option == 'upgrade'"
