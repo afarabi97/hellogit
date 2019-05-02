@@ -14,7 +14,7 @@ all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass --extra-vars "run_option=install"
 
 preflight:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight
@@ -123,7 +123,7 @@ engame-rerun:
 
 helm-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
-	
+
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t docker -l $(NODE)
