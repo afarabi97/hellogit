@@ -36,10 +36,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: kubernetes.io/hostname
+              - key: suricata
                 operator: In
                 values:
-{% for host in groups['suricata'] %}
-                  - "{{ host }}"
-{% endfor %}
+                  - "true"
       restartPolicy: Never

@@ -35,10 +35,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: kubernetes.io/hostname
+              - key: moloch
                 operator: In
                 values:
-{% for host in groups['moloch'] %}
-                  - "{{ host }}"
-{% endfor %}
+                  - "true"
       restartPolicy: Never

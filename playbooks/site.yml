@@ -6,6 +6,26 @@
 
 ---
 
+- name: Tag master server
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: master-server
+      when: hostvars[item].is_master | default(false)
+      with_items: "{{ groups['all'] }}"
+
+- name: Tag remote sensors
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: remote-sensors
+      when: hostvars[item].is_remote | default(false)
+      with_items: "{{ groups['all'] }}"
+
 - name: Preflight for adding new node
   hosts: master-server
   any_errors_fatal: true
@@ -49,10 +69,8 @@
 
 - name: Setup Repos
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -63,10 +81,8 @@
 
 - name: Install Controller Dependencies
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   tasks:
   - name: Install NetworkManager packages
     yum:
@@ -93,10 +109,8 @@
 
 - name: dnsmasq
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
@@ -115,10 +129,8 @@
 - name: Remove existing SSH keys
   hosts:
     - localhost
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   connection: ssh
   any_errors_fatal: true
   tasks:
@@ -128,14 +140,12 @@
 - name: Generate SSH keys
   hosts:
     - localhost
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   connection: ssh
   any_errors_fatal: true
   vars:
-    ssh_known_hosts: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+    ssh_known_hosts: "{{ groups['servers'] }} + {{ groups['sensors'] }}"
 
     # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
     # feeds it into map, which then
@@ -150,20 +160,16 @@
 - name: Perform preflight checks
   any_errors_fatal: true
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   roles:
     - preflight_checks
   tags: preflight
 
 - name: Common Setup
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -189,10 +195,8 @@
 
 - name: Docker Images
   hosts:
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -216,9 +220,9 @@
 
 - name: Configure kube nodes
   hosts:
-    - remote-sensors
-    - sensors
+    - "!master-server"
     - servers
+    - sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -232,7 +236,7 @@
 - name: helm
   any_errors_fatal: true
   hosts:
-    - all 
+    - all
   roles:
     - helm
   tags: helm
@@ -296,7 +300,6 @@
 
 - name: Deploy Moloch
   hosts:
-    - master-server
     - servers
     - moloch
   gather_facts: no

@@ -15,7 +15,7 @@
   when: inventory_hostname in groups['master-server']
   tags: elasticdump
 - import_tasks: 70_sensor_monitor_ifaces.yml
-  when: inventory_hostname in groups['sensors'] or inventory_hostname in groups['remote-sensors']
+  when: inventory_hostname in groups['sensors']
   tags:
     - enable-sensor-monitor-interface
     - change-interfaces

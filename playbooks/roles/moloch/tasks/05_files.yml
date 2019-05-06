@@ -41,7 +41,7 @@
     owner: "{{ moloch_user }}"
     group: "{{ moloch_group }}"
     mode: 0644
-  when: inventory_hostname in groups['master-server'] or inventory_hostname in groups['servers']
+  when: inventory_hostname in groups['servers']
 
 - name: Setup deployment configs
   template:

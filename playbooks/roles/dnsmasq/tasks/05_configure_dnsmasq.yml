@@ -107,7 +107,7 @@
 
 - name: create list
   set_fact:
-    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+    host_list: "{{ groups['servers'] }} + {{ groups['sensors'] }}"
   tags:
     - update-dnsmasq-hosts
 

@@ -2,10 +2,8 @@
 - name: Generate full rpm list of kit
   hosts:
     - localhost
-    - master-server
     - servers
     - sensors
-    - remote-sensors
   vars:
      rpm_list_path: "/root/rpm_export_list"
      curr_repo_path: "/var/www/html/offlinerepo/tfplenum-{{ ansible_distribution }}"
@@ -83,4 +81,3 @@
       shell: |
         yumdownloader {{ item }} --destdir {{ curr_repo_path }}
       with_lines: "cat {{ rpm_list_path }}"
-

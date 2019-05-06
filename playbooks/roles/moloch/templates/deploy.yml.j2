@@ -4,15 +4,17 @@ metadata:
   name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
   labels:
     component: moloch
+    app: moloch-capture
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: moloch
+      app: moloch-capture
   template:
     metadata:
       labels:
         component: moloch
+        app: moloch-capture
     spec:
       initContainers:
       - name: init-sync-files
@@ -78,8 +80,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: component
+              - key: app
                 operator: In
                 values:
-                - moloch
+                - moloch-capture
             topologyKey: "kubernetes.io/hostname"
