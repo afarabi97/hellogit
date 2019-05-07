@@ -135,8 +135,6 @@
   connection: ssh
   any_errors_fatal: true
   vars:
-    ssh_known_hosts_command: "ssh-keyscan -T 10"
-    ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
     ssh_known_hosts: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
 
     # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
