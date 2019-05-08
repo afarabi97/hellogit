@@ -53,9 +53,12 @@ package_list:
   - net-tools
   - lsof
 
+
 pip_installs:
   - docker-py
   - netaddr
+  - pyhelm
+  - grpcio
 
 ansible_controller_hostname: "controller.lan"
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
