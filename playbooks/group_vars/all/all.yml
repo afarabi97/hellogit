@@ -82,6 +82,8 @@ pip_downloads:
   - requests
   - "restresponse==2.0.0"
   - urllib3
+  - pyhelm
+  - grpcio
 
 pip_installs:
   - "docker-py"
