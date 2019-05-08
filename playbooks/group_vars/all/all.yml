@@ -84,7 +84,8 @@ pip_downloads:
   - urllib3
   - pyhelm
   - grpcio
-
+  - pbr
+  
 pip_installs:
   - "docker-py"
   - "junit-xml==1.8"
