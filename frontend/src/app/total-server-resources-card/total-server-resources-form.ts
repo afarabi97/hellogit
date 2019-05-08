@@ -1,9 +1,5 @@
 import { FormGroup } from "@angular/forms";
 
-import { HtmlInput } from '../html-elements';
-import { PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK          
- } from '../frontend-constants';
-
 export class TotalServerResources extends FormGroup {
 
     //These fields are not part of the form but they displayed on the componets interface.
@@ -23,15 +19,13 @@ export class TotalServerResources extends FormGroup {
 
     constructor(){
         super({}, null, null);
-        this.initalize();        
-        super.addControl('elastic_curator_threshold', this.elastic_curator_threshold);
+        this.initalize();                
     }
 
     disable(opts?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
-    }): void {
-        this.elastic_curator_threshold.disable();
+    }): void {        
     }
 
     private initalize(){
@@ -54,9 +48,7 @@ export class TotalServerResources extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        super.reset({
-            'elastic_curator_threshold': this.elastic_curator_threshold.default_value,
-        });
+        super.reset({});
         this.initalize();
     }
 
@@ -121,18 +113,4 @@ export class TotalServerResources extends FormGroup {
         }
         this.clusterStorageAvailable += this.serverDriveStorageCache[deviceFacts["hostname"]];
     }
-
-    elastic_curator_threshold = new HtmlInput(
-        'elastic_curator_threshold',
-        'ES Curator Threshold %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '90',
-        "The percentage of maximum allocated space for Elasticsearch that can be filled \
-        before Curator begins deleting indices. The oldest Moloch, Bro, etc, indices that exceed \
-        this threshold will be deleted first."
-    )
 }

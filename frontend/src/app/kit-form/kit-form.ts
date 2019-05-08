@@ -7,13 +7,12 @@ import {
 import { HtmlInput, HtmlCheckBox, HtmlDropDown, HtmlCardSelector, HtmlHidden, HtmlDatePicker } from '../html-elements';
 import { SensorResourcesForm } from '../total-sensor-resources-card/total-sensor-resources-form';
 import { TotalServerResources } from '../total-server-resources-card/total-server-resources-form';
-import { PERCENT_PLACEHOLDER, PERCENT_MIN_MAX, PERCENT_INVALID_FEEDBACK,
-         IP_CONSTRAINT, HOST_CONSTRAINT,
+import { IP_CONSTRAINT, HOST_CONSTRAINT,
          INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
          TIMEZONES, SENSOR_APPS
  } from '../frontend-constants';
 
-import { BasicNodeResource, BasicNodeResourceInterface } from '../basic-node-resource-card/basic-node-resource-card.component';
+import { BasicNodeResource } from '../basic-node-resource-card/basic-node-resource-card.component';
 import { TotalSystemResources } from '../total-system-resource-card/total-system-resource-form';
 import { ValidateKitInventory } from './kit-form-validation';
 
@@ -44,67 +43,91 @@ function SetDriveSelections(deviceFacts: Object) : Array<{value: string, label: 
     return driveSelections;
 }
 
-export function toggleSensorAppSelections(sensor: SensorFormGroup, 
-                                          selected: Array<string>, 
-                                          isPercentagesEnabled: boolean=false){    
-    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[0])){        
-        sensor.bro_cpu_percentage.disable();
-    } else {
-        sensor.bro_cpu_percentage.enable();
-    }
-    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[1])){                    
-        sensor.suricata_cpu_percentage.disable();
-    } else {
-        sensor.suricata_cpu_percentage.enable();
-    }
-    if (!isPercentagesEnabled || !selected.includes(SENSOR_APPS[2])){
-        sensor.moloch_cpu_percentage.disable();
-        sensor.moloch_mem_limit.disable();
-    } else {
-        sensor.moloch_cpu_percentage.enable();
-        sensor.moloch_mem_limit.enable();
+export interface NodeFormInterface {
+    hidden: boolean;
+    basicNodeResource: BasicNodeResource;
+    deviceFacts: Object;
+    node_type: HtmlDropDown;
+    management_ip_address: HtmlInput;
+    hostname: HtmlHidden;
+    controls: {
+        [key: string]: AbstractControl;
+    };    
 
-    } 
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+
+    from_object(mObj: Object): void;
+
+    clearSelectors();
 }
 
-export class SensorFormGroup extends FormGroup implements BasicNodeResourceInterface, DeviceFactsContainerInterface {
-    public hidden: boolean;
-    public basicNodeResource: BasicNodeResource;
-    public deviceFacts: Object;
-    public interfaceSelections: Array<{value: string, label: string}>;
-    public driveSelections: Array<{value: string, label: string}>;
+export class KitNodeFormGroup extends FormGroup implements NodeFormInterface {
+    hidden: boolean;
+    basicNodeResource: BasicNodeResource;
+    deviceFacts: Object;
 
-    constructor(hidden: boolean, managementIP: string, sensor_type: string) {
+    constructor(hidden: boolean, 
+                managementIP: string, 
+                nodeForm: KitNodeFormGroup = null) {
         super({});
-        this.hidden = hidden;
-        this.host_sensor.setDefaultValue(managementIP);
-        super.addControl('host_sensor', this.host_sensor);
-        super.addControl('monitor_interface', this.monitor_interface);        
-        super.addControl('pcap_drives', this.pcap_drives);
-        super.addControl('hostname', this.hostname);
-        super.addControl('bro_cpu_percentage', this.bro_cpu_percentage);
-        super.addControl('suricata_cpu_percentage', this.suricata_cpu_percentage);
-        super.addControl('moloch_cpu_percentage', this.moloch_cpu_percentage);
-        super.addControl('moloch_mem_limit', this.moloch_mem_limit);
-        super.addControl('sensor_apps', this.sensor_apps);
+        if (nodeForm){
+            this.hidden = nodeForm.hidden;
+            this.basicNodeResource = nodeForm.basicNodeResource;
+            this.deviceFacts = nodeForm.deviceFacts;
+            this.hostname.setValue(nodeForm.hostname.value);
+            this.management_ip_address.setValue(nodeForm.management_ip_address.value);
+            this.node_type.setValue(nodeForm.node_type.value);
+        } else {
+            this.hidden = hidden;
+            this.management_ip_address.setDefaultValue(managementIP);
+            this.basicNodeResource = new BasicNodeResource();
+            this.deviceFacts = null;
+            
+        }
 
-        //this.sensor_type.
-        this.sensor_type.setValue(sensor_type);
-        super.addControl('sensor_type', this.sensor_type);
-        this.basicNodeResource = new BasicNodeResource();
-        this.deviceFacts = null;
-        this.interfaceSelections = new Array();
-        this.driveSelections = new Array();
+        super.addControl('node_type', this.node_type);
+        super.addControl('hostname', this.hostname);
+        super.addControl('management_ip_address', this.management_ip_address);
     }
 
-    clearSelectors(){
-        while (this.pcap_drives.length !== 0) {
-            this.pcap_drives.removeAt(0);
-        }        
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+      }): void{
+        super.enable(opts);
+        this.management_ip_address.disable();
+    }
 
-        while (this.monitor_interface.length !== 0) {
-            this.monitor_interface.removeAt(0);
-        }
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        this.node_type.disable();
+        this.management_ip_address.disable();
+    }
+
+    public from_object(mObj: Object): void {
+        this.deviceFacts = mObj['deviceFacts'];
+        this.management_ip_address.setValue(mObj['management_ip_address']);
+        this.hostname.setValue(mObj['hostname']);
+        this.node_type.setValue(mObj['node_type']);
+    }
+
+    setFromDeviceFacts(){
+        this.basicNodeResource.setFromDeviceFacts(this.deviceFacts);
+        this.hostname.setValue(this.deviceFacts["hostname"]);
+    }
+
+    clearSelectors() {
+        //Do nothing
     }
 
     getRawValue(): any {
@@ -113,55 +136,129 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         return rawValue;
     }
 
+    node_type = new HtmlDropDown(
+        'node_type',
+        'Node Type',
+        ['Server', 'Sensor'],
+        "The Node Type referes to whether or not the node is a server or sensor.",
+        ''
+    )
+
+    management_ip_address = new HtmlInput (
+        'management_ip_address',
+        'Management IP Address',
+        "The management IP address.",
+        'text',
+        IP_CONSTRAINT,
+        INVALID_FEEDBACK_IP,
+        true,
+        undefined,
+        '',
+        undefined,
+        true
+    )
+
+    hostname = new HtmlHidden('hostname', true);
+    
+}
+
+export class ServerForm extends KitNodeFormGroup {
+    driveSelections: Array<{value: string, label: string}>;
+
+    constructor(nodeForm: KitNodeFormGroup, disableIsKubernetesMasterCheckbox: boolean=false){
+        super(false, null, nodeForm);
+        this.driveSelections = new Array();
+        super.addControl('is_master_server', this.is_master_server);
+        super.addControl('es_drives', this.es_drives);
+
+        if (disableIsKubernetesMasterCheckbox){
+            this.is_master_server.disable();
+        }
+        this.setOptionSelections();
+    }
+
+    clearSelectors(){
+        while (this.es_drives.length !== 0) {
+            this.es_drives.removeAt(0);
+        }
+    }
+
     disable(opts?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        this.monitor_interface.disable();
-        this.pcap_drives.disable();
-        this.bro_cpu_percentage.disable();
-        this.suricata_cpu_percentage.disable();
-        this.moloch_cpu_percentage.disable();
-        this.moloch_mem_limit.disable();
-        this.sensor_apps.disable();
+        super.disable(opts);
+        this.is_master_server.disable();
+        this.es_drives.disable();
     }
 
     enable(opts?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
-      }): void{
+      }): void {
         super.enable(opts);
-        this.host_sensor.disable();
-        this.sensor_type.disable();
-    }
+    }    
 
     /**
-     * When calling this make sure you call set_drive_selections
+     * After you call this make sure you set drive selections
      * after you have set deviceFacts.
      *
      * @param mObj
      */
     public from_object(mObj: Object){
-        this.deviceFacts = mObj['deviceFacts'];
-        this.host_sensor.setValue(mObj['host_sensor']);
-        this.hostname.setValue(mObj['hostname']);
-        this.sensor_type.setValue(mObj['sensor_type']);
-        this.bro_cpu_percentage.setValue(mObj['bro_cpu_percentage']);
-        this.suricata_cpu_percentage.setValue(mObj['suricata_cpu_percentage']);
-        this.moloch_cpu_percentage.setValue(mObj['moloch_cpu_percentage']);
-        this.moloch_mem_limit.setValue(mObj['moloch_mem_limit']);
-        this.monitor_interface.default_selections = mObj['monitor_interface'];
-        this.pcap_drives.default_selections = mObj['pcap_drives'];
-        this.sensor_apps.default_selections = mObj['sensor_apps'];
-        toggleSensorAppSelections(this, mObj['sensor_apps']);
+        super.from_object(mObj);
+        this.setOptionSelections();
+        this.is_master_server.checked = mObj['is_master_server'];
+        this.is_master_server.setValue(mObj['is_master_server']);
+        this.es_drives.default_selections = mObj['es_drives'];
     }
 
-    hostname = new HtmlHidden('hostname', true);
+    private setOptionSelections(){
+        this.driveSelections = SetDriveSelections(this.deviceFacts);
+    }
+
+    is_master_server = new HtmlCheckBox(
+        "is_master_server",
+        "Is Kubernetes master server?",
+        "This is not the ESXi/VM server. This is for the Kubernetes master server only.\
+        There can only be one master server. It is a bit like the Highlander that way.\
+        The master server is special in that it runs the Kubernetes master and is     \
+        responsible for deploying services out to all the other hosts in the cluster. \
+        This server should be fairly beefy. By default, this server will also provide \
+        DNS to the rest of the kit for internal services. WARNING: If this server     \
+        fails, the entire kit goes down with it!!!"
+    )
+    
+    es_drives = new HtmlCardSelector (
+        'es_drives',
+        "ES Data Drives",
+        "Use this field to mark the disks you will use for the Elasticsearch cluster.",
+        "Select which drives on the host, if any, that you would like to add to the Elasticsearch cluster.",
+        "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
+        "No drives found.",
+        true
+    )
+}
+
+export class SensorForm extends KitNodeFormGroup {
+    driveSelections: Array<{value: string, label: string}>;
+    interfaceSelections: Array<{value: string, label: string}>;
+
+    constructor(node: KitNodeFormGroup){
+        super(false, null, node);
+        this.interfaceSelections = new Array();
+        this.driveSelections = new Array();
+        super.addControl('monitor_interface', this.monitor_interface);
+        super.addControl('pcap_drives', this.pcap_drives);
+        super.addControl('sensor_apps', this.sensor_apps);
+        super.addControl('is_remote', this.is_remote);
+        this.setSensorOptionsSelections(this.management_ip_address.value);
+    }
 
     /**
      * Sets option selections for both interfaces and ES drives.
      */
-    public setSensorOptionsSelections(managementIp: string){
+    private setSensorOptionsSelections(managementIp: string){
         if (this.deviceFacts == null){
             return;
         }
@@ -184,19 +281,47 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         }
     }
 
-    host_sensor = new HtmlInput (
-        'host_sensor',
-        'Management IP Address',
-        "Server's management IP address",
-        'text',
-        IP_CONSTRAINT,
-        INVALID_FEEDBACK_IP,
-        true,
-        undefined,
-        '',
-        undefined,
-        true
-    )
+    clearSelectors(){
+        while (this.pcap_drives.length !== 0) {
+            this.pcap_drives.removeAt(0);
+        }        
+
+        while (this.monitor_interface.length !== 0) {
+            this.monitor_interface.removeAt(0);
+        }
+    }    
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        super.disable(opts);
+        this.pcap_drives.disable();
+        this.sensor_apps.disable();
+        this.is_remote.disable();
+        this.monitor_interface.disable();
+    }
+    
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+      }): void{
+        super.enable(opts);
+    }
+
+    /**
+     * When calling this make sure you call set_drive_selections
+     * after you have set deviceFacts.
+     *
+     * @param mObj
+     */
+    public from_object(mObj: Object){        
+        super.from_object(mObj);
+        this.setSensorOptionsSelections(this.management_ip_address.value);
+        this.monitor_interface.default_selections = mObj['monitor_interface'];
+        this.pcap_drives.default_selections = mObj['pcap_drives'];
+        this.sensor_apps.default_selections = mObj['sensor_apps'];        
+    }
 
     monitor_interface = new HtmlCardSelector(
         'monitor_interface',
@@ -237,197 +362,40 @@ export class SensorFormGroup extends FormGroup implements BasicNodeResourceInter
         false
     )
 
-    sensor_type = new HtmlInput(
-        'sensor_storage_type',
-        'Sensor Type',
-        '',
-        'text',
-        null,
-        '',
-        true,
-        'test',
-        "Indicates if the sensor in question is a local or a remote sensor.",
-        undefined,
-        true        
-    )    
-
-    moloch_cpu_percentage = new HtmlInput (
-        'moloch_cpu_percentage',
-        'Moloch CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '42',
-        "This is the percentage of millicpus that will be allocated to the Moloch pod running on this sensor. \
-        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
-        is reserved for kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 10% is reserved for system pods."
-    )
-
-    moloch_mem_limit = new HtmlInput (
-        'moloch_mem_limit',
-        'Moloch Max Memory %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '80',
-        "This is the percentage of maximum memory that will be allocated to the Moloch pod running on this sensor."
-    )
-
-    suricata_cpu_percentage = new HtmlInput (
-        'suricata_cpu_percentage',
-        'Suricata CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '16',
-        "This is the percentage of millicpus that will be allocated to the Suricata pod running on this sensor. \
-        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
-        is reserved for kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 10% is reserved for system pods."
-    )
-
-    bro_cpu_percentage = new HtmlInput (
-        'bro_cpu_percentage',
-        'Bro CPU %',
-        PERCENT_PLACEHOLDER,
-        'number',
-        PERCENT_MIN_MAX,
-        PERCENT_INVALID_FEEDBACK,
-        true,
-        '42',
-        "This is the percentage of millicpus that will be allocated to the Bro pod running on this sensor. \
-        On sensors 10% (or 1000 milli cpus max) is reserved for node OS and 5% (or 1000 milli cpus max) \
-        is reserved for kube services. The rest of the nodes resources \
-        is used for pods.  Of those resources, 10% is reserved for system pods."
+    is_remote = new HtmlCheckBox(
+        "is_remote",
+        "Is Remote?",
+        "When checked, is remote will install and configure open VPN on this sensor."
     )
 }
 
-export class ServerFormGroup extends FormGroup implements BasicNodeResourceInterface, DeviceFactsContainerInterface {
-    public hidden: boolean;
-    public basicNodeResource: BasicNodeResource;
-    public deviceFacts: Object;
-    public driveSelections: Array<{value: string, label: string}>;
-
-    constructor(hidden: boolean, managementIP: string, disableIsKubernetesMasterCheckbox: boolean=false) {
-        super({});
-        this.hidden = hidden;
-        this.host_server.setDefaultValue(managementIP);
-        super.addControl('host_server', this.host_server);
-        super.addControl('is_master_server', this.is_master_server);
-        super.addControl('es_drives', this.es_drives)
-        super.addControl('hostname', this.hostname);
-        if (disableIsKubernetesMasterCheckbox){
-            this.is_master_server.disable();
-        }
-        this.basicNodeResource = new BasicNodeResource();
-        this.driveSelections = new Array();
-        this.deviceFacts = null;
-    }
-
-    clearSelectors(){
-        while (this.es_drives.length !== 0) {
-            this.es_drives.removeAt(0);
-        }
-    }
-
-    disable(opts?: {
-        onlySelf?: boolean;
-        emitEvent?: boolean;
-    }): void {
-        this.is_master_server.disable();
-        this.es_drives.disable();
-    }
-
-    enable(opts?: {
-        onlySelf?: boolean;
-        emitEvent?: boolean;
-      }): void{
-        super.enable(opts);
-        this.host_server.disable();
-    }
-
-    getRawValue(): any {
-        let rawValue = super.getRawValue();
-        rawValue['deviceFacts'] = this.deviceFacts;
-        return rawValue;
-    }
-
-    /**
-     * After you call this make sure you set drive selections
-     * after you have set deviceFacts.
-     *
-     * @param mObj
-     */
-    public from_object(mObj: Object){
-        this.deviceFacts = mObj['deviceFacts'];
-        this.host_server.setValue(mObj['host_server']);
-        this.hostname.setValue(mObj['hostname']);
-        this.is_master_server.checked = mObj['is_master_server'];
-        this.is_master_server.setValue(mObj['is_master_server']);
-        this.es_drives.default_selections = mObj['es_drives'];
-    }
-
-    public setOptionSelections(){
-        this.driveSelections = SetDriveSelections(this.deviceFacts);
-    }
-
-    hostname = new HtmlHidden('hostname', true);
-
-    host_server = new HtmlInput (
-        'host_server',
-        'Management IP Address',
-        "Server's management IP address",
-        'text',
-        IP_CONSTRAINT,
-        'You must input the server management IP address.',
-        true,
-        undefined,
-        '',
-        undefined,
-        true        
-    )
-
-    is_master_server = new HtmlCheckBox(
-        "is_master_server",
-        "Is Kubernetes master server?",
-        "This is not the ESXi/VM server. This is for the Kubernetes master server only.\
-        There can only be one master server. It is a bit like the Highlander that way.\
-        The master server is special in that it runs the Kubernetes master and is     \
-        responsible for deploying services out to all the other hosts in the cluster. \
-        This server should be fairly beefy. By default, this server will also provide \
-        DNS to the rest of the kit for internal services. WARNING: If this server     \
-        fails, the entire kit goes down with it!!!"
-    )
-    
-    es_drives = new HtmlCardSelector (
-        'es_drives',
-        "ES Data Drives",
-        "Use this field to mark the disks you will use for the Elasticsearch cluster.",
-        "Select which drives on the host, if any, that you would like to add to the Elasticsearch cluster.",
-        "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
-        "No drives found.",
-        true
-    )
-}
-
-export class SensorsFormArray extends FormArray {
+export class KitNodesFormArray extends FormArray {
     constructor(controls: AbstractControl[],
                 public hidden: boolean) {
         super(controls);
     }
-}
 
-export class ServersFormArray extends FormArray {
-    constructor(controls: AbstractControl[],
-                public hidden: boolean) {
-        super(controls);
+    private isMasterSelected(): boolean {
+        for (let i = 0; i < this.length; i++){
+            let node = this.at(i);
+            if (node instanceof ServerForm){
+                if (node.is_master_server.value){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    replaceGenericNodeWithSpecifiedType(index: number, new_node_type: string){
+        let node = this.at(index) as KitNodeFormGroup;
+        if (new_node_type === 'Sensor'){
+            this.removeAt(index);
+            this.insert(index, new SensorForm(node));
+        } else if (new_node_type === 'Server'){
+            this.removeAt(index);
+            this.insert(index, new ServerForm(node, this.isMasterSelected()));
+        }
     }
 }
 
@@ -458,28 +426,52 @@ function validateIPOrHost(control: AbstractControl): ValidationErrors | null {
   }
 
 export class KitInventoryForm extends FormGroup {
-    servers: ServersFormArray;
-    sensors: ServersFormArray;
+    nodes: KitNodesFormArray;
     endgame_warning: string;
     kubernetesCidrInfoText;
 
     constructor() {
         super({}, ValidateKitInventory);
-        super.addControl('kubernetes_services_cidr', this.kubernetes_services_cidr);
-
-        this.servers = new ServersFormArray([], true);
-        this.sensors = new SensorsFormArray([], true);
+        this.nodes = new KitNodesFormArray([], true);
         this.endgame_warning = '';
-        super.addControl('servers', this.servers);
-        super.addControl('sensors', this.sensors);
+        super.addControl('nodes', this.nodes);
+        super.addControl('kubernetes_services_cidr', this.kubernetes_services_cidr);
         super.addControl('sensor_resources', this.sensor_resources);
         super.addControl('server_resources', this.server_resources);
         super.addControl('dns_ip', this.dns_ip);
         super.addControl('endgame_iporhost', this.endgame_iporhost);
         super.addControl('endgame_username', this.endgame_username);
-        super.addControl('endgame_password', this.endgame_password);
-        super.addControl('enable_percentages', this.enable_percentages);
+        super.addControl('endgame_password', this.endgame_password);        
         this.kubernetesCidrInfoText = "";
+    }
+
+    clearFromDeviceFacts(node: KitNodeFormGroup){
+        // Clear resources on every run of gather facts.
+        if (node.deviceFacts){
+            this.system_resources.subtractFromDeviceFacts(node.deviceFacts);
+            node.clearSelectors();
+            if (node instanceof ServerForm) {
+                this.server_resources.subtractFromDeviceFacts(node.deviceFacts);
+                this.server_resources.removeClusterStorage(node.deviceFacts);
+            } else if (node instanceof SensorForm) {
+                this.sensor_resources.subtractFromDeviceFacts(node.deviceFacts);
+            }
+        }
+    }
+
+    setFromDeviceFacts(node: KitNodeFormGroup, data: Object = null){        
+        //Only set the device facts if they are not null.
+        if (data){
+            node.deviceFacts = data;
+        }
+        node.setFromDeviceFacts();
+        this.system_resources.setFromDeviceFacts(node.deviceFacts);
+
+        if (node instanceof ServerForm){
+            this.server_resources.setFromDeviceFacts(node.deviceFacts);
+        } else if (node instanceof SensorForm){
+            this.sensor_resources.setFromDeviceFacts(node.deviceFacts);
+        }
     }
 
    /**
@@ -489,8 +481,7 @@ export class KitInventoryForm extends FormGroup {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }): void {
-        this.addSensorFormGroup(null, null);
-        this.addServerFormGroup(null);
+        this.addNodeFormGroup(null);
         super.reset({});
         this.clearNodes();
         this.system_resources.reinitalize();
@@ -514,35 +505,25 @@ export class KitInventoryForm extends FormGroup {
     }): void {        
         this.kubernetes_services_cidr.disable();
 
-        this.servers.disable();
-        this.sensors.disable();
+        this.nodes.disable();
         this.sensor_resources.disable();
         this.server_resources.disable();
             
-        this.dns_ip.disable();        
+        this.dns_ip.disable();
         this.endgame_iporhost.disable();
         this.endgame_username.disable();
         this.endgame_password.disable();
-        this.enable_percentages.disable();
     }
 
     public clearNodes() {
-        while (this.servers.length !== 0) {
-            this.servers.removeAt(0);
-        }
-        while (this.sensors.length !== 0) {
-            this.sensors.removeAt(0);
+        while (this.nodes.length !== 0) {
+            this.nodes.removeAt(0);
         }
     }
 
-    public addServerFormGroup(managementIP: string, disableIsKubernetesMasterCheckbox: boolean=false){
-        this.servers.hidden = false;
-        this.servers.push(new ServerFormGroup(false, managementIP, disableIsKubernetesMasterCheckbox));
-    }
-
-    public addSensorFormGroup(managementIP: string, sensorType: string) {
-        this.sensors.hidden = false;
-        this.sensors.push(new SensorFormGroup(false, managementIP, sensorType));
+    public addNodeFormGroup(managementIP: string){
+        // this.sensors.hidden = false;
+        this.nodes.push(new KitNodeFormGroup(false, managementIP));
     }
 
     system_resources = new TotalSystemResources();
@@ -610,13 +591,7 @@ export class KitInventoryForm extends FormGroup {
         it to default  unless you have a specific reason to use a different DNS   \
         server. Keep in mind  you will need to manually provide all required DNS  \
         entries on your separate  DNS Server or the kit will break."
-    )
-
-    enable_percentages = new HtmlCheckBox(
-        "enable_percentages",
-        "Enable percentages",
-        "Overrides the server calculations to include to user specified percentages for servers and sensors.."
-    )
+    )    
 }
 
 

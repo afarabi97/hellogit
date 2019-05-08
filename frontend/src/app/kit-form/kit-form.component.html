@@ -28,7 +28,7 @@
             </p>
             <p class="card-text">
               If the current Kit form loads and is disabled, you have an active configuration.
-              If you want to start a new configuration, click "Archive and Clear Form" button at the top of the page.  This will save the current configuration if you want to restore it later.
+              If you want to start a new configuration, click "Clear Form" button at the top of the page.
               If you want to change the existing configuration, click "Enable Form" button at the top of the page and make your edits before clicking "Execute Kit".
             </p>
             <p class="card-text">
@@ -47,87 +47,67 @@
     <br>
     <app-total-system-resource-card [totalSystemResources]="kitForm.system_resources"></app-total-system-resource-card>
     <br>
-
-    <app-total-server-resources-card [totalServerResources]="kitForm.controls.server_resources" [isPercentagesHidden]="isPercentagesHidden"></app-total-server-resources-card>
-    <div formArrayName="servers">
-      <div *ngIf="!servers.hidden">
-        <div *ngFor="let server of servers.controls; let i = index" class="card">
-          <div [formGroup]="server">
-              <input type="hidden" formControlName="hostname">
-          </div>
-          <div class="card-header">
-            <h5 class="mb-0">
-              <button class="btn btn-link" type="button" (click)="toggleServer(server)">Server {{ i + 1 }} - {{ server.hostname.value }}</button>
-            </h5>
-          </div>
-          <div *ngIf="!server.hidden" class="card-body">
-            <app-basic-node-resource-card title="Server {{ i + 1 }} resources" [basicNodeResource]="server.basicNodeResource"></app-basic-node-resource-card>
-            <br>
-            <app-text-input [parentForm]="server" controlName="host_server"></app-text-input>
-            <app-checkbox [parentForm]="server" controlName="is_master_server" (is_checked)="disableOtherMasterOrReenable($event, i)" uid="{{ i }}"></app-checkbox>
-            <br>
-            <div *ngIf="server.deviceFacts">
-                  <app-card-selector [parentForm]="server" [optionSelections]="server.driveSelections"
-                                      controlName="es_drives" (onSelect)="esDriveSelected($event, server)" uid="_server{{ i }}"></app-card-selector>
-            </div>
-            <div *ngIf="!server.deviceFacts">
-              <h3>Loading...</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <br>
+    <app-total-server-resources-card [totalServerResources]="kitForm.controls.server_resources"></app-total-server-resources-card>
+    <br>    
     <app-total-sensor-resources-card [sensorResourceForm]="kitForm.controls.sensor_resources" ></app-total-sensor-resources-card>
-    <div formArrayName="sensors">
-      <div *ngIf="!sensors.hidden">
-        <div *ngFor="let sensor of sensors.controls; let i = index" class="card">
-          <div [formGroup]="sensor">
+    <br>
+    
+    <div formArrayName="nodes"> 
+      <!-- <div *ngIf="!nodes.hidden"> -->
+        <div *ngFor="let node of nodes.controls; let i = index" class="card">
+          <div [formGroup]="node">
             <input type="hidden" formControlName="hostname">
           </div>
+
           <div class="card-header">
             <h5 class="mb-0">
-              <div [formGroup]="sensor">
-                <input type="hidden" formControlName="hostname">
-              </div>
-              <button class="btn btn-link" type="button" (click)="toggleSensor(sensor)">Sensor {{ i + 1 }} - {{ sensor.hostname.value }}</button>
+              <button class="btn btn-link" type="button" (click)="toggleNode(node)">Node {{ i + 1 }} - {{ node.hostname.value }}</button>
             </h5>
           </div>
-
-          <div *ngIf="!sensor.hidden" class="card-body">
-            <app-basic-node-resource-card title="Sensor {{ i + 1 }} resources" [basicNodeResource]="sensor.basicNodeResource"></app-basic-node-resource-card>
+          
+          <div *ngIf="!node.hidden" class="card-body">
+            <app-basic-node-resource-card title="Node {{ i + 1 }} resources" [basicNodeResource]="node.basicNodeResource"></app-basic-node-resource-card>
             <br>
-            <app-text-input [parentForm]="sensor" controlName="sensor_type"></app-text-input>
-            <app-text-input [parentForm]="sensor" controlName="host_sensor"></app-text-input>
+            <app-text-input [parentForm]="node" controlName="management_ip_address"></app-text-input>
+            <app-dropdown [parentForm]="node" controlName="node_type" (dropDownChanged)="nodeTypeChange($event, i)" uid="{{ i }}"></app-dropdown>
+            
 
-            <div *ngIf="!isPercentagesHidden">
-              <app-text-input [parentForm]="sensor" controlName="bro_cpu_percentage"></app-text-input>
-              <app-text-input [parentForm]="sensor" controlName="suricata_cpu_percentage"></app-text-input>
-              <app-text-input [parentForm]="sensor" controlName="moloch_cpu_percentage"></app-text-input>
-              <app-text-input [parentForm]="sensor" controlName="moloch_mem_limit"></app-text-input>
-            </div>
-            <div *ngIf="sensor.deviceFacts">
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  <app-card-selector [parentForm]="sensor" [optionSelections]="sensor.driveSelections"
-                                     controlName="pcap_drives" uid="{{ i }}"></app-card-selector>
-                </div>
-                <div class="form-group col-md-4">
-                  <app-card-selector [parentForm]="sensor" controlName="sensor_apps" uid="{{ i }}" (onSelect)="sensorAppSelect(sensor, $event)"></app-card-selector>
-                </div>
-                <div class="form-group col-md-4">
-                  <app-card-selector [parentForm]="sensor" [optionSelections]="sensor.interfaceSelections"
-                                     controlName="monitor_interface" style="float: right;" uid="{{ i }}"></app-card-selector>
+            <ng-container *ngIf="isServer(node)">
+              <app-checkbox [parentForm]="node" controlName="is_master_server" (is_checked)="disableOtherMasterOrReenable($event, i)" uid="{{ i }}"></app-checkbox>
+              <div *ngIf="node.deviceFacts">
+                  <app-card-selector [parentForm]="node" [optionSelections]="node.driveSelections"
+                                      controlName="es_drives" (onSelect)="esDriveSelected($event, node)" uid="_server{{ i }}"></app-card-selector>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="isSensor(node)">
+              <app-checkbox [parentForm]="node" controlName="is_remote" uid="is_remote_{{ i }}"></app-checkbox>                
+              <div *ngIf="node.deviceFacts">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" [optionSelections]="node.driveSelections"
+                                        controlName="pcap_drives" uid="{{ i }}"></app-card-selector>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" controlName="sensor_apps" uid="{{ i }}"></app-card-selector>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" [optionSelections]="node.interfaceSelections"
+                                        controlName="monitor_interface" style="float: right;" uid="{{ i }}"></app-card-selector>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div *ngIf="!sensor.deviceFacts">
+            </ng-container>
+
+
+            <div *ngIf="!node.deviceFacts">
               <h3>Loading...</h3>
             </div>
           </div>
         </div>
-      </div>
+      <!-- </div> -->
     </div>
+
     <br>
     <div class="card">
       <div class="card-header">
@@ -164,11 +144,6 @@
             you can run the make command directly in that folder.
           </p>
           <button class="btn btn-primary" type="button" [disabled]="!kitForm.valid" (click)="openGenKitInventoryModal()" name="gen_inventory">Generate Inventory</button>
-          <p class="card-text text-danger" style="margin-top: 13px;">
-            Unless you really know what you are doing here, you should not changes the percentages for servers/ sensors. 
-            Percentages do not need to be changed unless you are doing something with hardware specs not officially supported by this platform.
-          </p>
-          <app-checkbox [parentForm]="kitForm" controlName="enable_percentages" (is_checked)="togglePercentages()"></app-checkbox>
           <p class="card-text text-danger">
             Unless you really know what you are doing here, you should not change the DNS. Seriously, there's only an incredibly niche
             case for changing this and chances are you aren't in it.

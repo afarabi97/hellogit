@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { KickstartInventoryForm, NodeFormGroup } from '../kickstart-form/kickstart-form';
-import {ActivatedRoute} from '@angular/router';
-import { KitInventoryForm, SensorFormGroup, ServerFormGroup } from '../kit-form/kit-form';
+import { ActivatedRoute } from '@angular/router';
+import { KitInventoryForm, SensorForm, ServerForm } from '../kit-form/kit-form';
 import { FormControl, FormArray } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 
@@ -16,8 +16,8 @@ export class HelpComponent implements OnInit {
   kickstart: KickstartInventoryForm;
   kickstartNode: NodeFormGroup;
   kitForm: KitInventoryForm;
-  kitServer: ServerFormGroup;
-  kitSensor: SensorFormGroup;
+  kitServer: ServerForm;
+  kitSensor: SensorForm;
   
   private fragment: string;
   
@@ -25,8 +25,8 @@ export class HelpComponent implements OnInit {
     this.kickstart = new KickstartInventoryForm();
     this.kickstartNode = new NodeFormGroup(true);
     this.kitForm = new KitInventoryForm();
-    this.kitServer = new ServerFormGroup(true, null);
-    this.kitSensor = new SensorFormGroup(true, null, null);
+    this.kitServer = new ServerForm(null);
+    this.kitSensor = new SensorForm(null);
     this.route.fragment.subscribe(fragment => { this.fragment = fragment; });
   }
 

@@ -103,11 +103,8 @@ def _change_time_on_nodes(payload: Dict, password: str) -> None:
     :return: None
     """
     timeForm = payload['timeForm']
-    for server in payload['kitForm']["servers"]:
-        _execute_cmds(timeForm, password, server["host_server"])
-
-    for sensor in payload['kitForm']["sensors"]:
-        _execute_cmds(timeForm, password, server["host_server"])
+    for node in payload['kitForm']["nodes"]:
+        _execute_cmds(timeForm, password, node["management_ip_address"])    
 
 
 def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:

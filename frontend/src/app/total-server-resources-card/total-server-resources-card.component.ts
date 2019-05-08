@@ -11,11 +11,6 @@ export class TotalServerResourcesCardComponent implements OnInit {
   @Input()
   totalServerResources: TotalServerResources;
 
-
-  @Input()
-  isPercentagesHidden: boolean;
-
-
   constructor() { }
 
   ngOnInit() {

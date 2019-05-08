@@ -6,7 +6,7 @@ from kubernetes import client, config
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
-from shared.constants import KIT_ID, DATE_FORMAT_STR, KICKSTART_ID
+from shared.constants import KIT_ID, DATE_FORMAT_STR, KICKSTART_ID, NODE_TYPES
 from shared.utils import decode_password
 from typing import Dict, Tuple
 
@@ -148,10 +148,11 @@ def get_master_node_ip_and_password(kit_form: Dict) -> str:
     :param kit_form:
     :return:
     """
-    for server in kit_form["servers"]:
+    for node in kit_form["nodes"]:
         try:
-            if server["is_master_server"]:
-                return server["host_server"]
+            if node["node_type"] == NODE_TYPES[0]:
+                if node["is_master_server"]:
+                    return node["management_ip_address"]
         except KeyError:
             pass
 

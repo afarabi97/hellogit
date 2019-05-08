@@ -10,10 +10,11 @@ export class ArchiveService {
 
   constructor(private http: HttpClient) { }
 
-  archiveForm(archiveForm: Object, pageForm: Object, formKey: string){
+  archiveForm(archiveForm: Object, pageForm: Object, formKey: string){    
     const url = '/api/archive_form';
     archiveForm['config_id'] = formKey
     archiveForm['form'] = pageForm
+    console.log(archiveForm);
     return this.http.post(url, archiveForm, HTTP_OPTIONS);
   }
 

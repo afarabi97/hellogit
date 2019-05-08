@@ -3,14 +3,44 @@ from app.resources import (NodeResources,
                            NodeResourcePool,
                            convert_GiB_to_KiB,
                            convert_KiB_to_GiB)
-from typing import Dict, List
+from typing import Dict, List, Tuple
+from shared.constants import NODE_TYPES
 
+
+def get_servers_from_list(nodes: List) -> List:
+    ret_val = []
+    for node in nodes:
+        if node["node_type"] == NODE_TYPES[0]:
+            ret_val.append(node)
+    return ret_val
+
+
+def get_sensors_from_list(nodes: List) -> List:
+    ret_val = []
+    for node in nodes:
+        if node["node_type"] == NODE_TYPES[1]:
+            ret_val.append(node)
+    return ret_val
+
+
+def server_and_sensor_count(nodes: List) -> Tuple[int, int]:
+    server_count = 0
+    sensor_count = 0
+    for node in nodes:        
+        if node["node_type"] == NODE_TYPES[0]:
+            server_count += 1
+        elif node["node_type"] == NODE_TYPES[1]:
+            sensor_count += 1
+    return server_count, sensor_count
+            
 
 class KitPercentages:
     def __init__(self, kit_form: Dict):
         self._kit_form = kit_form
-        self._server_res_pool = NodeResourcePool(kit_form["servers"])
-        self._is_override_percentages = self._kit_form["enable_percentages"]
+        self._sensor_list = get_sensors_from_list(kit_form["nodes"])
+        self._server_list = get_servers_from_list(kit_form["nodes"])
+        self._server_res_pool = NodeResourcePool(self._server_list)
+        self._is_override_percentages = False
         allocatable = self._server_res_pool.pool_cpu_allocatable        
         if allocatable > 16000:
             self._is_home_build = False
@@ -30,8 +60,7 @@ class KitPercentages:
         self._moloch_mem_limit = 80
         self._bro_cpu_perc = 25
         self._suricata_cpu_perc = 40
-
-        sensor_apps = self._kit_form["sensors"][sensor_index]["sensor_apps"]
+        sensor_apps = self._sensor_list[sensor_index]["sensor_apps"]
         if len(sensor_apps) == 3:
             return
 
@@ -90,7 +119,7 @@ class KitPercentages:
     # BEGIN SENSOR PERCENTAGES
     def moloch_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            ret_val = int(self._kit_form["sensors"][sensor_index]["moloch_cpu_percentage"])
+            ret_val = int(self._kit_form["nodes"][sensor_index]["moloch_cpu_percentage"])
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._moloch_cpu_perc
@@ -99,7 +128,7 @@ class KitPercentages:
     
     def bro_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            ret_val = int(self._kit_form["sensors"][sensor_index]["bro_cpu_percentage"])
+            ret_val = int(self._kit_form["nodes"][sensor_index]["bro_cpu_percentage"])
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._bro_cpu_perc
@@ -108,7 +137,7 @@ class KitPercentages:
     
     def suricata_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            ret_val = int(self._kit_form["sensors"][sensor_index]["suricata_cpu_percentage"])
+            ret_val = int(self._kit_form["nodes"][sensor_index]["suricata_cpu_percentage"])
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._suricata_cpu_perc
@@ -116,7 +145,7 @@ class KitPercentages:
 
     def moloch_mem_limit_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
-            ret_val = int(self._kit_form["sensors"][sensor_index]["moloch_mem_limit"])
+            ret_val = int(self._kit_form["nodes"][sensor_index]["moloch_mem_limit"])
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._moloch_mem_limit
@@ -128,9 +157,10 @@ class ServerCalculations:
     def __init__(self, kit_form: Dict):
         self._kit_form = kit_form
         self._percentages = KitPercentages(kit_form)
-        self._num_servers = len(kit_form["servers"])
-        self._num_sensors = len(kit_form["sensors"])
-        self._server_res_pool = NodeResourcePool(self._kit_form["servers"])
+        server_count, sensor_count = server_and_sensor_count(kit_form["nodes"])
+        self._num_servers = server_count
+        self._num_sensors = sensor_count
+        self._server_res_pool = NodeResourcePool(get_servers_from_list(self._kit_form["nodes"]))
         self._log_stash_cpu_request = 0        
         self._elastic_cpu_request = 0
         self._elastic_mem_request = 0
@@ -324,10 +354,11 @@ class NodeCalculations:
                  kit_form: Dict):
         self._kit_form = kit_form
         self._percentages = KitPercentages(self._kit_form)
-        self._num_servers = len(kit_form["servers"])
-        self._num_sensors = len(kit_form["sensors"])
+        server_count, sensor_count = server_and_sensor_count(kit_form["nodes"])
+        self._num_servers = server_count
+        self._num_sensors = sensor_count
         self._node_values = []
-        for index, sensor in enumerate(kit_form["sensors"]):
+        for index, sensor in enumerate(get_sensors_from_list(kit_form["nodes"])):
             self._node_values.append(NodeValues(index, sensor, self._percentages))
 
     @property

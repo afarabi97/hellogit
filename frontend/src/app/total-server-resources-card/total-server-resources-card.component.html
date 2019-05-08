@@ -9,13 +9,8 @@
     <p class="card-text">Memory Available:
       <span>{{ totalServerResources.memoryAvailable | number:'1.0-2' }}</span> GB
     </p>
-    <p class="card-text">Clustered Storage Available:
+    <p class="card-text">Elasticsearch Storage Available:
       <span>{{ totalServerResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB
     </p>
-
-    <div *ngIf="!isPercentagesHidden">
-      <h5>Advanced Settings</h5>
-      <app-text-input [parentForm]="totalServerResources" controlName="elastic_curator_threshold"></app-text-input>      
-    </div>
   </div>
 </div>

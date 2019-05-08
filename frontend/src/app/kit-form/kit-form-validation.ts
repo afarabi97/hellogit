@@ -1,8 +1,9 @@
 import { FormArray, AbstractControl } from '@angular/forms';
 import { HtmlDropDown } from '../html-elements';
-import { ServerFormGroup, SensorFormGroup, SensorsFormArray, ServersFormArray, KitInventoryForm } from './kit-form';
+import { ServerForm, SensorForm, KitNodeFormGroup, KitNodesFormArray, KitInventoryForm } from './kit-form';
 import { IP_CONSTRAINT } from '../frontend-constants';
 import { CheckForInvalidControls } from '../globals';
+import { NodesFormArray } from '../kickstart-form/kickstart-form';
 
 /**
  * Ensures that the user has selected at least one server as a master.
@@ -10,53 +11,62 @@ import { CheckForInvalidControls } from '../globals';
  * @param control - The KitForm Group
  * @param errors - An array of strings to display.
  */
-function _validateMasterServer(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    if (servers != null){
-        for (let i = 0; i < servers.length; i++) {
-            let server = servers.at(i) as ServerFormGroup;
-            if  (server.is_master_server.value){
-                return;
+function _validateMasterServer(control: AbstractControl, errors: Array<string>): void {    
+    let nodes = control.get('nodes') as KitNodesFormArray;
+    if (nodes != null){
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (node instanceof ServerForm){
+                if  (node.is_master_server.value){
+                    return;
+                }
             }
+            
         }
     }
     errors.push("- Master server failed to validate. Did you remember to select a master server? (It's the checkbox that says 'Is Kubernetes master server?')");
 }
 
 function _validate_esdata_drives(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    if (servers != null){
-        for (let i = 0; i < servers.length; i++) {
-            let server = servers.at(i) as ServerFormGroup;
-            if(server.es_drives.length !== 1) {
-                errors.push("- ES data drives failed to validate on " + server.hostname.value + 
-                            ". You need to select at least one drive for this server.")
+    let nodes = control.get('nodes') as KitNodesFormArray;
+    if (nodes != null){
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (node instanceof ServerForm){
+                if(node.es_drives.length < 1) {
+                    errors.push("- ES data drives failed to validate on " + node.hostname.value + 
+                                ". You need to select at least one drive for this server.")
+                }
             }
         }
     }
 }
 
 function _validate_pcap_drives(control: AbstractControl, errors: Array<string>): void {
-    let sensors = control.get('sensors') as SensorsFormArray;
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++) {
-            let sensor = sensors.at(i) as SensorFormGroup;
-            if(sensor.pcap_drives.length !== 1) {
-                errors.push("- PCAP drives failed to validate on " + sensor.hostname.value + 
-                            ". You need to select one PCAP drive for this sensor.")
+    let nodes = control.get('nodes') as KitNodesFormArray;
+    if (nodes != null){
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (node instanceof SensorForm){
+                if(node.pcap_drives.length !== 1) {
+                    errors.push("- PCAP drives failed to validate on " + node.hostname.value + 
+                                ". You need to select one PCAP drive for this sensor.")
+                }
             }
         }
     }
 }
 
 function _validate_selected_sensor_applications(control: AbstractControl, errors: Array<string>): void {
-    let sensors = control.get('sensors') as SensorsFormArray;
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
-            let sensor = sensors.at(i) as SensorFormGroup;
-            if(sensor.sensor_apps.length < 1){
-                errors.push("- Sensor applications failed to validate on " + sensor.hostname.value + 
-                            ". You need to select at least one application.")
+    let nodes = control.get('nodes') as KitNodesFormArray;
+    if (nodes != null){
+        for (let i = 0; i < nodes.length; i++){
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (node instanceof SensorForm){
+                if(node.sensor_apps.length < 1){
+                    errors.push("- Sensor applications failed to validate on " + node.hostname.value + 
+                                ". You need to select at least one application.")
+                }
             }
         }
     }   
@@ -69,14 +79,16 @@ function _validate_selected_sensor_applications(control: AbstractControl, errors
  * @param errors - An array of strings to display.
  */
 function _validateMonitorInterfaces(control: AbstractControl, errors: Array<string>): void {
-    let sensors = control.get('sensors') as SensorsFormArray;
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
-            let sensor = sensors.at(i) as SensorFormGroup;
-            if (sensor.monitor_interface.length == 0) {
-                errors.push("- Monitor interfaces failed to validate on " + sensor.hostname.value + 
-                            ". You need to select at least one monitor interface on each sensor.");
-                break;
+    let nodes = control.get('nodes') as KitNodesFormArray;
+    if (nodes != null){
+        for (let i = 0; i < nodes.length; i++){
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (node instanceof SensorForm){
+                if (node.monitor_interface.length == 0) {
+                    errors.push("- Monitor interfaces failed to validate on " + node.hostname.value + 
+                                ". You need to select at least one monitor interface on each sensor.");
+                    break;
+                }
             }
         }
     }
@@ -153,25 +165,14 @@ function _validateExternalNet(control: AbstractControl, errors: Array<string>): 
  * @param control - The KitForm Group
  * @param errors - An array of strings to display.
  */
-function _validateHosts(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    let sensors = control.get('sensors') as SensorsFormArray;
+function _validateHosts(control: AbstractControl, errors: Array<string>): void {    
+    let nodes = control.get('nodes') as KitNodesFormArray;
     let invalid_host:string = '- Invalid hostname. Did you forget to click "Gather Facts" on one of your sensors or servers?';
 
-    if (servers != null) {
-        for (let i = 0; i < servers.length; i++) {
-            let server = servers.at(i) as ServerFormGroup;
-            if (!server.hostname.valid){
-                errors.push(invalid_host);
-                return;
-            }
-        }
-    }
-
-    if (sensors != null){
-        for (let i = 0; i < sensors.length; i++){
-            let sensor = sensors.at(i) as SensorFormGroup;
-            if (!sensor.hostname.valid){
+    if (nodes) {
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+            if (!node.hostname.valid){
                 errors.push(invalid_host);
                 return;
             }
@@ -180,17 +181,27 @@ function _validateHosts(control: AbstractControl, errors: Array<string>): void {
 }
 
 function _validateSensorAndServerCounts(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    let sensors = control.get('sensors') as SensorsFormArray;
+    let nodes = control.get('nodes') as KitNodesFormArray;
 
-    if (servers != null) {
-        if (servers.length < 1){
+    if (nodes) {
+        let server_count = 0;
+        let sensor_count = 0;
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+
+            if (node instanceof ServerForm){
+                server_count += 1;
+            } else if (node instanceof SensorForm){
+                sensor_count += 1
+            }
+
+        }
+
+        if (server_count < 1){
             errors.push('- Invalid server count. You should have at least one server defined.');
         }
-    }
 
-    if (sensors != null) {
-        if (sensors.length < 1){
+        if (sensor_count < 1){
             errors.push('- Invalid sensor count. You should have at least one sensor defined.');
         }
     }
@@ -203,31 +214,23 @@ function _validateSensorAndServerCounts(control: AbstractControl, errors: Array<
  * @param errors - An array of strings to display.
  */
 function _validateIps(control: AbstractControl, errors: Array<string>): void {
-    let servers = control.get('servers') as ServersFormArray;
-    let sensors = control.get('sensors') as SensorsFormArray;
+    let nodes = control.get('nodes') as KitNodesFormArray;
     let ips: Array<string> = [];
 
-    if (servers != null) {
-        for (let i = 0; i < servers.length; i++) {
-            let server = servers.at(i) as ServerFormGroup;
-            ips.push(server.host_server.value);
+    if (nodes != null) {
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes.at(i) as KitNodeFormGroup;
+            ips.push(node.management_ip_address.value);
         }
     }
-
-    if (sensors != null) {
-        for (let i = 0; i < sensors.length; i++) {
-            let sensor = sensors.at(i) as SensorFormGroup;
-            ips.push(sensor.host_sensor.value);
-        }
-    }
-
+    
     for (let i = 0; i < ips.length; i++) {
         let ipA = ips[i];
 
         for (let x = (i + 1); x < ips.length; x++) {
             let ipB = ips[x];
 
-            if (ipA == ipB){
+            if (ipA === ipB){
                 errors.push('- Duplicate ips have been detected. Please make sure you do not have duplicate ips in your form.')
                 return;
             }
@@ -249,54 +252,43 @@ function _validate_endgame_ip(control: AbstractControl){
     }
 }
 
-function _validate_advanced_percentages(control: AbstractControl, errors: Array<string>){
-    let kitForm = control as KitInventoryForm;
-    if (kitForm === undefined || 
-        kitForm === null || 
-        kitForm.enable_percentages === undefined ||
-        kitForm.enable_percentages.value === null ||
-        kitForm.sensors === undefined ||
-        kitForm.sensors === null
-        ){
-        return;
-    }    
-    if (kitForm.enable_percentages.value){
-        for (let i = 0; i < kitForm.sensors.length; i++) {
-            let sensor = kitForm.sensors.at(i) as SensorFormGroup;
-            if ((parseInt(sensor.bro_cpu_percentage.value) + 
-                parseInt(sensor.moloch_cpu_percentage.value) + 
-                parseInt(sensor.suricata_cpu_percentage.value)) > 100) {
-                errors.push('- Bro, Suricata, and Moloch percentage overrides \
-                            cannot exceed 100 on ' + sensor.hostname.value + '.');
-            }
-        }
-    }
-}
-
 function _validate_server_cpu_mem(control: AbstractControl, errors: Array<string>){
-    let servers = control.get('servers') as ServersFormArray;    
+    let nodes = control.get('nodes') as NodesFormArray;    
     let ips: Array<string> = [];
 
     const msg = '- One or more server have differing amounts of CPU cores or memory. Each server is required to have the same hardware!';
-    if (servers != null && servers.length > 1) {
+    if (nodes != null && nodes.length > 1) {
         outer:
-        for (let i = 0; i < servers.length; i++) {
-            let server_i = servers.at(i) as ServerFormGroup;
-            if (server_i.deviceFacts === null){
+        for (let i = 0; i < nodes.length; i++) {
+            let node_i = nodes.at(i) as KitNodeFormGroup;
+            if (node_i.deviceFacts === null){
                 break;
             }
-            for (let x = 0; x < servers.length; x++) {
-                let server_x = servers.at(i) as ServerFormGroup;
-                if (server_i.deviceFacts['cpus_available'] !== server_x.deviceFacts['cpus_available']){
+
+            if (node_i instanceof SensorForm){
+                continue;
+            }
+
+            for (let x = 0; x < nodes.length; x++) {
+                let node_x = nodes.at(x) as KitNodeFormGroup;
+                if (node_x.deviceFacts === null){
+                    break;
+                }
+
+                if (node_x instanceof SensorForm){
+                    continue;
+                }
+
+                if (node_i.deviceFacts['cpus_available'] !== node_x.deviceFacts['cpus_available']){
                     errors.push(msg)
                     break outer;
                 }
 
-                if (Math.ceil(server_i.deviceFacts['memory_available']) !== Math.ceil(server_x.deviceFacts['memory_available'])){
+                if (Math.ceil(node_i.deviceFacts['memory_available']) !== Math.ceil(node_x.deviceFacts['memory_available'])){
                     errors.push(msg)
                     break outer;
                 }
-            }
+            } 
         }
     }
 }
@@ -319,8 +311,7 @@ export function ValidateKitInventory(control: AbstractControl): { errors: Array<
     _validateExternalNet(control, errors);
     _validateHosts(control, errors);
     _validateIps(control, errors);
-    _validateSensorAndServerCounts(control, errors);    
-    _validate_advanced_percentages(control, errors);
+    _validateSensorAndServerCounts(control, errors);
     _validate_server_cpu_mem(control, errors);
     CheckForInvalidControls(control, errors);
     _validate_endgame_ip(control);

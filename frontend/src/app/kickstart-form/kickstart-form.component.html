@@ -68,7 +68,6 @@
             </h5>
           </div>
           <div *ngIf="!node.hidden" class="card-body">
-            <app-dropdown [parentForm]="node" controlName="node_type" (dropDownChanged)="nodeTypeChange()" uid="{{ i }}"></app-dropdown>
             <app-text-input [parentForm]="node" controlName="hostname" uid="{{ i }}"></app-text-input>
             <app-text-input [parentForm]="node" controlName="ip_address" uid="{{ i }}" (buttonClick)="openIPSelector(i)"></app-text-input>
             <app-text-input [parentForm]="node" controlName="mac_address" uid="{{ i }}"></app-text-input>

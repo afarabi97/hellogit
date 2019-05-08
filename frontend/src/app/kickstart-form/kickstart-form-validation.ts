@@ -48,21 +48,6 @@ function _validateNodes(control: AbstractControl, errors: Array<string>): void {
     if (nodes.length < 2){
         errors.push("- A minimum of two nodes is required before submitting this form.");
     }
-
-    for (let i = 0; i < nodes.length; i++){
-        let node = nodes.at(i) as NodeFormGroup;
-        if (node.node_type.value == node.node_type.options[0] || node.node_type.value == node.node_type.options[3] ){
-            has_servers = true;
-        } else {
-            has_sensors = true;
-        }
-        if (has_servers && has_sensors){
-            return;
-        }
-    }
-    if ((!has_sensors || !has_servers)){
-        errors.push("- A minium of one server and one sensor is required for the Kickstart configuration.");
-    }
 }
 
 function _validateContorllerInterface(control: AbstractControl, errors: Array<string>): void {

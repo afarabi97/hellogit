@@ -6,7 +6,7 @@ import sys
 
 from connection_wrappers import FabricConnection, MongoConnectionManager, KubernetesWrapper, objectify
 from fabric.runners import Result
-from fabfiles import KIT_ID, decode_password, KICKSTART_ID, RULESET_STATES
+from fabfiles import KIT_ID, decode_password, KICKSTART_ID, RULESET_STATES, NODE_TYPES
 from fabfiles.utils import get_suricata_pod_name
 from logging.handlers import RotatingFileHandler
 from logging import Logger, StreamHandler
@@ -46,15 +46,16 @@ class RuleSynchronization():
 
     def _clear_enabled_rulesets(self, kit: Dict):
         ids_to_reset = []
-        for sensor in kit["form"]["sensors"]:
-            ip_address = sensor['deviceFacts']['default_ipv4_settings']['address']
-            for rule_set in self.rule_sets:
-                if self._is_sensor_in_ruleset(ip_address, rule_set):
-                    try:
-                        if rule_set["isEnabled"]:
-                            ids_to_reset.append(rule_set['_id'])
-                    except KeyError as e:
-                        logger.error("Failed to clear " + str(rule_set))
+        for node in kit["form"]["nodes"]:
+            if node["node_type"] == NODE_TYPES[1]:
+                ip_address = node['deviceFacts']['default_ipv4_settings']['address']
+                for rule_set in self.rule_sets:
+                    if self._is_sensor_in_ruleset(ip_address, rule_set):
+                        try:
+                            if rule_set["isEnabled"]:
+                                ids_to_reset.append(rule_set['_id'])
+                        except KeyError as e:
+                            logger.error("Failed to clear " + str(rule_set))
 
         self.mongo.mongo_ruleset.update_many({'_id': {'$in': ids_to_reset}}, {'$set': {'state': []}})
 
@@ -109,10 +110,13 @@ class RuleSynchronization():
                 self.rule_sets = list(self.mongo.mongo_ruleset.find({}))
                 self._clear_enabled_rulesets(kit)
                 
-                for sensor in kit["form"]["sensors"]:
+                for node in kit["form"]["nodes"]:
+                    if node["node_type"] != NODE_TYPES[1]:
+                        continue
+
                     try:
-                        ip_address = sensor['deviceFacts']['default_ipv4_settings']['address']
-                        hostname = sensor['deviceFacts']['hostname']
+                        ip_address = node['deviceFacts']['default_ipv4_settings']['address']
+                        hostname = node['deviceFacts']['hostname']
                         logger.info("Synchronizing Rule Sets for {}.".format(hostname))
                         pod_name = get_suricata_pod_name(ip_address, self.mongo)
                         rules_file = self._build_rule_file(ip_address)

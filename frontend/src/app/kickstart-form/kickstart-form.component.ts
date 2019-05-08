@@ -11,8 +11,6 @@ import { Router } from '@angular/router';
 import { KICKSTART_ID, CTRL_SELECTED } from '../frontend-constants';
 import { isIpv4InSubnet } from '../globals';
 
-const NODE_PATTERN = new RegExp('^(server|sensor|controller)[0-9]?[.]lan$');
-
 @Component({
   selector: 'app-kickstart-form',
   templateUrl: './kickstart-form.component.html',
@@ -221,8 +219,7 @@ export class KickstartFormComponent implements OnInit {
     }
   }
 
-  refreshDHCPRange(ctrlips: Array<string>, setValue: boolean=true){
-    this.nodeTypeChange();
+  refreshDHCPRange(ctrlips: Array<string>, setValue: boolean=true) {
     if (ctrlips.length === 0){
       this.kickStartForm.dhcpRangeText = CTRL_SELECTED;
     } else {
@@ -315,7 +312,6 @@ export class KickstartFormComponent implements OnInit {
 
   addNode(){
     this.kickStartForm.addNodeGroup();
-    this.nodeTypeChange();
   }
 
   toggleNode(node: NodeFormGroup) {
@@ -364,70 +360,10 @@ export class KickstartFormComponent implements OnInit {
     });
   }
 
-  private _resetNodes(srvOrSensors: Array<NodeFormGroup>, node_type: String) {
-    for (let i = 0; i < srvOrSensors.length; i++) {
-      let node: NodeFormGroup = srvOrSensors[i];
-      let isMatch = NODE_PATTERN.test(node.hostname.value);
-      if (node.hostname.value == "" || isMatch == true) {
-        if (node_type === "Server") {
-          let newHostName: string = "server" + (i + 1) + '.lan';
-          if(!node.hostname.dirty){
-            node.hostname.setValue(newHostName);
-            node.enable();
-          }
-        } else if (node_type === "Sensor"){
-          if(!node.hostname.dirty){
-            let newHostName: string = "sensor" + (i + 1) + '.lan';
-            node.hostname.setValue(newHostName);
-            node.enable();
-          }
-        } else if (node_type === "Controller") {
-          let newHostName: string = this.deviceFacts["hostname"];
-          node.hostname.setValue(newHostName);
-          node.ip_address.setDefaultValue(this.kickStartForm.value.controller_interface[0]);
-          let mac_address = this.findrightmacaddress();
-          node.mac_address.setDefaultValue(mac_address[0]["mac_address"]);
-          node.hostname.disable();
-          node.ip_address.disable();
-          node.pxe_type.disable();
-          node.boot_drive.disable();
-          node.mac_address.disable();
-
-        }
-      }
-    }
-  }
-
   findrightmacaddress(): string {
     return this.deviceFacts["interfaces"].filter( i => {
       return i["ip_address"] === this.kickStartForm.value.controller_interface[0];
     });
-  }
-
-  /**
-   * Triggered when a user selects a new nodeType for a given node.
-   *
-   * @param value - The new value of the dropdown.
-   * @param index - The current index the node is in the list.
-   */
-  nodeTypeChange(): void {
-    let sensorArray:Array<NodeFormGroup> = [];
-    let serverArray:Array<NodeFormGroup> = [];
-    let controllerArray:Array<NodeFormGroup> = [];
-    for (let i = 0; i < this.kickStartForm.nodes.length; i++) {
-      let node = this.kickStartForm.nodes.at(i) as NodeFormGroup;
-      if (node.node_type.value === "Server"){
-        serverArray.push(node);
-      } else if  (node.node_type.value === "Sensor" || node.node_type.value === "Remote Sensor"){
-        sensorArray.push(node);
-      } else if(node.node_type.value === "Controller") {
-        controllerArray.push(node);
-      }
-    }
-
-    this._resetNodes(sensorArray, "Sensor");
-    this._resetNodes(serverArray, "Server");
-    this._resetNodes(controllerArray, "Controller");
   }
 
   openIPSelector(node_index: number){

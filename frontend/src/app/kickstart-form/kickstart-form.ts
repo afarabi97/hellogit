@@ -14,7 +14,6 @@ export class NodeFormGroup extends FormGroup {
     super.addControl('mac_address', this.mac_address);
     super.addControl('boot_drive', this.boot_drive);
     super.addControl('pxe_type', this.pxe_type);
-    super.addControl('node_type', this.node_type);
     this.hidden = hidden;
     this.isDisabled = isDisabled;
   }
@@ -33,7 +32,6 @@ export class NodeFormGroup extends FormGroup {
     this.mac_address.disable();
     this.boot_drive.disable();
     this.pxe_type.disable();
-    this.node_type.disable();
     this.isDisabled = true;
   }
 
@@ -45,8 +43,7 @@ export class NodeFormGroup extends FormGroup {
     this.ip_address.enable();
     this.mac_address.enable();
     this.boot_drive.enable();
-    this.pxe_type.enable();
-    this.node_type.enable();
+    this.pxe_type.enable();    
     this.isDisabled = false;
   }
 
@@ -57,9 +54,7 @@ export class NodeFormGroup extends FormGroup {
     onlySelf?: boolean;
     emitEvent?: boolean;
   }): void {
-    super.reset({'pxe_type': this.pxe_type.default_value,
-                 'node_type': this.node_type.default_value
-    });
+    super.reset({'pxe_type': this.pxe_type.default_value});
   }
 
   hostname = new HtmlInput(
@@ -126,16 +121,7 @@ export class NodeFormGroup extends FormGroup {
        By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
        BIOS is sometimes called Legacy in the bios settings.",
     'BIOS'
-  )
-
-  //['Server', 'Sensor', 'Remote Sensor', 'Controller'],
-  node_type = new HtmlDropDown(
-    'node_type',
-    'Node Type',
-    ['Server', 'Sensor', 'Remote Sensor'],
-    "The Node Type referes to whether or not the node is a server, sensor or remote sensor.",
-    'Server'
-  )
+  )  
 }
 
 export class NodesFormArray extends FormArray {

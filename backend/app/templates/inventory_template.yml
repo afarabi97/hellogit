@@ -160,7 +160,6 @@ all:
     # can. Kubernetes will decide where to place instances based on resource consumption.
     elasticsearch:
       children:
-        master-server:
         servers:
 
     # Any host in this group will be eligible to run Logstash. By default this is
@@ -181,15 +180,22 @@ all:
     # Any host in this group will run Bro. By default this is all sensors and remote
     # sensors
     bro: {% if template_ctx.has_bro %}
-      hosts: {% for sensor in template_ctx.sensors %}{% if 'bro' in sensor.sensor_apps %}
-        {{ sensor.hostname }}: {% endif %}{% endfor %}
+      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'bro' in node.sensor_apps %}
+        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
       {% endif %}
 
     # Any host in this group will run Moloch. By default this is all sensors and
     # remote sensors
     moloch: {% if template_ctx.has_moloch %}
-      hosts: {% for sensor in template_ctx.sensors %}{% if 'moloch' in sensor.sensor_apps %}
-        {{ sensor.hostname }}: {% endif %}{% endfor %}
+      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'moloch' in node.sensor_apps %}
+        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
+      {% endif %}
+
+    # Any host in this group will run Suricata. By default this is all sensors
+    # and remote sensors
+    suricata: {% if template_ctx.has_suricata %}
+      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'suricata' in node.sensor_apps %}
+        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
       {% endif %}
 
     nodes:
@@ -202,17 +208,19 @@ all:
     # Here you will define any variables specific to each sensor host.
 
         sensors:
-          {% if template_ctx.sensor_local_count > 0 %}
+          {% if template_ctx.sensor_count > 0 %}
           hosts:
-
-          {% for sensor in template_ctx.sensors %}
-            {% if sensor.sensor_type == "Local" %}
+          {% endif %}
+          {% for node in template_ctx.nodes %}
+            {% if node.node_type == "Sensor" %}
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
-            {{ sensor.hostname }}:
+            {{ node.hostname }}:
 
               # Applications
-              suricata: {{ sensor.has_suricata }}
+              suricata: {{ node.has_suricata }}
+              bro: {{ node.has_bro }}
+              moloch: {{ node.has_moloch }}
               
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
@@ -224,49 +232,49 @@ all:
               # The amount of milli CPUs that will be reserved for the host Operating system.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
-              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}
+              sys_cpu_reserve: {{ node.reservations.sys_cpu_reserve }}
 
               # The amount of KiB that will be reserved for the host operating system.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
-              sys_mem_reserve: {{ sensor.reservations.sys_mem_reserve }}
+              sys_mem_reserve: {{ node.reservations.sys_mem_reserve }}
 
               # The amount of milli CPUs that will be reserved for the kubernetes services.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
-              kube_cpu_reserve: {{ sensor.reservations.kube_cpu_reserve }}
+              kube_cpu_reserve: {{ node.reservations.kube_cpu_reserve }}
 
               # The amount of KiB that will be reserved for the kubernetes services.
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
-              kube_mem_reserve: {{ sensor.reservations.kube_mem_reserve }}
+              kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
               
               # This is the management IP address of the node. Ex: 192.168.1.198
               # This is the address Ansible will use to communicate with.
-              management_ipv4: "{{ sensor.host_sensor }}"
+              management_ipv4: "{{ node.management_ip_address }}"
 
-              bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
-              moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
-              suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
-              moloch_mem_limit: {{ sensor.cal.moloch_mem_limit | int }}Gi
+              bro_cpu_request: {{ node.cal.bro_cpu_request | int }}m
+              moloch_cpu_request: {{ node.cal.moloch_cpu_request | int }}m
+              suricata_cpu_request: {{ node.cal.suricata_cpu_request | int }}m
+              moloch_mem_limit: {{ node.cal.moloch_mem_limit | int }}Gi
 
               # This is the number of bro workers which will spawn on the sensor
-              bro_workers: {{ sensor.cal.bro_workers }}
+              bro_workers: {{ node.cal.bro_workers }}
 
               # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: {{ sensor.cal.moloch_threads }}
+              moloch_threads: {{ node.cal.moloch_threads }}
+              is_remote: {{ node.is_remote }}
 
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
               sensor_monitor_interface:
-              {% for interface in sensor.monitor_interface %}
+              {% for interface in node.monitor_interface %}
                 - {{ interface }}{% endfor %}
 
               # The drive specified here will be dedicated to PCAP collection.
-              pcap_disk: {% if sensor.pcap_drives is not none and sensor.pcap_drives|length > 0 %}{{ "/dev/" + sensor.pcap_drives[0] }}{% endif %}
+              pcap_disk: {% if node.pcap_drives is not none and node.pcap_drives|length > 0 %}{{ "/dev/" + node.pcap_drives[0] }}{% endif %}
             {% endif %}
           {% endfor %}
-          {% endif %}
 
         # If you have a deployment where the majority of the kit is in one location,
         # but some sensors remotely deployed away from the central servers put them
@@ -276,32 +284,6 @@ all:
         #everything after the group name empty. Ex: you could have an inventory
         #with just "remote-sensors:", but no hosts defined.
         remote-sensors:
-        {% if template_ctx.sensor_remote_count > 0 %}
-          hosts:
-            {% for sensor in template_ctx.sensors %}
-            {% if sensor.sensor_type == "Remote" %}
-            {{ sensor.hostname }}:
-              ansible_user: root
-              bro_cpu_request: {{ sensor.cal.bro_cpu_request | int }}m
-              moloch_cpu_request: {{ sensor.cal.moloch_cpu_request | int }}m
-              suricata_cpu_request: {{ sensor.cal.suricata_cpu_request | int }}m
-              moloch_mem_limit: {{ sensor.cal.moloch_mem_limit | int }}Gi
-              bro_workers: {{ sensor.cal.bro_workers }}
-              moloch_threads: {{ sensor.cal.moloch_threads }}
-              pcap_disk: {{ "/dev/" + sensor.pcap_drives[0] }}
-              
-              sys_cpu_reserve: {{ sensor.reservations.sys_cpu_reserve }}
-              sys_mem_reserve: {{ sensor.reservations.sys_mem_reserve }}
-              kube_cpu_reserve: {{ sensor.reservations.kube_cpu_reserve }}
-              kube_mem_reserve: {{ sensor.reservations.kube_mem_reserve }}
-              management_ipv4: {{ sensor.host_sensor }}
-              sensor_monitor_interface:
-                {% for interface in sensor.monitor_interface %}
-                - {{ interface }}
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-        {% endif %}
 
     #############################
     # Server Settings           #
@@ -313,55 +295,28 @@ all:
     # only.
 
         servers:
-          {% if template_ctx.servers | length > 1 %}
+          {% if template_ctx.server_count > 0 %}
           hosts:
           {% endif %}
-            {% for server in template_ctx.servers %}
-            {% if not server.is_master_server %}
-            {{ server.hostname }}:
+            {% for node in template_ctx.nodes %}
+            {% if node.node_type == "Server" %}
+            {{ node.hostname }}:
               ansible_user: root
               ansible_connection: ssh
-              sys_cpu_reserve: {{ server.reservations.sys_cpu_reserve }}
-              sys_mem_reserve: {{ server.reservations.sys_mem_reserve }}
-              kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
-              kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
-              management_ipv4: {{ server.host_server }}
+              sys_cpu_reserve: {{ node.reservations.sys_cpu_reserve }}
+              sys_mem_reserve: {{ node.reservations.sys_mem_reserve }}
+              kube_cpu_reserve: {{ node.reservations.kube_cpu_reserve }}
+              kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
+              management_ipv4: {{ node.management_ip_address }}
+              is_master: {{ node.is_master_server }}
               es_data_drive_list:
-              {% for drive in server.es_drives %}
+              {% for drive in node.es_drives %}
                 - {{ "/dev/" + drive }}
               {% endfor %}
             {% endif %}
             {% endfor %}
 
         master-server:
-
-    #############################
-    # Master Server Settings    #
-    #############################
-
-    # See the sensor section for explanation of values. There can only be one master
-    # server. It's a bit like the Highlander that way. The master server is special
-    # in that it runs the Kubernetes master and is responsible for deploying services
-    # out to all the other hosts in the cluster. If you're interested in the specifics
-    # feel free to dig through the code.
-
-          hosts:
-            {% for server in template_ctx.servers %}
-            {% if server.is_master_server %}
-            {{ server.hostname }}:
-              ansible_user: root
-              ansible_connection: ssh
-              sys_cpu_reserve: {{ server.reservations.sys_cpu_reserve }}
-              sys_mem_reserve: {{ server.reservations.sys_mem_reserve }}
-              kube_cpu_reserve: {{ server.reservations.kube_cpu_reserve }}
-              kube_mem_reserve: {{ server.reservations.kube_mem_reserve }}
-              management_ipv4: {{ server.host_server }}
-              es_data_drive_list:
-              {% for drive in server.es_drives %}
-                - {{ "/dev/" + drive }}
-              {% endfor %}
-            {% endif %}
-            {% endfor %}
 
     nodes_to_remove:
       # Example: (you need to define your own hosts)

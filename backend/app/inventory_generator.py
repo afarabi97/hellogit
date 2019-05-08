@@ -7,8 +7,11 @@ from typing import Dict
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR
-from app.calculations import ServerCalculations, NodeCalculations
+from app.calculations import (ServerCalculations, NodeCalculations, 
+                              get_sensors_from_list, get_servers_from_list, 
+                              server_and_sensor_count)
 from app.resources import NodeResourcePool, NodeResources
+from shared.constants import NODE_TYPES
 
 
 JINJA_ENV = Environment(
@@ -69,8 +72,11 @@ class KitInventoryGenerator:
         self._template_ctx = kit_form
         self._server_cal = ServerCalculations(self._template_ctx)
         self._sensor_cal = NodeCalculations(self._template_ctx)
-        self._server_res = NodeResourcePool(self._template_ctx["servers"])
-        self._sensor_res = NodeResourcePool(self._template_ctx["sensors"])
+
+        self._servers_list = get_servers_from_list(self._template_ctx["nodes"])
+        self._sensors_list = get_sensors_from_list(self._template_ctx["nodes"])
+        self._server_res = NodeResourcePool(self._servers_list)
+        self._sensor_res = NodeResourcePool(self._sensors_list)
 
     def _set_sensor_type_counts(self) -> None:
         """
@@ -78,50 +84,55 @@ class KitInventoryGenerator:
 
         :return: None
         """
-        sensor_remote_count = 0
-        sensor_local_count = 0
-
-        for sensor in self._template_ctx["sensors"]:
-            if sensor['sensor_type'] == "Remote":
-                sensor_remote_count += 1
-            else:
-                sensor_local_count += 1
-
-        self._template_ctx["sensor_local_count"] = sensor_local_count
-        self._template_ctx["sensor_remote_count"] = sensor_remote_count
+        server_count, sensor_count = server_and_sensor_count(self._template_ctx["nodes"])
+        self._template_ctx["server_count"] = server_count
+        self._template_ctx["sensor_count"] = sensor_count
 
     def _set_apps_bools(self) -> None:
         has_suricata = False
         has_moloch = False
         has_bro = False
-        for index, sensor in enumerate(self._template_ctx["sensors"]):
-            self._template_ctx["sensors"][index]["has_suricata"] = "false"
 
-            if "suricata" in sensor['sensor_apps']:
-                self._template_ctx["sensors"][index]["has_suricata"] = "true"
-                has_suricata = True
-            if "moloch" in sensor['sensor_apps']:
-                has_moloch = True
-            if "bro" in sensor['sensor_apps']:
-                has_bro = True
+        for index, node in enumerate(self._template_ctx["nodes"]):
+            self._template_ctx["nodes"][index]["has_suricata"] = False
+            self._template_ctx["nodes"][index]["has_moloch"] = False
+            self._template_ctx["nodes"][index]["has_bro"] = False
+            if node["node_type"] == NODE_TYPES[1]:
+                if "suricata" in node['sensor_apps']:
+                    self._template_ctx["nodes"][index]["has_suricata"] = True
+                    has_suricata = True
+                if "moloch" in node['sensor_apps']:
+                    self._template_ctx["nodes"][index]["has_moloch"] = True
+                    has_moloch = True
+                if "bro" in node['sensor_apps']:
+                    self._template_ctx["nodes"][index]["has_bro"] = True
+                    has_bro = True
 
         self._template_ctx["has_suricata"] = has_suricata
         self._template_ctx["has_moloch"] = has_moloch
         self._template_ctx["has_bro"] = has_bro
 
     def _set_reservations(self) -> None:
-        for index, sensor in enumerate(self._template_ctx["sensors"]):
-            sensor["reservations"] = self._sensor_res.get_node_reservations(index)
-            
-        for index, server in enumerate(self._template_ctx["servers"]):
-            server["reservations"] = self._server_res.get_node_reservations(index)            
-
+        sensor_index_offset = 0
+        server_index_offset = 0
+        for index, node in enumerate(self._template_ctx["nodes"]):
+            if node["node_type"] == NODE_TYPES[1]:
+                node["reservations"] = self._sensor_res.get_node_reservations(index - sensor_index_offset)
+                server_index_offset += 1
+            elif node["node_type"] == NODE_TYPES[0]:                
+                node["reservations"] = self._server_res.get_node_reservations(index - server_index_offset)
+                sensor_index_offset += 1
+                    
     def _set_server_calculations(self) -> None:
         self._template_ctx["server_cal"] = self._server_cal.to_dict()
 
     def _set_sensor_calculations(self) -> None:
-        for index, sensor in enumerate(self._template_ctx["sensors"]):
-            sensor["cal"] = self._sensor_cal.get_node_values[index].to_dict()
+        index_offset = 0
+        for index, node in enumerate(self._template_ctx["nodes"]):
+            if node["node_type"] == NODE_TYPES[1]:
+                node["cal"] = self._sensor_cal.get_node_values[index - index_offset].to_dict()
+            else:
+                index_offset += 1
 
     def _set_defaults(self) -> None:
         """

@@ -10,3 +10,5 @@ DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
 RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 SURICATA_CONTAINER_VERSION = "4.1.3"
+
+NODE_TYPES = ["Server", "Sensor"]
