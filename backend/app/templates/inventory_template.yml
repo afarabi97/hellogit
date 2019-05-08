@@ -192,13 +192,6 @@ all:
         {{ sensor.hostname }}: {% endif %}{% endfor %}
       {% endif %}
 
-    # Any host in this group will run Suricata. By default this is all sensors
-    # and remote sensors
-    suricata: {% if template_ctx.has_suricata %}
-      hosts: {% for sensor in template_ctx.sensors %}{% if 'suricata' in sensor.sensor_apps %}
-        {{ sensor.hostname }}: {% endif %}{% endfor %}
-      {% endif %}
-
     nodes:
       children:
 
@@ -218,6 +211,9 @@ all:
             # used to overwrite the current hostname.
             {{ sensor.hostname }}:
 
+              # Applications
+              suricata: {{ sensor.has_suricata }}
+              
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
               ansible_user: root

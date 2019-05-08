@@ -94,8 +94,11 @@ class KitInventoryGenerator:
         has_suricata = False
         has_moloch = False
         has_bro = False
-        for sensor in self._template_ctx["sensors"]:
+        for index, sensor in enumerate(self._template_ctx["sensors"]):
+            self._template_ctx["sensors"][index]["has_suricata"] = "false"
+
             if "suricata" in sensor['sensor_apps']:
+                self._template_ctx["sensors"][index]["has_suricata"] = "true"
                 has_suricata = True
             if "moloch" in sensor['sensor_apps']:
                 has_moloch = True

@@ -134,7 +134,7 @@ def execute_kit_inventory() -> Response:
     payload = request.get_json()
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
-        cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml")
+        cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml --extra-vars \"run_option=install\" ")
         spawn_job("Kit",
                 cmd_to_execute,
                 ["kit"],
