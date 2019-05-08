@@ -16,6 +16,11 @@
     name: "{{ package_list }}"
     state: installed
 
+- name: Install PBR Pip Module
+  pip:
+    name: pbr
+    state: forcereinstall
+
 - name: Install Pip Modules
   pip:
     name: "{{ pip_installs }}"
