@@ -6,3 +6,7 @@
 a {
     cursor: pointer;
 }
+
+dd {
+    margin: 0px;
+}

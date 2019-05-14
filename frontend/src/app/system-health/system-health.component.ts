@@ -13,32 +13,45 @@ declare var $: any;
 })
 export class SystemHealthComponent implements OnInit {
   podsStatuses: Array<Object>;
-  nodeStatuses: Array<Object>;
+  nodeStatuses: Array<Object>;  
+  totals: Object;
+
+  isNodeResourcesVisible: Array<boolean>;
+  isPodResourcesVisible: Array<boolean>;
   podDescribeModal: HtmlModalPopUp;
   activeIPAddress: string;
 
   constructor(private title: Title, private healthSrv: HealthServiceService, private router: Router) { 
     this.podDescribeModal = new HtmlModalPopUp('pod_describe');
     this.activeIPAddress = "";
+    this.isNodeResourcesVisible = new Array();
   }
 
   ngOnInit() {
     this.title.setTitle("System Health");
 
-    this.healthSrv.getPodsStatuses().subscribe(data => {
-      this.podsStatuses = data as Array<Object>;
-    });
-
-    this.healthSrv.getNodeStatuses().subscribe(data => {
-      this.nodeStatuses = data as Array<Object>;
+    this.healthSrv.getHealthStatus().subscribe(data => {
+      this.podsStatuses = data['pod_info'] as Array<Object>;
+      this.nodeStatuses = data['node_info'] as Array<Object>;
+      this.isNodeResourcesVisible = new Array(this.nodeStatuses.length).fill(false);
+      this.isPodResourcesVisible = new Array(this.podsStatuses.length).fill(false);
+      this.totals = data['totals'] as Object
       if (this.nodeStatuses && this.nodeStatuses.length > 0) {
         this.activeIPAddress = this.nodeStatuses[0]['metadata']['public_ip'];        
       }
-    });
+    });    
 
     setTimeout(() => {
       this.updateTooltips();
     }, 2000);
+  }
+
+  getTotalObj(hostname: string): Object {
+    return this.totals[hostname];
+  }
+
+  toggleNodeResources(index: number) {
+    this.isNodeResourcesVisible[index] = !this.isNodeResourcesVisible[index];
   }
 
   setActiveIp(ipAddress: string){
@@ -124,5 +137,35 @@ export class SystemHealthComponent implements OnInit {
       }
     }
     return retVal;
+  }
+
+  togglePodDropDown(index: number){
+    this.isPodResourcesVisible[index] = !this.isPodResourcesVisible[index];
+  }
+
+  getRequest(container: Object, key: string): string {
+    if (container){
+      if (container['resources']) {
+        if (container['resources']['requests']) {
+          if (container['resources']['requests'][key]){
+            return container['resources']['requests'][key];
+          }
+        }
+      }
+    }
+    return "Not Set";
+  }
+
+  getLimit(container: Object, key: string): string {
+    if (container){
+      if (container['resources']) {
+        if (container['resources']['limits']) {
+          if (container['resources']['limits'][key]){
+            return container['resources']['limits'][key];
+          }
+        }
+      }
+    }
+    return "Not Set";
   }
 }

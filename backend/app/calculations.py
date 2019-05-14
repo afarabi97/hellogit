@@ -240,14 +240,12 @@ class ServerCalculations:
         return self._percentages.elastic_curator_threshold_perc
 
     @property
-    def elastic_data_memory(self) -> int:
-        if self._is_large_build:
-            return 60
-        return 30
+    def elastic_data_memory(self) -> int:        
+        return 32
 
     @property
-    def elastic_data_jvm_memory(self) -> int:        
-        return int(self.elastic_data_memory / 2)
+    def elastic_data_jvm_memory(self) -> int:
+        return 30
 
     @property
     def elastic_data_cpu_request(self): 

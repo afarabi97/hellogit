@@ -26,7 +26,7 @@
               <td><button title="Remove Config Map" class="btn btn-danger" (click)="removeConfigMap(config.metadata.name, configIndex)"><i
                     class="icon_close_alt2"></i></button></td>
             </tr>
-            <tr *ngIf="isConfigMapVisible[configIndex]">              
+            <tr *ngIf="isConfigMapVisible[configIndex]">
               <td colspan="4">
                 <button title="Add Config Data" class="btn btn-primary" (click)="addConfigMapData(configIndex)"><i class="icon_plus_alt2"></i> Add Config Data</button>
                 <table class="table">

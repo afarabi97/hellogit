@@ -9,6 +9,7 @@
         <thead>
           <tr>
             <th scope="col">Name</th>
+            <th scope="col">Type</th>
             <th scope="col">IP Address</th>
             <th scope="col">Ready</th>
             <th scope="col">Out of Disk</th>
@@ -18,22 +19,70 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let node of nodeStatuses; let i=index">
-            <td><a title="Click me" data-toggle="tooltip" data-placement="right" (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.metadata.name }}</a></td>
-            <td>{{ node.metadata.public_ip }}</td>
-            <td>
-              <a title="{{ node.status.conditions[3].message }}" data-toggle="tooltip" data-placement="right">
-                <img *ngIf="node.status.conditions[3].status === 'True'; else notworking" src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
-                <ng-template #notworking>
-                  <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
-                </ng-template>
-              </a>
-            </td>
-            <td><a title="{{ node.status.conditions[0].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[0].status }}</a></td>
-            <td><a title="{{ node.status.conditions[1].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[1].status }}</a></td>
-            <td><a title="{{ node.status.conditions[2].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[2].status }}</a></td>
-            <td><button title="Click to run describe node." data-toggle="tooltip" data-placement="left" class="btn btn-primary" (click)="describeNode(node.metadata.name)"><i class="icon_info_alt"></i></button></td>
-          </tr>
+          <ng-container *ngFor="let node of nodeStatuses; let nodeIndex=index">
+            <tr>
+              <td><a title="Click me" data-toggle="tooltip" class="dropdown-toggle" (click)="toggleNodeResources(nodeIndex)">{{ node.metadata.name }}</a></td>
+              <td>{{ node.metadata.node_type }}</td>
+              <td><a title="Click me" data-toggle="tooltip" data-placement="right" (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.metadata.public_ip }}</a></td>
+              <td>
+                <a title="{{ node.status.conditions[3].message }}" data-toggle="tooltip" data-placement="right">
+                  <img *ngIf="node.status.conditions[3].status === 'True'; else notworking" src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
+                  <ng-template #notworking>
+                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
+                  </ng-template>
+                </a>
+              </td>
+              <td><a title="{{ node.status.conditions[0].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[0].status }}</a></td>
+              <td><a title="{{ node.status.conditions[1].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[1].status }}</a></td>
+              <td><a title="{{ node.status.conditions[2].message }}" data-toggle="tooltip" data-placement="right">{{ node.status.conditions[2].status }}</a></td>
+              <td><button title="Click to run describe node." data-toggle="tooltip" data-placement="left" class="btn btn-primary" (click)="describeNode(node.metadata.name)"><i class="icon_info_alt"></i></button></td>
+            </tr>
+            <tr *ngIf="isNodeResourcesVisible[nodeIndex]">
+              <td colspan="7">
+                <div class="row">
+                  <div class="col-4">
+                    Total Capacity
+                    <dl class="row">
+                      <dt class="col-sm-9">CPUs:</dt>
+                      <dd class="col-sm-3">{{ node.status.capacity.cpu }}</dd>
+                      <dt class="col-sm-9">Ephemeral storage:</dt>
+                      <dd class="col-sm-3">{{ node.status.capacity["ephemeral-storage"] }}</dd>
+                      <dt class="col-sm-9">Memory:</dt>
+                      <dd class="col-sm-3">{{ node.status.capacity.memory }}</dd>
+                      <dt class="col-sm-9">Max Pods:</dt>
+                      <dd class="col-sm-3">{{ node.status.capacity.pods }}</dd>
+                    </dl>
+                  </div>
+                  <div class="col-4">
+                    Kubernetes Capacity
+                    <dl class="row">
+                      <dt class="col-sm-9">CPUs:</dt>
+                      <dd class="col-sm-3">{{ node.status.allocatable.cpu }}</dd>
+                      <dt class="col-sm-9">Ephemeral storage:</dt>
+                      <dd class="col-sm-3">{{ node.status.allocatable["ephemeral-storage"] }}</dd>
+                      <dt class="col-sm-9">Memory:</dt>
+                      <dd class="col-sm-3">{{ node.status.allocatable.memory }}</dd>
+                      <dt class="col-sm-9">Max Pods:</dt>
+                      <dd class="col-sm-3">{{ node.status.allocatable.pods }}</dd>
+                    </dl>
+                  </div>
+                  <div class="col-4">
+                    Other
+                    <dl class="row">
+                      <dt class="col-sm-9">CPUs requested from pods:</dt>
+                      <dd class="col-sm-3">{{ getTotalObj(node.metadata.name).cpus_requested_str }}</dd>
+                      <dt class="col-sm-9">Remaining allocatable CPUs:</dt>
+                      <dd class="col-sm-3">{{ getTotalObj(node.metadata.name).remaining_allocatable_cpu }}</dd>
+                      <dt class="col-sm-9">Memory requested from pods:</dt>
+                      <dd class="col-sm-3">{{ getTotalObj(node.metadata.name).mem_requested_str }}</dd>
+                      <dt class="col-sm-9">Remaining allocatable memory:</dt>
+                      <dd class="col-sm-3">{{ getTotalObj(node.metadata.name).remaining_allocatable_mem }}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
@@ -66,24 +115,50 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let pod of podsStatuses; let i=index">
+          <ng-container *ngFor="let pod of podsStatuses; let podIndex=index">
             <ng-container *ngIf="activeIPAddress === pod.status.host_ip">
-              <td>{{ pod.metadata.namespace }}</td>
-              <td><a title="Click me" data-toggle="tooltip" data-placement="right" (click)="openPodStatusInfo(pod.metadata.name, pod.status)">{{ pod.metadata.name }}</a></td>
-              <td>
-                <div *ngFor="let container of getPostStatus(pod.status)">
-                  <span *ngIf="container.name">{{ container.name }}: </span>
-                  <span *ngIf="container.status === 'running'" style="color: #28a745; font-weight: bold;">{{ container.status }}</span>
-                  <span *ngIf="container.status !== 'running'" style="color: #E74C3C; font-weight: bold;">{{ container.status }}</span>
-                </div>
-              </td>
-              <td *ngIf="pod.status.container_statuses">{{ pod.status.container_statuses[0].restart_count }}</td>
-              <td *ngIf="!pod.status.container_statuses">N/A</td>
-              <td><button title="Click to run describe pod." data-toggle="tooltip" data-placement="left" class="btn btn-primary" (click)="describePod(pod.metadata)"><i class="icon_info_alt"></i></button></td>
+              <tr>              
+                <td><a title="Click me" data-toggle="tooltip" class="dropdown-toggle" (click)="togglePodDropDown(podIndex)">{{ pod.metadata.namespace }}</a></td>
+                <td><a title="Click me" data-toggle="tooltip" data-placement="right" (click)="openPodStatusInfo(pod.metadata.name, pod.status)">{{ pod.metadata.name }}</a></td>
+                <td>
+                  <div *ngFor="let container of getPostStatus(pod.status)">
+                    <span *ngIf="container.name">{{ container.name }}: </span>
+                    <span *ngIf="container.status === 'running'" style="color: #28a745; font-weight: bold;">{{ container.status }}</span>
+                    <span *ngIf="container.status !== 'running'" style="color: #E74C3C; font-weight: bold;">{{ container.status }}</span>
+                  </div>
+                </td>
+                <td *ngIf="pod.status.container_statuses">{{ pod.status.container_statuses[0].restart_count }}</td>
+                <td *ngIf="!pod.status.container_statuses">N/A</td>
+                <td><button title="Click to run describe pod." data-toggle="tooltip" data-placement="left" class="btn btn-primary" (click)="describePod(pod.metadata)"><i class="icon_info_alt"></i></button></td>
+              </tr>
+              <tr *ngIf="isPodResourcesVisible[podIndex]">
+                <td colspan="5">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Container name</th>
+                        <th>CPU Request</th>
+                        <th>Memory Request</th>
+                        <th>CPU Limit</th>
+                        <th>Memory Limit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let container of pod.spec.containers">
+                        <td>{{ container.name }}</td>
+                        <td>{{ getRequest(container, 'cpu') }}</td>
+                        <td>{{ getRequest(container, 'memory') }}</td>
+                        <td>{{ getLimit(container, 'cpu') }}</td>
+                        <td>{{ getLimit(container, 'memory') }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
             </ng-container>
-          </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
-  </div>  
+  </div>
 </div>

@@ -15,13 +15,8 @@ export class HealthServiceService {
     return this.http.get(url).pipe();
   }
 
-  getPodsStatuses(): Observable<Object> {
-    const url = '/api/get_pods_statuses';
-    return this.http.get(url).pipe();
-  }
-
-  getNodeStatuses(): Observable<Object> {
-    const url = '/api/get_node_statuses';
+  getHealthStatus(): Observable<Object> {
+    const url = '/api/get_health_status';
     return this.http.get(url).pipe();
   }
   
