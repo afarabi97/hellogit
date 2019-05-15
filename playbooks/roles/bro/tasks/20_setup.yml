@@ -2,7 +2,7 @@
 
 - name: Setup deployment info
   set_fact:
-    bro_deployments: "{{ bro_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-bro'} ) }}"
+    bro_deployments: "{{ bro_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-bro'} ) }}"
   loop: "{{ groups['bro'] }}"
 
 - name: Deploy services

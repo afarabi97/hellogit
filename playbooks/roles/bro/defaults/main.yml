@@ -10,9 +10,12 @@ bro_container_path: "/usr/local/bro-{{ bro_version | regex_replace('v.$','') }}"
 
 # This is the directory on the sensors that will be mounted by the Bro pod
 # to add custom scripts.
-bro_scripts: "{{ bro_dir }}/bro-scripts"
+bro_scripts: "{{ bro_dir }}/scripts"
 
 # This is the number of bro loggers you run - 1 is typically enough
 bro_loggers: 1
+
+# Where Bro writes out the logs
+bro_log_path: "/data/bro"
 
 ...

@@ -1,0 +1,6 @@
+redef Cluster::manager_is_logger = F;
+redef Cluster::nodes = {
+{% for node, config in bro_cluster.items() %}
+    ["{{node}}"] = [$node_type=Cluster::{{config.type | upper}}, $ip=127.0.0.1, $p={{config.port}}/tcp, $manager="manager"{{ ', $interface="'+config.interface+'"' if config.interface is defined else '' }}],
+{% endfor %}
+};

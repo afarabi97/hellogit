@@ -3,7 +3,7 @@
 # Use include_vars function to utilize this file.
 
 # VERSIONS
-bro_version: "2.6.1v2"
+bro_version: "2.6.1v3"
 busybox_version: "1.27.2"
 coreos_version: "1688.5.3"
 elastic_version: "6.5.3"

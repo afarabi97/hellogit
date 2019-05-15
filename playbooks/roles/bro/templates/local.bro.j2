@@ -8,11 +8,6 @@
 # Apply the default tuning scripts for common tuning settings.
 @load tuning/defaults
 
-# JSON output
-@load tuning/json-logs
-redef LogAscii::json_timestamps = JSON::TS_ISO8601;
-redef LogAscii::use_json = T;
-
 # Estimate and log capture loss.
 @load misc/capture-loss
 
@@ -71,7 +66,7 @@ redef LogAscii::use_json = T;
 # certificate notary service; see http://notary.icsi.berkeley.edu .
 # @load protocols/ssl/notary
 
-# If you have libGeoIP support built in, do some geographic detections and
+# If you have GeoIP support built in, do some geographic detections and
 # logging for SSH traffic.
 @load protocols/ssh/geo-data
 # Detect hosts doing SSH bruteforce attacks.
@@ -90,6 +85,9 @@ redef LogAscii::use_json = T;
 # Detect SHA1 sums in Team Cymru's Malware Hash Registry.
 @load frameworks/files/detect-MHR
 
+# Extend email alerting to include hostnames
+@load policy/frameworks/notice/extend-email/hostnames
+
 # Uncomment the following line to enable detection of the heartbleed attack. Enabling
 # this might impact performance a bit.
 # @load policy/protocols/ssl/heartbleed
@@ -106,8 +104,46 @@ redef LogAscii::use_json = T;
 # is currently considered a preview and therefore not loaded by default.
 @load base/protocols/smb
 
-# This line loads the custom bro scripts in the custom.bro file.
+#####################################
+# TFPlenum specific settings follow #
+#####################################
+
+# This loads the rules provided by the operator.
 @load custom
 
-# This line will load all scripts in the custom-scripts directory.
-@load policy/custom-scripts
+redef Log::default_rotation_interval = 300 secs;
+redef Control::controllee_listen = F;
+redef Site::local_nets = {
+{% for net in home_net %}
+    {{ net }},
+{% endfor %}
+};
+
+# JSON output.
+@load tuning/json-logs
+redef LogAscii::json_timestamps = JSON::TS_ISO8601;
+redef LogAscii::use_json = T;
+
+# Add some basic info to all the connection records.
+global sensorname = ""; # Hostname for this box.
+global interface = ""; # Interface we are listening on
+
+redef record Conn::Info += {
+    sensorname: string &log &optional;
+    interface: string &log &optional;
+};
+
+event bro_init()
+    {
+    if ( Cluster::local_node_type() == Cluster::WORKER )
+        {
+        sensorname = gethostname();
+        interface = Cluster::nodes[Cluster::node]$interface;
+        }
+    }
+
+event connection_state_remove(c: connection)
+    {
+    c$conn$sensorname = sensorname;
+    c$conn$interface = interface;
+    }

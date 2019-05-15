@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-bro
+  name: {{ deployment_name }}
   labels:
     component: bro
 spec:
@@ -16,69 +16,47 @@ spec:
       labels:
         component: bro
     spec:
+      # Due to a bug in C++ Actor Framework (which powers Bro's broker),
+      # this is necessary to get Bro nodes to talk to each other.
+      shareProcessNamespace: true
       hostNetwork: true
       containers:
-      - name: bro
-        image: "{{ bro_image }}:{{ bro_version }}"
+{% for node, config in bro_cluster.items() %}
+      - name: {{ node }}
+        image: {{ bro_image }}:{{ bro_version }}
         imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-          capabilities:
-            add:
-              - NET_ADMIN
-              - NET_RAW
-              - SYS_NICE
-        resources:
-          requests:
-            cpu: {{ hostvars[deployment_hostname].bro_cpu_request }}
         livenessProbe:
-          exec:
-            command:
-            - bash
-            - -c
-            - systemctl status bro | grep running
-          initialDelaySeconds: 20
-          periodSeconds: 10
+            tcpSocket:
+                port: {{ config.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+{% if config.type == "worker" %}
+        securityContext:
+              capabilities:
+                add:
+                  - NET_ADMIN
+                  - NET_RAW
+                  - SYS_NICE
+{% endif %}
         volumeMounts:
-        - name: filebeat
-          mountPath: /etc/filebeat/filebeat.yml
-        - name: broctl
-          mountPath: {{ bro_container_path }}/etc/broctl.cfg
-        - name: local
-          mountPath: {{ bro_container_path }}/share/bro/site/local.bro
-        - name: custom
-          mountPath: {{ bro_container_path }}/share/bro/site/custom
-        - name: networks
-          mountPath: {{ bro_container_path }}/etc/networks.cfg
-        - name: node
-          mountPath: {{ bro_container_path }}/etc/node.cfg
         - name: scripts
-          mountPath: {{ bro_container_path }}/share/bro/policy/custom-scripts
+          mountPath: {{ bro_container_path }}/share/bro/site
+          readOnly: true
+{% if config.type == "logger" %}
+        - name: logs
+          mountPath: /data
+        workingDir: /data/{{config.logger_number}}
+{% endif %}
+        env:
+        - name: CLUSTER_NODE
+          value: {{ node }}
+        args: [{{'"-i", "'+config.interface+'", ' if config.type == 'worker' else ''}} "-U", ".status", "frameworks/control/controllee", "local.bro", "base/frameworks/cluster" ]
+{% endfor %}
       volumes:
-      - name: filebeat
+      - name: logs
         hostPath:
-          path: {{ bro_dir }}/filebeat.yml
-          type: File
-      - name: broctl
-        hostPath:
-          path: {{ bro_dir }}/broctl.cfg
-          type: File
-      - name: local
-        hostPath:
-          path: {{ bro_dir }}/local.bro
-          type: File
-      - name: custom
-        hostPath:
-          path: {{ bro_dir }}/custom
+          path: {{ bro_log_path }}
           type: DirectoryOrCreate
-      - name: networks
-        hostPath:
-          path: {{ bro_dir }}/networks.cfg
-          type: File
-      - name: node
-        hostPath:
-          path: {{ bro_dir }}/node.cfg
-          type: File
       - name: scripts
         hostPath:
           path: {{ bro_scripts }}
