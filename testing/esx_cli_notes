@@ -1,0 +1,55 @@
+
+
+yum install e2fsprogs-devel libuuid-devel openssl-devel perl-devel
+yum install glibc.i686 zlib.i686
+yum install perl-XML-LibXML libncurses.so.5 perl-Crypt-SSLeay
+yum group install "Development Tools"
+Then install the binary
+
+Save session broken.
+[root@jenkins vmware-vsphere-cli-distrib]# /usr/share/doc/vmware-vcli/samples/session/save_session.pl --savesessionfile /root/test --server 192.168.1.7
+Enter username: root
+Enter password:
+length() used on @array (did you mean "scalar(@array)"?) at /usr/lib64/perl5/IO/Compress/Zlib/Extra.pm line 198, <STDIN> line 2.
+
+Fix action:
+sudo cpan IO::Compress::Zlib::Extra
+But it still hangs
+
+--------------------------------------
+
+Add yourself to the credentials store:
+/usr/lib/vmware-vcli/apps/general/credstore_admin.pl add --server 192.168.1.7 --username <USERNAME> --password <PASS>
+
+Get the cert by browsing to: https://192.168.1.7/host/ssl_cert
+
+Save it to disk
+
+Run "openssl x509 -noout -fingerprint -sha1 -inform pem -in <CERT FILE>" on the file
+
+That should give you output like: SHA1 Fingerprint=5F:2F:92:8C:F4:19:37:F0:80:B9:27:2F:40:03:B4:2B:E5:0F:24:5D
+
+Run "/usr/lib/vmware-vcli/apps/general/credstore_admin.pl add --server 192.168.1.7 --thumbprint 5F:2F:92:8C:F4:19:37:F0:80:B9:27:2F:40:03:B4:2B:E5:0F:24:5D" to add the server's thumbprint
+
+
+--------------------------------------
+
+On windows this works: esxcli -s 192.168.1.7 -u root -p <password> -d 5F:2F:92:8C:F4:19:37:F0:80:B9:27:2F:40:03:B4:2B:E5:0F:24:5D vm process list
+
+--------------------------------------
+
+Download the SDK from
+https://github.com/vmware/vsphere-automation-sdk-python
+
+1) yum install -y epel-release git wget vim python34 python34-pip python34-devel
+2) If on windows install twisted from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#twisted
+
+git clone https://github.com/vmware/vsphere-automation-sdk-python.git
+cd vsphere-automation-sdk-python
+pip install --upgrade --force-reinstall -r requirements.txt --extra-index-url file:///<absolute_path_to_sdk>/lib
+
+If on windows take off --force-reinstall
+
+-------------------------------------
+
+1) yum install -y gcc openssl-devel bzip2-devel gcc-c++ zlib zlib-devel libffi-devel && ./configure --enable-optimizations && make altinstall

@@ -1,0 +1,6 @@
+---
+elastic_uri: "http://elasticsearch:9200"
+moloch_uri: "http://moloch.lan"
+install_dir: /opt/tfplenum-integration-testing
+deployer_dir: /opt/tfplenum-deployer
+...

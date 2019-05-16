@@ -1,0 +1,30 @@
+---
+
+- set_fact:
+        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get kibana pods
+  shell: |
+    {{ cmd }} | grep 'kibana-'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Kibana Indicies
+  import_role:
+    name: common
+    tasks_from: check_indices
+  vars:
+    app_name: "kibana"
+    index_regex: "^\\.kibana$"
+
+- name: Check Kibana Dashboards
+  uri:
+    url: "{{ elastic_uri }}/.kibana/_search?q=type:dashboard+AND+\"Bro\""
+    return_content: y
+  register: results_kd
+
+- name: Test | Check Kibana Dashboards
+  assert:
+    that: results_kd.json.hits.total > 25
+    msg: "Kibana Dashboards are not loaded properly"
+...

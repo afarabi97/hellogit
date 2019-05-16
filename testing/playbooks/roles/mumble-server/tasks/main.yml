@@ -1,0 +1,24 @@
+---
+
+- set_fact:
+    cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get mumble pods
+  shell: |
+    {{ cmd }} | grep 'mumble-server-'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Check Mumble Process
+  shell: |
+    kubectl logs {{item}}
+  with_items: "{{ get_pods.stdout_lines }}"
+  register: pod_status
+  changed_when: pod_status.failed
+  ignore_errors: yes
+
+- name: Test | Check Mumble Process
+  assert:
+    that: pod_status.msg == 'All items completed'
+    msg: "Mumble Server service is reporting {{ pod_status }}"
+...

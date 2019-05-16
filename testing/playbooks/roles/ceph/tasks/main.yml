@@ -1,0 +1,14 @@
+---
+
+- name: get ceph status
+  shell: |
+    ceph health
+  register: ceph_health
+  changed_when: ceph_health.failed
+
+- name: Test | Ceph health should be HEALTH_OK
+  assert:
+    that:  "'HEALTH_OK' in ceph_health.stdout"
+    msg: "Ceph health is reporting {{ ceph_health.stdout }}"
+    
+...

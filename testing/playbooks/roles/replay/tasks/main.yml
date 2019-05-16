@@ -1,0 +1,32 @@
+---
+- name: Set Test Interface
+  set_fact:
+    test_interface: "{{ lookup('env', 'TEST_INTERFACE') | default('ens224', true) }}"
+
+# Only launch the PCAP if the controller has a second interface for testing purposes.
+# The playbook will not fail out if this is not the case, and will display a message
+# indicating that the PCAP did not play.
+
+- name: Announce starting PCAP test
+  debug:
+    msg: "{{ test_interface }} test interface detected. Starting PCAP replay..."
+  when: test_interface is defined
+
+- name: Announce when test interface not detected
+  debug:
+    msg: "{{ test_interface }} test interface not found. No PCAP will be played."
+  when: test_interface is not defined
+
+- name: Replay PCAPs
+  shell: |
+    /usr/bin/tcpreplay --loop=5 --loopdelay-ms=3000 --intf1={{ test_interface }} {{ item }}
+  loop:
+    - "{{ pcap_dir }}/get.trace"
+    - "{{ pcap_dir }}/dns-dnskey.trace"
+    - "{{ pcap_dir }}/smb1_transaction_request.pcap"
+  when: test_interface is defined
+  changed_when: False
+  loop_control:
+    pause: 5
+
+...
