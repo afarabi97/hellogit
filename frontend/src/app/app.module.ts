@@ -31,7 +31,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
 import { RegistryComponent } from './registry/registry.component';
-import { AgentBuilderComponent } from './agent-builder/agent-builder.component';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
@@ -43,6 +42,10 @@ import { PolicyManagementDialog } from './policy-management/dialog/policy-manage
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
 import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
 import { UploadDialogComponent } from './policy-management/upload-dialog/upload-dialog.component';
+import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
+import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
+import { AgentInstallerAddDialogComponent } from './agent-builder-chooser/agent-installer-add-dialog/agent-installer-add-dialog.component';
+import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-list-dialog/ip-target-list-dialog.component';
 
 
 @NgModule({
@@ -71,7 +74,6 @@ import { UploadDialogComponent } from './policy-management/upload-dialog/upload-
     DatePickerComponent,
     ModalIpSelectDialogComponent,
     RegistryComponent,
-    AgentBuilderComponent,
     ModalLoadingComponent,
     PcapFormComponent,
     ModalDialogComponent,
@@ -79,7 +81,11 @@ import { UploadDialogComponent } from './policy-management/upload-dialog/upload-
     PolicyManagementDialog,
     PolicyManagementTable,    
     PolicyManagementAddDialog,
-    UploadDialogComponent
+    UploadDialogComponent,
+    AgentInstallerComponent,
+    AgentBuilderChooserComponent,
+    AgentInstallerAddDialogComponent,
+    IpTargetListDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -99,7 +105,8 @@ import { UploadDialogComponent } from './policy-management/upload-dialog/upload-
     PolicyManagementComponent,
     PolicyManagementTable,
     PolicyManagementAddDialog,
-    UploadDialogComponent
+    UploadDialogComponent,
+    AgentInstallerAddDialogComponent
   ]
 })
 export class AppModule { }

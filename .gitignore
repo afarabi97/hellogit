@@ -12,3 +12,6 @@ frontend/package-lock.json
 backend/rules
 backups/
 *.swp
+node_modules/
+
+package-lock\.json

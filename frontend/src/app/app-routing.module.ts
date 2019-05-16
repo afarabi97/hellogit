@@ -8,9 +8,10 @@ import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { RegistryComponent } from './registry/registry.component';
-import { AgentBuilderComponent } from './agent-builder/agent-builder.component'
 import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
+import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
+import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -22,7 +23,8 @@ const routes: Routes = [
   { path: 'help', component: HelpComponent },
   { path: 'stdout/:id', component: ServerStdoutComponent },
   { path: 'registry', component: RegistryComponent },
-  { path: 'agent_builder', component: AgentBuilderComponent },
+  { path: 'agent-builder-chooser', component: AgentBuilderChooserComponent },
+  { path: 'agent_installer', component: AgentInstallerComponent },
   { path: 'rulesets', component: PolicyManagementComponent},
   { path: 'pcaps', component: PcapFormComponent},
 ];

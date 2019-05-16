@@ -111,6 +111,14 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.user_links
 
     @property
+    def mongo_windows_installer_configs(self) -> Collection:
+        return self._tfplenum_database.windows_installer_configs
+
+    @property
+    def mongo_windows_target_lists(self) -> Collection:
+        return self._tfplenum_database.windows_target_lists
+
+    @property
     def mongo_last_jobs(self) -> Collection:
         """
         Returns a mongo object that can do manipulate the last jobs completed by the system.

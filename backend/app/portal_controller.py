@@ -2,7 +2,7 @@
 Main module that controls the REST calls for the portal page.
 """
 from app import (app, conn_mng, logger)
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
 from fabric.runners import Result
 from flask import jsonify, Response
 from shared.connection_mngs import FabricConnectionWrapper
@@ -75,25 +75,6 @@ def get_portal_links() -> Response:
     
     return ERROR_RESPONSE
 
-def cursorToJsonResponse(csr):
-    """
-    Take a cursor returned from a MongoDB search of mongo_user_links and convert
-    it to an API response containing the data.
-    :param csr: Cursor returned from a MongoDB search (or any iterable 
-    container)
-    :return: flask.Response containing the data of the records in the cursor.
-    """
-    records = []
-    for record in csr:
-        try:
-            records.append({'_id': str(record['_id']),
-                            'name': record['name'],
-                            'url': record['url'], 
-                            'description': record['description']})
-        except:
-            conn_mng.mongo_user_links.remove(record)
-    records.sort( key = lambda r : r['name'].upper())
-    return Response(json.dumps(records), mimetype='application/json')
 
 @app.route('/api/get_user_links', methods=['GET'])
 def get_user_links() -> Response:
@@ -102,7 +83,7 @@ def get_user_links() -> Response:
     :return: flask.Response containing all link data.
     """
     user_links = conn_mng.mongo_user_links.find({})
-    return cursorToJsonResponse(user_links)
+    return cursorToJsonResponse(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
 @app.route('/api/add_user_link', methods=['POST']) 
 def add_user_link() -> Response:
