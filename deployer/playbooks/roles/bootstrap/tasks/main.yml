@@ -1,0 +1,38 @@
+---
+
+- import_tasks: cleanup.yml
+
+- set_fact:
+    BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
+    GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
+    GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"
+
+- import_tasks: rhel_repos.yml
+  when: TFPLENUM_OS_TYPE == "rhel"
+- import_tasks: centos_repos.yml
+  when: TFPLENUM_OS_TYPE == "centos"
+- import_tasks: additional_repos.yml
+
+- name: "Install required packages"
+  yum:
+    name: "{{ package_list }}"
+    state: latest
+
+- name: install pip modules
+  pip:
+    name: "{{ pip_installs }}"
+    state: forcereinstall
+
+- name: Execute clone repo role.
+  include_role:
+    name: clonerepo
+
+- name: Execute docker registry role.
+  include_role:
+    name: registry
+
+- import_tasks: cleanup.yml
+- import_tasks: offline_repos.yml
+- import_tasks: update_etc_hosts.yml
+- import_tasks: update_controller_dns.yml
+- import_tasks: finish.yml

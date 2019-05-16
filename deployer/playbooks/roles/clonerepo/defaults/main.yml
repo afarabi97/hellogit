@@ -1,0 +1,20 @@
+%YAML 1.1
+---
+#### repo configuration variables ####
+
+bootstrap_package_names:
+  - yum-utils
+  - createrepo
+
+centos_repos:
+  - base
+  - updates
+  - extras
+
+gpg_keys:
+  - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+  - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+  - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+
+#Path where iso is to be mounted ex: /mnt
+mnt_pth: /mnt

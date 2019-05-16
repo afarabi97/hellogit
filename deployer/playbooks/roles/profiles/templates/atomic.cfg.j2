@@ -1,0 +1,78 @@
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# OSTree setup
+ostreesetup --osname="rhel-atomic-host" --remote="rhel-atomic-host-ostree" --url="file:///install/ostree" --ref="rhel-atomic-host/7/x86_64/standard" --nogpg
+# Use graphical install
+text
+# Firewall configuration
+firewall --use-system-defaults
+firstboot --disable
+ignoredisk --only-use={% if item is defined %}{{ hostvars[item].boot_drive }}{% else %}{{ default_boot_drive }}{% endif %}
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+eula --agreed
+
+#Reboot when its all over
+reboot
+
+# Network information
+{% if item is defined %}
+network --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
+network  --hostname={{ item }}
+{% else %}
+network  --bootproto=dhcp --device=eth0 --noipv6 --activate
+network  --hostname=localhost.localdomain
+{% endif %}
+
+# Root password
+rootpw --iscrypted {{ rootpw.stdout }}
+# System services
+services --disabled="cloud-init,cloud-config,cloud-final,cloud-init-local" --enabled="chronyd"
+# System timezone
+timezone {{ timezone }} --isUtc
+# System bootloader configuration
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive={% if item is defined %}{{ hostvars[item].boot_drive }}{% else %}{{ default_boot_drive }}{% endif %}
+# Partition clearing information
+clearpart --all --initlabel
+# Disk partitioning information
+autopart --type=lvm
+
+%post --erroronfail
+cp /etc/skel/.bash* /var/roothome
+fn=/etc/ostree/remotes.d/rhel-atomic-host-ostree.conf; if test -f ${fn} && grep -q -e '^url=file:///install/ostree' ${fn}; then rm ${fn}; fi
+%end
+
+%post --erroronfail
+# NOTE: This change only applies to 7.4 content; if building 7.3,
+# you'll need an older spin-kickstarts.  More information in
+# https://trello.com/c/7N8t3fuY/593-3-tweak-rhelah-build-process-for-new-subman-and-verify
+# and https://github.com/candlepin/subscription-manager/pull/1519
+# This is the canonical version - if changing this, remember
+# to update the copies in the cloud/vagrant kickstarts too.
+#
+# Yes, this is base64 encoded to avoid quoting issues; this
+# gets embedded in a lorax template which is interpreting shell.  If you
+# need to fix it, just copy/paste the command line to get a base64 decoded
+# version.
+echo W3JlbW90ZSAicmhlbC1hdG9taWMtaG9zdC1vc3RyZWUiXQojIFRoaXMgcmVtb3RlIGNvbmZpZ3VyYXRpb24gaXMganVzdCBhIHN0dWI7IHVzZSBzdWJzY3JpcHRpb24tbWFuYWdlciBvcgojIGEgbG9jYWwgbWlycm9yIG9mIHRoZSByZXBvc2l0b3J5Lgp1cmw9ZmlsZTovLy9pbnN0YWxsL29zdHJlZS9yZXBvCnVuY29uZmlndXJlZC1zdGF0ZT1UaGlzIHN5c3RlbSBpcyBub3QgcmVnaXN0ZXJlZCB0byBSZWQgSGF0IFN1YnNjcmlwdGlvbiBNYW5hZ2VtZW50LiBZb3UgY2FuIHVzZSBzdWJzY3JpcHRpb24tbWFuYWdlciB0byByZWdpc3Rlci4K | base64 -d > /etc/ostree/remotes.d/redhat.conf
+
+%end
+
+%packages
+chrony
+kexec-tools
+
+%end
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end

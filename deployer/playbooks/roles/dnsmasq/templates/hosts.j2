@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+
+{{ server_ip }} {{ ansible_controller_hostname }}
+
+# Network nodes as generated through Ansible.
+{% for host in groups['servers'] %}
+{% if 'ip' in hostvars[host] %}
+{{ hostvars[host]['ip'] }}  {{ host }} {{ hostvars[host]['inventory_hostname_short'] }}
+{% endif %}
+{% endfor %}

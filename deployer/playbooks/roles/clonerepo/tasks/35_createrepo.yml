@@ -1,0 +1,61 @@
+---
+# These tasks recreate the repo data for each repo based off the inventory file
+
+# The follow builds a list of the repos and sets it to the variable "repo"
+- name: set repo list
+  set_fact:
+    repos: []
+
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ 'misc' ]"
+
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ '{{ item }}' ]"
+  when: TFPLENUM_OS_TYPE == "rhel"
+  with_items: "{{ rhel_repos }}"
+
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ '{{ item }}' ]"
+  when: TFPLENUM_OS_TYPE == "centos"
+  with_items:
+  - "{{ centos_repos }}"
+
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ '{{ item.value.name }}' ]"
+  loop: "{{ lookup('dict', additional_repo_info) }}"
+
+- name: setup repo list
+  set_fact:
+    repos: "{{ repos }} + [ 'epel' ]"
+
+- name: Remove Repodata
+  file:
+    path: "{{ tfplenumoffline_dir }}/repodata"
+    state: absent
+
+- name: Setup RepoData
+  include_tasks: include_repo.yml
+  vars:
+    repo: "{{ item }}"
+  with_items: "{{ repos }}"
+
+
+- name: get list of directories with wrong permissions
+  shell: |
+    # change all directories permissions that are not 755 to 755
+    find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
+  register: dir_list
+
+- name: fix files with wrong permissions
+  shell: |
+    find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
+  register: file_list
+
+- name: restorecon for web root
+  shell: |
+    restorecon -Rv {{ web_root }}
+
