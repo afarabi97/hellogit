@@ -1,0 +1,23 @@
+function run_cmd {
+	local command="$@"
+	eval $command
+	local ret_val=$?
+	if [ $ret_val -ne 0 ]; then
+		echo "$command returned error code $ret_val"
+        exit 1
+	fi	
+}
+
+function _deploy_angular_application {
+	pushd $FRONTEND_DIR/frontend > /dev/null
+    run_cmd ng build --prod
+	run_cmd rm -rf /var/www/html/frontend
+	run_cmd cp -r dist/frontend /var/www/html/
+	popd > /dev/null
+}
+
+function _restart_services {
+	run_cmd systemctl restart httpd
+	run_cmd systemctl restart tfplenum-frontend.service
+	run_cmd systemctl restart mongod
+}

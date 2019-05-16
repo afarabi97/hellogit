@@ -1,0 +1,82 @@
+<div class="modal fade" id="agent_installer_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form [formGroup]="dialogForm" (ngSubmit)="onSubmit()">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Agent Installer</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <app-text-input [parentForm]="dialogForm" controlName="pf_sense_ip"></app-text-input>
+
+          <h5>Sysmon Settings</h5>
+          <app-checkbox [parentForm]="dialogForm" controlName="install_sysmon"></app-checkbox>
+          <hr>
+          <h5>Winlogbeat Settings</h5>
+          <app-checkbox [parentForm]="dialogForm" controlName="install_winlogbeat"></app-checkbox>
+          <hr>
+          <h5>Endgame Settings</h5>
+          <app-checkbox [parentForm]="dialogForm" controlName="install_endgame"
+            (change)="dialogForm.enableEndgameControls()"></app-checkbox>
+          <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px; margin-left: 5px">
+            <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
+              <h6>Endgame Server Credentials</h6>
+              <app-text-input [parentForm]="dialogForm" controlName="endgame_server_ip"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+              <app-text-input [parentForm]="dialogForm" controlName="endgame_user_name"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+              <app-text-input [parentForm]="dialogForm" controlName="endgame_password"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
+                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+            </div>
+          </div>
+          <br>
+          <app-text-input [parentForm]="dialogForm" controlName="endgame_port"></app-text-input>
+          <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px; margin-left: 5px">
+            <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
+              <app-card-selector [parentForm]="dialogForm" 
+                *ngIf="dialogForm.endgame_server_reachable ; else egUnreachable"
+                controlName="endgame_sensors">
+              </app-card-selector>
+            </div>
+              <ng-template #egUnreachable> 
+                <p [style.color]="dialogForm.install_endgame.value? '#d92a14' : 'gray'">
+                  Check Endgame credentials. When they are correct, you will
+                  see a list of Endgame sensor profiles.
+                </p>
+              </ng-template>
+          </div>
+        </div>
+        <br>
+        <app-text-input [parentForm]="dialogForm" controlName="config_name"></app-text-input>
+
+        <div class="card">
+          <div class="card-header">
+            Validation
+          </div>
+          <div *ngIf="!dialogForm.sufficient_data_to_build_agents" class='card-body' id='error-list'>
+            <p *ngFor="let item of dialogForm.errors | keyvalue" class='text-danger'>
+              {{ item.key }} - {{ item.value }}
+            </p>
+          </div>
+          <p *ngIf="dialogForm.sufficient_data_to_build_agents" class='text-success'>
+            &nbsp;&nbsp;Data looks good! Press 'Build Agent' whenever you're ready!
+          </p>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+            name="cancel_add_installer">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="!dialogForm.sufficient_data_to_build_agents"
+            name="submit_add_installer">Save</button>
+        </div>
+      </form>
+    </div>

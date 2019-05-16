@@ -1,0 +1,75 @@
+---
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
+all:
+  vars:
+    # dnsmasq: By default the ansible controller is used as the dns server during setup.
+    # If this is set to false then the proper options such must be configured on the external dns server.
+    # Default: true
+    dnsmasq: true
+
+    # A DHCP server is required to pxe / kickstart the nodes.
+    # The following variables configure a dhcp server on the ansible controller.
+    # dhcp: a dhcp server is required to properly pxe machines.  By default the ansible controller will act as the dhcp server.
+    # If this is set to false then the proper options such must be configured on the external dhcp server.
+    # Default: true
+    dhcp: true
+    # dhcp_start: This is the DHCP range starting ip address.
+    # Default: null
+    dhcp_start: '{{ template_ctx.dhcp_start }}'
+    # dhcp_end: This is the DHCP range ending ip address.
+    # Default: null
+    dhcp_end: '{{ template_ctx.dhcp_end }}'
+    # dhcp_mask: Subnet mask used for dhcp configuration.
+    # Default: The same subnet as the ansible controller.
+ 
+    # Below are networking options for node static addressing.
+    # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
+    # Default: ansible controllers ip address
+    dns: '{{ template_ctx["controller_interface"][0] }}'
+
+    # gateway: This is used to configure the nodes with a default gateway.
+    # Default: null
+    gateway: '{{ template_ctx.gateway }}'
+    # netmask: This is used to define the subnet mask for the node static address.
+    # Default: null
+    netmask: '{{ template_ctx.netmask }}'
+
+    # The following variables are used for kickstart options.
+    # root_password: Sets root password for each node.
+    # Define: empty
+    root_password: "{{ template_ctx.root_password }}"
+    # timezone: Set the timezone for each node.
+    # Define: America/Chicago
+    timezone: 'UTC'
+
+    # default_boot_drive: This is the default drive used for operating system installation.
+    # Default: sda
+    default_boot_drive: sda
+    # server_ip: ansible controller ip address used to define kickstart server
+    # Default: ansible controller ip address
+    server_ip: '{{ template_ctx["controller_interface"][0] }}'
+
+    # COREOS VARS
+    # Only used if you are loading coreos operating system
+    # This is the ssh public key for core user
+    # Define: null
+    core_sshAuthorizedKeys: #
+
+  children:
+    nodes:
+      children:
+        servers:
+          hosts:
+            {% for node in template_ctx.nodes %}
+            {{ node.hostname }}:
+              ip: {{ node.ip_address }}
+              mac: {{ node.mac_address }}
+              boot_drive: {{ node.boot_drive|lower() }}
+              pxe_type: {{ node.pxe_type|lower() }}
+              node_type: tfplenum
+            {% endfor %}

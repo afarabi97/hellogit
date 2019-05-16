@@ -1,0 +1,450 @@
+{
+    "kitForm": {
+        "kubernetes_services_cidr": "10.102.35.32",
+        "servers": [
+            {
+                "host_server": "10.102.35.100",
+                "is_master_server": true,
+                "es_drives": [
+                    "sdb"
+                ],
+                "hostname": "server1.lan",
+                "deviceFacts": {
+                    "cpus_available": 32,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.100",
+                        "alias": "eno1",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "eno1",
+                        "macaddress": "fc:15:b4:94:a4:4e",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 1116.16,
+                            "size_tb": 1.09
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 5591.04,
+                            "size_tb": 5.46
+                        }
+                    ],
+                    "hostname": "server1.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "8c:dc:d4:a8:93:75",
+                            "name": "ens1f1",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "8c:dc:d4:a8:93:74",
+                            "name": "ens1f0",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "fc:15:b4:94:a4:4f",
+                            "name": "eno2",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "10.102.35.100",
+                            "mac_address": "fc:15:b4:94:a4:4e",
+                            "name": "eno1",
+                            "speed": 1000
+                        }
+                    ],
+                    "memory_available": 62.5029296875,
+                    "potential_monitor_interfaces": [
+                        "ens1f1",
+                        "ens1f0",
+                        "eno2"
+                    ]
+                }
+            },
+            {
+                "host_server": "10.102.35.101",
+                "is_master_server": false,
+                "es_drives": [
+                    "sdb"
+                ],
+                "hostname": "server2.lan",
+                "deviceFacts": {
+                    "cpus_available": 40,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.101",
+                        "alias": "eno1",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "eno1",
+                        "macaddress": "70:10:6f:c2:a0:64",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 1116.16,
+                            "size_tb": 1.09
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 5591.04,
+                            "size_tb": 5.46
+                        }
+                    ],
+                    "hostname": "server2.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "48:df:37:07:4f:7b",
+                            "name": "ens1f1",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "48:df:37:07:4f:7a",
+                            "name": "ens1f0",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "70:10:6f:c2:a0:65",
+                            "name": "eno2",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "10.102.35.101",
+                            "mac_address": "70:10:6f:c2:a0:64",
+                            "name": "eno1",
+                            "speed": 1000
+                        }
+                    ],
+                    "memory_available": 62.5029296875,
+                    "potential_monitor_interfaces": [
+                        "ens1f1",
+                        "ens1f0",
+                        "eno2"
+                    ]
+                }
+            }
+        ],
+        "sensors": [
+            {
+                "host_sensor": "10.102.35.110",
+                "monitor_interface": [
+                    "eno2"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "hostname": "sensor1.lan",
+                "bro_cpu_percentage": "42",
+                "suricata_cpu_percentage": "16",
+                "moloch_cpu_percentage": "42",
+                "moloch_mem_limit": "80",
+                "sensor_apps": [
+                    "bro",
+                    "suricata",
+                    "moloch"
+                ],
+                "sensor_type": "Local",
+                "deviceFacts": {
+                    "cpus_available": 32,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.110",
+                        "alias": "eno1",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "eno1",
+                        "macaddress": "0c:c4:7a:9a:ef:84",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 745.21,
+                            "size_tb": 0.727744140625
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 1863.68,
+                            "size_tb": 1.82
+                        }
+                    ],
+                    "hostname": "sensor1.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "0c:c4:7a:9a:ef:85",
+                            "name": "eno2",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "10.102.35.110",
+                            "mac_address": "0c:c4:7a:9a:ef:84",
+                            "name": "eno1",
+                            "speed": 1000
+                        }
+                    ],
+                    "memory_available": 62.646484375,
+                    "potential_monitor_interfaces": [
+                        "eno2"
+                    ]
+                }
+            },
+            {
+                "host_sensor": "10.102.35.111",
+                "monitor_interface": [
+                    "enp7s0"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "hostname": "sensor2.lan",
+                "bro_cpu_percentage": "42",
+                "suricata_cpu_percentage": "16",
+                "moloch_cpu_percentage": "42",
+                "moloch_mem_limit": "80",
+                "sensor_apps": [
+                    "bro",
+                    "suricata",
+                    "moloch"
+                ],
+                "sensor_type": "Local",
+                "deviceFacts": {
+                    "cpus_available": 16,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.111",
+                        "alias": "enp6s0",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "enp6s0",
+                        "macaddress": "0c:c4:7a:18:d3:bc",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 745.21,
+                            "size_tb": 0.727744140625
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 1863.68,
+                            "size_tb": 1.82
+                        }
+                    ],
+                    "hostname": "sensor2.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "10.102.35.111",
+                            "mac_address": "0c:c4:7a:18:d3:bc",
+                            "name": "enp6s0",
+                            "speed": 1000
+                        },
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "0c:c4:7a:18:d3:bd",
+                            "name": "enp7s0",
+                            "speed": -1
+                        }
+                    ],
+                    "memory_available": 47,
+                    "potential_monitor_interfaces": [
+                        "enp7s0"
+                    ]
+                }
+            },
+            {
+                "host_sensor": "10.102.35.112",
+                "monitor_interface": [
+                    "eno2"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "hostname": "sensor3.lan",
+                "bro_cpu_percentage": "42",
+                "suricata_cpu_percentage": "16",
+                "moloch_cpu_percentage": "42",
+                "moloch_mem_limit": "80",
+                "sensor_apps": [
+                    "bro",
+                    "suricata",
+                    "moloch"
+                ],
+                "sensor_type": "Local",
+                "deviceFacts": {
+                    "cpus_available": 32,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.112",
+                        "alias": "eno1",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "eno1",
+                        "macaddress": "ac:1f:6b:13:27:38",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 745.21,
+                            "size_tb": 0.727744140625
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 1863.68,
+                            "size_tb": 1.82
+                        }
+                    ],
+                    "hostname": "sensor3.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "ac:1f:6b:13:27:39",
+                            "name": "eno2",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "10.102.35.112",
+                            "mac_address": "ac:1f:6b:13:27:38",
+                            "name": "eno1",
+                            "speed": 1000
+                        }
+                    ],
+                    "memory_available": 62.646484375,
+                    "potential_monitor_interfaces": [
+                        "eno2"
+                    ]
+                }
+            },
+            {
+                "host_sensor": "10.102.35.113",
+                "monitor_interface": [
+                    "eno2"
+                ],
+                "pcap_drives": [
+                    "sdb"
+                ],
+                "hostname": "sensor4.lan",
+                "bro_cpu_percentage": "42",
+                "suricata_cpu_percentage": "16",
+                "moloch_cpu_percentage": "42",
+                "moloch_mem_limit": "80",
+                "sensor_apps": [
+                    "bro",
+                    "suricata",
+                    "moloch"
+                ],
+                "sensor_type": "Local",
+                "deviceFacts": {
+                    "cpus_available": 32,
+                    "default_ipv4_settings": {
+                        "address": "10.102.35.113",
+                        "alias": "eno1",
+                        "broadcast": "10.102.35.255",
+                        "gateway": "10.102.35.1",
+                        "interface": "eno1",
+                        "macaddress": "0c:c4:7a:cc:8d:08",
+                        "mtu": 1500,
+                        "netmask": "255.255.255.0",
+                        "network": "10.102.35.0",
+                        "type": "ether"
+                    },
+                    "disks": [
+                        {
+                            "hasRoot": true,
+                            "name": "sda",
+                            "size_gb": 745.21,
+                            "size_tb": 0.727744140625
+                        },
+                        {
+                            "hasRoot": false,
+                            "name": "sdb",
+                            "size_gb": 1863.68,
+                            "size_tb": 1.82
+                        }
+                    ],
+                    "hostname": "sensor4.lan",
+                    "interfaces": [
+                        {
+                            "ip_address": "169.254.0.1",
+                            "mac_address": "0c:c4:7a:cc:8d:09",
+                            "name": "eno2",
+                            "speed": -1
+                        },
+                        {
+                            "ip_address": "10.102.35.113",
+                            "mac_address": "0c:c4:7a:cc:8d:08",
+                            "name": "eno1",
+                            "speed": 1000
+                        }
+                    ],
+                    "memory_available": 62.646484375,
+                    "potential_monitor_interfaces": [
+                        "eno2"
+                    ]
+                }
+            }
+        ],
+        "sensor_resources": {
+            "home_nets": [
+                {
+                    "home_net": "10.0.0.1/24"
+                }
+            ],
+            "external_nets": []
+        },
+        "server_resources": {
+            "elastic_cpu_percentage": "50",
+            "elastic_memory_percentage": "50",
+            "logstash_cpu_percentage": "10",
+            "elastic_storage_percentage": "80",
+            "elastic_curator_threshold": "90"
+        },
+        "dns_ip": null,
+        "endgame_iporhost": "10.102.37.200",
+        "endgame_username": "admin",
+        "endgame_password": "We.are.tfplenum4$",        
+        "enable_percentages": null
+    },
+    "timeForm": {
+        "date": {
+            "year": 2019,
+            "month": 4,
+            "day": 10
+        },
+        "time": "21:44",
+        "timezone": "UTC"
+    }
+}

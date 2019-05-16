@@ -1,0 +1,63 @@
+<app-modal-dialog [modal]="configMapsModal" (primaryButtonClick)="confirmDeleteSubmission()"></app-modal-dialog>
+<app-modal-dialog [modal]="addConfigMapDataModal" (primaryButtonClick)="addNewConfigMapData($event)"></app-modal-dialog>
+<app-modal-dialog [modal]="addConfigMapModal" (primaryButtonClick)="addNewConfigMap($event)"></app-modal-dialog>
+
+<div *ngIf="!isUserEditing" class="container">
+  <div class="card">
+    <div class="card-header">
+      Config Maps <button class="btn btn-primary" style="float: right;" (click)="addConfigMap()"><i class="icon_plus_alt2"></i> Add Config Map</button>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Namespace</th>
+            <th scope="col">Config Name</th>
+            <th scope="col">Creation Date</th>
+            <th scope="col">Actions</th>            
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let config of configMaps; let configIndex=index">
+            <tr>
+              <td><a class="dropdown-toggle" (click)="toggleDataDropDown(configIndex)">{{ config.metadata.namespace }}</a></td>
+              <td>{{ config.metadata.name }}</td>
+              <td>{{ config.metadata.creation_timestamp }}</td>
+              <td><button title="Remove Config Map" class="btn btn-danger" (click)="removeConfigMap(config.metadata.name, configIndex)"><i
+                    class="icon_close_alt2"></i></button></td>
+            </tr>
+            <tr *ngIf="isConfigMapVisible[configIndex]">
+              <td colspan="4">
+                <button title="Add Config Data" class="btn btn-primary" (click)="addConfigMapData(configIndex)"><i class="icon_plus_alt2"></i> Add Config Data</button>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Filename</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="config.data">
+                    <tr *ngFor="let filename of objectKeys(config.data)">
+                      <td>{{ filename }}</td>
+                      <td>
+                        <div class="btn-group">
+                          <button title="Edit Config Data" class="btn btn-primary" (click)="editConfigMapData(filename, configIndex)"><i class="icon_pencil"></i></button>
+                          <button title="Remove Config Data" class="btn btn-danger" (click)="removeConfigMapData(filename, configIndex)"><i class="icon_close_alt2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<app-configmap-editor *ngIf="isUserEditing" 
+                      [text]="activeConfigData" 
+                      [title]="activeConfigDataTitle" 
+                      (closeNoSaveEvent)="closeEditor($event)" 
+                      (closeSaveEvent)="saveAndCloseEditor($event)"></app-configmap-editor>

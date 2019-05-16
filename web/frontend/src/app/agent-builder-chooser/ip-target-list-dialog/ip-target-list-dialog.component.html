@@ -1,0 +1,80 @@
+<div class="modal fade" id="agent_deployer_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document" style="max-width: 970px;">
+    <div class="modal-content">
+      <form [formGroup]="dialogForm" (ngSubmit)="onSubmit()">
+        <div class="modal-header">
+          <h5 class="modal-title">Deploy Agent Installer</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body" id="topheader">
+          <div class="card">
+            <div class="card-header">
+              Agent Installer: Install Windows Agents
+            </div>
+            <div class="card-body">
+                <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+                  <h5>Page Instructions</h5>
+                  <p class="card-text">
+                    This page allows you to deploy Windows monitoring agents.
+                  </p>
+                </div>
+                <br>
+                <div class="card">
+                  <h5>Windows Remote Admin Credentials</h5>
+                  <app-text-input [parentForm]="dialogForm.windows_credentials" controlName="user_name">
+                  </app-text-input>
+                  <app-text-input [parentForm]="dialogForm.windows_credentials" controlName="password">
+                  </app-text-input>
+                </div>
+                <br>
+              <app-card-selector [parentForm]="dialogForm" controlName="target_list_selector" 
+                (click)="dialogForm.onTargetListSelection()"></app-card-selector>
+                <H5>Remote Targets</H5>
+                <app-text-input [parentForm]="dialogForm" controlName="target_list_name"></app-text-input>
+                <div *ngFor="let target of dialogForm.targets.controls; let i=index" class="card">
+                  <div class="card-body">
+                    <app-text-input [parentForm]="target" controlName='ip_address' uid="{{i}}" style="float:left">
+                    </app-text-input>
+                    <button class="btn btn-danger" type="button" style="float:right"
+                      (click)="dialogForm.removeTarget(i)">
+                      <i class="icon_close_alt2"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-header">
+                  <button name="add_target" class="btn btn-primary" type="button" (click)="dialogForm.addTarget()"
+                    [disabled]="!dialogForm.targets.valid">
+                    <i class="icon_plus_alt2"></i> Add Windows Target</button>&nbsp;
+                  <button name="save_target" class="btn btn-primary" type="button" (click)="dialogForm.saveTargetList()"
+                    [disabled]="!dialogForm.targets.valid && !dialogForm.target_list_name.valid">
+                    <i class="icon_floppy_alt"></i> Save Target List</button>
+                </div>
+              </div>
+            </div>
+            <br>
+          <div class="card">
+            <div class="card-header">
+              Validation
+            </div>
+            <div class="card-body" id="validation">
+              <p *ngIf="dialogForm.readyToInstall" class='text-success'>Looks good! Press 'Install Agents' whenever
+                you're
+                ready!</p>
+              <div *ngIf="!dialogForm.readyToInstall">
+                <p *ngFor="let error of dialogForm.errors | keyvalue;" class='text-danger'>{{ error.key }} -
+                  {{error.value}} </p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                name="cancel_add_installer">Cancel</button>&nbsp;
+              <button class="btn btn-primary" type="submit" [disabled]="!dialogForm.readyToInstall"
+                name="install_agents">Install Agents</button>
+            </div>
+          </div>
+          </div>
+      </form>
+    </div>
+  </div>

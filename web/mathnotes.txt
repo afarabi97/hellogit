@@ -1,0 +1,55 @@
+Remove the following:
+    elastic_pv_size
+    elastic_min_masters
+
+
+es_min_masters: 2
+
+SMALL SETUPS
+
+    ELASTIC SEARCH:
+        elasticsearch_cpu_request: <elastic_data_cpu_request>
+
+        elastic_masters: 3
+        elastic_master_memory: 6
+        elastic_master_jvm_memory: 4
+        elastic_master_cpu_request: 2000m
+
+        elastic_data_cpu_request: 8000m
+        elastic_data_jvm_memory: 15
+        elastic_data_memory: 30
+        elastic_datas: <number of servers>
+    
+    LOGSTASH
+        logstash_cpu_limit: 4000m
+        logstash_cpu_request: 1500m
+        logstash_replicas: <number of servers>
+        logstash_memory_request: 8
+        logstash_memory_limit: 10
+        logstash_jvm_memory: 8
+        logstash_pipeline_workers: 4
+
+
+LARGE SETUPS
+    ELASTIC SEARCH: 
+        elasticsearch_cpu_request: <elastic_data_cpu_request>
+
+
+        elastic_masters: 3
+        elastic_master_memory: 6
+        elastic_master_jvm_memory: 4
+        elastic_master_cpu_request: 2000m        
+
+        elastic_data_cpu_request: 16000m
+        elastic_data_jvm_memory: 30
+        elastic_data_memory: 64
+        elastic_datas: <number of servers>
+
+    LOGSTASH
+        logstash_cpu_limit: 6000m
+        logstash_cpu_request: 1500m
+        logstash_replicas: 2 * <number of servers>
+        logstash_memory_request: 12
+        logstash_memory_limit: 16
+        logstash_jvm_memory: 12
+        logstash_pipeline_workers: 6

@@ -1,0 +1,124 @@
+<app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<app-modal-dialog [modal]="deleteConfigurationModal" (primaryButtonClick)="deleteConfiguration()"></app-modal-dialog>
+<app-modal-loading #loadingDialog modalId="waitForAgentBuilderToComplete"
+  title="Building agent installer. Please wait..."></app-modal-loading>
+<app-agent-installer-add-dialog #addAgentInstaller (primaryButtonClick)="getSavedConfigs()"></app-agent-installer-add-dialog>
+<app-ip-target-list-dialog #deployAgentInstaller></app-ip-target-list-dialog>
+<div class="container" id="topheader">
+  <div class="card">
+    <div class="card-header">
+      Agent Builder: Configure, build and download a Windows installer for Winlogbeat and Sysmon agents
+    </div>
+    <div class="card-body">
+
+      <div class="card" style="margin-bottom: 15px;">
+        <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+          <h5>Page Instructions</h5>
+          <p class="card-text">
+            This page allows you to build and download a self-extracting archive for installing various monitoring
+            agents on Windows.
+            <br><br>
+            Before filling out the form, make sure you have added all of your nodes to the Kickstart page.
+            When all inputs are valid, the "Build Agent" button will be enabled.
+            <br><br>
+            Note: The checks on this page are only for <i>valid</i> data, not <i>correct</i> data. For example, any
+            valid IP address will work for the "PF Sense Firewall IP", even if it not your actual firewall IP.
+          </p>
+        </div>
+        <div>
+          <br>
+          <button class="btn btn-primary" name="add_configuration" (click)="addNewConfiguration()"
+            style="float: right;">
+            <i class="icon_plus_alt2"></i>&nbsp;Add Configuration
+          </button>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col" style="text-align:center">Select</th>
+              <th scope="col">Configuration Name</th>
+              <th scope="col" style="text-align:center">Firewall IP</th>
+              <th scope="col" style="text-align:center">Sysmon</th>
+              <th scope="col" style="text-align:center">Winlogbeat</th>
+              <th scope="col" style="text-align:center">Endgame</th>
+              <th scope="col">Endgame Sensor</th>
+              <th scope="col">Endgame Port</th>
+              <th scope="col" style="text-align:center">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor='let cfg of savedConfigs' class='card'>
+              <tr>
+                <td style="text-align:center"><input type="radio" name="configGroup" class="md-radio-button"
+                    style="width:25px;height:25px;" (change)="onSelectionChange(cfg)"></td>
+                <td>{{ cfg.config_name }}</td>
+                <td>{{ cfg.pf_sense_ip }}</td>
+                <td style="text-align:center">
+                  <div *ngIf="cfg.install_sysmon; else sysNo">
+                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
+                  </div>
+                  <ng-template #sysNo>
+                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
+                  </ng-template>
+                </td>
+                <td style="text-align:center">
+                  <div *ngIf="cfg.install_winlogbeat; else wlbNo">
+                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
+                  </div>
+                  <ng-template #wlbNo>
+                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
+                  </ng-template>
+                </td>
+                <td style="text-align:center">
+                  <div *ngIf="cfg.install_endgame; else egNo">
+                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px">
+                  </div>
+                  <ng-template #egNo>
+                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
+                  </ng-template>
+                </td>
+                <td>
+                  <div *ngIf="cfg.install_endgame; else egSensorNo">{{ cfg.endgame_sensor_name }}</div>
+                  <ng-template #egSensorNo>N/A</ng-template>
+                </td>
+                <td>
+                  <div *ngIf="cfg.install_endgame; else egPortNo">{{ cfg.endgame_port }}</div>
+                  <ng-template #egPortNo>N/A</ng-template>
+                </td>
+                <td style="text-align:center"><button (click)="openConfirmDeleteConfig(cfg)" class="btn btn-danger" ><i class="icon_close_alt2"></i></button></td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="config_selection!=null && config_selection.install_endgame">
+        <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
+          <h6>Endgame Server Credentials</h6>
+          <app-text-input [parentForm]="endgame_credentials" controlName="server_ip"></app-text-input>
+          <app-text-input [parentForm]="endgame_credentials" controlName="user_name"></app-text-input>
+          <app-text-input [parentForm]="endgame_credentials" controlName="password"></app-text-input>
+        </div>
+      </div>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td style="text-align: left">
+      <button class="btn btn-primary" name="save_configuration" (click)="downloadInstaller()"
+        [disabled]="config_selection==null || config_selection.install_endgame && 
+          !(endgame_credentials.server_ip.valid && endgame_credentials.user_name.valid && endgame_credentials.password)">
+          <i class="icon_download"></i> Download Installer
+      </button>
+    </td>
+    <td style="text-align: right">
+      <button class="btn btn-primary" name="deploy_configuration" (click)="deployInstaller()"
+        [disabled]="config_selection==null || config_selection.install_endgame && 
+          !(endgame_credentials.server_ip.valid && endgame_credentials.user_name.valid && endgame_credentials.password)">
+          &nbsp;&nbsp;<i class="icon_cloud-upload_alt"></i>&nbsp;Deploy Installer&nbsp;&nbsp;
+        </button>
+      </td>
+      </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>

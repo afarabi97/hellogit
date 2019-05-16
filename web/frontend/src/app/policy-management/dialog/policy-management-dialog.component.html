@@ -1,0 +1,39 @@
+<app-modal-dialog [modal]="closeModal" (primaryButtonClick)="closeWithoutSaving()"></app-modal-dialog>
+<app-modal-dialog [modal]="saveModal" (primaryButtonClick)="closeAndSave()"></app-modal-dialog>
+<app-modal-dialog [modal]="messageModal" (primaryButtonClick)="closeEditor()"></app-modal-dialog>
+<div class="container-fluid" style="margin-top: 75px;">
+  <div class="card" [formGroup]="ruleGroup">
+      <mat-form-field class="card-header">
+          <input matInput placeholder="Add rule name here." type="text" id="ruleName" formControlName="ruleName" required>
+      </mat-form-field>
+    <div class="card-body">
+      <div #outerCard class="row" style="overflow: auto;">
+        <div class="line-numbers">
+            <div *ngFor="let item of numbers; let i = index">{{ i + 1 }}</div>
+        </div>
+        <div class="text-area-wrapper">
+          <textarea #editorCard class="text-area" id="rule" formControlName="rule" type="text" rows="1000" cols="50"></textarea>
+        </div>      
+      </div>
+      <div class="row">
+        <mat-checkbox class="mat-checkbox-inner-container col" [checked]="isRuleEnabled()" formControlName="isEnabled">Is Rule Enabled?</mat-checkbox>
+        <div class="col">
+            <mat-form-field>
+              <mat-label>PCAP to test against</mat-label>
+              <mat-select [(value)]="selectedPcap">
+                <mat-option *ngFor="let pcap of pcaps" [value]="pcap.name">
+                  {{ pcap.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-danger" type="button" (click)="openCloseDialog()">Close without saving</button>
+      <button class="btn btn-primary" [disabled]="!ruleGroup.valid" type="button" style="float: right;" (click)="openSaveDialog()">Save and close</button>
+      <button class="btn btn-secondary" [disabled]="!ruleGroup.valid" type="button" style="float: right; margin-right: 10px;" (click)="validateRule()">Validate Syntax</button>
+      <button class="btn btn-secondary" [disabled]="!ruleGroup.valid" type="button" style="float: right; margin-right: 10px;" (click)="testAgainstPCAP()">Test against PCAP</button>
+    </div>
+  </div>
+</div>

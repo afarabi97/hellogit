@@ -1,0 +1,42 @@
+
+<app-modal-dialog [modal]="messageDialog2"></app-modal-dialog>
+<h1 mat-dialog-title *ngIf="data === 'add'">Add RuleSet</h1>
+<h1 mat-dialog-title *ngIf="data === 'edit'">Edit RuleSet</h1>
+<div mat-dialog-content>
+  <form class="example-form" [formGroup]="ruleSetGroup">
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="RuleSet Name" type="text" id="name" formControlName="name" required>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Classification</mat-label>
+      <mat-select id="clearance" formControlName="clearance">
+        <mat-option *ngFor="let type of clearanceLevels" [value]="type.value">
+          {{type.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Group Name" type="text" id="groupName" formControlName="groupName" required>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Sensors</mat-label>
+      <mat-select formControlName="sensors" multiple>
+        <mat-option *ngFor="let sensor of sensorList" [value]="sensor">{{sensor.hostname}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Rule Type</mat-label>
+      <mat-select id="appType" formControlName="appType">
+        <mat-option *ngFor="let type of ruleType" [value]="type.value">
+          {{type.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-label></mat-label>
+    <mat-checkbox [checked]="isRuleSetEnabled()" formControlName="isEnabled">Is Enabled?</mat-checkbox>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" (click)="onSubmit()" cdkFocusInitial>Submit</button>
+</div>

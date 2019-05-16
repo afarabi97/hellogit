@@ -1,0 +1,13 @@
+.console {
+    overflow: auto;
+    max-height: 100px;
+    background-color: #101010;
+}
+
+.console p {
+    margin: 0px;
+}
+
+.card {
+    opacity: 0.8;
+}
