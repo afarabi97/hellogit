@@ -29,18 +29,18 @@ export class AgentBuilderService {
     return this.http.get(url);
   }
 
-  getIpTargetList() : Observable<IpTargetList> {
+  getIpTargetList() : Observable<any> {
     let url = '/api/get_agent_installer_target_lists';
     return this.http.get(url);
   }
 
-  saveIpTargetList(payload: IpTargetList): Observable<Array<IpTargetList>> {
+  saveIpTargetList(payload: IpTargetList): Observable<any> {
     let url = '/api/save_agent_installer_target_list';
     console.log('Service, saving:', payload);
     return this.http.post(url, payload)
   }
 
-  deleteIpTargetList(payload: string): Observable<IpTargetList> {
+  deleteIpTargetList(payload: string): Observable<any> {
     let url = '/api/delete_agent_installer_target_list/' + payload;
     return this.http.delete(url);
   }

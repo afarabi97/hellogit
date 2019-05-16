@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { IpTargetListForm } from './ip-target-list-form';
 import { AgentBuilderService } from 'src/app/agent-builder.service';
-
+declare var $: any;
 @Component({
   selector: 'app-ip-target-list-dialog',
   templateUrl: './ip-target-list-dialog.component.html',
@@ -16,7 +16,7 @@ export class IpTargetListDialogComponent implements OnInit {
   ngOnInit() {
   }
 
-    openModal(agentBuilderSvc: AgentBuilderService) {
+   openModal(agentBuilderSvc: AgentBuilderService) {
       this.dialogForm.agentBuilderSrv = agentBuilderSvc;
       this.dialogForm.populateSavedTargetSelector();
       $("#agent_deployer_modal").modal({backdrop: 'static', keyboard: false});
