@@ -1,10 +1,5 @@
 ---
 
-tfplenum_repos:
-  - tfplenum
-  - tfplenum-frontend
-  - tfplenum-integration-testing
-
 package_list:
   - python-pip
   - git

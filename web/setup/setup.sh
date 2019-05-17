@@ -15,7 +15,7 @@ function _install_deps(){
 	yum -y install wget nmap
 }
 
-function _install_nodejs(){	
+function _install_nodejs(){
 	run_cmd wget https://nodejs.org/dist/v8.11.4/node-v8.11.4-linux-x64.tar.xz
     run_cmd tar xf node-v8.11.4-linux-x64.tar.xz
     run_cmd cd node-v8.11.4-linux-x64/
@@ -24,7 +24,7 @@ function _install_nodejs(){
 	run_cmd rm -rf node-v8.11.4-linux-x64/
 	run_cmd rm -f node-v8.11.4-linux-x64.tar.xz
     run_cmd node -v
-    run_cmd npm -v    
+    run_cmd npm -v
 }
 
 function _install_angular(){
@@ -32,7 +32,7 @@ function _install_angular(){
 	run_cmd npm install -g npm@latest
 	run_cmd npm install -g @angular/cli
 	run_cmd npm cache verify
-	run_cmd npm i 
+	run_cmd npm i
     run_cmd npm install
 	run_cmd npm audit fix
 	popd > /dev/null
@@ -53,7 +53,7 @@ function _install_python36(){
 function _setup_pythonenv {
 	pushd $FRONTEND_DIR/ > /dev/null
 	systemctl is-active tfplenum-frontend && systemctl stop tfplenum-frontend # If it's running, it needs to be stopped
-	run_cmd rm -rf /opt/tfplenum-frontend/tfp-env
+	run_cmd rm -rf $FRONTEND_DIR/tfp-env
 	run_cmd python3.6 -m venv tfp-env
 	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install --upgrade pip
 	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install -r requirements.txt
@@ -88,7 +88,7 @@ function _install_and_configure_gunicorn {
 	run_cmd systemctl enable tfplenum-frontend.service
 }
 
-function _install_and_start_mongo40 {		
+function _install_and_start_mongo40 {
 cat <<EOF > /etc/yum.repos.d/mongodb-org-4.0.repo
 [mongodb-org-4.0]
 name=MongoDB Repository

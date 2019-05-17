@@ -1,5 +1,5 @@
 #!/bin/bash
-boostrap_version=1.2.0
+boostrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="vim net-tools wget"
 EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
@@ -17,7 +17,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-REPOS=("tfplenum-frontend" "tfplenum" "tfplenum-deployer" "tfplenum-integration-testing")
+REPOS=("tfplenum")
 
 function run_cmd {
     local command="$@"
@@ -356,11 +356,6 @@ function set_git_variables() {
             read -p "tfplenum Branch Name: " TFPLENUM_BRANCH_NAME
             export TFPLENUM_BRANCH_NAME=$TFPLENUM_BRANCH_NAME
 
-            read -p "tfplenum-deployer Branch Name: " DEPLOYER_BRANCH_NAME
-            export DEPLOYER_BRANCH_NAME=$DEPLOYER_BRANCH_NAME
-
-            read -p "tfplenum-frontend Branch Name: " FRONTEND_BRANCH_NAME
-            export FRONTEND_BRANCH_NAME=$FRONTEND_BRANCH_NAME
         fi
     fi
 }
@@ -383,12 +378,6 @@ function clone_repos(){
             case "$i" in
             "tfplenum" )
                 git checkout "$TFPLENUM_BRANCH_NAME";;
-            "tfplenum-deployer" )
-                git checkout "$DEPLOYER_BRANCH_NAME";;
-            "tfplenum-integration-testing" )
-                git checkout origin/devel ;;
-            "tfplenum-frontend" )
-                git checkout "$FRONTEND_BRANCH_NAME";;
             esac
             popd > /dev/null
         fi
@@ -412,7 +401,7 @@ function enter_branch_name() {
 }
 
 function setup_frontend(){
-    run_cmd /opt/tfplenum-frontend/setup/setup.sh
+    run_cmd /opt/tfplenum/web/setup/setup.sh
 }
 
 function _install_and_start_mongo40() {
@@ -469,13 +458,13 @@ function set_os_type(){
 }
 
 function execute_bootstrap_playbook(){
-    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
+    pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
     make bootstrap
     popd > /dev/null
 }
 
 function execute_pull_docker_images_playbook(){
-    pushd "/opt/tfplenum-deployer/playbooks" > /dev/null
+    pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
     make pull-docker-images
     popd > /dev/null
 }

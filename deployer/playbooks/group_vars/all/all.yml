@@ -3,8 +3,8 @@ kick_cfg: ks.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
 tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
-install_dir: /opt/tfplenum
-tfplenum_vars: "{{ install_dir }}/playbooks/group_vars/all/versions.yml"
+core_install_dir: /opt/tfplenum/core
+tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 
 rhel_repos:
   - rhel-7-server-rpms
@@ -92,7 +92,7 @@ pip_downloads:
   - pyhelm
   - grpcio
   - pbr
-  
+
 pip_installs:
   - "docker-py"
   - "junit-xml==1.8"
