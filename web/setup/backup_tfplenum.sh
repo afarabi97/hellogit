@@ -3,9 +3,12 @@
 STARTING_DIR=$(pwd)
 DATE_STR=$(date +"%m-%d-%y_%H-%M")
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+WEB_DIR="$SCRIPT_DIR/../"
+
 function backup_tfplenum {
-    mkdir -p /opt/tfplenum-frontend/backups    
-    pushd /opt/tfplenum-frontend/backups > /dev/null
+    mkdir -p $WEB_DIR/backups    
+    pushd $WEB_DIR/backups > /dev/null
     mkdir backup/
     mongodump --archive=backup/tfplenum_database.gz --gzip --db tfplenum_database
     cp -rv /var/www/html/THISISCVAH/ backup/.

@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-FRONTEND_DIR="/opt/tfplenum-frontend"
+FRONTEND_DIR="$SCRIPT_DIR/../"
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root or use sudo."
@@ -52,11 +52,11 @@ function _install_python36(){
 
 function _setup_pythonenv {
 	pushd $FRONTEND_DIR/ > /dev/null
-  systemctl is-active tfplenum-frontend && systemctl stop tfplenum-frontend # If it's running, it needs to be stopped
+	systemctl is-active tfplenum-frontend && systemctl stop tfplenum-frontend # If it's running, it needs to be stopped
 	run_cmd rm -rf /opt/tfplenum-frontend/tfp-env
 	run_cmd python3.6 -m venv tfp-env
-	run_cmd /opt/tfplenum-frontend/tfp-env/bin/pip install --upgrade pip
-	run_cmd /opt/tfplenum-frontend/tfp-env/bin/pip install -r requirements.txt
+	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install --upgrade pip
+	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install -r requirements.txt
 	popd > /dev/null
 }
 
@@ -109,7 +109,7 @@ function _preload_ids_rules {
 	popd > /dev/null
 
 	pushd $FRONTEND_DIR/backend > /dev/null
-	/opt/tfplenum-frontend/tfp-env/bin/python preload_suricata_rules.py
+	$FRONTEND_DIR/tfp-env/bin/python preload_suricata_rules.py
 	rm -rf $FRONTEND_DIR/backend/rules
 	popd > /dev/null
 }

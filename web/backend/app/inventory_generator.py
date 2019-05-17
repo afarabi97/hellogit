@@ -6,7 +6,7 @@ import os
 from typing import Dict
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app import TEMPLATE_DIR
+from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR
 from app.calculations import (ServerCalculations, NodeCalculations, 
                               get_sensors_from_list, get_servers_from_list, 
                               server_and_sensor_count)
@@ -57,10 +57,10 @@ class KickstartInventoryGenerator:
         template = JINJA_ENV.get_template('kickstart_inventory.yml')
         kickstart_template = template.render(template_ctx=self._template_ctx)
 
-        if not os.path.exists("/opt/tfplenum-deployer/playbooks/"):
-            os.makedirs("/opt/tfplenum-deployer/playbooks/")
+        if not os.path.exists(str(DEPLOYER_DIR / 'playbooks')):
+            os.makedirs(str(DEPLOYER_DIR / 'playbooks'))
 
-        with open("/opt/tfplenum-deployer/playbooks/inventory.yml", "w") as kickstart_file:
+        with open(str(DEPLOYER_DIR / 'playbooks/inventory.yml'), "w") as kickstart_file:
             kickstart_file.write(kickstart_template)
 
 
@@ -166,8 +166,8 @@ class KitInventoryGenerator:
         self._set_apps_bools()
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
-        if not os.path.exists("/opt/tfplenum/playbooks/"):
-            os.makedirs("/opt/tfplenum/playbooks/")
+        if not os.path.exists(str(CORE_DIR / 'playbooks')):
+            os.makedirs(str(CORE_DIR / 'playbooks'))
 
-        with open("/opt/tfplenum/playbooks/inventory.yml", "w") as kit_file:
+        with open(str(CORE_DIR / 'playbooks/inventory.yml'), "w") as kit_file:
             kit_file.write(kit_template)

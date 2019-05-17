@@ -2,7 +2,7 @@ import os
 import subprocess
 import tempfile
 
-from app import app, logger, conn_mng, get_next_sequence
+from app import (app, logger, conn_mng, get_next_sequence, WEB_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.job_manager import shell, spawn_job
 from app.socket_service import log_to_console
@@ -281,12 +281,12 @@ def delete_ruleset(ruleset_id: str) -> Response:
 
 @app.route('/api/sync_rulesets', methods=['GET', 'POST'])
 def sync_rulesets_api() -> Response:
-    cmd_to_execute = '/opt/tfplenum-frontend/tfp-env/bin/python sync_rulesets.py'
+    cmd_to_execute = str(WEB_DIR / 'tfp-env/bin/python') + ' sync_rulesets.py'
     spawn_job("SyncRuleSets",
                cmd_to_execute,
                ["sync_rulesets"],
                log_to_console,
-               working_directory="/opt/tfplenum-frontend/backend/fabfiles")
+               working_directory=str(WEB_DIR / "backend/fabfiles"))
     return OK_RESPONSE
 
 

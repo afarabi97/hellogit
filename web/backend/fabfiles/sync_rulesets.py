@@ -4,9 +4,11 @@ import logging
 import os
 import sys
 
-from connection_wrappers import FabricConnection, MongoConnectionManager, KubernetesWrapper, objectify
+from connection_wrappers import (FabricConnection, MongoConnectionManager, 
+                                 KubernetesWrapper, objectify)
 from fabric.runners import Result
-from fabfiles import KIT_ID, decode_password, KICKSTART_ID, RULESET_STATES, NODE_TYPES
+from fabfiles import (KIT_ID, decode_password, KICKSTART_ID, 
+                      RULESET_STATES, NODE_TYPES, CORE_DIR)
 from fabfiles.utils import get_suricata_pod_name
 from logging.handlers import RotatingFileHandler
 from logging import Logger, StreamHandler
@@ -15,7 +17,7 @@ from typing import List, Dict
 
 
 LOG_FILENAME = "/var/log/tfplenum/rulesync.log"
-SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
+SURICATA_RULESET_LOC = str(CORE_DIR / "suricata/rules/suricata.rules")
 logger = logging.getLogger('rulesync_logger')
 
 

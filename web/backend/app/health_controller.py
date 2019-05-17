@@ -3,7 +3,7 @@ Main module for handling all of the Kit Configuration REST calls.
 """
 import json
 import pymongo
-from app import app, logger, conn_mng
+from app import (app, logger, conn_mng, WEB_DIR, CORE_DIR)
 from app.job_manager import shell
 
 from app.job_manager import spawn_job
@@ -68,8 +68,8 @@ def describe_pod(pod_name: str, namespace: str) -> Response:
     :param pod_name: The name of the pod of cource.  
                      You can get it with 'kubectl get pods' on the main server node.
     """
-    command = '/opt/tfplenum-frontend/tfp-env/bin/python describe_kubernetes_pod.py %s %s' % (pod_name, namespace)
-    stdout, stderr = shell(command, working_dir="/opt/tfplenum-frontend/backend/fabfiles")
+    command = str(WEB_DIR / 'tfp-env/bin/python') + ' describe_kubernetes_pod.py %s %s' % (pod_name, namespace)
+    stdout, stderr = shell(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
 
     if stdout:
         stdout = stdout.decode('utf-8')        
@@ -88,8 +88,8 @@ def describe_node(node_name: str) -> Response:
     :param node_name: The name of the node of cource.  
                       You can get it with 'kubectl get nodes' on the main server node.
     """
-    command = '/opt/tfplenum-frontend/tfp-env/bin/python describe_kubernetes_node.py %s' % node_name
-    stdout, stderr = shell(command, working_dir="/opt/tfplenum-frontend/backend/fabfiles")        
+    command = str(WEB_DIR / '/tfp-env/bin/python') + ' describe_kubernetes_node.py %s' % node_name
+    stdout, stderr = shell(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
 
     if stdout:
         stdout = stdout.decode('utf-8')        
@@ -111,13 +111,14 @@ def perform_systems_check() -> Response:
     current_kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if current_kit_configuration:
         if current_kit_configuration["form"] and current_kickstart_configuration["form"]["root_password"]:
-            cmd_to_execute = ("ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" + 
-                              decode_password(current_kickstart_configuration["form"]["root_password"]) + "' site.yml")
+            cmd_to_execute = ("ansible-playbook -i {} -e ansible_ssh_pass='{}' site.yml"
+                               .format(str(CORE_DIR / 'playbooks/inventory.yml'), 
+                                       decode_password(current_kickstart_configuration["form"]["root_password"])))
             spawn_job("SystemsCheck",
                     cmd_to_execute,
                     ["systems_check"],
                     log_to_console,
-                    working_directory="/opt/tfplenum-integration-testing/playbooks")
+                    working_directory=str(TESTING_DIR / 'playbooks'))
             return OK_RESPONSE
 
     logger.warn("Perform systems check failed because the Kit configuration was not found in the mongo database.")

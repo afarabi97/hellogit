@@ -7,7 +7,7 @@ import requests
 import urllib3
 import sys
 
-from app import (app, logger, conn_mng)
+from app import (app, logger, conn_mng, CORE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
 from app.job_manager import shell
 from flask import send_file, Response, request, jsonify
@@ -39,7 +39,7 @@ def build_installer() -> Response:
     print("Endgame Credentials: {}:{}, {}/{}".format(endgame_server_ip, endgame_port, endgame_user_name, endgame_password))
 
 
-    installer_dir = '/opt/tfplenum/playbooks'
+    installer_dir = str(CORE_DIR / 'playbooks')
     installer_name = 'monitor_install.exe'
     installer_path = '{}/{}'.format(installer_dir, installer_name)
 

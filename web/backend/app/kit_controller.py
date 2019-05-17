@@ -4,7 +4,7 @@ Main module for handling all of the Kit Configuration REST calls.
 import json
 import os
 
-from app import app, logger, conn_mng
+from app import app, logger, conn_mng, CORE_DIR
 from app.archive_controller import archive_form
 from app.common import OK_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
@@ -136,7 +136,7 @@ def execute_kit_inventory() -> Response:
                 cmd_to_execute,
                 ["kit"],
                 log_to_console,
-                working_directory="/opt/tfplenum/playbooks")
+                working_directory=str(CORE_DIR / "playbooks"))
         
         return OK_RESPONSE
 
@@ -180,7 +180,7 @@ def execute_add_node() -> Response:
                     cmd_to_execute,
                     ["kit"],
                     log_to_console,
-                    working_directory="/opt/tfplenum/playbooks",
+                    working_directory=str(CORE_DIR / "playbooks"),
                     is_shell=True)
         return OK_RESPONSE
 

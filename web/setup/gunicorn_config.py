@@ -1,4 +1,4 @@
-pythonpath = "/opt/tfplenum-frontend/backend/"
+pythonpath = "/opt/tfplenum/web/backend/"
 bind = "127.0.0.1:5001"
 worker_class = "gevent"
 workers = 1 

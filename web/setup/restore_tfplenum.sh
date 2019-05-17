@@ -1,7 +1,10 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+FRONTEND_DIR="$SCRIPT_DIR/../"
+
 function selectBackupFile {    
-    options=($(ls /opt/tfplenum-frontend/backups))    
+    options=($(ls $FRONTEND_DIR/backups))    
     prompt="Please select a file:"
 
     PS3="$prompt "
@@ -18,11 +21,11 @@ function selectBackupFile {
         fi
     done    
 
-    BACKUP_FILE=/opt/tfplenum-frontend/backups/$opt
+    BACKUP_FILE=$FRONTEND_DIR/backups/$opt
 }
 
 function restoreMCPServer {
-    pushd /opt/tfplenum-frontend/backups > /dev/null
+    pushd $FRONTEND_DIR/backups > /dev/null
     mongo tfplenum_database --eval "db.dropDatabase()"
     tar -xzvf $BACKUP_FILE
     cp -r backup/confluence/THISISCVAH/ /var/www/html/.

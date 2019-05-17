@@ -3,7 +3,7 @@ Main module for handling all of the Kickstart Configuration REST calls.
 """
 import json
 
-from app import (app, logger, conn_mng)
+from app import (app, logger, conn_mng, DEPLOYER_DIR)
 from app.archive_controller import archive_form
 from app.inventory_generator import KickstartInventoryGenerator
 from app.job_manager import spawn_job, shell
@@ -84,7 +84,7 @@ def generate_kickstart_inventory() -> Response:
               "make",
               ["kickstart"],
               log_to_console,
-              working_directory="/opt/tfplenum-deployer/playbooks")
+              working_directory=str(DEPLOYER_DIR / "playbooks"))
     return OK_RESPONSE
 
 

@@ -237,8 +237,8 @@ export class KitFormComponent implements OnInit, AfterViewInit{
 
   openGenKitInventoryModal(){
     this.openDateModal(false, 'Are you sure you want to generate the Kit inventory?  \
-      Doing so will create a new inventory file in /opt/tfplenum/playbooks/inventory.yml. \
-      To finish the Kit installation, you will need to cd /opt/tfplenum/playbooks then run make.');
+      Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
+      To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.');
   }
 
   private generateKitInventory(){
@@ -247,7 +247,7 @@ export class KitFormComponent implements OnInit, AfterViewInit{
     ).subscribe(data => {
       this.kitModal.updateModal('SUCCESS',
         "Inventory file generated successfully. To finish the Kit installation, \
-        you will need to cd /opt/tfplenum/playbooks then run make.",
+        you will need to cd /opt/tfplenum/core/playbooks then run make.",
         undefined,
         'Close');
       this.kitModal.openModal();
