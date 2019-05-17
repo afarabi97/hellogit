@@ -2,14 +2,14 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [ "$SCRIPT_DIR" != "/opt/tfplenum-integration-testing/testy-tester" ]; then
-  echo "Error: tfplenum-integration-testing must be in /opt"
+if [ "$SCRIPT_DIR" != "/opt/tfplenum/testing/testy-tester" ]; then
+  echo "Error: tfplenum/testing must be in /opt"
   exit 1
 fi
 
 # Default to repos for now
 export TFPLENUM_BOOTSTRAP_TYPE=repos
-int_testing_dir="/opt/tfplenum-integration-testing/testy-tester"
+int_testing_dir="/opt/tfplenum/testing/testy-tester"
 
 pushd $int_testing_dir > /dev/null
 
@@ -93,7 +93,7 @@ function finish(){
   echo "==========================================="
   echo "==========================================="
   echo "testy-tester dependencies have been setup"
-  echo "Run /opt/tfplenum-integration-testing/testy-tester/tfp-env/bin/python3.6 main.py /root/VMs.yml"
+  echo "Run /opt/tfplenum/testing/testy-tester/tfp-env/bin/python3.6 main.py /root/VMs.yml"
   echo "==========================================="
   echo "==========================================="
 }

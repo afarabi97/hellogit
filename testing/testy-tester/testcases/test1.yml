@@ -26,8 +26,6 @@ kit:
 
       # these branches are name of the branches on your fork you want to use
       tfplenum_branch_name: devel
-      deployer_branch_name: devel
-      frontend_branch_name: devel
 
       source_repo: labrepo
 

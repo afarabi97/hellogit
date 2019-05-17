@@ -115,7 +115,7 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
         deployer_branch = kit.branch_name
 
     curl_cmd = "curl -o /root/bootstrap.sh -u {username}:'{password}' " \
-            "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum-deployer" \
+            "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum/deployer" \
             "/raw/bootstrap.sh?at={branch_name}".format(
                 branch_name=deployer_branch,
                 username=di2e_username,
@@ -149,8 +149,6 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
             export TFPLENUM_BRANCH_NAME='" + kit.tfplenum_branch_name + "' && \
-            export DEPLOYER_BRANCH_NAME='" + kit.deployer_branch_name + "' && \
-            export FRONTEND_BRANCH_NAME='" + kit.frontend_branch_name + "' && \
             export USE_FORK='" + fork_var + "' && \
             bash /root/bootstrap.sh")
         client.run(cmd_to_execute, shell=True)
@@ -161,18 +159,18 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
     reports_destination="reports/"
     if "jenkins" not in current_path:
         reports_destination=""
-    reports_source = "/opt/tfplenum-integration-testing/playbooks/reports"
+    reports_source = "/opt/tfplenum/testing/playbooks/reports"
     cmd_to_list_reports = ("for i in " + reports_source + "/*; do echo $i; done")
     cmd_to_mkdir = ("mkdir -p reports")    
     cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
         export JUNIT_FAIL_ON_CHANGE='true' && \
-        ansible-playbook -i /opt/tfplenum/playbooks/inventory.yml -e ansible_ssh_pass='" +
+        ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
     print(ctrl_node.management_interface.ip_address)
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
-        with ctrl_cmd.cd("/opt/tfplenum-integration-testing/playbooks"):
+        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
             ctrl_cmd.run(cmd_to_mkdir)
             ctrl_cmd.run(cmd_to_execute, shell=True)
             reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()

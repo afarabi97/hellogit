@@ -20,11 +20,8 @@ kit:
   kit_configuration:
       
       branch_name: devel
-
       
       tfplenum_branch_name: devel
-      deployer_branch_name: devel
-      frontend_branch_name: devel
 
       source_repo: labrepo
 
