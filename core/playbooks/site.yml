@@ -253,7 +253,9 @@
     - elasticsearch
 
 - name: Deploy Logstash
-  hosts: master-server
+  hosts:
+    - master-server
+    - logstash
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

@@ -1,0 +1,6 @@
+---
+
+- name: Remove Logstash from Kubernetes
+  command: "kubectl delete services,deployments,pods -l component=logstash"
+
+...
