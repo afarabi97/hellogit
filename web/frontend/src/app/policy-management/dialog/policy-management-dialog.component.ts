@@ -179,8 +179,13 @@ export class PolicyManagementDialog implements OnInit {
   testAgainstPCAP(){
     this._PolicyManagementService.testRuleAgainstPCAP(this.selectedPcap, this.ruleGroup.value["rule"]).subscribe(
       data => {
-        const json_blob = new Blob([data], { type: 'application/json'});
-        FileSaver.saveAs(json_blob, 'pcap_test_results.json');
+        if (data["type"] === "application/tar+gzip"){
+          const json_blob = new Blob([data], { type: 'application/tar+gzip'});
+          FileSaver.saveAs(json_blob, 'bro_test_results.tar.gz');
+        } else {
+          const json_blob = new Blob([data], { type: 'application/json'});
+          FileSaver.saveAs(json_blob, 'pcap_test_results.json');
+        }        
       }, err => {
         if (err.status === 501){
           this.messageModal.updateModal("ERROR", "Validation failed for testing against PCAP. \

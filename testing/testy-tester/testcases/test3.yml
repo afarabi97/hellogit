@@ -18,22 +18,9 @@ kit:
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
-      
-      branch_name: devel
-      
+      branch_name: devel      
       tfplenum_branch_name: devel
-
       source_repo: labrepo
-
-      use_ceph_for_pcap: false
-
-      # Only fill this in if use_ceph_for_pcap is true
-      moloch_pcap_storage_percentage:
-      elasticsearch_cpu_percentage:
-      elasticsearch_ram_percentage:
-      logstash_server_cpu_percentage:
-      logstash_replicas:
-      es_storage_space_percentage:
 
       # Kubernetes cidr will probably be different on a per kit basis
       kubernetes_cidr: "172.16.82.80"
@@ -43,15 +30,6 @@ kit:
 
       # This is optional - you can fill it in if you need to
       external_nets:
-
-      kafka_cpu_percentage:
-      moloch_cpu_percentage:
-      bro_cpu_percentage:
-      suricata_cpu_percentage:
-      zookeeper_cpu_percentage:
-
-      ideal_es_cpus_per_instance:
-      es_cpu_to_memory_ratio_default:
 
   VMs:
     # Note: You should not have more than one of these
@@ -94,12 +72,12 @@ kit:
             dv_portgroup_name: "Monitoring Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 2
+        sockets: 4
         cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 16 # This value is in GiB
+        size: 8 # This value is in GiB
         hot_add_enabled: False
       disks:
         boot: 200 # Name of disk followed by capacity in GiBs
@@ -124,15 +102,15 @@ kit:
             dv_portgroup_name: "82 Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 12
-        cores_per_socket: 4
+        sockets: 32
+        cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 12
+        size: 60
         hot_add_enabled: False
       boot_drive_name: "sda"
-      ceph_drives:
+      es_drives:
         - sdb
       disks:
         boot: 20
@@ -158,15 +136,15 @@ kit:
             dv_portgroup_name: "82 Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 16
+        sockets: 32
         cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 12
+        size: 60
         hot_add_enabled: False
       boot_drive_name: "sda"
-      ceph_drives:
+      es_drives:
         - sdb
       disks:
         boot: 20
@@ -209,12 +187,7 @@ kit:
       memory_spec:
         size: 12
         hot_add_enabled: False
-      boot_drive_name: "sda"
-      # Selects the ceph or pcap drives we will use during kit configuration
-      # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
-      # otherwise you should use pcap_drives instead.
-#            ceph_drives:
-#              - sdb
+      boot_drive_name: "sda"      
       pcap_drives:
         - sdb
       disks:

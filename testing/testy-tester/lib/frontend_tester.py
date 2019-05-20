@@ -1,8 +1,3 @@
-# yum install -y python34
-# yum install -y python34-pip
-# pip install selenium beautifulsoup4
-# chromedriver from: http://chromedriver.chromium.org/downloads
-
 import logging
 import time
 
@@ -60,8 +55,7 @@ class SeleniumRunner:
             browser = webdriver.Chrome(chrome_options=chrome_options,
                                        executable_path='/usr/local/bin/chromedriver')
             return browser
-
-    @retry()
+        
     def _perform_send_keys(self, selector: str, value: str, locate_by=By.NAME):
         """
         Performs a send keys operation to an element and execute send_keys.
@@ -75,6 +69,13 @@ class SeleniumRunner:
         actions = ActionChains(self._browser)
         actions.move_to_element(element).perform()
         element.send_keys(value)
+    
+    def _perform_click_action(self, element_by_name: str, locate_by=By.NAME):
+        element = WebDriverWait(self._browser, 10).until(
+                                EC.presence_of_element_located((locate_by, element_by_name)))
+        actions = ActionChains(self._browser)
+        actions.move_to_element(element).perform()
+        element.click()
 
 
 class KickstartSeleniumRunner(SeleniumRunner):
@@ -127,9 +128,7 @@ class KickstartSeleniumRunner(SeleniumRunner):
         :return:
         """
         try:
-            element = WebDriverWait(self._browser, 10).until(EC.presence_of_element_located(
-                (By.NAME, "controller_interface_" + ctrl_node.management_interface.ip_address)))
-            element.click()
+            self._perform_click_action("controller_interface_" + ctrl_node.management_interface.ip_address)
         except Exception as e:
             logging.exception(e)
             logging.critical("Could not find the controller interface. Exiting.")
@@ -145,22 +144,7 @@ class KickstartSeleniumRunner(SeleniumRunner):
         """
         index = str(index)
 
-        element = self._browser.find_element_by_name("add_node")
-        element.click()
-
-        element = self._browser.find_element_by_name("node_type" + index)
-        element.click()
-
-        if node.type == "server" or node.type == "master-server":
-            element = self._browser.find_element_by_name("Server" + index)
-            element.click()
-        elif node.type == "sensor":
-            element = self._browser.find_element_by_name("Sensor" + index)
-            element.click()
-        else:
-            element = self._browser.find_element_by_name("Remote Sensor" + index)
-            element.click()
-
+        self._perform_click_action("add_node")
         element = self._browser.find_element_by_name("hostname" + index)
         element.clear()
         element.send_keys(node.hostname)
@@ -198,8 +182,7 @@ class KickstartSeleniumRunner(SeleniumRunner):
 
         :return:
         """
-        element = self._browser.find_element_by_name("execute_kickstart")
-        element.click()
+        self._perform_click_action("execute_kickstart")
 
     def run_kickstart_configuration(self, kit: Kit) -> None:
         """
@@ -297,7 +280,7 @@ class KitSeleniumRunner(SeleniumRunner):
                             a browser should run in headless or non headless mode.
         :param controller_ip: The controller IP Address that is hosting the frontend
         """
-        super(KitSeleniumRunner, self).__init__(is_headless, controller_ip)
+        super(KitSeleniumRunner, self).__init__(is_headless, controller_ip)    
 
     def _fill_out_server_node(self, index: int, node: Node):
         """
@@ -311,111 +294,23 @@ class KitSeleniumRunner(SeleniumRunner):
             raise TypeError("Invalid node type. It must be " + str(Node.valid_server_types))
 
         if node.type == "master-server":
-            element = self._browser.find_element_by_name("is_master_server" + str(index))
-            element.click()
+            self._perform_click_action("is_master_server" + str(index))
 
-        for drive_name in node.ceph_drives:
-            ceph_drive_ident = "ceph_drives_server{server_index}_{drive_name}".format(server_index=str(index),
-                                                                                      drive_name=drive_name)
-            element = WebDriverWait(self._browser, 10).until(
-                EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
-            actions = ActionChains(self._browser)
-            actions.move_to_element(element).perform()
-            element.click()
-
-    def _run_total_server_resources_section(self, kit: Kit) -> None:
-        """
-        Using selenium this fucntion test the elements that in the Total Server Resources Section
-
-        :param kit:
-        :return:
-        """
-        nodes = kit.get_nodes()
-        i = 0
-        for node in nodes:
-            if node.type not in Node.valid_server_types:
-                continue
-            self._fill_out_server_node(i, node)
-            i = i + 1
+        for drive_name in node.es_drives:
+            es_drive_ident = "es_drives_server{server_index}_{drive_name}".format(server_index=str(index),
+                                                                                  drive_name=drive_name)
+            self._perform_click_action(es_drive_ident)    
 
     def _run_global_setting_section(self, kit: Kit) -> None:
         """
         Using selenium this fucntion test the elements in the Global Settings Section
 
         :returns:
-        """
-        # element = self._browser.find_element_by_name("sensor_storage_type")
-        # element.click()
-        #
-        # if kit.use_ceph_for_pcap:
-        #     element = self._browser.find_element_by_name("Use Ceph clustered storage for PCAP")
-        #     element.click()
-        #
-        #     if kit.moloch_pcap_storage_percentage is not None:
-        #         element = self._browser.find_element_by_name("moloch_pcap_storage_percentage")
-        #         element.clear()
-        #         element.send_keys(str(kit.moloch_pcap_storage_percentage))
-        # else:
-        #     element = self._browser.find_element_by_name("Use hard drive for PCAP storage")
-        #     element.click()
-
-        if kit.elasticsearch_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("elastic_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.elasticsearch_cpu_percentage))
-
-        if kit.elasticsearch_ram_percentage is not None:
-            element = self._browser.find_element_by_name("elastic_memory_percentage")
-            element.clear()
-            element.send_keys(str(kit.elasticsearch_ram_percentage))
-
-        if kit.logstash_server_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("logstash_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.logstash_server_cpu_percentage))
-
-        if kit.logstash_replicas is not None:
-            element = self._browser.find_element_by_name("logstash_replicas")
-            element.clear()
-            element.send_keys(str(kit.logstash_replicas))
-
-        if kit.es_storage_space_percentage is not None:
-            element = self._browser.find_element_by_name("elastic_storage_percentage")
-            element.clear()
-            element.send_keys(str(kit.es_storage_space_percentage))
-
-        if kit.kafka_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("kafka_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.kafka_cpu_percentage))
-
-        element = self._browser.find_element_by_name("kubernetes_services_cidrkube_dropdown")
-        element.click()
-
+        """        
+        self._perform_click_action("kubernetes_services_cidrkube_dropdown")
         time.sleep(10)
-        element = self._browser.find_element_by_name(kit.kubernetes_cidr + "kube_dropdown")
-        element.click()
+        self._perform_click_action(kit.kubernetes_cidr + "kube_dropdown")        
 
-        if kit.ideal_es_cpus_per_instance is not None or kit.es_cpu_to_memory_ratio_default is not None:
-
-            element = self._browser.find_element_by_name("advanced_settings")
-            actions = ActionChains(self._browser)
-            actions.move_to_element(element).perform()
-            element.click()
-
-            if kit.ideal_es_cpus_per_instance is not None:
-                element = self._browser.find_element_by_name("elastic_cpus_per_instance_ideal")
-                actions = ActionChains(self._browser)
-                actions.move_to_element(element).perform()
-                element.clear()
-                element.send_keys(str(kit.ideal_es_cpus_per_instance))
-
-            if kit.es_cpu_to_memory_ratio_default is not None:
-                element = self._browser.find_element_by_name("elastic_cpus_to_mem_ratio")
-                actions = ActionChains(self._browser)
-                actions.move_to_element(element).perform()
-                element.clear()
-                element.send_keys(str(kit.es_cpu_to_memory_ratio_default))
 
     def _fill_out_sensor_node(self, index: int, node: Node):
         """
@@ -433,23 +328,15 @@ class KitSeleniumRunner(SeleniumRunner):
             # the gather facts button into view
 
             try:
-                for drive_name in node.ceph_drives:
-                    ceph_drive_ident = "ceph_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(index),
+                for drive_name in node.es_drives:
+                    es_drive_ident = "es_drives_sensor{sensor_index}_{drive_name}".format(sensor_index=str(index),
                                                                                               drive_name=drive_name)
-                    element = WebDriverWait(self._browser, 10).until(
-                        EC.presence_of_element_located((By.NAME, ceph_drive_ident)))
-                    actions = ActionChains(self._browser)
-                    actions.move_to_element(element).perform()
-                    element.click()
+                    self._perform_click_action(es_drive_ident)
             except:
                 for drive_name in node.pcap_drives:
                     pcap_drive_ident = "pcap_drives{sensor_index}_{drive_name}".format(sensor_index=str(index),
                                                                                        drive_name=drive_name)
-                    element = WebDriverWait(self._browser, 10).until(
-                        EC.presence_of_element_located((By.NAME, pcap_drive_ident)))
-                    actions = ActionChains(self._browser)
-                    actions.move_to_element(element).perform()
-                    element.click()
+                    self._perform_click_action(pcap_drive_ident)
         except Exception as e:
             logging.exception(e)
 
@@ -457,46 +344,21 @@ class KitSeleniumRunner(SeleniumRunner):
             if interface.monitoring_interface:
                 try:
                     monitor_iface_ident = "monitor_interface{sensor_index}_{interface_name}".format(
-                        sensor_index=str(index), interface_name=interface.interface_name)
-                    element = WebDriverWait(self._browser, 10).until(
-                        EC.presence_of_element_located((By.NAME, monitor_iface_ident)))
-                    actions = ActionChains(self._browser)
-                    actions.move_to_element(element).perform()
-                    element.click()
+                                           sensor_index=str(index), interface_name=interface.interface_name)
+                    self._perform_click_action(monitor_iface_ident)
                 except Exception as e:
-                    logging.exception(e)
+                    logging.exception(e)    
 
-    def _run_total_sensor_resources_section(self, kit: Kit) -> None:
+    def _fill_out_global_IDS_settings(self, kit: Kit) -> None:
         """
         Using selenium this fucntion test the elements in the Total Sensor Sesources Section
 
         :returns:
         """
-        if kit.moloch_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("moloch_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.moloch_cpu_percentage))
-
-        if kit.bro_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("bro_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.bro_cpu_percentage))
-
-        if kit.suricata_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("suricata_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.suricata_cpu_percentage))
-
-        if kit.zookeeper_cpu_percentage is not None:
-            element = self._browser.find_element_by_name("zookeeper_cpu_percentage")
-            element.clear()
-            element.send_keys(str(kit.zookeeper_cpu_percentage))
-
         x = 0  # type: int
 
         for home_net in kit.home_nets:
-            element = self._browser.find_element_by_name("add_home_net")
-            element.click()
+            self._perform_click_action("add_home_net")
 
             element = self._browser.find_element_by_name("home_net" + str(x))
             element.send_keys(home_net)
@@ -510,8 +372,7 @@ class KitSeleniumRunner(SeleniumRunner):
 
         if kit.external_nets is not None:
             for external_net in kit.external_nets:
-                element = self._browser.find_element_by_name("add_external_net")
-                element.click()
+                self._perform_click_action("add_external_net")
 
                 element = self._browser.find_element_by_name("external_net" + str(x))
                 element.send_keys(external_net)
@@ -519,43 +380,42 @@ class KitSeleniumRunner(SeleniumRunner):
                 # This condition is to ensure when the add home net button is
                 # clicked it doesn't add more home nets than we have
                 if x < len(kit.external_nets) - 1:
-                    element = self._browser.find_element_by_name("add_external_net")
-                    element.click()
+                    self._perform_click_action("add_external_net")
                     x += 1
-
-        # Loop through for all sensors, and click all the necessary buttons
-        nodes = kit.get_nodes()
-        i = 0
-        for node in nodes:
-            if node.type not in Node.valid_sensor_types:
-                continue
-
-            self._fill_out_sensor_node(i, node)
-            i += 1
 
     def _run_execute_kit(self) -> None:
         # Execute's Kickstart when all fields are configured
-        element = WebDriverWait(self._browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_kit")))
-        actions = ActionChains(self._browser)
-        actions.move_to_element(element).perform()
-        element.click()
+        self._perform_click_action("execute_kit")
 
         # clicks on the execute button
         time.sleep(10)
-        element = WebDriverWait(self._browser, 10).until(EC.presence_of_element_located((By.NAME, "primary_btn_execute_kit_modal")))
-        actions = ActionChains(self._browser)
-        actions.move_to_element(element).perform()
-        element.click()
+        self._perform_click_action("primary_btn_execute_kit_modal")
 
     def _run_execute_add_node(self) -> None:
         """
         Clicks the execute add node button on the form
         :return:
         """
-        element = WebDriverWait(self._browser, 10).until(EC.presence_of_element_located((By.NAME, "execute_addnode")))
-        actions = ActionChains(self._browser)
-        actions.move_to_element(element).perform()
-        element.click()
+        self._perform_click_action("execute_addnode")
+
+    def _select_node_types(self, kit: Kit) -> None:
+        index = 0
+        for node in kit.nodes:
+            # Ignore the controller node type here we only care about servers and sensors
+            if node.type in Node.valid_server_types or node.type in Node.valid_sensor_types:
+                self._perform_click_action("node_type" + str(index))
+                if node.type == "server" or node.type == "master-server":
+                    self._perform_click_action("Server" + str(index))
+                    self._fill_out_server_node(index, node)
+                elif node.type == "sensor":
+                    self._perform_click_action("Sensor" + str(index))
+                    self._fill_out_sensor_node(index, node)
+                else:
+                    self._perform_click_action("Sensor" + str(index))
+                    self._perform_click_action("is_master_serveris_remote_" + str(index))
+                    self._fill_out_sensor_node(index, node)
+            
+                index = index + 1
 
     def run_tfplenum_configuration(self, kit: Kit) -> None:
         """
@@ -572,10 +432,13 @@ class KitSeleniumRunner(SeleniumRunner):
         try:
             # Use selenium with beautiful soup to get the text from each of the examples
             self._browser.get("https://" + self._controller_ip + "/kit_configuration")
-            self._run_global_setting_section(kit)
+            # self._run_global_setting_section(kit)
+            time.sleep(10)
+
             # Gather fact on sensor and server
-            self._run_total_server_resources_section(kit)
-            self._run_total_sensor_resources_section(kit)
+            self._fill_out_global_IDS_settings(kit)
+            self._select_node_types(kit)
+            
             # Execute's Kickstart when all fields are configured
             self._run_execute_kit()
             wait_for_mongo_job("Kit", self._controller_ip, 60)

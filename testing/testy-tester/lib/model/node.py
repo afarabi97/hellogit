@@ -154,6 +154,8 @@ class Node(object):
     valid_node_types = ("master-server", "remote-sensor", "controller", "sensor", "server")
     valid_sensor_types = ("remote-sensor", "sensor")
     valid_server_types = ("master-server", "server")
+    valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
+
 
     """
     Represents a single node object such as a controller, server or sensor
@@ -176,7 +178,7 @@ class Node(object):
         boot_order: A list of boot devices from which the VM may boot
         boot_drive (str): The name of the bootable disk
         management_interface: The Interface object for the management interface
-        ceph_drives (List): A list of ceph drives that we wish to select for the configuration.
+        es_drives (List): A list of ceph drives that we wish to select for the configuration.
         pcap_drives (List): A list of ceph drives that we wish to select during our kit configuration.
         monitoring_ifaces (List): A list of monitoring interfaces that will be selected during kit configuration.
     """
@@ -214,7 +216,7 @@ class Node(object):
         self.interfaces = None
         self.gateway = None
         self.dns_list = None
-        self.ceph_drives = None
+        self.es_drives = None
         self.pcap_drives = None
         self.monitoring_ifaces = None
 
@@ -343,14 +345,14 @@ class Node(object):
         """
         self.boot_drive = boot_drive
 
-    def set_ceph_drives(self, ceph_drives: List[str]) -> None:
+    def set_es_drives(self, es_drives: List[str]) -> None:
         """
-        Sets the ceph_drives for the node in question.
+        Sets the es_drives for the node in question.
 
-        :param ceph_drives:
+        :param es_drives:
         :return:
         """
-        self.ceph_drives = ceph_drives
+        self.es_drives = es_drives
 
     def set_pcap_drives(self, pcap_drives: List[str]) -> None:
         """

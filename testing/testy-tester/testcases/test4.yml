@@ -23,18 +23,8 @@ kit:
 
       # these branches are name of the branches on your fork you want to use
       tfplenum_branch_name: devel
-
       source_repo: labrepo
-
       use_ceph_for_pcap: false
-
-      # Only fill this in if use_ceph_for_pcap is true
-      moloch_pcap_storage_percentage:
-      elasticsearch_cpu_percentage:
-      elasticsearch_ram_percentage:
-      logstash_server_cpu_percentage:
-      logstash_replicas:
-      es_storage_space_percentage:
 
       # Kubernetes cidr will probably be different on a per kit basis
       kubernetes_cidr: "172.16.82.176"
@@ -44,16 +34,7 @@ kit:
 
       # This is optional - you can fill it in if you need to
       external_nets:
-
-      kafka_cpu_percentage:
-      moloch_cpu_percentage:
-      bro_cpu_percentage:
-      suricata_cpu_percentage:
-      zookeeper_cpu_percentage:
-
-      ideal_es_cpus_per_instance:
-      es_cpu_to_memory_ratio_default:
-
+         
   VMs:
     # Note: You should not have more than one of these
     test4-controller.lan:
@@ -125,16 +106,16 @@ kit:
             dv_portgroup_name: "82 Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 4
+        sockets: 32
         cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 8
+        size: 60
         hot_add_enabled: False
       boot_drive_name: "sda"
       # These are the drives selenium will select.
-      ceph_drives:
+      es_drives:
         - sdb
         - sdc
       disks:
@@ -172,19 +153,14 @@ kit:
             dv_portgroup_name: "Monitoring Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 4
+        sockets: 12
         cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 8
+        size: 12
         hot_add_enabled: False
       boot_drive_name: "sda"
-      # Selects the ceph or pcap drives we will use during kit configuration
-      # A sensor can have ceph_drives if the use_ceph_for_pcap is set to true.
-      # otherwise you should use pcap_drives instead.
-#            ceph_drives:
-#              - sdb
       pcap_drives:
         - sdb
       disks:

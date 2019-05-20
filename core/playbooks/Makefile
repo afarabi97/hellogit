@@ -61,9 +61,6 @@ moloch:
 suricata:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
-rulesync:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t rulesync
-
 janitor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
 

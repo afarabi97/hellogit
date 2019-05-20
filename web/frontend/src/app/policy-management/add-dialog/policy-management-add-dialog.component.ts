@@ -38,13 +38,13 @@ export class PolicyManagementAddDialog  implements OnInit{
     });
 
     if (this.data === 'edit') {
-      this.initializeForm(this._PolicyManagementService.editRuleSet);
+      this.initializeForm(this._PolicyManagementService.editRuleSet, true);
     } else {
       this.initializeForm(this.ruleSetGroup);
     }
   }
 
-  initializeForm(ruleSet: any) {
+  initializeForm(ruleSet: any, isEdit: boolean=false) {
     this.ruleSetGroup = this.formBuilder.group({
       '_id': new FormControl(ruleSet ? ruleSet._id : '0'),
       'name': new FormControl(ruleSet ? ruleSet.name : '', Validators.compose([Validators.required])),
@@ -54,6 +54,10 @@ export class PolicyManagementAddDialog  implements OnInit{
       'isEnabled': new FormControl(ruleSet ? ruleSet.isEnabled : true),
       'groupName': new FormControl(ruleSet ? ruleSet.groupName : '')
     });
+
+    if (isEdit){
+      this.ruleSetGroup.get('appType').disable();
+    }
   }
 
   onSubmit() {

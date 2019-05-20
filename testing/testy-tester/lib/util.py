@@ -110,17 +110,17 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
     :param branch_name: the name of the branch we want to pull bootstrap from.
     """
     if kit.branch_name == "fork" or kit.branch_name == "custom":
-        deployer_branch = kit.deployer_branch_name        
+        tfplenum_branch = kit.tfplenum_branch_name
     else:
-        deployer_branch = kit.branch_name
+        tfplenum_branch = kit.branch_name
 
     curl_cmd = "curl -o /root/bootstrap.sh -u {username}:'{password}' " \
-            "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum/deployer" \
-            "/raw/bootstrap.sh?at={branch_name}".format(
-                branch_name=deployer_branch,
-                username=di2e_username,
-                password=di2e_password)    
+               "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum" \
+                "/raw/bootstrap.sh?at={branch_name}".format(branch_name=tfplenum_branch,
+                                                            username=di2e_username,
+                                                            password=di2e_password)
 
+    print(curl_cmd)
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -333,10 +333,8 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         if node.type == "remote-sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
         elif node.type == "server" or node.type == "master-server":
-            node.set_ceph_drives(vms[v]['ceph_drives'])
-        elif kit.use_ceph_for_pcap and node.type == "sensor":
-            node.set_ceph_drives(vms[v]['ceph_drives'])
-        elif not kit.use_ceph_for_pcap and node.type == "sensor":
+            node.set_es_drives(vms[v]['es_drives'])        
+        elif node.type == "sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
 
         # Add node to list of nodes
@@ -362,8 +360,6 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     kit.set_username("root")
     kit.set_password("we.are.tfplenum")
     kit.set_kubernetes_cidr(configuration['kit_configuration']['kubernetes_cidr'])
-
-    kit.set_use_ceph_for_pcap(configuration["kit_configuration"]['use_ceph_for_pcap'])
     kit.set_branch_name(configuration["kit_configuration"]['branch_name'])
 
     if 'tfplenum_branch_name' not in configuration["kit_configuration"]:
@@ -371,50 +367,10 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     else:
         kit.set_tfplenum_branch_name(configuration["kit_configuration"]['tfplenum_branch_name'])
 
-    if 'deployer_branch_name' not in configuration["kit_configuration"]:
-        kit.set_deployer_branch_name("devel")
-    else:
-        kit.set_deployer_branch_name(configuration["kit_configuration"]['deployer_branch_name'])
-
-    if 'frontend_branch_name' not in configuration["kit_configuration"]:
-        kit.set_frontend_branch_name("devel")
-    else:
-        kit.set_frontend_branch_name(configuration["kit_configuration"]['frontend_branch_name'])
-
     if 'source_repo' not in configuration["kit_configuration"]:
         kit.set_source_repo("labrepo")
     else:
-        kit.set_source_repo(configuration["kit_configuration"]['source_repo'])
-
-    if 'moloch_pcap_storage_percentage' not in configuration["kit_configuration"]:
-        kit.set_moloch_pcap_storage_percentage(None)
-    else:
-        kit.set_moloch_pcap_storage_percentage(configuration["kit_configuration"]['moloch_pcap_storage_percentage'])
-
-    if 'elasticsearch_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_elasticsearch_cpu_percentage(None)
-    else:
-        kit.set_elasticsearch_cpu_percentage(configuration["kit_configuration"]['elasticsearch_cpu_percentage'])
-
-    if 'elasticsearch_ram_percentage' not in configuration["kit_configuration"]:
-        kit.set_elasticsearch_ram_percentage(None)
-    else:
-        kit.set_elasticsearch_ram_percentage(configuration["kit_configuration"]['elasticsearch_ram_percentage'])
-
-    if 'logstash_server_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_logstash_server_cpu_percentage(None)
-    else:
-        kit.set_logstash_server_cpu_percentage(configuration["kit_configuration"]['logstash_server_cpu_percentage'])
-
-    if 'logstash_replicas' not in configuration["kit_configuration"]:
-        kit.set_logstash_replicas(None)
-    else:
-        kit.set_logstash_replicas(configuration["kit_configuration"]['logstash_replicas'])
-
-    if 'es_storage_space_percentage' not in configuration["kit_configuration"]:
-        kit.set_es_storage_space_percentage(None)
-    else:
-        kit.set_es_storage_space_percentage(configuration["kit_configuration"]['es_storage_space_percentage'])
+        kit.set_source_repo(configuration["kit_configuration"]['source_repo'])    
 
     if 'remote_sensor_portgroup' not in configuration:
         kit.set_remote_sensor_portgroup(None)
@@ -431,43 +387,8 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     if 'external_nets' not in configuration["kit_configuration"]:
         kit.set_external_nets(None)
     else:
-        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
-
-    if 'kafka_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_kafka_cpu_percentage(None)
-    else:
-        kit.set_kafka_cpu_percentage(configuration["kit_configuration"]['kafka_cpu_percentage'])
-
-    if 'moloch_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_moloch_cpu_percentage(None)
-    else:
-        kit.set_moloch_cpu_percentage(configuration["kit_configuration"]['moloch_cpu_percentage'])
-
-    if 'bro_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_bro_cpu_percentage(None)
-    else:
-        kit.set_bro_cpu_percentage(configuration["kit_configuration"]['bro_cpu_percentage'])
-
-    if 'suricata_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_suricata_cpu_percentage(None)
-    else:
-        kit.set_suricata_cpu_percentage(configuration["kit_configuration"]['suricata_cpu_percentage'])
-
-    if 'zookeeper_cpu_percentage' not in configuration["kit_configuration"]:
-        kit.set_zookeeper_cpu_percentage(None)
-    else:
-        kit.set_zookeeper_cpu_percentage(configuration["kit_configuration"]['zookeeper_cpu_percentage'])
-
-    if 'ideal_es_cpus_per_instance' not in configuration["kit_configuration"]:
-        kit.set_ideal_es_cpus_per_instance(None)
-    else:
-        kit.set_ideal_es_cpus_per_instance(configuration["kit_configuration"]['ideal_es_cpus_per_instance'])
-
-    if 'es_cpu_to_memory_ratio_default' not in configuration["kit_configuration"]:
-        kit.set_es_cpu_to_memory_ratio_default(None)
-    else:
-        kit.set_es_cpu_to_memory_ratio_default(configuration["kit_configuration"]['es_cpu_to_memory_ratio_default'])
-
+        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])        
+    
     vms = configuration["VMs"]  # type: dict
     # Add list of nodes to kit
     kit.set_nodes(_transform_nodes(vms, kit))

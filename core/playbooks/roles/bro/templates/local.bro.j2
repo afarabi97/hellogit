@@ -113,10 +113,16 @@
 
 redef Log::default_rotation_interval = 300 secs;
 redef Control::controllee_listen = F;
+
 redef Site::local_nets = {
+{% if 'any' in home_net %}
+    0.0.0.0/0,
+    ::/0,
+{% else %}
 {% for net in home_net %}
     {{ net }},
 {% endfor %}
+{% endif %}
 };
 
 # JSON output.

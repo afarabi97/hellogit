@@ -32,7 +32,7 @@ export class PolicyManagementComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.title.setTitle("Policy Management");
+    this.title.setTitle("Rule Sets");
   }
 
   openConsole() {

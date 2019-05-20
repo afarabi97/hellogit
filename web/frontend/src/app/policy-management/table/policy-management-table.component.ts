@@ -14,7 +14,7 @@ import { HtmlModalPopUp, ModalType } from '../../html-elements';
   templateUrl: 'policy-management-table.component.html'
 })
 export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
-  columnsToDisplay = ['Enabled', 'name', 'clearance', 'state', 'sensors', 'Actions'];
+  columnsToDisplay = ['Enabled', 'name', 'appType', 'clearance', 'state', 'sensors', 'Actions'];
   innerColumnsToDisplay = ['Enabled', 'ruleName', 'lastModifiedDate', 'Actions'];
   expandedElement: IRuleSet | null;
   objectKeys = Object.keys;
@@ -142,7 +142,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
     return this.isRulesVisible[index];
   }
 
-  editRule(ruleSet: any, rule: Rule) {
+  editRule(ruleSet: RuleSet, rule: Rule) {
     this._PolicyManagementService.editRule = rule;
     this._PolicyManagementService.editRuleSet = ruleSet;
     this._PolicyManagementService.isUserEditing = true;

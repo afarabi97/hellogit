@@ -33,6 +33,13 @@
     </td>
   </ng-container>
 
+  <ng-container matColumnDef="appType">
+    <th mat-header-cell *matHeaderCellDef>Type</th>
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+      {{ ruleSet.appType }}
+    </td>
+  </ng-container>
+
   <ng-container matColumnDef="clearance">
     <th mat-header-cell *matHeaderCellDef>Classification</th>
     <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">

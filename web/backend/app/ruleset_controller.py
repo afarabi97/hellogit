@@ -14,7 +14,10 @@ from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
 from pymongo.results import InsertOneResult, UpdateResult
 from shared.constants import (RULESET_STATES, DATE_FORMAT_STR, 
-                              PCAP_UPLOAD_DIR, SURICATA_CONTAINER_VERSION)
+                              PCAP_UPLOAD_DIR, SURICATA_CONTAINER_VERSION, 
+                              RULE_TYPES, BRO_CONTAINER_VERSION,
+                              BRO_RULE_DIR)
+from shared.utils import tar_folder
 from typing import Dict, Tuple, List
 
 
@@ -142,6 +145,35 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
             return True, ""
     
     return False, error_string.decode("UTF-8")
+
+
+def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
+    error_string = ""
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        theRule = rule['rule']
+        filename = "custom.bro"
+        filepath = '{}/{}'.format(tmpdirname, filename)
+        if isinstance(theRule, str):
+            with Path(filepath).open('w') as fp:
+                fp.write(theRule)
+        else:
+            theRule.save(filepath)
+            theRule.stream.seek(0)
+
+        
+        cmd = ("docker run --rm "
+               "-v {tmp_dir}:{script_dir} tfplenum/bro:{version} "
+               "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname, 
+                                           version=BRO_CONTAINER_VERSION,
+                                           script_dir=BRO_RULE_DIR,
+                                           file_to_test=filename)
+        
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        error_string, serr = proc.communicate()
+        if proc.returncode == 0:
+            return True, ""
+    
+    return False, error_string.decode("UTF-8")
     
 
 def create_rule_service(ruleset_id: int, rule: Dict):    
@@ -159,11 +191,19 @@ def create_rule_service(ruleset_id: int, rule: Dict):
 @app.route('/api/load_rules_from_file', methods=['POST'])
 def load_rules_from_file() -> Response:
     rule_file = request.files['file'] 
+
     if rule_file is None or not bool(rule_file):
         return jsonify({"error_message": "No rules file sent."})
-    valid, error_msg = _validate_suricata_rule({'rule': rule_file})
+    
+    is_valid = False
+    if request.form['appType'] == RULE_TYPES[0]:
+        is_valid, error_msg = _validate_suricata_rule(rule)
+    elif request.form['appType'] == RULE_TYPES[1]:
+        is_valid, error_msg = _validate_bro_rule(rule)
+    
     if not valid:
         return jsonify({"error_message": "Invalid Rules: {}".format(error_msg)})
+
     with tempfile.TemporaryDirectory() as tmpdirname:
         file_path='{}/{}'.format(tmpdirname, request.form['filename'])
         rule_file.save(file_path)
@@ -188,11 +228,17 @@ def create_rule() -> Response:
     rule_add = request.get_json()
     ruleset_id = rule_add['rulesetID']
     rule = rule_add['ruleToAdd']
-    is_valid, error_output = _validate_suricata_rule(rule)
-    if is_valid:
-        rule["_id"] = get_next_sequence("ruleid")
-        rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
-        if rule_set:
+    rule["_id"] = get_next_sequence("ruleid")
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+    if rule_set:
+        rule_type = rule_set['appType']
+        is_valid = False
+        if rule_type == RULE_TYPES[0]:
+            is_valid, error_output = _validate_suricata_rule(rule)
+        elif rule_type == RULE_TYPES[1]:
+            is_valid, error_output = _validate_bro_rule(rule)
+
+        if is_valid:
             for old_rule in rule_set["rules"]:
                 if old_rule["rule"] == rule["rule"]:
                     return jsonify({"error_message": "Failed to add " + rule["ruleName"] + 
@@ -202,13 +248,13 @@ def create_rule() -> Response:
             rule['createdDate'] = dt_string
             rule['lastModifiedDate'] = dt_string
             ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                                 {'$push': {'rules': rule}, 
-                                                                  '$set': {'state': RULESET_STATES[1]}}, 
-                                                                 projection={"rules": False})
+                                                                {'$push': {'rules': rule}, 
+                                                                '$set': {'state': RULESET_STATES[1]}}, 
+                                                                projection={"rules": False})
             if ret_val:
                 return jsonify(rule)
-    else:
-        return jsonify({"error_message": error_output.split('\n')})
+        else:
+            return jsonify({"error_message": error_output.split('\n')})
     return jsonify({"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)})
 
 
@@ -218,20 +264,30 @@ def update_rule() -> Response:
     ruleset_id = update_rule["rulesetID"]
     rule = update_rule['ruleToUpdate']    
     id_to_modify = rule['_id']
-    is_valid, error_output = _validate_suricata_rule(rule)
-    if is_valid:
-        dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-        rule['lastModifiedDate'] = dt_string
-        rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify}, 
-                                                              {'$set': { "rules.$": rule, 
-                                                                         "state": RULESET_STATES[1], 
-                                                                         "lastModifiedDate": dt_string }},
-                                                              return_document=ReturnDocument.AFTER)
-        if rule_set:
-            rule['_id'] = id_to_modify
-            return jsonify(rule)
-    else:
-        return jsonify({"error_message": error_output})
+
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id}, projection={"rules": False})
+    if rule_set:
+        rule_type = rule_set['appType']
+        is_valid = False
+
+        if rule_type == RULE_TYPES[0]:
+            is_valid, error_output = _validate_suricata_rule(rule)
+        elif rule_type == RULE_TYPES[1]:
+            is_valid, error_output = _validate_bro_rule(rule)
+        
+        if is_valid:
+            dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+            rule['lastModifiedDate'] = dt_string
+            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify}, 
+                                                                  {'$set': { "rules.$": rule, 
+                                                                             "state": RULESET_STATES[1], 
+                                                                             "lastModifiedDate": dt_string }},
+                                                                  return_document=ReturnDocument.AFTER)
+            if rule_set:
+                rule['_id'] = id_to_modify
+                return jsonify(rule)
+        else:
+            return jsonify({"error_message": error_output.split('\n')})
     return jsonify({"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)})
 
 
@@ -294,24 +350,22 @@ def sync_rulesets_api() -> Response:
 def validate_rule() -> Response:
     payload = request.get_json()
     rule = payload['ruleToValidate']
+    rule_type = payload['ruleType']
 
-    is_success, error_output = _validate_suricata_rule(rule)
-    if is_success:
-        return jsonify({"success_message": "Rule successfully validated!"})
+    error_output = "Unknown Error"
+    if rule_type == RULE_TYPES[0]:
+        is_success, error_output = _validate_suricata_rule(rule)
+        if is_success:
+            return jsonify({"success_message": "Suricata signatures successfully validated!"})
+    elif rule_type == RULE_TYPES[1]:
+        is_success, error_output = _validate_bro_rule(rule)
+        if is_success:
+            return jsonify({"success_message": "Bro script successfully validated!"})
+
     return jsonify({"error_message": error_output.split('\n')})
 
 
-@app.route('/api/test_rule_against_pcap', methods=['POST'])
-def test_rule_against_pcap() -> Response:
-    payload = request.get_json()
-    pcap_name = payload["pcap_name"]
-    rule_content = payload['rule_content']
-
-    if pcap_name == '' or rule_content == '':
-        r = Response()
-        r.status_code = 501
-        return r
-
+def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Response:
     with tempfile.TemporaryDirectory() as rules_tmp_dir:
         filename = '{}/suricata.rules'.format(rules_tmp_dir)
         with Path(filename).open('w') as fp:
@@ -334,6 +388,61 @@ def test_rule_against_pcap() -> Response:
             if proc.returncode == 0:
                 results = Path(results_tmp_dir)
                 for results_path in results.glob("eve-*"):
-                    return send_file(str(results_path))                    
+                    return send_file(str(results_path))
+
+    return ERROR_RESPONSE
+
+
+def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
+    with tempfile.TemporaryDirectory() as rules_tmp_dir:
+        filename = "custom.bro"
+        filepath = '{}/{}'.format(rules_tmp_dir, filename)
+        with Path(filepath).open('w') as fp:
+            fp.write(rule_content)
+
+        with tempfile.TemporaryDirectory() as results_tmp_dir:
+            cmd = ("docker run --rm "
+                   "-v {tmp_dir}:{script_dir} "
+                   "-v {pcap_dir}:/pcaps/ "
+                   "-v {results_dir}:/data/ "
+                   " tfplenum/bro:{version} "
+                   "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir, 
+                                                                        pcap_dir=PCAP_UPLOAD_DIR,
+                                                                        version=BRO_CONTAINER_VERSION,
+                                                                        script_dir=BRO_RULE_DIR,
+                                                                        pcap_name=pcap_name,
+                                                                        results_dir=results_tmp_dir,
+                                                                        file_to_test=filename)            
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            std_out_bytes, serr = proc.communicate()
+
+            if std_out_bytes != b'':
+                with Path(results_tmp_dir + '/stdout.log').open('w') as output:
+                    output.write(std_out_bytes.decode("utf-8"))
+
+            if proc.returncode == 0:
+                results_tar_ball = results_tmp_dir + "/results"
+                tar_folder(results_tmp_dir, results_tar_ball)
+                return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")            
+
+    return ERROR_RESPONSE
+
+
+@app.route('/api/test_rule_against_pcap', methods=['POST'])
+def test_rule_against_pcap() -> Response:
+    payload = request.get_json()
+    pcap_name = payload["pcap_name"]
+    rule_content = payload['rule_content']
+    rule_type = payload['ruleType']
+
+    if pcap_name == '' or rule_content == '':
+        r = Response()
+        r.status_code = 501
+        return r
+
+    if rule_type == RULE_TYPES[0]:
+        return _test_pcap_against_suricata_rule(pcap_name, rule_content)
+    elif rule_type == RULE_TYPES[1]:
+        return _test_pcap_against_bro_rule(pcap_name, rule_content)
                     
     return ERROR_RESPONSE

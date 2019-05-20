@@ -71,8 +71,7 @@ class Runner:
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
         parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
-        parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')
-        parser.add_argument('--tfplenum-deployer-commit-hash', dest='tfplenum_deployer_commit_hash')
+        parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')        
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
@@ -132,11 +131,7 @@ class Runner:
 
                 if self.args.tfplenum_commit_hash is not None:                    
                     self.kit.set_branch_name("custom")
-                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)
-
-                if self.args.tfplenum_deployer_commit_hash is not None:
-                    self.kit.set_branch_name("custom")
-                    self.kit.set_deployer_branch_name(self.args.tfplenum_deployer_commit_hash)              
+                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)                
                     
             except yaml.YAMLError as exc:
                 print(exc)

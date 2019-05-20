@@ -4,9 +4,9 @@
   <div class="container">
     <div class="card">
       <div class="card-header">
-        Rules
+        <button class="btn btn-primary" type="button" style="margin-right: 10px;" (click)="openConsole()">Open Console</button>
         <button title="Synchronize RuleSets" class="btn btn-primary" style="float: right;" (click)="ruleSync()"><i class="arrow_left-right_alt"></i> Rule Sync</button>
-        <button title="Upload Existing RuleSet from Local File" class="btn btn-primary" style="float: right;" (click)="uploadRuleSetFile()"><i class="icon_upload"></i> Upload RuleSet</button>
+        <!-- TODO consider removing this <button title="Upload Existing RuleSet from Local File" class="btn btn-primary" style="float: right;" (click)="uploadRuleSetFile()"><i class="icon_upload"></i> Upload RuleSet</button> -->
         <button title="Add RuleSet" class="btn btn-primary" style="float: right;" (click)="addRuleSet()"><i class="icon_plus_alt2"></i> Add RuleSet</button>
       </div>
       <div class="card-body">

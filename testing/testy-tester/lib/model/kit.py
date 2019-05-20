@@ -16,23 +16,9 @@ class Kit(object):
         nodes (list): A list of the VM nodes which are a part of the kit
         add_nodes (list): A list of the VM nodes which are a part of the kit
         kubernetes_cidr (str): See frontend help page
-        use_ceph_for_pcap (bool): See frontend help page
         branch_name (str): The name of the branch.
-        source_repo (str): Name of yum repos labrepo or public
-        moloch_pcap_storage_percentage (int): See frontend help page
-        elasticsearch_cpu_percentage (int): See frontend help page
-        elasticsearch_ram_percentage (int): See frontend help page
-        logstash_server_cpu_percentage (int): See frontend help page
-        logstash_replicas (int): See frontend help page
-        es_storage_space_percentage (int): See frontend help page
+        source_repo (str): Name of yum repos labrepo or public        
         external_nets (list): See frontend help page
-        kafka_cpu_percentage (int): See frontend help page
-        moloch_cpu_percentage (int): See frontend help page
-        bro_cpu_percentage (int): See frontend help page
-        suricata_cpu_percentage (int): See frontend help page
-        zookeeper_cpu_percentage (int): See frontend help page
-        ideal_es_cpus_per_instance (int): See frontend help page
-        es_cpu_to_memory_ratio_default (int): See frontend help page        
         remote_sensor_portgroup (str): used for remote sensors vlan
         remote_sensor_network (str): network address for remote sensors
     """
@@ -56,70 +42,22 @@ class Kit(object):
         self.kubernetes_cidr = kubernetes_cidr
 
     def set_kickstart_configuration(self, kickstart_configuration: KickstartConfiguration) -> None:
-        self.kickstart_configuration = kickstart_configuration
-
-    def set_use_ceph_for_pcap(self, use_ceph_for_pcap: bool) -> None:
-        self.use_ceph_for_pcap = use_ceph_for_pcap
+        self.kickstart_configuration = kickstart_configuration    
 
     def set_branch_name(self, branch_name: str) -> None:
         self.branch_name = branch_name
 
     def set_tfplenum_branch_name(self, tfplenum_branch_name: str) -> None:
-        self.tfplenum_branch_name = tfplenum_branch_name
+        self.tfplenum_branch_name = tfplenum_branch_name    
 
-    def set_deployer_branch_name(self, deployer_branch_name: str) -> None:
-        self.deployer_branch_name = deployer_branch_name
-
-    def set_frontend_branch_name(self, frontend_branch_name: str) -> None:
-        self.frontend_branch_name = frontend_branch_name
-    
     def set_source_repo(self, source_repo: str) -> None:
-        self.source_repo = source_repo
-
-    def set_moloch_pcap_storage_percentage(self, moloch_pcap_storage_percentage: int) -> None:
-        self.moloch_pcap_storage_percentage = moloch_pcap_storage_percentage
-
-    def set_elasticsearch_cpu_percentage(self, elasticsearch_cpu_percentage: int) -> None:
-        self.elasticsearch_cpu_percentage = elasticsearch_cpu_percentage
-
-    def set_elasticsearch_ram_percentage(self, elasticsearch_ram_percentage: int) -> None:
-        self.elasticsearch_ram_percentage = elasticsearch_ram_percentage
-
-    def set_logstash_server_cpu_percentage(self, logstash_server_cpu_percentage: int) -> None:
-        self.logstash_server_cpu_percentage = logstash_server_cpu_percentage
-
-    def set_logstash_replicas(self, logstash_replicas: int) -> None:
-        self.logstash_replicas = logstash_replicas
-
-    def set_es_storage_space_percentage(self, es_storage_space_percentage: int) -> None:
-        self.es_storage_space_percentage = es_storage_space_percentage
+        self.source_repo = source_repo    
 
     def set_home_nets(self, home_nets: list) -> None:
         self.home_nets = home_nets
 
     def set_external_nets(self, external_nets: list) -> None:
-        self.external_nets = external_nets
-
-    def set_kafka_cpu_percentage(self, kafka_cpu_percentage: int) -> None:
-        self.kafka_cpu_percentage = kafka_cpu_percentage
-
-    def set_moloch_cpu_percentage(self, moloch_cpu_percentage: int) -> None:
-        self.moloch_cpu_percentage = moloch_cpu_percentage
-
-    def set_bro_cpu_percentage(self, bro_cpu_percentage: int) -> None:
-        self.bro_cpu_percentage = bro_cpu_percentage
-
-    def set_suricata_cpu_percentage(self, suricata_cpu_percentage: int) -> None:
-        self.suricata_cpu_percentage = suricata_cpu_percentage
-
-    def set_zookeeper_cpu_percentage(self, zookeeper_cpu_percentage: int) -> None:
-        self.zookeeper_cpu_percentage = zookeeper_cpu_percentage
-
-    def set_ideal_es_cpus_per_instance(self, ideal_es_cpus_per_instance: int) -> None:
-        self.ideal_es_cpus_per_instance = ideal_es_cpus_per_instance
-
-    def set_es_cpu_to_memory_ratio_default(self, es_cpu_to_memory_ratio_default: int) -> None:
-        self.es_cpu_to_memory_ratio_default = es_cpu_to_memory_ratio_default
+        self.external_nets = external_nets    
 
     def set_remote_sensor_portgroup(self, remote_sensor_portgroup: str) -> None:
         self.remote_sensor_portgroup = remote_sensor_portgroup

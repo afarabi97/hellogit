@@ -326,19 +326,6 @@
   tags:
     - suricata
 
-- name: Setup Rulesync
-  hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - rulesync
-  tags:
-    - rulesync
-    - bro
-    - suricata
-
 - name: Enable Endgame script on master server
   hosts: master-server
   gather_facts: no

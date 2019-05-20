@@ -4,6 +4,8 @@ This module is for storing standard functions which can be reused anywhere withi
 """
 import base64
 import hashlib
+import shutil
+import tarfile
 from pathlib import Path
 from typing import Union, Dict
 
@@ -75,3 +77,12 @@ def hash_file(some_path: Union[str, Path], chunk_size=8192) -> Dict:
             else:
                 break
     return {"md5": md5.hexdigest(), "sha1": sha1.hexdigest(), "sha256": sha256.hexdigest() }
+
+
+def tar_folder(folder_to_tar: str, path_of_archive: str):
+    folder = Path(folder_to_tar)
+    if folder.exists() and folder.is_dir():
+        return shutil.make_archive(path_of_archive, "gztar", folder_to_tar)
+
+    return ValueError("%s does not exist or is not a directory" % folder_to_tar)
+

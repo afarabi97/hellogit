@@ -34,7 +34,7 @@ function _install_angular(){
 	run_cmd npm cache verify
 	run_cmd npm i
     run_cmd npm install
-#	run_cmd npm audit fix
+	npm audit fix
 	popd > /dev/null
 }
 
@@ -110,7 +110,6 @@ function _preload_ids_rules {
 
 	pushd $FRONTEND_DIR/backend > /dev/null
 	$FRONTEND_DIR/tfp-env/bin/python preload_suricata_rules.py
-	rm -rf $FRONTEND_DIR/backend/rules
 	popd > /dev/null
 }
 

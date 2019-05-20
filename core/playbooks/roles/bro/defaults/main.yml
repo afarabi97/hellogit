@@ -2,6 +2,8 @@
 ---
 
 bro_image: "tfplenum/bro"
+
+#/opt/tfplenum/bro
 bro_dir: "{{ install_dir }}/bro"
 num_bro_replicas: "{{ groups['bro'] | length }}"
 

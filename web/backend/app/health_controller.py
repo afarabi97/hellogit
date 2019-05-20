@@ -139,7 +139,6 @@ def _get_node_info(nodes: V1NodeList) -> List:
     ret_val = []
     for item in nodes.to_dict()['items']:                
         try:
-            print(item)
             item['status']['allocatable']['cpu'] = str(_get_cpu_total(item['status']['allocatable']['cpu'])) + "m"
             item['status']['allocatable']["ephemeral-storage"] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
             item['status']['allocatable']['memory'] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['memory']))) + "Gi"

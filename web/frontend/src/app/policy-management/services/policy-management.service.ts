@@ -24,8 +24,8 @@ export class PolicyManagementService {
     public dataSource = new MatTableDataSource(this.ruleSets);
     public innerRules;
     public innerDataSource = new MatTableDataSource(this.innerRules);
-    public editRuleSet: any;
-    public editRule: any;
+    public editRuleSet: RuleSet;
+    public editRule: Rule;
     public isUserAdding: boolean = false;
 
     clearanceLevels: any[] = [
@@ -35,9 +35,9 @@ export class PolicyManagementService {
         { value: 'Top Secret'}
      ];
    
-     ruleType: any[] = [
-        // TODO {value: 'Bro'},
-        {value: 'Suricata'}
+     ruleType: any[] = [        
+        {value: 'Suricata'},
+        {value: 'Bro'},
      ];
 
     constructor(private http: HttpClient) {
@@ -164,7 +164,7 @@ export class PolicyManagementService {
 
     validateRule(someRule: IRule): Observable<ISuccess | IError> {
         const url = '/api/validate_rule';
-        let payload = { ruleToValidate: someRule };
+        let payload = { ruleToValidate: someRule, ruleType: this.editRuleSet.appType };
         return this.http.post(url, payload, HTTP_OPTIONS).pipe(
             map(data => this.mapSuccessOrError(data))
         );
@@ -172,7 +172,7 @@ export class PolicyManagementService {
 
     testRuleAgainstPCAP(pcapName: string, ruleContent: string){
         const url = '/api/test_rule_against_pcap';
-        let payload = {pcap_name: pcapName, rule_content: ruleContent};
+        let payload = { pcap_name: pcapName, rule_content: ruleContent, ruleType: this.editRuleSet.appType };
         return this.http.post(url, payload, { responseType: 'blob' }).pipe();
     }
 

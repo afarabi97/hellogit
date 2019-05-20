@@ -1,6 +1,6 @@
 import { FormGroup, FormArray } from '@angular/forms';
 import { HtmlInput } from '../html-elements';
-import { CIDR_CONSTRAINT } from '../frontend-constants';
+import { CIDR_CONSTRAINT, CIDR_CONSTRAINT_MSG } from '../frontend-constants';
 
 export class HomeNetFormGroup extends FormGroup {
     constructor() {
@@ -14,7 +14,7 @@ export class HomeNetFormGroup extends FormGroup {
         "Enter your home net CIDR IP here.",
         'text',
         CIDR_CONSTRAINT,
-        'You must enter a CIDR IP in the x.x.x.x/xx format.',
+        CIDR_CONSTRAINT_MSG,
         true,
         '',
         "These are the values Bro and Suricata will use for their home nets. Home Nets \
@@ -60,7 +60,7 @@ export class ExternalNetFormGroup extends FormGroup {
         "Enter your external net CIDR IP here.",
         'text',
         CIDR_CONSTRAINT,
-        'You must enter a CIDR IP in the x.x.x.x/xx format.',
+        CIDR_CONSTRAINT_MSG,
         true,
         '',
         "This will define the EXTERNAL_NET variable for all Suricata rules, essentially defining what Suricata sees as the external network. \
