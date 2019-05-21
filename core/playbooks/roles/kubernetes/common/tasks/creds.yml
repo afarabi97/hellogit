@@ -5,5 +5,4 @@
     src: files/admin.conf
     dest: ~/.kube/config
     mode: 0644
-
 ...

@@ -20,4 +20,10 @@
 
 - import_tasks: 35_configure_dns.yml
 
+- name: Propagate controller with cluster admin credentials
+  fetch:
+    src: ~/.kube/config
+    dest: ~/.kube/config
+    mode: 0644
+    flat: yes
 ...

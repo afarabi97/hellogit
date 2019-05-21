@@ -18,7 +18,7 @@ metallb_version: "v0.3.1"
 moloch_version: "1.7.0v3"
 mumble_version: "v1.0.0"
 suricata_version: "4.1.3"
-helm_version: "v2.13.1"
+helm_version: "v2.14.0"
 
 
 # Docker Image List

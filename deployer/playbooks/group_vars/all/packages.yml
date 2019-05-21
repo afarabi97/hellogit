@@ -66,6 +66,7 @@ packages:
   - wget
   - yum-utils
   - xinetd
+  - lsof
 
 packages_without_deps:
   - "kubeadm-{{ k8s_version }}"

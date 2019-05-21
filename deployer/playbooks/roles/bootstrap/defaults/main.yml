@@ -8,3 +8,4 @@ package_list:
   - rsync
   - policycoreutils-python
   - bash-completion
+  - "kubectl-{{ k8s_version }}"
