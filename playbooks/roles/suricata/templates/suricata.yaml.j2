@@ -12,14 +12,22 @@
 vars:
   # more specific is better for alert accuracy and performance
   address-groups:
-    HOME_NET: "[{{ home_net | join(",") }}]"
-    #HOME_NET: "[192.168.0.0/16]"
-    #HOME_NET: "[10.0.0.0/8]"
-    #HOME_NET: "[172.16.0.0/12]"
-    #HOME_NET: "any"
 
+{% if "any" in home_net %}
+    HOME_NET: "any"
+{% else %}
+    HOME_NET: "[{{ home_net | join(',') }}]"
+{% endif %}
+
+{% if (external_net is not none) and ("any" in external_net) %}
+    EXTERNAL_NET: "any"
+{% elif (external_net is not none) and (external_net | length > 0) %}
+    EXTERNAL_NET: "[{{ external_net | join(',') }}]"
+{% elif "any" in home_net %}
+    EXTERNAL_NET: "any"
+{% else %}
     EXTERNAL_NET: "!$HOME_NET"
-    #EXTERNAL_NET: "any"
+{% endif %}
 
     HTTP_SERVERS: "$HOME_NET"
     SMTP_SERVERS: "$HOME_NET"
