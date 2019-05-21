@@ -104,10 +104,10 @@ iso_centos_url_labrepo: "http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-{{ iso_
 iso_centos_pth: "/root/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
 iso_centos_checksum: 38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c
 
-iso_rhel_version: "7.5"
+iso_rhel_version: "7.6"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_checksum: d0dd6ae5e001fb050dafefdfd871e7e648b147fb2d35f0e106e0b34a0163e8f5
+iso_rhel_checksum: 60a0be5aeed1f08f2bb7599a578c89ec134b4016cd62a8604b29f15d543a469c
 
 BOOTSTRAP: false
 

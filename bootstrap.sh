@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="vim net-tools wget"
 EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 ANSIBLE_VERSION="2.7.5"
-RHEL_VERSION="7.5"
+RHEL_VERSION="7.6"
 RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
@@ -420,11 +420,10 @@ EOF
 
 function execute_pre(){
 
-    run_cmd curl -s -o epel-release-latest-7.noarch.rpm $EPEL_RPM_PUBLIC_URL
     rpm -e epel-release-latest-7.noarch.rpm
     yum remove epel-release -y
     rm -rf /etc/yum.repos.d/epel*.repo
-    yum install epel-release-latest-7.noarch.rpm -y
+    yum install $EPEL_RPM_PUBLIC_URL -y
     rm -rf epel-release-latest-7.noarch.rpm
 
     run_cmd yum -y update
