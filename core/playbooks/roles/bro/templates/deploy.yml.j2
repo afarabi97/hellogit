@@ -30,6 +30,7 @@ spec:
                 port: {{ config.port }}
             initialDelaySeconds: 30
             periodSeconds: 15
+            failureThreshold: 6
 {% if config.type == "worker" %}
         securityContext:
               capabilities:

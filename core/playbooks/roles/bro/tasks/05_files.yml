@@ -36,11 +36,25 @@
     - set_fact:
         next_port: "{{ next_port | int + 2 }}"
     - set_fact:
-        bro_cluster: "{{ bro_cluster | combine( {('logger-%02d'|format(item)): {'type': 'logger', 'logger_number': item | int, 'port': next_port | int + item}} ) }}"
+        bro_cluster: >
+          {{ bro_cluster | combine( {
+            ('logger-%02d'|format(item)): {
+              'type': 'logger',
+              'logger_number': item | int,
+              'port': next_port | int + item
+            }
+          } ) }}
         next_port: "{{ next_port | int + 1}}"
       loop: "{{ range(bro_loggers) | list }}"
     - set_fact:
-        bro_cluster: "{{ bro_cluster | combine( {('%s-%02d'|format(item.0,item.1)): {'type': 'worker', 'port': next_port | int, 'interface': 'af_packet::'+item.0}} ) }}"
+        bro_cluster: >
+          {{ bro_cluster | combine( {
+            ('%s-%02d'|format(item.0,item.1)): {
+              'type': 'worker',
+              'interface': 'af_packet::'+item.0,
+              'port': next_port | int
+            }
+          } ) }}
         next_port: "{{ next_port | int + 1}}"
       loop: "{{ sensor_monitor_interface | product( range(bro_workers) ) | list }}"
   when: inventory_hostname in groups['bro']
