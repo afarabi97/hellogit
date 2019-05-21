@@ -1,7 +1,7 @@
 ---
 
 - name: "remove tfplenum repo directory"
-  file:  
+  file:
     path: "{{ TFPLENUM_REPO_DIR }}"
     state: absent
 

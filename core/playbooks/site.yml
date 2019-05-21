@@ -241,6 +241,14 @@
     - helm
   tags: helm
 
+- name: chartmuseum
+  any_errors_fatal: true
+  hosts:
+    - all
+  roles:
+    - chartmuseum
+  tags: chartmuseum
+
 - name: Deploy Elasticsearch
   hosts: elasticsearch
   gather_facts: no

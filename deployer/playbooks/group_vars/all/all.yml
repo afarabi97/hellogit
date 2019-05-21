@@ -5,6 +5,7 @@ web_root: /var/www/html
 tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 core_install_dir: /opt/tfplenum/core
 tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
+chart_dir: "{{ tfplenumoffline_dir }}/charts"
 
 rhel_repos:
   - rhel-7-server-rpms
@@ -80,7 +81,7 @@ gpg_keys:
   - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
 
 pip_downloads:
-  - docker-py
+  - docker
   - elasticsearch
   - flask
   - ipaddress
@@ -94,9 +95,9 @@ pip_downloads:
   - pbr
 
 pip_installs:
-  - "docker-py"
   - "junit-xml==1.8"
   - "netaddr"
+  - "docker"
 
 iso_centos_version: 1810
 iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
@@ -117,5 +118,9 @@ RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
 TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"
 BOOTSTRAP_VARS: "{{ web_root }}/bootstrap.yml"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
+
+chart_repos:
+  - "bitnami https://charts.bitnami.com/bitnami"
+
 
 ...

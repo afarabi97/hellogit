@@ -22,5 +22,4 @@
 - import_tasks: 15_direct.yml
   tags: direct
 - import_tasks: 20_download_rpms.yml
-
 ...

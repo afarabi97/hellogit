@@ -30,7 +30,7 @@ function _install_nodejs(){
 function _install_angular(){
 	pushd $FRONTEND_DIR/frontend > /dev/null
 	run_cmd npm install -g npm@latest
-	run_cmd npm install -g @angular/cli
+	run_cmd npm install -g @angular/cli@7.3.9
 	run_cmd npm cache verify
 	run_cmd npm i
     run_cmd npm install

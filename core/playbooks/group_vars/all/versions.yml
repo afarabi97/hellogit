@@ -19,6 +19,7 @@ moloch_version: "1.7.0v3"
 mumble_version: "v1.0.0"
 suricata_version: "4.1.3"
 helm_version: "v2.14.0"
+chartmuseum_version: "2.3.1"
 
 
 # Docker Image List
@@ -46,3 +47,6 @@ kube_images:
   - quay.io/coreos/flannel:{{flannel_version}}
   - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
   - gcr.io/kubernetes-helm/tiller:{{ helm_version}}
+
+helm_charts:
+  - stable/chartmuseum {{ chartmuseum_version }}

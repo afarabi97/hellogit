@@ -40,6 +40,12 @@ openvpn:
 kubernetes:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node --extra-vars "run_option=install"
 
+helm:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=install"
+
+chartmuseum:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum --extra-vars "run_option=install"
+
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
 
@@ -70,9 +76,6 @@ mumble:
 endgame:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
-helm:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=install"
-
 dnsmasq-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
@@ -87,6 +90,12 @@ kubernetes-rerun:
 
 storage-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+
+helm-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+
+chartmuseum-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame

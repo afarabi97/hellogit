@@ -13,6 +13,44 @@
   shell: "helm plugin install {{ item }}"
   with_items:
     - https://github.com/chartmuseum/helm-push
+  register: command_result
+  failed_when:
+    - command_result.rc != 0
+    - "'plugin already exists' not in command_result.stderr"
 
-- name: Removing Default Helm Repo
-  shell: helm repo remove stable
+- name: install chart repos
+  shell: helm repo add {{ item }}
+  with_items:
+    - "{{ chart_repos }}"
+
+- name: update helm repo cache
+  shell: helm repo update
+
+- name: "Create chart directory"
+  file:
+    path: "{{ chart_dir }}"
+    state: directory
+
+- name: Get list of custom helm charts
+  find:
+    paths: /opt/tfplenum/charts/
+    file_type: directory
+    recurse: no
+  register: charts
+
+- name: create charts
+  shell: "helm package {{ item.path }} -d {{ chart_dir }}"
+  with_items: "{{ charts.files }}"
+
+- name: Fetch helm charts
+  shell: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
+  with_items:
+    - "{{ helm_charts }}"
+
+- name: Fetch chart images
+  script: "{{ role_path }}/files/chart.py {{ chart_dir }}/"
+  args:
+    executable: python
+  register: out
+
+- debug: var=out.stdout_lines

@@ -1,5 +1,5 @@
 - name: Uninstalling Tiller
-  command: helm reset
+  command: helm reset --force
   ignore_errors: yes
   when: inventory_hostname in groups['master-server']
 
