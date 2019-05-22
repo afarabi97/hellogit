@@ -4,16 +4,6 @@ REST interface for the frontend application.
 """
 import logging
 import os
-# Monkey patching is required otherwise we get nasty recursion errors when we use 
-# the Kubernetes API.
-try:
-    os.environ["DEBUG_SRV"]
-except KeyError:    
-    # Libraries only get imported for production servers.
-    import gevent.monkey
-    gevent.monkey.patch_all()
-    from requests.packages.urllib3.util.ssl_ import create_urllib3_context
-    create_urllib3_context()
 
 from shared.connection_mngs import MongoConnectionManager
 from shared.constants import CORE_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR

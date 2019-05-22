@@ -11,7 +11,7 @@ import psutil
 import subprocess
 from typing import Callable, List, Tuple
 from threading import Thread
-from gevent import sleep
+from eventlet import sleep
 
 
 JOB_QUEUE = []
@@ -21,16 +21,16 @@ LOCK_IDS = {}
 class SynchronousIPLockException(Exception):
     def __init__(self, msg=""):
         super(SynchronousIPLockException, self).__init__(msg)
-    
+
 
 def _async_read2(job):
     """
     A synchronously read stdout
 
-    :param job: A proc job object     
+    :param job: A proc job object
 
     :return: Return true if no ouput was sent to function pointer, false otherwise.
-    """    
+    """
     if job.silent:
         return
     # set non-blocking flag while preserving old flags
@@ -39,7 +39,7 @@ def _async_read2(job):
 
     fl = fcntl.fcntl(fd, fcntl.F_GETFL)
     fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-    
+
     fl2 = fcntl.fcntl(fd2, fcntl.F_GETFL)
     fcntl.fcntl(fd2, fcntl.F_SETFL, fl2 | os.O_NONBLOCK)
 
@@ -150,7 +150,7 @@ class ProcJob(object):
         Runs the process and sets the appropriate locks.
 
         :return:
-        """        
+        """
         if self.process is None:
             command_to_run = self.command
             if not self.is_shell:
@@ -165,7 +165,7 @@ class ProcJob(object):
                                                 stdout=subprocess.PIPE,
                                                 stderr=subprocess.PIPE,
                                                 env=my_env)
-            else:                
+            else:
                 self.process = subprocess.Popen(command_to_run,
                                                 shell=self.is_shell,
                                                 stdout=subprocess.PIPE,
@@ -276,12 +276,12 @@ def shell(command: str, async: bool=False, working_dir=None, use_shell=False) ->
     if use_shell:
         if working_dir:
             proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir)
-        else:    
+        else:
             proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
         if working_dir:
             proc = subprocess.Popen(shlex.split(command), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir)
-        else:    
+        else:
             proc = subprocess.Popen(shlex.split(command), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     if async:
@@ -311,8 +311,8 @@ def _save_job(job: ProcJob, job_retval: int, message: str) -> None:
     :return:
     """
     conn_mng.mongo_last_jobs.find_one_and_replace({"_id": job.job_name},
-                                                  {"_id": job.job_name, 
-                                                   "return_code": job_retval, 
+                                                  {"_id": job.job_name,
+                                                   "return_code": job_retval,
                                                    "date_completed": datetime.utcnow().strftime(DATE_FORMAT_STR),
                                                    "message": message},
                                                    upsert=True)  # type: InsertOneResult
@@ -352,7 +352,7 @@ def _spawn_jobqueue() -> None:
                         _save_job(job, job_retval, "Failed to execute with unknown error.")
                     else:
                         _save_job(job, job_retval, "Successfully executed job.")
-                    
+
                     job.run_funcs_after_proc_completion()
                     job.run_job_clean_up(index)
                 elif job.is_zombie():
@@ -372,8 +372,7 @@ def start_job_manager() -> None:
 
     :return:
     """
-    job_thread = socketio.start_background_task(target=_spawn_jobqueue)  # type: Thread
-    job_thread.start()
+    socketio.start_background_task(target=_spawn_jobqueue)
 
 
 def spawn_job(job_name: str, command: str,
