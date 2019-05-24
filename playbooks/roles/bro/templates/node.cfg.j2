@@ -21,4 +21,5 @@ host=localhost
 interface=af_packet::{{ iface }}
 lb_method=custom
 lb_procs={{ hostvars[inventory_hostname].bro_workers }}
+af_packet_fanout_id={{ 23 + loop.index0 }}
 {% endfor %}
