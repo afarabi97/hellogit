@@ -26,6 +26,7 @@ def build_installer() -> Response:
     payload = request.get_json()
     pf_sense_ip = payload['pf_sense_ip']
     winlogbeat_port = payload['winlogbeat_port']
+    winlogbeat_arch = payload['winlogbeat_arch']
     install_winlogbeat = payload['install_winlogbeat']
     install_sysmon = payload['install_sysmon']
     install_endgame = payload['install_endgame']
@@ -34,10 +35,6 @@ def build_installer() -> Response:
     endgame_port = payload['endgame_port']
     endgame_password = payload['endgame_credentials']['password']
     endgame_id =  payload['endgame_sensor_id']
-
-    PrettyPrinter().pprint('payload: {}'.format(payload))
-    print("Endgame Credentials: {}:{}, {}/{}".format(endgame_server_ip, endgame_port, endgame_user_name, endgame_password))
-
 
     installer_dir = str(CORE_DIR / 'playbooks')
     installer_name = 'monitor_install.exe'
@@ -50,8 +47,10 @@ def build_installer() -> Response:
 
     command = "ansible-playbook winlogbeat.yml -i inventory.yml -t winlogbeat \
 	            --extra-vars 'firewall_url={} \
+                installer_dir={} \
                 logstash_fw_port={} \
                 install_winlogbeat={} \
+                winlogbeat_arch={} \
                 install_sysmon={} \
                 install_endgame={} \
                 endgame_server={} \
@@ -60,8 +59,10 @@ def build_installer() -> Response:
                 endgame_password={} \
                 endgame_sensor_id={}'".format(
                   pf_sense_ip,
+                  installer_dir,
                   winlogbeat_port,
                   install_winlogbeat,
+                  winlogbeat_arch,
                   install_sysmon,
                   install_endgame,
                   endgame_server_ip,

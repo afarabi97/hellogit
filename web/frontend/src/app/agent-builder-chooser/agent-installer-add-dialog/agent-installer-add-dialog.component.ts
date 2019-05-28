@@ -76,6 +76,9 @@ export class AgentInstallerAddDialogComponent implements OnInit {
     delete payload['endgame_user_name'];
     delete payload['endgame_password'];
     delete payload['endgame_sensors'];
+
+    payload['winlogbeat_arch'] = this.dialogForm.winlogbeat_arch;
+
     return payload as AgentInstallerConfig;
   }
 

@@ -7,7 +7,8 @@ import { AgentInstallerConfig } from "src/app/agent-builder.service";
 
 export class AgentInstallerAddDialogForm extends FormGroup {
     saved_configs: Array<AgentInstallerConfig> = [];
-    endgameSrv: EndgameService
+    endgameSrv: EndgameService;
+    winlogbeat_arch: string = '';
     
 
     constructor() {
@@ -43,7 +44,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
         "",
         "The IP address of the PF sense firewall that shields the DIP.  It is important to note \
         that all communication from outside of the DIP must go through this firewall and the administrator must \
-        enable port forwarding to the appropriate kubectl services.")
+        enable port forwarding to the appropriate kubectl services.");
     
 
     install_winlogbeat = new HtmlCheckBox(
@@ -58,7 +59,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
         'Install Endgame Agent',
         'Add an Endgame sensor agent installer.',
         false,
-        true )
+        true );
 
     endgame_port = new HtmlInput(
         'endgame_port',
@@ -82,7 +83,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
         false,
         undefined,
         true,
-        [])
+        []);
 
     config_name = new HtmlInput(
         'config_name',//form_name
@@ -93,7 +94,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
         'invalid',//invalid_feedback
         true,//required
         '',//default_value
-        'Name to save the agent installer configuration')//description
+        'Name to save the agent installer configuration');//description
 
 
     enableEndgameControls() {
@@ -121,7 +122,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
 
     notification_text:string = "";
     sufficient_data_to_build_agents:boolean=false;
-    errors:   { [id: string]: string} = {}
+    errors:   { [id: string]: string} = {};
     endgame_server_reachable: boolean = false;
 
     endgame_sensor_profiles = [];
@@ -144,7 +145,7 @@ export class AgentInstallerAddDialogForm extends FormGroup {
                 },
                 err => {
                     this.endgame_server_reachable = false;
-                    console.error("Could not reach Endgame server")
+                    console.error("Could not reach Endgame server");
                 }
             );
         }
@@ -158,6 +159,11 @@ export class AgentInstallerAddDialogForm extends FormGroup {
             sensor_names.push({value: name, label: name, isSelected: false});
         }
         this.endgame_sensors.default_options = sensor_names;
+    }
+
+    onWlbArchSelect(arch: string) {
+      this.winlogbeat_arch = arch;
+      checkForSufficientData(this);
     }
 
 
@@ -174,7 +180,7 @@ export function checkConfigName(frm: HtmlInput): null | ValidationErrors {
         return elem.config_name === name;
     });
     if(match != undefined) {
-        return { 'Config Name in Use': name };
+        return { 'Config Name in Use': name }
     }
     return null;
 }
@@ -196,35 +202,40 @@ export function checkForSufficientData(ab_form: AgentInstallerAddDialogForm): Va
     ab_form.sufficient_data_to_build_agents = false;
 
     if(!ab_form.pf_sense_ip.valid) {
-        ab_form.errors['Firewall IP'] =  'Invalid value'
+        ab_form.errors['Firewall IP'] =  'Invalid value';
     }
 
     if(!(ab_form.install_sysmon.value || ab_form.install_winlogbeat.value || ab_form.install_endgame.value)) {
-        ab_form.errors['Installers'] = 'No installer selected'
+        ab_form.errors['Installers'] = 'No installer selected';
     }
 
     if(ab_form.install_endgame.value) {
         if(!ab_form.endgame_server_reachable) {
              ab_form.errors['Endgame Server'] =
-                'Cannot reach Endgame server. Check IP address, username and password.'
+                'Cannot reach Endgame server. Check IP address, username and password.';
         }
         if(Object.keys(ab_form.endgame_sensors.value).length == 0) {
-            ab_form.errors['Endgame Profile'] = 'Select Endgame Profile'
+            ab_form.errors['Endgame Profile'] = 'Select Endgame Profile';
         }
     }
     
     if(!ab_form.config_name.valid) {
         if(ab_form.config_name.errors['required']) {
             delete ab_form.config_name.errors['required'];
-            ab_form.errors['Config Name'] = 'Required Value'
+            ab_form.errors['Config Name'] = 'Required Value';
         } else {
             ab_form.errors = Object.assign({}, ab_form.errors, ab_form.config_name.errors);
         }
     }
 
+    if(ab_form.install_winlogbeat.value && ab_form.winlogbeat_arch.length == 0) {
+        ab_form.errors['Winlogbeat Architecture'] = 'Required Value';
+    }
+
     if (Object.keys(ab_form.errors).length === 0) {
         ab_form.sufficient_data_to_build_agents = true;
-        return null
+        return null;
     }
-    return ab_form.errors
+
+    return ab_form.errors;
 }

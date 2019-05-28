@@ -59,10 +59,11 @@ export interface AgentInstallerConfig {
 
   install_winlogbeat: boolean;
   winlogbeat_port: number;
+  winlogbeat_arch: string;
 
   install_endgame: boolean;
   endgame_port: number;
   endgame_sensor_name: string;
-  endgame_sensor_id: string  //ID of Endgame agent installer to download from Endgame server
+  endgame_sensor_id: string;  //ID of Endgame agent installer to download from Endgame server
 
 }

@@ -16,6 +16,13 @@
           <hr>
           <h5>Winlogbeat Settings</h5>
           <app-checkbox [parentForm]="dialogForm" controlName="install_winlogbeat"></app-checkbox>
+          <h6>Architecture</h6>
+          <fieldset [disabled]="!dialogForm.install_winlogbeat.value">
+            <input type="radio" name="wlb_arch_selector" value="x86_64"
+              (change)="dialogForm.onWlbArchSelect('x86_64')">&nbsp;64-bit<br>
+            <input type="radio" name="wlb_arch_selector" value="x86"
+              (change)="dialogForm.onWlbArchSelect('x86')">&nbsp;32-bit
+          </fieldset>
           <hr>
           <h5>Endgame Settings</h5>
           <app-checkbox [parentForm]="dialogForm" controlName="install_endgame"
@@ -26,37 +33,36 @@
               <app-text-input [parentForm]="dialogForm" controlName="endgame_server_ip"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
-                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+                (focusout)="dialogForm.getEndgameSensorProfiles()"></app-text-input>
               <app-text-input [parentForm]="dialogForm" controlName="endgame_user_name"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
-                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+                (focusout)="dialogForm.getEndgameSensorProfiles()"></app-text-input>
               <app-text-input [parentForm]="dialogForm" controlName="endgame_password"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
                 (keydown.enter)="dialogForm.getEndgameSensorProfiles()"
-                (focusout)="dialogForm.getEndgameSensorProfiles()" ></app-text-input>
+                (focusout)="dialogForm.getEndgameSensorProfiles()"></app-text-input>
             </div>
           </div>
           <br>
           <app-text-input [parentForm]="dialogForm" controlName="endgame_port"></app-text-input>
           <div class="card" style="border: 1px solid gray;border-radius: 0.5rem; margin-right: 5px; margin-left: 5px">
             <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
-              <app-card-selector [parentForm]="dialogForm" 
-                *ngIf="dialogForm.endgame_server_reachable ; else egUnreachable"
-                controlName="endgame_sensors">
+              <app-card-selector [parentForm]="dialogForm"
+                *ngIf="dialogForm.endgame_server_reachable ; else egUnreachable" controlName="endgame_sensors">
               </app-card-selector>
             </div>
-              <ng-template #egUnreachable> 
-                <p [style.color]="dialogForm.install_endgame.value? '#d92a14' : 'gray'">
-                  Check Endgame credentials. When they are correct, you will
-                  see a list of Endgame sensor profiles.
-                </p>
-              </ng-template>
+            <ng-template #egUnreachable>
+              <p [style.color]="dialogForm.install_endgame.value? '#d92a14' : 'gray'">
+                Check Endgame credentials. When they are correct, you will
+                see a list of Endgame sensor profiles.
+              </p>
+            </ng-template>
           </div>
         </div>
         <br>
         <app-text-input [parentForm]="dialogForm" controlName="config_name"></app-text-input>
-
+        <hr>
         <div class="card">
           <div class="card-header">
             Validation
