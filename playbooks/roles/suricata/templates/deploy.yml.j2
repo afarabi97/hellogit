@@ -27,6 +27,7 @@ spec:
               - NET_ADMIN
               - NET_RAW
               - SYS_NICE
+              - IPC_LOCK
         env:
         - name: PODTYPE
           value: "SURICATA"
@@ -58,7 +59,7 @@ spec:
       - name: luascripts
         hostPath:
           path: {{ suricata_dir }}/lua-output
-          type: DirectoryOrCreate          
+          type: DirectoryOrCreate
       nodeSelector:
         suricata: "true"
       affinity:
