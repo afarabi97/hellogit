@@ -1,0 +1,28 @@
+---
+
+- name: Setup deployment info
+  set_fact:
+    bro_deployments: "{{ bro_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-bro'} ) }}"
+  loop: "{{ groups['bro'] }}"
+
+- name: Deploy services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    resource_name: "{{ item.value }}"
+    file_name: "{{ bro_dir }}/{{ item.key }}-deploy.yml"
+  loop: "{{ bro_deployments | dict2items }}"
+
+- name: Wait for Bro to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "{{ item }}"
+    label: ""
+  loop: "{{ bro_deployments.values() }}"
+
+...

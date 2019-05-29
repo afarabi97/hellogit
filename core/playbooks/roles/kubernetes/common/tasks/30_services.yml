@@ -1,0 +1,13 @@
+---
+
+- name: 'Start {{ item }}'
+  systemd:
+    name: "{{ item }}"
+    state: 'started'
+    daemon_reload: yes
+    enabled: yes
+  with_items:
+    - "kubelet"
+    - "crio"
+
+...

@@ -1,0 +1,83 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
+  labels:
+    component: suricata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: suricata
+  template:
+    metadata:
+      labels:
+        component: suricata
+    spec:
+      hostNetwork: true
+      containers:
+      - name: suricata
+        image: "{{ suricata_image }}:{{ suricata_version }}"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - IPC_LOCK
+        env:
+        - name: PODTYPE
+          value: "SURICATA"
+        resources:
+          requests:
+            cpu: {{ hostvars[deployment_hostname].suricata_cpu_request }}
+        volumeMounts:
+        - name: filebeat
+          mountPath: /etc/filebeat/filebeat.yml
+        - name: suricata
+          mountPath: /etc/suricata/suricata.yaml
+        - name: rules
+          mountPath: /etc/suricata/rules
+        - name: luascripts
+          mountPath: /etc/suricata/lua-output
+      volumes:
+      - name: filebeat
+        hostPath:
+          path: {{ suricata_dir }}/filebeat.yml
+          type: File
+      - name: suricata
+        hostPath:
+          path: {{ suricata_dir }}/suricata.yaml
+          type: File
+      - name: rules
+        hostPath:
+          path: {{ suricata_dir }}/rules
+          type: DirectoryOrCreate
+      - name: luascripts
+        hostPath:
+          path: {{ suricata_dir }}/lua-output
+          type: DirectoryOrCreate
+      nodeSelector:
+        suricata: "true"
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ deployment_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - suricata
+            topologyKey: "kubernetes.io/hostname"
+...

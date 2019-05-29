@@ -1,0 +1,59 @@
+<app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<app-modal-dialog [modal]="confirmModal" (primaryButtonClick)="deleteFile()"></app-modal-dialog>
+<app-modal-loading #loadingDialog modalId="waitForPCAPToComplete" title="Uploading PCAP please wait..."></app-modal-loading>
+<div class="container" id="topheader">
+  <div class="card">
+    <div class="card-header">
+      PCAP Test Files
+      <button class="btn btn-primary" (click)="uploadFile()" 
+              style="float: right;" type="button" [disabled]="!pcapToUpload"
+              name="execute_kickstart">Upload</button>
+    </div>
+    <div class="card-body">
+        <div class="card" style="margin-bottom: 15px;">
+          <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+            <h5>Page Instructions</h5>
+            <p class="card-text">
+              This page allows you to upload PCAP files that can then be used to test your rules on the Rule Sets page.
+              PCAP files uploaded this way, cannot exceed 100 MB in size.
+              <br><br>
+              If you are uploading a lot of PCAP files or you have PCAPs larger than 100 MB, you can drop them directly into 
+              /var/www/html/pcaps folder on the Controller VM and this page will auto load them in.
+            </p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="pcap_file_uploader">Choose PCAP file to upload</label>
+          <input type="file" (change)="handleFileInput($event.target.files)"
+                 class="form-control-file" id="pcap_file_uploader">
+        </div>
+        <table class="table">
+            <thead>
+              <tr>          
+                <th scope="col">Name</th>
+                <th scope="col">Modified Date</th>
+                <th scope="col">Size MB</th>
+                <th scope="col">
+                  <a (click)="showMD5()">MD5</a>&nbsp;
+                  <a (click)="showSHA1()">SHA1</a>&nbsp;
+                  <a (click)="showSHA256()">SHA256</a></th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody #selections>
+              <tr *ngFor="let pcap of pcaps">
+                <td style="max-width: 120px;"><a href="http://{{ hostname }}/pcaps/{{ pcap.name }}">{{ pcap.name }}</a></td>
+                <td style="width: 157px;">{{ pcap.createdDate }}</td>
+                <td>{{ pcap.size / 1000000 | number:'1.0-3' }}</td>
+                <td>{{ getHash(pcap.hashes) }}</td>
+                <td>
+                  <button title="Remove Rule" 
+                          class="btn btn-danger" 
+                          (click)="openConfirmModal(pcap)"><i class="icon_close_alt2"></i></button>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>

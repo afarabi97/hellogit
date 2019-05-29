@@ -1,0 +1,40 @@
+#######################################################
+###################  Kubernetes Install ###############
+#######################################################
+---
+
+- name: 'Install Kubernetes packages'
+  yum:
+    name:
+      - "kubeadm-{{ k8s_version }}"
+      - "kubelet-{{ k8s_version }}"
+      - "kubectl-{{ k8s_version }}"
+    state: installed
+    allow_downgrade: yes
+  register: installed_packages
+  notify:
+    - restart kubelet
+
+- name: Modified service file
+  copy:
+    src: "kubelet.service"
+    dest: "/etc/systemd/system/kubelet.service"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: 'Install Kubernetes support packages'
+  yum:
+    name:
+      - "device-mapper-persistent-data"
+      - "lvm2"
+      - "ebtables"
+      - "ethtool"
+    state: installed
+  register: installed_packages
+
+...

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
+  labels:
+    component: moloch
+    app: moloch-capture
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moloch-capture
+  template:
+    metadata:
+      labels:
+        component: moloch
+        app: moloch-capture
+    spec:
+      initContainers:
+      - name: init-sync-files
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /data/moloch/db/db.pl
+        - {{ elastic_fqdn }}:{{ elastic_port }}
+        - sync-files
+        - {{deployment_hostname | regex_replace('\\.(lan)?', '')}}
+        - /data/moloch/raw/
+        securityContext:
+          privileged: true
+      hostNetwork: true
+      containers:
+      - name: "moloch"
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "CAPTURE"
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - SYS_RESOURCE
+        ports:
+          - containerPort: {{ moloch_port }}
+            name: webgui
+        resources:
+          requests:
+            cpu: {{ hostvars[deployment_hostname].moloch_cpu_request }}
+          limits:
+            memory: {{ hostvars[deployment_hostname].moloch_mem_limit }}
+        volumeMounts:
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
+        - name: data
+          mountPath: {{ moloch_pcap_path }}
+      restartPolicy: Always
+      volumes:
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/config.ini
+          type: File
+      - name: data
+        hostPath:
+          path: /pcap
+          type: Directory
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ deployment_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - moloch-capture
+            topologyKey: "kubernetes.io/hostname"

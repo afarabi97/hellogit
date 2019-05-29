@@ -1,0 +1,15 @@
+---
+
+logstash_user: 1000
+logstash_group: 1000
+logstash_dir: "{{ install_dir }}/logstash"
+logstash_pv_size: "1"
+logstash_path: "/usr/share/logstash"
+logstash_image: "logstash/logstash"
+
+elastic_port: "9200"
+
+logstash_memory_request: 16
+logstash_memory_limit: 16
+logstash_jvm_memory: 12
+logstash_pipeline_workers: 12

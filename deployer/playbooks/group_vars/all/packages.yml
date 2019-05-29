@@ -1,0 +1,79 @@
+---
+
+ansible_ver: "2.7.5"
+
+group_packages:
+  - base
+  - core
+
+direct_download_package_names:
+  - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+  - "ftp://ftp.info-zip.org/pub/infozip/win32/unz552xn.exe"
+  - "https://download.sysinternals.com/files/Sysmon.zip"
+  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-6.6.1-windows-x86_64.zip"
+  - "https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz"
+
+packages:
+  - "ansible-{{ ansible_ver }}"
+  - audit
+  - bash-completion
+  - bind-utils
+  - bridge-utils
+  - buildah
+  - chrony
+  - cockpit
+  - containernetworking-plugins
+  - createrepo
+  - cri-o-1.13.6
+  - cri-tools
+  - dhcp
+  - dnsmasq
+  - docker-distribution
+  - easy-rsa
+  - gcc
+  - git
+  - grub2
+  - httpd
+  - inotify-tools
+  - iperf
+  - "kubelet-{{ k8s_version }}"
+  - mod_ssl
+  - mongodb-org
+  - net-tools
+  - NetworkManager
+  - NetworkManager-libnm
+  - NetworkManager-tui
+  - NetworkManager-glib
+  - NetworkManager-team
+  - nload
+  - nmap
+  - nodejs
+  - openvpn
+  - perl
+  - policycoreutils-python
+  - python2-pip
+  - python36
+  - python36-devel
+  - python-gobject
+  - rsync
+  - runc
+  - sshpass
+  - syslinux
+  - tcpdump
+  - tcpreplay
+  - tftp-server
+  - vim-enhanced
+  - wget
+  - yum-utils
+  - xinetd
+  - lsof
+
+packages_without_deps:
+  - "kubeadm-{{ k8s_version }}"
+  - "kubectl-{{ k8s_version }}"
+  - kubernetes-cni-0.6.0
+
+packages_to_remove:
+  - containerd.io
+
+...

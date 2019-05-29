@@ -1,0 +1,26 @@
+<div [formGroup]="parentForm">
+  <div *ngIf="input_control.control_disabled">
+    <label class="form-check-label" for="{{ controlName }}">
+      {{ input_control.label }}
+    </label>
+    <input type="hidden"
+           formControlName="{{ controlName }}">
+    <span style="margin-left: 10px;" *ngIf="input_control.value === true">Yes!</span>
+    <span style="margin-left: 10px;" *ngIf="!input_control.value">No</span>
+  </div>
+  <div class="form-check" *ngIf="!input_control.control_disabled">
+    <input formControlName="{{ controlName }}"
+           class="form-check-input"
+           type="checkbox"
+           [checked]="input_control.checked"
+           name="is_master_server{{ uid }}"
+           (change)="callParent($event)">
+    <label class="form-check-label" for="{{ controlName }}">
+      {{ input_control.label }}
+    </label>
+  </div>
+  <a routerLink="/help" target="_blank" name="tip_{{ controlName }}" data-placement="right"
+     fragment="{{ input_control.anchor }}" title="{{ input_control.description }}">
+    <label>What is this?</label>
+  </a>
+</div>

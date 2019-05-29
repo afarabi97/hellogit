@@ -1,0 +1,15 @@
+---
+
+- name: Get elasticsearch main page
+  uri:
+    url: "{{ elastic_uri }}"
+  register: elasticsearch_result
+  ignore_errors: yes
+
+- name: Test | Elastichsearch service and port
+  assert:
+    that:  elasticsearch_result.status == 200
+    msg: "Elasticsearch responded with {{ elasticsearch_result.status }} status code instead of 200."
+
+
+...

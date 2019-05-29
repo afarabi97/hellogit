@@ -1,0 +1,69 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+
+- name: Bootstrap Controller
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - bootstrap
+  tags: bootstrap
+
+- name: Setup Controller
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - setup
+  tags: setup
+
+- name: Preflight
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - preflight
+  tags: preflight
+
+- name: Setup DNS Server
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - dnsmasq
+  tags:
+    - dnsmasq
+    - dns
+
+- name: Setup Kickstart server
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - kickstart
+  tags: kickstart
+
+- name: Generate Profiles
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - profiles
+  tags:
+    - profiles
+    - profile
+
+- name: Clone and create repositories
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - clonerepo
+  tags: clonerepo
+
+- name: Install and run registry
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - registry
+  tags: registry
+
+...

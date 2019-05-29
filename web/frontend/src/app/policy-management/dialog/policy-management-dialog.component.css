@@ -1,0 +1,56 @@
+.form-control {
+  color: lightgreen;
+}
+
+.form-control:active {
+  background-color: #222;
+}
+
+.form-control:focus {
+  background-color: #222;
+}
+
+.form-control:focus {
+  color: lightgreen;
+}
+
+textarea {
+  resize: none;
+}
+
+textarea.form-control {
+  height: inherit;
+}
+
+.card {
+  opacity: 0.8;
+}
+
+.line-numbers {
+  display: inline-block;
+  font-family: sans-serif;
+  margin: 0px 5px 0px 0px;
+}
+
+.line-numbers div {
+  font-size: 14px; 
+  font-family: sans-serif;
+}
+
+.text-area-wrapper {
+  display: inline-block;
+  margin: 0px;
+  width: 80%;
+}
+
+.text-area {
+  overflow: hidden; 
+  padding: 0px; 
+  overflow-x: auto;
+  overflow-y: hidden; 
+  font-size: 14px; 
+  font-family: sans-serif; 
+  width: 10000px;
+  background-color: #222;
+  color: lightgreen;
+}

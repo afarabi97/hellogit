@@ -1,0 +1,60 @@
+---
+
+- name: Enable Firewalld Service
+  service:
+    name: "firewalld"
+    state: started
+    enabled: true
+
+- name: Add assessor user
+  user:
+    name: assessor
+    shell: /bin/bash
+    groups: wheel
+    append: yes
+  register: assessor_user
+
+- name: Generate RootPw
+  command: "openssl passwd -1 {{ root_password | b64decode }}"
+  register: rootpw
+  when: assessor_user.changed
+
+- name: Update assessor user password
+  user:
+    name: assessor
+    password: "{{ rootpw.stdout }}"
+  when: assessor_user.changed
+
+- name: update sshd_conf
+  template:
+    src: templates/sshd_config
+    dest: "/etc/ssh/sshd_config"
+  register: sshd_config
+
+- name: Bump sshd
+  systemd:
+    name: sshd
+    enabled: yes
+    state: restarted
+  when: sshd_config.changed
+
+- name: Import bootstrap vars
+  include_vars:
+    file: "{{ BOOTSTRAP_VARS }}"
+
+- name: Recreate Local Yum Repos
+  import_role:
+    name: bootstrap
+    tasks_from: offline_repos
+
+- name: Update etc hosts file
+  import_role:
+    name: bootstrap
+    tasks_from: update_etc_hosts
+
+- name: Update interface dns
+  import_role:
+    name: bootstrap
+    tasks_from: update_controller_dns
+
+...

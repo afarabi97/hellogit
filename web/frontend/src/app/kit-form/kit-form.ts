@@ -1,0 +1,633 @@
+import {
+    FormGroup, FormArray,
+    AbstractControl,
+    ValidationErrors
+} from '@angular/forms';
+
+import { HtmlInput, HtmlCheckBox, HtmlDropDown, HtmlCardSelector, HtmlHidden, HtmlDatePicker } from '../html-elements';
+import { SensorResourcesForm } from '../total-sensor-resources-card/total-sensor-resources-form';
+import { TotalServerResources } from '../total-server-resources-card/total-server-resources-form';
+import { IP_CONSTRAINT, HOST_CONSTRAINT,
+         INVALID_FEEDBACK_INTERFACE, INVALID_FEEDBACK_IP,
+         TIMEZONES, SENSOR_APPS
+ } from '../frontend-constants';
+
+import { BasicNodeResource } from '../basic-node-resource-card/basic-node-resource-card.component';
+import { TotalSystemResources } from '../total-system-resource-card/total-system-resource-form';
+import { ValidateKitInventory } from './kit-form-validation';
+
+
+export interface DeviceFactsContainerInterface{
+    deviceFacts: Object;
+}
+
+/**
+ * Sets the drive selections based on the passed in deviceFacts.
+ *
+ * @param deviceFacts
+ * @returns - [{value: "sdb", label: "sdb - 50 GB"}]
+ */
+function SetDriveSelections(deviceFacts: Object) : Array<{value: string, label: string}> {
+    let driveSelections = new Array();
+
+    if (deviceFacts == null){
+        return driveSelections;
+    }
+
+    for (let item of deviceFacts["disks"]){
+        if (item["hasRoot"]){
+            continue;
+        }
+        driveSelections.push({value: item["name"], label: item["name"] + " - " + item["size_gb"].toFixed(2) + " GB"})
+     }
+    return driveSelections;
+}
+
+export interface NodeFormInterface {
+    hidden: boolean;
+    basicNodeResource: BasicNodeResource;
+    deviceFacts: Object;
+    node_type: HtmlDropDown;
+    management_ip_address: HtmlInput;
+    hostname: HtmlHidden;
+    controls: {
+        [key: string]: AbstractControl;
+    };    
+
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+
+    from_object(mObj: Object): void;
+
+    clearSelectors();
+}
+
+export class KitNodeFormGroup extends FormGroup implements NodeFormInterface {
+    hidden: boolean;
+    basicNodeResource: BasicNodeResource;
+    deviceFacts: Object;
+
+    constructor(hidden: boolean, 
+                managementIP: string, 
+                nodeForm: KitNodeFormGroup = null) {
+        super({});
+        if (nodeForm){
+            this.hidden = nodeForm.hidden;
+            this.basicNodeResource = nodeForm.basicNodeResource;
+            this.deviceFacts = nodeForm.deviceFacts;
+            this.hostname.setValue(nodeForm.hostname.value);
+            this.management_ip_address.setValue(nodeForm.management_ip_address.value);
+            this.node_type.setValue(nodeForm.node_type.value);
+        } else {
+            this.hidden = hidden;
+            this.management_ip_address.setDefaultValue(managementIP);
+            this.basicNodeResource = new BasicNodeResource();
+            this.deviceFacts = null;
+            
+        }
+
+        super.addControl('node_type', this.node_type);
+        super.addControl('hostname', this.hostname);
+        super.addControl('management_ip_address', this.management_ip_address);
+    }
+
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+      }): void{
+        super.enable(opts);
+        this.management_ip_address.disable();
+    }
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        this.node_type.disable();
+        this.management_ip_address.disable();
+    }
+
+    public from_object(mObj: Object): void {
+        this.deviceFacts = mObj['deviceFacts'];
+        this.management_ip_address.setValue(mObj['management_ip_address']);
+        this.hostname.setValue(mObj['hostname']);
+        this.node_type.setValue(mObj['node_type']);
+    }
+
+    setFromDeviceFacts(){
+        this.basicNodeResource.setFromDeviceFacts(this.deviceFacts);
+        this.hostname.setValue(this.deviceFacts["hostname"]);
+    }
+
+    clearSelectors() {
+        //Do nothing
+    }
+
+    getRawValue(): any {
+        let rawValue = super.getRawValue();
+        rawValue['deviceFacts'] = this.deviceFacts;
+        return rawValue;
+    }
+
+    node_type = new HtmlDropDown(
+        'node_type',
+        'Node Type',
+        ['Server', 'Sensor'],
+        "The Node Type referes to whether or not the node is a server or sensor.",
+        ''
+    )
+
+    management_ip_address = new HtmlInput (
+        'management_ip_address',
+        'Management IP Address',
+        "The management IP address.",
+        'text',
+        IP_CONSTRAINT,
+        INVALID_FEEDBACK_IP,
+        true,
+        undefined,
+        '',
+        undefined,
+        true
+    )
+
+    hostname = new HtmlHidden('hostname', true);
+    
+}
+
+export class ServerForm extends KitNodeFormGroup {
+    driveSelections: Array<{value: string, label: string}>;
+
+    constructor(nodeForm: KitNodeFormGroup, disableIsKubernetesMasterCheckbox: boolean=false){
+        super(false, null, nodeForm);
+        this.driveSelections = new Array();
+        super.addControl('is_master_server', this.is_master_server);
+        super.addControl('es_drives', this.es_drives);
+
+        if (disableIsKubernetesMasterCheckbox){
+            this.is_master_server.disable();
+        }
+        this.setOptionSelections();
+    }
+
+    clearSelectors(){
+        while (this.es_drives.length !== 0) {
+            this.es_drives.removeAt(0);
+        }
+    }
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        super.disable(opts);
+        this.is_master_server.disable();
+        this.es_drives.disable();
+    }
+
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+      }): void {
+        super.enable(opts);
+    }    
+
+    /**
+     * After you call this make sure you set drive selections
+     * after you have set deviceFacts.
+     *
+     * @param mObj
+     */
+    public from_object(mObj: Object){
+        super.from_object(mObj);
+        this.setOptionSelections();
+        this.is_master_server.checked = mObj['is_master_server'];
+        this.is_master_server.setValue(mObj['is_master_server']);
+        this.es_drives.default_selections = mObj['es_drives'];
+    }
+
+    private setOptionSelections(){
+        this.driveSelections = SetDriveSelections(this.deviceFacts);
+    }
+
+    is_master_server = new HtmlCheckBox(
+        "is_master_server",
+        "Is Kubernetes master server?",
+        "This is not the ESXi/VM server. This is for the Kubernetes master server only.\
+        There can only be one master server. It is a bit like the Highlander that way.\
+        The master server is special in that it runs the Kubernetes master and is     \
+        responsible for deploying services out to all the other hosts in the cluster. \
+        This server should be fairly beefy. By default, this server will also provide \
+        DNS to the rest of the kit for internal services. WARNING: If this server     \
+        fails, the entire kit goes down with it!!!"
+    )
+    
+    es_drives = new HtmlCardSelector (
+        'es_drives',
+        "ES Data Drives",
+        "Use this field to mark the disks you will use for the Elasticsearch cluster.",
+        "Select which drives on the host, if any, that you would like to add to the Elasticsearch cluster.",
+        "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
+        "No drives found.",
+        true
+    )
+}
+
+export class SensorForm extends KitNodeFormGroup {
+    driveSelections: Array<{value: string, label: string}>;
+    interfaceSelections: Array<{value: string, label: string}>;
+
+    constructor(node: KitNodeFormGroup){
+        super(false, null, node);
+        this.interfaceSelections = new Array();
+        this.driveSelections = new Array();
+        super.addControl('monitor_interface', this.monitor_interface);
+        super.addControl('pcap_drives', this.pcap_drives);
+        super.addControl('sensor_apps', this.sensor_apps);
+        super.addControl('is_remote', this.is_remote);
+        this.setSensorOptionsSelections(this.management_ip_address.value);
+    }
+
+    /**
+     * Sets option selections for both interfaces and ES drives.
+     */
+    private setSensorOptionsSelections(managementIp: string){
+        if (this.deviceFacts == null){
+            return;
+        }
+
+        //Reset selections if user clicks on Gather facts twice.
+        this.interfaceSelections = new Array();
+        this.driveSelections = new Array();
+        this.driveSelections = SetDriveSelections(this.deviceFacts);
+
+        for (let item of this.deviceFacts["interfaces"]){
+            if (item["name"] == 'lo'){
+                continue;
+            }
+
+            if (item["ip_address"] == managementIp){
+                continue;
+            }
+
+            this.interfaceSelections.push({value: item["name"], label: item["name"]})
+        }
+    }
+
+    clearSelectors(){
+        while (this.pcap_drives.length !== 0) {
+            this.pcap_drives.removeAt(0);
+        }        
+
+        while (this.monitor_interface.length !== 0) {
+            this.monitor_interface.removeAt(0);
+        }
+    }    
+
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        super.disable(opts);
+        this.pcap_drives.disable();
+        this.sensor_apps.disable();
+        this.is_remote.disable();
+        this.monitor_interface.disable();
+    }
+    
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+      }): void{
+        super.enable(opts);
+    }
+
+    /**
+     * When calling this make sure you call set_drive_selections
+     * after you have set deviceFacts.
+     *
+     * @param mObj
+     */
+    public from_object(mObj: Object){        
+        super.from_object(mObj);
+        this.setSensorOptionsSelections(this.management_ip_address.value);
+        this.monitor_interface.default_selections = mObj['monitor_interface'];
+        this.pcap_drives.default_selections = mObj['pcap_drives'];
+        this.sensor_apps.default_selections = mObj['sensor_apps'];        
+    }
+
+    monitor_interface = new HtmlCardSelector(
+        'monitor_interface',
+        'Select Monitor Interface',
+        "The interfaces on the sensor you would like to use for monitoring.\
+        These will be the interfaces that Moloch, Bro, and Suricata use.\
+        Note: The management interface will not appear in this list. You \
+        cannot use an interface for both management and monitoring.",
+        "Select which interfaces you would like to use as monitor interfaces.",
+        "Note: The management interface will not be listed below. It is not eligble for use as a monitor interface.",
+        INVALID_FEEDBACK_INTERFACE,
+        true,
+    )
+
+    sensor_apps = new HtmlCardSelector (
+        'sensor_apps',
+        "Sensor Applications",
+        "The applications on the sensor you would like to have installed.",
+        "Select which applications you would like to include as part of this Sensor install.",
+        "Note: We recommend you leave all of them selected by default. However, there are cases where one application may not be desired on a target sensor.",
+        "No selections found.",
+        true,
+        SENSOR_APPS,
+        undefined,
+        [{value: 'suricata', label: 'Suricata', isSelected: true},
+         {value: 'moloch', label: 'Moloch', isSelected: true},
+         {value: 'bro', label: 'Bro/Zeek', isSelected: true},
+        ]
+    )
+
+    pcap_drives = new HtmlCardSelector (
+        'pcap_drives',
+        "PCAP Drives",
+        "The drives which will be dedicated to PCAP file storage.",
+        "Select which drive you would like to use for PCAP storage.",
+        "Note: The operating system's drive will not appear here. If a drive has the root file system mounted to it, it is excluded. This means you may only have one drive listed.",
+        "No drives found.",
+        false
+    )
+
+    is_remote = new HtmlCheckBox(
+        "is_remote",
+        "Is Remote?",
+        "When checked, is remote will install and configure open VPN on this sensor."
+    )
+}
+
+export class KitNodesFormArray extends FormArray {
+    constructor(controls: AbstractControl[],
+                public hidden: boolean) {
+        super(controls);
+    }
+
+    private isMasterSelected(): boolean {
+        for (let i = 0; i < this.length; i++){
+            let node = this.at(i);
+            if (node instanceof ServerForm){
+                if (node.is_master_server.value){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    replaceGenericNodeWithSpecifiedType(index: number, new_node_type: string){
+        let node = this.at(index) as KitNodeFormGroup;
+        if (new_node_type === 'Sensor'){
+            this.removeAt(index);
+            this.insert(index, new SensorForm(node));
+        } else if (new_node_type === 'Server'){
+            this.removeAt(index);
+            this.insert(index, new ServerForm(node, this.isMasterSelected()));
+        }
+    }
+}
+
+function validateIPOrHost(control: AbstractControl): ValidationErrors | null {
+    let ctrl = control as HtmlInput;    
+    let patterns: Array<string> = [IP_CONSTRAINT, HOST_CONSTRAINT];
+    let isValid = false;
+
+    if (!ctrl.required && control.value === ""){
+        return null;
+    }
+
+    for (let pattern of patterns){
+        let pat = new RegExp(pattern);
+        let result = pat.test(control.value);
+
+        if (!isValid){
+            isValid = result;
+        }
+    }
+
+    if (!isValid){
+        
+        return {"custom_error": ctrl.invalid_feedback};
+    } 
+
+    return null;
+  }
+
+export class KitInventoryForm extends FormGroup {
+    nodes: KitNodesFormArray;
+    endgame_warning: string;
+    kubernetesCidrInfoText;
+
+    constructor() {
+        super({}, ValidateKitInventory);
+        this.nodes = new KitNodesFormArray([], true);
+        this.endgame_warning = '';
+        super.addControl('nodes', this.nodes);
+        super.addControl('kubernetes_services_cidr', this.kubernetes_services_cidr);
+        super.addControl('sensor_resources', this.sensor_resources);
+        super.addControl('server_resources', this.server_resources);
+        super.addControl('dns_ip', this.dns_ip);
+        super.addControl('endgame_iporhost', this.endgame_iporhost);
+        super.addControl('endgame_username', this.endgame_username);
+        super.addControl('endgame_password', this.endgame_password);        
+        this.kubernetesCidrInfoText = "";
+    }
+
+    clearFromDeviceFacts(node: KitNodeFormGroup){
+        // Clear resources on every run of gather facts.
+        if (node.deviceFacts){
+            this.system_resources.subtractFromDeviceFacts(node.deviceFacts);
+            node.clearSelectors();
+            if (node instanceof ServerForm) {
+                this.server_resources.subtractFromDeviceFacts(node.deviceFacts);
+                this.server_resources.removeClusterStorage(node.deviceFacts);
+            } else if (node instanceof SensorForm) {
+                this.sensor_resources.subtractFromDeviceFacts(node.deviceFacts);
+            }
+        }
+    }
+
+    setFromDeviceFacts(node: KitNodeFormGroup, data: Object = null){        
+        //Only set the device facts if they are not null.
+        if (data){
+            node.deviceFacts = data;
+        }
+        node.setFromDeviceFacts();
+        this.system_resources.setFromDeviceFacts(node.deviceFacts);
+
+        if (node instanceof ServerForm){
+            this.server_resources.setFromDeviceFacts(node.deviceFacts);
+        } else if (node instanceof SensorForm){
+            this.sensor_resources.setFromDeviceFacts(node.deviceFacts);
+        }
+    }
+
+   /**
+    * Overridden method
+    */
+    reset(value?: any, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        this.addNodeFormGroup(null);
+        super.reset({});
+        this.clearNodes();
+        this.system_resources.reinitalize();
+    }
+
+    enable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {
+        super.enable(opts);        
+    }
+
+    /**
+     * Overridden method
+     *
+     * @param opts
+     */
+    disable(opts?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void {        
+        this.kubernetes_services_cidr.disable();
+
+        this.nodes.disable();
+        this.sensor_resources.disable();
+        this.server_resources.disable();
+            
+        this.dns_ip.disable();
+        this.endgame_iporhost.disable();
+        this.endgame_username.disable();
+        this.endgame_password.disable();
+    }
+
+    public clearNodes() {
+        while (this.nodes.length !== 0) {
+            this.nodes.removeAt(0);
+        }
+    }
+
+    public addNodeFormGroup(managementIP: string){
+        // this.sensors.hidden = false;
+        this.nodes.push(new KitNodeFormGroup(false, managementIP));
+    }
+
+    system_resources = new TotalSystemResources();
+    server_resources = new TotalServerResources();
+    sensor_resources = new SensorResourcesForm();
+
+    endgame_iporhost = new HtmlInput(
+        'endgame_iporhost',
+        'Endgame IP or Hostname',
+        'Optional field.  This is only required if you want to setup Endgame integration with your Kit configuration.',
+        'text',
+        validateIPOrHost,
+        'You must enter a valid hostname or IP address for the Endgame server.',
+        false,
+        '',
+        "Setting this enables a script which will pull Endgame data into Elasticsearch for easier pivoting/maneuver on Endgame data."
+    )
+
+    endgame_username = new HtmlInput(
+        'endgame_username',
+        'Endgame Username',
+        'Optional field.  This is only required if you want to setup Endgame integration with your Kit configuration.',
+        'text',
+        null,
+        '',
+        false,
+        '',
+        "The username needed for Endgame integration."
+    )
+
+    endgame_password = new HtmlInput(
+        'endgame_password',
+        'Endgame Password',
+        'Optional field.  This is only required if you want to setup Endgame integration with your Kit configuration.',
+        'text',
+        null,
+        '',
+        false,
+        '',
+        "The password needed for Endgame integration."
+    )
+
+    kubernetes_services_cidr = new HtmlDropDown(
+        'kubernetes_services_cidr',
+        'Kubernetes Service IP Range Start',
+        [],
+        "Services_cidr is the range of addresses kubernetes will use for external services \
+        This includes Moloch viewer, Kibana, and elastichq. \
+        This will use a /28 under the hood. This means it will take \
+        whatever IP address you enter and create a range addresses from that IP +16. For example, \
+        192.168.1.16 would become a range from 192.168.1.16-31."        
+    )
+
+    dns_ip = new HtmlInput(
+        'dns_ip',
+        'DNS IP Address',
+        "Same as Master Server management IP",
+        'text',
+        IP_CONSTRAINT,
+        INVALID_FEEDBACK_IP,
+        false,
+        undefined,
+        "The IP address of the system DNS server. You may define this or it will   \
+        default  to using the master server's management IP. We suggest you leave \
+        it to default  unless you have a specific reason to use a different DNS   \
+        server. Keep in mind  you will need to manually provide all required DNS  \
+        entries on your separate  DNS Server or the kit will break."
+    )    
+}
+
+
+export class ExecuteKitForm extends FormGroup {    
+
+    constructor() {
+        super({});
+        super.addControl('date', this.date);
+        super.addControl('time', this.time);
+        super.addControl('timezone', this.timezone);
+    }
+  
+    date = new HtmlDatePicker(
+        'date',
+        'Current Date',
+        true,
+        'This is the date used for your cluster.  Make sure it is correct before executing your kit configuration.',
+    )
+
+    time = new HtmlInput(
+        'time',
+        'Current Time',
+        'HH:MM in military time',
+        'text',
+        '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$',
+        'Invalid. The proper format should be HH:MM in military time.',
+        true,
+        '',
+        'This is the time used for your cluster.  Make sure it is correct before executing your kit configuration.'
+    )
+
+    timezone = new HtmlDropDown(
+        'timezone',
+        'Timezone',
+        TIMEZONES,
+        "This option is sets each node's timezone during the kickstart provisioning process (Automated Operating System installation).",
+        'UTC'
+    )
+}

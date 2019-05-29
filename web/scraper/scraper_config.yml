@@ -1,0 +1,16 @@
+---
+# Username and password are optional fields.  If you do not provide them, 
+# the scraper will prompt for them automatically.
+
+# username:
+# password:
+confluence_spaces:  
+ - space_name: THISISCVAH
+   site: https://confluence.di2e.net
+   export_dir: /var/www/html
+   zip_file_name: thisiscvah.zip
+ - space_name: OJCCTM
+   site: https://confluence.di2e.net   
+   export_dir: /var/www/html
+   zip_file_name: ojcctm.zip
+   

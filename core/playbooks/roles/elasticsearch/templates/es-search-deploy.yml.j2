@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-search
+spec:
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: search
+  replicas: {{ elastic_searches }}
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: search
+    spec:
+      initContainers:
+      - name: init-sysctl
+        image: busybox:{{busybox_version}}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - "sysctl -w vm.max_map_count=262144"
+        securityContext:
+          privileged: true
+      containers:
+      - name: elasticsearch
+        image: {{ elasticsearch_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+        resources:
+          requests:
+            memory: "{{ elastic_search_memory }}Gi"
+            cpu: "{{ elastic_search_cpu_request }}"
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CLUSTER_NAME
+          value: {{ elastic_cluster_name }}
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms{{ elastic_search_jvm_memory }}g -Xmx{{ elastic_search_jvm_memory }}g
+        ports:
+        - containerPort: {{ elastic_data_port }}
+          name: http
+        - containerPort: {{ elastic_management_port }}
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          timeoutSeconds: 1
+          periodSeconds: 15
+          failureThreshold: 5
+        volumeMounts:
+        - name: elastic-search-conf
+          mountPath: {{ elastic_config_path }}/elasticsearch.yml
+          subPath: es-search-conf.yml
+      volumes:
+      - name: elastic-search-conf
+        configMap:
+          name: elastic-search
+      nodeSelector:
+        elasticsearch: "true"

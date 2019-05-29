@@ -1,0 +1,27 @@
+.form-control {
+    color: lightgreen;
+}
+
+.form-control:active {
+    background-color: #222;
+}
+
+.form-control:focus {
+    background-color: #222;
+}
+
+.form-control:focus {
+    color: lightgreen;
+}
+
+textarea {
+    resize: none;
+}
+
+textarea.form-control {
+    height: inherit;
+}
+
+.card {
+    opacity: 0.8;
+}

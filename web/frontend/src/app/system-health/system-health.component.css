@@ -1,0 +1,12 @@
+.card-body{
+    max-height: 800px; 
+    overflow-y: auto;
+}
+
+a {
+    cursor: pointer;
+}
+
+dd {
+    margin: 0px;
+}

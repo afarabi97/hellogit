@@ -1,0 +1,12 @@
+---
+
+- name: Verify all nodes are online
+  ping:
+  register: ping_node_result
+
+- name: Test | Ping result should be pong
+  assert:
+    that: ping_node_result.ping == 'pong'
+    msg: "Unable to verify all nodes are online."
+
+...

@@ -1,0 +1,12 @@
+---
+
+- name: Copy plugins
+  copy:
+    src: "{{ item }}"
+    dest: "{{ logstash_dir }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0644
+  with_fileglob: "file/plugins/*"
+
+...

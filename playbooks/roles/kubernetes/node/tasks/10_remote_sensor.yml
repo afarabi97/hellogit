@@ -1,4 +1,0 @@
----
-- name: Kube | Label remote sensors
-  command: 'kubectl label nodes {{ ansible_fqdn }} role=remote-sensor --overwrite=true'
-  when: inventory_hostname in groups['remote-sensors']

@@ -1,0 +1,16 @@
+<div [formGroup]="totalServerResources" class="card">
+  <div class="card-header">
+    Total Server Resources
+  </div>
+  <div class="card-body">
+    <p class="card-text">CPU Cores Available:
+      <span>{{ totalServerResources.cpuCoresAvailable }}</span>
+    </p>
+    <p class="card-text">Memory Available:
+      <span>{{ totalServerResources.memoryAvailable | number:'1.0-2' }}</span> GB
+    </p>
+    <p class="card-text">Elasticsearch Storage Available:
+      <span>{{ totalServerResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB
+    </p>
+  </div>
+</div>

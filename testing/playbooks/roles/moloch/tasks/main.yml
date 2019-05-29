@@ -1,0 +1,89 @@
+---
+
+- set_fact:
+        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+- name: get moloch pods
+  shell: |
+    {{ cmd }} | grep 'moloch-' | grep -Fv 'moloch-viewer'
+  register: get_pods
+  changed_when: get_pods.failed
+
+- name: Get pod status
+  shell: |
+    kubectl get pod {{item}} --no-headers | awk '{ print $3 }'
+  with_items: "{{ get_pods.stdout_lines }}"
+  register: pod_status
+  changed_when: pod_status.failed
+  ignore_errors: yes
+
+- name: Test | Check Pod Status
+  assert:
+    that: item.stdout == 'Running'
+    msg: "Failed it appears moloch pod status is {{ item.stdout }}"
+  with_items: "{{ pod_status.results }}"
+
+- name: Check Moloch Indicies
+  import_role:
+    name: common
+    tasks_from: check_indices
+  vars:
+    app_name: "moloch"
+    index_regex: "^(files|stats|sequence|users|dstats|queries|fields|sessions2).*"
+
+- name: Check HTTP Moloch Data
+  uri:
+    url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
+    return_content: yes
+  register: results_mh
+  until: results_mh.json.hits.total != 0
+  retries: 60
+  delay: 5
+  ignore_errors: yes
+
+- name: Test | Check Moloch HTTP Results
+  assert:
+    that: results_mh.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received HTTP logs from Moloch"
+
+- name: Check DNS Moloch Data
+  uri:
+    url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
+    return_content: yes
+  register: results_md
+  until: results_md.json.hits.total != 0
+  retries: 60
+  delay: 5
+  ignore_errors: yes
+
+- name: Test | Check Moloch DNS Results
+  assert:
+    that: results_md.json.hits.total != 0
+    msg: "Failed verifying Elasticsearch received DNS logs from Moloch"
+
+- name: Check Moloch PCAP Download
+  uri:
+    url: "{{ moloch_uri }}/sessions.pcap/sessions.pcap?start=0&graphType=lpHisto&seriesType=bars&date=24&length=50&segments=no"
+    return_content: yes
+    user: assessor
+    password: password
+    timeout: 240
+  register: results_mp
+  ignore_errors: yes
+
+- name: Test | Check Moloch PCAP Download
+  assert:
+    that: (results_mp.content | length) > 0
+    msg: "Failed verifying Moloch PCAP download is functional"
+
+# For some reason, Moloch doesn't reliably report SMB traffic. Here's what sometimes works.
+# - name: Check SMB Moloch Data
+#   uri:
+#     url: "{{ elastic_uri }}/sessions*/_search?q=protocol:smb+AND+timestamp:[now-15m+TO+now]"
+#     return_content: y
+#   register: results
+#   until: results.json.hits.total != 0
+#   retries: 10
+#   delay: 10
+
+...

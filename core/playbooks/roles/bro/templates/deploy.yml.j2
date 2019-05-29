@@ -1,0 +1,84 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ deployment_name }}
+  labels:
+    component: bro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: bro
+  template:
+    metadata:
+      labels:
+        component: bro
+    spec:
+      # Due to a bug in C++ Actor Framework (which powers Bro's broker),
+      # this is necessary to get Bro nodes to talk to each other.
+      shareProcessNamespace: true
+      hostNetwork: true
+      containers:
+{% for node, config in bro_cluster.items() %}
+      - name: {{ node }}
+        image: {{ bro_image }}:{{ bro_version }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+            tcpSocket:
+                port: {{ config.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 6
+{% if config.type == "worker" %}
+        securityContext:
+              capabilities:
+                add:
+                  - NET_ADMIN
+                  - NET_RAW
+                  - SYS_NICE
+{% endif %}
+        volumeMounts:
+        - name: scripts
+          mountPath: {{ bro_container_path }}/share/bro/site
+          readOnly: true
+{% if config.type == "logger" %}
+        - name: logs
+          mountPath: /data
+        workingDir: /data/{{config.logger_number}}
+{% endif %}
+        env:
+        - name: CLUSTER_NODE
+          value: {{ node }}
+        args: [{{'"-i", "'+config.interface+'", ' if config.type == 'worker' else ''}} "-U", ".status", "frameworks/control/controllee", "local.bro", "base/frameworks/cluster" ]
+{% endfor %}
+      volumes:
+      - name: logs
+        hostPath:
+          path: {{ bro_log_path }}
+          type: DirectoryOrCreate
+      - name: scripts
+        hostPath:
+          path: {{ bro_scripts }}
+          type: DirectoryOrCreate
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ deployment_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - bro
+            topologyKey: "kubernetes.io/hostname"
+
+...

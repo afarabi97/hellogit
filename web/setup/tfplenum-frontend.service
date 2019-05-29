@@ -1,0 +1,10 @@
+[Unit]
+Description=Starts TFPlenum Frontend
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/tfplenum/web/backend
+ExecStart=/opt/tfplenum/web/tfp-env/bin/gunicorn --config ../setup/gunicorn_config.py app:app
+
+[Install]
+WantedBy=multi-user.target

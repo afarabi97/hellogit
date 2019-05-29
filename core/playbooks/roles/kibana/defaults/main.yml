@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+
+#### Kibana configuration variables ####
+
+# Which image version of Kibana this role is using.
+kibana_image: 'kibana/kibana'
+kibana_dir: "{{ install_dir }}/kibana"
+
+...

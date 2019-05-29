@@ -1,0 +1,25 @@
+<div [formGroup]="parentForm" class="input-group mb-3">
+  <div class="input-group-prepend">
+    <a routerLink="/help" target="_blank" fragment="{{ input_control.anchor }}" name="tip_{{ controlName }}"
+       data-toggle="tooltip" data-placement="right" title="{{ input_control.description }}">
+      <span class="input-group-text">{{ input_control.label }}</span>
+    </a>
+  </div>
+  <input class="form-control" [placeholder]="input_control.placeholder" 
+         name="{{ controlName }}{{ uid }}" 
+         formControlName="{{ controlName }}" ngbDatepicker #d="ngbDatepicker"
+         [(ngModel)]="_DatePickerService.date">
+  <div class="input-group-append">
+    <button class="btn btn-outline-secondary icon_calendar" style="color: white;" (click)="d.toggle()" type="button"></button>
+  </div>
+  <div *ngIf="input_control.invalid && (input_control.dirty || input_control.touched)" class="invalid-feedback2">
+      <div *ngIf="input_control.errors.required">Required field</div>
+      <div *ngIf="input_control.errors.pattern">{{ input_control.invalid_feedback }}</div>
+      <div *ngIf="input_control.hasError('custom_error')">
+        <div>{{ input_control.getError('custom_error') }}</div>
+      </div>
+  </div>
+  <div *ngIf="input_control.valid" class="valid-feedback2">
+    {{ input_control.valid_feedback }}
+  </div>
+</div>

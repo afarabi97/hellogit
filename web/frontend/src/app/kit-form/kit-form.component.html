@@ -1,0 +1,171 @@
+<app-modal-dialog [modal]="kitModal"></app-modal-dialog>
+<app-modal-dialog #dateModal [modal]="executeKitModal" (primaryButtonClick)="executeKit()"></app-modal-dialog>
+<app-modal-dialog [modal]="archiveKitModal" (primaryButtonClick)="archiveForm($event)"></app-modal-dialog>
+<app-modal-archive-dialog [modal]="restoreModal" (primaryButtonClick)="restoreForm($event)" config_id="kit_form"></app-modal-archive-dialog>
+
+<div class="container" id="topheader">
+  <form [formGroup]="kitForm" (ngSubmit)="onSubmit()">    
+    <div class="card">
+      <div class="card-header">
+        <button class="btn btn-primary" type="button" style="margin-right: 10px;" (click)="openConsole()">Open Console</button>
+        <button class="btn btn-secondary" style="margin-right: 10px;" type="button" (click)="clearForm()">Clear Form</button>
+        <button class="btn btn-secondary" type="button" (click)="enableForm()">Enable Form</button>
+        <button class="btn btn-primary" style="float: right;" type="button" 
+                (click)="openRestoreModal()"><i class="icon_download"></i> Restore Form</button>
+        <button class="btn btn-danger" type="button" style="float: right;  margin-right: 10px;" 
+                (click)="openArchiveConfirmation()"><i class="icon_floppy_alt"></i> Save Form</button>
+      </div>
+      <div class="card-body">
+        <div class="card">
+          <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+            <h5>Page Instructions</h5>
+            <p class="card-text">
+              Before filling out the form, make sure you have added all of your nodes to the Kickstart page.  
+              The validation box at the botton of the page will guide you through filling out the form correctly.
+            </p>
+            <p class="card-text">
+              The "Open Console" button opens the logs of the last Kit configuration run.
+            </p>
+            <p class="card-text">
+              If the current Kit form loads and is disabled, you have an active configuration.
+              If you want to start a new configuration, click "Clear Form" button at the top of the page.
+              If you want to change the existing configuration, click "Enable Form" button at the top of the page and make your edits before clicking "Execute Kit".
+            </p>
+            <p class="card-text">
+              If you have an active configuration (IE: Form is disabled), and want to add a node to the Kit.  
+              First add the node to Kickstart page, then come back to this page to finish the rest of the configuration.
+              Click "Add Node" at the botton of the page to execute. NOTE: The "Add Node" button will not be visible until the procedures are executed correctly.
+            </p>
+          </div>
+        </div>
+        <br>
+        <h5>Kubernetes Settings</h5>
+        <app-dropdown [parentForm]="kitForm" controlName="kubernetes_services_cidr" (dropDownChanged)="kubernetesInputEvent($event)" uid="kube_dropdown"></app-dropdown>
+        <div>{{ kitForm.kubernetesCidrInfoText }}</div>
+      </div>
+    </div>
+    <br>
+    <app-total-system-resource-card [totalSystemResources]="kitForm.system_resources"></app-total-system-resource-card>
+    <br>
+    <app-total-server-resources-card [totalServerResources]="kitForm.controls.server_resources"></app-total-server-resources-card>
+    <br>    
+    <app-total-sensor-resources-card [sensorResourceForm]="kitForm.controls.sensor_resources" ></app-total-sensor-resources-card>
+    <br>
+    
+    <div formArrayName="nodes"> 
+      <!-- <div *ngIf="!nodes.hidden"> -->
+        <div *ngFor="let node of nodes.controls; let i = index" class="card">
+          <div [formGroup]="node">
+            <input type="hidden" formControlName="hostname">
+          </div>
+
+          <div class="card-header">
+            <h5 class="mb-0">
+              <button class="btn btn-link" type="button" (click)="toggleNode(node)">Node {{ i + 1 }} - {{ node.hostname.value }}</button>
+            </h5>
+          </div>
+          
+          <div *ngIf="!node.hidden" class="card-body">
+            <app-basic-node-resource-card title="Node {{ i + 1 }} resources" [basicNodeResource]="node.basicNodeResource"></app-basic-node-resource-card>
+            <br>
+            <app-text-input [parentForm]="node" controlName="management_ip_address"></app-text-input>
+            <app-dropdown [parentForm]="node" controlName="node_type" (dropDownChanged)="nodeTypeChange($event, i)" uid="{{ i }}"></app-dropdown>
+            
+
+            <ng-container *ngIf="isServer(node)">
+              <app-checkbox [parentForm]="node" controlName="is_master_server" (is_checked)="disableOtherMasterOrReenable($event, i)" uid="{{ i }}"></app-checkbox>
+              <div *ngIf="node.deviceFacts">
+                  <app-card-selector [parentForm]="node" [optionSelections]="node.driveSelections"
+                                      controlName="es_drives" (onSelect)="esDriveSelected($event, node)" uid="_server{{ i }}"></app-card-selector>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="isSensor(node)">
+              <app-checkbox [parentForm]="node" controlName="is_remote" uid="is_remote_{{ i }}"></app-checkbox>                
+              <div *ngIf="node.deviceFacts">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" [optionSelections]="node.driveSelections"
+                                        controlName="pcap_drives" uid="{{ i }}"></app-card-selector>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" controlName="sensor_apps" uid="{{ i }}"></app-card-selector>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <app-card-selector [parentForm]="node" [optionSelections]="node.interfaceSelections"
+                                        controlName="monitor_interface" style="float: right;" uid="{{ i }}"></app-card-selector>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+
+            <div *ngIf="!node.deviceFacts">
+              <h3>Loading...</h3>
+            </div>
+          </div>
+        </div>
+      <!-- </div> -->
+    </div>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+        Validation
+      </div>
+      <div class="card-body" id="validation">
+          <p *ngIf="kitForm.valid" class='text-success'>Looks good! Press 'Execute Kit' whenever you're ready!</p>
+          <div *ngIf="kitForm.hasError('errors')">
+            <p *ngFor="let error of kitForm.getError('errors');" class='text-danger'>{{ error }}</p>
+          </div>
+          <div *ngIf="kitForm.endgame_warning">
+            <p class='text-warning'>{{ kitForm.endgame_warning }}</p>
+          </div>
+      </div>
+      <div class="card-footer">
+        <ng-container *ngIf="hasKitForm">
+          <button *ngIf="isAddNodeInsteadOfNewKit" class="btn btn-primary" style="margin-right: 10px;" 
+                  type="button" [disabled]="!kitForm.valid" name="execute_addnode" (click)="executeAddNode()">Execute Add Node</button>
+        </ng-container>
+          <button class="btn btn-primary" type="submit" [disabled]="!kitForm.valid" name="execute_kit">Execute Kit</button>
+          <button class="btn btn-primary" type="button" (click)="toggleAdvancedSettings()" 
+                  name="advanced_settings" style="float:right;"><i class="icon_menu"></i> Show/Hide Advanced Settings</button>
+      </div>
+    </div>
+    <br>
+    <div *ngIf="!isAdvancedOptionsHidden">
+      <div class="card">
+        <div class="card-header">
+          Advanced System Settings
+        </div>
+        <div class="card-body">
+          <p class="font-weight-light">
+            This button will only generate the inventory file which is stored /opt/tfplenum/core/playbooks folder.  To finish out the Kit configuration setup, 
+            you can run the make command directly in that folder.
+          </p>
+          <button class="btn btn-primary" type="button" [disabled]="!kitForm.valid" (click)="openGenKitInventoryModal()" name="gen_inventory">Generate Inventory</button>
+          <p class="card-text text-danger">
+            Unless you really know what you are doing here, you should not change the DNS. Seriously, there's only an incredibly niche
+            case for changing this and chances are you aren't in it.
+          </p>
+          <app-text-input [parentForm]="kitForm" controlName="dns_ip"></app-text-input>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
+          Endpoint Settings
+        </div>        
+        <div class="card-body">
+          <p class="font-weight-light">
+            Below are settings for enabling a service for pulling Endgame data into Elasticsearch and/or 
+            installing Google Rapid Response as part of your Kit deployment.
+          </p>
+          <app-text-input [parentForm]="kitForm" controlName="endgame_iporhost"></app-text-input>
+          <app-text-input [parentForm]="kitForm" controlName="endgame_username"></app-text-input>
+          <app-text-input [parentForm]="kitForm" controlName="endgame_password"></app-text-input>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

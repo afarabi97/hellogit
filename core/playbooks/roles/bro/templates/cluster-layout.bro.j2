@@ -1,0 +1,21 @@
+redef Cluster::manager_is_logger = F;
+redef Cluster::nodes = {
+{% for node, config in bro_cluster.items() %}
+    ["{{ node }}"] = [
+        $node_type=Cluster::{{ config.type | upper }},
+        $ip=127.0.0.1, $p={{ config.port }}/tcp,
+{% if config.interface is defined %}
+        $interface="{{ config.interface }}",
+{% endif %}
+        $manager="manager"
+    ],
+{% endfor %}
+};
+
+@if ( Cluster::local_node_type() == Cluster::WORKER )
+{% for interface in sensor_monitor_interface %}
+@if ( Cluster::nodes[Cluster::node]$interface == "af_packet::{{ interface }}" )
+redef AF_Packet::fanout_id = {{ 22 + loop.index }};
+@endif
+{% endfor %}
+@endif

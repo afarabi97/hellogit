@@ -1,0 +1,60 @@
+---
+
+- name: Install CRI-O
+  yum:
+    name: [ buildah, cri-o, cri-tools, runc, containernetworking-plugins ]
+    state: present
+
+- name: Remove Default CNIs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/cni/net.d/100-crio-bridge.conf"
+    - "/usr/lib/systemd/system/crio.service"
+
+- name: Configure CRIO CNI
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/cni/net.d/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - "100-crio-flannel.conf"
+    - "200-loopback.conf"
+
+- name: Modified service file
+  copy:
+    src: "crio.service"
+    dest: "/usr/lib/systemd/system/crio.service"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: 'Configure CRIO Config'
+  template:
+    src: "templates/crio.conf.j2"
+    dest: "/etc/crio/crio.conf"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: CRI-O Service
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items:
+    - crio
+    - crio-shutdown
+
+- import_tasks: offline.yml
+  tags:
+    - docker_images
+
+...

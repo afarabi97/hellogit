@@ -1,0 +1,90 @@
+---
+
+- name: Delete existing config directory
+  file:
+    path: "{{ bro_dir }}"
+    state: absent
+
+- name: Create directories
+  file:
+    path: "{{ bro_dir }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Copy scripts to sensors
+  copy:
+    src: "files/"
+    dest: "{{ bro_scripts }}"
+    owner: root
+    group: root
+  when: inventory_hostname in groups['bro']
+
+- name: Setup cluster layout
+  block:
+    - set_fact:
+        next_port: 47760
+    - set_fact:
+        bro_cluster:
+          manager:
+            type: manager
+            port: "{{ next_port | int }}"
+          proxy:
+            type: proxy
+            port: "{{ next_port | int + 1 }}"
+    - set_fact:
+        next_port: "{{ next_port | int + 2 }}"
+    - set_fact:
+        bro_cluster: >
+          {{ bro_cluster | combine( {
+            ('logger-%02d'|format(item)): {
+              'type': 'logger',
+              'logger_number': item | int,
+              'port': next_port | int + item
+            }
+          } ) }}
+        next_port: "{{ next_port | int + 1}}"
+      loop: "{{ range(bro_loggers) | list }}"
+    - set_fact:
+        bro_cluster: >
+          {{ bro_cluster | combine( {
+            ('%s-%02d'|format(item.0,item.1)): {
+              'type': 'worker',
+              'interface': 'af_packet::'+item.0,
+              'port': next_port | int
+            }
+          } ) }}
+        next_port: "{{ next_port | int + 1}}"
+      loop: "{{ sensor_monitor_interface | product( range(bro_workers) ) | list }}"
+  when: inventory_hostname in groups['bro']
+
+- name: Setup Bro configs
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ bro_scripts }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    bro_cluster: "{{ bro_cluster }}"
+  loop:
+    - cluster-layout.bro
+    - local.bro
+  when: inventory_hostname in groups['bro']
+
+- name: Setup deployment configs
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ bro_dir }}/{{ item }}-deploy.yml"
+    owner: root
+    group: root
+    mode: 0644
+  vars:
+    deployment_hostname: "{{ item }}"
+    deployment_name: "{{ item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '') }}-bro"
+    bro_cluster: "{{ hostvars[item].bro_cluster }}"
+  loop: "{{ groups['bro'] }}"
+  when: inventory_hostname in groups['master-server']
+
+...

@@ -1,0 +1,121 @@
+---
+kick_cfg: ks.cfg
+tftp_dir: /var/lib/tftpboot
+web_root: /var/www/html
+tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
+core_install_dir: /opt/tfplenum/core
+tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
+
+rhel_repos:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
+
+additional_repo_info:
+  kube:
+    name: "kubernetes"
+    baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
+    gpgkeyurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+    gpgkeyname: "yum-key.gpg"
+    description: "kubernetes repo"
+    # Required because kube public repo uses relative path so this is a hack to fix it
+    download_path: "{{ tfplenumoffline_dir }}/tmp"
+  mongo:
+    name: "mongodb-org-4.0"
+    baseurl: "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/"
+    gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.0.asc"
+    gpgkeyname: "server-4.0.asc"
+    description: "MongoDB Repository"
+    download_path: "{{ tfplenumoffline_dir }}"
+  ansible:
+    name: "ansible"
+    baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
+    gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
+    gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
+    description: "Ansible Repo"
+    download_path: "{{ tfplenumoffline_dir }}"
+  docker_ce:
+    name: "docker-ce"
+    baseurl: "https://download.docker.com/linux/centos/7/$basearch/stable"
+    gpgkeyurl: "https://download.docker.com/linux/centos/gpg"
+    gpgkeyname: "gpg"
+    description: "Docker CE repo"
+    download_path: "{{ tfplenumoffline_dir }}"
+  crio:
+    name: "crio"
+    baseurl: "https://cbs.centos.org/repos/paas7-crio-113-candidate/x86_64/os/"
+    gpgkeyurl: ""
+    gpgkeyname: ""
+    description: "crio repo"
+    download_path: "{{ tfplenumoffline_dir }}"
+
+epel_repo:
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
+    gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
+    gpgcheck: true
+    name: "epel"
+    description: "epel repo"
+    failovermethod: "priority"
+    download_path: "{{ tfplenumoffline_dir }}"
+
+labrepo_gpg_keys:
+  epel:
+    name: "epel"
+    gpgkeyurl: "http://yum.labrepo.lan/epel/RPM-GPG-KEY-EPEL-7"
+    gpgkeyname:  "RPM-GPG-KEY-EPEL-7"
+  kube:
+    name: "kubernetes"
+    gpgkeyurl: "http://yum.labrepo.lan/kubernetes/yum-key.gpg"
+    gpgkeyname: "yum-key.gpg"
+  mongo:
+    name: "mongodb-org-4.0"
+    gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
+    gpgkeyname: "server-4.0.asc"
+
+gpg_keys:
+  - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+  - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+  - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+  - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
+
+pip_downloads:
+  - docker-py
+  - elasticsearch
+  - flask
+  - ipaddress
+  - junit-xml
+  - netaddr
+  - requests
+  - "restresponse==2.0.0"
+  - urllib3
+  - pyhelm
+  - grpcio
+  - pbr
+
+pip_installs:
+  - "docker-py"
+  - "junit-xml==1.8"
+  - "netaddr"
+
+iso_centos_version: 1810
+iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_url_labrepo: "http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_pth: "/root/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
+iso_centos_checksum: 38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c
+
+iso_rhel_version: "7.6"
+iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_checksum: 60a0be5aeed1f08f2bb7599a578c89ec134b4016cd62a8604b29f15d543a469c
+
+BOOTSTRAP: false
+
+ansible_controller_hostname: "controller.lan"
+
+RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
+TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"
+BOOTSTRAP_VARS: "{{ web_root }}/bootstrap.yml"
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
+
+...

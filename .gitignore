@@ -1,3 +1,19 @@
+.idea
+.vscode
+*.pyc
+*.orig
+*.swp
+node_modules
+tfp-env
+.remote-sync.json
+frontend/src/assets/confluence/
+frontend/package-lock.json
+*monitor_install.exe
+backend/rules
+backups/
+package-lock.json
+VMs.yml
+venv
 *#
 *.iso
 *.pcap
@@ -13,7 +29,6 @@
 .kitchen/
 .vagrant
 .vs
-.vscode/*
 /cookbooks
 Berksfile.lock
 Gemfile.lock
@@ -22,13 +37,8 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
-playbooks/roles/logstash/tasks/old-main\.yml
-
 # We dont want to commit tokens to git
-playbooks/files/admin.conf
-playbooks/files/join-node.sh
-
-inventory/dev/*
-playbooks/inventory.yml
-.remote-sync.json
-playbooks/monitor_install.exe
+core/playbooks/files/admin.conf
+core/playbooks/files/join-node.sh
+playbooks/inventory/dev/*
+inventory.yml

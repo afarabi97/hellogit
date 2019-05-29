@@ -1,0 +1,251 @@
+---
+host_configuration:
+  vcenter:
+    ip_address: "172.16.20.106"    
+    cluster_name: "SIL_Dev-Cluster"    
+    datacenter: "SIL_Datacenter"
+  storage:    
+    datastore: "NVMe Storage"
+    folder: # "Testing" # CHANGE ME
+  iso_folder_path: "/root/"
+
+
+kit:
+  # Required when a remote sensor is present
+  # remote_sensor_portgroup: "73 Portgroup"
+  # remote_sensor_network: "172.16.73.0"
+  
+  kickstart_configuration:
+      netmask: "255.255.255.0"
+
+      # Gateway will probably be different on a per kit basis (depends on the vlan)
+      gateway: # "172.16.x.1" # CHANGE ME
+      # Note root_password is specified under VM_settings.
+
+  kit_configuration:
+    # The branch we want to pull from other options include fork and custom.
+    branch_name: # devel # CHANGE ME
+
+    # these branches are name of the branches on your fork you want to use
+    tfplenum_branch_name: # devel # CHANGE ME
+
+    # Kubernetes cidr will probably be different on a per kit basis
+    kubernetes_cidr: # "172.16.x.224" # CHANGE ME
+
+    home_nets:
+        - # "172.16.x.0/24" # CHANGE ME
+
+    # This is optional - you can fill it in if you need to
+    external_nets:
+          
+  VMs:
+    # Note: You should not have more than one of these
+    # testcontroller.lan: # CHANGE ME
+      type: "controller" # Can be controller, sensor, or server
+
+      # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
+      # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
+      # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
+      # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
+      vm_guestos: RHEL_7_64        
+      vm_to_clone: # "TestToSan" # CHANGE ME
+      domain: 'lan'
+      gateway: # "172.16.x.1" # CHANGE ME
+      dns:
+        - # "172.16.x.1" # CHANGE ME
+      networking:
+        std_portgroup_name: "VM Network"
+        nics:
+          management_nic:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: # "172.16.x.240" # CHANGE ME
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: "" # This is ignored if mac_auto_generated is true
+            dv_portgroup_name: # "XX Portgroup" # CHANGE ME
+            std_portgroup_name:
+          ens224:
+            type: "link-local" # This can be auto, manual, or link-local
+            ip_address: "169.254.251.118"
+            subnet_mask: "255.255.0.0"
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: True
+            mac_address: "" # This is ignored if mac_auto_generated is true
+            dv_portgroup_name: "Monitoring Portgroup"
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 2
+        cores_per_socket: 1
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 16 # This value is in GiB
+        hot_add_enabled: False
+      disks:
+        boot: 200 # Name of disk followed by capacity in GiBs
+      iso_file: "rhel-server-7.4-x86_64-dvd.iso"
+      boot_order: # Valid options are CDROM, DISK, and ETHERNET
+        - "CDROM" # CDROM will be ignored if iso_file is None
+        - "DISK"
+        - "ETHERNET"
+    # server1.lan: # CHANGE ME
+      type: "master-server" # Can be controller, sensor, or server
+      vm_guestos: RHEL_7_64
+      networking:
+        nics:
+          management_nic:
+            type: "manual"
+            ip_address: # "172.16.x.241" # CHANGE ME
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: # "XX Portgroup" # CHANGE ME
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 12
+        cores_per_socket: 4
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 12
+        hot_add_enabled: False
+      boot_drive_name: "sda"
+      es_drives:
+        - sdb
+      disks:
+        boot: 20
+        ceph: 20
+      iso_file:
+      boot_order:
+        - "CDROM"
+        - "DISK"
+        - "ETHERNET"
+    # testserver2.lan: # CHANGE ME
+      type: "server" # Can be controller, sensor, or server
+      vm_guestos: RHEL_7_64
+      networking:
+        nics:
+          management_nic:
+            type: "manual"
+            ip_address: # "172.16.x.242" # CHANGE ME
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: # "XX Portgroup" # CHANGE ME
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 16
+        cores_per_socket: 1
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 12
+        hot_add_enabled: False
+      boot_drive_name: "sda"
+      es_drives:
+        - sdb
+      disks:
+        boot: 20
+        ceph: 20
+      iso_file:
+      boot_order:
+        - "CDROM"
+        - "DISK"
+        - "ETHERNET"
+    # testsensor1.lan: # CHANGE ME
+      type: "sensor" # Can be controller, sensor, or server
+      vm_guestos: RHEL_7_64
+      networking:
+        nics:
+          management_nic:
+            type: "manual"
+            ip_address: # "172.16.x.243" # CHANGE ME
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: # "XX Portgroup" # CHANGE ME
+            std_portgroup_name:
+          ens224:
+            type: "manual"
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: "Monitoring Portgroup"
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 12
+        cores_per_socket: 1
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 12
+        hot_add_enabled: False
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      disks:
+        boot: 20
+        ceph: 20
+      iso_file:
+      boot_order:
+        - "CDROM"
+        - "DISK"
+        - "ETHERNET"
+    # testsensor2.lan: # CHANGE ME
+      type: "remote-sensor" # Can be controller, sensor, or server
+      vm_guestos: RHEL_7_64
+      networking:
+        nics:
+          management_nic:
+            type: "manual"
+            ip_address: # "172.16.x.244" # CHANGE ME
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: # "XX Portgroup" # CHANGE ME
+            std_portgroup_name:
+          ens224:
+            type: "manual"
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: True
+            mac_address: ""
+            dv_portgroup_name: "Monitoring Portgroup"
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 12
+        cores_per_socket: 1
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 12
+        hot_add_enabled: False
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      disks:
+        boot: 20
+        ceph: 20
+      iso_file:
+      boot_order:
+        - "CDROM"
+        - "DISK"
+        - "ETHERNET"

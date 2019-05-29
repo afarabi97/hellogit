@@ -1,0 +1,58 @@
+---
+
+- name: Delete existing config directory
+  file:
+    path: "{{ moloch_dir }}"
+    state: absent
+
+- name: Create directories
+  file:
+    path: "{{ moloch_dir }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+
+- name: Setup bootstrap and viewer deployments
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ moloch_dir }}/{{ item }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+  loop:
+    - bootstrap.yml
+    - viewer.yml
+  when: inventory_hostname in groups['master-server']
+
+- name: Setup capture configs
+  template:
+    src: "templates/config.ini.j2"
+    dest: "{{ moloch_dir }}/config.ini"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  when: inventory_hostname in groups['moloch']
+
+- name: Setup viewer config
+  template:
+    src: "templates/config.ini.j2"
+    dest: "{{ moloch_dir }}/config.ini"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  when: inventory_hostname in groups['servers']
+
+- name: Setup deployment configs
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ moloch_dir }}/{{ item }}-deploy.yml"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: 0644
+  vars:
+    deployment_hostname: "{{ item }}"
+  loop: "{{ groups['moloch'] }}"
+  when: inventory_hostname in groups['master-server']
+
+...

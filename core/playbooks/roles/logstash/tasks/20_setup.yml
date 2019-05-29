@@ -1,0 +1,24 @@
+---
+
+- name: Deploy services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Logstash"
+    file_name: "{{ logstash_dir }}/{{ item }}"
+  with_items:
+    - deploy.yml
+    - svc.yml
+
+- name: Wait for logstash to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "logstash"
+    label: ""
+
+...

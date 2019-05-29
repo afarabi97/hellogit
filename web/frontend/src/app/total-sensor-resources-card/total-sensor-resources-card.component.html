@@ -1,0 +1,31 @@
+<div [formGroup]="sensorResourceForm" class="card">
+  <div class="card-header">
+    Total Sensor Resources
+  </div>
+  <div class="card-body">
+    <p class="card-text">CPU Cores Available:
+      <span id="sensor_cpus_available">{{ sensorResourceForm.cpuCoresAvailable | number:'1.0-2' }}</span>
+    </p>
+    <p class="card-text">Memory Available:
+      <span id="sensor_memory_available">{{ sensorResourceForm.memoryAvailable | number:'1.0-2' }}</span> GB</p>
+    <h6 class="card-subtitle mb-2 text-muted">Home NET Settings</h6>
+    <hr>
+    <button type="button" class="btn btn-primary" (click)="addHomeNet()" name="add_home_net" [disabled]="sensorResourceForm.isDisabled">+ Add Home Net</button>
+    <hr>
+    <div formArrayName="home_nets">
+        <div *ngFor="let home_net of home_nets.controls; let i=index">
+          <app-text-input [parentForm]="home_net" controlName="home_net" (buttonClick)="removeHomeNet(i)" uid="{{ i }}"></app-text-input>
+        </div>
+    </div>
+    <hr>
+    <h6 class="card-subtitle mb-2 text-muted">External NET Settings</h6>
+    <hr>
+    <button type="button" class="btn btn-primary" (click)="addExternalNet()" name="add_external_net" [disabled]="sensorResourceForm.isDisabled">+ Add External Net</button>
+    <hr>
+    <div formArrayName="external_nets">
+      <div *ngFor="let external_net of external_nets.controls; let i=index">
+        <app-text-input [parentForm]="external_net" controlName="external_net" (buttonClick)="removeExternalNet(i)" uid="{{ i }}"></app-text-input>
+      </div>
+    </div>
+  </div>
+</div>

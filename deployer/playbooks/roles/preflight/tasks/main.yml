@@ -1,0 +1,74 @@
+---
+- name: Check if tfplenum vars exists
+  stat:
+    path: "{{ tfplenum_vars }}"
+  register: vars_result
+
+- name: Missing tfplenum repo
+  fail:
+    msg: "Unable to find versions.yml in {{ tfplenum_vars }}.  Verify tfplenum rpm is installed."
+  when: vars_result.stat.exists == false
+
+- name: check if Centos iso exists
+  stat:
+    path: "{{ iso_centos_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Missing Centos ISO
+  fail:
+    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_centos_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
+  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists == false
+
+- name: check if RHEL iso exists
+  stat:
+    path: "{{ iso_rhel_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result2
+  when: "ansible_distribution == 'RedHat'"
+
+- name: Missing RHEL ISO
+  fail:
+    msg: "It appears you are trying to run offline mode without an existing iso at {{ iso_rhel_pth }}.  Download iso manually or update inventory to offline: false (this requires an internet connection)."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists == false
+
+- name: iso_centos_checksum variable is required
+  fail:
+    msg: "iso_centos_checksum variable is not valid.  iso_centos_checksum variable is required. Make sure it is defined in your inventory file."
+  when: ansible_distribution == 'CentOS' and iso_centos_checksum == "" or iso_centos_checksum is not defined or iso_centos_checksum is none
+
+- name: iso_rhel_checksum variable is required
+  fail:
+    msg: "iso_rhel_checksum variable is not valid.  iso_rhel_checksum variable is required. Make sure it is defined in your inventory file."
+  when: ansible_distribution == 'RedHat' and iso_rhel_checksum == "" or iso_rhel_checksum is not defined or iso_rhel_checksum is none
+
+- name: Verify Centos ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_centos_checksum
+
+- name: Verify Rhel ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
+
+- name: dns variable is required
+  fail:
+    msg: "dns variable is not valid.  dns variable is required. Make sure it is defined in your inventory file."
+  when: dns == "" or dns is not defined or dns is none
+
+- name: gateway variable is required
+  fail:
+    msg: "gateway variable is not valid.  gateway variable is required. Make sure it is defined in your inventory file."
+  when: gateway == "" or gateway is not defined or gateway is none
+
+- name: netmask variable is required
+  fail:
+    msg: "netmask variable is not valid.  netmask variable is required. Make sure it is defined in your inventory file."
+  when: netmask == "" or netmask is not defined or netmask is none
+
+- name: root_password variable is required
+  fail:
+    msg: "root_password variable is not valid.  root_password variable is required. Make sure it is defined in your inventory file."
+  when: root_password == "" or root_password is not defined or root_password is none

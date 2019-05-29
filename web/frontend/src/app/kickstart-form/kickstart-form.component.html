@@ -1,0 +1,101 @@
+<app-modal-dialog [modal]="kickStartModal" (primaryButtonClick)="archiveForm($event)"></app-modal-dialog>
+<app-modal-dialog [modal]="messageModal"></app-modal-dialog>
+<app-modal-dialog [modal]="continueModal" (primaryButtonClick)="continueAnyways()"></app-modal-dialog>
+
+<app-modal-archive-dialog [modal]="restoreModal" (primaryButtonClick)="restoreForm($event)" config_id="kickstart_form"></app-modal-archive-dialog>
+<app-modal-ip-select-dialog [modal]="ipSelectorModal" (primaryButtonClick)="ipAddressSelected($event)"></app-modal-ip-select-dialog>
+
+<div class="container" id="topheader">
+  <div id="main_form">
+    <form [formGroup]="kickStartForm" (ngSubmit)="onSubmit()">
+      <div class="card">
+        <div class="card-header">
+            <button class="btn btn-primary" type="button" style="margin-right: 10px;" (click)="openConsole()">Open Console</button>
+            <button class="btn btn-secondary" type="button" style="margin-right: 10px;" (click)="clearForm()">Clear Form</button>
+            <button class="btn btn-secondary" type="button" (click)="enableForm()">Enable Form</button>
+            <button class="btn btn-primary" style="float: right;" type="button" (click)="openRestoreModal()"><i class="icon_download"></i> Restore Form</button>
+            <button class="btn btn-danger" type="button" style="float: right;  margin-right: 10px;"
+                    (click)="openArchiveConfirmation()"><i class="icon_floppy_alt"></i> Save Form</button>
+        </div>
+        <div class="card-body">
+          <div class="card">
+            <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
+                <h5>Page Instructions</h5>
+                <p class="card-text">
+                  Fill out the form and click "Add Node" button at the bottom of the page to add Servers and Sensors.  The validation box at the botton
+                  of the page will guide you through filling out the form correctly.
+                </p>
+                <p class="card-text">
+                  The "Open Console" button opens the logs of the last Kickstart run.
+                </p>
+                <p class="card-text">
+                  If the current Kickstart form loads and is disabled, you have an active configuration.
+                  If you want to start a new configuration, click "Archive and Clear Form" button at the top of the page.  This will save the current configuration if you want to restore it later.
+                  If you want to change the existing configuration, click "Enable Form" button at the top of the page and make your edits before clicking "Execute Kickstart".
+                  If you want to add a new node, scroll to the bottom of the page and click the "Add Node" button.
+                </p>
+            </div>
+          </div>
+          <br>
+          <h5>Controller Settings</h5>
+          <br>
+          <div *ngIf="deviceFacts">
+              <app-card-selector #cardSelector [parentForm]="kickStartForm" [optionSelections]="kickStartForm.interfaceSelections"
+                                  controlName="controller_interface" (onSelect)="refreshDHCPRange($event)"></app-card-selector>
+          </div>
+          <hr>
+          <h5>Static Interface Settings</h5>
+          <app-text-input [parentForm]="kickStartForm" controlName="gateway"></app-text-input>
+          <app-text-input [parentForm]="kickStartForm" controlName="netmask"></app-text-input>
+          <hr>
+          <h5>System Settings</h5>
+          <app-text-input [parentForm]="kickStartForm" controlName="root_password"></app-text-input>
+          <app-text-input [parentForm]="kickStartForm" controlName="re_password"></app-text-input>
+          <hr>          
+          <h5>DHCP Settings</h5>
+          <app-dropdown [parentForm]="kickStartForm" controlName="dhcp_range" (dropDownChanged)="dhcpInputEvent($event)" uid="dhcp_dropdown"></app-dropdown>
+          <div>{{ kickStartForm.dhcpRangeText }}</div>
+        </div>
+      </div>
+      <br>
+      <div formArrayName="nodes">
+        <div *ngFor="let node of nodes.controls; let i=index" class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <button class="btn btn-link" type="button" (click)="toggleNode(node)">node {{ i + 1 }}</button>
+              <button [disabled]="node.isDisabled" class="btn btn-danger" type="button"
+                      (click)="removeNode(i)" style="float:right;"><i class="icon_close_alt2"></i> Remove</button>
+            </h5>
+          </div>
+          <div *ngIf="!node.hidden" class="card-body">
+            <app-text-input [parentForm]="node" controlName="hostname" uid="{{ i }}"></app-text-input>
+            <app-text-input [parentForm]="node" controlName="ip_address" uid="{{ i }}" (buttonClick)="openIPSelector(i)"></app-text-input>
+            <app-text-input [parentForm]="node" controlName="mac_address" uid="{{ i }}"></app-text-input>
+            <app-text-input [parentForm]="node" controlName="boot_drive" uid="{{ i }}"></app-text-input>
+            <app-dropdown [parentForm]="node" controlName="pxe_type" uid="{{ i }}"></app-dropdown>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+            <button name="add_node" class="btn btn-primary" type="button" (click)="addNode()"><i class="icon_plus_alt2"></i> Add Node</button>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
+          Validation
+        </div>
+        <div class="card-body" id="validation">
+            <p *ngIf="kickStartForm.valid" class='text-success'>Looks good! Press 'Execute Kickstart' whenever you're ready!</p>
+            <div *ngIf="kickStartForm.hasError('errors')">
+              <p *ngFor="let error of kickStartForm.getError('errors');" class='text-danger'>{{ error }}</p>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-primary" type="submit" [disabled]="!kickStartForm.valid" name="execute_kickstart">Execute Kickstart</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+---
+- name: Kube | Init Kubernetes cluster
+  shell: "kubeadm init --cri-socket=/var/run/crio/crio.sock --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ k8s_version }} --token-ttl=0 | grep 'kubeadm join' | tee /etc/kubernetes/join-node.sh"
+  register: init_kube_cluster_result
+  failed_when: "'ERROR' in init_kube_cluster_result.stderr"
+
+- name: update join script
+  replace:
+    path: /etc/kubernetes/join-node.sh
+    regexp: 'kubeadm join'
+    replace: 'kubeadm join --cri-socket=/var/run/crio/crio.sock'
+
+- name: Kube | Retrieve files
+  fetch:
+    src: "{{ item }}"
+    dest: files/
+    flat: yes
+  with_items:
+    - "{{ kubernetes_conf_file }}"
+    - "/etc/kubernetes/join-node.sh"
+  tags: pull_join_script
+
+- name: Retrieve generated credentials
+  import_role:
+    name: kubernetes/common
+    tasks_from: creds
+
+- name: 'Install pod network: flannel'
+  command: "kubectl apply -f {{ kube_dir }}/kube-flannel.yml"
+
+- name: Kube | Wait for Master Node to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "node"
+    namespace: ""
+    resource_name: "{{ ansible_fqdn }}"
+    label: ""

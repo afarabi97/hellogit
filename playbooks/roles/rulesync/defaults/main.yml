@@ -1,3 +1,0 @@
----
-
-rulesync_dir: "{{ install_dir }}/rulesync"

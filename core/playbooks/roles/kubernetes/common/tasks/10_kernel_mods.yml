@@ -1,0 +1,26 @@
+---
+- set_fact:
+    modules: 
+      - "br_netfilter"
+      - "overlay"
+
+- name: Enable modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ modules }}"
+
+- file:
+    path: /etc/modules-load.d/99-k8.conf
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+
+- lineinfile:
+    path: /etc/modules-load.d/99-k8.conf
+    line: '{{ item }}'
+  with_items: "{{ modules }}"
+  
+
+...
