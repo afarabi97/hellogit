@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '') }}-moloch
   labels:
     component: moloch
     app: moloch-capture
@@ -24,7 +24,7 @@ spec:
         - /data/moloch/db/db.pl
         - {{ elastic_fqdn }}:{{ elastic_port }}
         - sync-files
-        - {{deployment_hostname | regex_replace('\\.(lan)?', '')}}
+        - {{deployment_hostname | regex_replace('\\.(lan)?$', '')}}
         - /data/moloch/raw/
         securityContext:
           privileged: true

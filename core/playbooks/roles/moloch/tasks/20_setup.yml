@@ -24,7 +24,7 @@
 
 - name: Setup deployment info
   set_fact:
-    moloch_deployments: "{{ moloch_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-moloch'} ) }}"
+    moloch_deployments: "{{ moloch_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-moloch'} ) }}"
   loop: "{{ groups['moloch'] }}"
 
 - name: Deploy viewer service

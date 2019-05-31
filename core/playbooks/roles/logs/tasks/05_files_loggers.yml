@@ -1,0 +1,45 @@
+---
+
+- name: Create directories
+  file:
+    path: "/data"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Set permissions for data directory
+  sefcontext:
+    seuser: "system_u"
+    setype: "container_share_t"
+    target: "/data(/.*)?"
+
+- name: Apply new permissions
+  command: restorecon -irv /data
+
+- name: Setup log deleter
+  template:
+    src: "templates/delete_old.sh.j2"
+    dest: "{{ log_deleter_path }}"
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Add logrotate cronjobs
+  cron:
+    name: "tfplenum-logdelete"
+    minute: "*/5"
+    job: "{{ log_deleter_path }}"
+
+- name: Setup Filebeat configs
+  template:
+    src: "templates/filebeat-{{ item }}.yml.j2"
+    dest: "{{ logs_dir }}/filebeat-{{ item }}.yml"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - bro
+    - suricata
+
+...

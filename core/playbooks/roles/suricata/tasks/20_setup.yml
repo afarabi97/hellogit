@@ -1,19 +1,8 @@
 ---
 
-- name: Run bootstrap pod
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Suricata Bootstrap"
-    file_name: "{{ suricata_dir }}/bootstrap.yml"
-
-- name: Wait for bootstrap
-  shell: "kubectl wait job/suricata-bootstrap --for=condition=complete --timeout=-1s"
-
 - name: Setup deployment info
   set_fact:
-    suricata_deployments: "{{ suricata_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-suricata'} ) }}"
+    suricata_deployments: "{{ suricata_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-suricata'} ) }}"
   loop: "{{ groups['suricata'] }}"
 
 - name: Deploy services
@@ -35,8 +24,5 @@
     resource_name: "{{ item }}"
     label: ""
   loop: "{{ suricata_deployments.values() }}"
-
-- name: Remove Bootstrap
-  command: kubectl delete -f {{ suricata_dir }}/bootstrap.yml
 
 ...

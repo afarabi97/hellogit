@@ -334,6 +334,22 @@
   tags:
     - suricata
 
+- name: Setup Log Management
+  hosts:
+    - master-server
+    - bro
+    - suricata
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - logs
+  tags:
+    - logs
+    - bro
+    - suricata
+
 - name: Enable Endgame script on master server
   hosts: master-server
   gather_facts: no

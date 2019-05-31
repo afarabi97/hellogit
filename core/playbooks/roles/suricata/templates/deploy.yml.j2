@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ deployment_hostname | regex_replace('\\.(lan)?', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
+  name: {{ deployment_hostname | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '') }}-suricata
   labels:
     component: suricata
 spec:
@@ -28,26 +28,23 @@ spec:
               - NET_RAW
               - SYS_NICE
               - IPC_LOCK
-        env:
-        - name: PODTYPE
-          value: "SURICATA"
         resources:
           requests:
             cpu: {{ hostvars[deployment_hostname].suricata_cpu_request }}
         volumeMounts:
-        - name: filebeat
-          mountPath: /etc/filebeat/filebeat.yml
         - name: suricata
           mountPath: /etc/suricata/suricata.yaml
+          readOnly: true
         - name: rules
           mountPath: /etc/suricata/rules
+          readOnly: true
         - name: luascripts
           mountPath: /etc/suricata/lua-output
+          readOnly: true
+        - name: logs
+          mountPath: /var/log/suricata
+        args: ['-c', '/etc/suricata/suricata.yaml', '--af-packet']
       volumes:
-      - name: filebeat
-        hostPath:
-          path: {{ suricata_dir }}/filebeat.yml
-          type: File
       - name: suricata
         hostPath:
           path: {{ suricata_dir }}/suricata.yaml
@@ -60,8 +57,10 @@ spec:
         hostPath:
           path: {{ suricata_dir }}/lua-output
           type: DirectoryOrCreate
-      nodeSelector:
-        suricata: "true"
+      - name: logs
+        hostPath:
+          path: {{ suricata_log_path }}
+          type: DirectoryOrCreate
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

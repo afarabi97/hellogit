@@ -1,0 +1,45 @@
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat-bro
+  labels:
+    component: logshipper
+spec:
+  selector:
+    matchLabels:
+      component: logshipper
+  template:
+    metadata:
+      labels:
+        component: logshipper
+    spec:
+      containers:
+      - name: filebeat-bro
+        image: {{ filebeat_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        volumeMounts:
+        - name: data
+          mountPath: {{ bro_log_path }}
+          readOnly: true
+        - name: filebeat
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        args: ['-e']
+      volumes:
+      - name: data
+        hostPath:
+          path: {{ bro_log_path }}
+          type: DirectoryOrCreate
+      - name: filebeat
+        hostPath:
+          path: {{ logs_dir }}/filebeat-bro.yml
+          type: File
+      nodeSelector:
+        bro: "true"
+
+...

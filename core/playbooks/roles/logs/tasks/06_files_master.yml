@@ -1,0 +1,15 @@
+---
+
+- name: Setup Kubernetes configs
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ logs_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - bootstrap.yml
+    - ds-bro.yml
+    - ds-suricata.yml
+
+...

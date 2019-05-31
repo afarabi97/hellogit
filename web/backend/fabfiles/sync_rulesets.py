@@ -4,11 +4,11 @@ import logging
 import os
 import sys
 
-from connection_wrappers import (FabricConnection, MongoConnectionManager, 
+from connection_wrappers import (FabricConnection, MongoConnectionManager,
                                  KubernetesWrapper, objectify)
 from fabric.runners import Result
 from fabric import Connection
-from fabfiles import (KIT_ID, decode_password, KICKSTART_ID, 
+from fabfiles import (KIT_ID, decode_password, KICKSTART_ID,
                       RULESET_STATES, NODE_TYPES, RULE_TYPES)
 from fabfiles.utils import get_suricata_pod_name, get_bro_pod_name
 from logging.handlers import RotatingFileHandler
@@ -91,7 +91,7 @@ class RuleSynchronization():
                         rules_file.write(rule["rule"] + "\n")
                 except KeyError as e:
                     logger.warning("Failed to write suricata rule {} because it is missing {} field inside of the object.".format(rule, str(e)))
-        
+
         rules_file.seek(0, os.SEEK_END)
         if rules_file.tell() == 0:
             rules_file.write("# No rulesets where enabled for this Sensor.")
@@ -124,13 +124,13 @@ class RuleSynchronization():
                     ip_address: str,
                     statestr: str) -> None:
         self._set_states(hostname, ip_address, statestr, RULE_TYPES[1])
-                
+
     def _get_suricata_pod_name(self, ip_address: str) -> str:
         with KubernetesWrapper(self.mongo) as kube_apiv1:
             api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
             for pod in api_response.to_dict()['items']:
                 if ip_address == pod['status']['host_ip']:
-                    if 'suricata' in pod['metadata']['name']:
+                    if 'suricata' == pod['metadata']['labels']['component']:
                         return pod['metadata']['name']
 
         raise ValueError("Failed to find Suricata pod name.")
@@ -138,7 +138,7 @@ class RuleSynchronization():
     def _sync_suricata_rulesets(self, fabric: Connection, ip_address: str, hostname: str):
         suricata_pod_name = get_suricata_pod_name(ip_address, self.mongo)
         rules_file = self._build_suricata_rule_file(ip_address)
-        reload_cmd = 'kubectl exec -t {} -- /usr/bin/suricatasc -c reload-rules'.format(suricata_pod_name)
+        reload_cmd = 'kubectl exec -t {} -- /suricata/bin/suricatasc -c reload-rules'.format(suricata_pod_name)
         fabric.put(rules_file, SURICATA_RULESET_LOC)
         ret_val = fabric.run(reload_cmd) # type: Result
         message = json.loads(ret_val.stdout)
@@ -164,7 +164,7 @@ class RuleSynchronization():
         return name.replace(' ', '_')
 
     def _sync_bro_rulesets(self, fabric: Connection, ip_address: str, hostname: str):
-        bro_pod_name = get_bro_pod_name(ip_address, self.mongo)        
+        bro_pod_name = get_bro_pod_name(ip_address, self.mongo)
         bro_load_file = io.StringIO()
         self._run_cmd_or_raise(fabric, "rm -rf %s/*" % BRO_CUSTOM_DIR)
 
@@ -177,11 +177,11 @@ class RuleSynchronization():
 
             if not self._is_sensor_in_ruleset(ip_address, rule_set):
                 continue
-                        
+
             rule_set_name = self._convert_bro_ruleset_name(rule_set['name'])
             rule_set_dir = "%s/%s" % (BRO_CUSTOM_DIR, rule_set_name)
             self._run_cmd_or_raise(fabric, "mkdir -p " + rule_set_dir)
-            
+
             for rule in rule_set["rules"]:
                 if not rule["isEnabled"]:
                     continue
@@ -201,7 +201,7 @@ class RuleSynchronization():
                     bro_load_file.write('@load custom/%s/%s\n' % (rule_set_name, rule_name[0:pos]))
                 except KeyError as e:
                     logger.warning("Failed to write bro script {} because it is missing {} field inside of the object.".format(rule, str(e)))
-            
+
         bro_load_file.seek(0, os.SEEK_END)
         bro_load_file_path = "%s/__load__.bro" % BRO_CUSTOM_DIR
         fabric.put(bro_load_file, bro_load_file_path)
@@ -219,13 +219,13 @@ class RuleSynchronization():
                 password = decode_password(kickstart_form['form']['root_password'])
                 self.rule_sets = list(self.mongo.mongo_ruleset.find({}))
                 self._clear_enabled_rulesets(kit)
-                
+
                 for node in kit["form"]["nodes"]:
                     if node["node_type"] != NODE_TYPES[1]:
                         continue
-                    
+
                     ip_address = node['deviceFacts']['default_ipv4_settings']['address']
-                    hostname = node['deviceFacts']['hostname']                    
+                    hostname = node['deviceFacts']['hostname']
                     with FabricConnection(ip_address, password) as fabric:
                         try:
                             logger.info("Synchronizing Suricata signatures for {}.".format(hostname))
@@ -251,7 +251,7 @@ class RuleSynchronization():
 def main():
     _setup_logger(logger)
     rs = RuleSynchronization()
-    rs.sync_rulesets()    
+    rs.sync_rulesets()
 
 if __name__ == '__main__':
     main()

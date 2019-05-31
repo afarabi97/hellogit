@@ -67,6 +67,9 @@ moloch:
 suricata:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
 
+logs:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs --extra-vars "run_option=reinstall"
+
 janitor:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
 
@@ -128,7 +131,7 @@ engame-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
 helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=reinstall"
 
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass

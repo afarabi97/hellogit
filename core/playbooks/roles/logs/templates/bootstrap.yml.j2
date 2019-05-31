@@ -1,0 +1,33 @@
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: filebeat-bootstrap
+  labels:
+    component: logshipper
+spec:
+  template:
+    metadata:
+      labels:
+        component: logshipper
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: filebeat
+        image: {{ filebeat_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: filebeat
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        args: ['setup', '-e', '--modules', 'suricata']
+      volumes:
+      - name: filebeat
+        hostPath:
+          path: {{ logs_dir }}/filebeat-suricata.yml
+          type: File
+      nodeSelector:
+        suricata: "true"
+
+...

@@ -38,9 +38,12 @@ kube_dir: "{{ install_dir }}/kubernetes"
 moloch_login: 'assessor'
 moloch_pass: 'password'
 
-# Directories in which to store IDS scripts/rules on sensors
-bro_script_dir: /bro-scripts
-suri_rule_dir: /suri-rules
+# Directories in which to store IDS logs
+bro_log_path: "/data/bro"
+suricata_log_path: "/data/suricata"
+
+# How often to rotate IDS logs, in seconds
+ids_log_rotate_interval: 300
 
 # Common
 package_list:

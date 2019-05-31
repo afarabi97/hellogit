@@ -1,0 +1,30 @@
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+#==================== Elasticsearch template setting ==========================
+
+setup.template.settings:
+  index.number_of_shards: 5
+  index.number_of_replicas: 1
+
+#============================== Kibana =====================================
+
+setup.kibana:
+  host: "{{ kibana_fqdn }}:80"
+
+#================================ Outputs =====================================
+
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  hosts: ["{{ elastic_fqdn }}:{{ elastic_port }}"]
+  worker: 6
+  bulk_max_size: 4096
+  compression_level: 3
+  pipelining: 0
+  ttl: 10s
+
+queue.mem:
+  events: 65536
+
+xpack.monitoring.enabled: true

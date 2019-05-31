@@ -111,7 +111,7 @@
 # This loads the rules provided by the operator.
 @load custom
 
-redef Log::default_rotation_interval = 300 secs;
+redef Log::default_rotation_interval = {{ ids_log_rotate_interval }} secs;
 redef Control::controllee_listen = F;
 
 redef Site::local_nets = {

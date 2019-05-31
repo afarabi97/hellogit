@@ -30,23 +30,13 @@
     mode: u+rw,g+rw
     state: touch
 
-- name: Setup bootstrap deployment
-  template:
-    src: "templates/bootstrap.yml.j2"
-    dest: "{{ suricata_dir }}/bootstrap.yml"
-    owner: root
-    group: root
-    mode: 0644
-  when: inventory_hostname in groups['master-server']
-
 - name: Setup configs
   template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ suricata_dir }}/{{ item }}"
+    src: "templates/suricata.yaml.j2"
+    dest: "{{ suricata_dir }}/suricata.yaml"
     group: root
     owner: root
     mode: 0644
-  loop: ['suricata.yaml', 'filebeat.yml']
   when: inventory_hostname in groups['suricata']
 
 - name: Setup deployment configs

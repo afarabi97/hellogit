@@ -1,0 +1,7 @@
+%YAML 1.1
+---
+
+logs_dir: "{{ install_dir }}/logs"
+log_deleter_path: "{{ logs_dir }}/delete_old.sh"
+
+...
