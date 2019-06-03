@@ -38,6 +38,13 @@ spec:
                   - NET_ADMIN
                   - NET_RAW
                   - SYS_NICE
+        resources:
+          requests:
+            cpu: {{ (hostvars[deployment_hostname].bro_cpu_request | replace('m', '') | int / hostvars[deployment_hostname].bro_workers | int) | int }}m
+{% else %}
+        resources:
+          requests:
+            cpu: 200m
 {% endif %}
         volumeMounts:
         - name: scripts
