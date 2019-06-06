@@ -123,6 +123,7 @@ TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
 chart_repos:
   - "bitnami https://charts.bitnami.com/bitnami"
+  - "elastic https://helm.elastic.co"
 
 
 ...

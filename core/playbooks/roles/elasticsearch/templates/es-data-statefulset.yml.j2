@@ -30,7 +30,7 @@ spec:
           mountPath: {{ elastic_pv_data_path }}
       containers:
       - name: es-data
-        image: "{{ elasticsearch_image }}:{{ elastic_version }}"
+        image: "{{ elasticsearch_image }}:{{ elastic_6_version }}"
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true

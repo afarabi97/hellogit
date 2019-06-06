@@ -15,7 +15,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: filebeat
-        image: {{ filebeat_image }}:{{ elastic_version }}
+        image: {{ filebeat_image }}:{{ elastic_6_version }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: filebeat

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kibana
-        image: "{{ kibana_image }}:{{ elastic_version }}"
+        image: "{{ kibana_image }}:{{ elastic_6_version }}"
         imagePullPolicy: IfNotPresent
         env:
         - name: CLUSTER_NAME
