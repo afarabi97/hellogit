@@ -18,17 +18,11 @@
   when: inventory_hostname in groups['master-server']
 
 - name: Initiallizing Tiller
-  command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200
+  command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200 --replicas 2 --wait
   when: inventory_hostname in groups['master-server']
 
-- name: Wait for Tiller to be ready
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "service"
-    namespace: "kube-system"
-    resource_name: "tiller-deploy"
+- name: Patching Tiller
+  command: kubectl patch svc tiller-deploy -n kube-system -p '{"spec":{"type":"LoadBalancer"}}'
   when: inventory_hostname in groups['master-server']
 
 - name: Removing Default Helm Repo
