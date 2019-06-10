@@ -54,7 +54,7 @@ EOF
 
   yum clean all
   run_cmd yum install google-chrome-stable -y
-  
+
   run_cmd curl -s -o chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.46/chromedriver_linux64.zip
   run_cmd unzip -o -q chromedriver_linux64.zip -d /usr/local/bin/
   run_cmd chmod 755 /usr/local/bin/chromedriver
@@ -89,6 +89,13 @@ function install_requirements(){
   popd > /dev/null
 }
 
+function install_ovftool(){
+    pushd /root > /dev/null
+    run_cmd curl -s -o VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle http://labrepo.lan/misc/VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle
+    run_cmd bash VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle
+    popd > /dev/null
+}
+
 function finish(){
   echo "==========================================="
   echo "==========================================="
@@ -103,4 +110,5 @@ setup_chrome
 setup_sdk
 setup_virtenv
 install_requirements
+install_ovftool
 finish

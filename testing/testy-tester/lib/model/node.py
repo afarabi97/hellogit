@@ -3,6 +3,8 @@
 __vcenter_version__ = '6.7c'
 
 import logging
+import shlex
+import subprocess
 
 from collections import OrderedDict
 from typing import List
@@ -17,6 +19,8 @@ from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from lib.model.host_configuration import HostConfiguration
+
+from pathlib import Path
 
 
 class Interface(object):
@@ -602,6 +606,70 @@ class VirtualMachine:
         logging.info('Powering off ' + self.vm_name)
         self.client.vcenter.vm.Power.stop(self.vm)
         logging.debug('vm.Power.stop({})'.format(self.vm))
+
+    def deleteCDROMs(self) -> None:
+        """
+        Removes the CD roms from the VM.
+        :return None:
+        """
+        for cdrom in self.client.vcenter.vm.hardware.Cdrom.list(self.vm):
+            print("Deleteing " + str(cdrom.cdrom))
+            self.client.vcenter.vm.hardware.Cdrom.delete(self.vm, cdrom.cdrom)
+
+    def deleteExtraNics(self) -> None:
+        """
+        Deletes all NIcs except for the first one in the list.
+
+        :return:
+        """
+        for index, nic in enumerate(self.client.vcenter.vm.hardware.Ethernet.list(self.vm)):
+            if index == 0:
+                continue
+            self.client.vcenter.vm.hardware.Ethernet.delete(self.vm, nic.nic)
+            
+    def setNICsToInternal(self):
+        """
+        Sets all NICs on the controller to Internal network.
+        """
+        for nic in self.client.vcenter.vm.hardware.Ethernet.list(self.vm):
+            backing = Ethernet.BackingSpec(type=Ethernet.BackingType.DISTRIBUTED_PORTGROUP,
+                                           network=network_helper.get_distributed_network_backing(
+                                            self.client,
+                                            "Internal",
+                                            self.host_configuration.datacenter))
+            spec = Ethernet.UpdateSpec(backing=backing)
+            self.client.vcenter.vm.hardware.Ethernet.update(self.vm, nic.nic, spec)
+
+    def export(self, destination: str="/root/controller.ova") -> None:
+        """
+        Runs the ovftool command that is used to export our controller to an OVA file.
+
+        EX: ovftool --noSSLVerify vi://david.navarro%40sil.local@172.16.20.106/SIL_Datacenter/vm/Navarro/dnavtest2-controller.lan ~/Desktop/controller.ova
+        :param destination: The destination to output too.
+
+        :return:
+        """        
+        self.set_vm_info(self.vm)
+        dest = Path(destination)
+        if dest.exists() and dest.is_file():
+            dest.unlink()
+
+        username = self.host_configuration.username.replace("@", "%40")
+        cmd = ("ovftool --noSSLVerify vi://{username}:'{password}'@{vsphere_ip}"
+               "/SIL_Datacenter/vm/{folder}/{vm_name} {destination}"
+               .format(username=username,
+                       password=self.host_configuration.password,
+                       vsphere_ip=self.host_configuration.ip_address,
+                       folder=self.host_configuration.storage_folder,
+                       vm_name=self.vm_info.name,
+                       destination=str(dest))
+              )
+        logging.info("Exporting OVA file to %s. This can take a few hours before it completes." % destination)
+        proc = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sout, serr = proc.communicate()
+        logging.info(sout)
+        if serr:
+            logging.error(serr)
 
     def get_macs(self) -> OrderedDict:
         """

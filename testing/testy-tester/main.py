@@ -10,6 +10,7 @@ import os
 
 from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
+from com.vmware.vapi.std.errors_client import AlreadyInDesiredState
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
@@ -64,6 +65,7 @@ class Runner:
                             help="Input yaml configuration file", metavar="FILE")
         parser.add_argument('--run-all', dest='run_all', action='store_true')
         parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
+        parser.add_argument('--export-controller', dest='export_controller', action='store_true')
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
@@ -182,6 +184,21 @@ class Runner:
         ctrl_modifier.change_hostname()
 
         self._perform_bootstrap(kit)
+
+    def _export_controller(self, kit: Kit):
+        if not self.args.export_controller and not self.args.run_all:
+            return
+
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
+        try:
+            ctrl_vm.power_off()
+        except AlreadyInDesiredState:
+            logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
+
+        ctrl_vm.deleteCDROMs()
+        ctrl_vm.deleteExtraNics()
+        ctrl_vm.setNICsToInternal()
+        ctrl_vm.export()
 
     def _power_on_vms(self, vms: List[VirtualMachine]):
         """
@@ -411,9 +428,9 @@ class Runner:
         self._setup_logging()
         self._parse_config()
         self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
-
         self.controller_node = get_node(self.kit, "controller")  # type: Node
         self._setup_controller(self.kit)
+        self._export_controller(self.kit)
         self._run_kickstart(self.kit)
         self._run_kit(self.kit)
         self._run_add_node(self.kit)

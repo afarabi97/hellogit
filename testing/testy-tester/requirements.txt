@@ -55,5 +55,5 @@ nsx-policy-python-sdk
 vapi-client-bindings
 vapi-common-client
 vapi-runtime
-vmc-app-python-sdk
+nsx-python-sdk
 vmc-client-bindings
