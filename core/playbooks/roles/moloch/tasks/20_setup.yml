@@ -2,7 +2,7 @@
 
 - name: Create unclustered pcap directories
   file:
-    path: "{{ moloch_pcap_folder }}"
+    path: "{{ fpc_path }}"
     owner: "{{ moloch_user }}"
     group: "{{ moloch_group }}"
     mode: "{{ moloch_dir_mode }}"

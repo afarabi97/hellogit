@@ -65,7 +65,7 @@ spec:
           type: File
       - name: data
         hostPath:
-          path: /pcap
+          path: {{ fpc_path }}
           type: Directory
       affinity:
         nodeAffinity: # Only schedule on the intended host

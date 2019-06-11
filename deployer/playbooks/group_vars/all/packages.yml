@@ -37,7 +37,9 @@ packages:
   - httpd
   - inotify-tools
   - iperf
+  - jq
   - "kubelet-{{ k8s_version }}"
+  - mergecap
   - mod_ssl
   - mongodb-org
   - net-tools

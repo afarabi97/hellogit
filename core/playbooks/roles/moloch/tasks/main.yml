@@ -6,9 +6,6 @@
 - block:
   - include_tasks: 05_files.yml
 
-  - include_tasks: 15_format_drives.yml
-    when: inventory_hostname in groups['moloch'] and pcap_disk is not none
-
   - include_tasks: 20_setup.yml
     when: inventory_hostname in groups['master-server']
     tags:

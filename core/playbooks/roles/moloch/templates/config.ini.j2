@@ -73,7 +73,7 @@ pcapDir = /data/moloch/raw
 
 # The max raw pcap file size in gigabytes, with a max value of 36G.
 # The disk should have room for at least 10*maxFileSizeG
-maxFileSizeG = 1
+maxFileSizeG = {{ fpc_max_filesize }}
 
 # The max time in minutes between rotating pcap files.  Default is 0, which means
 # only rotate based on current file size and the maxFileSizeG variable
@@ -106,7 +106,7 @@ maxPackets = 10000
 # expressed as a percentage (ex: 5%).  This does NOT delete the session records in
 # the database. It is recommended this value is between 5% and 10% of the disk.
 # Database deletes are done by the db.pl expire script
-freeSpaceG = 25%
+freeSpaceG = {{ fpc_free }}%
 
 # The port to listen on, by default 8005
 viewPort = 8005
@@ -228,7 +228,7 @@ packetThreads = {{ inventory_hostname in groups['moloch'] and hostvars[inventory
 #  simple          = use O_DIRECT if available, writes in pcapWriteSize chunks,
 #                    a file per packet thread.
 #  simple-nodirect = don't use O_DIRECT.  Required for zfs and others
-pcapWriteMethod = {{ moloch_pcapWriteMethod }}
+pcapWriteMethod = {{ moloch_pcapWriteMethod if fpc_app == 'moloch' else 'null' }}
 
 # ADVANCED - Buffer size when writing pcap files.  Should be a multiple of the raid 5 or xfs
 # stripe size.  Defaults to 256k

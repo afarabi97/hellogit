@@ -366,15 +366,15 @@ outputs:
   # - encrypted streams after the key exchange
   #
   - pcap-log:
-      enabled: no
-      filename: log.pcap
+      enabled: {{ 'yes' if fpc_app == 'suricata' else 'no' }}
+      filename: suri-%n-%t.pcap
 
       # File size limit.  Can be specified in kb, mb, gb.  Just a number
       # is parsed as bytes.
-      limit: 1000mb
+      limit: {{ fpc_max_filesize }}gb
 
       # If set to a value will enable ring buffer mode. Will keep Maximum of "max-files" of size "limit"
-      max-files: 2000
+      #max-files: 2000
 
       # Compression algorithm for pcap files. Possible values: none, lz4.
       # Enabling compression is incompatible with the sguil mode. Note also
@@ -387,11 +387,11 @@ outputs:
       #lz4-checksum: no
       #lz4-level: 0
 
-      mode: normal # normal, multi or sguil.
+      mode: multi # normal, multi or sguil.
 
       # Directory to place pcap files. If not provided the default log
       # directory will be used. Required for "sguil" mode.
-      #dir: /nsm_data/
+      dir: {{ fpc_path }}
 
       #ts-format: usec # sec or usec second format (default) is filename.sec usec is filename.sec.usec
       use-stream-depth: no #If set to "yes" packets seen after reaching stream inspection depth are ignored. "no" logs all packets

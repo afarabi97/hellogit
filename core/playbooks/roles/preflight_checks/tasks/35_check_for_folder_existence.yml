@@ -2,13 +2,13 @@
 
 - name: Verify PCAP directory exists
   stat:
-    path: "{{ moloch_pcap_folder }}"
-  register: moloch_pcap_folder_test
+    path: "{{ fpc_path }}"
+  register: fpc_path_test
   when: pcap_disk is none
 
 - name: Verify PCAP directory exists
   fail:
-    msg: "You set use_ceph_for_pcap to false indicating you plan to use direct attached storage for PCAP. The PCAP directory you defined {{ moloch_pcap_folder }} does not exist or is not a directory. Verify it both exists and is a directory."
-  when: pcap_disk is none and (not moloch_pcap_folder_test.stat.exists or not moloch_pcap_folder_test.stat.isdir)
+    msg: "You set use_ceph_for_pcap to false indicating you plan to use direct attached storage for PCAP. The PCAP directory you defined {{ fpc_path }} does not exist or is not a directory. Verify it both exists and is a directory."
+  when: pcap_disk is none and (not fpc_path_test.stat.exists or not fpc_path_test.stat.isdir)
 
 ...

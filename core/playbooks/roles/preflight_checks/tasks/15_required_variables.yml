@@ -129,10 +129,10 @@
     msg: "moloch_maxPacketsInQueue is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_maxPacketsInQueue is not defined or moloch_maxPacketsInQueue is none
 
-- name: Checking that moloch_pcap_folder is set
+- name: Checking that fpc_path is set
   fail:
-    msg: "moloch_pcap_folder is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file. Add moloch_pcap_folder: to inventory in all vars to resolve this error."
-  when: moloch_pcap_folder is not defined
+    msg: "fpc_path is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventory file. Add fpc_path: to inventory in all vars to resolve this error."
+  when: fpc_path is not defined
 
 - name: Checking that pcap_disk is set
   fail:

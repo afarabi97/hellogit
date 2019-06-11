@@ -6,7 +6,7 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-  vars:    
+  vars:
 
     #############################
     # General System Settings   #
@@ -26,6 +26,27 @@ all:
     logstash_cpu_limit: {{ template_ctx.server_cal.logstash_cpu_limit | int }}m
     logstash_cpu_request: {{ template_ctx.server_cal.logstash_cpu_request | int }}m
 
+    ################################
+    # Full packet capture settings #
+    ################################
+
+    # Which application to use for FPC. Valid settings are 'moloch', 'suricata',
+    # or 'none'.
+    fpc_app: suricata
+
+    # We recommend you dedicate a separate disk to PCAP. The disk you will use
+    # for PCAP is defined on the sensor hosts in pcap_disk. If you define this
+    # value, that disk will be formatted and wiped and then /pcap used as a
+    # mount point to it.
+    fpc_path: /pcap
+
+    # This is the amount of free space (as a percentage) to leave available on
+    # the PCAP disk.
+    fpc_free: 25
+
+    # Max filesize for a single PCAP in GB
+    fpc_max_filesize: 1
+
     #############################
     # Moloch Settings           #
     #############################
@@ -43,21 +64,12 @@ all:
     # the bpfs.
     moloch_dontSaveBPFs: ""
 
-    # The block size in bytes used for reads from each interface. There are 120 blocks per interface.    
+    # The block size in bytes used for reads from each interface. There are 120 blocks per interface.
     moloch_packet_v3_block_size: 8388608
-    
+
     # The number of threads used to read packets from each interface. These threads take the packets
     # from the AF packet interface and place them into the packet queues.
     moloch_packet_v3_num_threads: 8
-
-    # This should be defined if you are going to use Moloch in direct disk
-    # access mode which is the default. We recommend you dedicate a 
-    # separate disk to PCAP. The disk you will use for PCAP is defined
-    # on the sensor hosts in pcap_disk. If you define this value, that disk will
-    # be formatted and wiped and then /pcap used as a mount point to it. WARNING:
-    # THIS WILL BE APPLIED TO ALL SENSORS. YOU CANNOT MIX AND MATCH BETWEEN CLUSTERED
-    # AND NON-CLUSTERED STORAGE.
-    moloch_pcap_folder: "/pcap"
 
     # Advanced Moloch settings, do not touch unless you know what you're doing
     moloch_spiDataMaxIndices: "5"
@@ -95,7 +107,7 @@ all:
     elastic_master_cpu_request: {{ template_ctx.server_cal.elastic_master_cpu_request }}m
     elastic_masters: {{ template_ctx.server_cal.elastic_master_pod_count }}
     separate_master: true
-    
+
     # The percentage of maximum allocated space for Elasticsearch that can be filled
     # before Curator begins deleting indices. The oldest moloch indices that exceed
     # this threshold will be deleted.
@@ -104,10 +116,10 @@ all:
     # logstash_replicas is the number of logstash instances you would like to run
     logstash_replicas: {{ template_ctx.server_cal.logstash_replicas }}
     logstash_memory_request: {{ template_ctx.server_cal.logstash_memory_request }}
-    logstash_memory_limit: {{ template_ctx.server_cal.logstash_memory_limit }}    
+    logstash_memory_limit: {{ template_ctx.server_cal.logstash_memory_limit }}
     logstash_jvm_memory: {{ template_ctx.server_cal.logstash_jvm_memory }}
     logstash_pipeline_workers: {{ template_ctx.server_cal.logstash_pipeline_workers }}
-        
+
     #############################
     # Bro/Suricata Settings     #
     #############################
@@ -144,7 +156,7 @@ all:
     endgame_host: "{{ template_ctx.endgame_iporhost }}"
     endgame_username: "{{ template_ctx.endgame_username }}"
     endgame_password: "{{ template_ctx.endgame_password }}"
-    
+
     #############################
     # Software Locations        #
     #############################
@@ -175,7 +187,7 @@ all:
     # will decide where to place instances based on resource consumption.
     kibana:
       children:
-        elasticsearch:    
+        elasticsearch:
 
     # Any host in this group will run Bro. By default this is all sensors and remote
     # sensors
@@ -221,7 +233,7 @@ all:
               suricata: {{ node.has_suricata }}
               bro: {{ node.has_bro }}
               moloch: {{ node.has_moloch }}
-              
+
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
               ansible_user: root
@@ -248,7 +260,7 @@ all:
               # This is required so a Kubernetes pod does not accidentally starve a node of all
               # its resources.
               kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
-              
+
               # This is the management IP address of the node. Ex: 192.168.1.198
               # This is the address Ansible will use to communicate with.
               management_ipv4: "{{ node.management_ip_address }}"

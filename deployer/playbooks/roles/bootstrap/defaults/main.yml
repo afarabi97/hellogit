@@ -1,11 +1,11 @@
 ---
 
 package_list:
-  - python-pip
-  - git
-  - tcpreplay
-  - tcpdump
-  - rsync
-  - policycoreutils-python
   - bash-completion
+  - git
   - "kubectl-{{ k8s_version }}"
+  - policycoreutils-python
+  - python-pip
+  - rsync
+  - tcpdump
+  - tcpreplay
