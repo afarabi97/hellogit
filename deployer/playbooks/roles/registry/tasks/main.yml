@@ -50,9 +50,10 @@
       - docker-ce
     state: installed
 
-- name: Ensure Pip Version is 8.1.2
-  shell: |
-    pip install pip==8.1.2
+- name: upgrade pip
+  pip:
+    name: pip
+    state: latest
 
 - name: install pip modules
   pip:
