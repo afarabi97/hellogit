@@ -39,7 +39,6 @@ packages:
   - iperf
   - jq
   - "kubelet-{{ k8s_version }}"
-  - mergecap
   - mod_ssl
   - mongodb-org
   - net-tools
@@ -66,6 +65,7 @@ packages:
   - tcpreplay
   - tftp-server
   - vim-enhanced
+  - wireshark
   - wget
   - yum-utils
   - xinetd
