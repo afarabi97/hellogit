@@ -9,7 +9,6 @@ import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { RegistryComponent } from './registry/registry.component';
 import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
-import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from './catalog/component/catalog.component';
 import { CatalogPageComponent } from './catalog/page/catalog-page.component';
@@ -23,8 +22,7 @@ const routes: Routes = [
   { path: 'configmaps', component: ConfigmapsComponent },
   { path: 'stdout/:id', component: ServerStdoutComponent },
   { path: 'registry', component: RegistryComponent },
-  { path: 'agent-builder-chooser', component: AgentBuilderChooserComponent },
-  { path: 'agent_installer', component: AgentInstallerComponent },
+  { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent },
   { path: 'rulesets', component: PolicyManagementComponent},
   { path: 'pcaps', component: PcapFormComponent},
   { path: 'catalog', component: CatalogComponent},

@@ -27,7 +27,7 @@ def main():
 
     for path in Path(test_cases_dir).glob("*.yml"):
         yml_content = None
-        out_file_name = folder_name + "_" + path.name
+        out_file_name = (folder_name + "_" + path.name).lower()
         with open(str(path), 'r') as kit_schema:
             yml_content = yaml.load(kit_schema)
 
@@ -63,7 +63,7 @@ def main():
 
                 # Update vm names
                 pos = vm.find('-')
-                yml_content["kit"]["VMs"][folder_name + vm[pos:]] = yml_content["kit"]["VMs"][vm]
+                yml_content["kit"]["VMs"][folder_name.lower() + vm[pos:]] = yml_content["kit"]["VMs"][vm]
                 del yml_content["kit"]["VMs"][vm]
 
         with open(out_test_case_dir + '/' + out_file_name, 'w') as outfile:

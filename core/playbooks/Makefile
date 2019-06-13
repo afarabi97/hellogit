@@ -149,7 +149,7 @@ change-interfaces:
 #make winlogbeat FIREWALL_URL=localhost LOGSTASH_PORT=9200 INSTALL_WLB=TRUE INSTALL_SYSMON=TRUE
 winlogbeat:
 	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat \
-	--extra-vars "firewall_url=$(FIREWALL_URL) logstash_fw_port=$(LOGSTASH_PORT) \
+	--extra-vars "winlog_beat_dest_ip=$(WINLOG_BEAT_DEST_IP) winlog_beat_dest_port=$(LOGSTASH_PORT) \
 	install_winlogbeat=$(INSTALL_WLB) install_sysmon=$(INSTALL_SYSMON) \
 	install_endgame=$(INSTALL_ENDGAME) \
 	endgame_server=$(ENDGAME_SERVER) \

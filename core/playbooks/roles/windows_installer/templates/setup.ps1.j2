@@ -7,76 +7,120 @@ Param (
 )
 
 {% endif %}
-if ( -not ([Security.Principal.WindowsPrincipal] `
-            [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole( `
-            [Security.Principal.WindowsBuiltInRole] "Administrator") ) {
- Write-Error "Must have administrator privileges to run this script."
- exit 1
+{% include 'InstallerCommon.j2' %}
+
+function CheckService([string]$service_name, [OutputErrorValue]$error_flag = [OutputErrorValue]::no_error ) {
+  Sleep 1
+  $svc = Get-Service -Name $service_name -ErrorAction SilentlyContinue
+  if( -not $svc -or -not $svc.Status -eq "Running" ) {
+    $Script:return_value = $return_value -bor $error_flag
+    return $false
+  }
+  return $true
 }
 
 {% if install_winlogbeat | upper == 'TRUE' %}
-if ( $help ) {
-  "Usage: setup.ps1 [ -logstash_host host_ip ] [ -logstash_port port_num ]"
-  "`t-logstash_host host_ip`t`tUse host_ip as the LogstashSearch host"
-  "`t-logstash_port port_num`tUse port_num as the LogstashSearch port"
-  exit
-}
-
-function ReplaceInFile([string]$filename, [string]$old_text, [string]$new_text) {
-  if($new_text -and $old_text -ne $new_text) {
-    (Get-Content $filename -Raw).Replace($old_text, $new_text) | Set-Content $filename
+Try {
+  if ( $help ) {
+    "Usage: setup.ps1 [ -logstash_host host_ip ] [ -logstash_port port_num ]"
+    "`t-logstash_host host_ip`t`tUse host_ip as the LogstashSearch host"
+    "`t-logstash_port port_num`tUse port_num as the LogstashSearch port"
+    exit -1
   }
+  
+  function ReplaceInFile([string]$filename, [string]$old_text, [string]$new_text) {
+    if($new_text -and $old_text -ne $new_text) {
+      (Get-Content $filename -Raw).Replace($old_text, $new_text) | Set-Content $filename
+    }
+  }
+  
+  function RegexReplaceInFile([string]$filename, `
+                              [string]$prefix, `
+                              [string]$target, `
+                              [string]$new_text) {
+    $Matches.clear()
+    $srch = ("(?ms)(?<pfx>" + $prefix + ")(?<tgt>" + $target + ")")
+    (Get-Content $filename -Raw) -match $srch
+    ReplaceInFile -filename $filename `
+                  -old_text ($Matches.pfx + $Matches.tgt) `
+                  -new_text ($Matches.pfx + $new_text)
+  }
+  
+  #Install Winlogbeat
+  $Error.Clear()
+  $wlb_archive = "{{ winlogbeat_installer.files.0.path | win_basename | regex_replace('.zip', '') }}"
+  Expand-Archive -Path .\$wlb_archive.zip -Destination {{ target_dir }}\ -Force
+  [String]$wlb_path = '{{ target_dir | regex_replace('[\'"]', "") }}\' + $wlb_archive
+  [String]$wlb_dest = '{{ target_dir | regex_replace('[\'"]', "") }}\Winlogbeat'
+  Write-Host "wlb_path: ", $wlb_path
+  if( Test-Path $wlb_dest ) {
+    UninstallWinlogbeat
+  }
+  Rename-Item -Path $wlb_path -NewName Winlogbeat
+  [string]$wlb_config = $wlb_dest + "\winlogbeat.yml"
+  Copy-Item -Path .\winlogbeat.yml -Destination $wlb_config  -Force
+  
+  {# Use a bunch of regular expression to find and replace text in winlogbeat.yml. REs are #}
+  {# based the default configuration file of version 6.5.2. If the file is changed up in #}
+  {# future releases, these REs might not work. #}
+  if($logstash_host) {
+    RegexReplaceInFile -filename $wlb_config `
+                       -prefix 'output.logstash:.*?hosts: \[\"' `
+                       -target '[^:]*' `
+                       -new_text $logstash_host
+  }
+  if($logstash_port) {
+    RegexReplaceInFile -filename $wlb_config `
+                       -prefix 'output.logstash:.*?hosts: \[[^:]*?:' `
+                       -target '[^\"]*' `
+                       -new_text $logstash_port
+  }
+  
+  {{ target_dir }}\Winlogbeat\install-service-winlogbeat.ps1
+  
+  $wlb_service = Get-Service -Name winlogbeat
+  $wlb_service.Start()
+
+  CheckService -service_name winlogbeat -error_flag ([OutputErrorValue]::winlogbeat)
+
+} Catch {
+  Write-Host "Caught exception installing winlogbeat: ", $_.Exception.Message
+  $Script:return_value = $return_value -bor [OutputErrorValue]::winlogbeat
 }
 
-function RegexReplaceInFile([string]$filename, `
-                            [string]$prefix, `
-                            [string]$target, `
-                            [string]$new_text) {
-  $Matches.clear()
-  $srch = ("(?ms)(?<pfx>" + $prefix + ")(?<tgt>" + $target + ")")
-  (Get-Content $filename -Raw) -match $srch
-  ReplaceInFile -filename $filename `
-                -old_text ($Matches.pfx + $Matches.tgt) `
-                -new_text ($Matches.pfx + $new_text)
-}
-
-#Install Winlogbeat
-$wlb = "{{ winlogbeat_installer.files.0.path | win_basename | regex_replace('.zip', '') }}"
-Expand-Archive .\$wlb.zip -Destination {{ target_dir }}\
-Rename-Item -Path {{ target_dir }}\$wlb -NewName Winlogbeat
-[string]$wlb_config = "{{ target_dir }}\Winlogbeat\winlogbeat.yml".Replace("'", "")
-Copy-Item -Path .\winlogbeat.yml -Destination $wlb_config  -Force
-
-{# Use a bunch of regular expression to find and replace text in winlogbeat.yml. REs are #}
-{# based the default configuration file of version 6.5.2. If the file is changed up in #}
-{# future releases, these REs might not work. #}
-if($logstash_host) {
-  RegexReplaceInFile -filename $wlb_config `
-                     -prefix 'output.logstash:.*?hosts: \[\"' `
-                     -target '[^:]*' `
-                     -new_text $logstash_host
-}
-if($logstash_port) {
-  RegexReplaceInFile -filename $wlb_config `
-                     -prefix 'output.logstash:.*?hosts: \[[^:]*?:' `
-                     -target '[^\"]*' `
-                     -new_text $logstash_port
-}
-
-{{ target_dir }}\Winlogbeat\install-service-winlogbeat.ps1
-
-$wlb_service = Get-WmiObject -Class Win32_Service -Filter "Name='winlogbeat'"
-$wlb_service.StartService()
 {% endif %}
 
 {% if install_sysmon | upper == 'TRUE' %}
 #Install Sysmon
-Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon
-{{ target_dir }}\Sysmon\Sysmon64.exe -i 2> $null
+Try {
+  $Error.Clear()
+
+  Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon -Force
+
+  if (CheckService -service_name {{ sysmon_service_name }}) {
+    UninstallSysmon
+    Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon -Force
+  }
+  {{ target_dir }}\Sysmon\{{ sysmon_service_name }}.exe -i -accepteula 
+
+  CheckService -service_name {{ sysmon_service_name }} -error_flag ([OutputErrorValue]::sysmon)
+
+} Catch {
+  Write-Host "Caught exception installing sysmon: ", $_.Exception
+  $Script:return_value = $return_value -bor [OutputErrorValue]::sysmon
+}
 {% endif %}
 
 {% if install_endgame | upper == 'TRUE' %}
 #Install Endgame
-{% set install_param = '' %}
-{% include 'EndgameInstaller.j2' %}
+Try {
+  {% set install_param = '' %}
+  {% include 'EndgameInstaller.j2' %}
+
+} Catch {
+  Write-Host "Caught exception installing endgame", $_.Exception
+  $Script:return_value = $return_value -bor [OutputErrorValue]::endgame
+}
 {% endif %}
+
+return $return_value

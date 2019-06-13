@@ -1,51 +1,20 @@
-export const PERCENT_PLACEHOLDER: string = "Enter a percentage between 1 and 99. The default is 90.";
-export const PERCENT_INVALID_FEEDBACK: string = 'Value must be between 1 and 100.';
-export const MIN_ONE_INVALID_FEEDBACK: string = 'Enter a valid integer 1 or greater.';
-export const MIN_ZERO_INVALID_FEEDBACK: string = 'Enter a valid integer 0 or greater.';
-export const MIN_TWO_INVALID_FEEDBACK: string = 'Enter a valid integer 2 or greater.';
-export const MIN_THREE_INVALID_FEEDBACK: string = 'Enter a valid integer 3 or greater.';
-export const MIN_EIGHT_INVALID_FEEDBACK: string = 'Enter a valid integer 8 or greater.';
+//Feedback
 export const INVALID_FEEDBACK_INTERFACE: string = 'No interfaces found! Are you sure you have a second eligible interface that is not the management interface?';
 export const INVALID_FEEDBACK_IP: string = 'You must enter a valid IP address.';
 export const CIDR_CONSTRAINT_MSG = 'You must enter a CIDR IP in the x.x.x.x/xx format or use the "any" keyword.';
 
 //Constraints
-export const CONSTRAINT_MIN_ONE: string = '^[1-9]|[0-9]\\d+$';
-export const CONSTRAINT_MIN_TWO: string = '^[2-9]|[0-9]\\d+$';
-export const CONSTRAINT_MIN_THREE: string = '^[3-9]|[0-9]\\d+$';
-export const CONSTRAINT_MIN_EIGHT: string = '^[8-9]|[0-9]\\d+$';
-export const CONSTRAINT_MIN_ZERO: string = '^[0-9]|[0-9]\\d+$';
-export const PERCENT_MIN_MAX: string = '^([1-9]|[1-9][0-9]|100)$';
 export const IP_CONSTRAINT: string = "^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((25[0-4])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))$";
 export const HOST_CONSTRAINT = "^[a-zA-Z]([a-zA-Z]|[0-9]|[-])*$"
+export const WINDOWS_HOST_CONSTRAINT = "^[a-zA-Z]([a-zA-Z]|[0-9]|[-_.])*$"
 export const IP_CONSTRAINT_WITH_SUBNET: string = "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$";
 export const URL_CONSTRAINT: string = "^(ftp:\\/\\/.|http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?\\.iso$";
 export const NON_ISO_URL_CONSTRAINT: string = "^(http(s)?:\\/\\/)[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$"
 export const CIDR_CONSTRAINT: string = "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])";
 export const KUBE_CIDR_CONSTRAINT: string = '^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((2[0-3]\\d)|(1\\d\\d)|([1-9]?\\d))$';
 
-export const EXPLANATION: string = " Kubernetes will \
-not cap the performance of the resource at the specified number of cores - it will \
-guarentee that amount of compute resource is available if the application needs it. For example, \
-if Bro were set to 60%, it is guarenteed to have at least 60% of the server available \
-to it. However, if it were only using 30% and something else needed 60%, the other \
-thing would be allowed to infringe on Bro's guarenteed resources. If Bro's needs suddenly grew and it \
-required the compute resources given out to the other thing, Kubernetes would \
-throttle the other thing and Bro would be allowed to burst up to 60% while the other thing \
-would be throttled to whatever its resource request is. Basically, this allows everything \
-to take whatever it needs at any given time if the sensor is not resource constrained. \
-If the sensor becomes resource constrained, each thing will be limited to what it \
-requested. See resource requests: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/ and https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/."
-
-export const DESC_ROOT_PASSWORD: string = "The root password will be how to log into each node after the kickstart process completes.  \
-                                   Do not forget this password or you will not be able to complete the system installation.";
-
-
-//INVALID FEEDBACK
-export const INVALID_PASSWORD_MISMATCH: string = "The passwords you entered do not match.  Please retype them carefully.";
-
 // MISC
-export const TIMEZONES = [  
+export const TIMEZONES = [
   'UTC',
   'Browser',
   'America/Chicago',

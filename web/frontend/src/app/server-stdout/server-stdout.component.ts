@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { ServerStdoutService } from '../server-stdout.service';
+import { ServerStdoutService } from './server-stdout.service';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { HtmlModalPopUp } from '../html-elements';

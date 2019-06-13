@@ -11,7 +11,7 @@ import logging
 import os
 
 from shared.connection_mngs import MongoConnectionManager
-from shared.constants import CORE_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR
+from shared.constants import CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR
 from flask_cors import CORS
 from flask import Flask
 from flask_socketio import SocketIO
@@ -97,7 +97,6 @@ from app import configmap_controller
 from app import archive_controller
 from app import registry_controller
 from app import agent_builder_controller
-from app import agent_installer_controller
 from app import ruleset_controller
 from app import pcap_controller
 from app import catalog_controller

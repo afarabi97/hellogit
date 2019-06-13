@@ -42,10 +42,8 @@ import { PolicyManagementDialog } from './policy-management/dialog/policy-manage
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
 import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
 import { UploadDialogComponent } from './policy-management/upload-dialog/upload-dialog.component';
-import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
-import { AgentInstallerAddDialogComponent } from './agent-builder-chooser/agent-installer-add-dialog/agent-installer-add-dialog.component';
-import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-list-dialog/ip-target-list-dialog.component';
+import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
 
 // Catalog
 import { CatalogComponent } from './catalog/component/catalog.component';
@@ -60,6 +58,8 @@ import { NotificationsModuleComponent } from './notifications/notification-modul
 
 // ConfirmDialog
 import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.component';
+
+import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component'
 
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
@@ -78,6 +78,10 @@ import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-d
 // Date-Time
 import { DateTimePickerDialogComponent } from './date-time-picker-dialog/date-time-picker-dialog.component';
 import { DateTimeModule } from './date-time-picker/date-time.module';
+
+//Pipes
+import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
+
 
 @NgModule({
   declarations: [
@@ -115,10 +119,10 @@ import { DateTimeModule } from './date-time-picker/date-time.module';
     PolicyManagementTable,
     PolicyManagementAddDialog,
     UploadDialogComponent,
-    AgentInstallerComponent,
     AgentBuilderChooserComponent,
-    AgentInstallerAddDialogComponent,
-    IpTargetListDialogComponent,
+    AgentInstallerDialogComponent,
+    ModalDialogMatComponent,
+    CapitalizeFirstPipe,
     CatalogComponent,
     CardComponent,
     ChartListComponent,
@@ -154,12 +158,13 @@ import { DateTimeModule } from './date-time-picker/date-time.module';
     PolicyManagementTable,
     PolicyManagementAddDialog,
     UploadDialogComponent,
-    AgentInstallerAddDialogComponent,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
-    DateTimePickerDialogComponent
+    DateTimePickerDialogComponent,
+    AgentInstallerDialogComponent,
+    ModalDialogMatComponent
   ]
 })
 export class AppModule { }

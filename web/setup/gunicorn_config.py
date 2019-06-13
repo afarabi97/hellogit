@@ -5,3 +5,4 @@ workers = 1
 loglevel = "debug"
 accesslog = "/var/log/tfplenum/gunicorn_access.log"
 errorlog = "/var/log/tfplenum/gunicorn_error.log"
+sendfile = True

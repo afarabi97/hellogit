@@ -1,18 +1,23 @@
 {# This file contains the template for Powershell code to install or uninstall
    the Endgame agent. #}
-$root_dir = Get-Location
-Expand-Archive .\{{ endgame_installer }}
-{% set installer = endgame_installer | regex_replace('.zip$', '') %}
-Set-Location -Path .\{{ installer }}\windows\
-{% set endgame_config_real_name = endgame_config_name | regex_replace(' +', '-') %}
-.\SensorWindowsInstaller-{{ endgame_config_real_name }}.exe -k {{ endgame_api_key }} `
-    -c .\SensorWindowsInstaller-{{ endgame_config_real_name }}.cfg {{ install_param }}
-Do {
-  sleep 1
-} Until ( -Not ( Test-Path .\SensorWindowsInstaller-{{ endgame_config_real_name }}.exe -PathType Leaf ) )
-Set-Location -Path $root_dir
-Do  {
+
+  $root_dir = Get-Location
+  Expand-Archive .\{{ endgame_installer }}
+  {% set installer = endgame_installer | regex_replace('.zip$', '') %}
+  Set-Location -Path .\{{ installer }}\windows\
+  {% set windows_installer_name = installer | regex_replace('SensorInstaller-','SensorWindowsInstaller-') %}
+  .\{{ windows_installer_name }}.exe -k {{ endgame_api_key }} `
+            -c .\{{ windows_installer_name }}.cfg {{ install_param }} 
+  if( -not $? ){
+    $Script:return_value = $return_value -bor [OutputErrorValue]::endgame
+  }
+
+  Do {
     sleep 1
-    $error.clear()
-    Remove-Item -Path .\{{ installer }} -Recurse -ErrorAction SilentlyContinue
-} Until ( $error.count -eq 0 )
+  } Until ( -Not ( Test-Path .\{{ windows_installer_name }}.exe -PathType Leaf ) )
+  Set-Location -Path $root_dir
+  Do  {
+      sleep 1
+      $error.clear()
+      Remove-Item -Path .\{{ installer }} -Recurse -ErrorAction SilentlyContinue
+  } Until ( $error.count -eq 0 )

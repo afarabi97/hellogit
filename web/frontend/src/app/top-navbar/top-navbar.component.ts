@@ -20,8 +20,7 @@ export class TopNavbarComponent implements OnInit {
       label: 'System Setup',
       children: [{ label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers', isExternalLink: false },
                  { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false },
-                 { label: 'Build Host Agent', url: '/agent-builder-chooser', icon: 'build', isExternalLink: false },
-                 { label: 'Install Host Agents', url: '/agent_installer', icon: 'cloud_download', isExternalLink: false },
+                 { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false },
                  { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false }]
     }, {
       label: 'Kubernetes',

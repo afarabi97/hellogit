@@ -38,13 +38,13 @@ pyOpenSSL==18.0.0
 python-dateutil==2.7.5
 pyvmomi==6.7.0.2018.9
 PyYAML==3.13
-requests==2.19.1
+requests==2.22.0
 requests-oauthlib==1.0.0
 rsa==4.0
 selenium==3.14.1
 service-identity==17.0.0
 simplejson==3.16.0
-six==1.11.0
+six==1.12.0
 suds-jurko==0.6
 tabulate==0.8.2
 Twisted==18.7.0

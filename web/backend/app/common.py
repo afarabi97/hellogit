@@ -46,7 +46,7 @@ def cursorToJsonResponse(csr, fields: List[str] = None, sort_field: str = None) 
     :param csr: Cursor returned from a MongoDB search (or any iterable 
     container)
     :param fields: List of field names to include in the response.
-    :param sort_filed: Optional field name to sort return records by
+    :param sort_field: Optional field name to sort return records by
     :return: flask.Response containing the data of the records in the cursor.
     """
     records = cursorToJson(csr, fields, sort_field) 

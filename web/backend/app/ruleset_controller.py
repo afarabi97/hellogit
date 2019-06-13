@@ -336,14 +336,7 @@ def delete_ruleset(ruleset_id: str) -> Response:
 
 @app.route('/api/sync_rulesets', methods=['GET', 'POST'])
 def sync_rulesets_api() -> Response:
-    print("YAY")
     perform_rulesync.delay()
-    # cmd_to_execute = str(WEB_DIR / 'tfp-env/bin/python') + ' sync_rulesets.py'
-    # spawn_job("SyncRuleSets",
-    #            cmd_to_execute,
-    #            ["sync_rulesets"],
-    #            log_to_console,
-    #            working_directory=str(WEB_DIR / "backend/fabfiles"))
     return OK_RESPONSE
 
 

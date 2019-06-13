@@ -2,7 +2,7 @@
 ansible_connection: local
 
 #Local directory into which the install will be built
-installer_dir: "/opt/tfplenum/core/playbooks"
+installer_dir: "{{ playbook_dir }}"
 
 #Script for building executable will append ".exe" to name of installer if necessary
 installer_name: "monitor_install.exe"
@@ -10,13 +10,19 @@ installer_name: "monitor_install.exe"
 #Directory where software will be installed on remote machine.
 target_dir: "C:\\'Program Files'"
 
-#Architecture for Winlogbeat. Options: x86_64, x86
-winlogbeat_arch: x86_64
+#System architecture. Options: x86_64, x86
+system_arch: x86_64
 
 #URLs for tools to be downloaded
 tool_binaries:
   - unz552xn.exe
   - Sysmon.zip
-  - winlogbeat-6.6.1-windows-{{ winlogbeat_arch }}.zip
+  - winlogbeat-6.6.1-windows-{{ system_arch }}.zip
 
 install_endgame: false
+
+#Enumeration for install return values. If the bit is set, there was a problem
+output_errors:
+  - sysmon: 0x01
+  - winlogbeat: 0x02
+  - endgame: 0x04

@@ -1,33 +1,26 @@
-if ( -not ([Security.Principal.WindowsPrincipal] `
-            [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole( `
-            [Security.Principal.WindowsBuiltInRole] "Administrator") ) {
- Write-Error "Must have administrator privileges to run this script."
- exit 1
+{% include 'InstallerCommon.j2' %}
+
+function CheckNoService([string]$service_name, [OutputErrorValue]$error_flag) {
+  Sleep 1
+  $svc = Get-Service -Name $service_name -ErrorAction SilentlyContinue
+  if( $svc ) {
+    $Script:return_value = $return_value -bor $error_flag
+    return $false
+  }
+  return $true
 }
 
 {% if install_sysmon | upper == 'TRUE' %}
 #Uninstall Sysmon
-{{ target_dir  }}\Sysmon\Sysmon64.exe -u 2> $null
-Remove-Item -Path {{ target_dir }}\Sysmon -recurse
+UninstallSysmon
+CheckNoService -service_name {{ sysmon_service_name }} -error_flag ([OutputErrorValue]::sysmon)
 {% endif %}
 
 
 {% if install_winlogbeat | upper == 'TRUE' %}
 #Uninstall Winlogbeat
-{{ target_dir }}\Winlogbeat\uninstall-service-winlogbeat.ps1
-function getWlb {
-  return Get-Service -Name "winlogbeat" 2> $null
-}
-$wlb = getWlb
-Write-Host -NoNewLine "Waiting for winlogbeat service to stop..."
-while ( $wlb ) {
-  $wlb = getWlb
-  Write-Host -NoNewLine "."
-  sleep 1
-}
-"done"
-
-Remove-Item -Path {{ target_dir }}\Winlogbeat -recurse
+UninstallWinlogbeat
+CheckNoService -service_name winlogbeat -error_flag ([OutputErrorValue]::winlogbeat)
 {% endif %}
 
 {% if install_endgame | upper == 'TRUE' %}
@@ -35,3 +28,5 @@ Remove-Item -Path {{ target_dir }}\Winlogbeat -recurse
 {% set install_param = '-u force' %}
 {% include 'EndgameInstaller.j2' %}
 {% endif %}
+
+return $return_value

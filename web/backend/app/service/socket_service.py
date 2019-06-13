@@ -106,3 +106,7 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
 
     socketio.emit('message', log, broadcast=True)
     conn_mng.mongo_console.insert_one(log)
+
+
+def notify_page_refresh():
+    socketio.emit('refresh', 'doit', broadcast=True)

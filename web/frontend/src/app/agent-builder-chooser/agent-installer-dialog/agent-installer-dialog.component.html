@@ -1,0 +1,66 @@
+<div mat-dialog-content [formGroup]="newHostAgentForm">
+  <mat-vertical-stepper [linear]=true>
+    <mat-step label="Configuration Name" [stepControl]="newHostAgentForm.controls.config_name">
+      <mat-form-field>
+        <mat-label>Config Name</mat-label>
+        <input matInput formControlName="config_name">
+      </mat-form-field>
+    </mat-step>
+    <mat-step label="Architecture" [stepControl]="newHostAgentForm.controls.system_arch">
+      <mat-radio-group formControlName="system_arch" fxLayout="column" fxLayoutAlign="start start">
+        <mat-radio-button value="x86_64">64-bit</mat-radio-button>
+        <mat-radio-button value="x86">32-bit</mat-radio-button>
+      </mat-radio-group>
+    </mat-step>
+    <mat-step label="Applications">
+      <div fxLayout="column" fxLayoutAlign="start start">
+        <mat-checkbox formControlName="install_sysmon">Install Sysmon</mat-checkbox>
+        <mat-checkbox formControlName="install_winlogbeat" (change)="toggleWinlogBeatValidators($event)">Install Winlogbeat</mat-checkbox>
+        <mat-checkbox formControlName="install_endgame" (change)="toggleEndgameValidators($event)">Install Endgame Agent</mat-checkbox>
+      </div>
+    </mat-step>
+    <mat-step *ngIf="isWinlogBeat()" label="Configure Winlogbeat"
+              [stepControl]="createStepperValidation('winlog_beat_dest_ip', 'winlog_beat_dest_port')">
+      <mat-form-field>
+        <mat-label>Traffic Destination</mat-label>
+        <input matInput formControlName="winlog_beat_dest_ip" matTooltip="{{ externalIPToolTip }}">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Traffic Desination Port</mat-label>
+        <input matInput formControlName="winlog_beat_dest_port">
+      </mat-form-field>
+    </mat-step>
+    <mat-step *ngIf="isEndgame()" label="Connect to Endgame Server"
+              [stepControl]="createStepperValidation('endgame_server_ip', 'endgame_user_name', 'endgame_password', 'endgame_port')">
+      <mat-form-field>
+        <mat-label>Endgame Server IP</mat-label>
+        <input matInput formControlName="endgame_server_ip">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Endgame Server Username</mat-label>
+        <input matInput formControlName="endgame_user_name">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Endgame Server Password</mat-label>
+        <input matInput formControlName="endgame_password" type="password">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Endgame Server Port</mat-label>
+        <input matInput formControlName="endgame_port">
+      </mat-form-field>
+      <button mat-button (click)="getEndgameSensorProfiles()">Connect</button>
+    </mat-step>
+    <mat-step *ngIf="isEndgame()" label="Select Endgame Agent">
+      <mat-form-field>
+        <mat-label>Sensor Profile</mat-label>
+        <mat-select formControlName="endgame_sensor_id">
+          <mat-option *ngFor="let profile of sensor_profiles" [value]="profile.value">{{ profile.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [disabled]="!newHostAgentForm.valid" (click)="submitAndClose()">Add Configuration</button>
+</div>

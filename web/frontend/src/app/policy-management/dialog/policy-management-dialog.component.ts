@@ -6,7 +6,7 @@ import { PolicyManagementService } from '../services/policy-management.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 /* Interfaces */
 import { Rule, ErrorMessage, SuccessMessage } from '../interface/rule.interface';
-import { PcapService } from 'src/app/pcap.service';
+import { PcapService } from 'src/app/pcap-form/pcap.service';
 
 export interface Food {
   value: string;
@@ -36,7 +36,7 @@ export class PolicyManagementDialog implements OnInit {
   saveModal: HtmlModalPopUp;
   messageModal: HtmlModalPopUp;
   isValidateOnly: boolean;
-  ruleGroup: FormGroup;  
+  ruleGroup: FormGroup;
   pcaps: Array<Object>;
   selectedPcap: string;
   numbers: Array<number>;
@@ -71,7 +71,7 @@ export class PolicyManagementDialog implements OnInit {
     } else {
       this.initializeForm(this.ruleGroup);
     }
-    
+
     this.resizeEditor(this.outerCard);
   }
 
@@ -136,7 +136,7 @@ export class PolicyManagementDialog implements OnInit {
 
   editRule() {
     this._PolicyManagementService.updateRule(this._PolicyManagementService.editRuleSet._id, this.ruleGroup.value).subscribe(data => {
-      if (data instanceof Rule){        
+      if (data instanceof Rule){
         this.messageModal.updateModal("SUCCESS", "Successfully updated " + data.ruleName + ".", "Close");
         this.messageModal.openModal();
       } else if (data instanceof ErrorMessage) {
@@ -147,8 +147,8 @@ export class PolicyManagementDialog implements OnInit {
   }
 
   addRule() {
-    this._PolicyManagementService.createRule(this._PolicyManagementService.editRuleSet._id, 
-                                             this.ruleGroup.value).subscribe(data => {      
+    this._PolicyManagementService.createRule(this._PolicyManagementService.editRuleSet._id,
+                                             this.ruleGroup.value).subscribe(data => {
       if (data instanceof Rule){
         this.messageModal.updateModal("SUCCESS", "Successfully created " + data.ruleName + ".", "Close");
         this.messageModal.openModal();
@@ -185,15 +185,15 @@ export class PolicyManagementDialog implements OnInit {
         } else {
           const json_blob = new Blob([data], { type: 'application/json'});
           FileSaver.saveAs(json_blob, 'pcap_test_results.json');
-        }        
+        }
       }, err => {
         if (err.status === 501){
           this.messageModal.updateModal("ERROR", "Validation failed for testing against PCAP. \
-                                                  Please make sure you have selected a PCAP and your rules validate.", 
+                                                  Please make sure you have selected a PCAP and your rules validate.",
                                         "Close", undefined, ModalType.error);
         } else {
           console.error(err);
-          this.messageModal.updateModal("ERROR", "Failed to test rule against PCAP for an unknown reason.", 
+          this.messageModal.updateModal("ERROR", "Failed to test rule against PCAP for an unknown reason.",
                                         "Close", undefined, ModalType.error);
         }
         this.messageModal.openModal();

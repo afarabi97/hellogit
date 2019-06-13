@@ -1,0 +1,8 @@
+# Ansible playbook to be run on docker container. Will call roll to remotely
+# install Windows monitoring agents.
+- name: Install Windows Monitoring Agents
+  hosts:
+    - windows
+  roles:
+    - windows_installer
+  gather_facts: no

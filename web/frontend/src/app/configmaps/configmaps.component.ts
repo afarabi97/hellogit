@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfigmapsService } from '../configmaps.service';
+import { ConfigmapsService } from './configmaps.service';
 import { HtmlModalPopUp, ModalType } from '../html-elements';
 import { AddConfigDataForm, AddConfigMapForm } from './configmaps.form';
 import { Title } from '@angular/platform-browser';
@@ -46,12 +46,12 @@ export class ConfigmapsComponent implements OnInit {
         this.configMaps = data['items'];
         this.isConfigMapVisible = new Array(this.configMaps.length).fill(false);
       }
-    }); 
+    });
   }
 
   objectKeys(obj: any) {
     let ret_val = [];
-    for (let item of Object.keys(obj)){      
+    for (let item of Object.keys(obj)){
         ret_val.push(item);
     }
     return ret_val;
@@ -73,7 +73,7 @@ export class ConfigmapsComponent implements OnInit {
 
   editConfigMapData(configDataName: string, configMapIndex: number){
     this.activeConfigDataTitle = "Editing " + configDataName;
-    this.activeConfigDataKey = configDataName;    
+    this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
     this.activeConfigData = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.isUserEditing = true;
@@ -85,15 +85,15 @@ export class ConfigmapsComponent implements OnInit {
     if (!this.configMaps[this.activeConfigMapIndex]['data']){
       this.configMaps[this.activeConfigMapIndex]['data'] = {}
     }
-    
+
     this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = '';
     this.activeConfigData = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.isUserEditing = true;
   }
 
   addNewConfigMap(formSubmission: Object){
-    let newConfigMap = {'metadata': {'name': formSubmission['name'], 
-                                  'creation_timestamp': '', 
+    let newConfigMap = {'metadata': {'name': formSubmission['name'],
+                                  'creation_timestamp': '',
                                   'namespace': formSubmission['namespace']},
                      'data': {}};
     this.configMapSrv.createConfigMap(newConfigMap).subscribe(data => {
@@ -106,7 +106,7 @@ export class ConfigmapsComponent implements OnInit {
       this.configMapsModal.updateModal("Error ", "Failed to save configmap. REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
       this.configMapsModal.openModal();
     });
-    
+
   }
 
   removeConfigMapData(configDataName: string, configMapIndex: number){
@@ -160,11 +160,11 @@ export class ConfigmapsComponent implements OnInit {
 
     if (this.isDeleteConfigMapData) {
       this.deleteConfigMapData();
-    }    
-    
+    }
+
     if (this.isDeleteConfigMap){
       this.deleteConfigMap();
-    }    
+    }
     this.isDeleteConfigMap = false;
     this.isDeleteConfigMapData = false;
   }
@@ -179,17 +179,17 @@ export class ConfigmapsComponent implements OnInit {
 
   saveAndCloseEditor(dataToSave: string){
     let previous_config_map = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
-    this.isUserEditing = false;    
+    this.isUserEditing = false;
     this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = dataToSave;
     this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex]).subscribe(data => {
       if (data){
         this.configMapsModal.updateModal("Success ", "Successfully saved " + data['name'] + " configmap!", "Ok");
-        this.configMapsModal.openModal();  
+        this.configMapsModal.openModal();
       }
     }, error => {
       console.log(error);
       this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = previous_config_map;
-      this.configMapsModal.updateModal("Error ", "Failed to save configmap " + this.activeConfigDataKey + 
+      this.configMapsModal.updateModal("Error ", "Failed to save configmap " + this.activeConfigDataKey +
                                        ". REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
       this.configMapsModal.openModal();
     });

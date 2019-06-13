@@ -48,7 +48,9 @@ function setup_sdk(){
   pushd /opt > /dev/null
   rm -rf vsphere-automation-sdk-python
   git clone https://github.com/vmware/vsphere-automation-sdk-python.git
+  cd vsphere-automation-sdk-python/
   git checkout v6.8.7
+  cd ..
   popd > /dev/null
 }
 

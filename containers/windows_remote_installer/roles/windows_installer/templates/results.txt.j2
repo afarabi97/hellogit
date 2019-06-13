@@ -1,0 +1,6 @@
+{#  This template describes a file that will contain the output of a command 
+    run and the results published in the variable install_results. You would 
+    think the output would be the return value of the PowerShell script, like 
+    the Ansible documentation so strongly implies BUT IT'S NOT! However, The 
+    return value of the PowerShell script is the last line of the stdout.#}
+{{ install_results.stdout_lines | last }}

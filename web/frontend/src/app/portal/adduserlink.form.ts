@@ -1,9 +1,9 @@
 import { FormGroup, ValidationErrors } from '@angular/forms';
 import { HtmlInput } from '../html-elements';
 import { NON_ISO_URL_CONSTRAINT } from '../frontend-constants';
-import { UserLinkInterface } from '../portal.service';
+import { UserLinkInterface } from './portal.service';
 
-export class AddUserLinkForm extends FormGroup {    
+export class AddUserLinkForm extends FormGroup {
 
 
   constructor(links: Array<UserLinkInterface>) {
@@ -17,7 +17,7 @@ export class AddUserLinkForm extends FormGroup {
   }
 
   /**
-   * Check to see if a user link containing an element matching the parameters 
+   * Check to see if a user link containing an element matching the parameters
    * passed in exists.
    * @param param   Name of element to be checked
    * @param val     Value of the element
@@ -27,7 +27,7 @@ export class AddUserLinkForm extends FormGroup {
     for(let link of this.links) {
         if(link[param] === val) {
               return true;
-        } 
+        }
       }
       return false;
   }
@@ -36,7 +36,7 @@ export class AddUserLinkForm extends FormGroup {
    * Validator function for user link names.
    * @param linkForm    Form to be validated.
    * @returns   True if the name is three or more character and no other link
-   * has that name. 
+   * has that name.
    */
   nameValidator = (linkForm: HtmlInput) : ValidationErrors | null => {
     let name = linkForm.value;

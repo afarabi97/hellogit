@@ -1,0 +1,1 @@
+This is a dummy file to ensure the files directory is copied to the container.

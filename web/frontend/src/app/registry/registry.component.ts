@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { RegistryService } from '../registry.service';
+import { RegistryService } from './registry.service';
 
 @Component({
   selector: 'app-registry',

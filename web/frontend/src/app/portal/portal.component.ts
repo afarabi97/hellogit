@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PortalService, UserLinkInterface } from '../portal.service';
+import { PortalService, UserLinkInterface } from './portal.service';
 import { Title } from '@angular/platform-browser';
 import { HtmlModalPopUp, ModalType } from '../html-elements';
 import { AddUserLinkForm } from './adduserlink.form';

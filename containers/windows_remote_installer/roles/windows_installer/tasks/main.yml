@@ -1,0 +1,64 @@
+# Tasks to be run on a container capable of remotely managing Windows. Will 
+# create a temp directory on the Windows machine, copy the self-extracting
+# archive containing the agent installers and scripts to install or remove them.
+# Will install or remove the agents and then remove the temp directory.
+# Writes the return value of the Windows install/uninstall script to a file.
+---
+- name: Create Windows Directory
+  win_file: 
+    path: "{{ install_target_dir }}"
+    state: directory
+  tags:
+  - install
+  - uninstall
+
+- name: Copy Installer Archive
+  win_copy:
+    src: "{{ archive_name }}"
+    dest: "{{ install_target_dir }}\\{{ archive_name }}"
+    force: yes
+  tags:
+  - install
+  - uninstall
+
+- name: Unzip Archive
+  win_shell : ".\\{{ archive_name }}"
+  args:
+    chdir: "{{ install_target_dir }}"
+  tags:
+  - install
+  - uninstall
+
+- name: Install Agents
+  win_shell : ".\\{{ install_script }}"
+  args:
+    chdir: "{{ install_target_dir }}"
+  register: install_results
+  tags:
+  - install
+
+- name: Remove Agents
+  win_shell : ".\\{{ uninstall_script }}"
+  args:
+    chdir: "{{ install_target_dir }}"
+  register: install_results
+  tags:
+  - uninstall
+
+- name: Save Results in File
+  template:
+    src: results.txt.j2
+    dest: "{{ playbook_dir}}/results.txt"
+  delegate_to: localhost
+  run_once: yes
+  tags:
+    - install
+    - uninstall
+
+- name: Remove Installation Files
+  win_file: 
+    path: "{{ install_target_dir }}"
+    state: absent
+  tags:
+  - install
+  - uninstall

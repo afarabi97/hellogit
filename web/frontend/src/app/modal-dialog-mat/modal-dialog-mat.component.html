@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>{{ title | capitalizeFirst }}</h2>
+<div mat-dialog-content [formGroup]="dialogForm">
+  <p>{{ instructions }}</p>
+  <ng-container *ngFor="let control of objectValues(dialogForm.controls)">
+    <mat-form-field *ngIf="isTextInput(control)">
+      <mat-label>{{ control.label }}</mat-label>
+      <input matInput [formControl]="control" matTooltip="{{ control.tooltip }}">
+    </mat-form-field>
+    <mat-form-field *ngIf="isTextArea(control)">
+      <mat-label>{{ control.label }}</mat-label>
+      <textarea matInput [formControl]="control" matTooltip="{{ control.tooltip }}" rows="10"></textarea>
+    </mat-form-field>
+    <mat-form-field *ngIf="isPasswordInput(control)">
+      <mat-label>{{ control.label }}</mat-label>
+      <input matInput [formControl]="control" matTooltip="{{ control.tooltip }}" type="password">
+    </mat-form-field>
+    <mat-error >{{ getErrorMessage(control) }}</mat-error>
+  </ng-container>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button (click)="submitAndClose()" [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
+</div>

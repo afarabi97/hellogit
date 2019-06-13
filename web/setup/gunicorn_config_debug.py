@@ -5,3 +5,4 @@ workers = 1
 loglevel = "debug"
 accesslog = "-"
 errorlog = "-"
+sendfile = True

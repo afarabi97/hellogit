@@ -2,6 +2,7 @@
 /* @import '~@angular/material/prebuilt-themes/purple-green.css'; */
 /* @import '~@angular/material/prebuilt-themes/pink-bluegrey.css'; */
 @import './theme.scss';
+@import '~material-design-icons/iconfont/material-icons.css';
 
 .mat-error {
     font-size: 1.15em !important;
@@ -9,4 +10,113 @@
 
 .mat-tooltip {
     font-size: 1em !important;
+}
+
+snack-bar-container.mat-snack-bar-container {
+  background-color: #222;
+  color: lightgreen;
+  border: 1px solid black;
+}
+
+.main-content2 {
+  margin-top: 1.5em;
+  width: fit-content;
+  margin: 0 auto;
+
+  .pageInstructions {
+    background-color: #222;
+    padding: 15px 15px 3px 15px;
+  }
+
+  .mat-card-actions .mat-button:first-child, .mat-card-actions .mat-raised-button:first-child {
+    margin-bottom: 10px;
+    margin-left: 15px;
+  }
+
+  .mat-card>.mat-card-actions:last-child {
+    margin-bottom: 0px;
+  }
+
+  .mat-card-actions, .mat-card-content, .mat-card-subtitle {
+    margin-bottom: 0px;
+  }
+
+  .mat-card-header .mat-card-title {
+    font-size: 16px;
+  }
+
+  mat-card {
+    border: 1px solid black;
+    padding: 0px;
+    background-color: #101010;
+    width: 74em;
+    mat-card-title {
+      width: 100%;
+    }
+
+    .btn-primary2 {
+      background-color: #5f9ea0;
+      border-color: #006400;
+    }
+
+    mat-card-header {
+      background-color: black;
+      border-radius: 4px 4px 0px 0px;
+      padding: 12px 0px 0px 0px;
+
+      .mat-card-header-text{
+        width: 100%;
+        button {
+          float: right;
+          margin-bottom: 10px;
+        }
+      }
+
+    }
+
+    mat-card-actions {
+      background-color: black;
+      border-radius: 0px 0px 4px 4px;
+      padding: 12px 0px 0px 0px;
+      margin: 0px 0px 0px 0px;
+
+      .btn-danger2 {
+        background-color: #8b0000;
+        border-color: #8b0000;
+        margin-right: 16px;
+      }
+
+      button {
+        margin-bottom: 10px;
+        margin-left: 15px;
+      }
+    }
+
+    mat-card-content {
+      padding: 16px;
+      background-color: #222;
+
+      .mat-paginator-outer-container {
+        background-color: #222;
+      }
+
+      table {
+        background-color: #222;
+        width: 100%;
+        th {
+          font-weight: bold;
+          font-size: 13px;
+          color: white;
+        }
+
+        .mat-paginator-outer-container {
+          background-color: #313131;
+        }
+
+        table {
+          background-color: #313131;
+        }
+      }
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { PcapService } from '../pcap.service';
+import { PcapService } from './pcap.service';
 import { Title } from '@angular/platform-browser';
 import { HtmlModalPopUp } from '../html-elements';
 import { ModalLoadingComponent } from '../modal-loading/modal-loading.component';
@@ -25,7 +25,7 @@ export class PcapFormComponent implements OnInit {
   private loadingDialog: ModalLoadingComponent;
 
   constructor(private pcapSrv: PcapService,
-              private title: Title) 
+              private title: Title)
   {
     this.hostname = window.location.hostname;
     this.messageModal = new HtmlModalPopUp('message_modal');
@@ -68,7 +68,7 @@ export class PcapFormComponent implements OnInit {
     this.loadingDialog.openModal()
     this.pcapSrv.uploadPcap(this.pcapToUpload).subscribe(data => {
       //This timeout is put in place to ensure that the modal will hide.
-      //For very small PCAPs its possible to upload them faster than the 
+      //For very small PCAPs its possible to upload them faster than the
       //Loading dialog has time to open thus causing the modal to stay open forever.
       setTimeout(() => {
         this.loadingDialog.hideModal();
@@ -76,7 +76,7 @@ export class PcapFormComponent implements OnInit {
       }, 1000);
     });
   }
-  
+
   openConfirmModal(pcap: Object){
     this.pcapToDelete = pcap['name'];
     this.confirmModal.updateModal('WARNING',
@@ -93,11 +93,11 @@ export class PcapFormComponent implements OnInit {
 
     if(this.showSha1){
       return hashes["sha1"];
-    }      
-    
+    }
+
     if(this.showSha256){
       return hashes["sha256"];
-    }      
+    }
 
     return hashes["md5"];
   }
@@ -110,7 +110,7 @@ export class PcapFormComponent implements OnInit {
 
   showSHA1(){
     this.showSha1 = true;
-    this.showMd5 = false;    
+    this.showMd5 = false;
     this.showSha256 = false;
   }
 

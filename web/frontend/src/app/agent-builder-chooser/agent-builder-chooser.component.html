@@ -1,136 +1,256 @@
-<app-modal-dialog [modal]="messageModal"></app-modal-dialog>
-<app-modal-dialog [modal]="deleteConfigurationModal" (primaryButtonClick)="deleteConfiguration()"></app-modal-dialog>
-<app-modal-loading #loadingDialog modalId="waitForAgentBuilderToComplete"
-  title="Building agent installer. Please wait..."></app-modal-loading>
-<app-agent-installer-add-dialog #addAgentInstaller (primaryButtonClick)="getSavedConfigs()">
-</app-agent-installer-add-dialog>
-<app-ip-target-list-dialog #deployAgentInstaller></app-ip-target-list-dialog>
-<div class="container" id="topheader">
-  <div class="card">
-    <div class="card-header">
-      Agent Builder: Configure, build and download a Windows installer for Winlogbeat and Sysmon agents
-    </div>
-    <div class="card-body">
+<div class="main-content2" >
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Page Instructions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="pageInstructions">
+        <p>
+          This page allows you to build and download a self-extracting archive for installing various monitoring
+          agents on Windows.
+          <br><br>
+          Before filling out the form, make sure you have added all of your nodes to the Kickstart page.
+          When all inputs are valid, the "Build Agent" button will be enabled.
+          <br><br>
+          Note: The checks on this page are only for <i>valid</i> data, not <i>correct</i> data. For example, any
+          valid IP address will work for the "PF Sense Firewall IP", even if it not your actual firewall IP.
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Step 1: Create a Windows installer configuration.
+        <button mat-button class="btn-primary2" (click)="addNewConfiguration()">Add Installer Config</button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="savedConfigs">
 
-      <div class="card" style="margin-bottom: 15px;">
-        <div class="card-body" style="border: 1px solid green;border-radius: 1rem;">
-          <h5>Page Instructions</h5>
-          <p class="card-text">
-            This page allows you to build and download a self-extracting archive for installing various monitoring
-            agents on Windows.
-            <br><br>
-            Before filling out the form, make sure you have added all of your nodes to the Kickstart page.
-            When all inputs are valid, the "Build Agent" button will be enabled.
-            <br><br>
-            Note: The checks on this page are only for <i>valid</i> data, not <i>correct</i> data. For example, any
-            valid IP address will work for the "PF Sense Firewall IP", even if it not your actual firewall IP.
-          </p>
-        </div>
-        <div>
-          <br>
-          <button class="btn btn-primary" name="add_configuration" (click)="addNewConfiguration()"
-            style="float: right;">
-            <i class="icon_plus_alt2"></i>&nbsp;Add Configuration
-          </button>
-        </div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col" style="text-align:center">Select</th>
-              <th scope="col">Configuration Name</th>
-              <th scope="col" style="text-align:center">Firewall IP</th>
-              <th scope="col" style="text-align:center">Sysmon</th>
-              <th scope="col" style="text-align:center">Winlogbeat</th>
-              <th scope="col" style="text-align:center">Winlogbeat Architecture</th>
-              <th scope="col" style="text-align:center">Endgame</th>
-              <th scope="col">Endgame Sensor</th>
-              <th scope="col">Endgame Port</th>
-              <th scope="col" style="text-align:center">Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor='let cfg of savedConfigs' class='card'>
-              <tr>
-                <td style="text-align:center"><input type="radio" name="configGroup" class="md-radio-button"
-                    style="width:25px;height:25px;" (change)="onSelectionChange(cfg)"></td>
-                <td>{{ cfg.config_name }}</td>
-                <td>{{ cfg.pf_sense_ip }}</td>
-                <td style="text-align:center">
-                  <div *ngIf="cfg.install_sysmon; else sysNo">
-                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
-                  </div>
-                  <ng-template #sysNo>
-                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
-                  </ng-template>
-                </td>
-                <td style="text-align:center">
-                  <div *ngIf="cfg.install_winlogbeat; else wlbNo">
-                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px;">
-                  </div>
-                  <ng-template #wlbNo>
-                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
-                  </ng-template>
-                </td>
-                <td style="text-align:center ">
-                  <div *ngIf="cfg.install_winlogbeat; else wlbarchna">
-                    <div *ngIf="cfg.winlogbeat_arch=='x86_64'; else wlb32bit">64-bit</div>
-                    <ng-template #wlb32bit>32-bit</ng-template>
-                  </div>
-                  <ng-template #wlbarchna>N/A</ng-template>
-                </td>
-                <td style="text-align:center">
-                  <div *ngIf="cfg.install_endgame; else egNo">
-                    <img src="assets/bootstrap/img/icons/green-check.png" style="width:25px;height:25px">
-                  </div>
-                  <ng-template #egNo>
-                    <img src="assets/bootstrap/img/icons/red-x.png" style="width:25px;height:25px;">
-                  </ng-template>
-                </td>
-                <td>
-                  <div *ngIf="cfg.install_endgame; else egSensorNo">{{ cfg.endgame_sensor_name }}</div>
-                  <ng-template #egSensorNo>N/A</ng-template>
-                </td>
-                <td>
-                  <div *ngIf="cfg.install_endgame; else egPortNo">{{ cfg.endgame_port }}</div>
-                  <ng-template #egPortNo>N/A</ng-template>
-                </td>
-                <td style="text-align:center"><button (click)="openConfirmDeleteConfig(cfg)" class="btn btn-danger"><i
-                      class="icon_close_alt2"></i></button></td>
-              </tr>
-            </ng-container>
-          </tbody>
-        </table>
-      </div>
-      <div *ngIf="config_selection!=null && config_selection.install_endgame">
-        <div class="card" style="margin-right: 10px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px">
-          <h6>Endgame Server Credentials</h6>
-          <app-text-input [parentForm]="endgame_credentials" controlName="server_ip"></app-text-input>
-          <app-text-input [parentForm]="endgame_credentials" controlName="user_name"></app-text-input>
-          <app-text-input [parentForm]="endgame_credentials" controlName="password"></app-text-input>
-        </div>
-      </div>
-      <table class="table">
-        <tbody>
-          <tr>
-            <td style="text-align: left">
-              <button class="btn btn-primary" name="save_configuration" (click)="downloadInstaller()"
-                [disabled]="config_selection==null || config_selection.install_endgame && 
-          !(endgame_credentials.server_ip.valid && endgame_credentials.user_name.valid && endgame_credentials.password)">
-                <i class="icon_download"></i> Download Installer
-              </button>
-            </td>
-            <td style="text-align: right">
-              <!--
-              <button class="btn btn-primary" name="deploy_configuration" (click)="deployInstaller()"
-                [disabled]="config_selection==null || config_selection.install_endgame && 
-          !(endgame_credentials.server_ip.valid && endgame_credentials.user_name.valid && endgame_credentials.password)">
-                &nbsp;&nbsp;<i class="icon_cloud-upload_alt"></i>&nbsp;Deploy Installer&nbsp;&nbsp;
-              </button>
-            -->
-            </td>
-          </tr>
-        </tbody>
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>Select</th>
+          <td mat-cell *matCellDef="let config">
+              <mat-radio-button name="configGroup" (change)="onSelectionChange(config)"></mat-radio-button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="config_name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let config">{{ config.config_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="winlog_beat_dest_ip">
+          <th mat-header-cell *matHeaderCellDef>Winlogbeat traffic destination</th>
+          <td mat-cell *matCellDef="let config">{{ getTrafficDest(config) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="system_arch">
+          <th mat-header-cell *matHeaderCellDef>System Arch</th>
+          <td mat-cell *matCellDef="let config">{{ config.system_arch }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="install_sysmon">
+          <th mat-header-cell *matHeaderCellDef>Sysmon</th>
+          <td mat-cell *matCellDef="let cfg">
+            <div *ngIf="cfg.install_sysmon; else sysNo">
+              <i class="material-icons" style="color:lightgreen;">check_circle</i>
+            </div>
+            <ng-template #sysNo>
+              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="install_winlogbeat">
+          <th mat-header-cell *matHeaderCellDef>Winlogbeat</th>
+          <td mat-cell *matCellDef="let cfg">
+            <div *ngIf="cfg.install_winlogbeat; else sysNo">
+              <i class="material-icons" style="color:lightgreen;">check_circle</i>
+            </div>
+            <ng-template #sysNo>
+              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="install_endgame">
+          <th mat-header-cell *matHeaderCellDef>Endgame</th>
+          <td mat-cell *matCellDef="let cfg">
+            <div *ngIf="cfg.install_endgame; else sysNo">
+              <i class="material-icons" style="color:lightgreen;">check_circle</i>
+            </div>
+            <ng-template #sysNo>
+              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="endgame_sensor_name">
+          <th mat-header-cell *matHeaderCellDef>Endgame Sensor</th>
+          <td mat-cell *matCellDef="let config">{{ config.endgame_sensor_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let config">
+            <button mat-button (click)="openConfirmDeleteConfig(config)">
+              <i class="material-icons" style="color:red;">delete</i>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsForInstallerConfigs"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnsForInstallerConfigs;"></tr>
       </table>
-    </div>
-  </div>
+      <mat-paginator #installerConfigPaginator [pageSize]="5"
+                      [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-button class="btn-primary2" (click)="downloadInstaller()"
+                [disabled]="config_selection==null || is_downloading">
+        <i class="material-icons">cloud_download</i> Download Installer
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  <br>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Step 2 (optional): Add remote targets
+        <button mat-button class="btn-primary2" (click)="openAddNewTargetConfigModal()">Add Target Config</button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="savedTargetConfigs" multiTemplateDataRows>
+
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>Select</th>
+          <td mat-cell *matCellDef="let config">
+            <mat-radio-button name="targetGroup" (change)="onTargetSelectionChange(config)"></mat-radio-button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let config">
+            <a (click)="toggleTargetDropDown(config)">
+              {{ config.name }}
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dns_server">
+          <th mat-header-cell *matHeaderCellDef>DNS Server</th>
+          <td mat-cell *matCellDef="let config">{{ config.dns_server }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="key_controller">
+          <th mat-header-cell *matHeaderCellDef>Key Controller</th>
+          <td mat-cell *matCellDef="let config">{{ config.key_controller }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="admin_server">
+          <th mat-header-cell *matHeaderCellDef>Admin Server</th>
+          <td mat-cell *matCellDef="let config">{{ config.admin_server }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="domain_name">
+          <th mat-header-cell *matHeaderCellDef>Domain Name</th>
+          <td mat-cell *matCellDef="let config">{{ config.domain_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let config">
+            <button mat-button (click)="openConfirmDeleteTarget(config)">
+              <i class="material-icons" style="color:red;">delete</i>
+            </button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let config" [attr.colspan]="columnsForTargetConfigs.length">
+            <div>
+              <button mat-button class="btn-primary2" style="margin-top: 10px;"
+                      (click)="openAddWindowsHostModal(config)">Add Windows Hosts</button>
+              <table mat-table [dataSource]="hostsToShow" multiTemplateDataRows>
+
+                <ng-container matColumnDef="hostname">
+                  <th mat-header-cell *matHeaderCellDef>Hostname</th>
+                  <td mat-cell *matCellDef="let host">{{ host.hostname }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="state">
+                  <th mat-header-cell *matHeaderCellDef>State</th>
+                  <td mat-cell *matCellDef="let host">{{ host.state }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="last_state_change">
+                  <th mat-header-cell *matHeaderCellDef>Last State Change</th>
+                  <td mat-cell *matCellDef="let host">{{ host.last_state_change }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let host">
+                      <!-- The menu for this button is defined at the bottom of this html page. -->
+                      <button mat-icon-button
+                        (click)="$event.stopPropagation()"
+                        [matMenuTriggerFor]="menu"
+                        [matMenuTriggerData]="{ config: config, target: host }">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columnsForHosts"></tr>
+                <tr mat-row *matRowDef="let row; columns: columnsForHosts;"></tr>
+              </table>
+              <mat-paginator #hostConfigPaginator [pageSize]="10"
+                             [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columnsForTargetConfigs"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnsForTargetConfigs;"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" [hidden]="!isHostVisible(row)"></tr>
+      </table>
+      <mat-paginator #targetConfigPaginator [pageSize]="5"
+                     [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button class="btn-primary2" (click)="openDeployInstallerModal('install')"
+                         [disabled]="(config_selection==null || target_selection==null)">
+        <i class="material-icons">cloud_upload</i> Deploy Installer
+      </button>
+      <button mat-button class="btn-primary2" class="btn-danger2" style="float: right;"
+        [disabled]="target_selection==null" (click)="openDeployInstallerModal('uninstall')">
+        <i class="material-icons">delete_sweep</i> Batch Uninstall
+      </button>
+    </mat-card-actions>
+  </mat-card>
 </div>
+
+<mat-menu #menu="matMenu">
+  <ng-template matMenuContent let-target="target" let-config="config">
+    <button mat-menu-item
+            [disabled]="target_selection==null"
+            matTooltip="Reinstall Agent"
+            (click)="openDeployInstallerModal('reinstall', target)">
+      <mat-icon>sync</mat-icon><span>Reinstall Agent</span>
+    </button>
+
+    <button mat-menu-item
+            [disabled]="target_selection==null"
+            (click)="openDeployInstallerModal('uninstall', target)">
+      <mat-icon>delete</mat-icon><span>Uninstall Agent</span>
+    </button>
+
+    <button mat-menu-item
+            (click)="openRemoveHostModal(config, target)">
+      <mat-icon>delete_forever</mat-icon><span>Remove Agent entry</span>
+    </button>
+  </ng-template>
+</mat-menu>

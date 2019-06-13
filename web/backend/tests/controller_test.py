@@ -64,7 +64,7 @@ class TestAgentBuilder(BaseTestCase):
         response = self.session.post(
             self.base_url + '/api/generate_windows_installer', 
             json = {
-                'pf_sense_ip': '172.16.72.2', 
+                'winlog_beat_dest_ip': '172.16.72.2', 
                 'winlogbeat_port': '123',
                 'install_winlogbeat': False,
                 'install_sysmon': True })

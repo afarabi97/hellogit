@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HealthServiceService } from '../health-service.service';
+import { HealthServiceService } from './health-service.service';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { HtmlModalPopUp, ModalType } from '../html-elements';
@@ -13,7 +13,7 @@ declare var $: any;
 })
 export class SystemHealthComponent implements OnInit {
   podsStatuses: Array<Object>;
-  nodeStatuses: Array<Object>;  
+  nodeStatuses: Array<Object>;
   totals: Object;
 
   isNodeResourcesVisible: Array<boolean>;
@@ -21,7 +21,7 @@ export class SystemHealthComponent implements OnInit {
   podDescribeModal: HtmlModalPopUp;
   activeIPAddress: string;
 
-  constructor(private title: Title, private healthSrv: HealthServiceService, private router: Router) { 
+  constructor(private title: Title, private healthSrv: HealthServiceService, private router: Router) {
     this.podDescribeModal = new HtmlModalPopUp('pod_describe');
     this.activeIPAddress = "";
     this.isNodeResourcesVisible = new Array();
@@ -37,9 +37,9 @@ export class SystemHealthComponent implements OnInit {
       this.isPodResourcesVisible = new Array(this.podsStatuses.length).fill(false);
       this.totals = data['totals'] as Object
       if (this.nodeStatuses && this.nodeStatuses.length > 0) {
-        this.activeIPAddress = this.nodeStatuses[0]['metadata']['public_ip'];        
+        this.activeIPAddress = this.nodeStatuses[0]['metadata']['public_ip'];
       }
-    });    
+    });
 
     setTimeout(() => {
       this.updateTooltips();
@@ -59,7 +59,7 @@ export class SystemHealthComponent implements OnInit {
       this.activeIPAddress = ipAddress;
     } else {
       this.activeIPAddress = null;
-    }    
+    }
   }
 
   isActiveNodeTab(ipAddress: string): boolean{
@@ -83,7 +83,7 @@ export class SystemHealthComponent implements OnInit {
   }
 
   describePod(podMetadata: any) {
-    this.healthSrv.describePod(podMetadata.name, podMetadata.namespace).subscribe(data => {      
+    this.healthSrv.describePod(podMetadata.name, podMetadata.namespace).subscribe(data => {
       this.podDescribeModal.updateModal(podMetadata.name, data['stdout'], 'Close', undefined, ModalType.code);
       this.podDescribeModal.openModal();
     });

@@ -1,16 +1,14 @@
 # Download an Endgame agent installer
 ---
 - name: Download Endgame Installer
-  script: 
+  script:
     getEndgameSensorSoftware.py
       --server "{{ endgame_server }}"
       --username "{{ endgame_user }}"
       --password "{{ endgame_password }}"
-      --transceiver "{{ firewall_url }}:{{ endgame_port }}"
-      --name "{{ endgame_config_name }}"
       --id "{{ endgame_sensor_id }}"
-      {{ '--vdi' if endgame_vdi | upper == 'TRUE' else '' }}
-      {{ '--dissolvable' if endgame_dissolvable | upper == 'TRUE' else '' }}
+      {{ '--vdi' if endgame_vdi | default('FALSE') | upper == 'TRUE' else '' }}
+      {{ '--dissolvable' if endgame_dissolvable | default('FALSE') | upper == 'TRUE' else '' }}
   args:
     chdir: "{{ role_path }}/files"
     executable: python
@@ -19,9 +17,9 @@
   register: endgame_installer_output
 
 - name: Set Endgame API Key
-  set_fact: 
+  set_fact:
     endgame_api_key: "{{ endgame_installer_output.stdout_lines[0] }}"
 
 - name: Publish Endgame Installer Name
-  set_fact: 
+  set_fact:
     endgame_installer: "{{ endgame_installer_output.stdout_lines[1] }}"
