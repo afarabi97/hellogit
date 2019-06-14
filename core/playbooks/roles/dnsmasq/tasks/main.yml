@@ -22,10 +22,10 @@
       ansible_nodename == inventory_hostname
 
 - import_tasks: 05_configure_dnsmasq.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - import_tasks: 10_update_dns.yml
-  when: inventory_hostname not in groups['master-server']
+  when: inventory_hostname not in groups['master_server']
   tags:
     - update-dns
 

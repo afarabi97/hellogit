@@ -94,7 +94,7 @@ kit:
         - "DISK"
         - "ETHERNET"
     test1-server1.lan:
-      type: "master-server" # Can be controller, sensor, or server
+      type: "master_server" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
       networking:
         nics:
@@ -206,7 +206,7 @@ kit:
         - "DISK"
         - "ETHERNET"
     test1-sensor2.lan:
-      type: "remote-sensor" # Can be controller, sensor, or server
+      type: "remote_sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
       networking:
         nics:

@@ -85,6 +85,6 @@
     deployment_name: "{{ item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '') }}-bro"
     bro_cluster: "{{ hostvars[item].bro_cluster }}"
   loop: "{{ groups['bro'] }}"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 ...

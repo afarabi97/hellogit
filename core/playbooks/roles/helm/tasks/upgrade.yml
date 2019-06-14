@@ -7,7 +7,7 @@
   - meta: end_play
   when:
     - OLD_VERSION.stdout | version(helm_version,'>=')
-    - inventory_hostname in groups['master-server']
+    - inventory_hostname in groups['master_server']
 
 - name: Downloading and Unpacking Helm
   unarchive:
@@ -19,4 +19,4 @@
 
 - name: Initializing Tiller
   command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']

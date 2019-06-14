@@ -12,7 +12,7 @@
   tasks:
     - add_host:
         hostname: "{{ item }}"
-        groups: master-server
+        groups: master_server
       when: hostvars[item].is_master | default(false)
       with_items: "{{ groups['all'] }}"
 
@@ -22,12 +22,12 @@
   tasks:
     - add_host:
         hostname: "{{ item }}"
-        groups: remote-sensors
+        groups: remote_sensors
       when: hostvars[item].is_remote | default(false)
       with_items: "{{ groups['all'] }}"
 
 - name: Preflight for adding new node
-  hosts: master-server
+  hosts: master_server
   any_errors_fatal: true
   gather_facts: no
   tasks:
@@ -120,7 +120,7 @@
         name: openvpn-client.service
         enabled: no
         state: stopped
-      when: inventory_hostname in groups['remote-sensors']
+      when: inventory_hostname in groups['remote_sensors']
       ignore_errors: yes
   roles:
     - dnsmasq
@@ -182,8 +182,8 @@
 
 - name: OpenVPN
   hosts:
-    - master-server
-    - remote-sensors
+    - master_server
+    - remote_sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -207,7 +207,7 @@
     - crio
 
 - name: Configure kube master
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -220,7 +220,7 @@
 
 - name: Configure kube nodes
   hosts:
-    - "!master-server"
+    - "!master_server"
     - servers
     - sensors
   gather_facts: no
@@ -262,7 +262,7 @@
 
 - name: Deploy Logstash
   hosts:
-    - master-server
+    - master_server
     - logstash
   gather_facts: no
   any_errors_fatal: true
@@ -274,7 +274,7 @@
     - logstash
 
 - name: Deploy Kibana
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -285,7 +285,7 @@
     - kibana
 
 - name: Deploy metricbeats
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -297,7 +297,7 @@
 
 - name: Deploy Bro
   hosts:
-    - master-server
+    - master_server
     - bro
   gather_facts: no
   any_errors_fatal: true
@@ -323,7 +323,7 @@
 
 - name: Deploy Suricata
   hosts:
-    - master-server
+    - master_server
     - suricata
   gather_facts: no
   any_errors_fatal: true
@@ -336,7 +336,7 @@
 
 - name: Setup Log Management
   hosts:
-    - master-server
+    - master_server
     - bro
     - suricata
   gather_facts: no
@@ -351,7 +351,7 @@
     - suricata
 
 - name: Enable Endgame script on master server
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -362,7 +362,7 @@
     - endgame
 
 - name: Enable janitor script on master server
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -376,7 +376,7 @@
 - name: Mumble Server
   any_errors_fatal: true
   hosts:
-    - master-server
+    - master_server
   roles:
     - mumble
   tags: mumble

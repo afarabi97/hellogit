@@ -11,19 +11,19 @@
 
 - name: Creating Tiller Service Account
   command: kubectl -n kube-system create serviceaccount tiller
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Creating Kube Cluster Role Binding
   command: kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Initiallizing Tiller
   command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200 --replicas 2 --wait
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Patching Tiller
   command: kubectl patch svc tiller-deploy -n kube-system -p '{"spec":{"type":"LoadBalancer"}}'
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Removing Default Helm Repo
   shell: helm repo remove stable

@@ -17,7 +17,7 @@
     shell: "kubectl get all --all-namespaces > {{ log_dir }}/{{ inventory_hostname_short }}_kubectl_get.log"
     args:
       executable: /bin/bash
-    when: inventory_hostname in groups['master-server']
+    when: inventory_hostname in groups['master_server']
     changed_when: False
     ignore_errors: yes
 
@@ -25,7 +25,7 @@
     shell: "kubectl describe all --all-namespaces > {{ log_dir }}/{{ inventory_hostname_short }}_kubectl_describe.log"
     args:
       executable: /bin/bash
-    when: inventory_hostname in groups['master-server']
+    when: inventory_hostname in groups['master_server']
     changed_when: False
     ignore_errors: yes
 

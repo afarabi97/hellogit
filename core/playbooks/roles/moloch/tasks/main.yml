@@ -1,13 +1,13 @@
 ---
 
 - include_tasks: 01_prepare.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - block:
   - include_tasks: 05_files.yml
 
   - include_tasks: 20_setup.yml
-    when: inventory_hostname in groups['master-server']
+    when: inventory_hostname in groups['master_server']
     tags:
       - moloch-setup
   when: groups['moloch'] | length > 0

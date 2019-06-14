@@ -5,7 +5,7 @@
 
 - name: deploy chartmuseum
   command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Wait for service to be ready
   wait_for:
@@ -22,7 +22,7 @@
   copy:
     src: /var/www/html/offlinerepo/charts
     dest: /tmp/
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Get files on remote machine
   find:
@@ -30,12 +30,12 @@
     patterns: '*.tgz'
     recurse: no
   register: charts
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: load charts
   command:  "helm push {{ item.path }} chartmuseum"
   with_items: "{{ charts.files }}"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: update helm repo
   command: helm repo update

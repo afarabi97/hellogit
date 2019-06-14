@@ -3,7 +3,7 @@
     errors
     health
     kubernetes cluster.local
-    proxy . {{ hostvars[groups['master-server'][0]].management_ipv4 }}
+    proxy . {{ hostvars[groups['master_server'][0]].management_ipv4 }}
     cache 30
     loop
     reload

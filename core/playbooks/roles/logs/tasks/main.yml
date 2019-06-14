@@ -5,7 +5,7 @@
     loggers: "{{ groups['bro'] | union(groups['suricata']) }}"
 
 - include_tasks: 01_prepare.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - block:
   - name: Create directories
@@ -20,10 +20,10 @@
     when: inventory_hostname in loggers
 
   - include_tasks: 06_files_master.yml
-    when: inventory_hostname in groups['master-server']
+    when: inventory_hostname in groups['master_server']
 
   - include_tasks: 20_setup.yml
-    when: inventory_hostname in groups['master-server']
+    when: inventory_hostname in groups['master_server']
   when: loggers | length > 0
 
 ...

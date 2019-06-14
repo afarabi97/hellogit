@@ -17,7 +17,7 @@
     - https
     - dns
     - ntp
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Allow ports thru firewall
   firewalld:
@@ -29,7 +29,7 @@
     - 6443/tcp
     - 7472/tcp
     - 1194/tcp
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Allow Moloch Viewer thru firewall
   firewalld:

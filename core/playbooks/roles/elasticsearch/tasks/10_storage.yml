@@ -10,7 +10,7 @@
       sleep 1;
     done;
     sleep 5;
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Install lsof
   yum:

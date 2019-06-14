@@ -2,7 +2,7 @@
 
 class KickstartConfiguration():
     """
-    Represents a single node object such as a controller, master-server, server, sensor or remote-sensor
+    Represents a single node object such as a controller, master_server, server, sensor or remote-sensor
 
     Attributes:    
         gateway (str): See frontend help page

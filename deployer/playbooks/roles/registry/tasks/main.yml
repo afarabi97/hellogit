@@ -22,7 +22,7 @@
     mode: 0644
   register: docker_dist_config_result
 
-- name: Registry Firewall Port
+- name: Register Firewall Port
   firewalld:
     port: "{{ firewall_port }}/tcp"
     permanent: true
@@ -86,7 +86,8 @@
 
 - name: Download docker container images from internet
   docker_image:
-    name: "{{item}}"
+    name: "{{ item }}"
+    source: pull
   with_items:
     - "{{ kube_images }}"
   tags: pull-docker-images
@@ -101,7 +102,7 @@
   docker_image:
     name: "localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}"
     push: yes
-    pull: no
+    source: local
   with_items:
     - "{{ kube_images }}"
   tags: pull-docker-images

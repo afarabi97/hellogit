@@ -91,7 +91,7 @@ kit:
         - "DISK"
         - "ETHERNET"
     test4-server1.lan:
-      type: "master-server" # Can be controller, sensor, or server
+      type: "master_server" # Can be controller, sensor, or server
       vm_guestos: CENTOS_64
       networking:
         nics:

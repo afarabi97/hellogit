@@ -5,7 +5,7 @@
     src: 'chrony.conf.j2'
     dest: "{{ chrony_conf_file }}"
   notify: 'restart chrony'
-  when: inventory_hostname not in groups['master-server']
+  when: inventory_hostname not in groups['master_server']
 
 - name: 'Configure Server Chrony'
   become: yes
@@ -13,6 +13,6 @@
     src: 'chrony-server.conf.j2'
     dest: "{{ chrony_conf_file }}"
   notify: 'restart chrony'
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - meta: flush_handlers

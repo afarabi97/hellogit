@@ -3,6 +3,7 @@
 *.pyc
 *.orig
 *.swp
+.fuse*
 node_modules
 tfp-env
 .remote-sync.json

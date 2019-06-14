@@ -2,7 +2,7 @@
 
 - name: Override DNS if not provided
   set_fact:
-    dns_ip: "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
+    dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
   when: dns_ip is not defined or dns_ip is none
 
 - name: Kube | Get kube-dns IP
@@ -19,7 +19,7 @@
     path: /etc/dnsmasq.conf
     regexp: '^server='
     line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Bump the dnsmasq service
   systemd:

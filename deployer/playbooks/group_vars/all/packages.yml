@@ -1,6 +1,6 @@
 ---
 
-ansible_ver: "2.7.5"
+ansible_ver: "2.8.0"
 
 group_packages:
   - base

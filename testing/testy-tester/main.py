@@ -42,7 +42,7 @@ class Runner:
         self.args = None  # type: Namespace
         self.di2e_password = None  # type: str
         self.di2e_username = None  # type: str
-        self.kit = None  # type: Kit        
+        self.kit = None  # type: Kit
         self.configuration = None  # type: Dict
         self.controller_node = None  # type: Node
         self.vsphere_client = None  # type: VsphereClient
@@ -71,7 +71,7 @@ class Runner:
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
         parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
-        parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')        
+        parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')
         parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
@@ -114,8 +114,8 @@ class Runner:
         with open(self.args.filename, 'r') as kit_schema:
             try:
 
-                self.configuration = yaml.load(kit_schema)                
-                
+                self.configuration = yaml.load(kit_schema)
+
                 self.host_configuration = HostConfiguration(self.configuration["host_configuration"]["vcenter"]["ip_address"],
                 self.configuration["host_configuration"]["vcenter"]["cluster_name"],
                 self.configuration["host_configuration"]["vcenter"]["datacenter"],
@@ -124,15 +124,15 @@ class Runner:
                 self.configuration["host_configuration"]["iso_folder_path"])  # type: HostConfiguration
 
                 self.host_configuration.set_storage_options(self.configuration["host_configuration"]["storage"]["datastore"],
-                self.configuration["host_configuration"]["storage"]["folder"])                
-                
-                # Returns a list of kit objects
-                self.kit = transform(self.configuration["kit"])  # type: Kit                
+                self.configuration["host_configuration"]["storage"]["folder"])
 
-                if self.args.tfplenum_commit_hash is not None:                    
+                # Returns a list of kit objects
+                self.kit = transform(self.configuration["kit"])  # type: Kit
+
+                if self.args.tfplenum_commit_hash is not None:
                     self.kit.set_branch_name("custom")
-                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)                
-                    
+                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)
+
             except yaml.YAMLError as exc:
                 print(exc)
 
@@ -252,27 +252,27 @@ class Runner:
             pass
         self.controller_modifier()
 
-    
+
     def _update_remote_sensors(self, kit: Kit):
         """
         Change the portgroup for remote sensor
 
-        :param 
+        :param
         """
 
-        remote_sensors = get_nodes(kit, "remote-sensor")  # type: list
+        remote_sensors = get_nodes(kit, "remote_sensor")  # type: list
 
         for node in remote_sensors:
-            
+
             logging.info("Updating " + node.hostname + " networking")
             change_remote_sensor_ip(kit, node)
-            vm = VirtualMachine(self.vsphere_client, node, self.host_configuration)            
+            vm = VirtualMachine(self.vsphere_client, node, self.host_configuration)
             vm.power_off()
             change_network_port_group(self.host_configuration, node, self.kit.remote_sensor_portgroup)
             vm.power_on()
-                
+
         test_vms_up_and_alive(kit, kit.nodes, 30)
-        
+
 
     def _run_kickstart(self, kit: Kit):
         """
@@ -320,16 +320,16 @@ class Runner:
         logging.info("Run TFPlenum configuration")
         runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
         runner.run_tfplenum_configuration(kit)
-        
+
         remote_sensor_node = False
         for node in kit.get_nodes():
-            if node.type == 'remote-sensor':
+            if node.type == 'remote_sensor':
                 remote_sensor_node = True
 
         if remote_sensor_node:
             logging.info("Changing portgroup for remote sensors.")
             self._update_remote_sensors(kit)
-                
+
 
     def _run_add_node(self, kit: Kit):
         """
@@ -366,8 +366,8 @@ class Runner:
         """
         if not self.args.run_integration_tests and not self.args.run_all:
             return
-        
-        master_node = get_node(kit, "master-server")
+
+        master_node = get_node(kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
         perform_integration_tests(self.controller_node, kit.password)
 
@@ -384,7 +384,7 @@ class Runner:
         self._power_off_vms(vms)
         self._power_on_vms(vms)
         test_vms_up_and_alive(kit, kit.nodes, 30)
-        master_node = get_node(kit, "master-server")
+        master_node = get_node(kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
 
     def _cleanup(self, kit: Kit):

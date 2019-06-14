@@ -95,7 +95,7 @@ def get_nodes(kit: Kit, node_type: str="sensor") -> Node:
     nodes = []  # type: list
     for node in kit.nodes:
         if node.type == node_type:
-            nodes.append(node)            
+            nodes.append(node)
 
     return nodes
 
@@ -161,7 +161,7 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
         reports_destination=""
     reports_source = "/opt/tfplenum/testing/playbooks/reports"
     cmd_to_list_reports = ("for i in " + reports_source + "/*; do echo $i; done")
-    cmd_to_mkdir = ("mkdir -p reports")    
+    cmd_to_mkdir = ("mkdir -p reports")
     cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
         export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
@@ -226,12 +226,12 @@ def get_interface_name(kit: Kit) -> None:
     :return:
     """
     for node in kit:
-        for interface in node.interfaces:            
+        for interface in node.interfaces:
             with FabricConnectionWrapper(node.username,
                         node.password,
                         node.management_interface.ip_address) as client:
-                
-                cmd = "ip link show | grep -B 1 " + interface.mac_address + " | tr '\n' ' ' | awk '{ print $2 }'"                
+
+                cmd = "ip link show | grep -B 1 " + interface.mac_address + " | tr '\n' ' ' | awk '{ print $2 }'"
                 interface_name_result = client.run(cmd, shell=True)
                 interface_name = interface_name_result.stdout.strip()  # type: str
                 interface_name = interface_name.replace(':','')  # type: str
@@ -254,7 +254,7 @@ def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
         cmd = "/bin/nmcli con mod 'System " + node.management_interface.interface_name + "' ipv4.addresses " \
             + new_management_ip + "/24 ipv4.gateway " + new_gateway_ip
         client.run(cmd, shell=True)
-        
+
     node.management_interface.ip_address = new_management_ip
 
     for interface in node.interfaces:
@@ -330,10 +330,10 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         if node.type != "controller":
             node.set_boot_drive(vms[v]['boot_drive_name'])
 
-        if node.type == "remote-sensor":
+        if node.type == "remote_sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
-        elif node.type == "server" or node.type == "master-server":
-            node.set_es_drives(vms[v]['es_drives'])        
+        elif node.type == "server" or node.type == "master_server":
+            node.set_es_drives(vms[v]['es_drives'])
         elif node.type == "sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
 
@@ -370,13 +370,13 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     if 'source_repo' not in configuration["kit_configuration"]:
         kit.set_source_repo("labrepo")
     else:
-        kit.set_source_repo(configuration["kit_configuration"]['source_repo'])    
+        kit.set_source_repo(configuration["kit_configuration"]['source_repo'])
 
     if 'remote_sensor_portgroup' not in configuration:
         kit.set_remote_sensor_portgroup(None)
     else:
         kit.set_remote_sensor_portgroup(configuration["remote_sensor_portgroup"])
-    
+
     if 'remote_sensor_network' not in configuration:
         kit.set_remote_sensor_network(None)
     else:
@@ -387,8 +387,8 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     if 'external_nets' not in configuration["kit_configuration"]:
         kit.set_external_nets(None)
     else:
-        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])        
-    
+        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
+
     vms = configuration["VMs"]  # type: dict
     # Add list of nodes to kit
     kit.set_nodes(_transform_nodes(vms, kit))

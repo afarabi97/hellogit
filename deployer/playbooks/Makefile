@@ -41,5 +41,5 @@ bootstrap:
 	@echo $(RHEL_SOURCE_REPO)
 
 	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ RHEL_SOURCE_REPO: "None" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap,\
-	ansible-playbook $(PLAYBOOK) -i localhost -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap)
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "None" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap),\
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap))

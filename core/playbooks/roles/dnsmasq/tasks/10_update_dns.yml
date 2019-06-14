@@ -13,7 +13,7 @@
 
 - name: Override DNS if not provided
   set_fact:
-    dns_ip: "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
+    dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
   when: dns_ip is not defined or dns_ip is none
 
 - name: Get management interface device id

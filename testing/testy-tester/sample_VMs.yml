@@ -1,10 +1,10 @@
 ---
 host_configuration:
   vcenter:
-    ip_address: "172.16.20.106"    
-    cluster_name: "SIL_Dev-Cluster"    
+    ip_address: "172.16.20.106"
+    cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
-  storage:    
+  storage:
     datastore: "NVMe Storage"
     folder: # "Testing" # CHANGE ME
   iso_folder_path: "/root/"
@@ -14,7 +14,7 @@ kit:
   # Required when a remote sensor is present
   # remote_sensor_portgroup: "73 Portgroup"
   # remote_sensor_network: "172.16.73.0"
-  
+
   kickstart_configuration:
       netmask: "255.255.255.0"
 
@@ -37,7 +37,7 @@ kit:
 
     # This is optional - you can fill it in if you need to
     external_nets:
-          
+
   VMs:
     # Note: You should not have more than one of these
     # testcontroller.lan: # CHANGE ME
@@ -47,7 +47,7 @@ kit:
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
       # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
-      vm_guestos: RHEL_7_64        
+      vm_guestos: RHEL_7_64
       vm_to_clone: # "TestToSan" # CHANGE ME
       domain: 'lan'
       gateway: # "172.16.x.1" # CHANGE ME
@@ -94,7 +94,7 @@ kit:
         - "DISK"
         - "ETHERNET"
     # server1.lan: # CHANGE ME
-      type: "master-server" # Can be controller, sensor, or server
+      type: "master_server" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
       networking:
         nics:
@@ -206,7 +206,7 @@ kit:
         - "DISK"
         - "ETHERNET"
     # testsensor2.lan: # CHANGE ME
-      type: "remote-sensor" # Can be controller, sensor, or server
+      type: "remote_sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
       networking:
         nics:

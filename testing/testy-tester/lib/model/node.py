@@ -21,8 +21,7 @@ from lib.model.host_configuration import HostConfiguration
 
 class Interface(object):
     """
-        Represents a single node object such as a controller, master-server, server, sensor or remote-sensor
-
+        Represents a single node object such as a controller, master_server, server, sensor or remote_sensor
         Attributes:
             name: Name of interface from yaml
             interface_type: Interface Type (manual)
@@ -151,9 +150,9 @@ class NodeDisk(object):
 class Node(object):
 
     #A static list of valid node types that are allowed
-    valid_node_types = ("master-server", "remote-sensor", "controller", "sensor", "server")
-    valid_sensor_types = ("remote-sensor", "sensor")
-    valid_server_types = ("master-server", "server")
+    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server")
+    valid_sensor_types = ("remote_sensor", "sensor")
+    valid_server_types = ("master_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
 
 
@@ -164,7 +163,7 @@ class Node(object):
         hostname: The hostname of the node
         type: The type of the node controller, server or sensor
         username: Username for login
-        password: Password for login        
+        password: Password for login
         vm_to_clone: The name of the virtual machine to clone
         interfaces: List of Interface objects
         cpu_sockets: The number of CPU sockets the VM has
@@ -200,7 +199,7 @@ class Node(object):
             exit(1)
 
         self.username = None
-        self.password = None       
+        self.password = None
         self.vm_to_clone = None
         self.guestos = None
         self.cpu_sockets = None
@@ -614,7 +613,7 @@ class VirtualMachine:
         macs = OrderedDict()  # type: OrderedDict
 
         # nics is a dict with key str (interface name) and value is com.vmware.vcenter.vm.hardware_client.Ethernet.info
-        self.set_vm_info(self.vm)        
+        self.set_vm_info(self.vm)
         for interface, info in self.vm_info.nics.items():
             macs[info.label] = info.mac_address
 

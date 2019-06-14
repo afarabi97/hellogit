@@ -167,7 +167,7 @@ all:
   children:
 
     # Any host in this group will be eligible for use in the elasticsearch cluster.
-    # By default this is all hosts except remote-sensors. Keep in mind, just because
+    # By default this is all hosts except remote_sensors. Keep in mind, just because
     # a node is eligible to run Elasticsearch, doesn't mean it will - only that it
     # can. Kubernetes will decide where to place instances based on resource consumption.
     elasticsearch:
@@ -294,8 +294,8 @@ all:
         # For example: Moloch will not try to cluster with other moloch instances
         # nearby. If you have no remote sensors, leave the group defined, but
         #everything after the group name empty. Ex: you could have an inventory
-        #with just "remote-sensors:", but no hosts defined.
-        remote-sensors:
+        #with just "remote_sensors:", but no hosts defined.
+        remote_sensors:
 
     #############################
     # Server Settings           #
@@ -328,7 +328,7 @@ all:
             {% endif %}
             {% endfor %}
 
-        master-server:
+        master_server:
 
     nodes_to_remove:
       # Example: (you need to define your own hosts)

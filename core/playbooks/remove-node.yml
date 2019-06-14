@@ -6,7 +6,7 @@
 
 ---
 - name: Preflight before removing node from k8s cluster
-  hosts: master-server
+  hosts: master_server
   tasks:
     - name: Check nodes to remove
       fail:
@@ -20,8 +20,8 @@
 
     - name: Check if nodes to remove group is empty
       fail:
-        msg: "nodes_to_remove group cannot contain a master-server node"
-      when: item in  groups['master-server']
+        msg: "nodes_to_remove group cannot contain a master_server node"
+      when: item in  groups['master_server']
       with_items: "{{ groups['nodes_to_remove'] }}"
 
     - name: Get current node list
@@ -35,7 +35,7 @@
       with_items: "{{ groups['nodes_to_remove'] }}"
 
 - name: Remove node from cluster
-  hosts: master-server
+  hosts: master_server
   tasks:
     - name: remove-node | Drain node except daemonsets resource
       shell: |
@@ -50,7 +50,7 @@
     - { role: kubernetes/reset }
 
 - name: Delete node from k8s
-  hosts: master-server
+  hosts: master_server
   tasks:
     - name: Delete nodes from k8s cluster
       shell: |

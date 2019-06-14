@@ -293,7 +293,7 @@ class KitSeleniumRunner(SeleniumRunner):
         if node.type not in Node.valid_server_types:
             raise TypeError("Invalid node type. It must be " + str(Node.valid_server_types))
 
-        if node.type == "master-server":
+        if node.type == "master_server":
             self._perform_click_action("is_master_server" + str(index))
 
         for drive_name in node.es_drives:
@@ -404,7 +404,7 @@ class KitSeleniumRunner(SeleniumRunner):
             # Ignore the controller node type here we only care about servers and sensors
             if node.type in Node.valid_server_types or node.type in Node.valid_sensor_types:
                 self._perform_click_action("node_type" + str(index))
-                if node.type == "server" or node.type == "master-server":
+                if node.type == "server" or node.type == "master_server":
                     self._perform_click_action("Server" + str(index))
                     self._fill_out_server_node(index, node)
                 elif node.type == "sensor":

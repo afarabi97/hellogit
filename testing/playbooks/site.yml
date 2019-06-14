@@ -8,10 +8,10 @@
 
 - name: Verify tfplenum has been deployed
   hosts:
-    - master-server
+    - master_server
     - servers
     - sensors
-    - remote-sensors
+    - remote_sensors
   gather_facts: no  
   roles:
     - preflight
@@ -26,14 +26,14 @@
   tags: replay
 
 - name: Verify kubernetes is healthy
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   roles:
     - kubernetes
   tags: kubernetes
 
 - name: Verify ceph is healthy
-  hosts: master-server
+  hosts: master_server
   gather_facts: no
   roles:
     - ceph
@@ -41,7 +41,7 @@
 
 - name: Validate Elasticsearch
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - elasticsearch
@@ -49,7 +49,7 @@
 
 - name: Validate Kibana
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - kibana
@@ -57,7 +57,7 @@
 
 - name: Validate Bro
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - bro
@@ -65,7 +65,7 @@
 
 - name: Validate Suricata
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - suricata
@@ -73,7 +73,7 @@
 
 - name: Validate Moloch
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - moloch
@@ -81,7 +81,7 @@
 
 - name: Validate Mumble
   hosts:
-  - master-server
+  - master_server
   gather_facts: no
   roles:
     - mumble-server

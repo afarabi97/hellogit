@@ -23,7 +23,7 @@
   loop:
     - bootstrap.yml
     - viewer.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 - name: Setup capture configs
   template:
@@ -53,6 +53,6 @@
   vars:
     deployment_hostname: "{{ item }}"
   loop: "{{ groups['moloch'] }}"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 ...

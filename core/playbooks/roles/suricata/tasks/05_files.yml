@@ -49,6 +49,6 @@
   vars:
     deployment_hostname: "{{ item }}"
   loop: "{{ groups['suricata'] }}"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master_server']
 
 ...
