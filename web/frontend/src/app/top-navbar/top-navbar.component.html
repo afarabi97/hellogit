@@ -1,48 +1,41 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-primary fixed-top">
-  <a class="navbar-brand" href="#">TFPlenum Controller v3.2</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
-    aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <ul #navlist class="navbar-nav" style="width: 100%;">
-      <li class="nav-item"><a class="nav-link" routerLink="/portal" (click)="setActive($event)">Portal</a></li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">System Setup</a>
-        <div class="dropdown-menu">
-            <li class="nav-item"><a class="nav-link" routerLink="/kickstart">Step 1 - Kickstart Configuration</a></li>
-            <li class="nav-item"><a class="nav-link" routerLink="/kit_configuration">Step 2 - Kit Configuration</a></li>
-            <li class="nav-item"><a class="nav-link" routerLink="/agent-builder-chooser">Step 3 - Build Host Agent</a></li>
-            <li class="nav-item"><a class="nav-link" routerLink="/agent_installer">Step 4 - Install Host Agents</a></li>
+<mat-drawer-container autosize>
+    <mat-drawer #drawer mode="side" opened="true">
+      <h5 *ngIf="showLinkNames">TFPlenum Controller</h5>
+      <span class="version" *ngIf="showLinkNames">v3.2</span>
+      <mat-list>
+        <mat-list-item (click)="openNotifications()">
+              <mat-icon class="notification-icon" mat-list-icon><app-notifications #notifications></app-notifications></mat-icon>
+              <h4 *ngIf="showLinkNames" mat-line >Notifications</h4>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <div *ngFor="let group of sideNavigationButtons">
+          <h3 mat-subheader *ngIf="group.label && showLinkNames">
+            {{ group.label }}
+          </h3>
+          <mat-list-item *ngFor="let child of group.children" routerLink="{{ child.url }}" matTooltip="{{child.label}}" >
+            <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
+            <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
+          </mat-list-item>
+          <mat-divider></mat-divider>
         </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Kubernetes</a>
-        <div class="dropdown-menu">
-          <li class="nav-item"><a class="nav-link" routerLink="/health">Health</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/configmaps">Config Maps</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/registry">Docker Registry</a></li>
+      </mat-list>
+      <div
+        class="main-sidenav-bottom"
+        (click)="showLinkNames = !showLinkNames"
+        matRipple
+        [matRippleTrigger]="trigger"
+        centered="true"
+      >
+      <mat-divider></mat-divider>
+        <div #trigger class="main-sidenav-button-trigger">
+          <mat-icon *ngIf="!showLinkNames">arrow_forward</mat-icon>
+          <mat-icon *ngIf="showLinkNames">arrow_back</mat-icon>
+          <span *ngIf="showLinkNames">Collapse</span>
         </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Policy Management</a>
-        <div class="dropdown-menu">
-          <li class="nav-item"><a class="nav-link" routerLink="/rulesets">Rule Sets</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/pcaps">Test PCAP files</a></li>
-        </div>
-      </li>
-      <li class="nav-item"></li>
-      <li class="nav-item dropdown">
-        <!-- <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="setActive($event)">Confluence</a>
-        <div class="dropdown-menu">
-          <li class="nav-item"><a class="nav-link" target="_blank" href="http://{{ hostname }}/THISISCVAH">THISISCVAH</a></li>
-        </div> -->
-      </li>
-      <li class="nav-item"><a class="nav-link" routerLink="/help" (click)="setActive($event)">Help</a></li>
-      <li class="nav-item"><a class="nav-link" routerLink="/catalog" (click)="setActive($event)">Catalog</a></li>
-    </ul>
-
-  <app-notifications></app-notifications>
-</div>
-</nav>
-<router-outlet></router-outlet>
+      </div>
+    </mat-drawer>
+  
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-container>

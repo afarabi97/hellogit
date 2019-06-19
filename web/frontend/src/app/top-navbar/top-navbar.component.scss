@@ -1,1 +1,48 @@
-
+@import '../../theme.scss';
+mat-drawer-container {
+  height: 100vh;
+  mat-drawer {
+    background-color: $layout-base;
+    height: 100vh;
+    .version {
+      margin-left: 6em;
+    }
+    .notification-icon {
+      margin-bottom: 12px;
+    }
+    h5 {
+      padding: 0.75em;
+      padding-bottom: 0
+    }
+    mat-list-item {
+      &:hover {
+        cursor: pointer;
+        background-color: $primary;
+      }
+    }
+    .main-sidenav-bottom {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      bottom: 12px;
+      width: 100%;
+      cursor: pointer;
+      width: 100%;
+      height: 40px;
+      flex-direction: column;
+      .main-sidenav-button-trigger {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        span {
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+  .main-content {
+    margin-top: -3em;
+  }
+}

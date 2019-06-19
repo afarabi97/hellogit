@@ -5,6 +5,16 @@
 // have to load a single css file for Angular Material in your app.
 @include mat-core();
 
+$base-black-background: black;
+$base-dark-background: #212121;
+$first-elevation-dark-background: #303030;
+$second-elevation-dark-background: #424242;
+$third-elevation-dark-background: #585858;
+$primary: #1eb980;
+$primary-variant: #3498db;
+$accent: #03a9f4;
+$warn: #ff4949;
+$white: white;
 
 $color-base: #3371e3;
 

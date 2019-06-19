@@ -30,10 +30,11 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTreeModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatRippleModule
 
 } from '@angular/material';
-import {MatTableModule} from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
     exports: [
@@ -68,7 +69,8 @@ import {MatTableModule} from '@angular/material/table';
         MatDatepickerModule,
         MatNativeDateModule,
         MatTreeModule,
-        MatFormFieldModule
+        MatFormFieldModule,
+        MatRippleModule
     ]
 })
 export class MaterialModule { }
