@@ -36,6 +36,7 @@ filebeat.inputs:
 
     # Misc
     - {{ bro_log_path }}/*/weird.log
+    - {{ bro_log_path }}/*/stats.log
 
   close_removed: false
   clean_removed: false
