@@ -2,6 +2,11 @@
 Main __init__.py module that initializes the
 REST interface for the frontend application.
 """
+import eventlet
+
+# WARNING: this monkey patch stuff needs to be the very first thing that happens before other imports.
+# If you move it after the socketio and flask imports it will result in a very nasty SSL recurisve error with the kubernetes API.
+eventlet.monkey_patch(all=False, os=True, select=False, socket=True, thread=False, time=True)
 import logging
 import os
 
@@ -14,6 +19,7 @@ from logging.handlers import RotatingFileHandler
 from logging import Logger
 from pathlib import Path
 from random import randint
+from celery import Celery
 
 
 APP_DIR = Path(__file__).parent  # type: Path
@@ -64,11 +70,21 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 #Max upload size for a single file is 100 MB
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1000 * 100
+
+REDIS = 'redis://'
+
+# Celery configuration
+app.config['CELERY_BROKER_URL'] = REDIS
+app.config['CELERY_RESULT_BACKEND'] = REDIS
+
 CORS(app)
-socketio = SocketIO(app)
-# Start the job manager
-from app.job_manager import start_job_manager
-start_job_manager()
+socketio = SocketIO(app, message_queue=app.config['CELERY_BROKER_URL'])
+
+# Initialize Celery
+celery = Celery(app.name,
+    broker=app.config['CELERY_BROKER_URL'],
+    backend=app.config['CELERY_RESULT_BACKEND'])
+celery.conf.update(app.config)
 
 # Load the REST API
 from app import common_controller
@@ -84,3 +100,6 @@ from app import agent_builder_controller
 from app import agent_installer_controller
 from app import ruleset_controller
 from app import pcap_controller
+from app import catalog_controller
+from app import notification_controller
+from app import task_controller

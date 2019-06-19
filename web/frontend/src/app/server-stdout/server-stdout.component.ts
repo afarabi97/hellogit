@@ -17,7 +17,7 @@ export class ServerStdoutComponent implements OnInit {
   killModal: HtmlModalPopUp;
 
   messages: Array<{msg: string, color: string}>;
-  constructor(private stdoutService: ServerStdoutService, 
+  constructor(private stdoutService: ServerStdoutService,
               private route: ActivatedRoute,
               private title: Title
             ) {
@@ -29,7 +29,7 @@ export class ServerStdoutComponent implements OnInit {
 
   /**
    * Triggers when the browser window resizes.
-   * @param event 
+   * @param event
    */
   @HostListener('window:resize', ['$event'])
   onResize(event){
@@ -42,22 +42,22 @@ export class ServerStdoutComponent implements OnInit {
       this.jobName = params['id'];
 
       this.stdoutService.getConsoleOutput(this.jobName).subscribe(data => {
-        for (let item in data){          
+        for (let item in data){
           this.messages.push({msg: data[item]['log'], color: data[item]['color']});
         }
 
-        setTimeout(() => {          
+        setTimeout(() => {
           this.scrollToBottom();
         }, 1000);
-        
-      });  
+
+      });
     });
-    
+
     this.stdoutService.getMessage().subscribe(data => {
       this.messages.push({msg: data['log'], color: data['color']});
       this.scrollToBottom();
     });
-    
+
   }
 
   ngAfterViewInit(){
@@ -65,7 +65,7 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   public scrollToBottom(){
-    this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;    
+    this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;
   }
 
   private resizeConsole(){
@@ -74,7 +74,7 @@ export class ServerStdoutComponent implements OnInit {
       height = (window.innerHeight - 170) + "px";
     } else {
       height = "100px";
-    }      
+    }
     this.consoleDiv.nativeElement.style.maxHeight = height;
     this.consoleDiv.nativeElement.style.height = height;
   }

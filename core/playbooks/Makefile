@@ -65,7 +65,7 @@ moloch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch
 
 suricata:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata --extra-vars "run_option=install"
 
 logs:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs --extra-vars "run_option=reinstall"

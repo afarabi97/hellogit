@@ -11,7 +11,7 @@ pushd $SCRIPT_DIR > /dev/null
 source ./common.in
 
 function _install_deps(){
-	yum -y install epel-release
+	yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 	yum -y install wget nmap
 }
 
@@ -101,6 +101,27 @@ EOF
 	run_cmd systemctl enable mongod
 }
 
+function _install_redis {
+    cat <<EOF > /etc/yum.repos.d/remi.repo
+[remi]
+name=Remis RPM repository for Enterprise Linux 7 - $basearch
+mirrorlist=http://cdn.remirepo.net/enterprise/7/remi/mirror
+enabled=0
+gpgcheck=1
+gpgkey=https://rpms.remirepo.net/RPM-GPG-KEY-remi
+EOF
+    run_cmd yum install -y redis --enablerepo=remi
+    run_cmd systemctl enable redis
+}
+
+function _install_and_configure_celery {
+    mkdir -p /var/log/celery /etc/celery/
+    cp ./celery.conf /etc/celery/
+	cp ./celery.service /etc/systemd/system/
+	run_cmd systemctl daemon-reload
+	run_cmd systemctl enable celery.service
+}
+
 function _preload_ids_rules {
 	mkdir -p $FRONTEND_DIR/backend/rules
 	pushd $FRONTEND_DIR/backend/rules > /dev/null
@@ -124,6 +145,8 @@ _configure_httpd
 _deploy_angular_application
 _install_and_configure_gunicorn
 _install_and_start_mongo40
+_install_redis
+_install_and_configure_celery
 _restart_services
 _open_firewall_ports
 _preload_ids_rules

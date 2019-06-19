@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 // import { HttpModule } from '@angular/http';
+import {FlexLayoutModule} from "@angular/flex-layout";
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
@@ -47,6 +48,25 @@ import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-buil
 import { AgentInstallerAddDialogComponent } from './agent-builder-chooser/agent-installer-add-dialog/agent-installer-add-dialog.component';
 import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-list-dialog/ip-target-list-dialog.component';
 
+// Catalog
+import { CatalogComponent } from './catalog/component/catalog.component';
+import { CardComponent } from './catalog/card/card.component';
+import { ChartListComponent } from './catalog/chart-list/chart-list.component';
+import { StepperComponent } from './catalog/stepper/stepper.component';
+import { NodeBackgroundComponent } from './catalog/node-background/node-background.component';
+
+// notifcations
+import { NotificationsComponent } from './notifications/component/notifications.component';
+import { NotificationsModuleComponent } from './notifications/notification-module/notifications-module.component';
+
+// ConfirmDialog
+import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.component';
+
+// classes
+import { SnackbarWrapper } from './classes/snackbar-wrapper';
+
+// modules
+import { InjectorModule } from './utilily-modules/injector.module';
 
 @NgModule({
   declarations: [
@@ -79,13 +99,21 @@ import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-l
     ModalDialogComponent,
     PolicyManagementComponent,
     PolicyManagementDialog,
-    PolicyManagementTable,    
+    PolicyManagementTable,
     PolicyManagementAddDialog,
     UploadDialogComponent,
     AgentInstallerComponent,
     AgentBuilderChooserComponent,
     AgentInstallerAddDialogComponent,
-    IpTargetListDialogComponent
+    IpTargetListDialogComponent,
+    CatalogComponent,
+    CardComponent,
+    ChartListComponent,
+    StepperComponent,
+    NotificationsComponent,
+    NotificationsModuleComponent,
+    ConfirmDailogComponent,
+    NodeBackgroundComponent
   ],
   imports: [
     BrowserModule,
@@ -95,10 +123,14 @@ import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-l
     HttpClientModule,
     NgbModule,
     MaterialModule,
-    BrowserAnimationsModule
-    // HttpModule    
+    BrowserAnimationsModule,
+    FlexLayoutModule,
+    InjectorModule
+    // HttpModule
   ],
-  providers: [],
+  providers: [
+    SnackbarWrapper
+  ],
   bootstrap: [AppComponent],
   entryComponents: [
     PolicyManagementDialog,
@@ -106,7 +138,10 @@ import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-l
     PolicyManagementTable,
     PolicyManagementAddDialog,
     UploadDialogComponent,
-    AgentInstallerAddDialogComponent
+    AgentInstallerAddDialogComponent,
+    StepperComponent,
+    NotificationsModuleComponent,
+    ConfirmDailogComponent
   ]
 })
 export class AppModule { }

@@ -35,13 +35,9 @@ export class PolicyManagementComponent implements OnInit {
     this.title.setTitle("Rule Sets");
   }
 
-  openConsole() {
-    this.router.navigate(['/stdout/SyncRuleSets'])
-  }
-
   ruleSync() {
     this._PolicyManagementService.syncRuleSets().subscribe(data => {
-      this.openConsole();
+
     });
   }
 
@@ -61,7 +57,7 @@ export class PolicyManagementComponent implements OnInit {
       width: '300px',
       data: null
     })
-    dialogRef.afterClosed().subscribe(data => {      
+    dialogRef.afterClosed().subscribe(data => {
       if (data) {
         this.loadingDialog.openModal();
         this._PolicyManagementService.uploadRuleFile(data).subscribe(
@@ -69,7 +65,7 @@ export class PolicyManagementComponent implements OnInit {
             if (resp instanceof ErrorMessage){
               this.messageDialog.updateModal("ERROR", resp.error_message, "Close", undefined, ModalType.error);
               this.messageDialog.openModal();
-            } else if (resp instanceof RuleSet){              
+            } else if (resp instanceof RuleSet){
               this._PolicyManagementService.ruleSets.push(resp);
               this.cdr.detectChanges();
 

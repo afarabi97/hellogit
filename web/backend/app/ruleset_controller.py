@@ -4,8 +4,7 @@ import tempfile
 
 from app import (app, logger, conn_mng, get_next_sequence, WEB_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.job_manager import shell, spawn_job
-from app.socket_service import log_to_console
+from app.service.rulesync_service import perform_rulesync
 from datetime import datetime
 from flask import jsonify, request, Response, send_file
 from pathlib import Path
@@ -13,8 +12,8 @@ from pymongo.collection import Collection
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
 from pymongo.results import InsertOneResult, UpdateResult
-from shared.constants import (RULESET_STATES, DATE_FORMAT_STR, 
-                              PCAP_UPLOAD_DIR, SURICATA_CONTAINER_VERSION, 
+from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
+                              PCAP_UPLOAD_DIR, SURICATA_CONTAINER_VERSION,
                               RULE_TYPES, BRO_CONTAINER_VERSION,
                               BRO_RULE_DIR)
 from shared.utils import tar_folder
@@ -88,13 +87,13 @@ def create_ruleset_from_file(path: Path, ret_val: InsertOneResult):
             "ruleName": path.name,
             "rule": f.read(),
             "isEnabled": True
-        }   
+        }
         create_rule_service(ret_val.inserted_id, rule)
 
 
 @app.route('/api/create_ruleset', methods=['POST'])
 def create_ruleset() -> Response:
-    ruleset = request.get_json()    
+    ruleset = request.get_json()
     ret_val = create_ruleset_service(ruleset)
     if ret_val:
         return jsonify(ruleset)
@@ -110,11 +109,11 @@ def update_ruleset() -> Response:
     # This is a built in protection ensuring it will not happen.
     if 'rules' in ruleset:
         del ruleset['rules']
-    
+
     ruleset['state'] = RULESET_STATES[1]
     ruleset['lastModifiedDate'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
     ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                         {"$set": ruleset}, 
+                                                         {"$set": ruleset},
                                                          projection={"rules": False},
                                                          return_document=ReturnDocument.AFTER)
     if ret_val:
@@ -136,14 +135,14 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
 
         cmd = ("docker run --rm "
                "-v {tmp_dir}:/etc/suricata/rules/ tfplenum/suricata:{version} "
-               "suricata -c /etc/suricata/suricata.yaml -T").format(tmp_dir=tmpdirname, 
+               "suricata -c /etc/suricata/suricata.yaml -T").format(tmp_dir=tmpdirname,
                                                                     version=SURICATA_CONTAINER_VERSION)
 
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         error_string, serr = proc.communicate()
         if proc.returncode == 0:
             return True, ""
-    
+
     return False, error_string.decode("UTF-8")
 
 
@@ -160,29 +159,29 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
             theRule.save(filepath)
             theRule.stream.seek(0)
 
-        
+
         cmd = ("docker run --rm "
                "-v {tmp_dir}:{script_dir} tfplenum/bro:{version} "
-               "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname, 
+               "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
                                            version=BRO_CONTAINER_VERSION,
                                            script_dir=BRO_RULE_DIR,
                                            file_to_test=filename)
-        
+
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         error_string, serr = proc.communicate()
         if proc.returncode == 0:
             return True, ""
-    
-    return False, error_string.decode("UTF-8")
-    
 
-def create_rule_service(ruleset_id: int, rule: Dict):    
+    return False, error_string.decode("UTF-8")
+
+
+def create_rule_service(ruleset_id: int, rule: Dict):
     rule["_id"] = get_next_sequence("ruleid")
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['createdDate'] = dt_string
     rule['lastModifiedDate'] = dt_string
     ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                         {'$push': {'rules': rule}}, 
+                                                         {'$push': {'rules': rule}},
                                                          projection={"rules": False})
 
     return ret_val
@@ -190,17 +189,17 @@ def create_rule_service(ruleset_id: int, rule: Dict):
 
 @app.route('/api/load_rules_from_file', methods=['POST'])
 def load_rules_from_file() -> Response:
-    rule_file = request.files['file'] 
+    rule_file = request.files['file']
 
     if rule_file is None or not bool(rule_file):
         return jsonify({"error_message": "No rules file sent."})
-    
+
     is_valid = False
     if request.form['appType'] == RULE_TYPES[0]:
         is_valid, error_msg = _validate_suricata_rule(rule)
     elif request.form['appType'] == RULE_TYPES[1]:
         is_valid, error_msg = _validate_bro_rule(rule)
-    
+
     if not valid:
         return jsonify({"error_message": "Invalid Rules: {}".format(error_msg)})
 
@@ -217,7 +216,7 @@ def load_rules_from_file() -> Response:
             "isEnabled": True,
             "groupName": request.form['groupname']
         }
-        ret_val = create_ruleset_service(ruleset) 
+        ret_val = create_ruleset_service(ruleset)
         create_ruleset_from_file(path = Path(file_path), ret_val = ret_val)
 
     new_ruleset = conn_mng.mongo_ruleset.find_one({'_id': ret_val.inserted_id})
@@ -241,15 +240,15 @@ def create_rule() -> Response:
         if is_valid:
             for old_rule in rule_set["rules"]:
                 if old_rule["rule"] == rule["rule"]:
-                    return jsonify({"error_message": "Failed to add " + rule["ruleName"] + 
+                    return jsonify({"error_message": "Failed to add " + rule["ruleName"] +
                                 ". The content of this rule matches another rule in the database."})
-            
+
             dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
             rule['createdDate'] = dt_string
             rule['lastModifiedDate'] = dt_string
             ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                                {'$push': {'rules': rule}, 
-                                                                '$set': {'state': RULESET_STATES[1]}}, 
+                                                                {'$push': {'rules': rule},
+                                                                '$set': {'state': RULESET_STATES[1]}},
                                                                 projection={"rules": False})
             if ret_val:
                 return jsonify(rule)
@@ -262,7 +261,7 @@ def create_rule() -> Response:
 def update_rule() -> Response:
     update_rule = request.get_json()
     ruleset_id = update_rule["rulesetID"]
-    rule = update_rule['ruleToUpdate']    
+    rule = update_rule['ruleToUpdate']
     id_to_modify = rule['_id']
 
     rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id}, projection={"rules": False})
@@ -274,13 +273,13 @@ def update_rule() -> Response:
             is_valid, error_output = _validate_suricata_rule(rule)
         elif rule_type == RULE_TYPES[1]:
             is_valid, error_output = _validate_bro_rule(rule)
-        
+
         if is_valid:
             dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
             rule['lastModifiedDate'] = dt_string
-            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify}, 
-                                                                  {'$set': { "rules.$": rule, 
-                                                                             "state": RULESET_STATES[1], 
+            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify},
+                                                                  {'$set': { "rules.$": rule,
+                                                                             "state": RULESET_STATES[1],
                                                                              "lastModifiedDate": dt_string }},
                                                                   return_document=ReturnDocument.AFTER)
             if rule_set:
@@ -302,12 +301,12 @@ def toggle_rule() -> Response:
     ruleset_id = update_rule["rulesetID"]
     rule = update_rule['ruleToUpdate']
     id_to_modify = rule['_id']
-    
+
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['lastModifiedDate'] = dt_string
-    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify}, 
-                                                            {'$set': { "rules.$.isEnabled": rule["isEnabled"], 
-                                                                        "state": RULESET_STATES[1], 
+    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify},
+                                                            {'$set': { "rules.$.isEnabled": rule["isEnabled"],
+                                                                        "state": RULESET_STATES[1],
                                                                         "lastModifiedDate": dt_string }},
                                                             return_document=ReturnDocument.AFTER)
     if rule_set:
@@ -319,8 +318,8 @@ def toggle_rule() -> Response:
 @app.route('/api/delete_rule/<rule_set_id>/<rule_id>', methods=['DELETE'])
 def delete_rule(rule_set_id: str, rule_id: str) -> Response:
     ret_val = conn_mng.mongo_ruleset.update_one({'_id': int(rule_set_id)},
-                                                {'$pull': {'rules': {'_id': int(rule_id)}}, 
-                                                 '$set': {'state': RULESET_STATES[1]} 
+                                                {'$pull': {'rules': {'_id': int(rule_id)}},
+                                                 '$set': {'state': RULESET_STATES[1]}
                                                 })  # type: UpdateResult
     if ret_val.modified_count == 1:
         return jsonify({"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)})
@@ -337,12 +336,14 @@ def delete_ruleset(ruleset_id: str) -> Response:
 
 @app.route('/api/sync_rulesets', methods=['GET', 'POST'])
 def sync_rulesets_api() -> Response:
-    cmd_to_execute = str(WEB_DIR / 'tfp-env/bin/python') + ' sync_rulesets.py'
-    spawn_job("SyncRuleSets",
-               cmd_to_execute,
-               ["sync_rulesets"],
-               log_to_console,
-               working_directory=str(WEB_DIR / "backend/fabfiles"))
+    print("YAY")
+    perform_rulesync.delay()
+    # cmd_to_execute = str(WEB_DIR / 'tfp-env/bin/python') + ' sync_rulesets.py'
+    # spawn_job("SyncRuleSets",
+    #            cmd_to_execute,
+    #            ["sync_rulesets"],
+    #            log_to_console,
+    #            working_directory=str(WEB_DIR / "backend/fabfiles"))
     return OK_RESPONSE
 
 
@@ -406,13 +407,13 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/data/ "
                    " tfplenum/bro:{version} "
-                   "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir, 
+                   "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir,
                                                                         pcap_dir=PCAP_UPLOAD_DIR,
                                                                         version=BRO_CONTAINER_VERSION,
                                                                         script_dir=BRO_RULE_DIR,
                                                                         pcap_name=pcap_name,
                                                                         results_dir=results_tmp_dir,
-                                                                        file_to_test=filename)            
+                                                                        file_to_test=filename)
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             std_out_bytes, serr = proc.communicate()
 
@@ -423,7 +424,7 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
             if proc.returncode == 0:
                 results_tar_ball = results_tmp_dir + "/results"
                 tar_folder(results_tmp_dir, results_tar_ball)
-                return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")            
+                return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")
 
     return ERROR_RESPONSE
 
@@ -444,5 +445,5 @@ def test_rule_against_pcap() -> Response:
         return _test_pcap_against_suricata_rule(pcap_name, rule_content)
     elif rule_type == RULE_TYPES[1]:
         return _test_pcap_against_bro_rule(pcap_name, rule_content)
-                    
+
     return ERROR_RESPONSE

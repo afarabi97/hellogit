@@ -1,41 +1,33 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../environments/environment';
-import { HTTP_OPTIONS } from './globals';
+import { Observable } from 'rxjs/Observable';
+import { WebsocketService } from './websocket.service';
 
 
 export interface Message {
   message: string
 }
 
-export class MySocket extends Socket {
- 
-  constructor() {
-    if (environment.production){      
-      super({ url: window.location.origin, options: {} });      
-    } else {
-      super({ url: "http://" + window.location.hostname + ":5001", options: {} });
-    }
-  }
-
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServerStdoutService {
-  private socket: Socket;
-  constructor(private http: HttpClient) { 
-    this.socket = new MySocket();
+
+  constructor(private http: HttpClient,
+              private srvSocket: WebsocketService) {
   }
 
   sendMessage(msg: string){
-    this.socket.emit("message", msg);
+    this.srvSocket.getSocket().emit("message", msg);
   }
 
-  getMessage(){    
-    return this.socket.fromEvent("message").pipe();
+  getMessage(){
+    return new Observable<any>(observer => {
+      this.srvSocket.getSocket().on('message', (data: any) => {
+        observer.next(data);
+      });
+    });
   }
 
   getConsoleOutput(jobName: string){

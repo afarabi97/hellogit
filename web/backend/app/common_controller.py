@@ -2,21 +2,23 @@
 This is the main module for all the shared REST calls
 """
 import json
+import os, signal
 
-from app import app, logger, conn_mng
+from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.job_manager import kill_job_in_queue, shell
+from app.service.job_service import run_command
 from app.node_facts import get_system_info
+from celery.app.control import Control, Inspect
 
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from flask import request, jsonify, Response
 from typing import List, Dict, Tuple
+from app.service.socket_service import NotificationMessage, NotificationCode
 
 
 MIN_MBPS = 1000
-
 
 @app.route('/api/gather_device_facts', methods=['POST'])
 def gather_device_facts() -> Response:
@@ -58,6 +60,14 @@ def gather_device_facts() -> Response:
         logger.exception(e)
         return jsonify(error_message=str(e))
 
+def check_pid(pid):
+    """ Check For the existence of a unix pid. """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
 
 @app.route('/api/kill_job', methods=['POST'])
 def kill_job() -> Response:
@@ -68,7 +78,22 @@ def kill_job() -> Response:
     """
     payload = request.get_json()
     try:
-        kill_job_in_queue(payload['jobName'])
+        job_name = payload['jobName']
+        task = conn_mng.mongo_celery_tasks.find_one({"_id": job_name})
+        if task:
+            celery.control.revoke(task["task_id"], terminate=True, signal='SIGKILL')
+            if check_pid(task["pid"]):
+                os.kill(task["pid"], signal.SIGTERM)
+
+            # Delete task from mongodb
+            conn_mng.mongo_celery_tasks.delete_one({"_id": job_name})
+
+            # Send notification that the task has been cancelled
+            notification = NotificationMessage(role=job_name.lower())
+            notification.setMessage("%s cancelled." % job_name.capitalize())
+            notification.setStatus(NotificationCode.CANCELLED.name)
+            notification.post_to_websocket_api()
+
         return OK_RESPONSE
     except Exception as e:
         logger.exception(e)
@@ -82,7 +107,7 @@ def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     the block gets thrown out.
 
     :param available_ip_addresses: A list of unused IP on the subnet.
-    :param index: 
+    :param index:
     """
     cached_octet = None
     for i, ip in enumerate(available_ip_addresses[index:]):
@@ -97,13 +122,13 @@ def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
                 return False
 
         if i == 15:
-            break        
+            break
     return True
 
 
 def _get_ip_blocks(cidr: int) -> List[int]:
     """
-    Gets IP blocks based on CIDR notation. 
+    Gets IP blocks based on CIDR notation.
     It only accept /24 through /27 subnet ranges.
 
     It returns an array of the start of each IP /28 block.
@@ -133,7 +158,7 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     """
     Get available IP blocks
 
-    :param mng_ip: The management IP or controller IP address 
+    :param mng_ip: The management IP or controller IP address
     :param netmask: The netmask of the controller IP address.
     """
     cidr = netmask_to_cidr(netmask)
@@ -141,12 +166,12 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
         command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % mng_ip
         cidr = 24
     else:
-        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (mng_ip, cidr) 
-   
-    stdout_str, stderr_str = shell(command, use_shell=True)
-    available_ip_addresses = stdout_str.decode("utf-8").split('\n')
+        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (mng_ip, cidr)
+
+    stdout_str = run_command(command, use_shell=True)
+    available_ip_addresses = stdout_str.split('\n')
     available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
-    ip_address_blocks = _get_ip_blocks(cidr)    
+    ip_address_blocks = _get_ip_blocks(cidr)
     available_ip_blocks = []
     for index, ip in enumerate(available_ip_addresses):
         pos = ip.rfind('.') + 1
@@ -160,15 +185,15 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
 @app.route('/api/get_available_ip_blocks', methods=['GET'])
 def get_available_ip_blocks() -> Response:
     """
-    Grabs available /28 or 16 host blocks from a /24, /25, /26, or /27 
+    Grabs available /28 or 16 host blocks from a /24, /25, /26, or /27
     IP subnet range.
 
-    :return:    
-    """    
+    :return:
+    """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if mongo_document is None:
         return jsonify([])
-    
+
     mng_ip = mongo_document["form"]["controller_interface"][0]
     netmask = mongo_document["form"]["netmask"]
     available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
@@ -223,5 +248,5 @@ def get_sensor_hostinfo() -> Response:
                 host_simple['management_ip'] = mng_ip
                 host_simple['mac'] = mac
                 ret_val.append(host_simple)
-                
+
     return jsonify(ret_val)

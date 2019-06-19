@@ -6,8 +6,8 @@ import json
 from app import (app, logger, conn_mng, DEPLOYER_DIR)
 from app.archive_controller import archive_form
 from app.inventory_generator import KickstartInventoryGenerator
-from app.job_manager import spawn_job, shell
-from app.socket_service import log_to_console
+from app.service.job_service import run_command
+from app.service.kickstart_service import perform_kickstart
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, jsonify, Response
 from pymongo import ReturnDocument
@@ -26,11 +26,11 @@ def _is_valid_ip(ip_address: str) -> bool:
     :return:
     """
     command = "nmap -v -sn -n %s/32 -oG - | awk '/Status: Down/{print $2}'" % ip_address
-    stdout_str, stderr_str = shell(command, use_shell=True)
-    if stdout_str != b'':
-        available_ip_addresses = stdout_str.decode("utf-8").split('\n')
-        if len(available_ip_addresses) > 0:            
-            return True        
+    stdout_str = run_command(command, use_shell=True)
+    if stdout_str != '':
+        available_ip_addresses = stdout_str.split('\n')
+        if len(available_ip_addresses) > 0:
+            return True
     return False
 
 
@@ -79,13 +79,12 @@ def generate_kickstart_inventory() -> Response:
     save_kickstart_to_mongo(kickstart_form)
     kickstart_generator = KickstartInventoryGenerator(kickstart_form)
     kickstart_generator.generate()
-
-    spawn_job("Kickstart",
-              "make",
-              ["kickstart"],
-              log_to_console,
-              working_directory=str(DEPLOYER_DIR / "playbooks"))
-    return OK_RESPONSE
+    cmd_to_execute = ("ansible-playbook site.yml -i inventory.yml -t preflight,setup,dnsmasq,kickstart,profiles")
+    task_id = perform_kickstart.delay(cmd_to_execute)
+    conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kickstart"},
+                                                     {"_id": "Kickstart", "task_id": str(task_id), "pid": ""},
+                                                     upsert=True)
+    return (jsonify(str(task_id)), 200)
 
 
 @app.route('/api/update_kickstart_ctrl_ip/<new_ctrl_ip>', methods=['PUT'])
@@ -95,8 +94,8 @@ def update_kickstart_ctrl_ip(new_ctrl_ip: str) -> Response:
 
     :return:
     """
-    ret_val = conn_mng.mongo_kickstart.find_one_and_update({"_id": KICKSTART_ID}, 
-                                                           {'$set': {'form.controller_interface': [new_ctrl_ip]}}, 
+    ret_val = conn_mng.mongo_kickstart.find_one_and_update({"_id": KICKSTART_ID},
+                                                           {'$set': {'form.controller_interface': [new_ctrl_ip]}},
                                                             return_document=ReturnDocument.AFTER,
                                                             upsert=False
                                                           )
@@ -129,14 +128,14 @@ def get_unused_ip_addrs() -> Response:
     Gets unused IP Addresses from a given network.
     :return:
     """
-    payload = request.get_json()    
-    cidr = netmask_to_cidr(payload['netmask'])    
+    payload = request.get_json()
+    cidr = netmask_to_cidr(payload['netmask'])
     if cidr <= 24:
         command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % payload['mng_ip']
     else:
-        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (payload['mng_ip'], cidr) 
-    
-    stdout_str, stderr_str = shell(command, use_shell=True)
-    available_ip_addresses = stdout_str.decode("utf-8").split('\n')
+        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (payload['mng_ip'], cidr)
+
+    stdout_str = run_command(command, use_shell=True)
+    available_ip_addresses = stdout_str.split('\n')
     available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
     return jsonify(available_ip_addresses)

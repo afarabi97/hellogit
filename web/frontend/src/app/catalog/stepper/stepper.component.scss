@@ -1,0 +1,40 @@
+@import '../../../theme.scss';
+
+.stepper {
+  height: 620px;
+
+  &__body {
+
+    &__selection {
+      // border-bottom: 1px solid #D7D9DD;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    height: 40px;
+    border-top: 1px solid #D7D9DD;
+    align-items: center;
+    padding-left: 10px;
+  }
+
+  &__header {
+    display: flex;
+    height: 50px;
+    border-bottom: 1px solid #D7D9DD;
+    align-items: center;
+    padding-left: 10px;
+  }
+  &__card {
+    overflow: auto;
+  }
+}
+
+.loading {
+  padding-top: 250px;
+}
+
+.mat-form-field {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

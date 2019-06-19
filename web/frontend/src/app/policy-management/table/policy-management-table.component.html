@@ -21,35 +21,35 @@
 
   <ng-container matColumnDef="Enabled">
     <th mat-header-cell *matHeaderCellDef>Is Enabled?</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       <mat-checkbox class="mat-checkbox-inner-container" [checked]="ruleSet.isEnabled" (change)="enableRuleSet(ruleSet)"></mat-checkbox>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef>Rule Set Name</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       <a class="dropdown-toggle" (click)="getRules(ruleSet)">{{ ruleSet.name }}</a>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="appType">
     <th mat-header-cell *matHeaderCellDef>Type</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       {{ ruleSet.appType }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="clearance">
     <th mat-header-cell *matHeaderCellDef>Classification</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       {{ ruleSet.clearance }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="state">
     <th mat-header-cell *matHeaderCellDef>State</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       <ng-container *ngIf="!isInstanceOfArray(ruleSet.state)">
         {{ ruleSet.state }}
       </ng-container>
@@ -58,7 +58,7 @@
           <ng-container *ngFor="let state of ruleSet.state">
             <dt>{{ state.hostname }}</dt>
             <dd>- {{ state.state }}</dd>
-          </ng-container>          
+          </ng-container>
         </dl>
       </ng-container>
     </td>
@@ -66,19 +66,19 @@
 
   <ng-container matColumnDef="sensors">
     <th mat-header-cell *matHeaderCellDef>Assigned Sensors</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
       <ng-container *ngIf="!isInstanceOfArray(ruleSet.sensors)">
           {{ ruleSet.sensors }}
       </ng-container>
       <ng-container *ngIf="isInstanceOfArray(ruleSet.sensors)">
-        <div *ngFor="let sensor of ruleSet.sensors"><ng-container *ngIf="sensor">{{ sensor.hostname }}</ng-container></div>        
+        <div *ngFor="let sensor of ruleSet.sensors"><ng-container *ngIf="sensor">{{ sensor.hostname }}</ng-container></div>
       </ng-container>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="Actions">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
-    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet" fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="space-evenly center">
+    <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
         <button title="Edit Rule" class="btn btn-primary" (click)="editRuleSet(ruleSet)"><i class="icon_pencil"></i></button>
         <button title="Remove Rule" class="btn btn-danger" (click)="openRemoveRuleSetConfirmModal(ruleSet)"><i class="icon_close_alt2"></i></button>
     </td>
@@ -133,7 +133,7 @@
       class="example-element-row"
       [class.example-expanded-row]="expandedElement === rules"
       (click)="expandedElement = expandedElement === rules ? null : rules">
-  </tr>  
-  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr> 
+  </tr>
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
 </table>
 <mat-paginator class="feature_desc" #paginator [pageSize]="20" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>

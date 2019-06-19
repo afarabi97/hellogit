@@ -71,7 +71,7 @@ class MongoConnectionManager(object):
 
         :return:
         """
-        return self._tfplenum_database    
+        return self._tfplenum_database
 
     @property
     def mongo_kickstart(self) -> Collection:
@@ -107,6 +107,14 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.console
 
     @property
+    def mongo_notifications(self) -> Collection:
+        return self._tfplenum_database.notifications
+
+    @property
+    def mongo_celery_tasks(self) -> Collection:
+        return self._tfplenum_database.celery_tasks
+
+    @property
     def mongo_user_links(self) -> Collection:
         return self._tfplenum_database.user_links
 
@@ -137,7 +145,7 @@ class MongoConnectionManager(object):
         Function executes within a given contenxt  (IE: with MongoConnectionManager() as mng:)
 
         :return:
-        """        
+        """
         return self
 
     def __exit__(self, *exc) -> None:
@@ -179,11 +187,11 @@ class FabricConnectionWrapper():
         if kit_form and kickstart_form:
             master_ip = get_master_node_ip_and_password(kit_form['form'])
             password = decode_password(kickstart_form['form']['root_password'])
-            self._connection = Connection(master_ip, 
-                                          user=USERNAME, 
+            self._connection = Connection(master_ip,
+                                          user=USERNAME,
                                           connect_timeout=CONNECTION_TIMEOUT,
-                                          connect_kwargs={'password': password, 
-                                                          'allow_agent': False, 
+                                          connect_kwargs={'password': password,
+                                                          'allow_agent': False,
                                                           'look_for_keys': False})
         else:
             raise KitFormNotFound()
@@ -194,19 +202,19 @@ class FabricConnectionWrapper():
         else:
             with MongoConnectionManager() as conn_mng:
                 self._establish_fabric_connection(conn_mng)
-            
+
         return self._connection
 
     def __exit__(self, *exc):
         if self._connection:
             self._connection.close()
-        
+
 
 class FabricConnection():
 
-    def __init__(self, 
-                 ip_address: str, 
-                 password: str = None, 
+    def __init__(self,
+                 ip_address: str,
+                 password: str = None,
                  username: str = USERNAME):
         self._connection = None  # type: Connection
         self._ip_address = ip_address
@@ -219,12 +227,12 @@ class FabricConnection():
             self._password = decode_password(kickstart_form['form']['root_password'])
 
     def _establish_fabric_connection(self) -> None:
-        self._connection = Connection(self._ip_address, 
-                                      user=self._username, 
+        self._connection = Connection(self._ip_address,
+                                      user=self._username,
                                       connect_timeout=CONNECTION_TIMEOUT,
-                                      connect_kwargs={'password': self._password, 
-                                                      'allow_agent': False, 
-                                                      'look_for_keys': False})        
+                                      connect_kwargs={'password': self._password,
+                                                      'allow_agent': False,
+                                                      'look_for_keys': False})
 
     def __enter__(self):
         if not self._password:
@@ -313,7 +321,7 @@ class FabricConnectionManager:
                                           connect_timeout=CONNECTION_TIMEOUT,
                                           connect_kwargs={'password': self._password,
                                                           'allow_agent': False,
-                                                          'look_for_keys': False})            
+                                                          'look_for_keys': False})
 
     @property
     def connection(self):

@@ -5,7 +5,7 @@ function run_cmd {
 	if [ $ret_val -ne 0 ]; then
 		echo "$command returned error code $ret_val"
         exit 1
-	fi	
+	fi
 }
 
 function _deploy_angular_application {
@@ -20,4 +20,6 @@ function _restart_services {
 	run_cmd systemctl restart httpd
 	run_cmd systemctl restart tfplenum-frontend.service
 	run_cmd systemctl restart mongod
+    run_cmd systemctl restart redis
+    run_cmd systemctl restart celery.service
 }

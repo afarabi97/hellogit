@@ -9,7 +9,7 @@ import sys
 
 from app import (app, logger, conn_mng, CORE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
-from app.job_manager import shell
+from app.service.job_service import run_command
 from flask import send_file, Response, request, jsonify
 from shared.connection_mngs import MongoConnectionManager
 from bson import ObjectId
@@ -71,18 +71,13 @@ def build_installer() -> Response:
                   endgame_password.replace('$', '\\\$'),
                   endgame_id)
 
-    stdout, stderr = shell(command, working_dir = installer_dir)
-
+    stdout = run_command(command, working_dir = installer_dir)
     if stdout:
-        stdout = stdout.decode('utf-8')        
         print(stdout)
-    if stderr:
-        stderr = stderr.decode('utf-8')   
-        print(stderr)
 
     if os.path.exists(installer_path):
         return send_file(installer_path, mimetype='application/vnd.microsoft.portable-executable')
-    else: 
+    else:
         return ERROR_RESPONSE
 
 @app.route('/api/endgame_sensor_profiles', methods=['POST'])
@@ -101,14 +96,14 @@ def get_sensor_info() -> Response:
     address = '{}:{}'.format(endgame_server_ip, endgame_port)
     url = 'https://{}/api/v1/auth/login'.format(address)
     header = { 'Content-Type': 'application/json' }
-    resp = session.post(url, json = { 'username': endgame_user_name, 'password': endgame_password }, 
+    resp = session.post(url, json = { 'username': endgame_user_name, 'password': endgame_password },
                        headers = header)
     if(resp.ok):
         auth_token = resp.json()['metadata']['token']
     else:
         return ERROR_RESPONSE
 
-    header["Authorization"] = "JWT {}".format(auth_token) 
+    header["Authorization"] = "JWT {}".format(auth_token)
     session.headers = header
 
     url = 'https://{}/api/v1/deployment-profiles'.format(address)
@@ -162,8 +157,8 @@ def delete_agent_installer_target_list(name: str) -> Response:
 def save_agent_installer_config() -> Response:
     return save_if_unique(
         rqst = request,
-        field='config_name', 
-        cnxn = win_install_cnxn, 
+        field='config_name',
+        cnxn = win_install_cnxn,
         return_func = get_agent_installer_configs)
 
 @app.route('/api/delete_agent_installer_config/<config_id>', methods=['DELETE'])
@@ -171,7 +166,7 @@ def delete_agent_installer_config(config_id: str) -> Response:
     win_install_cnxn.delete_one({'_id': ObjectId(config_id)})
     return get_agent_installer_configs()
 
-@app.route('/api/get_agent_installer_configs', methods=['GET']) 
+@app.route('/api/get_agent_installer_configs', methods=['GET'])
 def get_agent_installer_configs() -> Response:
     saved_configs = win_install_cnxn.find({})
     return cursorToJsonResponse(saved_configs, sort_field = 'config_name')

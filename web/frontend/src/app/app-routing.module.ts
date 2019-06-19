@@ -12,6 +12,7 @@ import { PolicyManagementComponent } from './policy-management/component/policy-
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
+import { CatalogComponent } from './catalog/component/catalog.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -27,6 +28,7 @@ const routes: Routes = [
   { path: 'agent_installer', component: AgentInstallerComponent },
   { path: 'rulesets', component: PolicyManagementComponent},
   { path: 'pcaps', component: PcapFormComponent},
+  { path: 'catalog', component: CatalogComponent},
 ];
 
 

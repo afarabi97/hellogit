@@ -6,7 +6,6 @@ import requests
 import multiprocessing
 from app import app, logger, conn_mng
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.job_manager import shell
 from flask import jsonify, Response, request
 from kubernetes import client, config
 from shared.connection_mngs import KubernetesWrapper, KitFormNotFound
@@ -28,6 +27,48 @@ def get_config_maps() -> Response:
         return jsonify([])
 
     return ERROR_RESPONSE
+
+
+@app.route('/api/get_config_map/<name>', methods=['GET'])
+def get_config_map(name: str) -> Response:
+    """
+    Get all the config map data.
+
+    :return: Response object with a json dictionary.
+    """
+    try:
+        with KubernetesWrapper(conn_mng) as kube_apiv1:
+            api_response = kube_apiv1.list_config_map_for_all_namespaces()  
+            config_map = get_value_by_key(api_response.to_dict(), name)
+            return jsonify(config_map)
+    except KitFormNotFound as e:
+        logger.exception(e)
+        return jsonify([])
+
+    return ERROR_RESPONSE
+
+
+def get_value_by_key(search_dict, field):
+    keys_found = []
+
+    for key, value in search_dict.items():
+
+        if key == field:
+            keys_found.append(value)
+
+        elif isinstance(value, dict):
+            results = get_value_by_key(value, field)
+            for result in results:
+                keys_found.append(result)
+
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    more_results = get_value_by_key(item, field)
+                    for another_result in more_results:
+                        keys_found.append(another_result)
+
+    return keys_found
 
 
 @app.route('/api/save_config_map', methods=['POST'])

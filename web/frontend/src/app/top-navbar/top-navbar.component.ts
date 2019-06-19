@@ -5,14 +5,15 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-top-navbar',
   templateUrl: './top-navbar.component.html',
-  styleUrls: ['./top-navbar.component.css']
+  styleUrls: ['./top-navbar.component.scss']
 })
-export class TopNavbarComponent implements OnInit {    
+export class TopNavbarComponent implements OnInit {
+  public hostname: string;
 
   @ViewChild('navlist')
   navlist: ElementRef;
-  hostname: string; 
-  
+
+
   constructor(private route: ActivatedRoute) {
   }
 
@@ -23,7 +24,7 @@ export class TopNavbarComponent implements OnInit {
   clearPreviousActive(){
     if (this.navlist){
       let navChildren = this.navlist.nativeElement.children;
-      for (let i = 0; i < navChildren.length; i++){        
+      for (let i = 0; i < navChildren.length; i++){
         if (navChildren[i].children[0] !== undefined){
           if (navChildren[i].className.includes("dropdown")){
             navChildren[i].children[0]['className'] = "nav-link dropdown-toggle";

@@ -1,0 +1,30 @@
+.new-message{
+  width: 10px !important;
+  height: 10px !important;
+  line-height: 16px !important;
+  border-radius: 50% !important;
+  text-align: center !important;
+  background-color: blue !important;
+  padding: 0px !important;
+}
+
+.notification-number{
+  z-index: 2;
+  margin-top:5px;
+  margin-right: -10px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 10px;
+  background-color: red;
+  color:white;
+}
+
+.app-header-button{
+  color: #ffffff;
+  padding-top: 6px;
+}
+
+

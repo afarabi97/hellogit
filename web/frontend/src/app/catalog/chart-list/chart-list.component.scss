@@ -1,0 +1,47 @@
+// Import your custom theme
+@import '../../../theme.scss';
+
+// Vars
+$list-item-content-height: 200px;
+
+.list-item {
+  border-radius: $border-radius;
+  overflow: hidden;
+  border: 1px solid $border-color;
+  transition: transform 0.2s ease;
+  background-color: $background-light;
+  flex-flow: row-reverse wrap;
+  flex-wrap: wrap;
+  // width: 15%;
+  margin-top: 80px;
+  // flex-direction: row;
+  margin-right: 80px;
+  width: 350px;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.88);
+  }
+
+  &-content {
+    width: 100%;
+    height: $list-item-content-height;
+    display: flex;
+    flex-direction: column;
+    color: $layout-text;
+  }
+
+}
+
+// Vars
+$chart-item-content-height: 150px;
+$chart-item-logo-width: 80px;
+
+.chart-item {
+
+
+
+}

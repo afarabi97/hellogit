@@ -8,8 +8,7 @@ from app import app, logger, conn_mng, CORE_DIR
 from app.archive_controller import archive_form
 from app.common import OK_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
-from app.job_manager import spawn_job
-from app.socket_service import log_to_console
+from app.service.kit_service import perform_kit
 from bson import ObjectId
 from datetime import datetime
 from flask import request, Response, jsonify
@@ -23,10 +22,10 @@ from typing import Dict, Tuple
 def _delete_kubernetes_conf():
     """
     Delets the kubernetes file on disk so that the next time we connect
-    using our Kubernenets in our connection_mng.py module. It will reset to 
+    using our Kubernenets in our connection_mng.py module. It will reset to
     a new configuration file.
-    
-    :return: 
+
+    :return:
     """
     config_path = KUBEDIR + '/config'
     if os.path.exists(config_path) and os.path.isfile(config_path):
@@ -38,7 +37,7 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     Replaces the kit inventory if one exists.
 
     :param kit_form: The kit kit_form received from the frontend
-    :return: True if successfull, False otherwise.        
+    :return: True if successfull, False otherwise.
     """
     # import json
     # print(json.dumps(kit_form, indent=4, sort_keys=True))
@@ -104,14 +103,14 @@ def _change_time_on_nodes(payload: Dict, password: str) -> None:
     """
     timeForm = payload['timeForm']
     for node in payload['kitForm']["nodes"]:
-        _execute_cmds(timeForm, password, node["management_ip_address"])    
+        _execute_cmds(timeForm, password, node["management_ip_address"])
 
 
 def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
     """
     Main function for processing the kit and changing times on the nodes.
 
-    :return: Returns True if its successfull. 
+    :return: Returns True if its successfull.
     """
     isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
     _delete_kubernetes_conf()
@@ -132,13 +131,11 @@ def execute_kit_inventory() -> Response:
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
         cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml --extra-vars \"run_option=install\" ")
-        spawn_job("Kit",
-                cmd_to_execute,
-                ["kit"],
-                log_to_console,
-                working_directory=str(CORE_DIR / "playbooks"))
-        
-        return OK_RESPONSE
+        task_id = perform_kit.delay(cmd_to_execute)
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
+                                                        {"_id": "Kit", "task_id": str(task_id), "pid": ""},
+                                                        upsert=True)
+        return (jsonify(str(task_id)), 200)
 
     logger.error("Executing /api/execute_kit_inventory has failed.")
     return ERROR_RESPONSE
@@ -176,12 +173,7 @@ def execute_add_node() -> Response:
                             "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t docker -l {node} site.yml; "
                             "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t pull_join_script,kube-node,ceph,es-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface site.yml"
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
-            spawn_job("Add_Node",
-                    cmd_to_execute,
-                    ["kit"],
-                    log_to_console,
-                    working_directory=str(CORE_DIR / "playbooks"),
-                    is_shell=True)
+            perform_kit.delay(cmd_to_execute)
         return OK_RESPONSE
 
     logger.error("Executing add node configuration has failed.")

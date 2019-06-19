@@ -1,10 +1,12 @@
+from app import celery
 import io
 import json
 import logging
 import os
 import sys
 
-from connection_wrappers import (FabricConnection, MongoConnectionManager,
+from app.service.socket_service import NotificationMessage, NotificationCode
+from shared.connection_mngs import (FabricConnection, MongoConnectionManager,
                                  KubernetesWrapper, objectify)
 from fabric.runners import Result
 from fabric import Connection
@@ -27,10 +29,10 @@ def _setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int
     handler = RotatingFileHandler(LOG_FILENAME, maxBytes=max_bytes, backupCount=backup_count)
     log_handle.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(levelname)7s:%(asctime)s:%(filename)20s:%(funcName)20s():%(lineno)5s:%(message)s')
-    sysout = StreamHandler(sys.stdout)
+    # sysout = StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     log_handle.addHandler(handler)
-    log_handle.addHandler(sysout)
+    # log_handle.addHandler(sysout)
 
 
 class RuleSyncError(Exception):
@@ -43,6 +45,7 @@ class RuleSynchronization():
     def __init__(self):
         self.rule_sets = None # type: List[Dict]
         self.mongo = None # type: MongoConnectionManager
+        self.notification = NotificationMessage(role="rulesync")
 
     def _is_sensor_in_ruleset(self, ip_address: str, rule_set: Dict) -> bool:
         if rule_set["sensors"] is None or len(rule_set["sensors"]) == 0:
@@ -212,6 +215,10 @@ class RuleSynchronization():
 
     def sync_rulesets(self):
         try:
+            self.notification.setStatus(status=NotificationCode.STARTED.name)
+            self.notification.setMessage("Rule synchronization started.")
+            self.notification.post_to_websocket_api()
+
             with MongoConnectionManager() as mongo:
                 self.mongo = mongo
                 kit = self.mongo.mongo_kit.find_one({"_id": KIT_ID})
@@ -220,6 +227,10 @@ class RuleSynchronization():
                 self.rule_sets = list(self.mongo.mongo_ruleset.find({}))
                 self._clear_enabled_rulesets(kit)
 
+
+                self.notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
+                self.notification.setMessage("Rule synchronization in progress.")
+                self.notification.post_to_websocket_api()
                 for node in kit["form"]["nodes"]:
                     if node["node_type"] != NODE_TYPES[1]:
                         continue
@@ -232,26 +243,37 @@ class RuleSynchronization():
                             self._sync_suricata_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
                             self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
-                            logger.error("Failed to synchronize Suricata rules for {}.".format(hostname))
+                            self.notification.setStatus(status=NotificationCode.ERROR.name)
+                            self.notification.setMessage("Failed to synchronize Suricata rules for {}.".format(hostname))
+                            self.notification.setException(e)
+                            self.notification.post_to_websocket_api()
                             logger.exception(e)
 
                         try:
                             logger.info("Synchronizing Bro scripts for {}.".format(hostname))
                             self._sync_bro_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
-                            logger.error("Failed to synchronize Bro scripts for {}.".format(hostname))
+                            self.notification.setStatus(status=NotificationCode.ERROR.name)
+                            self.notification.setMessage("Failed to synchronize Bro scripts for {}.".format(hostname))
+                            self.notification.setException(e)
+                            self.notification.post_to_websocket_api()
                             self._set_bro_states(hostname, ip_address, RULESET_STATES[3])
                             logger.exception(e)
 
             logger.info("Synchronization Complete!")
+            self.notification.setStatus(status=NotificationCode.COMPLETED.name)
+            self.notification.setMessage("Rule synchronization complete successfully!")
+            self.notification.post_to_websocket_api()
         except Exception as e:
+            self.notification.setStatus(status=NotificationCode.ERROR.name)
+            self.notification.setMessage("Unrecoverable error. This is really bad contact the programmers!")
+            self.notification.setException(e)
+            self.notification.post_to_websocket_api()
             logger.exception(e)
 
 
-def main():
+@celery.task
+def perform_rulesync():
     _setup_logger(logger)
     rs = RuleSynchronization()
     rs.sync_rulesets()
-
-if __name__ == '__main__':
-    main()
