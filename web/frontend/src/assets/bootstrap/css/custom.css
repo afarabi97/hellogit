@@ -243,3 +243,11 @@ input.form-control {
 .table th, .table td {
   padding: 0.25rem 0.25rem 0.25rem 0.75rem;
 }
+
+.modal-backdrop {
+    z-index: -1;
+ }
+
+.modal {
+    background-color: #0e0a0aa3;
+}
