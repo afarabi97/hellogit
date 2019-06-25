@@ -52,8 +52,8 @@ spec:
           readOnly: true
 {% if config.type == "logger" %}
         - name: logs
-          mountPath: /data
-        workingDir: /data/{{config.logger_number}}
+          mountPath: {{ data_path }}/bro
+        workingDir: {{ data_path }}/bro/{{config.logger_number}}
 {% endif %}
         env:
         - name: CLUSTER_NODE

@@ -7,6 +7,6 @@ data:
   config: |
     address-pools:
     - name: default
-      protocol: arp
-      cidr:
+      protocol: layer2
+      addresses:
       - {{ kubernetes_services_cidr }}

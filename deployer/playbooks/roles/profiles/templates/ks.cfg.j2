@@ -1,5 +1,6 @@
 # Determine what drives to use based on inventory file
 {% if item is defined %}{% set boot_drive = hostvars[item].boot_drive %}{% else %}{% set boot_drive = default_boot_drive %}{% endif %}
+{% if item is defined %}{% set data_drive = hostvars[item].data_drive %}{% else %}{% set data_drive = default_data_drive %}{% endif %}
 
 #version=DEVEL
 # System authorization information
@@ -47,8 +48,16 @@ part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_dri
 {% endif %}
 part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive }}
 part pv.01 --size=1 --grow --ondrive={{ boot_drive }}
-volgroup vg01 pv.01
-logvol /  --fstype="xfs" --size=1 --name=root --vgname=vg01 --grow
+volgroup vg_root pv.01
+part pv.02 --size=1 --grow --ondrive={{ data_drive }}
+volgroup vg_data pv.02
+logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
+logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
+logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
+logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
+logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
+logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
+logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
 
 %pre
 list-harddrives | awk '{ print $1 }' > /tmp/disks
@@ -102,6 +111,9 @@ do
  fi
 done
 {% endif %}
+
+# SELinux for data dir
+chcon -R -t container_share_t /data
 
 # Disable SSHD DNS lookups
 echo "UseDNS no" >> /etc/ssh/sshd_config

@@ -17,7 +17,7 @@ moloch_pass: 'password'
 
 # Location of moloch dirs/files
 moloch_dir: '{{ install_dir }}/moloch'
-moloch_path: /data/moloch
+moloch_path: '{{ data_path }}/moloch'
 moloch_config_path: "{{ moloch_path }}/etc"
 moloch_pcap_path: "{{ moloch_path }}/raw"
 

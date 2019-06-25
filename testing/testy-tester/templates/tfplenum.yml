@@ -63,10 +63,10 @@ all:
     # going to run Moloch in direct disk access mode instead of using ceph. We recommend
     # you dedicate a separate disk to PCAP. The disk you will use for PCAP is defined
     # on the sensor hosts in pcap_disk. If you define this value, that disk will
-    # be formatted and wiped and then /pcap used as a mount point to it. WARNING:
+    # be formatted and wiped and then /data/pcap used as a mount point to it. WARNING:
     # THIS WILL BE APPLIED TO ALL SENSORS. YOU CANNOT MIX AND MATCH BETWEEN CLUSTERED
     # AND NON-CLUSTERED STORAGE.
-    fpc_path: "/pcap"
+    fpc_path: "/data/pcap"
 
     # If you want to use clustered storage as described above for PCAP, you will
     # need to set this value. This is the amount of space in GBs total that you

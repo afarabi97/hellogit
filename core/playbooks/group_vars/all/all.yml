@@ -7,6 +7,7 @@ install_group: root
 install_dir: /opt/tfplenum
 log_dir: /var/log/ansible/hosts/
 fqdn: default.svc.cluster.local
+data_path: /data
 
 # Redis
 redis_sentinel_port: 26379

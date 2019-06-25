@@ -34,6 +34,4 @@ separate_ingest: false
 separate_search: false
 
 #### Storage configuration
-es_data_path: "/data"
-vg_name: vg_data
-elasticsearch_lvm: es_data
+es_data_path: "{{data_path}}/elastic"

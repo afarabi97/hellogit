@@ -26,4 +26,19 @@
     dest: ~/.kube/config
     mode: 0644
     flat: yes
+
+- name: Wait for etcd to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "pods"
+    namespace: "kube-system"
+    resource_name: "etcd-{{ ansible_fqdn }}"
+    label: ""
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 10
+
 ...

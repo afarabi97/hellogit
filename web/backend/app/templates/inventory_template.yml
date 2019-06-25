@@ -38,7 +38,7 @@ all:
     # for PCAP is defined on the sensor hosts in pcap_disk. If you define this
     # value, that disk will be formatted and wiped and then /pcap used as a
     # mount point to it.
-    fpc_path: /pcap
+    fpc_path: /data/pcap
 
     # This is the amount of free space (as a percentage) to leave available on
     # the PCAP disk.

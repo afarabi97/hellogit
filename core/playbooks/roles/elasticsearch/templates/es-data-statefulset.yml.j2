@@ -77,7 +77,7 @@ spec:
       - name: data
         hostPath:
           path: {{ es_data_path }}
-          type: Directory
+          type: DirectoryOrCreate
       nodeSelector:
         elasticsearch: "true"
       affinity:

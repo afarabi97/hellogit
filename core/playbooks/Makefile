@@ -95,28 +95,31 @@ storage-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 helm-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 chartmuseum-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum --extra-vars "run_option=reinstall"
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch --extra-vars "run_option=reinstall"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 logstash-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame "run_option=install"
 
 metricbeat-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metricbeat,bro,moloch,suricata,janitor,mumble,endgame
 
 bro-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
 
 suricata-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,janitor,mumble,endgame
@@ -129,9 +132,6 @@ mumble-rerun:
 
 engame-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
-
-helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,elasticsearch,logstash,kibana,metricbeat,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=reinstall"
 
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
