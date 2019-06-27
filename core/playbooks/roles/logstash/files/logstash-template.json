@@ -6,7 +6,8 @@
     "number_of_replicas":1,
     "number_of_shards":5,
     "index.refresh_interval":"30s",
-    "index.mapping.total_fields.limit": 2000
+    "index.mapping.total_fields.limit": 2000,
+    "index.merge.scheduler.max_thread_count": 1
   },
   "mappings":{
     "doc":{

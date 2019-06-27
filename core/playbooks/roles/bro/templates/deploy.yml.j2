@@ -25,12 +25,19 @@ spec:
       - name: {{ node }}
         image: {{ bro_image }}:{{ bro_version }}
         imagePullPolicy: IfNotPresent
+{# Liveness probes on the Bro cluster have a high rate of false positives, #}
+{# which causes a lot of unnecessary restarts. This is okay on everything but #}
+{# the manager and proxy; these have a lot of open connections and the way #}
+{# Kubernetes restarts it leaves a lot of dangling connections, leaving it in #}
+{# an error state when it tries to restart. #}
+{% if config.type != "manager" and config.type != "proxy" %}
         livenessProbe:
             tcpSocket:
                 port: {{ config.port }}
             initialDelaySeconds: 30
             periodSeconds: 15
             failureThreshold: 6
+{% endif %}
 {% if config.type == "worker" %}
         securityContext:
               capabilities:
@@ -40,7 +47,9 @@ spec:
                   - SYS_NICE
         resources:
           requests:
-            cpu: {{ (hostvars[deployment_hostname].bro_cpu_request | replace('m', '') | int / hostvars[deployment_hostname].bro_workers | int) | int }}m
+            cpu: {{ (hostvars[deployment_hostname].bro_cpu_request | replace('m', '') | int /
+                    hostvars[deployment_hostname].bro_workers | int /
+                    hostvars[deployment_hostname].sensor_monitor_interface | length) | int }}m
 {% else %}
         resources:
           requests:

@@ -7,6 +7,8 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 5
   index.number_of_replicas: 1
+  index.refresh_interval: 30s
+  index.merge.scheduler.max_thread_count: 1
 
 #============================== Kibana =====================================
 

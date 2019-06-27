@@ -11,7 +11,7 @@
 - name: Add logrotate cronjobs
   cron:
     name: "tfplenum-logdelete"
-    minute: "*/5"
+    minute: "*/1"
     job: "{{ log_deleter_path }}"
 
 - name: Setup Filebeat configs
