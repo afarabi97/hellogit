@@ -18,6 +18,14 @@
           regexp: "ONBOOT=no"
           replace: "ONBOOT=yes"
         with_items: "{{ sensor_monitor_interface }}"
+
+      - name: Turn off unnecessary listening NIC features
+        template:
+          src: templates/ethtool-setup.j2
+          dest: /etc/NetworkManager/dispatcher.d/30-ethtool
+          mode: 0755
+          owner: root
+          group: root
     rescue:
       - fail:
           msg: |
