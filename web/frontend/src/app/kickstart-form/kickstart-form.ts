@@ -13,6 +13,7 @@ export class NodeFormGroup extends FormGroup {
     super.addControl('ip_address', this.ip_address);
     super.addControl('mac_address', this.mac_address);
     super.addControl('boot_drive', this.boot_drive);
+    super.addControl('data_drive', this.data_drive);
     super.addControl('pxe_type', this.pxe_type);
     this.hidden = hidden;
     this.isDisabled = isDisabled;
@@ -31,6 +32,7 @@ export class NodeFormGroup extends FormGroup {
     this.ip_address.disable();
     this.mac_address.disable();
     this.boot_drive.disable();
+    this.data_drive.disable();
     this.pxe_type.disable();
     this.isDisabled = true;
   }
@@ -43,7 +45,8 @@ export class NodeFormGroup extends FormGroup {
     this.ip_address.enable();
     this.mac_address.enable();
     this.boot_drive.enable();
-    this.pxe_type.enable();    
+    this.data_drive.enable();
+    this.pxe_type.enable();
     this.isDisabled = false;
   }
 
@@ -113,6 +116,19 @@ export class NodeFormGroup extends FormGroup {
        By default, the Supermicro will use sda and the HP DL160 will use sdb."
   )
 
+  data_drive = new HtmlInput(
+    'data_drive',
+    'Data Drive',
+    "Enter a data drive for example: sdb",
+    'text',
+    "",
+    '',
+    true,
+    'sdb',
+    "The data drive is the disk name that will have the data partition configured during the kickstart process.  \
+       By default, the Supermicro will use sdb and the HP DL160 will use sdc."
+  )
+
   pxe_type = new HtmlDropDown(
     'pxe_type',
     'PXE Type',
@@ -121,7 +137,7 @@ export class NodeFormGroup extends FormGroup {
        By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
        BIOS is sometimes called Legacy in the bios settings.",
     'BIOS'
-  )  
+  )
 }
 
 export class NodesFormArray extends FormArray {

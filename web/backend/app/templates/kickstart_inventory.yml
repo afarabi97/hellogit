@@ -74,6 +74,7 @@ all:
               ip: {{ node.ip_address }}
               mac: {{ node.mac_address }}
               boot_drive: {{ node.boot_drive|lower() }}
+              data_drive: {{ node.data_drive|lower() }}
               pxe_type: {{ node.pxe_type|lower() }}
               node_type: tfplenum
             {% endfor %}

@@ -51,7 +51,7 @@
           <h5>System Settings</h5>
           <app-text-input [parentForm]="kickStartForm" controlName="root_password"></app-text-input>
           <app-text-input [parentForm]="kickStartForm" controlName="re_password"></app-text-input>
-          <hr>          
+          <hr>
           <h5>DHCP Settings</h5>
           <app-dropdown [parentForm]="kickStartForm" controlName="dhcp_range" (dropDownChanged)="dhcpInputEvent($event)" uid="dhcp_dropdown"></app-dropdown>
           <div>{{ kickStartForm.dhcpRangeText }}</div>
@@ -72,6 +72,7 @@
             <app-text-input [parentForm]="node" controlName="ip_address" uid="{{ i }}" (buttonClick)="openIPSelector(i)"></app-text-input>
             <app-text-input [parentForm]="node" controlName="mac_address" uid="{{ i }}"></app-text-input>
             <app-text-input [parentForm]="node" controlName="boot_drive" uid="{{ i }}"></app-text-input>
+            <app-text-input [parentForm]="node" controlName="data_drive" uid="{{ i }}"></app-text-input>
             <app-dropdown [parentForm]="node" controlName="pxe_type" uid="{{ i }}"></app-dropdown>
           </div>
         </div>
