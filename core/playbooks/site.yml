@@ -284,16 +284,16 @@
   tags:
     - kibana
 
-- name: Deploy metricbeats
+- name: Deploy metric services
   hosts: master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
-    - metricbeat
+    - metrics
   tags:
-    - metricbeat
+    - metrics
 
 - name: Deploy Bro
   hosts:
