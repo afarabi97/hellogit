@@ -68,6 +68,10 @@ spec:
         - name: elastic-search-conf
           mountPath: {{ elastic_config_path }}/elasticsearch.yml
           subPath: es-search-conf.yml
+        command:
+        - /bin/sh
+        - -c
+        - ulimit -l unlimited; /usr/local/bin/docker-entrypoint.sh
       volumes:
       - name: elastic-search-conf
         configMap:
