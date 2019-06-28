@@ -1,18 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { environment } from '../environments/environment';
 import * as socketIo from 'socket.io-client';
-
-const SERVER_URL = "http://" + window.location.hostname + ":5001";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
 
+  private ws_url: string;
   private socket;
 
-  public initSocket(): void {
-      this.socket = socketIo(SERVER_URL);
+  constructor(){
+    if (environment.production){
+      this.ws_url = "wss://" + window.location.hostname;
+    } else {
+      this.ws_url = "ws://" + window.location.hostname + ":5001";
+    }
+    
+    this.socket = socketIo(this.ws_url);
   }
 
   public getSocket(){

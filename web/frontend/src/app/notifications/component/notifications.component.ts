@@ -35,8 +35,6 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   ngOnInit() {
-    this._WebsocketService.initSocket();
-
     this._NotificationService.getNotications().subscribe((messages:any) => {
       messages.map(message => {
         this.makeArray(message);
