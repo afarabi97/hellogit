@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
+import { CookieService } from '../services/cookies.service';
 
 
 @Component({
@@ -33,17 +34,19 @@ export class TopNavbarComponent implements OnInit {
 
   @ViewChild('notifications') notifications: NotificationsComponent;
 
-  constructor(private route: ActivatedRoute, iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
-    iconRegistry.addSvgIcon(
-      'tfplenum',
-      sanitizer.bypassSecurityTrustResourceUrl('favicon.ico'));
-
+  constructor(private route: ActivatedRoute, private cookieService: CookieService) {
   }
 
   ngOnInit() {
+    this.showLinkNames = this.cookieService.get('isOpen') == 'true' ? true : false;
   }
 
   openNotifications() {
     this.notifications.openNotification();
+  }
+
+  toggleSideNavigation() {
+    this.showLinkNames = !this.showLinkNames;
+    this.cookieService.set('isOpen', this.showLinkNames.toString());
   }
 }

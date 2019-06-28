@@ -67,25 +67,36 @@ import { SnackbarWrapper } from './classes/snackbar-wrapper';
 
 // modules
 import { InjectorModule } from './utilily-modules/injector.module';
+import { CookieService } from './services/cookies.service';
+
+// Kickstart Form
+import { KickstartFormAutoCompleteComponent } from './kickstart-form/components/kickstart-form-autocomplete.component';
+
+// Archives
+import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-restore-dialog.component';
+import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TopNavbarComponent,
     KickstartFormComponent,
+    KickstartFormAutoCompleteComponent,
+    ArchiveRestoreDialogComponent,
+    ArchiveSaveDialogComponent,
     HelpComponent,
     TextInputComponent,
     TextAreaInputComponent,
     DropdownComponent,
     CheckboxComponent,
     KitFormComponent,
+    ModalArchiveDialogComponent,
     BasicNodeResourceCardComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
     CardSelectorComponent,
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
-    ModalArchiveDialogComponent,
     PortalComponent,
     SystemHealthComponent,
     SafePipe,
@@ -129,7 +140,8 @@ import { InjectorModule } from './utilily-modules/injector.module';
     // HttpModule
   ],
   providers: [
-    SnackbarWrapper
+    SnackbarWrapper,
+    CookieService
   ],
   bootstrap: [AppComponent],
   entryComponents: [
@@ -141,7 +153,9 @@ import { InjectorModule } from './utilily-modules/injector.module';
     AgentInstallerAddDialogComponent,
     StepperComponent,
     NotificationsModuleComponent,
-    ConfirmDailogComponent
+    ConfirmDailogComponent,
+    ArchiveRestoreDialogComponent,
+    ArchiveSaveDialogComponent
   ]
 })
 export class AppModule { }

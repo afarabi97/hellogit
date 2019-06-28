@@ -1,9 +1,21 @@
-@import '../../theme.scss';
+@import "../../assets/variables.scss";
+.mat-fab.mat-primary,
+.mat-flat-button.mat-primary,
+.mat-mini-fab.mat-primary,
+.mat-raised-button.mat-primary {
+  background-color: $primary !important;
+}
+.active{
+  background-color: $primary;
+}
 mat-drawer-container {
   height: 100vh;
+  background-color: $base-dark-background;
   mat-drawer {
     background-color: $base-black-background;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
     .version {
       margin-left: 6em;
     }
@@ -12,7 +24,7 @@ mat-drawer-container {
     }
     h5 {
       padding: 0.75em;
-      padding-bottom: 0
+      padding-bottom: 0;
     }
     mat-list-item {
       &:hover {
@@ -21,11 +33,9 @@ mat-drawer-container {
       }
     }
     .main-sidenav-bottom {
-      position: absolute;
       display: flex;
       align-items: center;
       justify-content: center;
-      bottom: 12px;
       width: 100%;
       cursor: pointer;
       width: 100%;
@@ -42,7 +52,7 @@ mat-drawer-container {
       }
     }
   }
-  .main-content {
-    margin-top: -3em;
+  .mat-drawer-main-content {
+    background-color: $base-dark-background;
   }
 }

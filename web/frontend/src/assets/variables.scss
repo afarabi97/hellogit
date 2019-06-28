@@ -1,0 +1,81 @@
+
+$base-black-background: #000000;
+$base-dark-background: #212121;
+$first-elevation-dark-background: #303030;
+$second-elevation-dark-background: #424242;
+$third-elevation-dark-background: #585858;
+$primary: #1eb980;
+$primary-variant: #3498db;
+$accent: #03a9f4;
+$warn: #ff4949;
+$white: white;
+$layout-dark: #333239;
+$layout-base: #303030;
+$layout-light: #f8f8f8;
+$layout-text: #38383f;
+$text-white: white;
+$background-light: #eaedef;
+$background-white: white;
+$border-color: #d7d9dd;
+
+$border-radius: 8px;
+$layout-max-width: 1280px;
+$header-bar-height: 70px;
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+$breakpoints: (
+  small: 480px,
+  medium: 840px,
+  large: 1024px,
+  xlarge: 1280px
+);
+tfplenum- mat-form-field {
+  &.mat-input--full {
+    width: 100%;
+  }
+
+  .mat-input-infix {
+    border-top: 0;
+  }
+
+  &.mat-input--reverse {
+    .mat-input-underline {
+      background-color: $layout-light;
+    }
+    .mat-input-element {
+      color: $layout-light;
+    }
+  }
+
+  &:not(.mat-focused) .mat-input-placeholder {
+    color: darken($layout_light, 25);
+  }
+
+  &.mat-input--big {
+    font-size: 1.5em;
+  }
+}
+
+@mixin placeholder {
+  &::-webkit-input-placeholder {
+    @content;
+  }
+  &:-moz-placeholder {
+    @content;
+  }
+  &::-moz-placeholder {
+    @content;
+  }
+  &:-ms-input-placeholder {
+    @content;
+  }
+}

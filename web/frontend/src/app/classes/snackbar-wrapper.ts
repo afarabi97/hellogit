@@ -7,7 +7,9 @@ export class SnackbarWrapper {
 
     showSnackBar(message: string, timeInMs?: number, actionLabel?: string, callback?: (value: MatSnackBarDismiss) => void) {
         const config = new MatSnackBarConfig();
-        config.duration = timeInMs;
+        if (timeInMs !== -1) {
+            config.duration = timeInMs;
+        }
         const toastRef = this._snackBar.open(message, actionLabel, config);
 
         toastRef.afterDismissed().subscribe(callback);

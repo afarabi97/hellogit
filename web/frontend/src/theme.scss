@@ -1,114 +1,20 @@
-@import '~@angular/material/_theming';
-// Plus imports for other components in your app.
-
-// Include the base styles for Angular Material core. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
+@import './assets/variables.scss';
+@import '~@angular/material/theming';
 @include mat-core();
 
-$base-black-background: black;
-$base-dark-background: #212121;
-$first-elevation-dark-background: #303030;
-$second-elevation-dark-background: #424242;
-$third-elevation-dark-background: #585858;
-$primary: #1eb980;
-$primary-variant: #3498db;
-$accent: #03a9f4;
-$warn: #ff4949;
-$white: white;
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$tfplenum-app-primary: mat-palette($mat-green);
+$tfplenum-app-accent:  mat-palette($mat-light-blue, A200, A100, A400);
 
-$color-base: #3371e3;
+// The warn palette is optional (defaults to red).
+$tfplenum-app-warn:    mat-palette($mat-red);
 
-$mat-tfplenum: (
-  50:  #bdd1f6, // #e3f2fd,
-  100: #adc6f4, // #bbdefb,
-  200: #8fb1f0, // #90caf9,
-  300: #709ceb, // #64b5f6,
-  400: #5286e7, // #42a5f5,
-  500: #3371e3, // #2196f3,
-  600: #2b60c1, // #1e88e5,
-  700: #244f9f, // #1976d2,
-  800: #1c3e7d, // #1565c0,
-  900: #142d5b, // #0d47a1,
-  A100: #adc6f4, // #82b1ff,
-  A200: #8fb1f0, // #448aff,
-  A400: #5286e7, // #2979ff,
-  A700: #244f9f, // #2962ff,
-  contrast: (
-    50: $black-87-opacity,
-    100: $black-87-opacity,
-    200: $black-87-opacity,
-    300: $black-87-opacity,
-    400: white,
-    500: white,
-    600: white,
-    700: white,
-    800: white,
-    900: white,
-    A100: $black-87-opacity,
-    A200: $black-87-opacity,
-    A400: white,
-    A700: white,
-  )
-);
+// Create the theme object (a Sass map containing all of the palettes).
+$tfplenum-app-theme: mat-dark-theme($tfplenum-app-primary, $tfplenum-app-accent, $tfplenum-app-warn);
 
-$tfplenum-app-primary: mat-palette($mat-tfplenum);
-$tfplenum-app-accent:  mat-palette($mat-light-blue);
-$tfplenum-app-warn: mat-palette($mat-red);
-$tfplenum-app-theme: mat-light-theme($tfplenum-app-primary, $tfplenum-app-accent, $tfplenum-app-warn);
-
-$layout-dark: #333239;
-$layout-base: #303030;
-$layout-light: #f8f8f8;
-$layout-text: #38383F;
-$text-white: white;
-$background-light: #EAEDEF;
-$background-white: white;
-$header-backgound-gradient: linear-gradient(to left, $layout-base, mat-color($tfplenum-app-primary, 900));
-$border-color: #D7D9DD;
-
-
-$border-radius: 8px;
-$layout-max-width: 1280px;
-$header-bar-height: 70px;
-
-
-$breakpoints: (
-  small: 480px,
-  medium: 840px,
-  large: 1024px,
-  xlarge: 1280px
-);
-tfplenum-
-mat-form-field {
-  &.mat-input--full {
-    width: 100%;
-  }
-
-  .mat-input-infix {
-    border-top: 0;
-  }
-
-  &.mat-input--reverse {
-    .mat-input-underline {
-      background-color: $layout-light;
-    }
-    .mat-input-element {
-      color: $layout-light;
-    }
-  }
-
-  &:not(.mat-focused) .mat-input-placeholder {
-     color: darken($layout_light, 25);
-  }
-
-  &.mat-input--big {
-    font-size: 1.5em;
-  }
-}
-
-@mixin placeholder {
-  &::-webkit-input-placeholder {@content;}
-  &:-moz-placeholder           {@content;}
-  &::-moz-placeholder          {@content;}
-  &:-ms-input-placeholder      {@content;}
-}
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($tfplenum-app-theme);

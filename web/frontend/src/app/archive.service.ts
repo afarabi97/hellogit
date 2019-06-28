@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { HTTP_OPTIONS } from './globals';
 import { Observable } from 'rxjs';
 
@@ -15,6 +15,11 @@ export class ArchiveService {
     archiveForm['config_id'] = formKey
     archiveForm['form'] = pageForm
     console.log(archiveForm);
+    return this.http.post(url, archiveForm, HTTP_OPTIONS);
+  }
+
+  archiveForm2(archiveForm){    
+    const url = '/api/archive_form';
     return this.http.post(url, archiveForm, HTTP_OPTIONS);
   }
 

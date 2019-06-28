@@ -1,4 +1,4 @@
-<mat-drawer-container autosize>
+<mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
       <h5 *ngIf="showLinkNames">TFPlenum Controller</h5>
       <span class="version" *ngIf="showLinkNames">v3.2</span>
@@ -12,7 +12,7 @@
           <h3 mat-subheader *ngIf="group.label && showLinkNames">
             {{ group.label }}
           </h3>
-          <mat-list-item *ngFor="let child of group.children" routerLink="{{ child.url }}" matTooltip="{{child.label}}" >
+          <mat-list-item *ngFor="let child of group.children" routerLink="{{ child.url }}" matTooltip="{{child.label}}"  routerLinkActive="active" >
             <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
             <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
           </mat-list-item>
@@ -21,13 +21,13 @@
       </mat-list>
       <div
         class="main-sidenav-bottom"
-        (click)="showLinkNames = !showLinkNames"
+        (click)="toggleSideNavigation()"
         matRipple
         [matRippleTrigger]="trigger"
         centered="true"
       >
       <mat-divider></mat-divider>
-        <div #trigger class="main-sidenav-button-trigger">
+        <div #trigger class="main-sidenav-button-trigger" matTooltip="Toggle">
           <mat-icon *ngIf="!showLinkNames">arrow_forward</mat-icon>
           <mat-icon *ngIf="showLinkNames">arrow_back</mat-icon>
           <span *ngIf="showLinkNames">Collapse</span>
@@ -35,7 +35,7 @@
       </div>
     </mat-drawer>
   
-    <div class="main-content">
+    <div class="mat-drawer-main-content" >
       <router-outlet></router-outlet>
     </div>
   </mat-drawer-container>
