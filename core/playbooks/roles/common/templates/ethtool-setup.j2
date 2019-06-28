@@ -2,7 +2,7 @@
 
 if [ "$2" == "up" ] && (
 {% for item in sensor_monitor_interface %}
-  [ "$1" == "{{ item }}" ] {{ '||' if not loop.last }}
+  [ "$1" == "{{ item }}" ] {{ '||' if not loop.last else "" }}
 {% endfor %}
 ); then
     ethtool -K "$1" tx off rx off sg off rxvlan off txvlan off highdma off tso off ufo off gso off gro off lro off rxhash off
