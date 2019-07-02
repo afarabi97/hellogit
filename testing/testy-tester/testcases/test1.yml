@@ -18,15 +18,12 @@ kit:
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)
       gateway: "172.16.82.1"
+      dhcp_range: "172.16.82.192"
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
       # The branch we want to pull from.
       branch_name: devel
-
-      # these branches are name of the branches on your fork you want to use
-      tfplenum_branch_name: devel
-
       source_repo: labrepo
 
       # Kubernetes cidr will probably be different on a per kit basis
@@ -120,8 +117,8 @@ kit:
       es_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -154,8 +151,8 @@ kit:
       es_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -198,8 +195,8 @@ kit:
       pcap_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -242,8 +239,8 @@ kit:
       pcap_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"

@@ -1,10 +1,10 @@
 ---
 host_configuration:
   vcenter:
-    ip_address: "172.16.20.106"    
-    cluster_name: "SIL_Dev-Cluster"    
+    ip_address: "172.16.20.106"
+    cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
-  storage:    
+  storage:
     datastore: "NVMe Storage"
     folder: "Testing"
   iso_folder_path: "/root/"
@@ -15,11 +15,11 @@ kit:
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)
       gateway: "172.16.82.1"
+      dhcp_range: "172.16.82.224"
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
-      branch_name: devel      
-      tfplenum_branch_name: devel
+      branch_name: devel
       source_repo: labrepo
 
       # Kubernetes cidr will probably be different on a per kit basis
@@ -40,7 +40,7 @@ kit:
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
       # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
-      vm_guestos: RHEL_7_64        
+      vm_guestos: RHEL_7_64
       vm_to_clone: "NVMEe Test Template"
       domain: 'lan'
       gateway: "172.16.82.1"
@@ -113,8 +113,8 @@ kit:
       es_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -147,8 +147,8 @@ kit:
       es_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -156,7 +156,7 @@ kit:
         - "ETHERNET"
     test3-sensor1.lan:
       type: "sensor" # Can be controller, sensor, or server
-      vm_guestos: RHEL_7_64          
+      vm_guestos: RHEL_7_64
       networking:
         nics:
           ens193:
@@ -187,12 +187,12 @@ kit:
       memory_spec:
         size: 12
         hot_add_enabled: False
-      boot_drive_name: "sda"      
+      boot_drive_name: "sda"
       pcap_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"

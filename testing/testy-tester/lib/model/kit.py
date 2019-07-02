@@ -17,7 +17,7 @@ class Kit(object):
         add_nodes (list): A list of the VM nodes which are a part of the kit
         kubernetes_cidr (str): See frontend help page
         branch_name (str): The name of the branch.
-        source_repo (str): Name of yum repos labrepo or public        
+        source_repo (str): Name of yum repos labrepo or public
         external_nets (list): See frontend help page
         remote_sensor_portgroup (str): used for remote sensors vlan
         remote_sensor_network (str): network address for remote sensors
@@ -42,22 +42,19 @@ class Kit(object):
         self.kubernetes_cidr = kubernetes_cidr
 
     def set_kickstart_configuration(self, kickstart_configuration: KickstartConfiguration) -> None:
-        self.kickstart_configuration = kickstart_configuration    
+        self.kickstart_configuration = kickstart_configuration
 
     def set_branch_name(self, branch_name: str) -> None:
         self.branch_name = branch_name
 
-    def set_tfplenum_branch_name(self, tfplenum_branch_name: str) -> None:
-        self.tfplenum_branch_name = tfplenum_branch_name    
-
     def set_source_repo(self, source_repo: str) -> None:
-        self.source_repo = source_repo    
+        self.source_repo = source_repo
 
-    def set_home_nets(self, home_nets: list) -> None:
+    def set_home_nets(self, home_nets: List[str]) -> None:
         self.home_nets = home_nets
 
-    def set_external_nets(self, external_nets: list) -> None:
-        self.external_nets = external_nets    
+    def set_external_nets(self, external_nets: List[str]) -> None:
+        self.external_nets = external_nets
 
     def set_remote_sensor_portgroup(self, remote_sensor_portgroup: str) -> None:
         self.remote_sensor_portgroup = remote_sensor_portgroup
@@ -72,6 +69,13 @@ class Kit(object):
         :return list: A list of all nodes in the kit
         """
         return self.nodes
+
+    def get_controller(self) -> Node:
+        for node in self.nodes:
+            if node.type == Node.valid_node_types[2]:
+                return node
+
+        raise ValueError("Failed to find the controller node type in your yml config file.")
 
     def get_server_nodes(self) -> List[Node]:
         """
@@ -105,4 +109,9 @@ class Kit(object):
 
     def __str__(self) -> str:
         p_nodes = '\n'.join([str(x) for x in self.nodes])
-        return "Name: %s\nUsername: %s\nPassword: %s\nDeployer Template: %s\nTfplenum Template: %s\nK8s Cidr: %s\nDHCP Start: %s\nDHCP End: %s\nGateway: %s\nNetmask: %s\nNodes:%s\n" % (self.name, self.username, self.password, self.deployer_template, self.tfplenum_template,self.kubernetes_cidr, self.dhcp_start, self.dhcp_start, self.gateway, self.netmask, p_nodes)
+        return ("Name: %s\nUsername: %s\nPassword: %s\nDeployer Template: %s\nTfplenum Template: %s\n"
+                "K8s Cidr: %s\nDHCP Start: %s\nDHCP End: %s\nGateway: %s\nNetmask: %s\nNodes:%s\n" %
+                  (self.name, self.username, self.password, self.deployer_template,
+                   self.tfplenum_template,self.kubernetes_cidr, self.dhcp_start,
+                   self.dhcp_start, self.gateway, self.netmask, p_nodes)
+               )

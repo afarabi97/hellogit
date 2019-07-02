@@ -52,7 +52,10 @@ class AsyncJob:
     def _run_output_func(self, msg: bytes, is_stderr=False) -> None:
         self._output_fn(self._job_name, self._job_id, msg)
 
-    def _save_job(self, job_retval: int, message: str) -> None:
+    def _save_job(self, job_retval: int) -> None:
+        message = "Failed"
+        if job_retval == 0:
+            message = "Success"
         conn_mng.mongo_last_jobs.find_one_and_replace({"_id": self._job_name},
                                                     {"_id": self._job_name,
                                                     "return_code": job_retval,
@@ -92,7 +95,9 @@ class AsyncJob:
         while proc.poll() is None:
             check_io()
 
-        return proc.poll()
+        ret_code = proc.poll()
+        self._save_job(ret_code)
+        return ret_code
 
 
 def run_command(command: str,

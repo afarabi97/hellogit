@@ -182,9 +182,8 @@ class Node(object):
         boot_order: A list of boot devices from which the VM may boot
         boot_drive (str): The name of the bootable disk
         management_interface: The Interface object for the management interface
-        es_drives (List): A list of ceph drives that we wish to select for the configuration.
-        pcap_drives (List): A list of ceph drives that we wish to select during our kit configuration.
-        monitoring_ifaces (List): A list of monitoring interfaces that will be selected during kit configuration.
+        es_drives (List): A list of drives that we wish to select for the configuration.
+        pcap_drives (List): A list of drives that we wish to select during our kit configuration.
     """
     def __init__(self, hostname: str, node_type: str) -> None:
         """
@@ -222,7 +221,6 @@ class Node(object):
         self.dns_list = None
         self.es_drives = None
         self.pcap_drives = None
-        self.monitoring_ifaces = None
 
     def set_vm_to_clone(self, vm_to_clone: str) -> None:
         """
@@ -366,15 +364,6 @@ class Node(object):
         :return:
         """
         self.pcap_drives = pcap_drives
-
-    def set_monitoring_ifaces(self, monitoring_ifaces: List[str]) -> None:
-        """
-        Sets the monitoring interfaces list.
-
-        :param monitoring_ifaces:
-        :return:
-        """
-        self.monitoring_ifaces = monitoring_ifaces
 
     def set_boot_order(self, boot_order: list) -> None:
         """

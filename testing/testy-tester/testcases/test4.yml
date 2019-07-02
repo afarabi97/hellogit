@@ -1,30 +1,27 @@
 ---
 host_configuration:
   vcenter:
-    ip_address: "172.16.20.106"    
-    cluster_name: "SIL_Dev-Cluster"    
+    ip_address: "172.16.20.106"
+    cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
-  storage:    
+  storage:
     datastore: "NVMe Storage"
     folder: "Testing"
   iso_folder_path: "/root/"
 
-kit:  
+kit:
   kickstart_configuration:
       netmask: "255.255.255.0"
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)
       gateway: "172.16.82.1"
+      dhcp_range: "172.16.82.240"
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
       # The branch we want to pull from.
       branch_name: devel
-
-      # these branches are name of the branches on your fork you want to use
-      tfplenum_branch_name: devel
-      source_repo: labrepo
-      use_ceph_for_pcap: false
+      source_repo: labrepo      
 
       # Kubernetes cidr will probably be different on a per kit basis
       kubernetes_cidr: "172.16.82.176"
@@ -34,7 +31,7 @@ kit:
 
       # This is optional - you can fill it in if you need to
       external_nets:
-         
+
   VMs:
     # Note: You should not have more than one of these
     test4-controller.lan:
@@ -119,9 +116,8 @@ kit:
         - sdb
         - sdc
       disks:
-        boot: 20
-        ceph: 20
-        ceph2: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"
@@ -164,8 +160,8 @@ kit:
       pcap_drives:
         - sdb
       disks:
-        boot: 20
-        ceph: 20
+        boot: 50
+        data: 50
       iso_file:
       boot_order:
         - "CDROM"

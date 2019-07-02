@@ -6,13 +6,33 @@
 
 ---
 
+- name: Tag master server
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: master_server
+      when: hostvars[item].is_master | default(false)
+      with_items: "{{ groups['all'] }}"
+
+- name: Tag remote sensors
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: remote_sensors
+      when: hostvars[item].is_remote | default(false)
+      with_items: "{{ groups['all'] }}"
+
 - name: Verify tfplenum has been deployed
   hosts:
     - master_server
     - servers
     - sensors
     - remote_sensors
-  gather_facts: no  
+  gather_facts: no
   roles:
     - preflight
   tags: preflight
@@ -31,13 +51,6 @@
   roles:
     - kubernetes
   tags: kubernetes
-
-- name: Verify ceph is healthy
-  hosts: master_server
-  gather_facts: no
-  roles:
-    - ceph
-  tags: ceph
 
 - name: Validate Elasticsearch
   hosts:

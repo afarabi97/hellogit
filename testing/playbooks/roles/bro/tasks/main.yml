@@ -9,16 +9,6 @@
   register: get_pods
   changed_when: get_pods.failed
 
-- name: Check Bro Process
-  include_role:
-    name: common
-    tasks_from: check_pod_process
-  vars:
-    app_name: "bro"
-    process_name: "bro"
-    pod_name: "{{ item }}"
-  with_items: "{{ get_pods.stdout_lines }}"
-
 - name: Check Bro Indicies
   import_role:
     name: common

@@ -8,7 +8,7 @@ tfplenum-integration-testing
 --run-kickstart         Creates sensors/server VMs and kickstarts them
 --run-kit               Deploys tfplenum to kit
 --run-integration-tests Runs integration testing playbook
---headless              Runs selenium in headless mode (required when not using a desktop/gui)
+--headless              DEPRECATED Runs selenium in headless mode (required when not using a desktop/gui)
 -du                     DI2E Username
 -dp                     DI2E Password
 -vu                     VCenter Username
@@ -25,10 +25,10 @@ python36 main.py --setup-controller --path testy-tester/testcases/${kit} -du ${d
 
 ## Running Kickstart
 ```
-python36 main.py --run-kickstart --headless --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}
+python36 main.py --run-kickstart --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}
 ```
 
 ## Running Kickstart
 ```
-python36 main.py --run-kickstart --headless --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}
+python36 main.py --run-kickstart --path testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}
 ```

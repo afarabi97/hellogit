@@ -1,20 +1,24 @@
-from collections import OrderedDict
-from time import sleep
-from lib.ssh import SSH_client
-from fabric import Connection
-from jinja2 import Environment, FileSystemLoader
+import logging
 import os.path
+
+from collections import OrderedDict
+from datetime import datetime, timedelta
+from fabric import Connection
+from functools import wraps
+from jinja2 import Environment, FileSystemLoader
+from lib.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
 from lib.model.kit import Kit
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node, Interface, NodeDisk
+from lib.ssh import SSH_client
+from time import sleep
+from typing import List, Dict
 from urllib.parse import quote
-from typing import List
-import logging
-from lib.connection_mngs import FabricConnectionWrapper
-from datetime import datetime, timedelta
-from functools import wraps
-from lib.connection_mngs import MongoConnectionManager
-from typing import Dict
+
+
+#/opt/tfplenum/testing/playbooks/reports
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+REPORTS_DIR = SCRIPT_DIR + "/../../playbooks/reports"
 
 
 def todict(obj: object, classkey=None) -> dict:
@@ -109,18 +113,12 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: the name of the branch we want to pull bootstrap from.
     """
-    if kit.branch_name == "fork" or kit.branch_name == "custom":
-        tfplenum_branch = kit.tfplenum_branch_name
-    else:
-        tfplenum_branch = kit.branch_name
-
     curl_cmd = "curl -o /root/bootstrap.sh -u {username}:'{password}' " \
                "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum" \
-                "/raw/bootstrap.sh?at={branch_name}".format(branch_name=tfplenum_branch,
+                "/raw/bootstrap.sh?at={branch_name}".format(branch_name=kit.branch_name,
                                                             username=di2e_username,
                                                             password=di2e_password)
-
-    print(curl_cmd)
+    
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -136,7 +134,6 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
     :param di2e_password: Password to access DI2E systems.
     :param branch_name: The branch we will clone from when we run our bootstrap.
     """
-    fork_var = "yes" if kit.branch_name == "fork" or kit.branch_name == "custom" else "no"
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -148,8 +145,8 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export RHEL_SOURCE_REPO='" + kit.source_repo + "' && \
             export PASSWORD='" + di2e_password + "' && \
             export GIT_PASSWORD='" + di2e_password + "' && \
-            export TFPLENUM_BRANCH_NAME='" + kit.tfplenum_branch_name + "' && \
-            export USE_FORK='" + fork_var + "' && \
+            export TFPLENUM_BRANCH_NAME='" + kit.branch_name + "' && \
+            export USE_FORK='no' && \
             bash /root/bootstrap.sh")
         client.run(cmd_to_execute, shell=True)
 
@@ -158,26 +155,15 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
     current_path=os.getcwd()
     reports_destination="reports/"
     if "jenkins" not in current_path:
-        reports_destination=""
-    reports_source = "/opt/tfplenum/testing/playbooks/reports"
-    cmd_to_list_reports = ("for i in " + reports_source + "/*; do echo $i; done")
-    cmd_to_mkdir = ("mkdir -p reports")
-    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
-        export JUNIT_FAIL_ON_CHANGE='true' && \
+        reports_destination=""        
+    cmd_to_execute = ("export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
-    print(ctrl_node.management_interface.ip_address)
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
-        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
-            ctrl_cmd.run(cmd_to_mkdir)
+        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):            
             ctrl_cmd.run(cmd_to_execute, shell=True)
-            reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
-            reports = reports_string_.replace("\r","").split("\n")
-            for report in  reports:
-                filename = report.replace(reports_source + "/", "")
-                ctrl_cmd.get(report, reports_destination + filename)
 
 
 def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
@@ -355,17 +341,13 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     kickstart_configuration = KickstartConfiguration()
     kickstart_configuration.set_gateway(configuration["kickstart_configuration"]['gateway'])
     kickstart_configuration.set_netmask(configuration["kickstart_configuration"]['netmask'])
+    kickstart_configuration.set_dhcp_range(configuration["kickstart_configuration"]['dhcp_range'])
     kit.set_kickstart_configuration(kickstart_configuration)
 
     kit.set_username("root")
     kit.set_password("we.are.tfplenum")
     kit.set_kubernetes_cidr(configuration['kit_configuration']['kubernetes_cidr'])
     kit.set_branch_name(configuration["kit_configuration"]['branch_name'])
-
-    if 'tfplenum_branch_name' not in configuration["kit_configuration"]:
-        kit.set_tfplenum_branch_name("devel")
-    else:
-        kit.set_tfplenum_branch_name(configuration["kit_configuration"]['tfplenum_branch_name'])
 
     if 'source_repo' not in configuration["kit_configuration"]:
         kit.set_source_repo("labrepo")

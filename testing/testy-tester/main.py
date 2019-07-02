@@ -20,6 +20,7 @@ from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.model.host_configuration import HostConfiguration
 from lib.frontend_tester import KickstartSeleniumRunner, KitSeleniumRunner
+from lib.api_tester import APITester
 from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
 from lib.kubernetes_utilities import wait_for_pods_to_be_alive
@@ -115,9 +116,7 @@ class Runner:
         # If using 3.7+ this is not an issue as it is the default behavior
         with open(self.args.filename, 'r') as kit_schema:
             try:
-
                 self.configuration = yaml.load(kit_schema)
-
                 self.host_configuration = HostConfiguration(self.configuration["host_configuration"]["vcenter"]["ip_address"],
                 self.configuration["host_configuration"]["vcenter"]["cluster_name"],
                 self.configuration["host_configuration"]["vcenter"]["datacenter"],
@@ -132,32 +131,29 @@ class Runner:
                 self.kit = transform(self.configuration["kit"])  # type: Kit
 
                 if self.args.tfplenum_commit_hash is not None:
-                    self.kit.set_branch_name("custom")
-                    self.kit.set_tfplenum_branch_name(self.args.tfplenum_commit_hash)
+                    self.kit.set_branch_name(self.args.tfplenum_commit_hash)
 
             except yaml.YAMLError as exc:
                 print(exc)
 
-    def _perform_bootstrap(self, kit: Kit):
+    def _perform_bootstrap(self):
         """
         Executes the bootstrap logic needed to setup a fully functional controller.
-
-        :param Kit:
+        
         :return:
         """
         logging.info("Downloading controller bootstrap...")
-        get_bootstrap(self.controller_node, self.di2e_username, kit, self.di2e_password)
+        get_bootstrap(self.controller_node, self.di2e_username, self.kit, self.di2e_password)
 
         logging.info("Running controller bootstrap...")
-        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, kit)
+        run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, self.kit)
 
-    def _setup_controller(self, kit: Kit):
+    def _setup_controller(self):
         """
         Does everything that is needed to setup a fully functional controller.
         It deletes the controller if it already exists before cloning from a template.
         After which it configured networking based on the passed in yaml file.
-
-        :param kit:
+        
         :return:
         """
         if not self.args.setup_controller and not self.args.run_all:
@@ -178,12 +174,11 @@ class Runner:
         ctrl_vm.power_on()
 
         logging.info("Waiting for controller to become alive...")
-        test_vms_up_and_alive(kit, [self.controller_node], 20)
+        test_vms_up_and_alive(self.kit, [self.controller_node], 20)
 
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.change_hostname()
-
-        self._perform_bootstrap(kit)
+        self._perform_bootstrap()
 
     def _export_controller(self):
         logging.info("Exporting the controller to OVA.")
@@ -260,9 +255,9 @@ class Runner:
                     mac = macs[mac]  # type: str
                     interface.set_mac_address(mac)
 
-    def _get_interface_name(self, kit: Kit):
+    def _get_interface_name(self):
         logging.info("Get monitor interface name")
-        get_interface_name(kit.get_nodes())
+        get_interface_name(self.kit.get_nodes())
 
     def controller_modifier(self):
         ctrl_modifier = ControllerModifier(self.controller_node)
@@ -282,34 +277,28 @@ class Runner:
             pass
         self.controller_modifier()
 
-
-    def _update_remote_sensors(self, kit: Kit):
+    def _update_remote_sensors(self):
         """
         Change the portgroup for remote sensor
 
-        :param
+        :return:        
         """
-
-        remote_sensors = get_nodes(kit, "remote_sensor")  # type: list
-
+        remote_sensors = get_nodes(self.kit, "remote_sensor")  # type: list
         for node in remote_sensors:
-
             logging.info("Updating " + node.hostname + " networking")
-            change_remote_sensor_ip(kit, node)
+            change_remote_sensor_ip(self.kit, node)
             vm = VirtualMachine(self.vsphere_client, node, self.host_configuration)
             vm.power_off()
             change_network_port_group(self.host_configuration, node, self.kit.remote_sensor_portgroup)
             vm.power_on()
 
-        test_vms_up_and_alive(kit, kit.nodes, 30)
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
 
-
-    def _run_kickstart(self, kit: Kit):
+    def _run_kickstart(self):
         """
         Performs the needed operations to Kickstart any and all vms mentions in
-        the passed in kit.
-
-        :param kit:
+        the kit.
+        
         :return:
         """
         if not self.args.run_kickstart and not self.args.run_all:
@@ -317,61 +306,61 @@ class Runner:
 
         self.power_on_controller()
         logging.info("Creating VMs...")
-        vms = destroy_and_create_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)  # type: list
+        vms = destroy_and_create_vms(self.kit.get_nodes(), self.vsphere_client, self.host_configuration)  # type: list
         self._power_on_vms(vms)
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
 
         logging.info("Configuring Kickstart")
-        runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
-        runner.run_kickstart_configuration(kit)
+        # runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        # runner.run_kickstart_configuration(kit)
+        runner = APITester(self.controller_node.management_interface.ip_address, self.kit)
+        runner.run_kickstart_api_call()
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to become alive...")
-        test_vms_up_and_alive(kit, kit.nodes, 30)
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
 
-    def _run_kit(self, kit: Kit):
+    def _run_kit(self):
         """
-        Performs the needed operations to run a kit assuming kickstart has already run, etc.
-
-        :param kit:
+        Performs the needed operations to run a kit assuming kickstart has already run, etc.        
         :return:
         """
         if not self.args.run_kit and not self.args.run_all:
             return
 
         self.power_on_controller()
-        vms = get_vms(kit, self.vsphere_client, self.host_configuration)
-        all_vms = get_all_vms(kit, self.vsphere_client, self.host_configuration)
+        vms = get_vms(self.kit, self.vsphere_client, self.host_configuration)
+        all_vms = get_all_vms(self.kit, self.vsphere_client, self.host_configuration)
         self._power_on_vms(vms)
         logging.info("Waiting for servers and sensors to start up.")
-        test_vms_up_and_alive(kit, kit.nodes, 30)
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
         self._set_vm_macs(all_vms)
-        self._get_interface_name(kit)
+        self._get_interface_name()
         logging.info("Run TFPlenum configuration")
-        runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
-        runner.run_tfplenum_configuration(kit)
+        # runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        # runner.run_tfplenum_configuration(kit)
+        runner = APITester(self.controller_node.management_interface.ip_address, self.kit)
+        runner.run_kit_api_call()
 
         remote_sensor_node = False
-        for node in kit.get_nodes():
+        for node in self.kit.get_nodes():
             if node.type == 'remote_sensor':
                 remote_sensor_node = True
 
         if remote_sensor_node:
             logging.info("Changing portgroup for remote sensors.")
-            self._update_remote_sensors(kit)
+            self._update_remote_sensors(self.kit)
 
-
-    def _run_add_node(self, kit: Kit):
+    def _run_add_node(self):
         """
         Runs the add node functionality.
-
-        :param kit:
+        
         :return:
         """
         if not self.args.run_add_node and not self.args.run_all:
             return
 
-        add_nodes = kit.get_add_nodes()
+        add_nodes = self.kit.get_add_nodes()
         if len(add_nodes) == 0:
             logging.info("Add node skipped as there is nothing defined in the configuration file.")
             return
@@ -381,27 +370,26 @@ class Runner:
         self._set_vm_macs(vms)
         self._power_off_vms(vms)
         runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
-        runner.run_kickstart_add_node(kit)
+        runner.run_kickstart_add_node(self.kit)
         self._power_on_vms(vms)
-        test_vms_up_and_alive(kit, kit.add_nodes, 30)
+        test_vms_up_and_alive(self.kit, self.kit.add_nodes, 30)
         kit_runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
-        kit_runner.run_kit_add_node(kit)
+        kit_runner.run_kit_add_node(self.kit)
 
-    def _run_integration(self, kit: Kit):
+    def _run_integration(self):
         """
         Runs the integration tests.
-
-        :param kit:
+        
         :return:
         """
         if not self.args.run_integration_tests and not self.args.run_all:
             return
 
-        master_node = get_node(kit, "master_server")
+        master_node = get_node(self.kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
-        perform_integration_tests(self.controller_node, kit.password)
+        perform_integration_tests(self.controller_node, self.kit.password)
 
-    def _simulate_powerfailure(self, kit: Kit):
+    def _simulate_powerfailure(self):
         """
         Simulates a power failure on a given cluster.
 
@@ -410,26 +398,27 @@ class Runner:
         if not self.args.simulate_powerfailure and not self.args.run_all:
             return
 
-        vms = get_vms(kit, self.vsphere_client, self.host_configuration)
+        vms = get_vms(self.kit, self.vsphere_client, self.host_configuration)
         self._power_off_vms(vms)
         self._power_on_vms(vms)
-        test_vms_up_and_alive(kit, kit.nodes, 30)
-        master_node = get_node(kit, "master_server")
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
+        master_node = get_node(self.kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
 
-    def _cleanup(self, kit: Kit):
+        if self.args.run_all:
+            self._run_integration(self.kit)
+            
+    def _cleanup(self):
         """
         Power off and delete VMs
 
         :return:
         """
-
         if not self.args.cleanup_kit:
             return
 
         logging.info("Deleting VMs....")
-        destroy_vms(kit.get_nodes(), self.vsphere_client, self.host_configuration)
-
+        destroy_vms(self.kit.get_nodes(), self.vsphere_client, self.host_configuration)
 
     def execute(self):
         """
@@ -442,15 +431,15 @@ class Runner:
         self._parse_config()
         self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
         self.controller_node = get_node(self.kit, "controller")  # type: Node
-        self._setup_controller(self.kit)
+        self._setup_controller()
         self._export_controller()
-        self._run_kickstart(self.kit)
-        self._run_kit(self.kit)
-        self._run_add_node(self.kit)
-        self._run_integration(self.kit)
-        self._simulate_powerfailure(self.kit)
-        self._run_integration(self.kit)
-        self._cleanup(self.kit)
+        self._run_kickstart()
+        self._run_kit()
+        #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
+        # self._run_add_node()
+        self._run_integration()
+        self._simulate_powerfailure()
+        self._cleanup()
 
 
 def main():

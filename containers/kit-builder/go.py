@@ -18,4 +18,4 @@ subprocess.run(['/usr/bin/git', 'clone', '--single-branch', '--branch', 'devel',
 subprocess.run(['/usr/bin/cp', '-rT', '/opt/tfplenum-integration-testing~', '/opt/tfplenum-integration-testing'])
 #subprocess.run(['/opt/tfplenum-integration-testing/testy-tester/setup.sh'])
 
-subprocess.run('/opt/tfplenum-integration-testing/testy-tester/tfp-env/bin/python /opt/tfplenum-integration-testing/testy-tester/main.py --headless "'+'" "'.join(sys.argv[1:])+'"', shell=True)
+subprocess.run('/opt/tfplenum-integration-testing/testy-tester/tfp-env/bin/python /opt/tfplenum-integration-testing/testy-tester/main.py "'+'" "'.join(sys.argv[1:])+'"', shell=True)
