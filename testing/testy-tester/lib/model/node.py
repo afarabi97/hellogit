@@ -19,6 +19,7 @@ from lib.vsphere.vcenter.helper import network_helper
 from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from lib.model.host_configuration import HostConfiguration
+from lib.connection_mngs import FabricConnectionWrapper
 
 from pathlib import Path
 
@@ -615,6 +616,15 @@ class VirtualMachine:
         for cdrom in self.client.vcenter.vm.hardware.Cdrom.list(self.vm):
             print("Deleteing " + str(cdrom.cdrom))
             self.client.vcenter.vm.hardware.Cdrom.delete(self.vm, cdrom.cdrom)
+
+    def change_password(self, username: str, password: str, ctrl_ip: str) -> None:
+        # To get hash for a new password run the following bash command and make sure you escape special characters.
+        # perl -e "print crypt('<Your Password>', "Q9"),"
+        change_root_pwd = "usermod --password Q9sIxtbggUGaw root"
+        change_assessor_pwd = "usermod --password Q9sIxtbggUGaw assessor"
+        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+            remote_shell.sudo(change_root_pwd)
+            remote_shell.sudo(change_assessor_pwd)            
 
     def deleteExtraNics(self) -> None:
         """

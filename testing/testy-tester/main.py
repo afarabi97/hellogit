@@ -185,9 +185,22 @@ class Runner:
 
         self._perform_bootstrap(kit)
 
-    def _export_controller(self, kit: Kit):
+    def _export_controller(self):
+        logging.info("Exporting the controller to OVA.")
         if not self.args.export_controller and not self.args.run_all:
             return
+
+        logging.info("Powering on the controller")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
+        try:
+            ctrl_vm.power_on()
+        except AlreadyInDesiredState:
+            logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
+
+        test_vms_up_and_alive(self.kit, [self.controller_node], 10)
+        ctrl_vm.change_password(self.kit.username, 
+                                self.kit.password, 
+                                self.controller_node.management_interface.ip_address)
 
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         try:
@@ -430,7 +443,7 @@ class Runner:
         self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
         self.controller_node = get_node(self.kit, "controller")  # type: Node
         self._setup_controller(self.kit)
-        self._export_controller(self.kit)
+        self._export_controller()
         self._run_kickstart(self.kit)
         self._run_kit(self.kit)
         self._run_add_node(self.kit)
