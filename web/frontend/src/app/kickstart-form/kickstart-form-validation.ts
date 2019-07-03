@@ -188,7 +188,7 @@ export function patternValidator(validatorObject: validatorObject, control: Abst
 export function uniqueValidator(validatorObject: validatorObject, control: AbstractControl, ops?: any) {
   let isUnique;
   if (ops.uniqueArray instanceof Array) {
-    isUnique = ops.uniqueArray.find(obj => control.value.length > 0 && obj[ops.formControlName] == control.value);
+    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] == control.value && i != ops.index);
   } else if (ops.uniqueArray instanceof FormArray) {
     isUnique = ops.uniqueArray.value.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] == control.value && i != ops.index );
   }
@@ -215,7 +215,7 @@ export function validateIPAddress(validatorObject: validatorObject, control: Abs
         fgIP = fa.at(0);
       }
 
-      if (fgIP.untouched || fgIP.invalid) {
+      if (fgIP.invalid) {
         unfilledControls.push(ip.label)
         return;
       }

@@ -13,6 +13,7 @@ import { KickstartService } from '../kickstart.service';
 import { kickStartTooltips, kickstart_validators } from './kickstart-form';
 import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from './kickstart-form-validation';
 import { isIpv4InSubnet } from '../globals';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 
 @Component({
   selector: 'app-kickstart-form',
@@ -153,8 +154,8 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
         nodesFormArray.push(this.newNodeFormGroup(node, index));
       });
     } else {
-      nodesFormArray.push(this.newNodeFormGroup());
-      nodesFormArray.push(this.newNodeFormGroup());
+      nodesFormArray.push(this.newNodeFormGroup(undefined, 0));
+      nodesFormArray.push(this.newNodeFormGroup(undefined, 1));
     }
     const controller_interface = this.kickStartFormGroup.get('controller_interface') as FormArray;
     if (kickstartForm) {
@@ -180,8 +181,8 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
       controller_interface: this.fb.array([new FormControl(kickstartForm ? kickstartForm.controller_interface[0] : '', Validators.compose([validateFromArray(kickstart_validators.controller_interface)]))]),
       root_password: new FormControl(kickstartForm ? kickstartForm.root_password : '', Validators.compose([validateFromArray(kickstart_validators.root_password)])),
       nodes: this.fb.array([]),
-      netmask: new FormControl(kickstartForm ? kickstartForm.netmask : '', Validators.compose([validateFromArray(kickstart_validators.netmask)])),
-      gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '255.255.255.0', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
+      netmask: new FormControl(kickstartForm ? kickstartForm.netmask : '255.255.255.0', Validators.compose([validateFromArray(kickstart_validators.netmask)])),
+      gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
     });
     // since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
     kickstartFormGroup.addControl('re_password', new FormControl(kickstartForm ? kickstartForm.re_password : '', Validators.compose([validateFromArray(kickstart_validators.re_password, { parentControl: kickstartFormGroup.get('root_password') })])));
@@ -249,7 +250,7 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
    * @memberof KickstartFormComponent
    */
   public addNode(nodeArray: FormArray): void {
-    nodeArray.push(this.newNodeFormGroup());
+    nodeArray.push(this.newNodeFormGroup(undefined, nodeArray.length));
   }
 
   /**
@@ -380,7 +381,38 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
     payload['continue'] = false;
     this.kickStartSrv.generateKickstartInventory(payload)
       .subscribe(data => {
-        data !== null && data['error_message'] ? this.snackbarWrapper.showSnackBar(data['error_message'], -1, 'Continue') : this.openConsole();
+        if (data !== null && data['error_message']) {
+          let message = data['error_message'];
+          let title = "Kickstart Error";
+          let option1 = "Cancel";
+          let option2 = "Continue";
+          this.matDialog.open(ConfirmDailogComponent, {
+            width: '35%',
+            data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
+          }).afterClosed().subscribe(response => {
+            if (response == option2) {
+              this.continueAnyways();
+            }
+          });
+        } else {
+          this.openConsole()
+        }
+      });
+  }
+
+
+  /**
+   * overrides the kickstart on submit
+   *
+   * @private
+   * @memberof KickstartFormComponent
+   */
+  private continueAnyways() {
+    let payload = this.kickStartFormGroup.getRawValue();
+    payload['continue'] = true;
+    this.kickStartSrv.generateKickstartInventory(payload)
+      .subscribe(data => {
+        this.openConsole();
       });
   }
 
@@ -425,7 +457,7 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
             const interface_controller = this.kickStartFormGroup.get('interface_controller').value as FormArray;
             interface_controller.removeAt(0);
             interface_controller.push(new FormControl(newIP));
-            
+
             this.snackbarWrapper.showSnackBar('Controller IP change detected! \
             Since the old controller IP is in the same subnet as the new IP we automatically \
             changed the Kickstart data so no action is necessary.', -1, 'Dismiss');
