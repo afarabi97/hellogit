@@ -68,6 +68,8 @@ spec:
         - name: elastic-master-conf
           mountPath: {{ elastic_config_path }}/elasticsearch.yml
           subPath: es-master-conf.yml
+        - name: data
+          mountPath: {{ elastic_pv_data_path }}
         command:
         - /bin/sh
         - -c
@@ -76,5 +78,7 @@ spec:
       - name: elastic-master-conf
         configMap:
           name: elastic-master
+      - name: data
+        emptyDir: {}
       nodeSelector:
         elasticsearch: "true"

@@ -12,6 +12,7 @@ from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from com.vmware.vapi.std.errors_client import AlreadyInDesiredState
 from vmware.vapi.vsphere.client import VsphereClient
+from lib.docs_exporter import MyConfluenceExporter
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
 from lib.util import (get_node, get_nodes, test_vms_up_and_alive, transform, get_bootstrap,
@@ -24,6 +25,7 @@ from lib.api_tester import APITester
 from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
 from lib.kubernetes_utilities import wait_for_pods_to_be_alive
+from pathlib import Path
 
 
 def is_valid_file(path: str) -> bool:
@@ -50,6 +52,12 @@ class Runner:
         self.vsphere_client = None  # type: VsphereClient
         self.host_configuration = None  # type: HostConfiguration
 
+    def _validate_export_location(self):
+        if os.path.exists(self.args.export_location) and os.path.isdir(self.args.export_location):
+            return
+        raise ValueError("The export path: {} passed in does not exist \
+                          or is not a directory.".format(self.args.export_location))
+
     def _parse_args(self):
         """
         Parses the arguments passed in by the user and
@@ -66,7 +74,15 @@ class Runner:
                             help="Input yaml configuration file", metavar="FILE")
         parser.add_argument('--run-all', dest='run_all', action='store_true')
         parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
+
         parser.add_argument('--export-controller', dest='export_controller', action='store_true')
+        parser.add_argument('--export-offline-docs', dest='export_offline_docs', action='store_true')
+        parser.add_argument('--export-location', dest='export_location', metavar="", default="/root",
+                            help="A relative or absolute path to a folder.")
+        parser.add_argument('--export-version', dest='export_version',
+                            metavar="", default="RC",
+                            help="The version of your export. Defaults to RC (Release Candidate). When exporting, use values like v3.2 or v3.3.1 etc.")
+
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
@@ -139,7 +155,7 @@ class Runner:
     def _perform_bootstrap(self):
         """
         Executes the bootstrap logic needed to setup a fully functional controller.
-        
+
         :return:
         """
         logging.info("Downloading controller bootstrap...")
@@ -153,7 +169,7 @@ class Runner:
         Does everything that is needed to setup a fully functional controller.
         It deletes the controller if it already exists before cloning from a template.
         After which it configured networking based on the passed in yaml file.
-        
+
         :return:
         """
         if not self.args.setup_controller and not self.args.run_all:
@@ -181,10 +197,10 @@ class Runner:
         self._perform_bootstrap()
 
     def _export_controller(self):
-        logging.info("Exporting the controller to OVA.")
-        if not self.args.export_controller and not self.args.run_all:
+        if not self.args.export_controller:
             return
 
+        logging.info("Exporting the controller to OVA.")
         logging.info("Powering on the controller")
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         try:
@@ -193,8 +209,8 @@ class Runner:
             logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
 
         test_vms_up_and_alive(self.kit, [self.controller_node], 10)
-        ctrl_vm.change_password(self.kit.username, 
-                                self.kit.password, 
+        ctrl_vm.change_password(self.kit.username,
+                                self.kit.password,
                                 self.controller_node.management_interface.ip_address)
 
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
@@ -203,10 +219,23 @@ class Runner:
         except AlreadyInDesiredState:
             logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
 
+        #TODO See Ticket 2958
         ctrl_vm.deleteCDROMs()
         ctrl_vm.deleteExtraNics()
         ctrl_vm.setNICsToInternal()
         ctrl_vm.export()
+
+    def _export_offline_docs(self):
+        if not self.args.export_offline_docs:
+            return
+
+        self._validate_export_location()
+        path_to_export = Path(self.args.export_location + '/' + self.args.export_version)
+        path_to_export.mkdir(parents=True, exist_ok=True)
+        confluence = MyConfluenceExporter(url='https://confluence.di2e.net',
+                                          username=self.di2e_username,
+                                          password=self.di2e_password)
+        confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["PDF", "HTML"], "6.3 CVAH 3.2")
 
     def _power_on_vms(self, vms: List[VirtualMachine]):
         """
@@ -281,7 +310,7 @@ class Runner:
         """
         Change the portgroup for remote sensor
 
-        :return:        
+        :return:
         """
         remote_sensors = get_nodes(self.kit, "remote_sensor")  # type: list
         for node in remote_sensors:
@@ -298,7 +327,7 @@ class Runner:
         """
         Performs the needed operations to Kickstart any and all vms mentions in
         the kit.
-        
+
         :return:
         """
         if not self.args.run_kickstart and not self.args.run_all:
@@ -322,7 +351,7 @@ class Runner:
 
     def _run_kit(self):
         """
-        Performs the needed operations to run a kit assuming kickstart has already run, etc.        
+        Performs the needed operations to run a kit assuming kickstart has already run, etc.
         :return:
         """
         if not self.args.run_kit and not self.args.run_all:
@@ -354,7 +383,7 @@ class Runner:
     def _run_add_node(self):
         """
         Runs the add node functionality.
-        
+
         :return:
         """
         if not self.args.run_add_node and not self.args.run_all:
@@ -379,7 +408,7 @@ class Runner:
     def _run_integration(self):
         """
         Runs the integration tests.
-        
+
         :return:
         """
         if not self.args.run_integration_tests and not self.args.run_all:
@@ -407,7 +436,7 @@ class Runner:
 
         if self.args.run_all:
             self._run_integration(self.kit)
-            
+
     def _cleanup(self):
         """
         Power off and delete VMs
@@ -433,6 +462,7 @@ class Runner:
         self.controller_node = get_node(self.kit, "controller")  # type: Node
         self._setup_controller()
         self._export_controller()
+        self._export_offline_docs()
         self._run_kickstart()
         self._run_kit()
         #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
