@@ -5,6 +5,7 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 from fabric import Connection
 from functools import wraps
+from invoke.exceptions import UnexpectedExit
 from jinja2 import Environment, FileSystemLoader
 from lib.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
 from lib.model.kit import Kit
@@ -118,7 +119,7 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
                 "/raw/bootstrap.sh?at={branch_name}".format(branch_name=kit.branch_name,
                                                             username=di2e_username,
                                                             password=di2e_password)
-    
+
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -155,14 +156,14 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
     current_path=os.getcwd()
     reports_destination="reports/"
     if "jenkins" not in current_path:
-        reports_destination=""        
+        reports_destination=""
     cmd_to_execute = ("export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
-        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):            
+        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
             ctrl_cmd.run(cmd_to_execute, shell=True)
 
 
@@ -225,24 +226,23 @@ def get_interface_name(kit: Kit) -> None:
                 interface.set_interface_name(interface_name)
 
 def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
-    """
-    Stuff
-    """
     network_ip = kit.remote_sensor_network.split('.')
     curr_ip = node.management_interface.ip_address.split('.')
-
     new_management_ip = curr_ip[0] + '.' + curr_ip[1] + '.' + network_ip[2] + '.' + curr_ip[3]
     new_gateway_ip = curr_ip[0] + '.' + curr_ip[1] + '.' + network_ip[2] + '.' + '1'
-
+    cmd = ("/bin/nmcli con mod 'System " + node.management_interface.name + "' ipv4.addresses " +
+           new_management_ip + "/24 ipv4.gateway " + new_gateway_ip)
+    print(cmd)
     with FabricConnectionWrapper(node.username,
             node.password,
             node.management_interface.ip_address) as client:
-        cmd = "/bin/nmcli con mod 'System " + node.management_interface.interface_name + "' ipv4.addresses " \
-            + new_management_ip + "/24 ipv4.gateway " + new_gateway_ip
-        client.run(cmd, shell=True)
+        client.run(cmd)
+        try:
+            client.run("shutdown -h now")
+        except UnexpectedExit:
+            pass
 
     node.management_interface.ip_address = new_management_ip
-
     for interface in node.interfaces:
         if interface.management_interface:
             interface.ip_address = new_management_ip

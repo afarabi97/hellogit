@@ -85,13 +85,13 @@ function install_requirements(){
   pushd $int_testing_dir > /dev/null
   run_cmd tfp-env/bin/pip install --upgrade pip
   run_cmd tfp-env/bin/pip install --upgrade --force-reinstall -r /opt/vsphere-automation-sdk-python/requirements.txt --extra-index-url file:///opt/vsphere-automation-sdk-python/lib
-  run_cmd tfp-env/bin/pip install -r requirements.txt
+  run_cmd tfp-env/bin/pip install -r ../infrastructure/requirements.txt
   popd > /dev/null
 }
 
 function install_ovftool(){
     pushd /root > /dev/null
-    run_cmd curl -s -o VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle http://labrepo.lan/misc/VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle
+    run_cmd curl -s -o VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle http://misc.labrepo.lan/VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle
     run_cmd bash VMware-ovftool-4.3.0-7948156-lin.x86_64.bundle
     popd > /dev/null
 }

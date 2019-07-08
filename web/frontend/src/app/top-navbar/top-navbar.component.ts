@@ -15,21 +15,28 @@ export class TopNavbarComponent implements OnInit {
   showLinkNames = true;
   sideNavigationButtons = [
     {
-      children: [{ label: 'Portal', url: '/portal', icon: 'dashboard' }]
+      children: [{ label: 'Portal', url: '/portal', icon: 'dashboard', isExternalLink: false }]
     }, {
       label: 'System Setup',
-      children: [{ label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers' }, { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage' }, { label: 'Build Host Agent', url: '/agent-builder-chooser', icon: 'build' }, { label: 'Install Host Agents', url: '/agent_installer', icon: 'cloud_download' }, { label: 'Catalog', url: '/catalog', icon: 'apps' }]
+      children: [{ label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers', isExternalLink: false },
+                 { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false },
+                 { label: 'Build Host Agent', url: '/agent-builder-chooser', icon: 'build', isExternalLink: false },
+                 { label: 'Install Host Agents', url: '/agent_installer', icon: 'cloud_download', isExternalLink: false },
+                 { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false }]
     }, {
       label: 'Kubernetes',
-      children: [{ label: 'Health', url: '/health', icon: 'local_hospital' }, { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls' }, { label: 'Docker Registry', url: '/registry', icon: 'view_day' }]
+      children: [{ label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false },
+                 { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false },
+                 { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false }]
     }, {
       label: 'Policy Management',
-      children: [{ label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz' }, { label: 'Test PCAP files', url: 'pcaps', icon: 'security' }]
+      children: [{ label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false },
+                 { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false }]
     }, {
       label: 'Confluence',
-      children: [{ label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book' }]
+      children: [{ label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true }]
     }, {
-      children: [{ label: 'Help', url: '/help', icon: 'help' }]
+      children: [{ label: 'Help', url: '/help', icon: 'help', isExternalLink: false }]
     }];
 
   @ViewChild('notifications') notifications: NotificationsComponent;

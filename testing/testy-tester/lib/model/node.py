@@ -603,7 +603,7 @@ class VirtualMachine:
         :return None:
         """
         for cdrom in self.client.vcenter.vm.hardware.Cdrom.list(self.vm):
-            print("Deleteing " + str(cdrom.cdrom))
+            print("Deleting CDROM " + str(cdrom.cdrom))
             self.client.vcenter.vm.hardware.Cdrom.delete(self.vm, cdrom.cdrom)
 
     def change_password(self, username: str, password: str, ctrl_ip: str) -> None:
@@ -613,7 +613,7 @@ class VirtualMachine:
         change_assessor_pwd = "usermod --password Q9sIxtbggUGaw assessor"
         with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
             remote_shell.sudo(change_root_pwd)
-            remote_shell.sudo(change_assessor_pwd)            
+            remote_shell.sudo(change_assessor_pwd)
 
     def deleteExtraNics(self) -> None:
         """
@@ -625,7 +625,7 @@ class VirtualMachine:
             if index == 0:
                 continue
             self.client.vcenter.vm.hardware.Ethernet.delete(self.vm, nic.nic)
-            
+
     def setNICsToInternal(self):
         """
         Sets all NICs on the controller to Internal network.
@@ -647,7 +647,7 @@ class VirtualMachine:
         :param destination: The destination to output too.
 
         :return:
-        """        
+        """
         self.set_vm_info(self.vm)
         dest = Path(destination)
         if dest.exists() and dest.is_file():

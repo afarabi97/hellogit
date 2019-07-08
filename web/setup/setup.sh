@@ -12,7 +12,7 @@ source ./common.in
 
 function _install_deps(){
 	yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-	yum -y install wget nmap
+	yum -y install wget nmap unzip
 }
 
 function _install_nodejs(){

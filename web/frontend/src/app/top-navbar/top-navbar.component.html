@@ -12,10 +12,17 @@
           <h3 mat-subheader *ngIf="group.label && showLinkNames">
             {{ group.label }}
           </h3>
-          <mat-list-item *ngFor="let child of group.children" routerLink="{{ child.url }}" matTooltip="{{child.label}}"  routerLinkActive="active" >
-            <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
-            <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
-          </mat-list-item>
+          <ng-container *ngFor="let child of group.children">
+            <mat-list-item *ngIf="!child.isExternalLink" routerLink="{{ child.url }}" matTooltip="{{child.label}}"  routerLinkActive="active">
+              <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
+              <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
+            </mat-list-item>
+
+            <a mat-list-item *ngIf="child.isExternalLink" matTooltip="{{child.label}}" href="{{ child.url }}" target="_blank">
+              <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
+              <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
+            </a>
+          </ng-container>
           <mat-divider></mat-divider>
         </div>
       </mat-list>
@@ -34,7 +41,7 @@
         </div>
       </div>
     </mat-drawer>
-  
+
     <div class="mat-drawer-main-content" >
       <router-outlet></router-outlet>
     </div>

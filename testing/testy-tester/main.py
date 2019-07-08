@@ -3,15 +3,19 @@
 __author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
-import yaml
-import sys
+
 import logging
 import os
+import sys
+import tempfile
+import time
+import yaml
 
 from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from com.vmware.vapi.std.errors_client import AlreadyInDesiredState
 from vmware.vapi.vsphere.client import VsphereClient
+from lib.connection_mngs import FabricConnectionWrapper
 from lib.docs_exporter import MyConfluenceExporter
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
@@ -26,6 +30,9 @@ from typing import List, Dict
 from lib.controller_modifier import ControllerModifier
 from lib.kubernetes_utilities import wait_for_pods_to_be_alive
 from pathlib import Path
+
+
+CONFLUENCE_URL = 'https://confluence.di2e.net'
 
 
 def is_valid_file(path: str) -> bool:
@@ -68,26 +75,37 @@ class Runner:
 
         :return: The path to the yaml file on success
         """
-        parser = ArgumentParser(
-            description="Testy tester is the application where you can test your Kit Configuration.")
+        parser = ArgumentParser(description="Testy tester is the application used in TFPlenum's CI pipeline. \
+                                             It can setup Kits, export docs, export controller OVA and does \
+                                             other various actions.")
+
         parser.add_argument("-p", "--path", dest="filename", required=True,
                             help="Input yaml configuration file", metavar="FILE")
-        parser.add_argument('--run-all', dest='run_all', action='store_true')
+
         parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
-
-        parser.add_argument('--export-controller', dest='export_controller', action='store_true')
-        parser.add_argument('--export-offline-docs', dest='export_offline_docs', action='store_true')
-        parser.add_argument('--export-location', dest='export_location', metavar="", default="/root",
-                            help="A relative or absolute path to a folder.")
-        parser.add_argument('--export-version', dest='export_version',
-                            metavar="", default="RC",
-                            help="The version of your export. Defaults to RC (Release Candidate). When exporting, use values like v3.2 or v3.3.1 etc.")
-
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
+
+        parser.add_argument('--add-docs-to-controller', dest='add_docs_to_controller', metavar="<confluence page title>")
+        parser.add_argument('--set-perms', dest='set_perms', metavar="<confluence page title>",
+                            help="Sets restricted permissions on all pages recursively. You must pass in the parent page title.")
+        parser.add_argument('--unset-perms', dest='unset_perms', metavar="<confluence page title>",
+                            help="Sets unrestricted permissions on all pages recursively. You must pass in the parent page title.")
+
+        parser.add_argument('--export-controller', dest='export_controller', action='store_true')
+        parser.add_argument('--export-offline-docs', dest='export_offline_docs', metavar="<confluence page title>",
+                            help="Exported offline documents to the --export-location or /root if not specified. \
+                                  You must pass in a conflunence page title with this argument.")
+        parser.add_argument('--export-location', dest='export_location', metavar="<path>", default="/root",
+                            help="A relative or absolute path to a folder.")
+        parser.add_argument('--export-version', dest='export_version',
+                            metavar="", default="RC",
+                            help="The version of your export. Defaults to RC (Release Candidate). \
+                                  When exporting, use values like v3.2 or v3.3.1 etc.")
+
         parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
         parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')
@@ -152,6 +170,11 @@ class Runner:
             except yaml.YAMLError as exc:
                 print(exc)
 
+    def _create_export_path(self) -> Path:
+        path_to_export = Path(self.args.export_location + '/' + self.args.export_version)
+        path_to_export.mkdir(parents=True, exist_ok=True)
+        return path_to_export
+
     def _perform_bootstrap(self):
         """
         Executes the bootstrap logic needed to setup a fully functional controller.
@@ -164,6 +187,56 @@ class Runner:
         logging.info("Running controller bootstrap...")
         run_bootstrap(self.controller_node, self.di2e_username, self.di2e_password, self.kit)
 
+    def _power_on_ctrl_and_wait_for_bootup(self) -> VirtualMachine:
+        logging.info("Powering on the controller")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
+        try:
+            ctrl_vm.power_on()
+        except AlreadyInDesiredState:
+            logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
+        test_vms_up_and_alive(self.kit, [self.controller_node], 10)
+        return ctrl_vm
+
+    def _add_docs_to_controller(self) -> None:
+        if not self.args.add_docs_to_controller:
+            return
+
+        page_title = self.args.add_docs_to_controller
+        self._power_on_ctrl_and_wait_for_bootup()
+        confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
+                                          username=self.di2e_username,
+                                          password=self.di2e_password)
+        with tempfile.TemporaryDirectory() as export_path:
+            confluence.export_page_w_children(export_path, self.args.export_version, "HTML", page_title)
+            file_to_push = "{}/DIP_{}_HTML_Manual.zip".format(export_path, self.args.export_version)
+            with FabricConnectionWrapper(self.kit.username,
+                                         self.kit.password,
+                                         self.controller_node.management_interface.ip_address) as remote_shell:
+                export_loc = '/var/www/html'
+                remote_shell.put(file_to_push, export_loc + '/thisiscvah.zip')
+                with remote_shell.cd(export_loc):
+                    remote_shell.run('rm -rf THISISCVAH/')
+                    remote_shell.run('unzip thisiscvah.zip -d THISISCVAH/')
+
+    def _set_perms_restricted_on_page(self):
+        if not self.args.set_perms:
+            return
+
+        page_title = self.args.set_perms
+        confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
+                                          username=self.di2e_username,
+                                          password=self.di2e_password)
+        confluence.set_permissions(page_title)
+
+    def _set_perms_unrestricted_on_page(self):
+        if not self.args.unset_perms:
+            return
+        page_title = self.args.unset_perms
+        confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
+                                          username=self.di2e_username,
+                                          password=self.di2e_password)
+        confluence.set_permissions(page_title, is_restricted=False)
+
     def _setup_controller(self):
         """
         Does everything that is needed to setup a fully functional controller.
@@ -172,7 +245,7 @@ class Runner:
 
         :return:
         """
-        if not self.args.setup_controller and not self.args.run_all:
+        if not self.args.setup_controller:
             return
 
         logging.info("Deleting controller....")
@@ -201,41 +274,35 @@ class Runner:
             return
 
         logging.info("Exporting the controller to OVA.")
-        logging.info("Powering on the controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
-        try:
-            ctrl_vm.power_on()
-        except AlreadyInDesiredState:
-            logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
-
-        test_vms_up_and_alive(self.kit, [self.controller_node], 10)
+        self._validate_export_location()
+        path_to_export = self._create_export_path()
+        ctrl_vm = self._power_on_ctrl_and_wait_for_bootup()
         ctrl_vm.change_password(self.kit.username,
                                 self.kit.password,
                                 self.controller_node.management_interface.ip_address)
-
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         try:
             ctrl_vm.power_off()
         except AlreadyInDesiredState:
             logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
 
-        #TODO See Ticket 2958
+        # TODO See Ticket 2958
+        destination_path = "{}/DIP_{}_Controller.ova".format(str(path_to_export), self.args.export_version)
         ctrl_vm.deleteCDROMs()
         ctrl_vm.deleteExtraNics()
         ctrl_vm.setNICsToInternal()
-        ctrl_vm.export()
+        ctrl_vm.export(destination_path)
 
     def _export_offline_docs(self):
         if not self.args.export_offline_docs:
             return
 
+        page_title = self.args.export_offline_docs
         self._validate_export_location()
-        path_to_export = Path(self.args.export_location + '/' + self.args.export_version)
-        path_to_export.mkdir(parents=True, exist_ok=True)
-        confluence = MyConfluenceExporter(url='https://confluence.di2e.net',
+        path_to_export = self._create_export_path()
+        confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
                                           username=self.di2e_username,
                                           password=self.di2e_password)
-        confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["PDF", "HTML"], "6.3 CVAH 3.2")
+        confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["PDF", "HTML"], page_title)
 
     def _power_on_vms(self, vms: List[VirtualMachine]):
         """
@@ -314,10 +381,10 @@ class Runner:
         """
         remote_sensors = get_nodes(self.kit, "remote_sensor")  # type: list
         for node in remote_sensors:
-            logging.info("Updating " + node.hostname + " networking")
-            change_remote_sensor_ip(self.kit, node)
+            logging.info("Updating remote sensor " + node.hostname + " networking")
             vm = VirtualMachine(self.vsphere_client, node, self.host_configuration)
-            vm.power_off()
+            change_remote_sensor_ip(self.kit, node)
+            time.sleep(60)
             change_network_port_group(self.host_configuration, node, self.kit.remote_sensor_portgroup)
             vm.power_on()
 
@@ -330,7 +397,7 @@ class Runner:
 
         :return:
         """
-        if not self.args.run_kickstart and not self.args.run_all:
+        if not self.args.run_kickstart:
             return
 
         self.power_on_controller()
@@ -354,7 +421,7 @@ class Runner:
         Performs the needed operations to run a kit assuming kickstart has already run, etc.
         :return:
         """
-        if not self.args.run_kit and not self.args.run_all:
+        if not self.args.run_kit:
             return
 
         self.power_on_controller()
@@ -378,7 +445,7 @@ class Runner:
 
         if remote_sensor_node:
             logging.info("Changing portgroup for remote sensors.")
-            self._update_remote_sensors(self.kit)
+            self._update_remote_sensors()
 
     def _run_add_node(self):
         """
@@ -386,7 +453,7 @@ class Runner:
 
         :return:
         """
-        if not self.args.run_add_node and not self.args.run_all:
+        if not self.args.run_add_node:
             return
 
         add_nodes = self.kit.get_add_nodes()
@@ -411,7 +478,7 @@ class Runner:
 
         :return:
         """
-        if not self.args.run_integration_tests and not self.args.run_all:
+        if not self.args.run_integration_tests:
             return
 
         master_node = get_node(self.kit, "master_server")
@@ -424,7 +491,7 @@ class Runner:
 
         :return:
         """
-        if not self.args.simulate_powerfailure and not self.args.run_all:
+        if not self.args.simulate_powerfailure:
             return
 
         vms = get_vms(self.kit, self.vsphere_client, self.host_configuration)
@@ -433,9 +500,6 @@ class Runner:
         test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
         master_node = get_node(self.kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
-
-        if self.args.run_all:
-            self._run_integration(self.kit)
 
     def _cleanup(self):
         """
@@ -461,6 +525,9 @@ class Runner:
         self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
         self.controller_node = get_node(self.kit, "controller")  # type: Node
         self._setup_controller()
+        self._set_perms_restricted_on_page()
+        self._set_perms_unrestricted_on_page()
+        self._add_docs_to_controller()
         self._export_controller()
         self._export_offline_docs()
         self._run_kickstart()

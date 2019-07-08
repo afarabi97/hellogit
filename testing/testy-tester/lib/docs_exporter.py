@@ -7,6 +7,10 @@ from time import sleep
 from typing import List, Union
 
 
+class PageNotFound(Exception):
+    pass
+
+
 class MyConfluenceExporter(Confluence):
     valid_formats = ("HTML", "PDF")
 
@@ -102,9 +106,12 @@ class MyConfluenceExporter(Confluence):
 
     def _get_content_page_ids(self, space: str, title: str) -> List[int]:
         page = self.get_page_by_title(space, title)
-        content = [int(page['id'])]
-        self._get_content_array(space, page['id'], content)
-        return content
+        if page:
+            content = [int(page['id'])]
+            self._get_content_array(space, page['id'], content)
+            return content
+        raise PageNotFound("{} does not exist in confluence. Did you type the page title exactly? \
+                           Its case sensitive. Also, try surrounding it with double quotes on the command line.".format(title))
 
     def _export_page_w_children(self,
                                export_path: str,
@@ -183,3 +190,47 @@ class MyConfluenceExporter(Confluence):
                 self._export_page_w_children(export_path, export_version, fmt, title, content, space, timeout_min)
         else:
             raise ValueError("Export format can only be alist or ")
+
+    def set_permissions(self, title: str, space: str='THISISCVAH', is_restricted: bool=True):
+        page_ids = self._get_content_page_ids(space, title)
+        headers = {
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Host': 'confluence.di2e.net',
+            'Origin': 'https://confluence.di2e.net',
+            'X-Atlassian-Token': 'no-check',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+
+        for page_id in page_ids:
+            payload = {
+                'viewPermissionsUsers': '',
+                'editPermissionsUsers': '',
+                'viewPermissionsGroups': '',
+                'editPermissionsGroups': '',
+                'contentId': page_id,
+                'atl_token': 'f3b0c6403d442990e1b5c301a07bf536e148e91a'
+            }
+
+            if is_restricted:
+                payload['editPermissionsGroups'] = 'THISISCVAH-Admin',
+
+            setperms_url = self.url + '/pages/setcontentpermissions.action'
+            response = self._session.request(
+                method='POST',
+                url=setperms_url,
+                headers=headers,
+                timeout=self.timeout,
+                verify=self.verify_ssl,
+                data=payload
+            )
+
+            if response.status_code == 200:
+                print("Permissions changed for page id {}.".format(page_id))
+                print(response.json())
+            else:
+                print("Failed with status code {}.".format(response.status_code))
