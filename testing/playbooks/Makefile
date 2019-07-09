@@ -2,11 +2,11 @@ SHELL=/bin/bash
 
 # Confirm Ansible is installed.
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
-INVENTORY ?= '/opt/tfplenum/playbooks/inventory.yml'
+INVENTORY ?= '/opt/tfplenum/core/playbooks/inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
 
-.PHONY: 
+.PHONY:
 
 # Default target, build *and* run tests
 all:

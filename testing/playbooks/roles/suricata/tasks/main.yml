@@ -11,11 +11,11 @@
 
 - name: Get pod status
   shell: |
-    kubectl get pod {{item}} --no-headers | awk '{ print $3 }' 
+    kubectl get pod {{item}} --no-headers | awk '{ print $3 }'
   with_items: "{{ get_pods.stdout_lines }}"
   register: pod_status
-  changed_when: pod_status.failed  
-  ignore_errors: yes  
+  changed_when: pod_status.failed
+  ignore_errors: yes
 
 - name: Test | Check Pod Status
   assert:
@@ -33,7 +33,7 @@
 
 - name: Check Suricata HTTP Data
   uri:
-    url: "{{ elastic_uri }}/filebeat-*/_search?q=suricata.eve.src_port:80+AND+@timestamp:[now-15m+TO+now]"
+    url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:80+OR+suricata.eve.dest_port:80)+AND+@timestamp:[now-15m+TO+now]"
     return_content: yes
   register: results_sh
   until: results_sh.json.hits.total != 0
@@ -48,7 +48,7 @@
 
 - name: Check Suricata DNS Data
   uri:
-    url: "{{ elastic_uri }}/filebeat-*/_search?q=suricata.eve.src_port:53+AND+@timestamp:[now-15m+TO+now]"
+    url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:53+OR+suricata.eve.dest_port:53)+AND+@timestamp:[now-15m+TO+now]"
     return_content: yes
   register: results_sd
   until: results_sd.json.hits.total != 0
@@ -63,7 +63,7 @@
 
 - name: Check Suricata SMB Data
   uri:
-    url: "{{ elastic_uri }}/filebeat-*/_search?q=suricata.eve.src_port:445+AND+@timestamp:[now-15m+TO+now]"
+    url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:445+OR+suricata.eve.dest_port:445)+AND+@timestamp:[now-15m+TO+now]"
     return_content: yes
   register: results_ss
   until: results_ss.json.hits.total != 0
