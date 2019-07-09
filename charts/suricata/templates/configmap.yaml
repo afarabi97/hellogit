@@ -60,7 +60,7 @@ data:
           filename: eve-%Y-%m-%d-%H-%M.json
           rotate-interval: {{ .Values.ids_log_rotate_interval }}s
           pcap-file: false
-          community-id: false
+          community-id: true
           community-id-seed: 0
           xff:
             enabled: no

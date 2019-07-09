@@ -1,7 +1,7 @@
 # Build Bro
 FROM centos:7 as builder
 
-ENV VER 2.6.1
+ENV VER 2.6.2
 ENV WD /scratch
 
 WORKDIR /scratch
@@ -9,10 +9,12 @@ WORKDIR /scratch
 RUN yum install -y epel-release
 RUN yum update -y
 RUN yum install -y wget kernel-devel git cmake make gcc gcc-c++ flex bison libpcap-devel openssl-devel python-devel swig zlib-devel
-RUN git clone https://github.com/J-Gras/bro-af_packet-plugin.git
+RUN git clone --depth 1 https://github.com/J-Gras/bro-af_packet-plugin.git
+RUN git clone --depth 1 https://github.com/corelight/bro-community-id.git
 ADD ./common/buildbro.sh ${WD}/common/buildbro.sh
 RUN chmod +x ${WD}/common/buildbro.sh && ${WD}/common/buildbro.sh ${VER} http://www.zeek.org/downloads/bro-${VER}.tar.gz
 RUN cd ${WD}/bro-af_packet-plugin && ./configure --bro-dist=/usr/src/bro-${VER} --with-latest-kernel && make install
+RUN cd ${WD}/bro-community-id && ./configure --bro-dist=/usr/src/bro-${VER} && make install
 
 
 # Get geoip data
@@ -31,7 +33,7 @@ RUN yum install -y epel-release && yum install --downloadonly --downloaddir=. li
 
 # Build the final image
 FROM registry.access.redhat.com/ubi8-minimal
-ENV VER 2.6.1
+ENV VER 2.6.2
 
 WORKDIR /data
 

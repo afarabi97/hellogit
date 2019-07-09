@@ -33,6 +33,9 @@
             }
           }
         },
+        "community_id":{
+          "type":"keyword"
+        },
         "geoip":{
           "dynamic":true,
           "properties":{

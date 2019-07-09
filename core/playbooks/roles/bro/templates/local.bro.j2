@@ -111,6 +111,9 @@
 # This loads the rules provided by the operator.
 @load custom
 
+# Load community ID plugin
+@load Corelight/CommunityID
+
 redef Log::default_rotation_interval = {{ ids_log_rotate_interval }} secs;
 redef Control::controllee_listen = F;
 

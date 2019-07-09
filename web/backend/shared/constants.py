@@ -18,9 +18,9 @@ RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Bro")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 SURICATA_CONTAINER_VERSION = "4.1.3"
-BRO_CONTAINER_VERSION = "2.6.1v3"
+BRO_CONTAINER_VERSION = "2.6.2"
 
 # The path inside of the docker container
-BRO_RULE_DIR = "/usr/local/bro-2.6.1/share/bro/site"
+BRO_RULE_DIR = "/usr/local/bro-2.6.2/share/bro/site"
 
 NODE_TYPES = ["Server", "Sensor"]
