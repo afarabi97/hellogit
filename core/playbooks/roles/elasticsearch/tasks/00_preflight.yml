@@ -20,9 +20,9 @@
     - es-data-statefulset.yml
     - es-data-svc.yml
     - es-data-conf.yml
-    # - es-ingest-deploy.yml
-    # - es-ingest-svc.yml
-    # - es-ingest-conf.yml
+    - es-ingest-deploy.yml
+    - es-ingest-svc.yml
+    - es-ingest-conf.yml
     # - es-search-deploy.yml
     # - es-search-svc.yml
     # - es-search-conf.yml
@@ -43,8 +43,8 @@
     - es-master-svc.yml
     - es-data-statefulset.yml
     - es-data-svc.yml
-    # - es-ingest-deploy.yml
-    # - es-ingest-svc.yml
+    - es-ingest-deploy.yml
+    - es-ingest-svc.yml
     # - es-search-deploy.yml
     # - es-search-svc.yml
 
@@ -53,5 +53,5 @@
   with_items:
     - elastic-master
     - elastic-data
-    # - elastic-ingest
+    - elastic-ingest
     # - elastic-search

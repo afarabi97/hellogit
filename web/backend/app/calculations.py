@@ -1,5 +1,5 @@
-from app.resources import (NodeResources, 
-                           cal_percentage_of_total, 
+from app.resources import (NodeResources,
+                           cal_percentage_of_total,
                            NodeResourcePool,
                            convert_GiB_to_KiB,
                            convert_KiB_to_GiB)
@@ -26,13 +26,13 @@ def get_sensors_from_list(nodes: List) -> List:
 def server_and_sensor_count(nodes: List) -> Tuple[int, int]:
     server_count = 0
     sensor_count = 0
-    for node in nodes:        
+    for node in nodes:
         if node["node_type"] == NODE_TYPES[0]:
             server_count += 1
         elif node["node_type"] == NODE_TYPES[1]:
             sensor_count += 1
     return server_count, sensor_count
-            
+
 
 class KitPercentages:
     def __init__(self, kit_form: Dict):
@@ -41,7 +41,7 @@ class KitPercentages:
         self._server_list = get_servers_from_list(kit_form["nodes"])
         self._server_res_pool = NodeResourcePool(self._server_list)
         self._is_override_percentages = False
-        allocatable = self._server_res_pool.pool_cpu_allocatable        
+        allocatable = self._server_res_pool.pool_cpu_allocatable
         if allocatable > 16000:
             self._is_home_build = False
         else:
@@ -102,7 +102,7 @@ class KitPercentages:
                 self._moloch_mem_limit = 80
                 self._bro_cpu_perc += half
                 self._suricata_cpu_perc = 0
-        else:            
+        else:
             raise ValueError("Unknown length of sensor applications! This code needs to be updated!")
 
     @property
@@ -125,7 +125,7 @@ class KitPercentages:
             ret_val = self._moloch_cpu_perc
 
         return ret_val
-    
+
     def bro_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
             ret_val = int(self._kit_form["nodes"][sensor_index]["bro_cpu_percentage"])
@@ -134,14 +134,14 @@ class KitPercentages:
             ret_val = self._bro_cpu_perc
 
         return ret_val
-    
+
     def suricata_cpu_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
             ret_val = int(self._kit_form["nodes"][sensor_index]["suricata_cpu_percentage"])
         else:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._suricata_cpu_perc
-        return ret_val   
+        return ret_val
 
     def moloch_mem_limit_perc(self, sensor_index: int) -> int:
         if self._is_override_percentages:
@@ -150,7 +150,7 @@ class KitPercentages:
             self._set_starting_sensor_defaults(sensor_index)
             ret_val = self._moloch_mem_limit
 
-        return ret_val     
+        return ret_val
 
 
 class ServerCalculations:
@@ -161,7 +161,7 @@ class ServerCalculations:
         self._num_servers = server_count
         self._num_sensors = sensor_count
         self._server_res_pool = NodeResourcePool(get_servers_from_list(self._kit_form["nodes"]))
-        self._log_stash_cpu_request = 0        
+        self._log_stash_cpu_request = 0
         self._elastic_cpu_request = 0
         self._elastic_mem_request = 0
         self._is_large_build = False
@@ -169,7 +169,7 @@ class ServerCalculations:
         mem_capacity = self._server_res_pool.get_node_resources(0).mem_capacity
         mem_capacity = convert_KiB_to_GiB(mem_capacity)
         # Large builds are anything bigger than 100 GB
-        if mem_capacity > 100: 
+        if mem_capacity > 100:
             self._is_large_build = True
 
     @property
@@ -177,14 +177,14 @@ class ServerCalculations:
         if self._is_large_build:
             return 2 * self._num_servers
         return self._num_servers
-        
+
     @property
     def logstash_cpu_limit(self):
         if self._is_large_build:
             return 6000
         return 4000
 
-    @property    
+    @property
     def logstash_cpu_request(self) -> int:
         return 1500
 
@@ -192,30 +192,30 @@ class ServerCalculations:
     def logstash_memory_limit(self) -> int:
         if self._is_large_build:
             return 16
-        return 10
+        return 6
 
     @property
     def logstash_memory_request(self) -> int:
         if self._is_large_build:
             return 12
-        return 8
-        
+        return 4
+
     @property
     def logstash_jvm_memory(self) -> int:
         if self._is_large_build:
             return 12
-        return 8
+        return 4
 
     @property
     def logstash_pipeline_workers(self) -> int:
         if self._is_large_build:
             return 6
-        return 4    
+        return 4
 
     @property
     def elastic_master_node_count(self) -> int:
         return 3
-    
+
     @property
     def elastic_min_masters(self) -> int:
         if self._percentages._is_home_build:
@@ -228,7 +228,7 @@ class ServerCalculations:
 
     @property
     def elastic_total_node_count(self) -> int:
-        return self.elastic_master_node_count + self.elastic_data_node_count        
+        return self.elastic_master_node_count + self.elastic_data_node_count
 
     @property
     def elastic_curator_threshold(self) -> int:
@@ -240,7 +240,7 @@ class ServerCalculations:
         return self._percentages.elastic_curator_threshold_perc
 
     @property
-    def elastic_data_memory(self) -> int:        
+    def elastic_data_memory(self) -> int:
         return 32
 
     @property
@@ -248,7 +248,7 @@ class ServerCalculations:
         return 30
 
     @property
-    def elastic_data_cpu_request(self): 
+    def elastic_data_cpu_request(self):
         if self._is_large_build:
             return 16000
         return 8000
@@ -262,12 +262,12 @@ class ServerCalculations:
         return 6
 
     @property
-    def elastic_master_jvm_memory(self):        
+    def elastic_master_jvm_memory(self):
         return 4
 
     def to_dict(self) -> Dict:
         return {
-            'elastic_curator_threshold': self.elastic_curator_threshold,            
+            'elastic_curator_threshold': self.elastic_curator_threshold,
             'elastic_master_memory': self.elastic_master_memory,
             'elastic_master_pod_count': self.elastic_master_node_count,
             'elastic_master_jvm_memory': self.elastic_master_jvm_memory,
@@ -282,7 +282,7 @@ class ServerCalculations:
             'logstash_pipeline_workers': self.logstash_pipeline_workers,
             'logstash_jvm_memory': self.logstash_jvm_memory,
             'logstash_memory_limit': self.logstash_memory_limit,
-            'logstash_memory_request': self.logstash_memory_request            
+            'logstash_memory_request': self.logstash_memory_request
         }
 
 
@@ -305,7 +305,7 @@ class NodeValues:
             ret_val = 24000
         return int(ret_val)
 
-    @property          
+    @property
     def suricata_cpu_request(self) -> int:
         ret_val = cal_percentage_of_total(self._node_resources.cpu_allocatable, self._percentages.suricata_cpu_perc(self._node_index))
         return int(ret_val)
@@ -319,15 +319,15 @@ class NodeValues:
     def bro_workers(self) -> int:
         if self.bro_cpu_request <= 1000:
             return 1
-        
+
         rounded_up = round( self.bro_cpu_request / 1000) * 1000
-        return int(rounded_up / 1000)        
+        return int(rounded_up / 1000)
 
     @property
     def moloch_threads(self) -> int:
         if self.moloch_cpu_request <= 1000:
             return 1
-        
+
         rounded_up = round( self.moloch_cpu_request / 1000) * 1000
         moloch_threads = int(rounded_up / 1000)
         if moloch_threads > 24:

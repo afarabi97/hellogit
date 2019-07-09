@@ -9,7 +9,7 @@ logstash_image: "logstash/logstash"
 
 elastic_port: "9200"
 
-logstash_memory_request: 16
-logstash_memory_limit: 16
-logstash_jvm_memory: 12
-logstash_pipeline_workers: 12
+logstash_memory_request: 4
+logstash_memory_limit: 6
+logstash_jvm_memory: 4
+logstash_pipeline_workers: 4

@@ -19,14 +19,15 @@ setup.kibana:
 
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
-  hosts: ["{{ elastic_fqdn }}:{{ elastic_port }}"]
+  hosts: ["{{ elastic_headless_fqdn }}:{{ elastic_port }}"]
   worker: 6
   bulk_max_size: 4096
   compression_level: 3
-  pipelining: 0
-  ttl: 10s
+  loadbalance: true
 
 queue.mem:
   events: 65536
+  flush.min_events: 4096
+  flush.timeout: 30s
 
 xpack.monitoring.enabled: true

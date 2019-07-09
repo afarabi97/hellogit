@@ -25,13 +25,17 @@ install_license: false
 
 elastic_masters: 0
 elastic_datas: 0
-elastic_ingests: 0
+elastic_ingests: 2
 elastic_searches: 0
 
 separate_master: false
 separate_data: true
 separate_ingest: false
 separate_search: false
+
+elastic_ingest_cpu_request: 2000m
+elastic_ingest_memory: 6
+elastic_ingest_jvm_memory: 4
 
 #### Storage configuration
 es_data_path: "{{data_path}}/elastic"

@@ -12,5 +12,8 @@
 - import_tasks: 20_data.yml
   when: inventory_hostname in groups['master_server']
 
+- import_tasks: 25_ingest.yml
+  when: inventory_hostname in groups['master_server']
+
 - import_tasks: 50_post_install.yml
   when: inventory_hostname in groups['master_server']

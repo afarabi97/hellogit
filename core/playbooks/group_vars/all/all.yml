@@ -15,6 +15,7 @@ redis_sentinel_port: 26379
 # Elasticsearch
 elastic_cluster_name: tfplenum
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
+elastic_headless_fqdn: "elasticsearch-headless.{{ fqdn }}"
 elastic_shortname: elasticsearch
 elastic_port: 9200
 kibana_port: 5601

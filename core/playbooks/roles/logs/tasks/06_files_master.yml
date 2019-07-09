@@ -12,4 +12,20 @@
     - ds-bro.yml
     - ds-suricata.yml
 
+- name: Push pipeline
+  uri:
+    url: "http://{{ elastic_fqdn }}:9200/_ingest/pipeline/bro"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('file', 'pipeline.json')}}"
+    status_code: 200, 201
+
+- name: Push template
+  uri:
+    url: "http://{{ elastic_fqdn }}:9200/_template/logstash"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('file', 'template.json')}}"
+    status_code: 200, 201
+
 ...

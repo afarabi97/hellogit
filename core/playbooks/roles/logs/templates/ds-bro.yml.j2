@@ -29,7 +29,12 @@ spec:
         - name: filebeat
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
-        args: ['-e']
+        args: ['-e', '-E', 'name="bro-$(NODE_NAME)"']
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
       volumes:
       - name: data
         hostPath:

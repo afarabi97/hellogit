@@ -3,72 +3,37 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    # Network Protocols
-    - {{ bro_log_path }}/*/conn.log
-    - {{ bro_log_path }}/*/dhcp.log
-    - {{ bro_log_path }}/*/dns.log
-    - {{ bro_log_path }}/*/ftp.log
-    - {{ bro_log_path }}/*/http.log
-    - {{ bro_log_path }}/*/irc.log
-    - {{ bro_log_path }}/*/kerberos.log
-    - {{ bro_log_path }}/*/modbus.log
-    - {{ bro_log_path }}/*/mysql.log
-    - {{ bro_log_path }}/*/ntlm.log
-    - {{ bro_log_path }}/*/radius.log
-    - {{ bro_log_path }}/*/rdp.log
-    - {{ bro_log_path }}/*/rfb.log
-    - {{ bro_log_path }}/*/sip.log
-    - {{ bro_log_path }}/*/smb_cmd.log
-    - {{ bro_log_path }}/*/smtp.log
-    - {{ bro_log_path }}/*/snmp.log
-    - {{ bro_log_path }}/*/smb_mapping.log
-    - {{ bro_log_path }}/*/smb_files.log
-    - {{ bro_log_path }}/*/socks.log
-    - {{ bro_log_path }}/*/ssh.log
-    - {{ bro_log_path }}/*/ssl.log
-    - {{ bro_log_path }}/*/syslog.log
-
-    # Detection
-    - {{ bro_log_path }}/*/intel.log
-    - {{ bro_log_path }}/*/notice.log
-    - {{ bro_log_path }}/*/notice_alarm.log
-    - {{ bro_log_path }}/*/signatures.log
-
-    # Misc
-    - {{ bro_log_path }}/*/weird.log
-    - {{ bro_log_path }}/*/stats.log
+    - {{ bro_log_path }}/*/*.log
 
   close_removed: false
   clean_removed: false
 
-  json.keys_under_root: true
   json.add_error_key: true
 
-#============================= Filebeat modules ===============================
+#==================== Elasticsearch template setting ==========================
 
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
+setup.template.enabled: false
 
 #============================== Kibana =====================================
 
 setup.kibana:
-#  host: "{{ kibana_fqdn }}:80"
+  host: "{{ kibana_fqdn }}:80"
 
 #================================ Outputs =====================================
 
-#----------------------------- Logstash output --------------------------------
-output.logstash:
-  hosts: ["{{ logstash_fqdn }}:{{ logstash_port }}"]
-  worker: 6
-  bulk_max_size: 4096
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  hosts: ["{{ elastic_headless_fqdn }}:{{ elastic_port }}"]
+  index: "logstash-bro-%{+yyyy.MM.dd}"
+  worker: 12
+  bulk_max_size: 32768
   compression_level: 3
-  pipelining: 0
-  ttl: 10s
+  pipeline: "bro"
+  loadbalance: true
 
 queue.mem:
-  events: 65536
+  events: 786432
+  flush.min_events: 32768
+  flush.timeout: 30s
 
-xpack.monitoring:
-  enabled: true
-  elasticsearch.hosts: ["{{ elastic_fqdn }}:{{ elastic_port }}"]
+xpack.monitoring.enabled: true
