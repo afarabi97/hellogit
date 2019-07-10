@@ -108,7 +108,7 @@ kit:
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 64
+        size: 72
         hot_add_enabled: False
       boot_drive_name: "sda"
       # These are the drives selenium will select.

@@ -7,6 +7,9 @@ import shlex
 import subprocess
 
 from collections import OrderedDict
+from fabric import Connection
+from invoke.exceptions import UnexpectedExit
+from io import StringIO
 from typing import List
 from vmware.vapi.vsphere.client import VsphereClient
 from com.vmware.vcenter.vm.hardware.boot_client import Device as BootDevice
@@ -606,12 +609,19 @@ class VirtualMachine:
             print("Deleting CDROM " + str(cdrom.cdrom))
             self.client.vcenter.vm.hardware.Cdrom.delete(self.vm, cdrom.cdrom)
 
-    def change_password(self, username: str, password: str, ctrl_ip: str) -> None:
+    def _change_password(self, remote_shell: Connection) -> None:
         # To get hash for a new password run the following bash command and make sure you escape special characters.
         # perl -e "print crypt('<Your Password>', "Q9"),"
         change_root_pwd = "usermod --password Q9sIxtbggUGaw root"
         change_assessor_pwd = "usermod --password Q9sIxtbggUGaw assessor"
-        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+        try:
+            remote_shell.sudo(change_root_pwd)
+            remote_shell.sudo(change_assessor_pwd)
+        except UnexpectedExit:
+            # For some strange reason, the password files can be
+            # locked so we release those locks before changing the password
+            remote_shell.sudo('rm -f /etc/passwd.lock ')
+            remote_shell.sudo('rm -f /etc/shadow.lock')
             remote_shell.sudo(change_root_pwd)
             remote_shell.sudo(change_assessor_pwd)
 
@@ -638,6 +648,45 @@ class VirtualMachine:
                                             self.host_configuration.datacenter))
             spec = Ethernet.UpdateSpec(backing=backing)
             self.client.vcenter.vm.hardware.Ethernet.update(self.vm, nic.nic, spec)
+
+    def _update_network_scripts(self, iface_name: str, remote_shell: Connection):
+        iface = ("TYPE=Ethernet\n"
+                 "PROXY_METHOD=none\n"
+                 "BROWSER_ONLY=no\n"
+                 "BOOTPROTO=dhcp\n"
+                 "DEFROUTE=yes\n"
+                 "IPV4_FAILURE_FATAL=no\n"
+                 "IPV6INIT=no\n"
+                 "IPV6_AUTOCONF=yes\n"
+                 "IPV6_DEFROUTE=yes\n"
+                 "IPV6_FAILURE_FATAL=no\n"
+                 "IPV6_ADDR_GEN_MODE=stable-privacy\n"
+                 "NAME={}\n"
+                 "ONBOOT=yes".format(iface_name))
+
+        new_iface_file = StringIO(iface)
+        remote_shell.sudo('find . -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
+        remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
+
+    def _clear_history(self, remote_shell: Connection):
+        remote_shell.sudo('cat /dev/null > /root/.bash_history')
+        remote_shell.sudo('cat /dev/null > /home/assessor/.bash_history')
+
+    def _remove_extra_files(self, remote_shell: Connection):
+        remote_shell.sudo('rm -rf /opt/tfplenum/.git*')
+        remote_shell.sudo('rm -rf /root/.ssh/*')
+        remote_shell.sudo('rm -f /opt/tfplenum/.editorconfig')
+
+    def prepare_for_export(self,
+                           username: str,
+                           password: str,
+                           ctrl_ip: str,
+                           iface_name: str):
+        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+            self._update_network_scripts(iface_name, remote_shell)
+            self._remove_extra_files(remote_shell)
+            self._change_password(remote_shell)
+            self._clear_history(remote_shell)
 
     def export(self, destination: str="/root/controller.ova") -> None:
         """

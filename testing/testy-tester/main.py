@@ -277,15 +277,16 @@ class Runner:
         self._validate_export_location()
         path_to_export = self._create_export_path()
         ctrl_vm = self._power_on_ctrl_and_wait_for_bootup()
-        ctrl_vm.change_password(self.kit.username,
-                                self.kit.password,
-                                self.controller_node.management_interface.ip_address)
+
+        ctrl_vm.prepare_for_export(self.kit.username,
+                                   self.kit.password,
+                                   self.controller_node.management_interface.ip_address,
+                                   self.controller_node.management_interface.name)
         try:
             ctrl_vm.power_off()
         except AlreadyInDesiredState:
             logging.info("Controller %s is already in desired state skipping this step" % ctrl_vm.vm_name)
 
-        # TODO See Ticket 2958
         destination_path = "{}/DIP_{}_Controller.ova".format(str(path_to_export), self.args.export_version)
         ctrl_vm.deleteCDROMs()
         ctrl_vm.deleteExtraNics()
