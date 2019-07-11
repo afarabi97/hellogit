@@ -30,155 +30,139 @@
 }
 
 pipeline {
-    agent none
-        stages {
-            stage('checkout'){
-                steps {
-                    node(label: 'tfplenum') {
-                        script{
-                            notifySlack('STARTED')
-                        }
-                        cleanWs()
-                        git branch: '${tfplenum_commit_hash}', credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git'
+    agent {
+        label "tfplenum"
+    }
+    stages {
+        stage('checkout'){
+            steps {
+                script{
+                    notifySlack('STARTED')
+                }
+                cleanWs()
+                git branch: '${tfplenum_commit_hash}', credentialsId: '21bda149-6805-4f0c-b16b-56cd1a3e55ca', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git'
+            }
+        }
+        stage('setup controller') {
+            options {
+                timeout(time: 60, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                        usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password} \
+                        --tfplenum-commit-hash ${tfplenum_commit_hash}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('setup controller') {
-                options {
-                    timeout(time: 60, unit: 'MINUTES')
-                }
-                steps {
-                      node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                                usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password} \
-                                --tfplenum-commit-hash ${tfplenum_commit_hash}"
-                                println command
-                                sh(command)
-                            }
-                        }
+        }
+        stage('kickstart vms') {
+            options {
+                timeout(time: 45, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                        usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        def command = "sudo python3.6 testing/testy-tester/main.py --run-kickstart \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('kickstart vms') {
-                options {
-                    timeout(time: 45, unit: 'MINUTES')
-                }
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                                usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                def command = "sudo python3.6 testing/testy-tester/main.py --run-kickstart \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                println command
-                                sh(command)
-                            }
-                        }
+        }
+        stage('deploy kit') {
+            options {
+                timeout(time: 60, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                    usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        def command = "sudo python3.6 testing/testy-tester/main.py --run-kit \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('deploy kit') {
-                options {
-                    timeout(time: 60, unit: 'MINUTES')
-                }
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                            usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                def command = "sudo python3.6 testing/testy-tester/main.py --run-kit \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                println command
-                                sh(command)
-                            }
-                        }
+        }
+        stage('system function testing') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                        usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        sh("mkdir -p $WORKSPACE/reports")
+                        def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('system function testing') {
-                options {
-                    timeout(time: 30, unit: 'MINUTES')
-                }
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                                usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                sh("mkdir -p $WORKSPACE/reports")
-                                def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                println command
-                                sh(command)
-                            }
-                        }
+        }
+        stage('simulate power failure') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                    usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        def command = "sudo python3.6 testing/testy-tester/main.py --simulate-powerfailure \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('simulate power failure') {
-                options {
-                    timeout(time: 30, unit: 'MINUTES')
-                }
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                            usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                def command = "sudo python3.6 testing/testy-tester/main.py --simulate-powerfailure \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                println command
-                                sh(command)
-                            }
-                        }
+        }
+        stage('system function testing2') {
+            options {
+                timeout(time: 30, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                    usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                        def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
+                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        println command
+                        sh(command)
                     }
                 }
             }
-            stage('system function testing2') {
-                options {
-                    timeout(time: 30, unit: 'MINUTES')
-                }
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                            usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
-                                --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                println command
-                                sh(command)
-                            }
-                        }
-                    }
-                }
-            }
-            stage('clean up test kits') {
-                steps {
-                    node(label: 'tfplenum') {
-                        script {
-                            currentBuild.result = currentBuild.result ?: 'SUCCESS'
-                            if (currentBuild.result == 'SUCCESS' && params.cleanup_kit) {
-                                withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                                usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                                    def command = "sudo python3.6 testing/testy-tester/main.py --cleanup \
-                                    --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                                    println command
-                                    sh(command)
-                                }
-                            }
+        }
+        stage('clean up test kits') {
+            steps {
+                script {
+                    currentBuild.result = currentBuild.result ?: 'SUCCESS'
+                    if (currentBuild.result == 'SUCCESS' && params.cleanup_kit) {
+                        withCredentials([usernamePassword(credentialsId: 'micah-downing-user-pass', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
+                        usernamePassword(credentialsId: '70424cfa-62e2-4bd6-80de-a1168ad02c91', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
+                            def command = "sudo python3.6 testing/testy-tester/main.py --cleanup \
+                            --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                            println command
+                            sh(command)
                         }
                     }
                 }
             }
         }
+    }
     post {
         always{
-            node(label: 'tfplenum'){
-                script {
-                    currentBuild.result = currentBuild.result ?: 'SUCCESS'
-                    notifySlack(currentBuild.result)
-                }
+            script {
+                currentBuild.result = currentBuild.result ?: 'SUCCESS'
+                notifySlack(currentBuild.result)
             }
         }
     }

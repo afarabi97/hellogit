@@ -43,3 +43,4 @@ core/playbooks/files/admin.conf
 core/playbooks/files/join-node.sh
 playbooks/inventory/dev/*
 inventory.yml
+testing/testy-tester/testcases/userdefined/

@@ -6,6 +6,7 @@ __vcenter_version__ = '6.7c'
 
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import time
@@ -14,13 +15,17 @@ import yaml
 from argparse import ArgumentParser, Namespace
 from collections import OrderedDict
 from com.vmware.vapi.std.errors_client import AlreadyInDesiredState
+from io import StringIO
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.connection_mngs import FabricConnectionWrapper
 from lib.docs_exporter import MyConfluenceExporter
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
-from lib.util import (get_node, get_nodes, test_vms_up_and_alive, transform, get_bootstrap,
-                      run_bootstrap, perform_integration_tests, get_interface_name, change_remote_sensor_ip)
+from lib.util import (get_node, get_nodes, test_vms_up_and_alive,
+                      transform, get_bootstrap,
+                      run_bootstrap, perform_integration_tests,
+                      get_interface_name, change_remote_sensor_ip,
+                      hash_file)
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.model.host_configuration import HostConfiguration
@@ -33,6 +38,7 @@ from pathlib import Path
 
 
 CONFLUENCE_URL = 'https://confluence.di2e.net'
+TFPLENUM_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
 
 def is_valid_file(path: str) -> bool:
@@ -106,17 +112,20 @@ class Runner:
                             help="The version of your export. Defaults to RC (Release Candidate). \
                                   When exporting, use values like v3.2 or v3.3.1 etc.")
 
+        parser.add_argument('--generate-hash-file-for-exports', dest='hash_files', action='store_true', help="Hashes all files in the <--export-location>/<--export-version> path.")
+
         parser.add_argument('--cleanup', dest='cleanup_kit', action='store_true')
         parser.add_argument('--headless', dest='is_headless', action='store_true')
         parser.add_argument('--tfplenum-commit-hash', dest='tfplenum_commit_hash')
-        parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username", required=True,
+        parser.add_argument("-vu", "--vcenter-username", dest="vcenter_username",
                             help="A username to the vcenter hosted on our local network.")
-        parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password", required=True,
+        parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password",
                             help="A password to the vcenter hosted on our local network.")
-        parser.add_argument("-du", "--di2e-username", dest="di2e_username", required=True,
+        parser.add_argument("-du", "--di2e-username", dest="di2e_username",
                             help="A username to the DI2E git repo.")
-        parser.add_argument("-dp", "--di2e-password", dest="di2e_password", required=True,
+        parser.add_argument("-dp", "--di2e-password", dest="di2e_password",
                             help="A password to the DI2E git repo.")
+        parser.add_argument("--publish-to-labrepo", dest='publish_to_labrepo', nargs=3, metavar="<ip or hostnam> <username> <password>")
 
         args = parser.parse_args()
         if not is_valid_file(args.filename):
@@ -277,7 +286,6 @@ class Runner:
         self._validate_export_location()
         path_to_export = self._create_export_path()
         ctrl_vm = self._power_on_ctrl_and_wait_for_bootup()
-
         ctrl_vm.prepare_for_export(self.kit.username,
                                    self.kit.password,
                                    self.controller_node.management_interface.ip_address,
@@ -304,6 +312,22 @@ class Runner:
                                           username=self.di2e_username,
                                           password=self.di2e_password)
         confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["PDF", "HTML"], page_title)
+
+    def _publish_to_labrepo(self):
+        if not self.args.publish_to_labrepo:
+            return
+
+        self._validate_export_location()
+        path_to_export = self._create_export_path()
+        hostname, username, password = self.args.publish_to_labrepo
+        with FabricConnectionWrapper(username, password, hostname) as remote_shell:
+            remote_dir_loc = '/repos/releases/{}'.format(self.args.export_version)
+            remote_shell.run('rm -rf {}'.format(remote_dir_loc))
+            remote_shell.run('mkdir -p {}'.format(remote_dir_loc))
+            for path in path_to_export.glob("**/*"):
+                remote_shell.put(str(path), remote_dir_loc)
+            remote_shell.local('rm -rf {}'.format(str(path_to_export)))
+        logging.info("Completed the publishing of release deliverables to {}:{}".format(hostname, remote_dir_loc))
 
     def _power_on_vms(self, vms: List[VirtualMachine]):
         """
@@ -502,6 +526,27 @@ class Runner:
         master_node = get_node(self.kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
 
+    def _generate_hash_file_for_export(self):
+        if not self.args.hash_files:
+            return
+
+        self._validate_export_location()
+        path_to_export = self._create_export_path()
+        hashes_content = StringIO()
+        proc = subprocess.Popen('git rev-parse HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=TFPLENUM_DIR)
+        git_commit_hash, _ = proc.communicate()
+
+        hashes_content.write("TFPlenum Version: {}\n".format(self.args.export_version))
+        hashes_content.write("GIT Commit Hash: {}\n\n".format(git_commit_hash.decode('utf-8')))
+        for path in path_to_export.glob("**/*"):
+            # Increased chunk size to 30MB so this wont take an ICE age to hash.
+            hashes = hash_file(path, chunk_size=30000000)
+            hashes_content.write("{}\t\tmd5: {}\n\t\t\tsha1: {}\n\t\t\tsha256: {}\n\n"
+                .format(str(path.name), hashes["md5"], hashes["sha1"], hashes["sha256"]))
+
+        with open(str(path_to_export) + '/versions.txt', 'w') as fa:
+            fa.write(hashes_content.getvalue())
+
     def _cleanup(self):
         """
         Power off and delete VMs
@@ -523,7 +568,12 @@ class Runner:
         self._parse_args()
         self._setup_logging()
         self._parse_config()
-        self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
+
+        if (self.args.setup_controller or self.args.run_kickstart or self.args.run_kit or self.args.cleanup_kit or
+                self.args.run_add_node or self.args.run_integration_tests or self.args.simulate_powerfailure or
+                self.args.add_docs_to_controller or self.args.export_controller):
+            self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
+
         self.controller_node = get_node(self.kit, "controller")  # type: Node
         self._setup_controller()
         self._set_perms_restricted_on_page()
@@ -531,6 +581,8 @@ class Runner:
         self._add_docs_to_controller()
         self._export_controller()
         self._export_offline_docs()
+        self._publish_to_labrepo()
+        self._generate_hash_file_for_export()
         self._run_kickstart()
         self._run_kit()
         #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
