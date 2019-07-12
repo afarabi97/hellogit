@@ -38,7 +38,8 @@ export class CatalogComponent implements OnInit {
         });
       });
       this.charts = data;
+    }, error => {
+      console.log(error);
     });
-
   }
 }

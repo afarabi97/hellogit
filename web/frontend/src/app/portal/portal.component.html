@@ -3,80 +3,79 @@
 <div class="container" id="topheader">
   <div class="card">
     <div class="card-header">
-      Common Links
+      Portal
+      <button mat-mini-fab color="primary" style="float:right;" (click)="addUserLink()">
+        <mat-icon>add</mat-icon>
+      </button>
     </div>
-    <div class="card-body">
-      <table class="table">
-        <thead>
-          <tr>          
-            <th scope="col">IP</th>
-            <th scope="col">URL</th>
-            <th scope="col">Default user/password</th>
-          </tr>
-        </thead>
-        <tbody #selections >
-          <tr *ngFor="let link of links">
-            <td><a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a></td>
-            <td><a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a></td>
-            <td>{{ link.logins }}</td>
-          </tr>             
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <br>
-  <div class="card">
-    <div class="card-header">
-      Dashboard Links
-    </div>
-    <div class="card-body">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Link</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div class="card-body" fxFlexFill>
+      <mat-list>
+        <h3 mat-subheader>Common Links</h3>
+        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
+          style="padding:20px;">
+          <mat-card *ngFor="let link of links" fxLayout="column" class="zoom">
+            <mat-card-header fxFlex="20" class="margin:0;">
+              <mat-card-title style="margin:0 -16px;"><a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a>
+              </mat-card-title>
+              <mat-card-subtitle style="margin:0 -16px;"><a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a>
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content fxFlex style="padding-top: 10px; height:100%" *ngIf="link.logins">
+              <div>
+                user/password: {{link.logins}}
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+
+        <h3 mat-subheader>Dashboard Links</h3>
+        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
+          style="padding:20px;">
           <ng-container *ngFor="let link of links">
-            <tr *ngIf="link.dns === 'http://kibana.lan'">
-              <td><a href="{{ link.ip }}/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b?_g=()&_a=(description:'',filters:!(),fullScreenMode:!f,options:(darkTheme:!t,useMargins:!t),panels:!((gridData:(h:24,i:'1',w:40,x:8,y:12),id:f86bc870-46ce-11e7-946f-1bfb1be7c36b,panelIndex:'1',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(params:(sort:(columnIndex:!n,direction:!n)))),gridData:(h:28,i:'2',w:12,x:8,y:36),id:'0f25aac0-3434-11e7-8867-29a39c0f86b2',panelIndex:'2',type:visualization,version:'6.5.3'),(gridData:(h:24,i:'4',w:48,x:0,y:64),id:'3a273780-46d0-11e7-946f-1bfb1be7c36b',panelIndex:'4',type:visualization,version:'6.5.3'),(gridData:(h:64,i:'9',w:8,x:0,y:0),id:b3b449d0-3429-11e7-9d52-4f090484f59e,panelIndex:'9',type:visualization,version:'6.5.3'),(embeddableConfig:(columns:!(_source),sort:!('@timestamp',desc)),gridData:(h:64,i:'10',w:48,x:0,y:88),id:ef487fd0-46cf-11e7-ba56-317a6969f55c,panelIndex:'10',type:search,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'15',w:8,x:8,y:0),id:AWDHIynExQT5EBNmq49q,panelIndex:'15',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'16',w:8,x:16,y:0),id:AWDHJY1BxQT5EBNmq5Ay,panelIndex:'16',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'17',w:8,x:24,y:0),id:AWDHJpuBxQT5EBNmq5Cr,panelIndex:'17',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(defaultColors:('0%20-%20100':'rgb(0,104,55)'))),gridData:(h:12,i:'18',w:8,x:32,y:0),id:AWDHKEF2xQT5EBNmq5FA,panelIndex:'18',type:visualization,version:'6.5.3'),(embeddableConfig:(vis:(params:(sort:(columnIndex:2,direction:desc)))),gridData:(h:28,i:'19',w:28,x:20,y:36),id:d8214de0-4a3a-11e8-9b0a-f1d33346f773,panelIndex:'19',type:visualization,version:'6.5.3')),query:(language:lucene,query:(query_string:(analyze_wildcard:!t,default_field:'*',query:'*'))),timeRestore:!f,title:Stats,viewMode:view)" target="_blank">Bro Dashboard</a></td>
-            </tr>
-            <tr *ngIf="link.dns === 'http://kibana.lan'">
-              <td><a href="{{ link.ip }}/app/kibana#/dashboard/2a387ff0-3620-11e9-9e90-99a51a8d0304?_g=()&_a=(description:'',filters:!(),fullScreenMode:!f,options:(darkTheme:!t,hidePanelTitles:!f,useMargins:!t),panels:!((embeddableConfig:(vis:(legendOpen:!t)),gridData:(h:19,i:'1',w:48,x:0,y:63),id:'4556e2a0-3601-11e9-9e90-99a51a8d0304',panelIndex:'1',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:19,i:'3',w:48,x:0,y:82),id:'9bc25820-361c-11e9-9e90-99a51a8d0304',panelIndex:'3',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:18,i:'4',w:48,x:0,y:45),id:c158c590-361e-11e9-9e90-99a51a8d0304,panelIndex:'4',title:Tasks,type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:5,i:'5',w:12,x:12,y:0),id:a7fdd1a0-36e9-11e9-9e90-99a51a8d0304,panelIndex:'5',title:'Filter%20by%20User%20Name',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:5,i:'6',w:12,x:0,y:0),id:'7e282c80-36ea-11e9-9e90-99a51a8d0304',panelIndex:'6',title:'Filter%20by%20Computer%20Name',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:5,i:'7',w:12,x:24,y:0),id:e86df110-3910-11e9-9e90-99a51a8d0304,panelIndex:'7',title:'Filter%20by%20Task',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:5,i:'9',w:12,x:36,y:0),id:'70000650-391f-11e9-9c7c-59022587a619',panelIndex:'9',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:6,i:'10',w:48,x:0,y:5),id:'479e9860-3925-11e9-9c7c-59022587a619',panelIndex:'10',title:'Count%20Timeline',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:18,i:'11',w:48,x:0,y:11),id:'13289ce0-3aae-11e9-9d88-e56b0c1a8afa',panelIndex:'11',type:visualization,version:'6.5.3'),(embeddableConfig:(),gridData:(h:16,i:'12',w:48,x:0,y:29),id:'714772d0-3c32-11e9-9adf-7d591fd25609',panelIndex:'12',title:'Critical,%20Error,%20Warning%20Timeline',type:visualization,version:'6.5.3')),query:(language:kuery,query:''),timeRestore:!f,title:Winlogbeat,viewMode:view)" target="_blank">Winlogbeat Dashboard</a></td>
-            </tr>
+            <mat-card *ngIf="link.dns === 'http://kibana.lan'" fxLayout="column" class="zoom"
+              (click)="onViewUrl(getBroDashboard(link.ip))">
+              <mat-card-header fxFlex="20" class="margin:0;">
+                <mat-card-title style="margin:0 -16px;">Bro Dashboard</mat-card-title>
+                <mat-card-subtitle style="margin:0 -16px;">{{link.ip}}</mat-card-subtitle>
+              </mat-card-header>
+            </mat-card>
+            <mat-card *ngIf="link.dns === 'http://kibana.lan'" fxLayout="column" class="zoom"
+              (click)="onViewUrl(getWinlogbeatDashboard(link.ip))">
+              <mat-card-header fxFlex="20" class="margin:0;">
+                <mat-card-title style="margin:0 -16px;">Winlogbeat Dashboard</mat-card-title>
+                <mat-card-subtitle style="margin:0 -16px;">{{link.ip}}</mat-card-subtitle>
+              </mat-card-header>
+            </mat-card>
           </ng-container>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <br>
-  <div class="card">
-    <div class="card-header">
-      User Links 
-      <button title="Add Link" class="btn btn-primary" style="float: right;" (click)="addUserLink()"><i class="icon_plus_alt2"></i> Add Link</button>
-    </div>
-    <div class="card-body">
-      <table class="table">
-        <thead>
-          <tr>          
-            <th scope="col">Name</th>
-            <th scope="col">URL</th>
-            <th scope="col">Description</th>
-            <th scope="col">Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let link of user_links">
-            <tr>
-              <td><a href="{{ link.url }}" target="_blank">{{link.name}}</a></td>
-              <td><a href="{{ link.url }}" target="_blank">{{link.url}}</a></td>
-              <td>{{link.description}}</td>
-              <td> <button title ="Remove link" class="btn btn-danger" (click)="openConfimRemoveUserLink(link)"><i class="icon_close_alt2"></i></button>
-              </td>
-            </tr>
-          </ng-container>
-        </tbody>
-      </table>
+        </div>
+
+
+        <h3 mat-subheader>User Links</h3>
+        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
+          style="padding:20px;">
+          <mat-card *ngFor="let link of user_links" fxLayout="column" class="zoom" (click)="onViewUrl(link.url)">
+            <mat-card-header fxFlex="20" class="margin:0;">
+              <!-- <img mat-card-avatar class="header-image" [src]="getIcon(link.url)"> -->
+              <mat-card-title style="margin:0 -16px;">{{link.name}}</mat-card-title>
+              <mat-card-subtitle style="margin:0 -16px;">{{link.url}}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content fxFlex style="padding-top: 10px; height:100%">
+              <div *ngIf="link.description.length < 170; else smallDescription;" matTooltip="{{link.description}}">
+                {{link.description}}
+              </div>
+              <ng-template #smallDescription>
+                <div matTooltip="{{link.description}}">
+                  {{link.description.substring(0, 170)}}..
+                </div>
+              </ng-template>
+            </mat-card-content>
+            <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxFlex="20">
+              <button mat-button color="warn" (click)="openConfimRemoveUserLink($event, link)">Delete</button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </mat-list>
     </div>
   </div>
 </div>

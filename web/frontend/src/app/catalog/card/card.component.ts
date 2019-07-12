@@ -11,6 +11,7 @@ export class CardComponent{
   color: string = '#e74c3c';
   hoverColor: string = '#222222';
   hovered: boolean = false;
+
   /**
    *Creates an instance of CardComponent.
    * @memberof CardComponent
