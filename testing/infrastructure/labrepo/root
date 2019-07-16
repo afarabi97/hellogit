@@ -1,0 +1,1 @@
+0 12 * * 0 /root/scripts/sync_rhel_repos.sh

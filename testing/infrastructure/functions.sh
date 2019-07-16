@@ -1,4 +1,3 @@
-
 function run_cmd {
 	local command="$@"
 	eval $command
@@ -7,6 +6,42 @@ function run_cmd {
 		echo "$command returned error code $ret_val"
         exit 1
 	fi
+}
+
+function root_check(){
+    if [ "$EUID" -ne 0 ]
+        then echo "Please run as root or use sudo."
+        exit 2
+    fi
+}
+
+function set_os_type(){
+    local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
+    if [ "$os_id" == '"centos"' ]; then
+        export OS_TYPE=centos
+    else
+        export OS_TYPE=rhel
+    fi
+}
+
+function check_if_rhel_or_fail(){
+    set_os_type
+    if [ "$OS_TYPE" == "rhel" ]; then
+        echo "Script running on correct OS."
+    else
+        echo "Script running on incompatible OS."
+        exit 3
+    fi
+}
+
+function check_if_centos_or_fail(){
+    set_os_type
+    if [ "$OS_TYPE" == "centos" ]; then
+        echo "Script running on correct OS."
+    else
+        echo "Script running on incompatible OS."
+        exit 3
+    fi
 }
 
 function setup_sdk(){

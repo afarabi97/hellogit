@@ -12,23 +12,8 @@ export TFPLENUM_BOOTSTRAP_TYPE=repos
 int_testing_dir="/opt/tfplenum/testing/testy-tester"
 
 pushd $int_testing_dir > /dev/null
-
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root or use sudo."
-  exit
-fi
-
 source ../infrastructure/functions.sh
-
-function run_cmd {
-        local command="$@"
-        eval $command
-        local ret_val=$?
-        if [ $ret_val -ne 0 ]; then
-                echo "$command returned error code $ret_val"
-        exit 1
-        fi
-}
+root_check
 
 function setup_pip(){
 rm -rf ~/.pip

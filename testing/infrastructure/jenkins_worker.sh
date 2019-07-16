@@ -1,14 +1,10 @@
 #!/bin/bash
-
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root or use sudo."
-  exit
-fi
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 pushd $SCRIPT_DIR > /dev/null
 
 source ./functions.sh
+root_check
+check_if_centos_or_fail
 
 function install_worker_deps {
     run_cmd yum -y update
