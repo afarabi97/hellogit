@@ -461,12 +461,14 @@ function set_os_type(){
 }
 
 function execute_bootstrap_playbook(){
+    echo "Running controller bootstrap"
     pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
     make bootstrap
     popd > /dev/null
 }
 
 function execute_pull_docker_images_playbook(){
+    echo "Pulling docker images"
     pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
     make pull-docker-images
     popd > /dev/null

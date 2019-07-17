@@ -16,6 +16,14 @@ from lib.model.host_configuration import HostConfiguration
 from typing import List
 from lib.util import retry
 
+from pyVmomi import vmodl
+
+from pyVim import connect
+import atexit
+import os
+import re
+
+logger = logging.getLogger(__name__)
 
 def _get_obj(content: vim.ServiceInstanceContent, vimtype: List[str], name: str):
     """
@@ -78,7 +86,7 @@ def get_vm_by_name(si, name):
     :param name (str): The name of the VM you want to get
     :return (?): TODO I still need to figure out what this ends up being
     """
-    #print(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
+    #logger.info(type(_get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)))
     #exit(0)
     return _get_obj(si.RetrieveContent(), [vim.VirtualMachine], name)
 
@@ -168,7 +176,7 @@ def wait_for_task(task) -> None:
             return task.info.result
 
         if task.info.state == 'error':
-            print("An error occurred in the task.")
+            logger.info("An error occurred in the task.")
             task_done = True
 
 
@@ -223,6 +231,24 @@ def change_network_address(host_configuration: HostConfiguration, vm_name: str):
         s.vcenter.vm.Power.start(vm)
         s.vcenter.vm.Power.stop(vm)
 
+def power_on_vm(vm):
+    # power on vm and answer any questions
+    if vm.runtime.powerState == 'poweredOff':
+        power_on_task = vm.PowerOn()
+        time.sleep(1)
+        if vm.runtime.question is not None:
+            answers = {}
+            question_id = vm.runtime.question.id
+            if question_id not in answers.keys():
+                choices = vm.runtime.question.choice.choiceInfo
+                default_option = None
+                if vm.runtime.question.choice.defaultIndex is not None:
+                    ii = vm.runtime.question.choice.defaultIndex
+                    default_option = choices[ii]
+                    answers[question_id] = default_option.key
+                    task = vm.AnswerVM(question_id, answers[question_id])
+        wait_for_task(power_on_task)
+        logger.info(vm.runtime.powerState)
 
 def power_off_vm(vm):
     if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
@@ -252,7 +278,7 @@ def delete_vm(client: VsphereClient, vm_name: str) -> None:
         elif state == Power.Info(state=Power.State.SUSPENDED):
             client.vcenter.vm.Power.start(vm)
             client.vcenter.vm.Power.stop(vm)
-        print("Deleting VM '{}' ({})".format(vm_name, vm))
+        logger.info("Deleting VM '{}' ({})".format(vm_name, vm))
         client.vcenter.VM.delete(vm)
 
 
@@ -261,7 +287,7 @@ def change_ip_address(host_configuration: HostConfiguration, node: Node):
     vm = get_vm_by_name(service_instance, node.hostname)
 
     if vm.runtime.powerState != 'poweredOff':
-        print("WARNING:: Power off your VM before reconfigure")
+        logger.info("WARNING:: Power off your VM before reconfigure")
         sys.exit()
 
     nicSettingMap = []
@@ -292,7 +318,7 @@ def change_ip_address(host_configuration: HostConfiguration, node: Node):
     customspec.nicSettingMap = nicSettingMap
     customspec.globalIPSettings = globalip
 
-    print("Reconfiguring VM Networks . . .")
+    logger.info("Reconfiguring VM Networks . . .")
     task = vm.Customize(spec=customspec)
     wait_for_task(task)
     Disconnect(service_instance)
@@ -312,7 +338,7 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     vm = get_vm_by_name(service_instance, node.hostname)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
 
     if vm.runtime.powerState != 'poweredOff':
-        print("WARNING:: Power off your VM before reconfigure")
+        logger.info("WARNING:: Power off your VM before reconfigure")
         sys.exit()
 
     # This code is for changing only one Interface. For multiple Interface
@@ -362,7 +388,7 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     # tasks.wait_for_tasks(service_instance, [task])
     wait_for_task(task)
     Disconnect(service_instance)
-    print("Successfully changed network")
+    logger.info("Successfully changed network")
 
 
 def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
@@ -391,8 +417,8 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
                                  template=False,
                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
-    print("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
-    print("You can watch the progress bar in vCenter.")
+    logger.info("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
+    logger.info("You can watch the progress bar in vCenter.")
 
     # Finally this is the clone operation with the relevant specs attached
     if host_configuration.storage_folder is not None:
@@ -424,7 +450,7 @@ def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, host_config
     vms = []  # type: list
     for node in nodes:
         if node.type != "controller":
-            logging.info("Creating VM " + node.hostname + "...")
+            logger.info("Creating VM " + node.hostname + "...")
             vm_instance = VirtualMachine(client, node, host_configuration)
             vm_instance.cleanup()
             vm_instance.create()
@@ -443,7 +469,7 @@ def destroy_vms(nodes: List[Node], client: VsphereClient, host_configuration: Ho
     """
 
     for node in nodes:
-        logging.info("Cleaning up VM " + node.hostname + "...")
+        logger.info("Cleaning up VM " + node.hostname + "...")
         vm_instance = VirtualMachine(client, node, host_configuration)
         vm_instance.cleanup()
 
@@ -461,7 +487,7 @@ def get_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfigurati
     vms = []  # type: list
     for node in kit.nodes:
         if node.type != "controller":
-            logging.info("Getting VM " + node.hostname + "...")
+            logger.info("Getting VM " + node.hostname + "...")
             vm_instance = VirtualMachine(client, node, host_configuration)
             vm_instance.get_node_instance()
             vms.append(vm_instance)
@@ -480,10 +506,584 @@ def get_all_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfigu
 
     vms = []  # type: list
     for node in kit.nodes:
-        logging.info("Getting VM " + node.hostname + "...")
+        logger.info("Getting VM " + node.hostname + "...")
         vm_instance = VirtualMachine(client, node, host_configuration)
         vm_instance.get_node_instance()
         vms.append(vm_instance)
 
     return vms
 
+# ESXi functions
+#
+
+def esxi_requests(content, client_cookie):
+    # Break apart the cookie into it's component parts - This is more than
+    # is needed, but a good example of how to break apart the cookie
+    # anyways. The verbosity makes it clear what is happening.
+    cookie_name = client_cookie.split("=", 1)[0]
+    cookie_value = client_cookie.split("=", 1)[1].split(";", 1)[0]
+    cookie_path = client_cookie.split("=", 1)[1].split(";", 1)[1].split(
+        ";", 1)[0].lstrip()
+    cookie_text = cookie_value + "; $" + cookie_path
+    # Make a cookie
+    cookie = dict()
+    cookie[cookie_name] = cookie_text
+
+    ds = _get_obj(content, [vim.Datastore], 'datastore1')
+    dc = _get_obj(content, [vim.Datacenter], 'ha-datacenter')
+
+    headers = {'Content-Type': 'application/octet-stream'}
+    params = {
+        "dsName": ds.name,
+        "dcPath": dc.name
+    }
+    session = requests.Session()
+    session.cookies = requests.cookies.cookiejar_from_dict(cookie)
+    session.headers.update(headers)
+    session.params.update(params)
+    session.verify = False
+    return session
+
+
+def delete_esxi_vm(host_configuration: HostConfiguration, vm_name: str) -> None:
+    """
+    Deletes the VM from the server's inventory
+
+    :param client (VsphereClient): A VsphereClient object representing a connection to vCenter
+    :param vm_name (str): The name of the VM you would like to delete
+    :return:
+    """
+    service_instance = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
+    vm = get_vm_by_name(service_instance, vm_name)
+
+    if vm:
+        if vm.runtime.powerState == 'poweredOn':
+            TASK = vm.PowerOffVM_Task()
+            #tasks.wait_for_tasks(service_instance, [TASK])
+            wait_for_task(TASK)
+            logger.info("{0} State: {1}".format(vm.name, TASK.info.state))
+
+        logger.info("Deleting VM '{}' ({})".format(vm.name, vm))
+        TASK = vm.Destroy_Task()
+        #tasks.wait_for_tasks(service_instance, [TASK])
+        wait_for_task(TASK)
+
+    Disconnect(service_instance)
+
+
+def upload_vm(host_configuration: HostConfiguration, controller: Node) -> None:
+    """
+    Clones a target VM by name
+
+    :param configuration (OrderedDict): The schema which defines vCenter and all kits
+    :param controller (Node): The controller node we wish to clone
+    :return:
+    """
+
+    # TODO:
+    # upload from vcenter host instead of local vmdk files
+
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
+    # Ensure that we cleanly disconnect in case our code dies
+    atexit.register(connect.Disconnect, s)
+    content = s.RetrieveContent()
+
+    ds = _get_obj(content, [vim.Datastore], 'datastore1')
+    dc = _get_obj(content, [vim.Datacenter], 'ha-datacenter')
+
+    esxi_request = esxi_requests(content, s._stub.cookie)
+    base_url = "https://" + host_configuration.ip_address + ":443"
+
+    RHEL_BASE_FOLDER = host_configuration.rhel_base_image_dir
+    req_folders = [RHEL_BASE_FOLDER]
+    for folder_name in req_folders:
+        path = "[{ds}] {f}".format(ds=ds.name, f=folder_name)
+        try:
+            resp = content.fileManager.MakeDirectory(path, dc, False)
+            logger.info("Created folder {}.".format(folder_name))
+        except vim.fault.FileAlreadyExists:
+            logger.info("Folder {} already exists.".format(folder_name))
+            return 0
+
+    # upload missing files
+    rhel_directory = host_configuration.image_folder_path
+    if not rhel_directory:
+        raise Exception("iso_folder_path not set in config under host_configuration.")
+    logger.info(rhel_directory)
+    files = os.listdir(rhel_directory)
+    logger.info(files)
+    try:
+        for rhel_file in files:
+            file_loc = rhel_directory + rhel_file
+            logger.info("Checking {}".format(file_loc))
+            # Build the url to put the file - https://hostname:port/resource?params
+            resource = "/folder/{base}/{file}".format(base=RHEL_BASE_FOLDER, file=rhel_file)
+            http_url = base_url + resource
+            resp = esxi_request.head(http_url)
+            file_exists = resp.status_code == 200
+            logger.info("File {} exists: {}".format(rhel_file, file_exists))
+            if not file_exists:
+                logger.info("Uploading {}".format(rhel_file))
+                with open(file_loc, "rb") as f:
+                    # Connect and upload the file
+                    data = f
+                    resp = esxi_request.put(http_url, data=data)
+                    if resp.status_code > 202:
+                        raise Exception("Error uploading file")
+
+    except vmodl.MethodFault as e:
+        logger.info("Caught vmodl fault : " + e.msg)
+        raise SystemExit(-1)
+
+    Disconnect(s)
+
+
+def copy_vm(host_configuration: HostConfiguration, controller: Node) -> None:
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
+    # Ensure that we cleanly disconnect in case our code dies
+    atexit.register(connect.Disconnect, s)
+    content = s.RetrieveContent()
+    ds = _get_obj(content, [vim.Datastore], 'datastore1')
+    dc = _get_obj(content, [vim.Datacenter], 'ha-datacenter')
+
+    logger.info("Copying base rhel image to {}".format(controller.hostname))
+
+    esxi_request = esxi_requests(content, s._stub.cookie)
+    base_url = "https://" + host_configuration.ip_address + ":443"
+    # Build the url to put the file - https://hostname:port/resource?params
+    resource = "/folder/{base}/{file}".format(base=controller.hostname, file='rhel.vmx')
+    http_url = base_url + resource
+    resp = esxi_request.head(http_url)
+    # TODO : delete files if host_configuration.fresh = True
+    vm_files = resp.status_code == 200
+    if not vm_files:
+        base = host_configuration.rhel_base_image_dir
+        src = "[{ds}] {f}".format(ds=ds.name, f=base)
+        dest = "[{ds}] {f}".format(ds=ds.name, f=controller.hostname)
+        # Copy rhel_base image directory
+        task = content.fileManager.CopyFile(src, dc, dest, dc, False)
+        wait_for_task(task)
+        if task.info.state == 'error':
+            logger.info(task)
+            raise Exception("Task error.")
+
+    vm = get_vm_by_name(s, controller.hostname)
+    if not vm:
+        # Register vm
+        pool = get_resource_pool(s, 'Resources')
+        folder = get_folder(s, 'vm')
+        vm_path = "[{}] {}/rhel.vmx".format(ds.name, controller.hostname)
+
+        logger.info("Registering VM")
+        task = folder.RegisterVm(vm_path, name=controller.hostname, asTemplate=False, pool=pool)
+        wait_for_task(task)
+        logger.info(task.info)
+
+    vm = get_vm_by_name(s, controller.hostname)
+    power_off_vm(vm)
+
+    disk_size = 30
+    logger.info("Resizing disk to {} GB".format(disk_size))
+    vm = get_vm_by_name(s, controller.hostname)
+    resize_vm_disk(vm, 1, disk_size)
+
+    logger.info("Changing controller portgroup")
+    change_network_port_group(host_configuration, controller, is_vds=False)
+
+    logger.info("Powering on VM")
+    power_on_vm(vm)
+    logger.info(vm.runtime.powerState)
+
+    # expand filesystem
+    logger.info("Expanding the filesystem")
+    creds = vim.vm.guest.NamePasswordAuthentication(
+        username=host_configuration.username, password=host_configuration.password
+    )
+    expand_filesystem(s, host_configuration, creds, vm)
+
+    logger.info("Changing IP Address")
+    change_ip_address_in_vm(s, vm, creds, host_configuration, controller)
+
+    logger.info("Registering RHEL")
+    register_rhel_vm(s, vm, creds, host_configuration, controller)
+
+    # change root password
+    logger.info("Changing root password.")
+    change_root_password(s, vm, creds, 'root', controller.password)
+
+    Disconnect(s)
+    return 0
+
+def resize_vm_disk(vm_obj, disk_number, disk_size, disk_prefix_label="Hard disk "):
+
+    disk_size_kb = int(disk_size) * 1024 * 1024
+    disk_label = disk_prefix_label + str(disk_number)
+    virtual_disk_device = None
+
+    # Find the disk device
+    for dev in vm_obj.config.hardware.device:
+        if isinstance(dev, vim.vm.device.VirtualDisk):
+            logger.info(dev.deviceInfo.label)
+
+        if isinstance(dev, vim.vm.device.VirtualDisk) \
+                and dev.deviceInfo.label == disk_label:
+            virtual_disk_device = dev
+    if not virtual_disk_device:
+        raise RuntimeError('Virtual {} could not be found.'.format(disk_label))
+
+    virtual_disk_spec = vim.vm.device.VirtualDeviceSpec()
+    virtual_disk_spec.operation = \
+        vim.vm.device.VirtualDeviceSpec.Operation.edit
+    virtual_disk_spec.device = virtual_disk_device
+    virtual_disk_spec.device.capacityInKB = disk_size_kb
+    #virtual_disk_spec.device.backing.diskMode = mode
+    dev_changes = []
+    dev_changes.append(virtual_disk_spec)
+    spec = vim.vm.ConfigSpec()
+    spec.deviceChange = dev_changes
+    task = vm_obj.ReconfigVM_Task(spec=spec)
+    wait_for_task(task)
+    if not task.info.state == 'success':
+        raise Exception("Error adding disk to vm.")
+    return True
+
+def add_disk_to_vm(vm, disk_size, share=False, disk_type="thin", unit_number=1, mode="append"):
+    spec = vim.vm.ConfigSpec()
+    # get all disks on a VM, set unit_number to the next available
+    unit_number = 0
+
+    for dev in vm.config.hardware.device:
+        if hasattr(dev.backing, 'fileName'):
+            unit_number = int(dev.unitNumber) + 1
+        if isinstance(dev, vim.vm.device.VirtualSCSIController):
+            controller = dev
+
+    # add disk here
+    dev_changes = []
+    new_disk_kb = int(disk_size) * 1024 * 1024
+    disk_spec = vim.vm.device.VirtualDeviceSpec()
+    disk_spec.fileOperation = "create"
+    disk_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
+    disk_spec.device = vim.vm.device.VirtualDisk()
+    disk_spec.device.backing = \
+        vim.vm.device.VirtualDisk.FlatVer2BackingInfo()
+    if disk_type == 'thin':
+        disk_spec.device.backing.thinProvisioned = True
+    disk_spec.device.unitNumber = unit_number
+    disk_spec.device.capacityInKB = new_disk_kb
+    disk_spec.device.controllerKey = controller.key
+
+    if share:
+        '''
+        {
+            "operation": "add",
+            "fileOperation": "create",
+            "device": {
+                "@xsi:type": "VirtualDisk",
+                "key": "-1000000",
+                "backing": {
+                    "@xsi:type": "VirtualDiskFlatVer2BackingInfo",
+                    "fileName": "[datastore1] share/",
+                    "diskMode": "persistent",
+                    "thinProvisioned": "false",
+                    "eagerlyScrub": "true",
+                    "sharing": "sharingMultiWriter"
+                },
+                "controllerKey": "1000",
+                "unitNumber": "1",
+                "capacityInKB": "104857600",
+                "capacityInBytes": "107374182400",
+                "storageIOAllocation": {
+                    "limit": "-1",
+                    "shares": {
+                        "shares": "1000",
+                        "level": "normal"
+                    }
+                }
+            }
+        }
+        '''
+        disk_spec.device.backing.fileName = "[datastore1] share/share_1.vmdk"
+        disk_spec.device.backing.diskMode = 'independent_persistent'
+        # modes:
+        # 'independent_persistent', 'persistent',
+        # 'independent_nonpersistent', 'nonpersistent',
+        # 'undoable', 'append'
+        disk_spec.device.backing.sharing  = 'sharingMultiWriter'
+        disk_spec.device.backing.thinProvisioned = False
+        disk_spec.device.backing.eagerlyScrub = True
+
+    logger.info(disk_spec)
+    dev_changes.append(disk_spec)
+    spec.deviceChange = dev_changes
+    task = vm.ReconfigVM_Task(spec=spec)
+    wait_for_task(task)
+
+    if not task.info.state == 'success':
+        raise Exception("Error adding disk to vm.")
+
+    return 1
+
+
+
+def change_root_password(service_instance, vm, creds, user, password):
+    content = service_instance.RetrieveContent()
+    execute = {
+        'programPath': '/bin/echo',
+        'arguments': '"{password}" | passwd --stdin root'.format(password=password),
+    }
+    pm = content.guestOperationsManager.processManager
+    ps = vim.vm.guest.ProcessManager.ProgramSpec(**execute)
+    res = pm.StartProgramInGuest(vm, creds, ps)
+    # TODO :
+    # wait for new creds to work before returning
+    time.sleep(7)
+    #creds = vim.vm.guest.NamePasswordAuthentication(username=user, password=password)
+    return 0
+
+def run_vm_process(vm, creds, content, programPath, arguments):
+
+    try:
+        pm = content.guestOperationsManager.processManager
+        ps = vim.vm.guest.ProcessManager.ProgramSpec(
+            programPath=programPath,
+            arguments=arguments
+        )
+        res = pm.StartProgramInGuest(vm, creds, ps)
+        time.sleep(1)
+
+        if res > 0:
+            logger.info("Program submitted, PID is %d" % res)
+            time.sleep(3)
+
+            process = pm.ListProcessesInGuest(vm, creds, [res]).pop()
+            pid_exitcode = process.exitCode
+            logger.info("exit code: {}".format(pid_exitcode))
+
+            max_loops = 50
+            loops = 0
+            while not process.endTime and loops < max_loops:
+                logger.info("Waiting for process to end.")
+                time.sleep(loops)
+                loops += 1
+                process = pm.ListProcessesInGuest(vm, creds, [res]).pop()
+                pid_exitcode = process.exitCode
+
+            # If its not a numeric result code, it says None on submit
+            while (re.match('^[0-9]+', str(pid_exitcode))):
+                logger.info("Program running, PID is %d" % res)
+                pid_exitcode = pm.ListProcessesInGuest(vm, creds,
+                                                       [res]).pop().\
+                    exitCode
+                logger.info("exit code: {}".format(pid_exitcode))
+                if (pid_exitcode == 0):
+                    logger.info("Program %d completed with success" % res)
+                    return pid_exitcode
+                    break
+                # Look for non-zero code to fail
+                elif (re.match('[1-9]+', str(pid_exitcode))):
+                    logger.info("ERROR: Program %d completed with Failure" % res)
+                    logger.info("ERROR: More info on process")
+                    logger.info(pm.ListProcessesInGuest(vm, creds, [res]))
+                    time.sleep(3)
+                    sys.exit(1)
+                    # return pid_exitcode
+                    # break
+                time.sleep(1)
+            logger.info(pm.ListProcessesInGuest(vm, creds, [res]).pop())
+
+        return pm.ListProcessesInGuest(vm, creds, [res]).pop().exitCode
+
+    except IOError as e:
+        logger.info(e)
+
+def wait_for_vm_tools(vm, max_retries=None):
+    max_retries = max_retries or 10
+    check_count = 0
+    while vm.guest.toolsStatus == "toolsNotRunning" and check_count < max_retries:
+        logger.info(vm.guest.toolsStatus)
+        time.sleep(check_count)
+        check_count += 1
+    time.sleep(5)
+    logger.info(vm.guest.toolsStatus)
+    return vm.guest.toolsStatus
+
+def upload_file_to_vm(esxi_host, service_instance, vm, creds, vm_path, file_contents):
+    #upload script to vm
+    content = service_instance.RetrieveContent()
+    esxi_request = esxi_requests(content, service_instance._stub.cookie)
+
+    try:
+        file_attribute = vim.vm.guest.FileManager.FileAttributes()
+        url = content.guestOperationsManager.fileManager. \
+            InitiateFileTransferToGuest(vm, creds, vm_path,
+                                        file_attribute,
+                                        len(file_contents), True)
+        # When : host argument becomes https://*:443/guestFile?
+        # Ref: https://github.com/vmware/pyvmomi/blob/master/docs/ \
+        #            vim/vm/guest/FileManager.rst
+        # Script fails in that case, saying URL has an invalid label.
+        # By having hostname in place will take take care of this.
+        url = re.sub(r"^https://\*:", "https://"+str(esxi_host)+":", url)
+        logger.info(url)
+        logger.info(file_contents)
+        resp = esxi_request.put(url, data=file_contents, verify=False)
+        if not resp.status_code == 200:
+            logger.info("Error while uploading file")
+            sys.exit(1)
+            return False
+        else:
+            logger.info(resp.text)
+            logger.info("Successfully uploaded file")
+            return True
+    except IOError as e:
+        logger.info(e)
+        sys.exit(1)
+
+def expand_filesystem(service_instance, host_configuration, creds, vm):
+    wait_for_vm_tools(vm)
+
+    content = service_instance.RetrieveContent()
+    ds = vm.datastore[0]
+    dc = vm.parent.parent
+
+    fdisk_cmd = (
+        "/bin/sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\\1/' << EOF | /sbin/fdisk /dev/sda \n"
+        "p # print partition table\n"
+        "d # delete\n"
+        "2 # /dev/sda2\n"
+        "n # recreate partition 2\n"
+        "p # primary partition\n"
+        "2 # partition number\n"
+        "# default first sector\n"
+        "# default last sector\n"
+        "p # print the in-memory partition table\n"
+        "w # write the partition table\n"
+    "EOF\n"
+    "/sbin/partprobe -s\n"
+    "/sbin/xfs_growfs /dev/sda2"
+    )
+    logger.info(fdisk_cmd)
+
+    cmd_path = '/root/expand_fs.sh'
+    upload_file_to_vm(
+        host_configuration.ip_address,
+        service_instance,
+        vm, creds,
+        vm_path = cmd_path,
+        file_contents=fdisk_cmd,
+    )
+
+    # run script
+    programPath = "/bin/bash"
+    arguments   =  cmd_path + " > expand_fs.log"
+    exit_code = run_vm_process(vm, creds, content, programPath, arguments)
+    return exit_code
+
+def change_ip_address_in_vm(service_instance, vm, creds, host_configuration, node):
+    if not creds:
+        creds = vim.vm.guest.NamePasswordAuthentication(
+            username='root', password=node.password
+        )
+    content = service_instance.RetrieveContent()
+
+    if vm.runtime.powerState != 'poweredOn':
+        task = vm.PowerOn()
+        wait_for_task(task)
+        logger.info(vm.runtime.powerState)
+
+    wait_for_vm_tools(vm)
+
+    network_config = (
+        "DEVICE=ens192\n"
+        "ONBOOT=yes\n"
+        "BOOTPROTO=static\n"
+        "IPADDR={addr}\n"
+        "NETMASK={mask}\n"
+        "GATEWAY={gateway}\n"
+        "DNS1=8.8.8.8\n"
+    ).format(
+        addr=node.interfaces[0].ip_address,
+        mask=node.interfaces[0].subnet_mask,
+        gateway=node.gateway
+    )
+    upload_file_to_vm(
+        host_configuration.ip_address,
+        service_instance,
+        vm, creds,
+        vm_path = '/etc/sysconfig/network-scripts/ifcfg-ens192',
+        file_contents=network_config,
+    )
+
+    upload_file_to_vm(
+        host_configuration.ip_address,
+        service_instance,
+        vm, creds,
+        vm_path = '/root/ifcfg-ens192.txt',
+        file_contents=network_config,
+    )
+
+    programPath = "/bin/systemctl"
+    arguments = "restart network"
+    run_vm_process(vm, creds, content, programPath, arguments)
+
+def register_rhel_vm(service_instance, vm, creds, host_configuration, node):
+    content = service_instance.RetrieveContent()
+
+    org = os.getenv('RHEL_ORG')
+    key = os.getenv('RHEL_KEY')
+
+    if not org or not key:
+        raise Exception("Need to set environment variables RHEL_ORG and RHEL_KEY")
+
+    subscribe_script = (
+        'hostnamectl set-hostname {hostname} \n'
+        'subscription-manager clean \n'
+        'subscription-manager register --activationkey={key} --org={org} \n'
+        'subscription-manager list \n'
+        'subscription-manager attach --auto \n'
+        'subscription-manager list \n'
+        'subscription-manager repos --enable=rhel-7-server-optional-rpms \n'
+        'subscription-manager repos --enable=rhel-7-server-extras-rpms \n'
+    ).format(key=key, org=org, hostname='controller.lan')
+
+    upload_file_to_vm(
+        host_configuration.ip_address,
+        service_instance,
+        vm, creds,
+        vm_path = '/root/subscribe.sh',
+        file_contents=subscribe_script,
+    )
+
+    programPath = '/bin/bash'
+    arguments = '-c "chmod +x /root/subscribe.sh"'
+    exit_code = run_vm_process(vm, creds, content, programPath, arguments)
+
+    programPath = '/root/subscribe.sh'
+    arguments = ' >> subscription.log'
+    exit_code = run_vm_process(vm, creds, content, programPath, arguments)
+
+    return exit_code
+
+def add_nic(vm, network):
+    spec = vim.vm.ConfigSpec()
+
+    # add Switch here
+    dev_changes = []
+    switch_spec                = vim.vm.device.VirtualDeviceSpec()
+    switch_spec.operation      = vim.vm.device.VirtualDeviceSpec.Operation.add
+    switch_spec.device         = vim.vm.device.VirtualVmxnet3()
+
+    switch_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+    switch_spec.device.backing.useAutoDetect = False
+    switch_spec.device.backing.deviceName = network.name
+    switch_spec.device.backing.network = network
+    switch_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    switch_spec.device.connectable.startConnected = True
+    switch_spec.device.connectable.connected = True
+
+    dev_changes.append(switch_spec)
+
+    spec.deviceChange = dev_changes
+    task = vm.ReconfigVM_Task(spec=spec)
+    wait_for_task(task)

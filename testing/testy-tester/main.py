@@ -3,6 +3,8 @@
 __author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 import logging
 import os
@@ -19,15 +21,27 @@ from io import StringIO
 from vmware.vapi.vsphere.client import VsphereClient
 from lib.connection_mngs import FabricConnectionWrapper
 from lib.docs_exporter import MyConfluenceExporter
+
+# VCenter
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
                               delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
+
+# ESXi
+from lib.vm_utilities import (create_smart_connect_client, delete_esxi_vm,
+                              upload_vm, copy_vm, resize_vm_disk,
+                              get_vm_by_name, power_on_vm)
+from lib import redfish_helper as redfish
+
 from lib.util import (get_node, get_nodes, test_vms_up_and_alive,
                       transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests,
                       get_interface_name, change_remote_sensor_ip,
                       hash_file)
+
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
+from lib.model.node import Interface
+
 from lib.model.host_configuration import HostConfiguration
 from lib.frontend_tester import KickstartSeleniumRunner, KitSeleniumRunner
 from lib.api_tester import APITester
@@ -64,6 +78,7 @@ class Runner:
         self.controller_node = None  # type: Node
         self.vsphere_client = None  # type: VsphereClient
         self.host_configuration = None  # type: HostConfiguration
+        self.baremetal = False
 
     def _validate_export_location(self):
         if os.path.exists(self.args.export_location) and os.path.isdir(self.args.export_location):
@@ -122,6 +137,10 @@ class Runner:
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("-vp", "--vcenter-password", dest="vcenter_password",
                             help="A password to the vcenter hosted on our local network.")
+        parser.add_argument("-eu", "--esxi-username", dest="esxi_username",
+                            help="A username to the ESXi host.")
+        parser.add_argument("-ep", "--esxi-password", dest="esxi_password",
+                            help="A password to the ESXi host.")
         parser.add_argument("-du", "--di2e-username", dest="di2e_username",
                             help="A username to the DI2E git repo.")
         parser.add_argument("-dp", "--di2e-password", dest="di2e_password",
@@ -161,18 +180,47 @@ class Runner:
         with open(self.args.filename, 'r') as kit_schema:
             try:
                 self.configuration = yaml.load(kit_schema)
-                self.host_configuration = HostConfiguration(self.configuration["host_configuration"]["vcenter"]["ip_address"],
-                self.configuration["host_configuration"]["vcenter"]["cluster_name"],
-                self.configuration["host_configuration"]["vcenter"]["datacenter"],
-                self.args.vcenter_username,
-                self.args.vcenter_password,
-                self.configuration["host_configuration"]["iso_folder_path"])  # type: HostConfiguration
 
-                self.host_configuration.set_storage_options(self.configuration["host_configuration"]["storage"]["datastore"],
-                self.configuration["host_configuration"]["storage"]["folder"])
+                host_config = self.configuration["host_configuration"]
+                storage = host_config.get("storage") or {}
+                iso_folder_path = host_config.get("iso_folder_path")
+                image_folder_path = os.getenv('IMAGE_PATH') or host_config.get("image_folder_path")
+
+                vcenter = host_config.get("vcenter") or {}
+                esxi = host_config.get("esxi")
+                if vcenter:
+                    host = vcenter
+                    username = self.args.vcenter_username
+                    password = self.args.vcenter_password
+                elif esxi:
+                    host = esxi
+                    username = self.args.esxi_username
+                    password = self.args.esxi_password
+                else:
+                    raise Exception("Need either a vcenter or ESXi host in config.")
+
+                self.host_configuration = HostConfiguration(
+                    host.get("ip_address"),
+                    vcenter.get("cluster_name"),
+                    vcenter.get("datacenter"),
+                    username,
+                    password,
+                    iso_folder_path,  
+                    vcenter=(True if vcenter else False),
+                    install_type=host_config.get("install_type"),
+                    image_folder_path=image_folder_path
+                )
+                self.host_configuration.set_storage_options(
+                    storage.get("datastore"),
+                    storage.get("folder")
+                )
 
                 # Returns a list of kit objects
                 self.kit = transform(self.configuration["kit"])  # type: Kit
+
+                for node in self.kit.nodes:
+                    if node.suricata_catalog:
+                        print(str(node.suricata_catalog))
 
                 if self.args.tfplenum_commit_hash is not None:
                     self.kit.set_branch_name(self.args.tfplenum_commit_hash)
@@ -247,7 +295,7 @@ class Runner:
                                           password=self.di2e_password)
         confluence.set_permissions(page_title, is_restricted=False)
 
-    def _setup_controller(self):
+    def _setup_vcenter_controller(self):
         """
         Does everything that is needed to setup a fully functional controller.
         It deletes the controller if it already exists before cloning from a template.
@@ -278,6 +326,29 @@ class Runner:
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.change_hostname()
         self._perform_bootstrap()
+
+    def _setup_esxi_controller(self):
+        if not self.args.setup_controller:
+            return
+
+        logging.info("Deleting controller....")
+        delete_esxi_vm(self.host_configuration, self.controller_node.hostname)
+
+        logging.info("Uploading RHEL base image")
+        upload_vm(self.host_configuration, self.controller_node)
+
+        logging.info("Copying and configuring base VM")
+        copy_vm(self.host_configuration, self.controller_node)
+
+        logging.info("Waiting for controller to become alive...")
+        test_vms_up_and_alive(self.kit, [self.controller_node], 20)
+
+        ctrl_modifier = ControllerModifier(self.controller_node)
+        ctrl_modifier.change_hostname()
+
+        self._perform_bootstrap()
+
+        ctrl_modifier.make_controller_changes()
 
     def _export_controller(self):
         if not self.args.export_controller:
@@ -391,13 +462,17 @@ class Runner:
 
         :return:
         """
-        logging.info("Modifying Controller")
-        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
-        try:
-            ctrl_vm.power_on()
-        except:
-            pass
-        self.controller_modifier()
+        logging.info("Modifying {}".format(self.controller_node.hostname))
+        if self.vsphere_client:
+            ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
+            try:
+                ctrl_vm.power_on()
+            except:
+                pass
+            self.controller_modifier()
+        elif self.esxi_client:
+            vm = get_vm_by_name(self.esxi_client, self.controller_node.hostname)
+            power_on_vm(vm)
 
     def _update_remote_sensors(self):
         """
@@ -416,7 +491,63 @@ class Runner:
 
         test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
 
-    def _run_kickstart(self):
+    def _run_physical_kickstart(self):
+        if not self.args.run_kickstart:
+            return
+
+        self._setup_vmware_clients()
+        # Power on controller
+        self.power_on_controller()
+        # get idracs
+        redfish_config = self.configuration['redfish']
+        password = os.getenv('REDFISH_PASSWORD') or os.getenv('REDFISH_PSW')
+        redfish_config['password'] = password
+
+        counts = {
+            'sensor': 0,
+            'server': 0
+        }
+        # Set boot order ipmi
+        node_lookup = {x.hostname: x for x in self.kit.get_nodes()}
+        for t in ['servers', 'sensors']:
+            for ip in redfish_config[t]:
+                type_name = t[0:-1]
+                counts[type_name] += 1
+                hostname = type_name + str(counts[type_name])
+                node = node_lookup.get(hostname)
+                if not node:
+                    logging.info("Could not find node {}".format(hostname))
+                    sys.exit(1)
+
+                logging.info("Trying redfish for {}".format(ip))
+                token = redfish.get_token(ip, redfish_config['user'], redfish_config['password'])
+                # Obtaining MAC addresses
+                pxe_mac = redfish.get_pxe_mac(ip, token)
+                logging.info("Found mac for {} - {}".format(ip, pxe_mac))
+                boot_mode = redfish.set_pxe_boot(ip, token)
+
+                node.set_management_interface_mac(pxe_mac)
+                node.set_management_interface_boot_mode(boot_mode)
+
+        logging.info("Configuring Kickstart")
+        # runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
+        # runner.run_kickstart_configuration(kit)
+        runner = APITester(self.controller_node.management_interface.ip_address, self.kit)
+        runner.run_kickstart_api_call()
+
+        # restart via redfish
+        for t in ['servers', 'sensors']:
+            for ip in redfish_config[t]:
+                token = redfish.get_token(ip, redfish_config['user'], redfish_config['password'])
+                result = redfish.restart_server(ip, token)
+
+        logging.info("Waiting for servers and sensors to become alive...")
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 60)
+
+        return 0
+
+
+    def _run_virtual_kickstart(self):
         """
         Performs the needed operations to Kickstart any and all vms mentions in
         the kit.
@@ -442,14 +573,7 @@ class Runner:
         logging.info("Waiting for servers and sensors to become alive...")
         test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
 
-    def _run_kit(self):
-        """
-        Performs the needed operations to run a kit assuming kickstart has already run, etc.
-        :return:
-        """
-        if not self.args.run_kit:
-            return
-
+    def _setup_virtual_kit(self):
         self.power_on_controller()
         vms = get_vms(self.kit, self.vsphere_client, self.host_configuration)
         all_vms = get_all_vms(self.kit, self.vsphere_client, self.host_configuration)
@@ -458,6 +582,18 @@ class Runner:
         test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
         self._set_vm_macs(all_vms)
         self._get_interface_name()
+
+    def _run_kit(self):
+        """
+        Performs the needed operations to run a kit assuming kickstart has already run, etc.
+        :return:
+        """
+        if not self.args.run_kit:
+            return
+
+        if not self.baremetal:
+            self._setup_virtual_kit()
+
         logging.info("Run TFPlenum configuration")
         # runner = KitSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
         # runner.run_tfplenum_configuration(kit)
@@ -526,7 +662,7 @@ class Runner:
         wait_for_pods_to_be_alive(master_node, 30)
         perform_integration_tests(self.controller_node, self.kit.password)
 
-    def _simulate_powerfailure(self):
+    def _simulate_virtual_powerfailure(self):
         """
         Simulates a power failure on a given cluster.
 
@@ -539,6 +675,25 @@ class Runner:
         self._power_off_vms(vms)
         self._power_on_vms(vms)
         test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
+        master_node = get_node(self.kit, "master_server")
+        wait_for_pods_to_be_alive(master_node, 30)
+
+    def _simulate_physical_powerfailure(self):
+        if not self.args.simulate_powerfailure:
+            return
+
+        redfish_config = self.configuration['redfish']
+        password = os.getenv('REDFISH_PASSWORD') or os.getenv('REDFISH_PSW')
+        redfish_config['password'] = password
+
+        for t in ['servers', 'sensors']:
+            for ip in redfish_config[t]:
+                token = redfish.get_token(ip, redfish_config['user'], redfish_config['password'])
+                result = redfish.restart_server(ip, token)
+
+        logging.info("Waiting for servers and sensors to become alive...")
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 60)
+
         master_node = get_node(self.kit, "master_server")
         wait_for_pods_to_be_alive(master_node, 30)
 
@@ -575,6 +730,19 @@ class Runner:
         logging.info("Deleting VMs....")
         destroy_vms(self.kit.get_nodes(), self.vsphere_client, self.host_configuration)
 
+    def _setup_vmware_clients(self):
+        # vcenter or esxi host
+        # TODO: query for vcenter without erroring out on login
+        if self.host_configuration.vcenter:
+            try:
+                self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
+            except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+                print("Error creating vsphere client. Must not be connecting to vcenter.")
+                sys.exit(1)
+        else:
+            service_instance = create_smart_connect_client(self.host_configuration)
+            self.esxi_client = service_instance
+
     def execute(self):
         """
         Does the full or partial execution of cluster setup, and integration tests.
@@ -588,10 +756,23 @@ class Runner:
         if (self.args.setup_controller or self.args.run_kickstart or self.args.run_kit or self.args.cleanup_kit or
                 self.args.run_add_node or self.args.run_integration_tests or self.args.simulate_powerfailure or
                 self.args.add_docs_to_controller or self.args.export_controller):
-            self.vsphere_client = create_client(self.host_configuration)  # type: VsphereClient
+
+            self._setup_vmware_clients()
 
         self.controller_node = get_node(self.kit, "controller")  # type: Node
-        self._setup_controller()
+
+        # setup baremetal vs virtual functions
+        self.baremetal = self.host_configuration.install_type == "baremetal"
+        if self.baremetal:
+            setup_controller = self._setup_esxi_controller
+            run_kickstart = self._run_physical_kickstart
+            simulate_powerfailure = self._simulate_physical_powerfailure
+        else:
+            setup_controller = self._setup_vcenter_controller
+            run_kickstart = self._run_virtual_kickstart
+            simulate_powerfailure = self._simulate_virtual_powerfailure
+
+        setup_controller()
         self._set_perms_restricted_on_page()
         self._set_perms_unrestricted_on_page()
         self._add_docs_to_controller()
@@ -599,13 +780,16 @@ class Runner:
         self._export_offline_docs()
         self._publish_to_labrepo()
         self._generate_hash_file_for_export()
-        self._run_kickstart()
+        run_kickstart()
+
         self._run_kit()
         self._run_catalog()
         #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
         # self._run_add_node()
         self._run_integration()
-        self._simulate_powerfailure()
+
+        simulate_powerfailure()
+
         self._cleanup()
 
 

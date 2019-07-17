@@ -25,6 +25,7 @@ reboot
 {% if item is defined %}
 network --device={{ hostvars[item].mac | lower }} --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
 network  --hostname={{ item }}
+
 {% else %}
 network  --bootproto=dhcp --device=eth0 --noipv6 --activate
 network  --hostname=localhost.localdomain
@@ -60,6 +61,11 @@ logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --perc
 logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
 
 %pre
+
+# Add DNS search domain
+{% if item is defined -%}
+echo "DOMAIN={{domain}}" >> `grep -r '{{ hostvars[item].ip }}' /etc/sysconfig/ -l`
+{%- endif %}
 
 %end
 

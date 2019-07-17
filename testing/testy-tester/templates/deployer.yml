@@ -45,6 +45,8 @@ all:
     # netmask: This is used to define the subnet mask for the node static address.
     # Default: null
     netmask: '{{ kit.netmask }}'
+    # Search domain for dns
+    domain: '{{ kit.domain }}'
 
 
     # The following variables require internet connection.

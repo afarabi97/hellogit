@@ -6,7 +6,7 @@ port: "8005"
 dir: '/opt/tfplenum/moloch'
 path: '/data/moloch'
 config_path: "/opt/tfplenum/moloch/etc"
-pcap_path: "/opt/tfplenum/moloch/raw"
+pcap_path: "/data/moloch/raw"
 fpc_path: "/data/pcap"
 
 # Kubernetes and docker info

@@ -44,7 +44,8 @@ class Interface(object):
         """
 
     def __init__(self, name: str, interface_type: str, ip_address: str, start_connected: str,
-                 management_interface: bool, monitoring_interface: bool) -> None:
+                 management_interface: bool, monitoring_interface: bool,
+                 pxe_type: str = None) -> None:
         """
         Initializes an Interface object
 
@@ -72,6 +73,7 @@ class Interface(object):
         self.std_portgroup_name = None
         self.interface_name = None
         self.subnet_mask = None
+        self.boot_mode = 'BIOS'
 
     def set_subnet_mask(self, subnet_mask: str) -> None:
         """
@@ -99,6 +101,15 @@ class Interface(object):
         :return:
         """
         self.mac_address = mac_address
+
+    def set_boot_mode(self, boot_mode: str) -> None:
+        """
+        Set the boot mode for the Interface object
+
+        :param boot_mode: Either BIOS or Uefi
+        :return:
+        """
+        self.boot_mode = boot_mode
 
     def set_dv_portgroup_name(self, dv_portgroup_name: str) -> None:
         """
@@ -642,6 +653,15 @@ class Node(object):
         :return:
         """
         self.zeek_catalog = CatalogZeek(zeek_catalog)
+
+    def set_management_interface_boot_mode(self, boot_mode: str) -> None:
+        """
+        Sets the boot_mode of the management interface
+
+        :param boot_mode: The boot_mode of the management interface
+        :return:
+        """
+        self.management_interface.set_boot_mode(boot_mode)
 
     def __str__(self) -> str:
         p_interfaces = '\n'.join([str(x) for x in self.interfaces])

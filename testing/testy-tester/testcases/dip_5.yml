@@ -1,0 +1,388 @@
+---
+redfish:
+  user: root
+  password: <SET ENV VAR $REDFISH_PASSWORD>
+  servers:
+    - 172.16.22.36
+    - 172.16.22.35
+  sensors:
+    - 172.16.22.34
+    - 172.16.22.33
+    - 172.16.22.32
+    - 172.16.22.31
+
+host_configuration:
+  image_folder_path: /root/Images/rhel
+  install_type: baremetal
+  esxi:
+    ip_address: "172.16.32.20"
+
+kit:
+  #remote_sensor_portgroup: "73 Portgroup"
+  #remote_sensor_network: "172.16.73.0"
+
+  kickstart_configuration:
+      netmask: "255.255.255.0"
+      # Gateway will probably be different on a per kit basis (depends on the vlan)
+      gateway: "172.16.32.1"
+      dhcp_range: "172.16.32.192"
+      # Note root_password is specified under VM_settings.
+
+  kit_configuration:
+      # The branch we want to pull from.
+      branch_name: feature/redfish
+      source_repo: labrepo
+      # Kubernetes cidr will probably be different on a per kit basis
+      kubernetes_cidr: "172.16.32.112"
+      home_nets:
+          - "172.16.32.0/24"
+
+      # This is optional - you can fill it in if you need to
+      external_nets:
+
+  VMs:
+    # Note: You should not have more than one of these
+    Controller:
+      type: "controller" # Can be controller, sensor, or server
+      vm_guestos: RHEL_7_64
+      #vm_to_clone: "NVMEe Test Template"
+      vm_to_clone: redhat
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        #- "172.16.82.1"
+        - "8.8.8.8"
+      networking:
+        std_portgroup_name: "VM Network"
+        nics:
+          ens192:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.241"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: True
+            mac_address: "" # Will be pulled via redfish api
+            dv_portgroup_name: "Management"
+            std_portgroup_name:
+          ens224:
+            type: "link-local" # This can be auto, manual, or link-local
+            ip_address: "169.254.251.119"
+            subnet_mask: "255.255.0.0"
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: True
+            mac_address: "" # Will be pulled via redfish api
+            dv_portgroup_name: "Monitoring"
+            std_portgroup_name:
+      cpu_spec:
+        sockets: 4
+        cores_per_socket: 1
+        hot_add_enabled: False
+        hot_remove_enabled: False
+      memory_spec:
+        size: 8 # This value is in GiB
+        hot_add_enabled: False
+      disks:
+        boot: 30 # Name of disk followed by capacity in GiBs
+      iso_file: "rhel-server-7.4-x86_64-dvd.iso"
+      boot_order: # Valid options are CDROM, DISK, and ETHERNET
+        - "CDROM" # CDROM will be ignored if iso_file is None
+        - "DISK"
+        - "ETHERNET"
+
+  metal:
+    server1:
+      type: "master_server" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          ens1f0:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.5"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      es_drives:
+        - sdb
+      catalog:
+        moloch-viewer:
+          node_hostname: "server"
+          user: "assessor"
+          pass: "password"
+          deployment_name: "server-moloch-viewer"
+
+    server2:
+      type: "server" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          ens1f0:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.6"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      es_drives:
+        - sdb
+
+    sensor1:
+      type: "sensor" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          eno1:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.7"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+          eno2:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      catalog:
+        suricata:
+          affinity_hostname: "sensor1"
+          cpu_request: "1000"
+          deployment_name: "sensor1-suricata"
+          external_net: ["any"]
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          node_hostname: "sensor1"
+        moloch-capture:
+          cpu_request: "1000"
+          pcapWriteMethod: "thread-direct"
+          affinity_hostname: "sensor1"
+          node_hostname: "sensor1"
+          bpf: ""
+          dontSaveBPFs: ""
+          freespaceG: "25%"
+          maxFileSizeG: 25
+          magicMode: "basic"
+          interfaces:
+            - "eno2"
+          deployment_name: "sensor1-moloch"
+        zeek:
+          affinity_hostname: "sensor1"
+          cpu_request: "1000"
+          deployment_name: "sensor1-zeek"
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          zeek_workers: 8
+          node_hostname: "sensor1"
+
+
+    sensor2:
+      type: "sensor" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          eno1:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.8"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+          eno2:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      catalog:
+        suricata:
+          affinity_hostname: "sensor2"
+          cpu_request: "1000"
+          deployment_name: "sensor2-suricata"
+          external_net: ["any"]
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          node_hostname: "sensor2"
+        moloch-capture:
+          cpu_request: "1000"
+          pcapWriteMethod: "thread-direct"
+          affinity_hostname: "sensor2"
+          node_hostname: "sensor2"
+          bpf: ""
+          dontSaveBPFs: ""
+          freespaceG: "25%"
+          maxFileSizeG: 25
+          magicMode: "basic"
+          interfaces:
+            - "eno2"
+          deployment_name: "sensor2-moloch"
+        zeek:
+          affinity_hostname: "sensor2"
+          cpu_request: "1000"
+          deployment_name: "sensor2-zeek"
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          zeek_workers: 8
+          node_hostname: "sensor2"
+
+    sensor3:
+      type: "sensor" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          eno1:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.9"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+          eno2:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      catalog:
+        suricata:
+          affinity_hostname: "sensor3"
+          cpu_request: "1000"
+          deployment_name: "sensor3-suricata"
+          external_net: ["any"]
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          node_hostname: "sensor3"
+        moloch-capture:
+          cpu_request: "1000"
+          pcapWriteMethod: "thread-direct"
+          affinity_hostname: "sensor3"
+          node_hostname: "sensor3"
+          bpf: ""
+          dontSaveBPFs: ""
+          freespaceG: "25%"
+          maxFileSizeG: 25
+          magicMode: "basic"
+          interfaces:
+            - "eno2"
+          deployment_name: "sensor3-moloch"
+        zeek:
+          affinity_hostname: "sensor3"
+          cpu_request: "1000"
+          deployment_name: "sensor3-zeek"
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          zeek_workers: 8
+          node_hostname: "sensor3"
+
+    sensor4:
+      type: "sensor" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.32.1"
+      dns:
+        - "172.16.32.1"
+      networking:
+        nics:
+          eno1:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.32.10"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+          eno2:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address:
+            start_connected: True
+            management_interface: False
+            monitoring_interface: True
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      pcap_drives:
+        - sdb
+      catalog:
+        suricata:
+          affinity_hostname: "sensor4"
+          cpu_request: "1000"
+          deployment_name: "sensor4-suricata"
+          external_net: ["any"]
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          node_hostname: "sensor4"
+        moloch-capture:
+          cpu_request: "1000"
+          pcapWriteMethod: "thread-direct"
+          affinity_hostname: "sensor4"
+          node_hostname: "sensor4"
+          bpf: ""
+          dontSaveBPFs: ""
+          freespaceG: "25%"
+          maxFileSizeG: 25
+          magicMode: "basic"
+          interfaces:
+            - "eno2"
+          deployment_name: "sensor4-moloch"
+        zeek:
+          affinity_hostname: "sensor4"
+          cpu_request: "1000"
+          deployment_name: "sensor4-zeek"
+          home_net: ["any"]
+          interfaces:
+            - "eno2"
+          zeek_workers: 8
+          node_hostname: "sensor4"

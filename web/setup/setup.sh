@@ -87,6 +87,7 @@ function _install_and_configure_gunicorn {
 	cp ./tfplenum-frontend.service /etc/systemd/system/
 	run_cmd systemctl daemon-reload
 	run_cmd systemctl enable tfplenum-frontend.service
+    run_cmd systemctl restart tfplenum-frontend.service
 }
 
 function _install_and_start_mongo40 {

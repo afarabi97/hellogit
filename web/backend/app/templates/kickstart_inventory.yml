@@ -38,6 +38,7 @@ all:
     # netmask: This is used to define the subnet mask for the node static address.
     # Default: null
     netmask: '{{ template_ctx.netmask }}'
+    domain: '{{ template_ctx.domain }}'
 
     # The following variables are used for kickstart options.
     # root_password: Sets root password for each node.

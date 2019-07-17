@@ -9,7 +9,7 @@ STATUS=$2
 function update_issue() {
   . /etc/os-release
   OS_RELEASE="$( cat /etc/system-release )";
-  cat /etc/issue.in | sed "s/{{OS_RELEASE}}/${OS_RELEASE}/" > /etc/issue
+  cat /etc/issue.in | sed "s/{OS_RELEASE}/${OS_RELEASE}/" > /etc/issue
 
   # Reset gettys where a user is not logged in
   GETTYS=$(systemctl list-units | grep "getty@" | grep -vE "$(who | awk '{ print $2 }'|paste -sd'|' )" | awk '{print $1}'|paste -s)

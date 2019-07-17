@@ -1,6 +1,6 @@
 ---
 - name: Install TFPlenum /etc/issue
-  copy:
+  template:
     src: etc-issue.in
     dest: /etc/issue.in
     mode: 0644

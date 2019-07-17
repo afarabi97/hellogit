@@ -21,6 +21,7 @@ from pathlib import Path
 from random import randint
 from celery import Celery
 
+import pymongo
 
 APP_DIR = Path(__file__).parent  # type: Path
 TEMPLATE_DIR = APP_DIR / 'templates'  # type: Path
@@ -49,10 +50,17 @@ def _setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int
 
 
 def _initalize_counters():
-    for counter in SEQUENCE_ID_COUNTERS:
-        dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
-        if dbrecord == None:
-            ret_val  = conn_mng.mongo_counters.insert_one({"_id": counter, "seq": randint(100, 100000)})
+    try:
+        for counter in SEQUENCE_ID_COUNTERS:
+            dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
+            if dbrecord == None:
+                data = {"_id": counter, "seq": randint(100, 100000)}
+                print(data)
+                ret_val  = conn_mng.mongo_counters.insert_one(data)
+    except pymongo.errors.DuplicateKeyError as e:
+        # race condition of multiple api workers coming online will produce
+        # dupcliate key error
+        pass
 
 
 def get_next_sequence(key: str):

@@ -44,6 +44,7 @@ class KickstartPayloadGenerator:
         mac_address = node.management_interface.mac_address
         if not mac_address:
             mac_address = node.management_interface.mac_auto_generated
+        boot_mode = node.management_interface.boot_mode or "BIOS"
 
         data_drive = "sdb"
         if node.es_drives:
@@ -57,7 +58,7 @@ class KickstartPayloadGenerator:
             "mac_address": mac_address,
             "boot_drive": node.boot_drive,
             "data_drive": data_drive,
-            "pxe_type": "BIOS"
+            "pxe_type": boot_mode
         }
 
     def _construct_node_parts(self) -> List[Dict]:
@@ -81,7 +82,8 @@ class KickstartPayloadGenerator:
                 controller.management_interface.ip_address
             ],
             "nodes": self._construct_node_parts(),
-            "continue": True
+            "continue": True,
+            "domain": controller.domain
         }
 
 

@@ -73,7 +73,7 @@
     host: "{{ kibana_svc_ip.stdout }}"
     port: 80
     delay: 30
-    timeout: 300
+    timeout: 600
   delegate_to: localhost
 
 - name: Wait for Kibana to become healthy

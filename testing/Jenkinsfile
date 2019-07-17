@@ -33,10 +33,19 @@ pipeline {
     agent {
         label "tfplenum"
     }
+    environment {
+        REDFISH     =    credentials('REDFISH')
+        ESXI        =    credentials('ESXI')
+        DI2E        =    credentials('di2e-user-password')
+        VCENTER     =    credentials('vcenter-user-password')
+        RHEL_ORG    =    credentials('rhel-subscription-org')
+        RHEL_KEY    =    credentials('rhel-subscription-key')
+        IMAGE_PATH  =    '/var/lib/jenkins/images/rhel/'
+    }
     stages {
         stage('checkout'){
             steps {
-                script{
+                script {
                     notifySlack('STARTED')
                 }
                 cleanWs()
@@ -49,30 +58,36 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                        usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password} \
-                        --tfplenum-commit-hash ${tfplenum_commit_hash}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Building controller')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW \
+                                    --tfplenum-commit-hash ${tfplenum_commit_hash}"
+
+                    def command = "${base} --setup-controller"
+                    println command
+                    sh(command)
                 }
             }
         }
-        stage('kickstart vms') {
+        stage('kickstart kit') {
             options {
                 timeout(time: 45, unit: 'MINUTES')
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                        usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --run-kickstart \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Run kickstart')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --run-kickstart"
+                    println command
+                    sh(command)
                 }
             }
         }
@@ -82,13 +97,16 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                    usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --run-kit \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Run kit')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --run-kit"
+                    println command
+                    sh(command)
                 }
             }
         }
@@ -98,13 +116,16 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                    usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --run-catalog \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Run catalog')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --run-catalog"
+                    println command
+                    sh(command)
                 }
             }
         }
@@ -114,14 +135,17 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                        usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        sh("mkdir -p $WORKSPACE/reports")
-                        def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Run integration tests')
+                    sh("mkdir -p $WORKSPACE/reports")
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --run-integration-tests"
+                    println command
+                    sh(command)
                 }
                 junit 'reports/*.xml'
             }
@@ -132,13 +156,16 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                    usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --simulate-powerfailure \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Simulate power failure')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --simulate-powerfailure"
+                    println command
+                    sh(command)
                 }
             }
         }
@@ -148,13 +175,16 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                    usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --run-integration-tests \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                        println command
-                        sh(command)
-                    }
+                    notifySlack('Run integration testing')
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                    def command = "${base} --run-integration-tests"
+                    println command
+                    sh(command)
                 }
                 junit 'reports/*.xml'
             }
@@ -164,13 +194,15 @@ pipeline {
                 script {
                     currentBuild.result = currentBuild.result ?: 'SUCCESS'
                     if (currentBuild.result == 'SUCCESS' && params.cleanup_kit) {
-                        withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
-                        usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                            def command = "sudo python3.6 testing/testy-tester/main.py --cleanup \
-                            --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
-                            println command
-                            sh(command)
-                        }
+                        def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du $DI2E_USR -dp $DI2E_PSW \
+                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
+                                    -eu $ESXI_USR -ep $ESXI_PSW"
+
+                        def command = "${BASE_COMMAND} --cleanup"
+                        println command
+                        sh(command)
                     }
                 }
             }

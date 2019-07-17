@@ -8,7 +8,10 @@ from fabric import Connection
 from functools import wraps
 from invoke.exceptions import UnexpectedExit
 from jinja2 import Environment, FileSystemLoader
+
 from lib.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
+import pymongo
+
 from lib.model.kit import Kit
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node, Interface, NodeDisk
@@ -18,6 +21,7 @@ from time import sleep
 from typing import List, Dict, Union
 from urllib.parse import quote
 
+from invoke.exceptions import UnexpectedExit
 
 #/opt/tfplenum/testing/playbooks/reports
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -146,7 +150,6 @@ def get_bootstrap(controller: Node, di2e_username: str, kit: Kit, di2e_password:
                 "/raw/bootstrap.sh?at={branch_name}".format(branch_name=kit.branch_name,
                                                             username=di2e_username,
                                                             password=di2e_password)
-
     with FabricConnectionWrapper(controller.username,
                                  controller.password,
                                  controller.management_interface.ip_address) as client:
@@ -175,7 +178,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export GIT_PASSWORD='" + di2e_password + "' && \
             export TFPLENUM_BRANCH_NAME='" + kit.branch_name + "' && \
             export USE_FORK='no' && \
-            bash /root/bootstrap.sh")
+            bash /root/bootstrap.sh > bootstrap.log")
         client.run(cmd_to_execute, shell=True)
 
 
@@ -191,18 +194,30 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
         export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
+
+    error = False
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
         with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
             ctrl_cmd.run(cmd_to_mkdir)
         with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
-            ctrl_cmd.run(cmd_to_execute, shell=True)
+            try:
+                ctrl_cmd.run(cmd_to_execute, shell=True)
+            except UnexpectedExit as e:
+                print(e)
+                error = True
+
         reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
         reports = reports_string_.replace("\r","").split("\n")
         for report in reports:
             filename = report.replace(reports_source + "/", "")
             results = ctrl_cmd.get(report, reports_destination + filename)
+
+    if error:
+        raise Exception("Tests failed.")
+
+    return True
 
 
 def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
@@ -221,11 +236,11 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
     future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
     while True:
         if future_time <= datetime.utcnow():
-            logging.error("The vms took too long to come up")
+            logging.error("The machines took too long to come up")
             exit(3)
 
         for vm in vms_to_test:
-            logging.info("VMs remaining:")
+            logging.info("Machines remaining:")
             logging.info([node.hostname for node in vms_to_test])
 
             logging.info("Testing " + vm.hostname + " (" + vm.management_interface.ip_address + ")")
@@ -238,7 +253,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
                 vms_to_test.remove(vm)
 
         if not vms_to_test:
-            logging.info("All VMs up and active.")
+            logging.info("All machines up and active.")
             break
 
         sleep(5)
@@ -300,7 +315,7 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         node.set_username(kit.username)
         node.set_password(kit.password)
 
-        node.set_guestos(vms[v]['vm_guestos'])
+        node.set_guestos(vms[v].get('vm_guestos'))
         #storage = vms[v]['storage_options']  # type: dict
         #node.set_storage_options(storage['datacenter'], storage['cluster'], storage['datastore'], storage['folder'])
 
@@ -316,8 +331,8 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
                 interface.set_subnet_mask(nics[nic]['subnet_mask'])
             except KeyError:
                 pass
-            interface.set_dv_portgroup_name(nics[nic]['dv_portgroup_name'])
-            interface.set_std_portgroup_name(nics[nic]['std_portgroup_name'])
+            interface.set_dv_portgroup_name(nics[nic].get('dv_portgroup_name'))
+            interface.set_std_portgroup_name(nics[nic].get('std_portgroup_name'))
 
             if interface.management_interface:
                 node.set_management_interface(interface)
@@ -328,16 +343,23 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         node.set_interfaces(interfaces)
 
         # Set cpu specs
-        cpu_spec = vms[v]['cpu_spec']  # type: dict
-        node.set_cpu_options(cpu_spec['sockets'], cpu_spec['cores_per_socket'], cpu_spec['hot_add_enabled'],
-                             cpu_spec['hot_remove_enabled'])
+        cpu_spec = vms[v].get('cpu_spec') or {}  # type: dict
+        node.set_cpu_options(
+            cpu_spec.get('sockets'),
+            cpu_spec.get('cores_per_socket'),
+            cpu_spec.get('hot_add_enabled'),
+            cpu_spec.get('hot_remove_enabled')
+        )
 
         # Set memory specs
-        memory_spec = vms[v]['memory_spec']  # type: dict
-        node.set_memory_options(memory_spec['size'], memory_spec['hot_add_enabled'])
+        memory_spec = vms[v].get('memory_spec') or {}  # type: dict
+        node.set_memory_options(
+            memory_spec.get('size'),
+            memory_spec.get('hot_add_enabled')
+        )
 
         # Set disk info
-        disk_spec = vms[v]['disks']  # type: dict
+        disk_spec = vms[v].get('disks') or {}  # type: dict
         disks = []  # type: List[NodeDisk]
         for d in disk_spec:
             disk = NodeDisk(d, disk_spec[d])  # type: NodeDisk
@@ -345,35 +367,36 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         node.set_disks(disks)
 
         # Set iso file path
-        node.set_iso_file(vms[v]['iso_file'])
+        node.set_iso_file(vms[v].get('iso_file'))
 
         # Set boot order
         boot_order = []  # type: list
-        for o in vms[v]['boot_order']:
+        for o in vms[v].get('boot_order') or []:
             boot_order.append(o)
         node.set_boot_order(boot_order)
 
         if node.type != "controller":
-            node.set_boot_drive(vms[v]['boot_drive_name'])
+            node.set_boot_drive(vms[v].get('boot_drive_name'))
 
         if node.type == "remote_sensor":
-            node.set_pcap_drives(vms[v]['pcap_drives'])
+            node.set_pcap_drives(vms[v].get('pcap_drives'))
         elif node.type == "server" or node.type == "master_server":
-            node.set_es_drives(vms[v]['es_drives'])
+            node.set_es_drives(vms[v].get('es_drives'))
         elif node.type == "sensor":
-            node.set_pcap_drives(vms[v]['pcap_drives'])
+            node.set_pcap_drives(vms[v].get('pcap_drives'))
 
         # set catalog info
+        catalog = vms[v].get('catalog') or {}
         if node.type == "sensor":
-            suricata_spec = vms[v]['catalog']['suricata']
+            suricata_spec = catalog.get('suricata')
             node.set_suricata_catalog(suricata_spec)
-            moloch_capture_spec = vms[v]['catalog']['moloch-capture']
+            moloch_capture_spec = catalog.get('moloch-capture')
             node.set_moloch_capture_catalog(moloch_capture_spec)
             zeek_spec = vms[v]['catalog']['zeek']
             node.set_zeek_catalog(zeek_spec)
 
         if node.type == "master_server":
-            moloch_viewer_spec = vms[v]['catalog']['moloch-viewer']
+            moloch_viewer_spec = catalog.get('moloch-viewer')
             node.set_moloch_viewer_catalog(moloch_viewer_spec)
             #endgame2elastic_spec = vms[v]['catalog']['endgame2elastic']
             #node.set_endgame2elastic_catalog(endgame2elastic_spec)
@@ -426,9 +449,12 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     else:
         kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
 
-    vms = configuration["VMs"]  # type: dict
+    machines = configuration["VMs"]  # type: dict
+    metal = configuration.get('metal') or {}
+    machines.update(metal)
+
     # Add list of nodes to kit
-    kit.set_nodes(_transform_nodes(vms, kit))
+    kit.set_nodes(_transform_nodes(machines, kit))
 
     try:
         vms = configuration["VMs"]["ADD_NODE_VMs"]  # type: dict
@@ -503,6 +529,18 @@ def wait_for_mongo_job(job_name: str, mongo_ip: str, minutes_timeout: int):
                 if result["return_code"] != 0:
                     logging.error(
                         "{name} failed with message: {message}".format(name=result["_id"], message=result["message"]))
+
+                    # get console logs for latest run
+                    console = mongo_manager.mongo_console
+                    latest_console = console.find_one(
+                        {'jobName': job_name},
+                        sort=[('_id', pymongo.DESCENDING)]
+                    )
+                    latest_job_id = latest_console['jobid']
+                    logs = console.find({'jobid': latest_job_id, 'jobName': job_name})
+                    for line in logs:
+                        print(line['log'], end="")
+
                     exit(2)
                 else:
                     logging.info("{name} Job completed successfully".format(name=job_name))
