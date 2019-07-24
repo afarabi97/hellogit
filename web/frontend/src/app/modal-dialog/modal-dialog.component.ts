@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { HtmlModalPopUp, ModalType, 
+import { HtmlModalPopUp, ModalType,
         HtmlInput, HtmlDatePicker, HtmlDropDown, HtmlTextArea } from '../html-elements';
 import { FormControl } from '@angular/forms';
-import { ExecuteKitForm } from "../kit-form/kit-form";
-import { formatDate } from "@angular/common";
+import { KitFormTime } from '../kit-form/kit-form';
 import { DatePickerService } from "../date-picker/date-picker.service";
 
 
@@ -16,7 +15,7 @@ export class ModalDialogComponent implements OnInit {
 
   @Input()
   modal: HtmlModalPopUp;
-  
+
   @Output()
   primaryButtonClick: EventEmitter<any> = new EventEmitter();
 
@@ -26,13 +25,13 @@ export class ModalDialogComponent implements OnInit {
 
   objectKeys(obj: any) {
     let ret_val = [];
-    for (let item of Object.keys(obj)){      
+    for (let item of Object.keys(obj)){
         ret_val.push(item);
     }
     return ret_val;
   }
 
-  triggerPrimaryClickEvent(event: any){    
+  triggerPrimaryClickEvent(event: any){
     this.primaryButtonClick.emit(event);
   }
 
@@ -74,23 +73,23 @@ export class ModalDialogComponent implements OnInit {
   }
 
   triggerCallback(timezone: string){
-    if (this.modal.modalForm instanceof ExecuteKitForm){
+    if (this.modal.modalForm instanceof KitFormTime){
       if (timezone === "Browser"){
         timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        this.modal.modalForm.timezone.setValue(timezone);
-      }      
+        // this.modal.modalForm.timezone.setValue(timezone);
+      }
       this._DatePickerService.setDate(timezone);
       this.setTime(timezone);
     }
   }
 
   setTime(timezone: string='UTC'){
-    if (this.modal.modalForm instanceof ExecuteKitForm){
-      const date_picker = this.modal.modalForm as ExecuteKitForm;
+    if (this.modal.modalForm instanceof KitFormTime){
+      const date_picker = this.modal.modalForm as KitFormTime;
       let date = new Date();
-      let time_formated = date.toLocaleString('en-US', {hour: '2-digit', minute: '2-digit', 
+      let time_formated = date.toLocaleString('en-US', {hour: '2-digit', minute: '2-digit',
                                                         hour12: false, timeZone: timezone });
-      date_picker.time.setValue(time_formated);
+      //date_picker.time.setValue(time_formated);
     }
   }
 }
