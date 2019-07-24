@@ -10,8 +10,9 @@ function run_cmd {
 
 function _deploy_angular_application {
 	pushd $FRONTEND_DIR/frontend > /dev/null
+    run_cmd rm -rf dist/frontend
+    run_cmd rm -rf /var/www/html/frontend
     run_cmd ng build --prod
-	run_cmd rm -rf /var/www/html/frontend
 	run_cmd cp -r dist/frontend /var/www/html/
 	popd > /dev/null
 }

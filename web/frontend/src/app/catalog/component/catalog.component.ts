@@ -26,11 +26,19 @@ export class CatalogComponent implements OnInit {
    * @memberof CatalogComponent
    */
   ngOnInit() {
-    this._CatalogService.get().subscribe(data => {
+    this._CatalogService.getByString("charts").subscribe(data => {
+      data.map( node => {
+        this._CatalogService.getByString("chart/" + node.application + "/status").subscribe(statusGroup => {
+          node.nodes = [];
+          statusGroup.map(status => {
+            if( node.application === status.application) {
+              node.nodes.push(status);
+            }
+          });
+        });
+      });
       this.charts = data;
-    }, error => {
-      console.log(error);
     });
-  }
 
+  }
 }

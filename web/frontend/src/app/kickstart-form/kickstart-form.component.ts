@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
@@ -11,7 +11,7 @@ import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { CTRL_SELECTED, KICKSTART_ID } from '../frontend-constants';
 import { KickstartService } from '../kickstart.service';
 import { kickStartTooltips, kickstart_validators } from './kickstart-form';
-import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from './kickstart-form-validation';
+import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from '../validators/generic-validators.validator';
 import { isIpv4InSubnet } from '../globals';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 
@@ -20,11 +20,11 @@ import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.compone
   templateUrl: './kickstart-form.component.html',
   styleUrls: ['./kickstart-form.component.scss']
 })
-export class KickstartFormComponent implements OnInit, AfterContentInit {
+export class KickstartFormComponent implements OnInit {
   public availableIPs: string[] = [];
   public controllers: any[] = [];
   private defaultDisk: string;
-  public dhcp_range_options = [];
+  public dhcp_range_options: string[] = [];
   private default_ipv4_settings;
   public kickStartFormGroup: FormGroup;
   public pxe_types: string[] = ['BIOS', 'UEFI', 'DL160', 'SuperMicro'];
@@ -43,11 +43,6 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
     this.title.setTitle("Kickstart Configuration");
     this.initializeView();
   }
-
-  ngAfterContentInit() {
-    this.kickStartFormGroup.disable();
-  }
-
   /**
    * makes all the requests to get active data.
    *
@@ -56,15 +51,16 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
   private initializeView(): void {
     this.kickStartSrv.gatherDeviceFacts("localhost")
       .subscribe(data => {
-        this.kickStartSrv.getKickstartForm().subscribe((data: any) => {
-          this.openIPChangedModal(data.controller_interface[0]);
-          this.initKickStartForm(data);
-          this.kickStartFormGroup.disable();
+        this.kickStartSrv.getKickstartForm().subscribe((kickstart: any) => {
+          if (kickstart) {
+            this.openIPChangedModal(kickstart.controller_interface[0]);
+            this.initKickStartForm(kickstart);
+          }
         });
         if (data) {
           this.default_ipv4_settings = data['default_ipv4_settings'];
           this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
-          this.defaultDisk = data["disks"][0].name
+          this.defaultDisk = data["disks"][0].name;
         }
       });
   }
@@ -106,10 +102,10 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
       if (octet_4 === 0) {
         octet_4 = 1;
         dhcp_range_start = octet_1 + octet_2 + octet_3 + String(octet_4);
-        return `DHCP range will be: ${dhcp_range_start} - ${String(octet_4 + 14)}`
+        return `DHCP range will be: ${dhcp_range_start} - ${String(octet_4 + 14)}`;
       } else {
         dhcp_range_start = octet_1 + octet_2 + octet_3 + String(octet_4);
-        return `DHCP range will be: ${dhcp_range_start} - ${String(octet_4 + 15)}`
+        return `DHCP range will be: ${dhcp_range_start} - ${String(octet_4 + 15)}`;
       }
     }
   }
@@ -120,7 +116,7 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
    * @memberof KickstartFormComponent
    */
   public openConsole(): void {
-    this.router.navigate(['/stdout/Kickstart'])
+    this.router.navigate(['/stdout/Kickstart']);
   }
 
   /**
@@ -147,6 +143,9 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
    */
   private initKickStartForm(kickstartForm?): void {
     this.kickStartFormGroup = this.newkickStartForm(kickstartForm);
+    if (this.kickStartFormGroup.get('dhcp_range').value) {
+      this.dhcp_range_options = [this.kickStartFormGroup.get('dhcp_range').value];
+    }
     // add one noode to the formArray at this point because uniqueArray needs to exist for validation reference 
     const nodesFormArray = this.kickStartFormGroup.get('nodes') as FormArray;
     if (kickstartForm) {
@@ -166,6 +165,7 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
         this.getAvaliableIPBlock(this.kickStartFormGroup);
         this.getOpenIP();
       }
+      this.kickStartFormGroup.disable();
     }
   }
 
@@ -232,15 +232,15 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
   }
 
   /**
-   * Makes an HTTP request for availableIPBlocks. Requires a valida controller_interface and netmask
+   * Makes an HTTP request for availableIPBlocks. Requires a valid controller_interface and netmask
    *
    * @param {*} kickstartFormGroup
    * @memberof KickstartFormComponent
    */
   private getAvaliableIPBlock(kickstartFormGroup): void {
-    this.kickStartSrv.getAvailableIPBlocks2(kickstartFormGroup.get('controller_interface').value[0], kickstartFormGroup.get('netmask').value).subscribe((ipblocks: string[]) => {
-      this.dhcp_range_options = ipblocks;
-    });
+    const controller_interface = kickstartFormGroup.get('controller_interface').value[0];
+    const netmask = kickstartFormGroup.get('netmask').value
+    this.kickStartSrv.getAvailableIPBlocks2(controller_interface, netmask).subscribe((ipblocks: string[]) => this.dhcp_range_options = ipblocks);
   }
 
   /**
@@ -268,7 +268,7 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
       ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
       mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
       data_drive: new FormControl(node && node.data_drive ? node.data_drive : 'sdb', Validators.compose([validateFromArray(kickstart_validators.data_drive)])),
-      boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : '', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
+      boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : 'sda', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
       pxe_type: new FormControl(node ? node.pxe_type : 'BIOS', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
     });
   }
@@ -481,8 +481,10 @@ export class KickstartFormComponent implements OnInit, AfterContentInit {
    */
   public setGateway(): void {
     let controller_interface = this.kickStartFormGroup.get('controller_interface').value[0];
-    let gateway = controller_interface.split('.')
-    this.kickStartFormGroup.get('gateway').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`)
+    let gateway = controller_interface.split('.');
+    this.kickStartFormGroup.get('gateway').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
+    this.getAvaliableIPBlock(this.kickStartFormGroup);
+    this.getOpenIP();
   }
 
 }

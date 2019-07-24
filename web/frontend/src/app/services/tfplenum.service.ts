@@ -59,12 +59,25 @@ export abstract class ApiService<T> implements IApiService<T> {
      * @returns {Observable<number>}
      */
     public delete(id: any): Observable<T> {
-        const url = this.urlPath + 'id/' + id;
+        const url = this.urlPath + '/' + id;
         return this._http.delete<T>(url, {}).pipe(
             tap(update => this.handleSuccess(this.type ? this.type + ' was successfully deleted!' : ' Sucessfully deleted!')),
             catchError(error => this.handleError(url, error))
         );
     }
+
+    /**
+     * Delete a all entity
+     * @param {number} id of entity to delete
+     * @returns {Observable<number>}
+     */
+    public deleteAll(): Observable<T> {
+      const url = this.urlPath;
+      return this._http.delete<T>(url, {}).pipe(
+          tap(update => this.handleSuccess(this.type ? this.type + ' was successfully deleted!' : ' Sucessfully deleted!')),
+          catchError(error => this.handleError(url, error))
+      );
+  }
 
     /**
      * Return all entities of type T

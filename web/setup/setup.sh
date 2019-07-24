@@ -16,6 +16,7 @@ function _install_deps(){
 }
 
 function _install_nodejs(){
+    run_cmd rm -rf node-v8.11.4-linux-x64*
 	run_cmd wget https://nodejs.org/dist/v8.11.4/node-v8.11.4-linux-x64.tar.xz
     run_cmd tar xf node-v8.11.4-linux-x64.tar.xz
     run_cmd cd node-v8.11.4-linux-x64/

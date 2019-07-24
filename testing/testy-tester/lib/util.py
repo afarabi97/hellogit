@@ -350,6 +350,15 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         elif node.type == "sensor":
             node.set_pcap_drives(vms[v]['pcap_drives'])
 
+        # set catalog info
+        if node.type == "sensor":
+            suricata_spec = vms[v]['catalog']['suricata']
+            suricata_values = []
+            print(suricata_spec)
+            print(type(suricata_spec))
+
+            node.set_suricata_catalog(suricata_spec)
+
         # Add node to list of nodes
         nodes.append(node)
     return nodes

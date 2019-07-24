@@ -126,19 +126,11 @@ all:
 
     # This is used to define the home nets for bro/suricata
     home_net:
-    {% if template_ctx.sensor_resources.home_nets | length > 0 %}
-      {% for item in template_ctx.sensor_resources.home_nets %}
-      - "{{ item.home_net }}"
-      {% endfor %}
-    {% endif %}
+      - "0.0.0.0/1"
 
     # This is used to define the external nets for bro/suricata
     external_net:
-    {% if template_ctx.sensor_resources.external_nets | length > 0 %}
-      {% for item in template_ctx.sensor_resources.external_nets %}
-      - "{{ item.external_net }}"
-      {% endfor %}
-    {% endif %}
+      - "0.0.0.0/1"
 
     #############################
     # Kubernetes Settings       #
@@ -280,6 +272,7 @@ all:
               # This is the interface the sensor will use for monitoring on Moloch,
               # bro, and Suricata. Ex: ens4
               sensor_monitor_interface:
+                - ens192
               {% for interface in node.monitor_interface %}
                 - {{ interface }}{% endfor %}
 

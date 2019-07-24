@@ -10,7 +10,7 @@
 - name: Wait for service to be ready
   wait_for:
     port: 8080
-    host: chartmuseum
+    host: chartmuseum.{{ fqdn }}
     connect_timeout: 3
     delay: 3
     timeout: 180

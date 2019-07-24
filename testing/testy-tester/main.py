@@ -91,6 +91,7 @@ class Runner:
         parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
+        parser.add_argument('--run-catalog', dest='run_catalog', action='store_true')
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
@@ -172,6 +173,9 @@ class Runner:
 
                 # Returns a list of kit objects
                 self.kit = transform(self.configuration["kit"])  # type: Kit
+
+                for node in self.kit.nodes:
+                    print(str(node.suricata_catalog))
 
                 if self.args.tfplenum_commit_hash is not None:
                     self.kit.set_branch_name(self.args.tfplenum_commit_hash)
@@ -472,6 +476,21 @@ class Runner:
             logging.info("Changing portgroup for remote sensors.")
             self._update_remote_sensors()
 
+    def _run_catalog(self):
+        """
+        Performs the needed operations to run a kit assuming kickstart has already run, etc.
+        :return:
+        """
+        if not self.args.run_catalog:
+            return
+
+        logging.info("Waiting for servers and sensors to start up.")
+        test_vms_up_and_alive(self.kit, self.kit.nodes, 30)
+        logging.info("Run CVAH Catalog")
+        runner = APITester(self.controller_node.management_interface.ip_address, self.kit)
+        runner.run_catalog_api_call()
+
+
     def _run_add_node(self):
         """
         Runs the add node functionality.
@@ -585,11 +604,13 @@ class Runner:
         self._generate_hash_file_for_export()
         self._run_kickstart()
         self._run_kit()
+        self._run_catalog()
         #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
         # self._run_add_node()
         self._run_integration()
         self._simulate_powerfailure()
         self._cleanup()
+
 
 
 def main():

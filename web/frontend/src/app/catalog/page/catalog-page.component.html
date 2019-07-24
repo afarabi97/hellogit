@@ -1,0 +1,119 @@
+<div style="margin-top: 80px;" fxLayout="column" fxLayoutAlign="center center">
+  <mat-card style="width: 80rem;background-color:#303030;">
+      <div fxLayout="column" fxLayoutAlign="center none">
+        <div fxLayout="column" fxLayoutAlign="center center">
+          <h2> {{chart?.id}} </h2>
+        </div>
+          <mat-vertical-stepper  #stepper div  style="background-color:#303030">
+              <mat-step>
+                <form>
+                  <ng-template matStepLabel>Information</ng-template>
+                  <div> description: {{ chart?.description }} </div>
+                  <div> appVersion: {{ chart?.appVersion }} </div>
+                  <div> type: {{ chart?.type }} </div>
+                  <div> version: {{ chart?.version }} </div>
+                </form>
+              </mat-step>
+              <mat-step [stepControl]="processFormGroup">
+                <form [formGroup]="processFormGroup">
+                  <ng-template matStepLabel>Process</ng-template>
+                  <h5>Process Selection</h5>
+                  <mat-form-field class="mat-form-field">
+                    <mat-label>Select A Process</mat-label>
+                    <mat-select formControlName="selectedProcess">
+                      <mat-option *ngFor="let process of processList" [value]="process.process">{{process.name}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <div *ngIf="chart?.node_affinity !== 'Server - Any'">
+                    <h5>Node Selection</h5>
+                      <mat-form-field>
+                        <mat-label>Select A Node</mat-label>
+                        <mat-select formControlName="selectedNodes" multiple required>
+                          <mat-option *ngFor="let node of filterByInput(processFormGroup.value.selectedProcess)" [value]="node">{{node.hostname}}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                </form>
+              </mat-step>
+                <div *ngIf="isReady">
+                  <mat-step>
+                    <form>
+                      <ng-template matStepLabel>Configuration Overview </ng-template>
+                        <div *ngFor="let sensor of processFormGroup.value.selectedNodes" [formGroup]="configFormGroup">
+                          <h5>{{sensor.hostname}}</h5>
+                          <!-- Deployment Name-->
+                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" formGroupName="{{sensor.hostname}}">
+                              <mat-form-field>
+                                <input matInput formControlName="deployment_name" placeholder="Deployment Name" required>
+                                  <!-- <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error> -->
+                              </mat-form-field>
+                            </div>
+                          <div *ngIf="chart?.formControls">
+                            <div *ngFor="let control of chart.formControls" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
+                                <!-- Text Input -->
+                                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'" >
+                                    <mat-form-field>
+                                      <input matInput formControlName="{{control.name}}" placeholder="{{control?.name}}" required>
+                                        <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                    </mat-form-field>
+                                </div>
+                                <!-- Text Input List -->
+                                <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
+                                    <mat-form-field>
+                                      <input matInput formControlName="{{control.name}}" placeholder="{{control?.name}}" required>
+                                    </mat-form-field>
+                                    <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                </div>
+                                <!-- Interface -->
+                                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
+                                  <div *ngFor="let sensorint of nodeList" >
+                                    <div *ngIf="sensorint === sensor">
+                                      <mat-form-field>
+                                          <mat-label> {{control.name}}</mat-label>
+                                            <mat-select formControlName="{{control.name}}" multiple required>
+                                              <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces" [value]="interface" >{{interface}}</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                    </form>
+                  </mat-step>
+                </div>
+                <div *ngIf="isAdvance">
+                  <mat-step>
+                      <form>
+                        <ng-template matStepLabel>Values File Overview </ng-template>
+
+                        <div *ngFor="let sensor of processFormGroup.value.selectedNodes" [formGroup]="valueFormGroup" >
+                          <h5>{{sensor.deployment_name}}</h5>
+                          <mat-checkbox (click)="AdvanceConfiguration(sensor)">Enable Edit</mat-checkbox>
+                          <mat-form-field class="text-area">
+                              <textarea matInput formControlName="{{sensor.deployment_name}}" style="width:100%; min-height: 150px; height: 300px" placeholder="Edit Values File"></textarea>
+                          </mat-form-field>
+                        </div>
+                      </form>
+                    </mat-step>
+                </div>
+          </mat-vertical-stepper>
+      </div>
+      <div class="stepper__footer" fxLayout="row" fxLayoutAlign="end none">
+          <button mat-button (click)="goBack(stepper)" [disabled]="stepper.selectedIndex === 0">Back</button>
+          <button mat-button (click)="goForward(stepper)" *ngIf="stepper.selectedIndex === 0"
+                                                          [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
+          <button mat-button (click)="getConfig(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 1 ))"
+                                                          [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
+          <button mat-button (click)="getValues(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
+                                                          [disabled]="(configFormGroup.invalid)">Next</button>
+          <button mat-button (click)="runChart(stepper)" *ngIf="stepper.selectedIndex === 3 || processFormGroup.value.selectedProcess === 'uninstall'"
+                                                          [disabled]="valueFormGroup.invalid">Run</button>
+      </div>
+
+  </mat-card>
+</div>
+
+
+

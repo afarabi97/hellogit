@@ -30,7 +30,7 @@ def delete_notifications() -> Response:
     conn_mng.mongo_notifications.delete_many({})
     return OK_RESPONSE
 
-@app.route('/api/notification/<notificationId>', methods=['DELETE'])
+@app.route('/api/notifications/<notificationId>', methods=['DELETE'])
 def delete_notification(notificationId) -> Response:
     """
     Delete a notification using _id

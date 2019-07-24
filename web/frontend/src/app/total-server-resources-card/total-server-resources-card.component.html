@@ -1,16 +1,17 @@
-<div [formGroup]="totalServerResources" class="card">
-  <div class="card-header">
-    Total Server Resources
-  </div>
-  <div class="card-body">
-    <p class="card-text">CPU Cores Available:
-      <span>{{ totalServerResources.cpuCoresAvailable }}</span>
-    </p>
-    <p class="card-text">Memory Available:
-      <span>{{ totalServerResources.memoryAvailable | number:'1.0-2' }}</span> GB
-    </p>
-    <p class="card-text">Elasticsearch Storage Available:
-      <span>{{ totalServerResources.clusterStorageAvailable | number:'1.0-2' }}</span> GB
-    </p>
-  </div>
-</div>
+<mat-list>
+  <mat-list-item>
+    <mat-icon mat-list-icon>developer_board</mat-icon>
+    <h4 mat-line>CPU Cores Available: {{ serverResource?.cpuCoresAvailable }} </h4>
+  </mat-list-item>
+
+  <mat-list-item>
+    <mat-icon mat-list-icon>memory</mat-icon>
+    <h4 mat-line>Memory Available: {{ serverResource?.memoryAvailable | number:'1.0-2' }} GB </h4>
+  </mat-list-item>
+
+  <mat-list-item>
+    <mat-icon mat-list-icon>search</mat-icon>
+    <h4 mat-line>Elasticsearch Storage Total: {{ serverResource?.clusterStorageAvailable | number:'1.0-2' }} GB
+    </h4>
+  </mat-list-item>
+</mat-list>

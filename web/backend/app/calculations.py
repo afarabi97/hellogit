@@ -60,11 +60,15 @@ class KitPercentages:
         self._moloch_mem_limit = 80
         self._bro_cpu_perc = 25
         self._suricata_cpu_perc = 40
-        sensor_apps = self._sensor_list[sensor_index]["sensor_apps"]
-        if len(sensor_apps) == 3:
+        sensor_apps = None
+
+        if "sensor_apps" in self._sensor_list[sensor_index]:
+            sensor_apps = self._sensor_list[sensor_index]["sensor_apps"]
+
+        if sensor_apps and len(sensor_apps) == 3:
             return
 
-        if len(sensor_apps) == 1:
+        if sensor_apps and len(sensor_apps) == 1:
             if "moloch" in sensor_apps:
                 self._moloch_cpu_perc = 100
                 self._moloch_mem_limit = 95
@@ -80,7 +84,7 @@ class KitPercentages:
                 self._moloch_mem_limit = 0
                 self._bro_cpu_perc = 0
                 self._suricata_cpu_perc = 100
-        elif len(sensor_apps) == 2:
+        elif sensor_apps and len(sensor_apps) == 2:
             if "moloch" not in sensor_apps:
                 half = int(self._moloch_cpu_perc / 2) # round down if a decimal
                 remainder = self._moloch_cpu_perc % 2
@@ -102,8 +106,6 @@ class KitPercentages:
                 self._moloch_mem_limit = 80
                 self._bro_cpu_perc += half
                 self._suricata_cpu_perc = 0
-        else:
-            raise ValueError("Unknown length of sensor applications! This code needs to be updated!")
 
     @property
     def is_home_build(self) -> bool:

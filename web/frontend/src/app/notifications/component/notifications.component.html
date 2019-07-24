@@ -1,9 +1,6 @@
-
-
-
-  <div fxLayout="row" (click)="openNotification()">
-    <a *ngIf="newNotifications.length > 0" class="notification-number">{{newNotifications.length}}</a>
-    <a matTooltip="Notifications">
-        <mat-icon class="icons app-header-button" >notifications_none</mat-icon>
-    </a>
-  </div>
+<div fxLayout="row" (click)="openNotification()">
+  <a *ngIf="newNotifications.length > 0" class="notification-number">{{newNotifications.length}}</a>
+  <a matTooltip="Notifications">
+      <mat-icon class="icons app-header-button" >notifications_none</mat-icon>
+  </a>
+</div>

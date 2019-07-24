@@ -1,15 +1,15 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
-      <h5 *ngIf="showLinkNames">TFPlenum Controller</h5>
-      <span class="version" *ngIf="showLinkNames">v3.2</span>
+      <h5 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>TFPlenum Controller</h5>
+      <span class="version" *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>v3.2</span>
       <mat-list>
         <mat-list-item (click)="openNotifications()">
               <mat-icon class="notification-icon" mat-list-icon><app-notifications #notifications></app-notifications></mat-icon>
-              <h4 *ngIf="showLinkNames" mat-line >Notifications</h4>
+              <h4 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md mat-line>Notifications</h4>
         </mat-list-item>
         <mat-divider></mat-divider>
         <div *ngFor="let group of sideNavigationButtons">
-          <h3 mat-subheader *ngIf="group.label && showLinkNames">
+          <h3 mat-subheader *ngIf="group.label && showLinkNames" fxHide.sm fxHide.xs fxHide.md>
             {{ group.label }}
           </h3>
           <ng-container *ngFor="let child of group.children">
@@ -36,8 +36,8 @@
       <mat-divider></mat-divider>
         <div #trigger class="main-sidenav-button-trigger" matTooltip="Toggle">
           <mat-icon *ngIf="!showLinkNames">arrow_forward</mat-icon>
-          <mat-icon *ngIf="showLinkNames">arrow_back</mat-icon>
-          <span *ngIf="showLinkNames">Collapse</span>
+          <mat-icon *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>arrow_back</mat-icon>
+          <span *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>Collapse</span>
         </div>
       </div>
     </mat-drawer>

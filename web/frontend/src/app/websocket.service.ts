@@ -9,16 +9,18 @@ import * as socketIo from 'socket.io-client';
 export class WebsocketService {
 
   private ws_url: string;
+  private ws_options;
   private socket;
 
   constructor(){
+    this.ws_options = {transports: ['websocket'], upgrade: false};
     if (environment.production){
-      this.ws_url = "wss://" + window.location.hostname;
+      this.ws_url = "https://" + window.location.hostname;
     } else {
-      this.ws_url = "ws://" + window.location.hostname + ":5001";
+      this.ws_url = "http://" + window.location.hostname;
     }
-    
-    this.socket = socketIo(this.ws_url);
+
+    this.socket = socketIo(this.ws_url, this.ws_options);
   }
 
   public getSocket(){

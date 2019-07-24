@@ -202,6 +202,16 @@ kit:
         - "CDROM"
         - "DISK"
         - "ETHERNET"
+      catalog:
+        suricata:
+          affinity_hostname: "test1-sensor1.lan"
+          cpu_request: "1000m"
+          deployment_name: "test1-sensor1-suricata"
+          external_net: "any"
+          home_net: "any"
+          interfaces:
+            - "ens194"
+          node_hostname: "test1-sensor1.lan"
     test1-sensor2.lan:
       type: "remote_sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
@@ -246,3 +256,13 @@ kit:
         - "CDROM"
         - "DISK"
         - "ETHERNET"
+      catalog:
+        suricata:
+          affinity_hostname: "test1-sensor2.lan"
+          cpu_request: "1000m"
+          deployment_name: "test1-sensor2-suricata"
+          external_net: "any"
+          home_net: "any"
+          interfaces:
+            - "ens194"
+          node_hostname: "test1-sensor2.lan"

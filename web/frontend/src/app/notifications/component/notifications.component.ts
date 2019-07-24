@@ -35,7 +35,7 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   ngOnInit() {
-    this._NotificationService.getNotications().subscribe((messages:any) => {
+    this._NotificationService.get().subscribe((messages:any) => {
       messages.map(message => {
         this.makeArray(message);
       });
@@ -55,7 +55,6 @@ export class NotificationsComponent implements OnInit {
    * @memberof NotificationsComponent
    */
   makeArray(message: any) {
-    console.log(message);
     this.allNotification.push(message);
     this._NotificationService.buttonList.map(role => {
       if( (role.role === message.role) || role.role === 'all') {
@@ -72,7 +71,6 @@ export class NotificationsComponent implements OnInit {
   openNotification(): void {
     this._NotificationService.buttonList.map( message => {
       message.notifications.map(notification => {
-      console.log(notification);
       this.setTime(notification);
       });
     });
@@ -118,7 +116,6 @@ export class NotificationsComponent implements OnInit {
     } else if (seconds >= 604800) {
       message.displayTime = Math.floor(seconds / 604800) + ' h';
     } else {
-      console.log("time is fucked");
       message.displayTime = '';
     }
     return message;

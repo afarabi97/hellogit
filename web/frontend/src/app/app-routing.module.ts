@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HelpComponent } from './help/help.component';
 import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
 import { KitFormComponent } from './kit-form/kit-form.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
@@ -13,6 +12,7 @@ import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { AgentInstallerComponent } from './agent-installer/agent-installer.component';
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { CatalogComponent } from './catalog/component/catalog.component';
+import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -21,7 +21,6 @@ const routes: Routes = [
   { path: 'kickstart', component: KickstartFormComponent },
   { path: 'kit_configuration', component: KitFormComponent },
   { path: 'configmaps', component: ConfigmapsComponent },
-  { path: 'help', component: HelpComponent },
   { path: 'stdout/:id', component: ServerStdoutComponent },
   { path: 'registry', component: RegistryComponent },
   { path: 'agent-builder-chooser', component: AgentBuilderChooserComponent },
@@ -29,6 +28,7 @@ const routes: Routes = [
   { path: 'rulesets', component: PolicyManagementComponent},
   { path: 'pcaps', component: PcapFormComponent},
   { path: 'catalog', component: CatalogComponent},
+  { path: 'application/:id', component : CatalogPageComponent}
 ];
 
 

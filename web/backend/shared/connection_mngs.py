@@ -111,6 +111,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.notifications
 
     @property
+    def mongo_catalog_saved_values(self) -> Collection:
+        return self._tfplenum_database.catalog_saved_values
+
+    @property
     def mongo_celery_tasks(self) -> Collection:
         return self._tfplenum_database.celery_tasks
 

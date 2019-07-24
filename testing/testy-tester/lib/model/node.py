@@ -10,7 +10,7 @@ from collections import OrderedDict
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
 from io import StringIO
-from typing import List
+from typing import List, Dict
 from vmware.vapi.vsphere.client import VsphereClient
 from com.vmware.vcenter.vm.hardware.boot_client import Device as BootDevice
 from com.vmware.vcenter.vm.hardware_client import (Cpu, Memory, Disk, Ethernet, Cdrom, Boot)
@@ -154,6 +154,49 @@ class NodeDisk(object):
     def __str__(self) -> str:
         return "Name: %s Size: %s" % (self.name, self.size)
 
+class CatalogSuricata(object):
+    """
+    Represents a suricata catalog object and all the variables inside it
+
+    Attributes:
+        affinity_hostname: Name of sensor
+        cpu_request: CPU request sent to kubenetes
+        deployment_name: Name of the deployment set sent to kubenetes
+        external_net: External net for suricata alerts
+        home_net: Home net for suricata alerts
+        interfaces: Monitoring interface suricata uses
+        node_hostname: Name of sensor
+    """
+
+    def __init__(self, yml_dict: Dict) -> None:
+        """
+        Initializes a NodeDisk object
+
+        :param name: Name of the disk
+        :param size: Size of the disk in GB
+        :return:
+        """
+        self.affinity_hostname = yml_dict['affinity_hostname']
+        self.cpu_request = yml_dict['cpu_request']
+        self.deployment_name = yml_dict['deployment_name']
+        self.external_net = yml_dict['external_net']
+        self.home_net = yml_dict['home_net']
+        self.interfaces = yml_dict['interfaces']
+        self.node_hostname = yml_dict['node_hostname']
+
+    def to_dict(self):
+        return {
+            'affinity_hostname': self.affinity_hostname,
+            'cpu_request': self.cpu_request,
+            'deployment_name': self.deployment_name,
+            'external_net': self.external_net,
+            'home_net': self.home_net,
+            'interfaces': self.interfaces,
+            'node_hostname': self.node_hostname
+        }
+
+    def __str__(self) -> str:
+        return "affinity_hostname: %s cpu_request: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_request, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
 
 class Node(object):
 
@@ -224,6 +267,7 @@ class Node(object):
         self.dns_list = None
         self.es_drives = None
         self.pcap_drives = None
+        self.suricata_catalog = None
 
     def set_vm_to_clone(self, vm_to_clone: str) -> None:
         """
@@ -395,6 +439,15 @@ class Node(object):
         :return:
         """
         self.management_interface.set_mac_address(management_mac)
+
+    def set_suricata_catalog(self, suricata_catalog: Dict) -> None:
+        """
+        Configures the suricata catalog configuration for the node object.
+
+        :param suricata_catalog:
+        :return:
+        """
+        self.suricata_catalog = CatalogSuricata(suricata_catalog)
 
     def __str__(self) -> str:
         p_interfaces = '\n'.join([str(x) for x in self.interfaces])

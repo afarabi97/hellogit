@@ -7,10 +7,10 @@
  * @class Chart
  */
 export class Chart {
-  id: string;
-  type: string;
-  attributes: ChartAttributes;
-  formControls: FormControls[];
+  appVersion: string;
+  application: string;
+  description: string;
+  nodes?: INodeInfo[];
 }
 
 /**
@@ -26,6 +26,23 @@ export class ChartAttributes {
   home: string;
   verison: string;
   keywords: string[];
+}
+
+
+/**
+ * class for the Chart Info object
+ *
+ * @export
+ * @class ChartInfo
+ */
+export class ChartInfo {
+  appVersion: string;
+  description: string;
+  formControls: any;
+  id: string;
+  type: string;
+  version: string;
+  node_affinity: string;
 }
 
 /**
@@ -55,7 +72,7 @@ export interface INodeInfo {
   application: string;
   status: string;
   version: any;
-  interfaces: string[];
-  node_state: string;
-  process_list: Array<any>;
+  node_type: string;
+  process_list?: Array<any>;
+  appVersion: string;
 };

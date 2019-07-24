@@ -18,5 +18,9 @@
       persistent:
         xpack.monitoring.collection.enabled: true
     status_code: 200, 201
+  register: monitoring_results
+  until: monitoring_results.status == 200
+  retries: 30
+  delay: 5
 
 ...

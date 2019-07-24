@@ -52,5 +52,3 @@
   args:
     executable: python
   register: out
-
-- debug: var=out.stdout_lines

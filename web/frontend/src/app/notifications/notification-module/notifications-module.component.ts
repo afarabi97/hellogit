@@ -78,7 +78,7 @@ export class NotificationsModuleComponent {
     dialogRef.afterClosed().subscribe(result => {
 
       if( result === option2) {
-        this._NotificationService.deleteAllNotications().subscribe((message:any) => {
+        this._NotificationService.deleteAll().subscribe((message:any) => {
             this.snackBar.open("All Notifications Deleted", 'OK', {
               duration: 5000,
             });
@@ -98,7 +98,7 @@ export class NotificationsModuleComponent {
    * @memberof NotificationsModuleComponent
    */
   clearNotification(id: string) {
-    this._NotificationService.deleteNotication(id).subscribe((message:any) => {
+    this._NotificationService.delete(id).subscribe((message:any) => {
     });
     this._NotificationService.buttonList = this._NotificationService.buttonList.map( buttons => {
       buttons.notifications = buttons.notifications.filter(notification => {

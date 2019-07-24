@@ -17,7 +17,8 @@ export const HTTP_OPTIONS = {
     providedIn: 'root'
 })
 export class CatalogService extends ApiService<any> {
-  snackbar: SnackbarWrapper;
+  public snackbar: SnackbarWrapper;
+  public chart: any;
 
   /**
    *Creates an instance of CatalogService.
@@ -29,6 +30,24 @@ export class CatalogService extends ApiService<any> {
   }
 
   /**
+   * Return a single entity by Id
+   * @param {number} id
+   * @returns {Observable<T>}
+   */
+  public getNodes(): Observable<Object> {
+    const url = "/api/nodes";
+    return this._http.get<Object>(url).pipe(
+      catchError(error => this.handleError(url, error))
+    );
+  }
+
+  getValuesFile(role, process, configsArray ): Observable<Object>{
+    const url = '/api/catalog/generate_values';
+    let payload = { role: role, process: process, configs: configsArray };
+      return this._http.post(url, payload, HTTP_OPTIONS).pipe();
+  }
+
+  /**
    * installs chart on node
    *
    * @param {*} role
@@ -37,10 +56,9 @@ export class CatalogService extends ApiService<any> {
    * @returns {Observable<Object>}
    * @memberof CatalogService
    */
-  installHelm(role, process, configs): Observable<Object>{
+  installHelm(role, process, values): Observable<Object>{
     const url = '/api/catalog/install';
-    let payload = { role: role, process: process, configs: configs };
-    console.log(JSON.stringify(payload));
+    let payload = { role: role, process: process, values: values };
       return this._http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
@@ -53,10 +71,9 @@ export class CatalogService extends ApiService<any> {
    * @returns {Observable<Object>}
    * @memberof CatalogService
    */
-  deleteHelm(role, process, configs): Observable<Object>{
+  deleteHelm(role, process): Observable<Object>{
     const url = '/api/catalog/delete';
-    let payload = { role: role, process: process, configs: configs };
-    console.log(JSON.stringify(payload));
+    let payload = { role: role, process: process };
       return this._http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
@@ -69,10 +86,9 @@ export class CatalogService extends ApiService<any> {
    * @returns {Observable<Object>}
    * @memberof CatalogService
    */
-  reinstallHelm(role, process, configs): Observable<Object>{
+  reinstallHelm(role, process, values): Observable<Object>{
     const url = '/api/catalog/reinstall';
-    let payload = { role: role, process: process, configs: configs };
-    console.log(JSON.stringify(payload));
+    let payload = { role: role, process: process, values: values };
       return this._http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 }

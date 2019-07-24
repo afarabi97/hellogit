@@ -12,9 +12,11 @@ import re
 import grpc
 from flask_socketio import SocketIO, emit, join_room, rooms
 from app.service.socket_service import NotificationMessage, NotificationCode
+import requests, json, yaml
 
 
 _MESSAGETYPE_PREFIX = "catalog"
+_CHART_EXEMPTS = ["chartmuseum"]
 
 @socketio.on('connect')
 def connect():
@@ -26,23 +28,42 @@ def disconnect():
     print('Client disconnected from websocket')
 
 
-def get_sensors() -> list:
+def get_node_type(hostname: str) -> str:
+    """
+    Get node type for a node
+
+    """
+    nodes = []
+    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if kit_configuration:
+        nodes = kit_configuration['form']['nodes']
+        node = list(filter(lambda node: node['hostname'] == hostname, nodes))[0]
+        return node['node_type']
+    return None
+
+
+def get_nodes(details: bool=False) -> list:
     """
     Gets list of sensor hostnames
 
     """
-    sensors = []
+    nodes = []
     kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if kit_configuration:
         for node in kit_configuration['form']['nodes']:
-            if node["node_type"] == NODE_TYPES[1]:
-                host_simple = {}
+            host_simple = {}
+            if not details:
                 host_simple['hostname'] = node['hostname']
-                host_simple['node_state'] = NotificationCode.GREEN.name
-                host_simple['interfaces'] = node['deviceFacts']['potential_monitor_interfaces']
-                sensors.append(host_simple)
-    return sensors
+                host_simple['status'] = None
+                host_simple['application'] = None
+                host_simple['version'] = None
+                host_simple['node_type'] = node['node_type']
+            if details:
+                host_simple = node
+            nodes.append(host_simple)
+    return nodes
 
 def execute_kubelet_cmd(cmd: str) -> bool:
     """
@@ -71,123 +92,257 @@ def chart(application: str, chart_repo_uri: str) -> ChartBuilder:
     return chartb
 
 
-def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> list:
-    results = []
-    sensors = get_sensors()  #type: list
-    tiller_server = Tiller(tiller_server_ip)
+def get_repo_charts(helm_repo_uri: str) -> list:
+    """
+    Returns a list of charts from helm repo
 
+    : return (list): Returns a list of charts
+    """
+    results = []
+    response = requests.get(helm_repo_uri + "/api/charts")
     try:
-        for release in tiller_server.list_releases():
-            if application in release.name:
-                sensor_name, app_name = release.name.split('-', 1)
-                if len(sensors) > 0:
-                    sensor = next(item for item in sensors if sensor_name in item["hostname"])
-                    if sensor:
-                        sensors.remove(sensor)
-                        sensor["status"] = NotificationCode(release.info.status.code).name
-                        sensor["application"] = application
-                        sensor["version"] = release.chart.metadata.version
-                        results.append(sensor)
-        if len(sensors) > 0:
-            for s in sensors:
-                s["status"] = NotificationCode.UNKNOWN.name
-                s["application"] = application
-                s["version"] = None
-                results.append(s)
+        charts = json.loads(response.text)
+        for key, value in charts.items():
+            application = key
+            if application not in _CHART_EXEMPTS:
+                for c in value:
+                    tChart = {}
+                    tChart["application"] = application
+                    tChart["version"] = c["version"]
+                    tChart["appVersion"] = c["appVersion"]
+                    tChart["description"] = c["description"]
+                    results.append(tChart)
     except Exception as exc:
        logger.error(exc)
        return exc
     return results
 
+def chart_info(chart_repo_uri: str, application: str) -> dict:
+    info = {}
+    info["id"] = application
+    chartb = chart(application, chart_repo_uri)
+    helm_chart = chartb.get_helm_chart()
+    info["version"] = helm_chart.metadata.version
+    info["description"] = helm_chart.metadata.description
+    info["appVersion"] = helm_chart.metadata.appVersion
+    info["formControls"] = None
+    info["type"] = "chart"
+    info["node_affinity"] = "Server - Any"
+    appconfig = None
+
+    files = helm_chart.files
+    for f in files:
+        if "appconfig" in f.type_url:
+            appconfig = json.loads(f.value)
+    if appconfig:
+        info["formControls"] = appconfig["formControls"]
+        info["type"] = appconfig["type"]
+        info["node_affinity"] = appconfig["node_affinity"]
+
+    return info
+
+def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> list:
+    tiller_server = Tiller(tiller_server_ip)
+    nodes = get_nodes(details=False)
+    deployed_apps = []
+
+    try:
+        chart_releases = tiller_server.list_releases()
+        for c in chart_releases:
+            chart_name = c.chart.metadata.name
+            if chart_name not in _CHART_EXEMPTS and chart_name == application:
+                node = {}
+                node["deployment_name"] = c.name
+                node["hostname"] = None
+                node["node_type"] = None
+                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": c.name})
+
+                # when saved values is defined
+                # check to see if we can determine hostname
+                if saved_values:
+                    if "values" in saved_values:
+                        if "node_hostname" in saved_values["values"]:
+                            node["hostname"] = saved_values["values"]["node_hostname"]
+                            node["node_type"] = get_node_type(node["hostname"])
+
+                node["application"] = application
+                node["version"] = c.chart.metadata.version
+                node["appVersion"] = c.chart.metadata.appVersion
+                node["status"] = NotificationCode(c.info.status.code).name
+                deployed_apps.append(node)
+    except Exception as exc:
+        logger.error(exc)
+        print(exc)
+        return exc
+    return deployed_apps
+
 def get_values(chartb) -> dict:
     values = {}
-    tValues = chartb.get_helm_chart().values.raw
-    if isinstance(tValues, str):
-        for line in tValues.splitlines():
+    raw_values = chartb.get_helm_chart().values.raw
+    try:
+        raw_values = yaml.full_load(raw_values)
+    except:
+        pass
+
+    if isinstance(raw_values, str):
+        for line in raw_values.splitlines():
             k, v = line.strip().split(':')
             values[k.strip()] = v.strip()
-    elif isinstance(tValues, dict):
-        values = tValues
+    elif isinstance(raw_values, dict):
+        values = raw_values
 
     return values
 
-def get_deployment_name(application: str, sensor_hostname: str):
-        deployment_name = re.sub(r'\.(lan)?', '', sensor_hostname)
-        deployment_name = re.sub(r'[^0-9a-zA-Z]', '', deployment_name)
-        deployment_name = deployment_name + "-" + application
-        return deployment_name
-
-@celery.task
-def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: str, namespace: str, configs: dict, task_id=None):
-    response = []
-    values = {}
-    tiller_server = Tiller(tiller_server_ip)
-    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
+def generate_values(chart_repo_uri: str, application: str, namespace: str, configs: list=None) -> list:
     try:
         chartb = chart(application, chart_repo_uri)
         values = get_values(chartb)
     except SchemeError as e:
         response.append(str(e))
         logger.exception(e)
+    if configs:
+        lValues = []
+        for config in configs:
+            for node_hostname, v in config.items():
+                sensordict = {}
+                sensordict[node_hostname] = {}
+                cValues = values.copy()
+                for key, value in v.items():
+                    cValues[key] = value
+                sensordict[node_hostname] = cValues
+            lValues.append(sensordict)
 
-    for sensor_hostname, v in configs.items():
-        cValues = values
-        for key, value in v.items():
-            cValues[key] = value
-        message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize(), sensor_hostname)
-        notification.setMessage(message=message)
+        return lValues
+    if values:
+        return values
+    return []
+
+
+@celery.task
+def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: str, namespace: str, node_affinity: str, values: list, task_id=None):
+    response = []
+    tiller_server = Tiller(tiller_server_ip)
+
+    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
+    try:
+        chartb = chart(application, chart_repo_uri)
+    except SchemeError as e:
+        response.append(str(e))
+        logger.exception(e)
+
+    for value in values:
+        deployment_name = None
+        value_items = None
+        node_hostname = None
+
+        message = '%s %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize())
         try:
-            # Send Update Notification to websocket
-            notification.setException(exception=None)
-            notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-            notification.post_to_websocket_api()
+            for h, v in value.items():
+                deployment_name = h
+                value_items = v
+        except Exception as exc:
+                logger.error(exc)
+                pass
 
-            execute_kubelet_cmd("kubectl label nodes " + sensor_hostname + " " + application + "=true --overwrite=true")
-            result = tiller_server.install_release(chartb.get_helm_chart(), namespace,
-                                    dry_run=False, name=get_deployment_name(application, sensor_hostname),
-                                    values=cValues)
+        if deployment_name and value_items:
 
-            response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
-
-            # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode(result.release.info.status.code).name)
-            notification.post_to_websocket_api()
-
-        except grpc._channel._Rendezvous as exc:
-            err = ""
-            if exc._state and "Run:" in exc._state.details:
-                err = (exc._state.details.split('Run:', 1)[0].strip())
-            elif exc._state.details:
-                err = str(exc._state.details)
+            if "node_hostname" in value_items:
+                node_hostname = value_items["node_hostname"]
             else:
-                err = str(exc)
-            response.append(err)
-            logger.error(err)
+                node_hostname = deployment_name
 
+            message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize(), node_hostname)
+            notification.setMessage(message=message)
+            try:
+                # Send Update Notification to websocket
+                notification.setException(exception=None)
+                notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
+                notification.post_to_websocket_api()
+
+                if "Sensor" in node_affinity:
+                    # Add kube node label
+                    execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "=true --overwrite=true")
+                else:
+                    if "nodeSelector" in value_items:
+                        value_items["nodeSelector"] = { "role": "server" }
+
+                result = tiller_server.install_release(chartb.get_helm_chart(), namespace,
+                                        dry_run=False, name=deployment_name,
+                                        values=value_items)
+
+                conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
+                conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
+                print(saved_values)
+
+                response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
+
+                # Send Update Notification to websocket
+                notification.setStatus(status=NotificationCode(result.release.info.status.code).name)
+                notification.post_to_websocket_api()
+
+            except grpc._channel._Rendezvous as exc:
+                err = ""
+                if exc._state and "Run:" in exc._state.details:
+                    err = (exc._state.details.split('Run:', 1)[0].strip())
+                elif exc._state.details:
+                    err = str(exc._state.details)
+                else:
+                    err = str(exc)
+                response.append(err)
+                logger.error(err)
+
+                # Send Update Notification to websocket
+                notification.setStatus(status=NotificationCode.ERROR.name)
+                notification.setException(exception=err)
+                notification.post_to_websocket_api()
+                pass
+            except Exception as exc:
+                logger.error(exc)
+                # Send Update Notification to websocket
+                notification.setStatus(status=NotificationCode.ERROR.name)
+                notification.setException(exception=exc)
+                notification.post_to_websocket_api()
+                pass
+        else:
+            err = "Error unable to parse values from request"
+            logger.error(err)
             # Send Update Notification to websocket
             notification.setStatus(status=NotificationCode.ERROR.name)
             notification.setException(exception=err)
             notification.post_to_websocket_api()
 
-            continue
-        except Exception as exc:
-            logger.error(exc)
-            # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setException(exception=exc)
-            notification.post_to_websocket_api()
-            continue
     return response
 
 @celery.task
-def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, sensors: List):
+def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, nodes: List):
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
 
     response = []
     tiller_server = Tiller(tiller_server_ip)
-    for sensor in sensors:
-        message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, sensor["hostname"])
+
+    new_values = []
+
+    for node in nodes:
+        node_hostname = None
+        deployment_name = None
+        old_deployment_name = None
+        deployment_to_uninstall = None
+
+        if "hostname" in node:
+            node_hostname = node["hostname"]
+        if "deployment_name" in node:
+            deployment_name = node["deployment_name"]
+            deployment_to_uninstall = deployment_name
+        if "old_deployment_name" in node:
+            old_deployment_name = node["old_deployment_name"]
+
+        if (deployment_name and old_deployment_name) and (deployment_name != old_deployment_name):
+            deployment_to_uninstall = old_deployment_name
+
+
+        message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
         notification.setMessage(message=message)
         notification.setException(exception=None)
         try:
@@ -195,9 +350,15 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, s
             notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
             notification.post_to_websocket_api()
 
-            execute_kubelet_cmd("kubectl label nodes " + sensor["hostname"] + " " + application + "-")
-            result = tiller_server.uninstall_release(get_deployment_name(application, sensor["hostname"]), True, True)
+            # Remove kube node label
+            if node_hostname:
+                execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
+
+            result = tiller_server.uninstall_release(deployment_to_uninstall, True, True)
             response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
+
+            # Remove old saved values
+            conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_to_uninstall})
 
             # Send Update Notification to websocket
             notification.setStatus(status=NotificationCode.COMPLETED.name)
@@ -212,4 +373,5 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, s
 
             logger.error(exc._state.details)
             response.append(exc._state.details)
+
     return response

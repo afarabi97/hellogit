@@ -9,7 +9,6 @@ import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
 import { AppRoutingModule } from './/app-routing.module';
-import { HelpComponent } from './help/help.component';
 import { TextInputComponent } from './text-input/text-input.component';
 import { TextAreaInputComponent } from './textarea-input/textarea-input.component';
 import { DropdownComponent } from './dropdown/dropdown.component';
@@ -52,8 +51,8 @@ import { IpTargetListDialogComponent } from './agent-builder-chooser/ip-target-l
 import { CatalogComponent } from './catalog/component/catalog.component';
 import { CardComponent } from './catalog/card/card.component';
 import { ChartListComponent } from './catalog/chart-list/chart-list.component';
-import { StepperComponent } from './catalog/stepper/stepper.component';
 import { NodeBackgroundComponent } from './catalog/node-background/node-background.component';
+import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 
 // notifcations
 import { NotificationsComponent } from './notifications/component/notifications.component';
@@ -76,6 +75,10 @@ import { KickstartFormAutoCompleteComponent } from './kickstart-form/components/
 import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-restore-dialog.component';
 import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-dialog.component';
 
+// Date-Time
+import { DateTimePickerDialogComponent } from './date-time-picker-dialog/date-time-picker-dialog.component';
+import { DateTimeModule } from './date-time-picker/date-time.module';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -84,7 +87,6 @@ import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-d
     KickstartFormAutoCompleteComponent,
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
-    HelpComponent,
     TextInputComponent,
     TextAreaInputComponent,
     DropdownComponent,
@@ -120,11 +122,12 @@ import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-d
     CatalogComponent,
     CardComponent,
     ChartListComponent,
-    StepperComponent,
     NotificationsComponent,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
-    NodeBackgroundComponent
+    NodeBackgroundComponent,
+    CatalogPageComponent,
+    DateTimePickerDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -136,7 +139,8 @@ import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-d
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
-    InjectorModule
+    InjectorModule,
+    DateTimeModule
     // HttpModule
   ],
   providers: [
@@ -151,11 +155,11 @@ import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-d
     PolicyManagementAddDialog,
     UploadDialogComponent,
     AgentInstallerAddDialogComponent,
-    StepperComponent,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     ArchiveRestoreDialogComponent,
-    ArchiveSaveDialogComponent
+    ArchiveSaveDialogComponent,
+    DateTimePickerDialogComponent
   ]
 })
 export class AppModule { }

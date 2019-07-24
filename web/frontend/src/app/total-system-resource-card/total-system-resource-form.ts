@@ -6,8 +6,11 @@ export class TotalSystemResources {
     clusterStorageAvailable: number;
     clusterStorageComitted: number;
 
-    constructor(){
+    constructor(deviceFacts?){
         this.reinitalize();
+        if (deviceFacts) {
+            this.setFromDeviceFacts(deviceFacts);
+        }
     }
 
     public reinitalize(){

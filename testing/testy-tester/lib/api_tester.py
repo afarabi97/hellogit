@@ -122,7 +122,6 @@ class KitPayloadGenerator:
             "hostname": node.hostname,
             "management_ip_address": node.management_interface.ip_address,
             "is_master_server": is_master,
-            "es_drives": node.es_drives,
             "deviceFacts": self._device_facts_map[node.management_interface.ip_address]
         }
 
@@ -132,22 +131,11 @@ class KitPayloadGenerator:
                              "It must be %s" % str(Node.valid_sensor_types))
 
         is_remote = node.type == Node.valid_node_types[1]
-        iface_names = []
-        for iface in node.interfaces:
-            if iface.monitoring_interface:
-                iface_names.append(iface.name)
 
         return {
             "node_type": "Sensor",
             "hostname": node.hostname,
             "management_ip_address": node.management_interface.ip_address,
-            "monitor_interface": iface_names,
-            "pcap_drives": node.pcap_drives,
-            "sensor_apps": [
-                "bro",
-                "suricata",
-                "moloch"
-            ],
             "is_remote": is_remote,
             "deviceFacts": self._device_facts_map[node.management_interface.ip_address]
         }
@@ -181,6 +169,18 @@ class KitPayloadGenerator:
                 ret_val.append({"external_net": external_net})
         return ret_val
 
+    def _set_device_facts_ip_map(self) -> None:
+        """
+        Sets class variable to {"<ip_of_node>": "<device facts payload>"}
+        :return:
+        """
+        self._device_facts_map = {}
+        for node in self._kit.get_server_nodes():
+            self._device_facts_map[node.management_interface.ip_address] = self._request_device_facts(node)
+
+        for node in self._kit.get_sensor_nodes():
+            self._device_facts_map[node.management_interface.ip_address] = self._request_device_facts(node)
+
     def _construct_kit_payload(self) -> Dict:
         node_parts = []
         for server in self._kit.get_server_nodes():
@@ -195,15 +195,7 @@ class KitPayloadGenerator:
             "kitForm": {
                 "nodes": node_parts,
                 "kubernetes_services_cidr": self._kit.kubernetes_cidr,
-                "sensor_resources": {
-                    "home_nets": self._construct_home_nets(),
-                    "external_nets": self._construct_extrenal_nets()
-                },
-                "server_resources": {},
                 "dns_ip": None,
-                "endgame_iporhost": None,
-                "endgame_username": None,
-                "endgame_password": None
             },
             "timeForm": self._construct_time_part()
         }
@@ -212,6 +204,90 @@ class KitPayloadGenerator:
         self._set_device_facts_ip_map()
         return self._construct_kit_payload()
 
+class CatalogPayloadGenerator:
+
+    def __init__(self, controller_ip: str, kit: Kit):
+        self._controller_ip = controller_ip
+        self._url = "https://" + controller_ip + "{}"
+        self._kit = kit
+        self._device_facts_map = {}
+
+    def _request_device_facts(self, node: Node) -> Dict:
+        payload = {"management_ip": node.management_interface.ip_address}
+        ret_val = post_request(self._url.format("/api/gather_device_facts"), payload)
+        ret_val["disks"] = json.loads(ret_val["disks"])
+        ret_val["interfaces"] = json.loads(ret_val["interfaces"])
+        return ret_val
+
+    def _set_device_facts_ip_map(self) -> None:
+        """
+        Sets class variable to {"<ip_of_node>": "<device facts payload>"}
+        :return:
+        """
+        self._device_facts_map = {}
+        for node in self._kit.get_server_nodes():
+            self._device_facts_map[node.management_interface.ip_address] = self._request_device_facts(node)
+
+        for node in self._kit.get_sensor_nodes():
+            self._device_facts_map[node.management_interface.ip_address] = self._request_device_facts(node)
+
+    def _construct_selectedNode_part(self, node_affinity: str) -> List[Dict]:
+        node_parts = []
+        all_parts = []
+        if node_affinity == 'Server - Any':
+            for server in self._kit.get_server_nodes():
+                srv_part = self._device_facts_map[server.management_interface.ip_address]
+                node_parts.append(srv_part)
+        if node_affinity == 'Sensor':
+            for sensor in self._kit.get_sensor_nodes():
+                ses_part = self._device_facts_map[sensor.management_interface.ip_address]
+                node_parts.append(ses_part)
+                val_part = { "hostname" : sensor.hostname,
+                             "node_type" : node_affinity,
+                             "deployment_name": sensor.suricata_catalog.deployment_name }
+                node_parts.append(val_part)
+                deviceFacts = { "deviceFacts": node_parts }
+                all_parts.append(deviceFacts)
+
+        return all_parts
+
+    def _construct_config_part(self, node_affinity: str) -> List[Dict]:
+        node_parts = []
+        if node_affinity == 'Server - Any':
+            for server in self._kit.get_server_nodes():
+                srv_part = { server.hostname : server.suricata_catalog.to_dict() }
+                node_parts.append(srv_part)
+
+        if node_affinity == 'Sensor':
+            for sensor in self._kit.get_sensor_nodes():
+                ses_part = { sensor.hostname : sensor.suricata_catalog.to_dict() }
+                node_parts.append(ses_part)
+        return node_parts
+
+    def _construct_catalog_part(self, role: str, process: str, node_affinity: str) -> Dict:
+        payload = {
+            "role": role,
+            "process": {
+                "selectedProcess":  process,
+                "selectedNodes": self._construct_selectedNode_part(node_affinity),
+            },
+            "configs": self._construct_config_part(node_affinity)
+        }
+        ret_val = post_request(self._url.format("/api/catalog/generate_values"), payload)
+        valuesPayload = {
+            "role": role,
+            "process": {
+                "selectedProcess":  process,
+                "selectedNodes": self._construct_selectedNode_part(node_affinity),
+                "node_affinity": node_affinity
+            },
+            "values": ret_val
+        }
+        return valuesPayload
+
+    def generate(self, role: str, process: str, node_affinity: str) -> Dict:
+        self._set_device_facts_ip_map()
+        return self._construct_catalog_part(role, process, node_affinity)
 
 class APITester:
 
@@ -222,6 +298,11 @@ class APITester:
         self._device_facts_map = {}
         self._kickstart_payload_generator = KickstartPayloadGenerator(controller_ip, kit)
         self._kit_payload_generator = KitPayloadGenerator(controller_ip, kit)
+        self._catalog_payload_generator = CatalogPayloadGenerator(controller_ip, kit)
+
+    def run_catalog_api_call(self) -> None:
+        payload = self._catalog_payload_generator.generate("suricata","install","Sensor")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
 
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -230,7 +311,6 @@ class APITester:
 
         payload = self._kit_payload_generator.generate()
         response = post_request(self._url.format("/api/execute_kit_inventory"), payload)
-        print_json(response)
         wait_for_mongo_job("Kit", self._controller_ip, 60)
 
     def run_kickstart_api_call(self) -> None:
@@ -240,5 +320,4 @@ class APITester:
 
         payload = self._kickstart_payload_generator.generate()
         response = post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
-        print_json(response)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)

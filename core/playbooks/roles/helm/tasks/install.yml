@@ -25,6 +25,14 @@
   command: kubectl patch svc tiller-deploy -n kube-system -p '{"spec":{"type":"LoadBalancer"}}'
   when: inventory_hostname in groups['master_server']
 
+- name: Wait for service to be ready
+  wait_for:
+    port: 44134
+    host: tiller-deploy
+    connect_timeout: 3
+    delay: 3
+    timeout: 180
+
 - name: Removing Default Helm Repo
   shell: helm repo remove stable
 

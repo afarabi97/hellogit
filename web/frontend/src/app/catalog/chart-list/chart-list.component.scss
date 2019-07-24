@@ -12,9 +12,7 @@ $list-item-content-height: 200px;
   background-color: $background-light;
   flex-flow: row-reverse wrap;
   flex-wrap: wrap;
-  // width: 15%;
   margin-top: 80px;
-  // flex-direction: row;
   margin-right: 80px;
   width: 350px;
 
@@ -33,15 +31,5 @@ $list-item-content-height: 200px;
     flex-direction: column;
     color: $layout-text;
   }
-
-}
-
-// Vars
-$chart-item-content-height: 150px;
-$chart-item-logo-width: 80px;
-
-.chart-item {
-
-
 
 }

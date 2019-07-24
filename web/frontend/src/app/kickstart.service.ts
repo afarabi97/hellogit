@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HTTP_OPTIONS } from './globals';
+import { SnackbarWrapper } from './classes/snackbar-wrapper';
 
 
 @Injectable({
@@ -10,29 +11,29 @@ import { HTTP_OPTIONS } from './globals';
 })
 export class KickstartService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private snackbarWrapper: SnackbarWrapper) { }
 
-  public log(something: any){
+  public log(something: any) {
     console.log(something);
     console.log(something.constructor.name);
   }
 
-  private mapDeviceFacts(data){
+  private mapDeviceFacts(data) {
     //TODO: is there a better way to do this? Look into map function later
-    if (data == undefined || data == null){
+    if (data == undefined || data == null) {
       return;
     }
-    
-    if (data.disks){
+
+    if (data.disks) {
       data['disks'] = JSON.parse(data.disks);
     }
 
-    if (data.interfaces){
+    if (data.interfaces) {
       data['interfaces'] = JSON.parse(data.interfaces);
-    }    
+    }
   }
 
-  getAvailableIPBlocks(): Observable<Object> {
+  getAvailableIPBlocks(): Observable<any> {
     const url = '/api/get_available_ip_blocks';
     return this.http.get(url).pipe();
   }
@@ -44,37 +45,37 @@ export class KickstartService {
 
   gatherDeviceFacts(management_ip: string): Observable<Object> {
     const url = '/api/gather_device_facts';
-    let post_payload = {"management_ip": management_ip};
-    return this.http.post(url, post_payload , HTTP_OPTIONS).pipe(
+    let post_payload = { "management_ip": management_ip };
+    return this.http.post(url, post_payload, HTTP_OPTIONS).pipe(
       tap(data => this.mapDeviceFacts(data)),
-      catchError(this.handleError('gatherDeviceFacts'))
+      catchError(this.handleError())
     );
   }
 
-  generateKickstartInventory(kickStartForm: Object){
-    const url = '/api/generate_kickstart_inventory';    
-    
+  generateKickstartInventory(kickStartForm: Object) {
+    const url = '/api/generate_kickstart_inventory';
+
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
       catchError(this.handleError('generateKickstartInventory'))
     );
-  }  
+  }
 
-  getKickstartForm(){
+  getKickstartForm() {
     const url = '/api/get_kickstart_form';
     return this.http.get(url)
-      .pipe(        
-        catchError(this.handleError('gatherDeviceFacts', []))
+      .pipe(
+        catchError(this.handleError())
       );
   }
 
   getUnusedIPAddresses(mng_ip: string, netmask: string): Observable<Object> {
     const url = '/api/get_unused_ip_addrs';
-    let post_payload = {'mng_ip': mng_ip, 'netmask': netmask};
+    let post_payload = { 'mng_ip': mng_ip, 'netmask': netmask };
     return this.http.post(url, post_payload, HTTP_OPTIONS)
       .pipe(
-        catchError(this.handleError('gatherDeviceFacts', []))
+        catchError(this.handleError())
       );
-  }  
+  }
 
   updateKickstartCtrlIP(ip_address: string): Observable<Object> {
     const url = `/api/update_kickstart_ctrl_ip/${ip_address}`;
@@ -84,7 +85,7 @@ export class KickstartService {
   archiveConfigurationsAndClear(): Observable<Object> {
     const url = '/api/archive_configurations_and_clear';
     return this.http.delete(url).pipe();
-  }  
+  }
 
   /**
    * Handle Http operation that failed.
@@ -92,14 +93,11 @@ export class KickstartService {
    * @param operation - name of the operation that failed
    * @param result - optional value to return as the observable result
    */
-  private handleError<T> (operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
- 
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
+  public handleError(operation = 'operation', result?) {
+    return (error: any): Observable<any> => {
+      this.snackbarWrapper.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
       // Let the app keep running by returning an empty result.
-      return of(result as T);
+      return of(result);
     };
   }
 }

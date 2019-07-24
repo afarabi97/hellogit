@@ -23,7 +23,7 @@ dev:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass
 
 rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass --extra-vars "run_option=reinstall"
 
 common:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common

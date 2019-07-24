@@ -3,8 +3,8 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
 @Component({
-    selector: 'app-kickstart-form-autocomplete',
-    template: `
+  selector: 'app-kickstart-form-autocomplete',
+  template: `
     <form>
     <mat-form-field>
       <input type="text" placeholder="{{inputPlaceHolder}}" matInput [formControl]="formControlInput" [matAutocomplete]="auto">
@@ -33,42 +33,42 @@ import { map, startWith, tap } from 'rxjs/operators';
     </mat-form-field>
   </form>
   `,
-    styles: [`
+  styles: [`
         mat-form-field{
             width:100%
         }
   `]
 })
 export class KickstartFormAutoCompleteComponent implements OnChanges {
-    @Input() formControlInput: FormControl = new FormControl();
-    @Input() options: string[] = [];
-    @Input() inputPlaceHolder: string;
-    @Input() matError: string;
-    @Output() inputChange: EventEmitter<any> = new EventEmitter();
-    filteredOptions: Observable<any[]>;
+  @Input() formControlInput: FormControl = new FormControl();
+  @Input() options: string[] = [];
+  @Input() inputPlaceHolder: string;
+  @Input() matError: string;
+  @Output() inputChange: EventEmitter<any> = new EventEmitter();
+  filteredOptions: Observable<any[]>;
 
-    ngOnChanges() {
-        if (this.formControlInput && this.options) {
-            // first emitter
-            this.emitValueChanges(undefined);
-            this.filteredOptions = this.formControlInput.valueChanges
-                .pipe(
-                    startWith(''),
-                    tap(value => this.emitValueChanges(value)),
-                    map(value => this._filter(value))
-                );
-        }
+  ngOnChanges() {
+    if (this.formControlInput && this.options) {
+      // first emitter
+      this.emitValueChanges(undefined);
+      this.filteredOptions = this.formControlInput.valueChanges
+        .pipe(
+          startWith(''),
+          tap(value => this.emitValueChanges(value)),
+          map(value => this._filter(value))
+        );
     }
+  }
 
-    private _filter(value: string): string[] {
-        const filterValue = value.toLowerCase();
-        return this.options.filter(option => option.toLowerCase().includes(filterValue));
-    }
+  private _filter(value: string): string[] {
+    const filterValue = value ? value.toLowerCase() : '';
+    return this.options.filter(option => option.toLowerCase().includes(filterValue));
+  }
 
-    emitValueChanges(value: string) {
-        this.inputChange.emit({
-            value: value
-        });
-    }
+  emitValueChanges(value: string) {
+    this.inputChange.emit({
+      value: value
+    });
+  }
 
 }

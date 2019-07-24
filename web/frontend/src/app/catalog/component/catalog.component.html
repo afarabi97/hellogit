@@ -1,20 +1,16 @@
-<!-- <div class="container card" id="topheader" > -->
 <div fxLayout="row" fxLayoutAlign="center center">
-  <!-- <mat-card class="card"> -->
-    <section class="charts">
-        <header class="charts__header">
-          <div class="charts__header__block">
-            <h1 class="charts__header__title" fxLayout="column" fxLayoutAlign="center center">
-              CVAH CATALOG
-            </h1>
-          </div>
-        </header>
-        <div class="charts__gallery"  >
-          <div class="charts__gallery__content" >
-            <app-chart-list [charts]="charts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
-          </div>
+  <section class="charts">
+      <header class="charts__header">
+        <div class="charts__header__block">
+          <h1 class="charts__header__title" fxLayout="column" fxLayoutAlign="center center">
+            CVAH CATALOG
+          </h1>
         </div>
-      </section>
-  <!-- </mat-card> -->
+      </header>
+      <div class="charts__gallery">
+        <div class="charts__gallery__content">
+          <app-chart-list [charts]="charts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
+        </div>
+      </div>
+  </section>
 </div>
-<!-- </div> -->

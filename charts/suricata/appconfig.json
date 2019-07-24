@@ -1,0 +1,59 @@
+{
+  "id": "suricata",
+  "type": "chart",
+  "node_affinity": "Sensor",
+  "formControls": [
+    {
+      "type": "textinput",
+      "default_value": "1000m",
+      "description": "Enter Cpu Request",
+      "required": "true",
+      "regexp": "",
+      "name": "cpu_requests",
+      "error_message": "Enter The Cpu request you want kubernetes to give your pod"
+    },
+    {
+      "type": "textinputlist",
+      "default_value": "any",
+      "description": "Enter Your Mission Partner Network",
+      "required": "true",
+      "regexp": "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])",
+      "name": "home_net",
+      "error_message": "Enter the Home Net of your Mission Partner Network"
+    },
+    {
+      "type": "textinputlist",
+      "default_value": "any",
+      "description": "Enter Your Kit Network",
+      "required": "false",
+      "regexp": "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])",
+      "name": "external_net",
+      "error_message": "Enter the External Net of your Mission Partner Network"
+    },
+    {
+      "type": "interface",
+      "default_value": "",
+      "description": "Select You Network Interfaces",
+      "required": "true",
+      "regexp": "",
+      "name": "interfaces",
+      "error_message": "Enter your Network Interfaces you want the Sensors to listen on"
+    },
+    {
+      "type": "invisible",
+      "default_value": "",
+      "description": "",
+      "required": "true",
+      "regexp": "",
+      "name": "affinity_hostname"
+    },
+    {
+      "type": "invisible",
+      "default_value": "",
+      "description": "",
+      "required": "true",
+      "regexp": "",
+      "name": "node_hostname"
+    }
+  ]
+}

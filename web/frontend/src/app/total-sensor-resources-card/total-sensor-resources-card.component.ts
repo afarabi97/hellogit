@@ -1,5 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { SensorResourcesForm } from './total-sensor-resources-form';
+import { Component, Input, OnChanges } from '@angular/core';
 import { FormArray } from '@angular/forms';
 
 @Component({
@@ -7,35 +6,42 @@ import { FormArray } from '@angular/forms';
   templateUrl: './total-sensor-resources-card.component.html',
   styleUrls: ['./total-sensor-resources-card.component.css']
 })
-export class TotalSensorResourcesCardComponent implements OnInit {
+export class TotalSensorResourcesCardComponent implements OnChanges {
+  @Input() nodes: FormArray;
+  sensorResource: SensorResource = new SensorResource();
 
-  @Input()
-  sensorResourceForm: SensorResourcesForm;  
-  home_nets: FormArray;
-  external_nets: FormArray;
+  constructor() {
 
-  constructor() { 
-    
   }
 
-  ngOnInit() {
-    this.home_nets = this.sensorResourceForm.get('home_nets') as FormArray;
-    this.external_nets = this.sensorResourceForm.get('external_nets') as FormArray;
+  ngOnChanges() {
+    this.nodes.valueChanges.subscribe(nodes => {
+      this.sensorResource.cpuCoresAvailable = 0;
+      this.sensorResource.memoryAvailable = 0;
+      this.setValues(nodes);
+    });
+    if (this.nodes) {
+      this.setValues(this.nodes.value);
+    }
   }
 
-  addHomeNet(){
-    this.sensorResourceForm.addHomeNet();
+  setValues(nodes) {
+    nodes.map(node => {
+      if (node.node_type == 'Sensor' && node.deviceFacts) {
+        this.sensorResource.cpuCoresAvailable += node.deviceFacts['cpus_available'];
+        this.sensorResource.memoryAvailable += node.deviceFacts['memory_available'];
+      }
+    });
   }
 
-  removeHomeNet(index: number){    
-    this.sensorResourceForm.removeHomeNet(index);
-  }
+}
 
-  addExternalNet(){
-    this.sensorResourceForm.addExternalNet();
-  }
+export class SensorResource {
+  cpuCoresAvailable: number;
+  memoryAvailable: number;
 
-  removeExternalNet(index: number){    
-    this.sensorResourceForm.removeExternalNet(index);
+  constructor() {
+    this.cpuCoresAvailable = 0;
+    this.memoryAvailable = 0;
   }
 }

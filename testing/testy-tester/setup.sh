@@ -18,7 +18,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-source $int_testing_dir/testing/infrastructure/functions.sh
+source ../infrastructure/functions.sh
 
 function run_cmd {
         local command="$@"

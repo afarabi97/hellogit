@@ -1,16 +1,24 @@
-from app import app, socketio, logger
+from app import app, socketio, logger, conn_mng
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import jsonify, request, Response, send_file
 from typing import Dict, Tuple, List
 from shared.connection_mngs import FabricConnectionWrapper
-from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state
+from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes
 import json
+from bson import ObjectId
 import requests
 from celery import chain
 
 
 NAMESPACE = "default"
 CHART_REPO_PORT="8080"
+
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 def get_helm_repo_health(repo_ip: str) -> bool:
     """
@@ -75,23 +83,15 @@ def get_helm_repo() -> str:
 
     return ""
 
+@app.route('/api/catalog/<application>/saved_values', methods=['GET'])
+def get_saved_values(application: str) -> str:
 
-@app.route('/api/catalog/<application>', methods=['GET'])
-def get_application_state (application: str) -> list:
-    """
-    Get application state
+    if application:
+            saved_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": application }))
+            return JSONEncoder().encode(saved_values)
 
-    :return (list): Return a list of applications with state
-    """
+    return ERROR_RESPONSE
 
-    results = []
-    tiller_ip = get_tiller_service()
-    if tiller_ip:
-        results = get_app_state(get_tiller_service(),application, NAMESPACE)  #type: list
-        return jsonify(results)
-    else:
-        logger.error('Unable to find tiller service ip')
-        return (jsonify('Unable to find tiller service ip'), 500)
 
 @app.route('/api/catalog/install', methods=['POST'])
 def install () -> Response:
@@ -102,14 +102,16 @@ def install () -> Response:
     """
     payload = request.get_json()
     application = payload["role"]
-    process = payload["process"]["selectedProcess"]
-    configs = payload["configs"]
+    processdic = payload["process"]
+    process = processdic["selectedProcess"]
+    node_affinity = processdic["node_affinity"]
+    values = payload["values"]
 
     if process == "install":
         tiller_ip = get_tiller_service()
         helm_repo_uri = get_helm_repo()
         if tiller_ip and helm_repo_uri:
-            results = install_helm_apps.delay(get_tiller_service(), get_helm_repo(), application, NAMESPACE, configs)  #type: list
+            results = install_helm_apps.delay(tiller_ip, helm_repo_uri, application, NAMESPACE, node_affinity=node_affinity, values=values)  #type: list
             return (jsonify(str(results)), 200)
 
         results = dict()
@@ -140,11 +142,12 @@ def delete () -> Response:
 
     payload = request.get_json()
     application = payload["role"]
-    process = payload["process"]["selectedProcess"]
-    sensors = payload["process"]["selectedNodes"]
+    processdic = payload["process"]
+    process = processdic["selectedProcess"]
+    nodes = processdic["selectedNodes"]
 
     if process == "uninstall":
-        results = delete_helm_apps.delay(get_tiller_service(), application, NAMESPACE, sensors)  #type: Response
+        results = delete_helm_apps.delay(get_tiller_service(), application, NAMESPACE, nodes)  #type: Response
         return jsonify(str(results))
 
     logger.error("Executing /api/catalog/delete has failed.")
@@ -160,16 +163,19 @@ def reinstall() -> Response:
 
     payload = request.get_json()
     application = payload["role"]
-    process = payload["process"]["selectedProcess"]
-    sensors = payload["process"]["selectedNodes"]
-    configs = payload["configs"]
+    processdic = payload["process"]
+    process = processdic["selectedProcess"]
+    nodes = processdic["selectedNodes"]
+    node_affinity = processdic["node_affinity"]
+    values = payload["values"]
 
     if process == "reinstall":
         tiller_ip = get_tiller_service()
         helm_repo_uri = get_helm_repo()
         if tiller_ip and helm_repo_uri:
-            results = chain(delete_helm_apps.si(tiller_server_ip=get_tiller_service(), application=application, namespace=NAMESPACE, sensors=sensors),
-            install_helm_apps.si(tiller_server_ip=get_tiller_service(), chart_repo_uri=get_helm_repo(), application=application, namespace=NAMESPACE, configs=configs))()
+            results = chain(delete_helm_apps.si(tiller_server_ip=tiller_ip, application=application, namespace=NAMESPACE, nodes=nodes),
+            install_helm_apps.si(tiller_server_ip=tiller_ip, chart_repo_uri=helm_repo_uri, application=application, namespace=NAMESPACE, node_affinity=node_affinity, values=values))()
+
             return jsonify(str(results))
 
         results = dict()
@@ -190,192 +196,49 @@ def reinstall() -> Response:
     return ERROR_RESPONSE
 
 
-@app.route('/api/catalog/', methods=['GET'])
-def get_charts() -> Response:
-    charts = [{
-      "id": "Elasticsearch",
-      "type": "chart",
-      "formControls": [{
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Cpu Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "CPU_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Memory Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "MEM_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "0.0.0.0/0",
-        "description": "Enter Your Mission Partner Network",
-        "required": "true",
-        "regexp": "",
-        "name": "HOME_NET"
-        },
-        {
-        "type": "textinput",
-        "default_value": "",
-        "description": "Enter Your Kit Network",
-        "required": "false",
-        "regexp": "",
-        "name": "EXTERNAL_NET"
-        }],
-      "attributes": {
-        "description": "Flexible and powerful open source, distributed real-time search and analytics engine.",
-        "home": "https://www.elastic.co/products/elasticsearch",
-        "icon": "assets/catalog/elasticsearch_logo.png",
-        "name": "Elasticsearch",
-        "verison": "6.5.3"
-      }
-    },
-    {
-      "id": "Moloch",
-      "type": "chart",
-      "formControls": [{
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Cpu Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "CPU_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Memory Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "MEM_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "0.0.0.0/0",
-        "description": "Enter Your Mission Partner Network",
-        "required": "true",
-        "regexp": "",
-        "name": "HOME_NET"
-        },
-        {
-        "type": "textinput",
-        "default_value": "",
-        "description": "Enter Your Kit Network",
-        "required": "false",
-        "regexp": "",
-        "name": "EXTERNAL_NET"
-        }],
-      "attributes": {
-        "description": "Flexible and powerful open source, distributed real-time search and analytics engine.",
-        "home": "https://www.elastic.co/products/elasticsearch",
-        "icon": "assets/catalog/moloch_logo2.png",
-        "name": "Moloch",
-        "verison": "6.5.3"
-      }
-    },
-    {
-      "id": "Bro",
-      "type": "chart",
-      "formControls": [{
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Cpu Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "CPU_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "50%",
-        "description": "Enter Memory Percent",
-        "required": "true",
-        "regexp": "",
-        "name": "MEM_PER"
-        },
-        {
-        "type": "textinput",
-        "default_value": "0.0.0.0/0",
-        "description": "Enter Your Mission Partner Network",
-        "required": "true",
-        "regexp": "",
-        "name": "HOME_NET"
-        },
-        {
-        "type": "textinput",
-        "default_value": "",
-        "description": "Enter Your Kit Network",
-        "required": "false",
-        "regexp": "",
-        "name": "EXTERNAL_NET"
-        }],
-      "attributes": {
-        "description": "Flexible and powerful open source, distributed real-time search and analytics engine.",
-        "home": "https://www.elastic.co/products/elasticsearch",
-        "icon": "assets/catalog/bro_logo.png",
-        "name": "Bro",
-        "verison": "6.5.3"
-      },
-    },
-    {
-        "id": "suricata",
-        "type": "chart",
-        "formControls": [{
-        "type": "textinput",
-        "default_value": "1000m",
-        "description": "Enter Cpu Request",
-        "required": "true",
-        "regexp": "",
-        "name": "cpu_request",
-        "error_message": "Enter BS here"
-        },
-        {
-        "type": "textinputlist",
-        "default_value": "any",
-        "description": "Enter Your Mission Partner Network",
-        "required": "true",
-        "regexp": "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])",
-        "name": "home_net",
-        "error_message": "Enter BS here"
-        },
-        {
-        "type": "textinputlist",
-        "default_value": "any",
-        "description": "Enter Your Kit Network",
-        "required": "false",
-        "regexp": "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])",
-        "name": "external_net",
-        "error_message": "Enter BS here"
-        },
-        {
-        "type": "interface",
-        "default_value": "",
-        "description": "Select You Network Interfaces",
-        "required": "true",
-        "regexp": "",
-        "name": "interfaces",
-        "error_message": "Enter BS here"
-        },
-        {
-        "type": "invisible",
-        "default_value": "",
-        "description": "",
-        "required": "true",
-        "regexp": "",
-        "name": "affinity_hostname"
-        }
-        ],
-        "attributes": {
-            "description": "Suricata is a free and open source, mature, fast and robust network threat detection engine.",
-            "home": "https://suricata.readthedocs.io/en/suricata-4.1.3/",
-            "icon": "assets/catalog/suricata_logo.png",
-            "name": "Suricata",
-            "verison": "4.1.3"
-      }
+@app.route('/api/catalog/generate_values', methods=['POST'])
+def generate_values_file () -> Response:
+    """
+    Generate values yaml
 
-    }]
-    return jsonify(charts)
+    :return (Response): Returns a Reponse object
+    """
+    payload = request.get_json()
+    application = payload["role"]
+    configs = payload["configs"]
+    helm_repo_uri = get_helm_repo()
+    if helm_repo_uri:
+        results = generate_values(helm_repo_uri, application, NAMESPACE, configs)
+        return jsonify(results)
+
+    return ERROR_RESPONSE
+
+
+@app.route('/api/catalog/charts', methods=['GET'])
+def get_all_charts() -> Response:
+    helm_repo_uri = get_helm_repo()
+    if helm_repo_uri:
+        charts = get_repo_charts(helm_repo_uri)  #type: list
+        return jsonify(charts)
+    return ERROR_RESPONSE
+
+@app.route('/api/catalog/chart/<application>/status', methods=['GET'])
+def get_app_status(application: str) -> Response:
+    tiller_ip = get_tiller_service()
+    if tiller_ip:
+        results = get_app_state(tiller_ip, application, NAMESPACE)
+        return jsonify(results)
+    return ERROR_RESPONSE
+
+@app.route('/api/catalog/chart/<application>/info', methods=['GET'])
+def get_chart_info(application: str) -> Response:
+    helm_repo_uri = get_helm_repo()
+    if helm_repo_uri:
+        results = chart_info(helm_repo_uri, application)  #type: list
+        return jsonify(results)
+    return ERROR_RESPONSE
+
+@app.route('/api/nodes', methods=['GET'])
+def get_all_node_details():
+    nodes = get_nodes(details=True)
+    return jsonify(nodes)

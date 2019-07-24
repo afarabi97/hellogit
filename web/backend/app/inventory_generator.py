@@ -7,8 +7,8 @@ from typing import Dict
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR
-from app.calculations import (ServerCalculations, NodeCalculations, 
-                              get_sensors_from_list, get_servers_from_list, 
+from app.calculations import (ServerCalculations, NodeCalculations,
+                              get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
 from app.resources import NodeResourcePool, NodeResources
 from shared.constants import NODE_TYPES
@@ -30,15 +30,15 @@ class KickstartInventoryGenerator:
 
     def _map_dl160_and_supermicro(self) -> None:
         """
-        Maps the DL160 and SuperMicro values to the appropriate values for the 
+        Maps the DL160 and SuperMicro values to the appropriate values for the
         inventory file.
         :return:
         """
-        for node in self._template_ctx["nodes"]:            
+        for node in self._template_ctx["nodes"]:
             if node['pxe_type'] == "SuperMicro":
                 node['pxe_type'] = "BIOS"
             elif node['pxe_type'] == "DL160":
-                node['pxe_type'] = "UEFI"        
+                node['pxe_type'] = "UEFI"
 
     def _set_dhcp_range(self):
         self._template_ctx['dhcp_start'] = self._template_ctx['dhcp_range']
@@ -97,16 +97,6 @@ class KitInventoryGenerator:
             self._template_ctx["nodes"][index]["has_suricata"] = False
             self._template_ctx["nodes"][index]["has_moloch"] = False
             self._template_ctx["nodes"][index]["has_bro"] = False
-            if node["node_type"] == NODE_TYPES[1]:
-                if "suricata" in node['sensor_apps']:
-                    self._template_ctx["nodes"][index]["has_suricata"] = True
-                    has_suricata = True
-                if "moloch" in node['sensor_apps']:
-                    self._template_ctx["nodes"][index]["has_moloch"] = True
-                    has_moloch = True
-                if "bro" in node['sensor_apps']:
-                    self._template_ctx["nodes"][index]["has_bro"] = True
-                    has_bro = True
 
         self._template_ctx["has_suricata"] = has_suricata
         self._template_ctx["has_moloch"] = has_moloch
@@ -119,10 +109,10 @@ class KitInventoryGenerator:
             if node["node_type"] == NODE_TYPES[1]:
                 node["reservations"] = self._sensor_res.get_node_reservations(index - sensor_index_offset)
                 server_index_offset += 1
-            elif node["node_type"] == NODE_TYPES[0]:                
+            elif node["node_type"] == NODE_TYPES[0]:
                 node["reservations"] = self._server_res.get_node_reservations(index - server_index_offset)
                 sensor_index_offset += 1
-                    
+
     def _set_server_calculations(self) -> None:
         self._template_ctx["server_cal"] = self._server_cal.to_dict()
 
@@ -145,13 +135,13 @@ class KitInventoryGenerator:
         if self._template_ctx['dns_ip'] is None:
             self._template_ctx['dns_ip'] = ''
 
-        if not self._template_ctx["endgame_iporhost"]:
+        if "endgame_iporhost" not in self._template_ctx:
             self._template_ctx["endgame_iporhost"] = ''
 
-        if not self._template_ctx["endgame_username"]:
+        if "endgame_username" not in self._template_ctx:
             self._template_ctx["endgame_username"] = ''
 
-        if not self._template_ctx["endgame_password"]:
+        if "endgame_password" not in self._template_ctx:
             self._template_ctx["endgame_password"] = ''
 
     def generate(self) -> None:

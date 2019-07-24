@@ -35,8 +35,6 @@ export class TopNavbarComponent implements OnInit {
     }, {
       label: 'Confluence',
       children: [{ label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true }]
-    }, {
-      children: [{ label: 'Help', url: '/help', icon: 'help', isExternalLink: false }]
     }];
 
   @ViewChild('notifications') notifications: NotificationsComponent;

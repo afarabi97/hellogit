@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
-import { StepperComponent } from '../stepper/stepper.component';
 import { Router } from '@angular/router';
+import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-chart-list',
@@ -18,7 +18,8 @@ export class ChartListComponent {
    * @memberof ChartListComponent
    */
   constructor(public dialog: MatDialog,
-              private router: Router) { }
+              private router: Router,
+              private _CatalogService: CatalogService,) { }
 
   /**
    * opens the card and passes the data do
@@ -27,12 +28,12 @@ export class ChartListComponent {
    * @memberof ChartListComponent
    */
   onSelectCard(chart: Chart) {
-    const dialogRef = this.dialog.open(StepperComponent, {
-      width: '50%',
-      height: '670px',
-      data: chart,
+    this._CatalogService.getByString("chart/" + chart.application + "/info" ).subscribe(data => {
+      this._CatalogService.chart = data;
+      this.router.navigate(['/application/' + chart.application])
     });
-    // this.router.navigate(['/'])
+
+
   }
 
 }
