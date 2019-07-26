@@ -23,6 +23,5 @@
     mode: 0644
   loop:
     - bro
-    - suricata
 
 ...

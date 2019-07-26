@@ -1,9 +1,5 @@
 ---
 
-- name: Remove log shippers from Kubernetes
-  command: "kubectl delete jobs,ds,pods -l component=logshipper"
-  when: inventory_hostname in groups['master_server']
-
 - name: Remove logrotate cronjobs
   cron:
     name: "tfplenum-logdelete"

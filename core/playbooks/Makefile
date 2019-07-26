@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch logstash kibana metrics bro moloch suricata kubernetes-rerun elasticsearch-rerun logstash-rerun kibana-rerun metrics-rerun bro-rerun moloch-rerun suricata-rerun add-node
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch logstash kibana metrics bro moloch kubernetes-rerun elasticsearch-rerun logstash-rerun kibana-rerun metrics-rerun bro-rerun moloch-rerun add-node
 
 # Default target, build *and* run tests
 all:
@@ -64,9 +64,6 @@ bro:
 moloch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch
 
-suricata:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata --extra-vars "run_option=install"
-
 logs:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs --extra-vars "run_option=reinstall"
 
@@ -80,49 +77,46 @@ endgame:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
 
 helm-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 chartmuseum-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 logstash-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,bro,moloch,suricata,janitor,mumble,endgame "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,bro,moloch,janitor,mumble,endgame "run_option=install"
 
 metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,bro,moloch,suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,bro,moloch,janitor,mumble,endgame
 
 bro-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,suricata,janitor,mumble,endgame --extra-vars "run_option=install"
-
-suricata-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t suricata,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,mumble,endgame --extra-vars "run_option=install"
 
 janitor-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor,mumble,endgame
@@ -136,7 +130,7 @@ engame-rerun:
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t docker -l $(NODE)
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,es-scale,bro-scale,suricata-scale,moloch-scale,enable-sensor-monitor-interface
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t pull_join_script,kube-node,es-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash
 
 remove-node:

@@ -151,6 +151,7 @@ def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> li
         for c in chart_releases:
             chart_name = c.chart.metadata.name
             if chart_name not in _CHART_EXEMPTS and chart_name == application:
+
                 node = {}
                 node["deployment_name"] = c.name
                 node["hostname"] = None
@@ -273,7 +274,6 @@ def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: 
                 conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
                 conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
                 saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
-                print(saved_values)
 
                 response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
 

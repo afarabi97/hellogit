@@ -2,7 +2,7 @@
 
 - name: Generate list of hosts that need managed logs
   set_fact:
-    loggers: "{{ groups['bro'] | union(groups['suricata']) }}"
+    loggers: "{{ groups['sensors'] }}"
 
 - include_tasks: 01_prepare.yml
   when: inventory_hostname in groups['master_server']

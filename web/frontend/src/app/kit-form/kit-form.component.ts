@@ -96,6 +96,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     let callbackfn = (result) => {
       if (result == data.option2) {
         this.executeKitForm = new KitFormTime(data.date.value, data.timezone.value);
+        this.executeKitForm.date.month = this.executeKitForm.date.month + 1;
         if (!generateKitInvetory) {
           this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => this.openConsole());
         } else {
@@ -296,7 +297,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    */
   private addSensorControls(genericNode: FormGroup, value): void {
     genericNode.addControl('is_remote', new FormControl(value ? value : false));
-    // remove Server Controls 
+    // remove Server Controls
     if (genericNode.get('is_master_server')) {
       genericNode.removeControl('is_master_server');
     }
@@ -311,11 +312,11 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    */
   private addServerControls(genericNode: FormGroup, value, node): void {
     genericNode.addControl('is_master_server', new FormControl(value ? value : false));
-    // set the node to false because otherwise 
+    // set the node to false because otherwise
     if (value) {
       node["is_master_server"] = false;
     }
-    // remove Server Controls 
+    // remove Server Controls
     if (genericNode.get('is_remote')) {
       genericNode.removeControl('is_remote');
     }
@@ -351,7 +352,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * returns AllValidationError 
+   * returns AllValidationError
    *
    * @param {FormGroupControls} controls
    * @returns {AllValidationErrors[]}

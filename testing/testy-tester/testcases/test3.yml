@@ -201,10 +201,10 @@ kit:
       catalog:
         suricata:
           affinity_hostname: "test3-sensor1.lan"
-          cpu_request: "1000m"
+          cpu_requests: "1000m"
           deployment_name: "test3-sensor1-suricata"
           external_net: "any"
           home_net: "any"
           interfaces:
-            - "ens194"
+            - "ens224"
           node_hostname: "test3-sensor1.lan"

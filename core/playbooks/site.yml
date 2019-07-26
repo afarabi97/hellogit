@@ -321,24 +321,10 @@
   tags:
     - moloch
 
-- name: Deploy Suricata
-  hosts:
-    - master_server
-    - suricata
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - suricata
-  tags:
-    - suricata
-
 - name: Setup Log Management
   hosts:
     - master_server
-    - bro
-    - suricata
+    - sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -347,8 +333,6 @@
     - logs
   tags:
     - logs
-    - bro
-    - suricata
 
 - name: Enable Endgame script on master server
   hosts: master_server

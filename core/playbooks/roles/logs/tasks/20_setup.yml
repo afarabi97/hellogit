@@ -1,29 +1,5 @@
 ---
 
-- block:
-  - name: Run bootstrap pod
-    import_role:
-      name: kubernetes/common
-      tasks_from: kube_create
-    vars:
-      name: "Suricata Bootstrap"
-      file_name: "{{ logs_dir }}/bootstrap.yml"
-
-  - name: Wait for bootstrap
-    shell: "kubectl wait job/filebeat-bootstrap --for=condition=complete --timeout=-1s"
-
-  - name: Deploy
-    include_role:
-      name: kubernetes/common
-      tasks_from: kube_create
-    vars:
-      name: "filebeat"
-      file_name: "{{ logs_dir }}/ds-suricata.yml"
-
-  - name: Remove Bootstrap
-    command: kubectl delete -f {{ logs_dir }}/bootstrap.yml
-  when: groups['suricata'] | length > 0
-
 - name: Deploy
   include_role:
     name: kubernetes/common

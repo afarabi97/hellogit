@@ -241,12 +241,13 @@ class CatalogPayloadGenerator:
         if node_affinity == 'Sensor':
             for sensor in self._kit.get_sensor_nodes():
                 ses_part = self._device_facts_map[sensor.management_interface.ip_address]
-                node_parts.append(ses_part)
-                val_part = { "hostname" : sensor.hostname,
-                             "node_type" : node_affinity,
-                             "deployment_name": sensor.suricata_catalog.deployment_name }
-                node_parts.append(val_part)
-                deviceFacts = { "deviceFacts": node_parts }
+
+                deviceFacts = { "deviceFacts": ses_part,
+                                "hostname" : sensor.hostname,
+                                "node_type" : node_affinity,
+                                "deployment_name": sensor.suricata_catalog.deployment_name,
+                                "management_ip_address": sensor.management_interface.ip_address,
+                                "is_remote": False}
                 all_parts.append(deviceFacts)
 
         return all_parts
@@ -255,12 +256,12 @@ class CatalogPayloadGenerator:
         node_parts = []
         if node_affinity == 'Server - Any':
             for server in self._kit.get_server_nodes():
-                srv_part = { server.hostname : server.suricata_catalog.to_dict() }
+                srv_part = { server.suricata_catalog.deployment_name : server.suricata_catalog.to_dict() }
                 node_parts.append(srv_part)
 
         if node_affinity == 'Sensor':
             for sensor in self._kit.get_sensor_nodes():
-                ses_part = { sensor.hostname : sensor.suricata_catalog.to_dict() }
+                ses_part = { sensor.suricata_catalog.deployment_name : sensor.suricata_catalog.to_dict() }
                 node_parts.append(ses_part)
         return node_parts
 

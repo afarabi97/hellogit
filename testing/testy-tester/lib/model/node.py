@@ -160,7 +160,7 @@ class CatalogSuricata(object):
 
     Attributes:
         affinity_hostname: Name of sensor
-        cpu_request: CPU request sent to kubenetes
+        cpu_requests: CPU request sent to kubenetes
         deployment_name: Name of the deployment set sent to kubenetes
         external_net: External net for suricata alerts
         home_net: Home net for suricata alerts
@@ -177,7 +177,7 @@ class CatalogSuricata(object):
         :return:
         """
         self.affinity_hostname = yml_dict['affinity_hostname']
-        self.cpu_request = yml_dict['cpu_request']
+        self.cpu_requests = yml_dict['cpu_requests']
         self.deployment_name = yml_dict['deployment_name']
         self.external_net = yml_dict['external_net']
         self.home_net = yml_dict['home_net']
@@ -187,7 +187,7 @@ class CatalogSuricata(object):
     def to_dict(self):
         return {
             'affinity_hostname': self.affinity_hostname,
-            'cpu_request': self.cpu_request,
+            'cpu_requests': self.cpu_requests,
             'deployment_name': self.deployment_name,
             'external_net': self.external_net,
             'home_net': self.home_net,
@@ -196,7 +196,7 @@ class CatalogSuricata(object):
         }
 
     def __str__(self) -> str:
-        return "affinity_hostname: %s cpu_request: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_request, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
+        return "affinity_hostname: %s cpu_requests: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_requests, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
 
 class Node(object):
 

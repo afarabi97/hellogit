@@ -1,0 +1,72 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-filebeat
+  labels:
+    component: suricata-logshipper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: suricata-logshipper
+  template:
+    metadata:
+      labels:
+        component: suricata-logshipper
+    spec:
+      initContainers:
+      - name: init-filebeat-suricata
+        image: {{ .Values.filebeat_image_name  }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: filebeat
+          subPath: filebeat-suricata.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        args: ['setup', '-e', '--modules', 'suricata']
+      containers:
+      - name: filebeat-suricata
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: filebeat
+          subPath: filebeat-suricata.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-*.json]']
+      volumes:
+      - name: data
+        hostPath:
+          path: {{ .Values.suricata_log_path }}
+          type: DirectoryOrCreate
+      - name: filebeat
+        configMap:
+          name: {{ .Release.Name }}-filebeat
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - suricata-logshipper
+            topologyKey: "kubernetes.io/hostname"
+
+...

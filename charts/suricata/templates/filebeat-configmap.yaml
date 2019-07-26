@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-filebeat
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+data:
+  filebeat-suricata.yml: |
+    filebeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+
+    #==================== Elasticsearch template setting ==========================
+
+    setup.template.settings:
+      index.number_of_shards: 5
+      index.number_of_replicas: 1
+      index.refresh_interval: 30s
+      index.merge.scheduler.max_thread_count: 1
+
+    #============================== Kibana =====================================
+
+    setup.kibana:
+      host: "{{ .Values.kibana_fqdn }}:80"
+
+    #================================ Outputs =====================================
+
+    #-------------------------- Elasticsearch output ------------------------------
+    output.elasticsearch:
+      hosts: ["{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
+      worker: 6
+      bulk_max_size: 4096
+      compression_level: 3
+      loadbalance: true
+
+    queue.mem:
+      events: 65536
+      flush.min_events: 4096
+      flush.timeout: 30s
+
+    xpack.monitoring.enabled: true
