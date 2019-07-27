@@ -28,11 +28,13 @@ export class Host {
   hostname: string;
   state: string;
   last_state_change: string;
+  target_config_id: string;
 
-  constructor(host: Host){
+  constructor(host: Host, config_id: string){
     this.hostname = host.hostname;
     this.state = host.state;
     this.last_state_change = host.last_state_change;
+    this.target_config_id = config_id;
   }
 }
 
@@ -46,13 +48,76 @@ export class WindowsCreds {
   }
 }
 
-export class IpTargetList {
-  _id: string;
-  name: string;
+export class Kerberos {
   domain_name: string;
   dns_server: string;
   key_controller: string;
   admin_server: string;
+  port: string;
+
+  constructor(configs: Kerberos) {
+    if (configs){
+      this.domain_name = configs.domain_name;
+      this.dns_server = configs.dns_server;
+      this.key_controller = configs.key_controller;
+      this.admin_server = configs.admin_server;
+      this.port = configs.port;
+    } else {
+      this.domain_name = "";
+      this.dns_server = "";
+      this.key_controller = "";
+      this.admin_server = "";
+      this.port = "";
+    }
+  }
+}
+
+export class Ntlm {
+  domain_name: string;
+  dns_server: string;
+  is_ssl: boolean;
+  port: string;
+
+  constructor(ntlm: Ntlm){
+    if (ntlm){
+      this.is_ssl = ntlm.is_ssl;
+      this.port = ntlm.port;
+      this.dns_server = ntlm.dns_server;
+      this.domain_name = ntlm.domain_name;
+    } else {
+      this.is_ssl = false;
+      this.port = "";
+      this.dns_server = "";
+      this.domain_name = "";
+    }
+  }
+}
+
+export class SMB {
+  domain_name: string;
+  dns_server: string;
+  port: string;
+
+  constructor(smb: SMB){
+    if (smb){      
+      this.port = smb.port;
+      this.dns_server = smb.dns_server;
+      this.domain_name = smb.domain_name;
+    } else {
+      this.port = "";
+      this.dns_server = "";
+      this.domain_name = "";
+    }
+  }
+}
+
+export class IpTargetList {
+  _id: string;
+  name: string;
+  protocol: string;
+  ntlm: Ntlm;
+  kerberos: Kerberos;
+  smb: SMB;
   targets: Array<Host> = new Array<Host>();
 
   constructor(configs: IpTargetList) {
@@ -60,23 +125,23 @@ export class IpTargetList {
     if (configs){
       this._id = configs._id;
       this.name = configs.name;
-      this.domain_name = configs.domain_name;
-      this.dns_server = configs.dns_server;
-      this.key_controller = configs.key_controller;
-      this.admin_server = configs.admin_server;
+      this.protocol = configs.protocol;
+      this.ntlm = new Ntlm(configs.ntlm);
+      this.kerberos = new Kerberos(configs.kerberos);
+      this.smb = new SMB(configs.smb);
 
       if (configs.targets){
         for (let host of configs.targets){
-          this.targets.push(new Host(host))
+          this.targets.push(new Host(host, this._id))
         }
       }
     } else {
       this._id = "";
       this.name = "";
-      this.domain_name = "";
-      this.dns_server = "";
-      this.key_controller = "";
-      this.admin_server = "";
+      this.protocol = "";
+      this.ntlm = new Ntlm(null);
+      this.kerberos = new Kerberos(null);
+      this.smb = new SMB(null);
     }
   }
 }
@@ -126,13 +191,6 @@ export class AgentInstallerConfig {
 export class AgentBuilderService {
 
   constructor(private http: HttpClient) { }
-
-  private mapHostOrError(host: Object): Host | ErrorMessage {
-    if (host["error_message"]){
-      return new ErrorMessage(host as ErrorMessage);
-    }
-    return new Host(host as Host);
-  }
 
   private mapIpTarget(config: Object): IpTargetList {
     return new IpTargetList(config as IpTargetList);

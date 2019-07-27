@@ -6,6 +6,7 @@ import * as FileSaver from 'file-saver';
 import { KitService } from '../kit.service';
 import { Title } from '@angular/platform-browser'
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
+import { AgentTargetDialogComponent, target_config_validators } from './agent-target-dialog/agent-target-dialog.component';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../websocket.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,11 +19,6 @@ import { validateFromArray } from '../validators/generic-validators.validator';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 
-export const target_config_validators = {
-  required: [
-    { error_message: 'Required field', validatorFn: 'required' }
-  ]
-}
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -38,10 +34,7 @@ export class AgentBuilderChooserComponent implements OnInit {
                                           'install_winlogbeat', 'install_endgame',
                                           'endgame_sensor_name', 'actions'];
 
-  columnsForTargetConfigs: string[] = ['select', 'name', 'dns_server',
-                                       'key_controller', 'admin_server',
-                                       'domain_name', 'actions'];
-
+  columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'dns_server', 'domain_name', 'actions'];
   columnsForHosts: string[] = ['hostname', 'state', 'last_state_change', 'actions'];
 
   savedConfigs: MatTableDataSource<AgentInstallerConfig>;
@@ -104,7 +97,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 5){
+  private displaySnackBar(message: string, duration_seconds: number = 60){
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
@@ -140,9 +133,29 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
+  private _update_targets(target_config: IpTargetList, update_config: IpTargetList){
+    for (let target of target_config.targets){
+      for (let update of update_config.targets){
+        if (target.hostname === update.hostname){
+          target.state = update.state;
+          target.last_state_change = update.last_state_change;
+          break;
+        }        
+      }      
+    } 
+  }
+
   private refreshStateChanges(){
-    this.agentBuilderSvc.getIpTargetList().subscribe(configs => {
-      this.setTargetConfigs(configs);
+    this.agentBuilderSvc.getIpTargetList().subscribe(data => {
+      let configs = data as IpTargetList[];
+      for (let target_config of this.savedTargetConfigs.data){
+        for (let updated_config of configs){
+          if (target_config._id === updated_config._id){
+            this._update_targets(target_config, updated_config);
+            break;
+          }
+        }
+      }
     });
   }
 
@@ -190,7 +203,16 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openDeployInstallerModal(action: string, target: Host=null){
-    this.host_to_remove = target;
+    if (target){
+      this.host_to_remove = target;
+      for (let target_config of this.savedTargetConfigs.data){
+        if(target_config._id === target.target_config_id){
+          this.target_selection = target_config;
+          break;
+        }
+      }      
+    }
+    
     let dialogForm = this.fb.group({
       user_name: new DialogFormControl("Domain username", '',
             Validators.compose([validateFromArray(target_config_validators.required)])),
@@ -236,29 +258,28 @@ export class AgentBuilderChooserComponent implements OnInit {
     let creds = new WindowsCreds(credsObj);
     let payload = this.preparePayload(creds);
 
+    this.displaySnackBar("Please wait for the server to initiate your request.");
     if (action === 'uninstall' && this.host_to_remove !== null){
       this.agentBuilderSvc.uninstallAgent(payload, this.host_to_remove).subscribe(data => {
-        this.displaySnackBar("Initiated uninstall task on " + this.host_to_remove.hostname +
-                             ". Open the notification manager to track its progress.")
+        this.displaySnackBar(data['message']);
       }, err => {
         this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.")
       });
     } else if (action === 'uninstall'){
-      this.agentBuilderSvc.uninstallAgents(payload).subscribe(data => {
-        this.displaySnackBar("Initiated uninstall task. Open the notification manager to track its progress.")
+      this.agentBuilderSvc.uninstallAgents(payload).subscribe(data => {        
+        this.displaySnackBar(data['message']);
       }, err => {
         this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
       });
     } else if (action === 'reinstall'){
       this.agentBuilderSvc.reinstallAgent(payload, this.host_to_remove).subscribe(data => {
-        this.displaySnackBar("Initiated reinstall task. Open the notification manager to track its progress.")
+        this.displaySnackBar(data['message']);
       }, error => {
-        this.displaySnackBar("Failed initiate reinstall for an unknown reason.");
+        this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
       });
     } else {
-      this.agentBuilderSvc.installAgents(payload).subscribe(data => {
-        this.displaySnackBar("Initiated install task. Open the notification manager to track its progress.")
-        console.log(data)
+      this.agentBuilderSvc.installAgents(payload).subscribe(data => {        
+        this.displaySnackBar(data['message']);
       }, error => {
         this.displaySnackBar("Failed initiate install task for an unknown reason.");
       });
@@ -324,7 +345,7 @@ export class AgentBuilderChooserComponent implements OnInit {
             this.displaySnackBar("Saved configuration successfully.");
           },
           err => {
-            this.displaySnackBar("Failed to save configuration.");
+            this.displaySnackBar("Failed to save configuration.  " + err.message);
             console.error("Save config error:", err);
           }
         );
@@ -333,41 +354,54 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openAddNewTargetConfigModal() {
-    let dialogForm = this.fb.group({
-      name: new DialogFormControl("Target List Name", '',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
-      domain_name: new DialogFormControl("Windows Domain Name", '',
-                   Validators.compose([validateFromArray(target_config_validators.required)])),
-      dns_server: new DialogFormControl("DNS Server IP", '',
-                  Validators.compose([validateFromArray(target_config_validators.required)])),
-      key_controller: new DialogFormControl("Key Controller Hostname", '',
-                      Validators.compose([validateFromArray(target_config_validators.required)])),
-      admin_server: new DialogFormControl("Admin Server Hostname", '',
-                    Validators.compose([validateFromArray(target_config_validators.required)]))
-    });
-
-    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
+    const dialogRef = this.dialog.open(AgentTargetDialogComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: { title: "Add new target configuration",
-              instructions: "Please fill out the below form to add a new target configuration?",
-              dialogForm: dialogForm,
-              confirmBtnText: "Add Configuration" }
+      data: { }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      let form = result as FormGroup;
-      if (form && form.valid){
-        this.agentBuilderSvc.saveIpTargetList(result.getRawValue() as IpTargetList).subscribe(configs => {
+      if (result){
+        let name = (result as IpTargetList).name;
+        this.agentBuilderSvc.saveIpTargetList(result as IpTargetList).subscribe(configs => {
           this.setTargetConfigs(configs);
-          this.displaySnackBar(dialogForm.get('name').value + " was saved successfully.");
-        },
-        err => {
+          this.displaySnackBar(name + " was saved successfully.");
+        }, err => {
           this.displaySnackBar("Failed to save new configuration.");
           console.error("Save config error:", err);
         });
       }
     });
+  }
+
+  getPort(config: IpTargetList): string {
+    if (config.protocol === "kerberos"){
+      return config.kerberos.port;
+    } else if (config.protocol === "smb"){
+      return config.smb.port;
+    }
+
+    return config.ntlm.port;
+  }
+
+  getDNSIP(config: IpTargetList): string {
+    if (config.protocol === "kerberos"){
+      return config.kerberos.dns_server;
+    } else if (config.protocol === "smb"){
+      return config.smb.dns_server;
+    }
+
+    return config.ntlm.dns_server;
+  }
+
+  getDomainSuffix(config: IpTargetList): string {
+    if (config.protocol === "kerberos"){
+      return config.kerberos.domain_name;
+    } else if (config.protocol === "smb"){
+      return config.smb.domain_name;
+    }
+
+    return config.ntlm.domain_name;
   }
 
   isHostVisible(config: IpTargetList): boolean {

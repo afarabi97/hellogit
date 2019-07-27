@@ -1,5 +1,0 @@
-archive_name: monitor_install.exe
-docker_image: tfplenum/windows_remote_installer:1.2
-docker_container_name: ansible_container
-docker_working_dir: /opt/tfplenum/core/playbooks
-docker_role_path: "{{ docker_working_dir }}/roles/windows_installer"

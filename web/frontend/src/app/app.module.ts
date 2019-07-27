@@ -42,8 +42,11 @@ import { PolicyManagementDialog } from './policy-management/dialog/policy-manage
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
 import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
 import { UploadDialogComponent } from './policy-management/upload-dialog/upload-dialog.component';
+
+//Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
+import { AgentTargetDialogComponent } from './agent-builder-chooser/agent-target-dialog/agent-target-dialog.component';
 
 // Catalog
 import { CatalogComponent } from './catalog/component/catalog.component';
@@ -121,6 +124,7 @@ import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
     UploadDialogComponent,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
+    AgentTargetDialogComponent,
     ModalDialogMatComponent,
     CapitalizeFirstPipe,
     CatalogComponent,
@@ -164,6 +168,7 @@ import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
     ArchiveSaveDialogComponent,
     DateTimePickerDialogComponent,
     AgentInstallerDialogComponent,
+    AgentTargetDialogComponent,
     ModalDialogMatComponent
   ]
 })

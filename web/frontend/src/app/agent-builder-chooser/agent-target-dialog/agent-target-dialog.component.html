@@ -1,0 +1,92 @@
+<div mat-dialog-content>
+  <mat-vertical-stepper [linear]=true>
+    <mat-step label="Configuration Name" [stepControl]="newTargetAgentForm">
+      <form [formGroup]="newTargetAgentForm">
+      <mat-form-field>
+        <mat-label>Config Name</mat-label>
+        <input matInput formControlName="config_name">
+      </mat-form-field>
+        <mat-radio-group formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
+          <mat-radio-button value="negotiate">Negotiate</mat-radio-button>
+          <mat-radio-button value="kerberos">Kerberos</mat-radio-button>
+          <mat-radio-button value="ntlm">NTLM</mat-radio-button>
+          <mat-radio-button value="smb">SMB</mat-radio-button>
+        </mat-radio-group>
+      </form>
+    </mat-step>
+    <mat-step label="Kerberos Configuration" *ngIf="isKerberos" [stepControl]="kerberosForm">
+      <form [formGroup]="kerberosForm">
+        <mat-form-field>
+          <mat-label>Port</mat-label>
+          <input matInput formControlName="port">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(kerberosForm, 'port') }}</mat-error>
+        <mat-form-field>
+          <mat-label>Windows DNS Suffix</mat-label>
+          <input matInput formControlName="domain_name">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(kerberosForm, 'domain_name') }}</mat-error>
+        <mat-form-field>
+          <mat-label>DNS Server IP</mat-label>
+          <input matInput formControlName="dns_server">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(kerberosForm, 'dns_server') }}</mat-error>
+        <mat-form-field>
+          <mat-label>Key Controller Hostname</mat-label>
+          <input matInput formControlName="key_controller">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(kerberosForm, 'key_controller') }}</mat-error>
+        <mat-form-field>
+          <mat-label>Admin Server Hostname</mat-label>
+          <input matInput formControlName="admin_server">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(kerberosForm, 'admin_server') }}</mat-error>
+      </form>
+    </mat-step>
+    <mat-step label="Protocol Configuration" *ngIf="isNegOrNTLM" [stepControl]="ntlmForm">
+      <form [formGroup]="ntlmForm">
+        <mat-checkbox formControlName="is_ssl" (change)="changePortIfNotDirty($event)">SSL</mat-checkbox>
+        <mat-form-field>
+          <mat-label>Port</mat-label>
+          <input matInput formControlName="port">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(ntlmForm, 'port') }}</mat-error>
+        <p>
+          {{ dnsInstructions }}
+        </p>
+        <mat-form-field>
+          <mat-label>Windows DNS Suffix</mat-label>
+          <input matInput formControlName="domain_name">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>DNS Server IP</mat-label>
+          <input matInput formControlName="dns_server">
+        </mat-form-field>
+      </form>
+    </mat-step>
+    <mat-step label="SMB Configuration" *ngIf="isSMB" [stepControl]="smbForm">
+      <form [formGroup]="smbForm">
+        <mat-form-field>
+          <mat-label>Port</mat-label>
+          <input matInput formControlName="port">
+        </mat-form-field>
+        <mat-error >{{ getErrorMessage(smbForm, 'port') }}</mat-error>
+        <p>
+          {{ dnsInstructions }}
+        </p>
+        <mat-form-field>
+          <mat-label>Windows DNS Suffix</mat-label>
+          <input matInput formControlName="domain_name">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>DNS Server IP</mat-label>
+          <input matInput formControlName="dns_server">
+        </mat-form-field>
+      </form>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [disabled]="!isWizardValid()" (click)="submitAndClose()">Add Configuration</button>
+</div>

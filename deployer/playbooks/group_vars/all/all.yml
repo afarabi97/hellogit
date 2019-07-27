@@ -16,7 +16,8 @@ additional_repo_info:
   kube:
     name: "kubernetes"
     baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
-    gpgkeyurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+    # gpgkeyurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+    gpgkeyurl: "https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
     gpgkeyname: "yum-key.gpg"
     gpgcheck: true
     description: "kubernetes repo"

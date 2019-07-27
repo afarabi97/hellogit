@@ -23,7 +23,7 @@ def netmask_to_cidr(netmask: str) -> int:
 def filter_ip(ipaddress: str) -> bool:
     """
     Filters IP addresses from NMAP functions commands.
-    :return: 
+    :return:
     """
     if ipaddress.endswith('.0'):
         return True
@@ -67,7 +67,7 @@ def hash_file(some_path: Union[str, Path], chunk_size=8192) -> Dict:
     sha1 = hashlib.sha1()
     sha256 = hashlib.sha256()
 
-    with open(str(path), 'rb') as fp:        
+    with open(str(path), 'rb') as fp:
         while True:
             chunk = fp.read(chunk_size)
             if chunk:
@@ -86,3 +86,39 @@ def tar_folder(folder_to_tar: str, path_of_archive: str):
 
     return ValueError("%s does not exist or is not a directory" % folder_to_tar)
 
+
+def fix_hostname(dns_suffix: str, hostname_or_ip: str):
+    """
+    Ensures that a windows hostname is in the proper format based on what is passed in.
+
+    :return fixed hostname:
+    """
+    def isIpv4Address(s: str) -> bool:
+        pieces = s.split('.')
+        if len(pieces) != 4: return False
+        try: return all(0<=int(p)<256 for p in pieces)
+        except ValueError: return False
+
+    if isIpv4Address(hostname_or_ip):
+        pass # Exit if block and return the address.
+    elif len(dns_suffix) > 0 and dns_suffix not in hostname_or_ip:
+        return hostname_or_ip + "." + dns_suffix
+
+    return hostname_or_ip
+
+
+def sanitize_dictionary(payload: Dict):
+    """
+    Function will recursibley loop through a dictionary and remove all the spaces on all strings found.
+    """
+    for key in payload:
+        if isinstance(payload[key], str):
+            payload[key] = payload[key].strip()
+        elif isinstance(payload[key], dict):
+            sanitize_dictionary(payload[key])
+        elif isinstance(payload[key], list):
+            for index, item in enumerate(payload[key]):
+                if isinstance(item, str):
+                    payload[key][index] = payload[key][index].strip()
+                elif isinstance(item, Dict):
+                    sanitize_dictionary(item)

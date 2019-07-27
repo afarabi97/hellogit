@@ -1,6 +1,0 @@
-- name: Install Windows Monitoring Agents
-  hosts:
-    - localhost
-  roles:
-    - windows_remote_installer
-  gather_facts: no

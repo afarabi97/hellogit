@@ -38,6 +38,8 @@ packages:
   - inotify-tools
   - iperf
   - jq
+  - krb5-devel
+  - krb5-workstation
   - "kubelet-{{ k8s_version }}"
   - mod_ssl
   - mongodb-org
