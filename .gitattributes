@@ -1,0 +1,10 @@
+* text eol=lf
+
+*.png binary
+*.jpg binary
+*.exe binary
+*.zip binary
+*.svc binary
+*.gif binary
+*.pcap binary
+*.trace binary
