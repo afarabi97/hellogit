@@ -174,9 +174,6 @@ class Runner:
                 # Returns a list of kit objects
                 self.kit = transform(self.configuration["kit"])  # type: Kit
 
-                for node in self.kit.nodes:
-                    print(str(node.suricata_catalog))
-
                 if self.args.tfplenum_commit_hash is not None:
                     self.kit.set_branch_name(self.args.tfplenum_commit_hash)
 

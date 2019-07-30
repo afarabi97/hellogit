@@ -11,9 +11,6 @@
 - set_fact:
     indices: "{{ indices_json | map(attribute='index') | map('regex_search',index_regex) | select('string') | list }}"
 
-- debug:
-    msg: "{{ indices }}"
-
 - set_fact:
     index_data: []
 

@@ -182,16 +182,27 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
 def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
     current_path=os.getcwd()
     reports_destination="reports/"
-    if "jenkins" not in current_path:
+    if "jenkins" not in current_path and "workspace" not in current_path:
         reports_destination=""
-    cmd_to_execute = ("export JUNIT_FAIL_ON_CHANGE='true' && \
+    reports_source = "/opt/tfplenum/testing/playbooks/reports"
+    cmd_to_list_reports = ("for i in " + reports_source + "/*; do echo $i; done")
+    cmd_to_mkdir = ("mkdir -p reports")
+    cmd_to_execute = ("export JUNIT_OUTPUT_DIR='"+ reports_source +"' && \
+        export JUNIT_FAIL_ON_CHANGE='true' && \
         ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
             root_password + "' site.yml")
     with FabricConnectionWrapper(ctrl_node.username,
                                  ctrl_node.password,
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
         with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
+            ctrl_cmd.run(cmd_to_mkdir)
+        with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
             ctrl_cmd.run(cmd_to_execute, shell=True)
+        reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
+        reports = reports_string_.replace("\r","").split("\n")
+        for report in reports:
+            filename = report.replace(reports_source + "/", "")
+            results = ctrl_cmd.get(report, reports_destination + filename)
 
 
 def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
@@ -354,9 +365,6 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         if node.type == "sensor":
             suricata_spec = vms[v]['catalog']['suricata']
             suricata_values = []
-            print(suricata_spec)
-            print(type(suricata_spec))
-
             node.set_suricata_catalog(suricata_spec)
 
         # Add node to list of nodes

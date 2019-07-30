@@ -123,6 +123,7 @@ pipeline {
                         sh(command)
                     }
                 }
+                junit 'reports/*.xml'
             }
         }
         stage('simulate power failure') {
@@ -155,6 +156,7 @@ pipeline {
                         sh(command)
                     }
                 }
+                junit 'reports/*.xml'
             }
         }
         stage('clean up test kits') {
