@@ -1,15 +1,11 @@
 ---
 
-- name: Create unclustered pcap directories
-  file:
-    path: "{{ fpc_path }}"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: "{{ moloch_dir_mode }}"
-    state: directory
-  delegate_to: "{{ item }}"
-  with_items:
-    - "{{ groups['moloch'] }}"
+- name: Flush Config
+  command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'
+
+- name: Create ConfigMap
+  shell: |
+    kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/config.ini
 
 - name: Run bootstrap job
   import_role:
@@ -22,50 +18,10 @@
 - name: Wait for bootstrap to end
   shell: "kubectl wait job/moloch-bootstrap --for=condition=complete --timeout=-1s"
 
-- name: Setup deployment info
-  set_fact:
-    moloch_deployments: "{{ moloch_deployments | default({}) | combine( {item: (item | regex_replace('\\.(lan)?$', '') | regex_replace('[^0-9a-zA-Z]', '')) + '-moloch'} ) }}"
-  loop: "{{ groups['moloch'] }}"
-
-- name: Deploy viewer service
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Moloch"
-    file_name: "{{ moloch_dir }}/viewer.yml"
-
-- name: Deploy capture services
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    resource_name: "{{ item.value }}"
-    file_name: "{{ moloch_dir }}/{{ item.key }}-deploy.yml"
-  loop: "{{ moloch_deployments | dict2items }}"
-
-- name: Wait for Moloch to be ready
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "deployments"
-    namespace: "default"
-    resource_name: "{{ item }}"
-    label: ""
-  loop: "{{ moloch_deployments.values() }}"
-
-- name: Wait for Moloch Viewer to be ready (if you get stuck here there's probably something wrong)
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "deployments"
-    namespace: "default"
-    resource_name: "moloch-viewer"
-    label: ""
-
 - name: Remove Bootstrap
   command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml
+
+- name: Flush Config
+  command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'
 
 ...

@@ -310,8 +310,7 @@
 
 - name: Deploy Moloch
   hosts:
-    - servers
-    - moloch
+    - master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

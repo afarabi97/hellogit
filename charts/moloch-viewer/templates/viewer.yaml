@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: moloch
+  name: moloch
+spec:
+  ports:
+  - name: "webgui"
+    port: 80
+    targetPort: {{ .Values.port }}
+  selector:
+    app: moloch-viewer
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moloch-viewer
+  labels:
+    component: moloch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moloch-viewer
+  template:
+    metadata:
+      labels:
+        component: moloch
+        app: moloch-viewer
+    spec:
+      containers:
+      - name: moloch-viewer
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "VIEWER"
+        ports:
+        - containerPort: {{ .Values.port }}
+          name: webgui
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+      volumes:
+      - name: configini
+        configMap:
+          name: {{.Release.Name}}
+      nodeSelector:
+        role: server

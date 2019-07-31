@@ -13,7 +13,7 @@
     mode: "{{ moloch_dir_mode }}"
     state: directory
 
-- name: Setup bootstrap and viewer deployments
+- name: Setup bootstrap and configini
   template:
     src: "templates/{{ item }}.j2"
     dest: "{{ moloch_dir }}/{{ item }}"
@@ -22,37 +22,7 @@
     mode: "{{ moloch_dir_mode }}"
   loop:
     - bootstrap.yml
-    - viewer.yml
-  when: inventory_hostname in groups['master_server']
-
-- name: Setup capture configs
-  template:
-    src: "templates/config.ini.j2"
-    dest: "{{ moloch_dir }}/config.ini"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: 0644
-  when: inventory_hostname in groups['moloch']
-
-- name: Setup viewer config
-  template:
-    src: "templates/config.ini.j2"
-    dest: "{{ moloch_dir }}/config.ini"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: 0644
-  when: inventory_hostname in groups['servers']
-
-- name: Setup deployment configs
-  template:
-    src: "templates/deploy.yml.j2"
-    dest: "{{ moloch_dir }}/{{ item }}-deploy.yml"
-    owner: "{{ moloch_user }}"
-    group: "{{ moloch_group }}"
-    mode: 0644
-  vars:
-    deployment_hostname: "{{ item }}"
-  loop: "{{ groups['moloch'] }}"
+    - config.ini
   when: inventory_hostname in groups['master_server']
 
 ...

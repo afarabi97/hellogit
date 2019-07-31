@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+data:
+  config.ini: |
+    [default]
+    elasticsearch=http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    rotateIndex=daily
+    passwordSecret=default-password
+    httpRealm=Moloch
+    interface={{- range  .Values.interfaces }}{{ . }};{{- end }}
+    bpf={{ .Values.bpf }}
+    dontSaveBPFs={{ .Values.dontSaveBPFs }}
+    pcapDir=/data/moloch/raw
+    maxFileSizeG={{ .Values.maxFileSizeG }}
+    tcpTimeout=10
+    tcpSaveTimeout=10
+    udpTimeout=30
+    icmpTimeout=10
+    maxStreams=14000000
+    maxPackets=10000
+    freeSpaceG={{ .Values.freespaceG }}%
+    viewPort=8005
+    geoLite2Country=/data/moloch/etc/GeoLite2-Country.mmdb
+    geoLite2ASN=/data/moloch/etc/GeoLite2-ASN.mmdb
+    rirFile=/data/moloch/etc/ipv4-address-space.csv
+    ouiFile=/data/moloch/etc/oui.txt
+    parseSMTP=true
+    parseSMB=true
+    parseQSValue=true
+    supportSha256=false
+    maxReqBody=64
+    config.reqBodyOnlyUtf8=true
+    smtpIpHeaders=X-Originating-IP:;X-Barracuda-Apparent-Source-IP:
+    parsersDir=/data/moloch/parsers
+    pluginsDir=/data/moloch/plugins
+    spiDataMaxIndices={{ .Values.spiDataMaxIndices }}
+    packetThreads={{ .Values.packetThreads }}
+    pcapWriteMethod={{ .Values.pcapWriteMethod }}
+    pcapWriteSize={{ .Values.pcapWriteSize }}
+    dbBulkSize={{ .Values.dbBulkSize }}
+    compressES=false
+    maxESConns={{ .Values.maxESConns }}
+    maxESRequests={{ .Values.maxESRequests }}
+    packetsPerPoll={{ .Values.packetsPerPoll }}
+    antiSynDrop=false
+    logEveryXPackets=100000
+    logUnknownProtocols=false
+    logESRequests=true
+    logFileCreation=true
+    magicMode={{ .Values.magicMode }}
+    pcapReadMethod=tpacketv3
+    tpacketv3NumThreads=2
+    tpacketv3BlockSize={{ .Values.tpacketv3BlockSize|int }}
+    maxPacketsInQueue={{ .Values.maxPacketsInQueue }}

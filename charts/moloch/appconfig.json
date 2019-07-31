@@ -1,0 +1,96 @@
+{
+    "id": "Moloch",
+    "type": "chart",
+    "node_affinity": "Sensor",
+    "formControls": [{
+          "type": "textinput",
+          "default_value": "1000m",
+          "description": "Enter Cpu Request",
+          "required": true,
+          "regexp": "",
+          "name": "cpu_requests",
+          "error_message": "Enter Correct Cpu Request"
+        },
+        {
+          "type": "checkbox",
+          "default_value": "thread-direct",
+          "description": "Moloch Full Pcap",
+          "required": false,
+          "regexp": "",
+          "trueValue": "thread-direct",
+          "falseValue": null,
+          "name": "pcapWriteMethod",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "invisible",
+          "default_value": "",
+          "description": "",
+          "required": true,
+          "regexp": "",
+          "name": "affinity_hostname"
+        },
+        {
+          "type": "invisible",
+          "default_value": "",
+          "description": "",
+          "required": "true",
+          "regexp": "",
+          "name": "node_hostname"
+        },
+        {
+          "type": "textinput",
+          "default_value": "",
+          "description": "Enter BPF",
+          "required": false,
+          "regexp": "",
+          "name": "bpf",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "textinput",
+          "default_value": "",
+          "description": "Enter dontSaveBPFs",
+          "required": false,
+          "regexp": "",
+          "name": "dontSaveBPFs",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "textinput",
+          "default_value": 1,
+          "description": "Enter freespaceG",
+          "required": false,
+          "regexp": "",
+          "name": "freespaceG",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "textinput",
+          "default_value": 25,
+          "description": "Enter maxFileSizeG",
+          "required": false,
+          "regexp": "",
+          "name": "maxFileSizeG",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "textinput",
+          "default_value": "basic",
+          "description": "Enter magicMode",
+          "required": false,
+          "regexp": "",
+          "name": "magicMode",
+          "error_message": "Enter Correct value"
+        },
+        {
+          "type": "interface",
+          "default_value": "",
+          "description": "Select You Network Interfaces",
+          "required": true,
+          "regexp": "",
+          "name": "interfaces",
+          "error_message": "Enter Correct value"
+      }
+    ]
+}

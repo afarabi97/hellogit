@@ -485,7 +485,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         } else if (control.type === "invisible") {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : hostname));
         } else if (control.type === "checkbox") {
-          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : false));
+          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value));
         } else if (control.type === "interface") {
           nodeControls.addControl(control.name, new FormControl([]))
           if(value) {
@@ -553,6 +553,22 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   isInvalidForm(node, control): boolean {
     let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
     return hostname_ctrl.controls[control.name].invalid;
+  }
+
+  checkboxValue(node, control) {
+    let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
+    let controlValue = hostname_ctrl.controls[control.name].value;
+    return controlValue === control.trueValue ? true : false;
+  }
+
+  checkboxSetValue(node, control) {
+    let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
+    let controlValue = hostname_ctrl.controls[control.name];
+    if( controlValue.value === true) {
+      controlValue.setValue(control.trueValue);
+    } else {
+      controlValue.setValue(control.falseValue);
+    }
   }
 
 }

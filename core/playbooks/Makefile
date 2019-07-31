@@ -62,7 +62,7 @@ bro:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro
 
 moloch:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch --extra-vars "run_option=install"
 
 logs:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs --extra-vars "run_option=reinstall"

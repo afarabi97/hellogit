@@ -38,8 +38,9 @@ def get_node_type(hostname: str) -> str:
     current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if kit_configuration:
         nodes = kit_configuration['form']['nodes']
-        node = list(filter(lambda node: node['hostname'] == hostname, nodes))[0]
-        return node['node_type']
+        node_list = list(filter(lambda node: node['hostname'] == hostname, nodes))
+        if len(node_list) == 1:
+            return node_list[0]['node_type']
     return None
 
 
@@ -143,9 +144,7 @@ def chart_info(chart_repo_uri: str, application: str) -> dict:
 
 def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> list:
     tiller_server = Tiller(tiller_server_ip)
-    nodes = get_nodes(details=False)
     deployed_apps = []
-
     try:
         chart_releases = tiller_server.list_releases()
         for c in chart_releases:
@@ -163,8 +162,9 @@ def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> li
                 if saved_values:
                     if "values" in saved_values:
                         if "node_hostname" in saved_values["values"]:
-                            node["hostname"] = saved_values["values"]["node_hostname"]
-                            node["node_type"] = get_node_type(node["hostname"])
+                            node["node_type"] = get_node_type(saved_values["values"]["node_hostname"])
+                            if node["node_type"]:
+                                node["hostname"] = saved_values["values"]["node_hostname"]
 
                 node["application"] = application
                 node["version"] = c.chart.metadata.version
@@ -173,7 +173,7 @@ def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> li
                 deployed_apps.append(node)
     except Exception as exc:
         logger.error(exc)
-        print(exc)
+        print("ERROR: " + str(exc))
         return exc
     return deployed_apps
 

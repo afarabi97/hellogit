@@ -123,6 +123,12 @@ kit:
         - "CDROM"
         - "DISK"
         - "ETHERNET"
+      catalog:
+        moloch-viewer:
+          node_hostname: "server"
+          user: "assessor"
+          pass: "password"
+          deployment_name: "server-moloch-viewer"
     test2-sensor1.lan:
       type: "sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
@@ -177,3 +183,16 @@ kit:
           interfaces:
             - "ens224"
           node_hostname: "test2-sensor1.lan"
+        moloch-capture:
+          cpu_requests: "1000m"
+          pcapWriteMethod: "thread-direct"
+          affinity_hostname: "test2-sensor1.lan"
+          node_hostname: "test2-sensor1.lan"
+          bpf: ""
+          dontSaveBPFs: ""
+          freespaceG: 1
+          maxFileSizeG: 25
+          magicMode: "basic"
+          interfaces:
+            - "ens224"
+          deployment_name: "test2-sensor1-moloch"

@@ -198,6 +198,96 @@ class CatalogSuricata(object):
     def __str__(self) -> str:
         return "affinity_hostname: %s cpu_requests: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_requests, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
 
+class CatalogMolochViewer(object):
+    """
+    Represents a suricata catalog object and all the variables inside it
+
+    Attributes:
+        deployment_name: Name of the deployment set sent to kubenetes
+        node_hostname: Name of sensor
+        password: password for moloch login
+        username: username for moloch login
+    """
+
+    def __init__(self, yml_dict: Dict) -> None:
+        """
+        Initializes a NodeDisk object
+
+        :param name: Name of the disk
+        :param size: Size of the disk in GB
+        :return:
+        """
+        self.deployment_name = yml_dict['deployment_name']
+        self.node_hostname = yml_dict['node_hostname']
+        self.password = yml_dict['pass']
+        self.username = yml_dict['user']
+    def to_dict(self):
+        return {
+            'deployment_name': self.deployment_name,
+            'node_hostname': self.node_hostname,
+            'pass': self.password,
+            'user': self.username
+        }
+
+    def __str__(self) -> str:
+        return "deployment_name: %s node_hostname: %s pass: %s user: %s" % (self.deployment_name, self.node_hostname, self.password, self.username)
+
+class CatalogMolochCapture(object):
+    """
+    Represents a suricata catalog object and all the variables inside it
+
+    Attributes:
+        cpu_requests: CPU request sent to kubenetes
+        pcapWriteMethod: Wether moloch writes or not
+        affinity_hostname: Name of sensor
+        node_hostname: Name of sensor
+        bpf: Filter that write to PCAP
+        dontSaveBPFs: Filter that dont write to PCAP
+        freespaceG: Free space left
+        maxFileSizeG: Max file size for each pcap file
+        magicMode: Magic Mode
+        interfaces: Monitoring interface Moloch uses
+        deployment_name: Name of the deployment set sent to kubenetes
+    """
+
+    def __init__(self, yml_dict: Dict) -> None:
+        """
+        Initializes a NodeDisk object
+
+        :param name: Name of the disk
+        :param size: Size of the disk in GB
+        :return:
+        """
+        self.cpu_requests = yml_dict['cpu_requests']
+        self.pcapWriteMethod = yml_dict['pcapWriteMethod']
+        self.affinity_hostname = yml_dict['affinity_hostname']
+        self.node_hostname = yml_dict['node_hostname']
+        self.bpf = yml_dict['bpf']
+        self.dontSaveBPFs = yml_dict['dontSaveBPFs']
+        self.freespaceG = yml_dict['freespaceG']
+        self.maxFileSizeG = yml_dict['maxFileSizeG']
+        self.magicMode = yml_dict['magicMode']
+        self.interfaces = yml_dict['interfaces']
+        self.deployment_name = yml_dict['deployment_name']
+
+    def to_dict(self):
+        return {
+            'cpu_requests': self.cpu_requests,
+            'pcapWriteMethod': self.pcapWriteMethod,
+            'affinity_hostname': self.affinity_hostname,
+            'node_hostname': self.node_hostname,
+            'bpf': self.bpf,
+            'dontSaveBPFs': self.dontSaveBPFs,
+            'freespaceG': self.freespaceG,
+            'maxFileSizeG': self.maxFileSizeG,
+            'magicMode': self.magicMode,
+            'interfaces': self.interfaces,
+            'deployment_name': self.interfaces
+        }
+
+    def __str__(self) -> str:
+        return "cpu_requests: %s pcapWriteMethod: %s affinity_hostname: %s node_hostname: %s bpf: %s dontSaveBPFs: %s freespaceG: %s maxFileSizeG: %s magicMode: %s interfaces: %s deployment_name: %s" % (self.cpu_requests, self.pcapWriteMethod, self.affinity_hostname, self.node_hostname, self.bpf, self.dontSaveBPFs, self.freespaceG, self.maxFileSizeG, self.magicMode, self.interfaces, self.deployment_name )
+
 class Node(object):
 
     #A static list of valid node types that are allowed
@@ -448,6 +538,24 @@ class Node(object):
         :return:
         """
         self.suricata_catalog = CatalogSuricata(suricata_catalog)
+
+    def set_moloch_viewer_catalog(self, moloch_viewer_catalog: Dict) -> None:
+        """
+        Configures the suricata catalog configuration for the node object.
+
+        :param suricata_catalog:
+        :return:
+        """
+        self.moloch_viewer_catalog = CatalogMolochViewer(moloch_viewer_catalog)
+
+    def set_moloch_capture_catalog(self, moloch_capture_catalog: Dict) -> None:
+        """
+        Configures the suricata catalog configuration for the node object.
+
+        :param suricata_catalog:
+        :return:
+        """
+        self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)
 
     def __str__(self) -> str:
         p_interfaces = '\n'.join([str(x) for x in self.interfaces])

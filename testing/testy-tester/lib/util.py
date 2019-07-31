@@ -366,8 +366,13 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
         # set catalog info
         if node.type == "sensor":
             suricata_spec = vms[v]['catalog']['suricata']
-            suricata_values = []
             node.set_suricata_catalog(suricata_spec)
+            moloch_capture_spec = vms[v]['catalog']['moloch-capture']
+            node.set_moloch_capture_catalog(moloch_capture_spec)
+
+        if node.type == "master_server":
+            moloch_viewer_spec = vms[v]['catalog']['moloch-viewer']
+            node.set_moloch_viewer_catalog(moloch_viewer_spec)
 
         # Add node to list of nodes
         nodes.append(node)

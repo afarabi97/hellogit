@@ -1,0 +1,89 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: moloch
+    app: moloch-capture
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moloch-capture
+  template:
+    metadata:
+      labels:
+        component: moloch
+        app: moloch-capture
+    spec:
+      initContainers:
+      - name: init-sync-files
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /data/moloch/db/db.pl
+        - "{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"
+        - sync-files
+        - {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }}
+        - /data/moloch/raw/
+        securityContext:
+          privileged: true
+      hostNetwork: true
+      containers:
+      - name: "moloch"
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "CAPTURE"
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - SYS_RESOURCE
+        ports:
+          - containerPort: {{ .Values.port }}
+            name: webgui
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_requests }}
+          limits:
+            memory: {{ .Values.mem_limit }}
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+        - name: data
+          mountPath: {{ .Values.pcap_path }}
+      restartPolicy: Always
+      volumes:
+      - name: configini
+        configMap:
+          name: {{.Release.Name}}
+      - name: data
+        hostPath:
+          path: {{ .Values.fpc_path }}
+          type: DirectoryOrCreate
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - moloch-capture
+            topologyKey: "kubernetes.io/hostname"

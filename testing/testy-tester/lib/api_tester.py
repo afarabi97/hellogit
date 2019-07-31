@@ -1,5 +1,6 @@
 import json
 import requests
+import time
 
 from datetime import datetime
 from lib.connection_mngs import MongoConnectionManager
@@ -231,37 +232,67 @@ class CatalogPayloadGenerator:
         for node in self._kit.get_sensor_nodes():
             self._device_facts_map[node.management_interface.ip_address] = self._request_device_facts(node)
 
-    def _construct_selectedNode_part(self, node_affinity: str) -> List[Dict]:
-        node_parts = []
+    def _get_deployment_name(self, role:str, node) -> str:
+        if role == 'suricata':
+            return node.suricata_catalog.deployment_name
+        elif role == 'moloch-viewer':
+            return node.moloch_viewer_catalog.deployment_name
+        elif role == 'moloch':
+            return node.moloch_capture_catalog.deployment_name
+
+    def _get_catalog_dict(self, role: str, node) -> Dict:
+        if role == 'suricata':
+            return node.suricata_catalog.to_dict()
+        elif role == 'moloch-viewer':
+            return node.moloch_viewer_catalog.to_dict()
+        elif role == 'moloch':
+            return node.moloch_capture_catalog.to_dict()
+
+    def _construct_selectedNode_part(self, node_affinity: str, role: str) -> List[Dict]:
+
         all_parts = []
         if node_affinity == 'Server - Any':
             for server in self._kit.get_server_nodes():
-                srv_part = self._device_facts_map[server.management_interface.ip_address]
-                node_parts.append(srv_part)
+                is_master = server.type == Node.valid_node_types[0]
+                if is_master:
+                    srv_part = self._device_facts_map[server.management_interface.ip_address]
+                    deployment_name = self._get_deployment_name(role, server)
+                    deviceFacts = { "deviceFacts": srv_part,
+                                    "hostname" : "server",
+                                    "node_type" : "Server",
+                                    "deployment_name": deployment_name,
+                                    "management_ip_address": server.management_interface.ip_address}
+                    all_parts.append(deviceFacts)
         if node_affinity == 'Sensor':
             for sensor in self._kit.get_sensor_nodes():
                 ses_part = self._device_facts_map[sensor.management_interface.ip_address]
-
+                deployment_name = self._get_deployment_name(role, sensor)
                 deviceFacts = { "deviceFacts": ses_part,
                                 "hostname" : sensor.hostname,
                                 "node_type" : node_affinity,
-                                "deployment_name": sensor.suricata_catalog.deployment_name,
+                                "deployment_name": deployment_name,
                                 "management_ip_address": sensor.management_interface.ip_address,
                                 "is_remote": False}
                 all_parts.append(deviceFacts)
 
         return all_parts
 
-    def _construct_config_part(self, node_affinity: str) -> List[Dict]:
+    def _construct_config_part(self, node_affinity: str, role: str) -> List[Dict]:
         node_parts = []
         if node_affinity == 'Server - Any':
             for server in self._kit.get_server_nodes():
-                srv_part = { server.suricata_catalog.deployment_name : server.suricata_catalog.to_dict() }
-                node_parts.append(srv_part)
+                is_master = server.type == Node.valid_node_types[0]
+                if is_master:
+                    deployment_name = self._get_deployment_name(role, server)
+                    thedict = self._get_catalog_dict(role, server)
+                    srv_part = { deployment_name : thedict }
+                    node_parts.append(srv_part)
 
         if node_affinity == 'Sensor':
             for sensor in self._kit.get_sensor_nodes():
-                ses_part = { sensor.suricata_catalog.deployment_name : sensor.suricata_catalog.to_dict() }
+                deployment_name = self._get_deployment_name(role, sensor)
+                thedict = self._get_catalog_dict(role, sensor)
+                ses_part = { deployment_name : thedict }
                 node_parts.append(ses_part)
         return node_parts
 
@@ -270,16 +301,16 @@ class CatalogPayloadGenerator:
             "role": role,
             "process": {
                 "selectedProcess":  process,
-                "selectedNodes": self._construct_selectedNode_part(node_affinity),
+                "selectedNodes": self._construct_selectedNode_part(node_affinity, role),
             },
-            "configs": self._construct_config_part(node_affinity)
+            "configs": self._construct_config_part(node_affinity, role)
         }
         ret_val = post_request(self._url.format("/api/catalog/generate_values"), payload)
         valuesPayload = {
             "role": role,
             "process": {
                 "selectedProcess":  process,
-                "selectedNodes": self._construct_selectedNode_part(node_affinity),
+                "selectedNodes": self._construct_selectedNode_part(node_affinity, role),
                 "node_affinity": node_affinity
             },
             "values": ret_val
@@ -304,6 +335,13 @@ class APITester:
     def run_catalog_api_call(self) -> None:
         payload = self._catalog_payload_generator.generate("suricata","install","Sensor")
         response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("moloch-viewer","install","Server - Any")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("moloch","install","Sensor")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
 
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:

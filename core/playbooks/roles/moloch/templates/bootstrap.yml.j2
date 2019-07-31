@@ -25,18 +25,12 @@ spec:
           value: "{{ elastic_shortname }}"
         volumeMounts:
         - name: configini
+          subPath: config.ini
           mountPath: {{ moloch_path }}/etc/config.ini
       volumes:
       - name: configini
-        hostPath:
-          path: {{ moloch_dir }}/config.ini
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: moloch
-                operator: In
-                values:
-                  - "true"
+        configMap:
+          name: moloch-bootstrap
+      nodeSelector:
+        role: server
       restartPolicy: Never
