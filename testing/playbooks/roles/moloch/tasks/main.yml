@@ -26,11 +26,6 @@
 
 - name: Test | Check moloch Helm Deployed
   assert:
-    that: releases is defined and releases != ""
-    msg: "Failed to determine if moloch is installed"
-
-- name: Test | Check moloch Helm Deployed
-  assert:
     that: "'DEPLOYED' in item.Status"
     msg: "Failed to determine if moloch is installed"
   when: releases is defined and releases != ""

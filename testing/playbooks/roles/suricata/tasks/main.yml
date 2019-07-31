@@ -24,11 +24,6 @@
     - "'DEPLOYED' in item.Status"
   with_items: "{{ releases }}"
 
-- name: Test | Check Suricata Helm Deployed
-  assert:
-    that: releases is defined and releases != ""
-    msg: "Failed to determine if suricata is installed"
-
 - name: Test | Check suricata Helm Deployed
   assert:
     that: "'DEPLOYED' in item.Status"

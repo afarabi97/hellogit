@@ -8,3 +8,9 @@
 *.gif binary
 *.pcap binary
 *.trace binary
+*.pdf binary
+*.vsdx binary
+*.eot binary
+*.ttf binary
+*.woff binary
+*.otf binary

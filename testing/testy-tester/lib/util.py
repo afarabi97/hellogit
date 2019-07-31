@@ -270,10 +270,12 @@ def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
     new_gateway_ip = curr_ip[0] + '.' + curr_ip[1] + '.' + network_ip[2] + '.' + '1'
     cmd = ("/bin/nmcli con mod 'System " + node.management_interface.name + "' ipv4.addresses " +
            new_management_ip + "/24 ipv4.gateway " + new_gateway_ip)
-    print(cmd)
+    # TODO: When we get pfsense setup on testing portgroup
+    #update_openvpn = ("/usr/bin/sed -i '/remote/s/.*remote.*/remote '" + kit.pfsense_external_ip + "' 1194/' /etc/openvpn/client/client.conf")
     with FabricConnectionWrapper(node.username,
             node.password,
             node.management_interface.ip_address) as client:
+        #client.run(update_openvpn)
         client.run(cmd)
         try:
             client.run("shutdown -h now")

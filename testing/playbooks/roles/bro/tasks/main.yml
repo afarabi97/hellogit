@@ -26,11 +26,6 @@
 
 - name: Test | Check Bro Helm Deployed
   assert:
-    that: releases is defined and releases != ""
-    msg: "Failed to determine if bro is installed"
-
-- name: Test | Check Bro Helm Deployed
-  assert:
     that: "'DEPLOYED' in item.Status"
     msg: "Failed to determine if bro is installed"
   when: releases is defined and releases != ""
