@@ -14,6 +14,7 @@ from lib.model.node import VirtualMachine
 from lib.model.node import Node
 from lib.model.host_configuration import HostConfiguration
 from typing import List
+from lib.util import retry
 
 
 def _get_obj(content: vim.ServiceInstanceContent, vimtype: List[str], name: str):
@@ -171,6 +172,7 @@ def wait_for_task(task) -> None:
             task_done = True
 
 
+@retry(count=10, time_to_sleep_between_retries=15)
 def create_client(host_configuration: HostConfiguration) -> VsphereClient:
     """
     Creates a vSphere client from the given configuration
@@ -371,7 +373,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     :param controller (Node): The controller node we wish to clone
     :return:
     """
-    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance    
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
 
     # With this we are searching for the MOID of the VM to clone from
     template_vm = get_vm_by_name(s, controller.vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
@@ -405,7 +407,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
         wait_for_task(
             template_vm.Clone(
                 name=controller.hostname,
-                folder=template_vm.parent, 
+                folder=template_vm.parent,
                 spec=clone_spec))
     Disconnect(s)
 
@@ -439,8 +441,8 @@ def destroy_vms(nodes: List[Node], client: VsphereClient, host_configuration: Ho
     :param host_configuration (HostConfiguration): host_configuration object from yaml config
     :return:
     """
-    
-    for node in nodes:        
+
+    for node in nodes:
         logging.info("Cleaning up VM " + node.hostname + "...")
         vm_instance = VirtualMachine(client, node, host_configuration)
         vm_instance.cleanup()
@@ -477,7 +479,7 @@ def get_all_vms(kit: Kit, client: VsphereClient, host_configuration: HostConfigu
     """
 
     vms = []  # type: list
-    for node in kit.nodes:        
+    for node in kit.nodes:
         logging.info("Getting VM " + node.hostname + "...")
         vm_instance = VirtualMachine(client, node, host_configuration)
         vm_instance.get_node_instance()
