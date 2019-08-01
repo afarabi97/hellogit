@@ -244,7 +244,8 @@ cat <<EOF > /etc/yum.repos.d/ansible.repo
 [ansible]
 baseurl=https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/
 enable=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub
 name=ansible
 EOF
 
@@ -262,19 +263,22 @@ cat <<EOF > /etc/yum.repos.d/labrepo-rhel.repo
 name=labrepos rhel-7-server-extras-rpms
 baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-extras-rpms
 enabled=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-optional-rpms]
 name=labrepos rhel-7-server-extras-rpms
 baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-optional-rpms
 enabled=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-rpms]
 name=labrepos rhel-7-server-extras-rpms
 baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-rpms
 enabled=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 EOF
 
     elif [ "$RHEL_SOURCE_REPO" == "public" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then

@@ -18,6 +18,7 @@ additional_repo_info:
     baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
     gpgkeyurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
     gpgkeyname: "yum-key.gpg"
+    gpgcheck: true
     description: "kubernetes repo"
     # Required because kube public repo uses relative path so this is a hack to fix it
     download_path: "{{ tfplenumoffline_dir }}/tmp"
@@ -26,6 +27,7 @@ additional_repo_info:
     baseurl: "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/"
     gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.0.asc"
     gpgkeyname: "server-4.0.asc"
+    gpgcheck: true
     description: "MongoDB Repository"
     download_path: "{{ tfplenumoffline_dir }}"
   ansible:
@@ -33,6 +35,7 @@ additional_repo_info:
     baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
     gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
     gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
+    gpgcheck: true
     description: "Ansible Repo"
     download_path: "{{ tfplenumoffline_dir }}"
   docker_ce:
@@ -40,6 +43,7 @@ additional_repo_info:
     baseurl: "https://download.docker.com/linux/centos/7/$basearch/stable"
     gpgkeyurl: "https://download.docker.com/linux/centos/gpg"
     gpgkeyname: "gpg"
+    gpgcheck: true
     description: "Docker CE repo"
     download_path: "{{ tfplenumoffline_dir }}"
   crio:
@@ -47,6 +51,7 @@ additional_repo_info:
     baseurl: "https://cbs.centos.org/repos/paas7-crio-113-candidate/x86_64/os/"
     gpgkeyurl: ""
     gpgkeyname: ""
+    gpgcheck: true
     description: "crio repo"
     download_path: "{{ tfplenumoffline_dir }}"
 
@@ -60,25 +65,25 @@ epel_repo:
     failovermethod: "priority"
     download_path: "{{ tfplenumoffline_dir }}"
 
-labrepo_gpg_keys:
-  epel:
-    name: "epel"
-    gpgkeyurl: "http://yum.labrepo.lan/epel/RPM-GPG-KEY-EPEL-7"
-    gpgkeyname:  "RPM-GPG-KEY-EPEL-7"
-  kube:
-    name: "kubernetes"
-    gpgkeyurl: "http://yum.labrepo.lan/kubernetes/yum-key.gpg"
-    gpgkeyname: "yum-key.gpg"
-  mongo:
-    name: "mongodb-org-4.0"
-    gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
-    gpgkeyname: "server-4.0.asc"
+# labrepo_gpg_keys:
+#   epel:
+#     name: "epel"
+#     gpgkeyurl: "http://yum.labrepo.lan/epel/RPM-GPG-KEY-EPEL-7"
+#     gpgkeyname:  "RPM-GPG-KEY-EPEL-7"
+#   kube:
+#     name: "kubernetes"
+#     gpgkeyurl: "http://yum.labrepo.lan/kubernetes/yum-key.gpg"
+#     gpgkeyname: "yum-key.gpg"
+#   mongo:
+#     name: "mongodb-org-4.0"
+#     gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
+#     gpgkeyname: "server-4.0.asc"
 
-gpg_keys:
-  - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-  - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
-  - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-  - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
+# gpg_keys:
+#   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+#   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+#   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+#   - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
 
 pip_downloads:
   - docker
