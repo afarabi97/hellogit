@@ -73,59 +73,53 @@ janitor:
 mumble:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t mumble
 
-endgame:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
-
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble
 
 helm-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 chartmuseum-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch --extra-vars "run_option=reinstall"
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,logstash,kibana,metrics,logs,bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 logstash-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metrics,logs,bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logstash,kibana,metrics,logs,bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,bro,moloch,janitor,mumble,endgame "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,bro,moloch,janitor,mumble "run_option=install"
 
 metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,bro,moloch,janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,bro,moloch,janitor,mumble
 
 bro-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t bro,moloch,janitor,mumble --extra-vars "run_option=install"
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,mumble,endgame --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,mumble --extra-vars "run_option=install"
 
 janitor-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor,mumble,endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor,mumble
 
 mumble-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t mumble,endgame
-
-engame-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t endgame
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t mumble
 
 add-node:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e node_to_add=$(NODE) -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --ask-pass

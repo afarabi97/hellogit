@@ -1,3 +1,0 @@
----
-
-endgame_dir: "{{ install_dir }}/endgame"

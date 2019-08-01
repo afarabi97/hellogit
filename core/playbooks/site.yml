@@ -333,17 +333,6 @@
   tags:
     - logs
 
-- name: Enable Endgame script on master server
-  hosts: master_server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - endgame
-  tags:
-    - endgame
-
 - name: Enable janitor script on master server
   hosts: master_server
   gather_facts: no

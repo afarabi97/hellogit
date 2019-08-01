@@ -1,0 +1,37 @@
+---
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: endgame2elastic
+  labels:
+    component: endgame2elastic
+spec:
+  schedule: "*/{{ .Values.run_every }} * * * *"
+  startingDeadlineSeconds: 300
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      labels:
+        component: endgame2elastic
+    spec:
+      template:
+        metadata:
+          labels:
+            component: endgame2elastic
+        spec:
+          containers:
+          - name: endgame2elastic
+            image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
+            command:
+            - python3
+            - /app.py
+            - "{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"
+            - "{{ .Values.endgame_host }}"
+            - "{{ .Values.endgame_username }}"
+            - "{{ .Values.endgame_password }}"
+          restartPolicy: OnFailure
+          nodeSelector:
+            role: server
+
+...

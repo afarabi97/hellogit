@@ -39,6 +39,14 @@
             }
           }
         },
+        "up_time":{
+          "type":"text",
+          "fields":{
+            "keyword":{
+              "type":"keyword"
+            }
+          }
+        },
         "sensor_info": {
           "dynamic":true,
           "properties":{

@@ -1,6 +1,8 @@
-from __future__ import print_function
+#!/usr/bin/python3
+
 import sys
 from elasticsearch import Elasticsearch
+from elasticsearch.client.indices import IndicesClient
 from elasticsearch.client.ingest import IngestClient
 from elasticsearch.helpers import scan, streaming_bulk
 from elasticsearch.exceptions import NotFoundError
@@ -8,7 +10,6 @@ import RestResponse
 import requests
 import json
 import urllib
-import urlparse
 from datetime import datetime, timedelta
 
 pipeline = {
@@ -26,31 +27,15 @@ pipeline = {
         }
       },
       {
-        "set": {
-          "if": "ctx.local_address == '[::]'",
-          "field": "local_address",
-          "value": "0.0.0.0"
+        "script": {
+          "if": "ctx.local_address != null && ctx.local_address.substring(0,1) == '[' && ctx.local_address.substring(ctx.local_address.length()-1) == ']'",
+          "source": "ctx.local_address = ctx.local_address.substring(1,ctx.local_address.length()-1)"
         }
       },
       {
-        "set": {
-          "if": "ctx.local_address == '[::1]'",
-          "field": "local_address",
-          "value": "127.0.0.1"
-        }
-      },
-      {
-        "set": {
-          "if": "ctx.remote_address == '[::]'",
-          "field": "remote_address",
-          "value": "0.0.0.0"
-        }
-      },
-      {
-        "set": {
-          "if": "ctx.remote_address == '[::1]'",
-          "field": "remote_address",
-          "value": "127.0.0.1"
+        "script": {
+          "if": "ctx.remote_address != null && ctx.remote_address.substring(0,1) == '[' && ctx.remote_address.substring(ctx.remote_address.length()-1) == ']'",
+          "source": "ctx.remote_address = ctx.remote_address.substring(1,ctx.remote_address.length()-1)"
         }
       },
       {
@@ -105,15 +90,15 @@ class Endgame:
 
     def get(self, endpoint, params={}):
         response_raw = requests.get(self.url(endpoint), params=params, verify=False, headers=self.headers)
-        response_json = json.loads(response_raw.text.decode('raw_unicode_escape').encode('ascii', 'replace')) # Unicode causes problems for us
+        response_json = json.loads(response_raw.content.decode('raw_unicode_escape').encode('ascii', 'replace')) # Unicode causes problems for us
         response = RestResponse.parse(response_json)
         next_endpoint = None
         if response.metadata.next_url:
-            cur_path, _, cur_params_raw = urlparse.urlparse(response_raw.url)[2:5]
-            cur_params = dict(urlparse.parse_qsl(cur_params_raw))
-            new_params = dict(urlparse.parse_qsl(urlparse.urlparse(response.metadata.next_url)[4]))
+            cur_path, _, cur_params_raw = urllib.parse.urlparse(response_raw.url)[2:5]
+            cur_params = dict(urllib.parse.parse_qsl(cur_params_raw))
+            new_params = dict(urllib.parse.parse_qsl(urllib.parse.urlparse(response.metadata.next_url)[4]))
             cur_params.update(new_params) # Write the EG-provided parameters over existing parameters
-            next_endpoint = cur_path + '?' + urllib.urlencode(cur_params)
+            next_endpoint = cur_path + '?' + urllib.parse.urlencode(cur_params)
         return response, next_endpoint
 
     def collections(self):
@@ -175,6 +160,12 @@ class Endgame2Elastic:
                 pass
         raise ValueError('no valid date format found')
 
+    def pushTemplate(self, es):
+        p = IndicesClient(es)
+        with open("/template.json") as f:
+            template = json.loads(f.read())
+            p.put_template(name='endgame', body=template)
+
     def pushPipeline(self, es):
         p = IngestClient(es)
         p.put_pipeline(id='endgame', body=pipeline)
@@ -223,7 +214,7 @@ class Endgame2Elastic:
 
             for r in results:
                 # Make our data consistently typed
-                if r.user and not isinstance(r.user, basestring):
+                if r.user and not isinstance(r.user, str):
                     r.endgame_user = r.pop('user')
 
                 r.hostname = hostname
@@ -282,6 +273,7 @@ if len(sys.argv) != 5:
 
 es = Elasticsearch(sys.argv[1])
 eg = Endgame2Elastic(toUrl(sys.argv[2]), sys.argv[3], sys.argv[4])
+eg.pushTemplate(es)
 eg.pushPipeline(es)
 eg.prepareForDelta(es)
 for result in streaming_bulk(es, eg.getCollections(), max_retries=2, yield_ok=False):
