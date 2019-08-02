@@ -5,7 +5,7 @@ host_configuration:
     cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
   storage:
-    datastore: "NVMe Storage"
+    datastore: "dev_datastore1"
     folder: "Testing"
   iso_folder_path: "/root/"
 
@@ -42,7 +42,7 @@ kit:
       # For us that will likely be: RHEL_7_64, CENTOS_7_64, VMWARE_PHOTON_64, or UBUNTU_64
       # Sorry Holden, you're on your own for arch. They didn't have it in the guest list
       vm_guestos: RHEL_7_64
-      vm_to_clone: "NVMEe Test Template"
+      vm_to_clone: "Test Template"
       domain: 'lan'
       gateway: "172.16.82.1"
       dns:
@@ -81,8 +81,8 @@ kit:
         size: 8 # This value is in GiB
         hot_add_enabled: False
       disks:
-        boot: 200 # Name of disk followed by capacity in GiBs
-      iso_file: "rhel-server-7.4-x86_64-dvd.iso"
+        boot: 30 # Name of disk followed by capacity in GiBs
+      iso_file: "rhel-server-7.6-x86_64-dvd.iso"
       boot_order: # Valid options are CDROM, DISK, and ETHERNET
         - "CDROM" # CDROM will be ignored if iso_file is None
         - "DISK"
