@@ -3,21 +3,24 @@
 
 
 .project-card {
-  background:#fff;
+  // background:#fff;
   box-shadow:0 .13em 3px .04em rgba(0,0,0,.12);
   cursor:pointer;
   display:block;
   font-weight:400;
   transition:box-shadow .1s ease-out;
   user-select:none;
+  // background:linear-gradient(to right,#444444 0,#222222 100%);overflow:hidden;
+    background:#272727;
 }
 .project-card:hover{
   box-shadow:0 .2em 6px .1em rgba(0,0,0,.15);
 }
 .project-card .card-header{
-  background:#f7f7f7;
-  background:linear-gradient(to right,#fcfcfc 0,#f7f7f7 100%);overflow:hidden;
+  // background:#f7f7f7;
+  background:linear-gradient(to right,#222222 0,#444444 100%);overflow:hidden;
   position:relative;
+  color: white;
 }
 .project-card .card-header > div{
   display:flex;
@@ -37,6 +40,7 @@
 }
 .project-card .card-body{
   padding:20px;
+  color:white;
 }
 
   @-webkit-keyframes zoom-out-and-in{
@@ -65,7 +69,7 @@
     height:136px;
     margin:0;
     overflow:hidden;
-    color:black;
+    color:white;
   }
 
 

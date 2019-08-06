@@ -129,6 +129,7 @@ def chart_info(chart_repo_uri: str, application: str) -> dict:
     info["formControls"] = None
     info["type"] = "chart"
     info["node_affinity"] = "Server - Any"
+    info["devDependent"] = None
     appconfig = None
 
     files = helm_chart.files
@@ -139,6 +140,8 @@ def chart_info(chart_repo_uri: str, application: str) -> dict:
         info["formControls"] = appconfig["formControls"]
         info["type"] = appconfig["type"]
         info["node_affinity"] = appconfig["node_affinity"]
+        if "devDependent" in appconfig:
+            info["devDependent"] = appconfig["devDependent"]
 
     return info
 

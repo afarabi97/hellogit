@@ -45,7 +45,6 @@ export class NotificationsComponent implements OnInit {
       this.newNotifications.push(message);
       this.makeArray(message);
     });
-
   }
 
   /**

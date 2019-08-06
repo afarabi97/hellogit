@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
 import { ConfigmapsComponent } from 'src/app/configmaps/configmaps.component';
 import { ArchiveSaveDialogComponent } from 'src/app/archive-save-dialog/archive-save-dialog.component';
+import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 
 @Component({
   selector: 'app-catalog-page',
@@ -88,20 +89,45 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         "name": "Upgrade",
         "children": []
       }];
+      this.isDevDependent();
 
       this._CatalogService.getByString("chart/" + this.chart.id + "/status").subscribe(statusGroup => {
         this.statuses = statusGroup;
-        // if ( statusGroup.length !== 0) {
-        //   statusGroup.map(status => {
-        //     this.manageState(status);
-        //   });
-        // } else {
           this.manageState();
-        // }
       });
 
       this._CatalogService.getByString(this.chart.id + "/saved_values").subscribe(values => {
         this.savedValues = values.length !== 0 ? values : null;
+      });
+
+    }
+  }
+
+  /**
+   * checks to see if there is a dependent on the chart (ie need another chart installed first to work)
+   *
+   * @memberof CatalogPageComponent
+   */
+  isDevDependent() {
+    if(this.chart.devDependent) {
+      this._CatalogService.getByString("chart/" + this.chart.devDependent + "/status").subscribe(status => {
+        if(status.length === 0 ) {
+          const message = "This Chart is Dependent on " + this.chart.devDependent + " and it is not installed, are you sure you want to continue.";
+          const title = this.chart.id + " is Dependent on " + this.chart.devDependent;
+          const option1 = "Take Me Back";
+          const option2 = "continue ";
+
+          const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+            width: '35%',
+            data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
+          });
+
+          dialogRef.afterClosed().subscribe(result => {
+            if( result === option1) {
+              this.router.navigate(['/catalog']);
+            }
+          });
+        }
       });
     }
   }
@@ -143,7 +169,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           }
         });
           if( (this.chart.node_affinity === node.node_type)) {
-            let status = node.status ? node.status.status : undefined;
+            const status = node.status ? node.status.status : undefined;
             switch(status) {
               case 'DEPLOYED':
                 this.processList.map( process => {
@@ -221,7 +247,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   getConfig(stepper: MatStepper) {
     this.serverAny();
     this.configReady();
-    if (this.isReady == true ) {
+    if (this.isReady === true ) {
       this.makeFormgroup();
     }
     stepper.next();
@@ -298,7 +324,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this.content = data;
         this.processFormGroup.value.selectedNodes.map(nodes => {
           this.content.map( value => {
-          let ob = this.getMapValue(value, nodes.hostname);
+            const ob = this.getMapValue(value, nodes.hostname);
             if (ob !== null) {
               this.setValues(ob, nodes);
             }
@@ -339,7 +365,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   setValues(ob: any, nodes: any) {
-    let values = JSON.stringify(ob, undefined, 2);
+    const values = JSON.stringify(ob, undefined, 2);
     this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
     this.valueFormGroup.controls[ob.deployment_name].disable();
     nodes.deployment_name = ob.deployment_name;
@@ -435,8 +461,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.processFormGroup.controls['node_affinity'].setValue(this.chart.node_affinity);
     this.processFormGroup.value.selectedNodes.map(nodes => {
       this.valueFormGroup.controls[nodes.deployment_name].disable();
-      let hostname_ctrl = this.valueFormGroup.controls[nodes.deployment_name] as FormGroup;
-      let value = hostname_ctrl.value;
+      const hostname_ctrl = this.valueFormGroup.controls[nodes.deployment_name] as FormGroup;
+      const value = hostname_ctrl.value;
       this.valueFormGroup.controls[nodes.deployment_name].setValue(JSON.parse(value));
     });
 
@@ -496,7 +522,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    let deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname);
+    const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname);
     nodeControls.addControl("deployment_name", new FormControl(deploymentName));
     return nodeControls;
   }
@@ -511,8 +537,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   makeRegexGreatAgain(application: string, node_hostname: string): string {
-    let new_hostname = node_hostname.replace(/\.(lan)?$/, '');
-    let deployment_name = new_hostname + '-' + application;
+    const new_hostname = node_hostname.replace(/\.(lan)?$/, '');
+    let deployment_name;
+    this.chart.node_affinity === "Server - Any" ? deployment_name = application : deployment_name = new_hostname + '-' + application;
     return deployment_name;
   }
 
@@ -551,19 +578,19 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   isInvalidForm(node, control): boolean {
-    let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
+    const hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
     return hostname_ctrl.controls[control.name].invalid;
   }
 
   checkboxValue(node, control) {
-    let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
-    let controlValue = hostname_ctrl.controls[control.name].value;
+    const hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
+    const controlValue = hostname_ctrl.controls[control.name].value;
     return controlValue === control.trueValue ? true : false;
   }
 
   checkboxSetValue(node, control) {
-    let hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
-    let controlValue = hostname_ctrl.controls[control.name];
+    const hostname_ctrl = this.configFormGroup.controls[node.hostname] as FormGroup;
+    const controlValue = hostname_ctrl.controls[control.name];
     if( controlValue.value === true) {
       controlValue.setValue(control.trueValue);
     } else {

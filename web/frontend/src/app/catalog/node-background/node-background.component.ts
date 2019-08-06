@@ -14,4 +14,5 @@ export class NodeBackgroundComponent {
   @Input() color: string;
   @Input() size: any;
   @Input() zoomed: boolean = false;
+
 }

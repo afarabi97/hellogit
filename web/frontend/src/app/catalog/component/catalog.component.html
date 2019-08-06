@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center center">
+<div >
   <section class="charts">
       <header class="charts__header">
         <div class="charts__header__block">
@@ -7,10 +7,11 @@
           </h1>
         </div>
       </header>
-      <div class="charts__gallery">
-        <div class="charts__gallery__content">
-          <app-chart-list [charts]="charts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
-        </div>
+      <div *ngIf="_CatalogService.isLoading">
+          <app-chart-list class="charts__gallery__content" [charts]="charts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
+      </div>
+      <div *ngIf="!_CatalogService.isLoading">
+          <mat-progress-bar mode="indeterminate" style="margin-top: 80px"></mat-progress-bar>
       </div>
   </section>
 </div>

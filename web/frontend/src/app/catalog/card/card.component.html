@@ -1,9 +1,7 @@
 <div href="#"
     class="project-card"
-    (mouseenter)="this.hoverCard($event)"
-    (mouseleave)="this.hoverCard($event)"
-    (mouseover)="hovered=true"
-    (mouseout)="hovered=false"
+    (mouseenter)="this.hoverCard($event); hovered=true;"
+    (mouseleave)="this.hoverCard($event); hovered=false;"
     >
     <div class="card-header">
       <node-background
@@ -12,17 +10,17 @@
         [color]="hoverColor">
       </node-background>
       <div>
-        <h3 style="color:black">{{chart.application}}</h3>
+        <h3 style="color:white">{{chart.application}}</h3>
       </div>
     </div>
     <div class="card-body" >
-      <div class="body" *ngIf="!hovered" >{{chart.description}}</div>
-      <div class="body" *ngIf="hovered">
+      <div class="body" *ngIf="hovered" >{{chart.description}}</div>
+      <div class="body" *ngIf="!hovered">
         <div *ngIf="chart?.nodes?.length !== 0">
-          <p *ngFor="let node of chart.nodes" style="color:black">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</p>
+          <p *ngFor="let node of chart.nodes" style="color:white">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</p>
         </div>
         <div *ngIf="chart?.nodes?.length === 0">
-          <p style="color:black"> Not Installed </p>
+          <p style="color:white"> Not Installed </p>
         </div>
       </div>
 

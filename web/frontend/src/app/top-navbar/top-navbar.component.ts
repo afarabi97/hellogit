@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material/icon';
 import { CookieService } from '../services/cookies.service';
 
 
@@ -42,7 +40,7 @@ export class TopNavbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.showLinkNames = this.cookieService.get('isOpen') == 'true' ? true : false;
+    this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
   }
 
   openNotifications() {

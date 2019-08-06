@@ -2,16 +2,6 @@
 image: 'tfplenum/moloch'
 port: "8005"
 
-# User/Group and permissions for files copied
-user: "1000"
-group: "1000"
-dir_mode: "0660"
-exec_mode: "0755"
-
-# Username and password for Web login
-user: 'assessor'
-pass: 'password'
-
 # Location of moloch dirs/files
 dir: '/opt/tfplenum/moloch'
 path: '/data/moloch'
@@ -19,16 +9,14 @@ config_path: "/opt/tfplenum/moloch/etc"
 pcap_path: "/opt/tfplenum/moloch/raw"
 fpc_path: "/data/pcap"
 
-kibana_fqdn: kibana.default.svc.cluster.local
+# Kubenetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
-
 version: 1.7.0v3
 cpu_requests: 100m
 affinity_hostname: {}
 mem_limit: 7Gi
 
 # config options
-elastic_shortname: elasticsearch
 elastic_port: 9200
 interfaces: ["eth0"]
 bpf: ""

@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
+import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-card',
@@ -16,7 +17,9 @@ export class CardComponent{
    *Creates an instance of CardComponent.
    * @memberof CardComponent
    */
-  constructor() { }
+  constructor( private _CatalogService: CatalogService) {
+
+  }
 
 
   /**
@@ -39,13 +42,13 @@ export class CardComponent{
   getClassName() {
     if(this.chart.nodes !== undefined) {
       if( this.chart.nodes.length === 0 ) {
-        return 'accent';
+        return 'white';
       } else {
         return 'green';
       }
     }
+    return 'white';
   }
-
 
   /**
    * colors the button

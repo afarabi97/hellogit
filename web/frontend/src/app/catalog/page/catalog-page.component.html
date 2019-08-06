@@ -45,7 +45,6 @@
                             <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" formGroupName="{{sensor.hostname}}">
                               <mat-form-field>
                                 <input matInput formControlName="deployment_name" placeholder="Deployment Name" required>
-                                  <!-- <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error> -->
                               </mat-form-field>
                             </div>
                           <div *ngIf="chart?.formControls">
@@ -53,23 +52,22 @@
                                 <!-- Text Input -->
                                 <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'" >
                                     <mat-form-field>
-                                      <input matInput formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                      <input matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                                         <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                                     </mat-form-field>
                                 </div>
                                 <!-- checkbox -->
                                 <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'" >
-                                    <!-- <mat-form-field> -->
-                                        <mat-checkbox formControlName="{{control.name}}"
-                                                      [checked]="checkboxValue(sensor, control)"
-                                                      (change)="checkboxSetValue(sensor, control)"
-                                                      [required]="control?.required">{{control?.description}}</mat-checkbox>
-                                    <!-- </mat-form-field> -->
+                                  <mat-checkbox formControlName="{{control.name}}"
+                                                [checked]="checkboxValue(sensor, control)"
+                                                (change)="checkboxSetValue(sensor, control)"
+                                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'"
+                                                [required]="control?.required">{{control?.description}}</mat-checkbox>
                                 </div>
                                 <!-- Text Input List -->
                                 <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
                                     <mat-form-field>
-                                      <input matInput formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                      <input matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                                     </mat-form-field>
                                     <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                                 </div>

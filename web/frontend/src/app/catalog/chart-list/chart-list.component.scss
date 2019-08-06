@@ -7,7 +7,6 @@ $list-item-content-height: 200px;
 .list-item {
   border-radius: $border-radius;
   overflow: hidden;
-  border: 1px solid $border-color;
   transition: transform 0.2s ease;
   background-color: $background-light;
   flex-flow: row-reverse wrap;

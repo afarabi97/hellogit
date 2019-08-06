@@ -134,11 +134,6 @@
     msg: "fpc_path is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventory file. Add fpc_path: to inventory in all vars to resolve this error."
   when: fpc_path is not defined
 
-- name: Checking that pcap_disk is set
-  fail:
-    msg: "pcap_disk is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file."
-  when: inventory_hostname in groups['moloch'] and pcap_disk is not defined
-
 - name: Checking that moloch_threads is set
   fail:
     msg: "moloch_threads is not defined. Make sure it is defined in your inventory file. See sample inventory for help."

@@ -43,6 +43,7 @@ export class ChartInfo {
   type: string;
   version: string;
   node_affinity: string;
+  devDependent?: string;
 }
 
 /**

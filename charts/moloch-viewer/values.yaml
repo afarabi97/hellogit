@@ -2,12 +2,6 @@
 image: 'tfplenum/moloch'
 port: "8005"
 
-# User/Group and permissions for files copied
-user: "1000"
-group: "1000"
-dir_mode: "0660"
-exec_mode: "0755"
-
 # Username and password for Web login
 user: 'assessor'
 pass: 'password'
@@ -16,32 +10,16 @@ pass: 'password'
 dir: '/opt/tfplenum/moloch'
 path: '/data/moloch'
 config_path: "/opt/tfplenum/moloch/etc"
-pcap_path: "/opt/tfplenum/moloch/raw"
-fpc_path: "/data/pcap"
 
-kibana_fqdn: kibana.default.svc.cluster.local
+# Kubenetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
-
 version: 1.7.0v3
 cpu_requests: 100m
 mem_limit: 7Gi
 
 # config options
-elastic_shortname: elasticsearch
 elastic_port: 9200
-interfaces: ["eth0"]
-bpf: ""
-dontSaveBPFs: ""
-maxFileSizeG: 1
-freespaceG: 25
-spiDataMaxIndices: "5"
-packetThreads: 3
-pcapWriteMethod: "thread-direct"
-pcapWriteSize: "2560000"
-dbBulkSize: "400000"
 maxESConns: "30"
 maxESRequests: "500"
 packetsPerPoll: "500000"
-magicMode: "basic"
-tpacketv3BlockSize: 8388608
 maxPacketsInQueue: "400000"

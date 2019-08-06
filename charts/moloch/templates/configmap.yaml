@@ -5,7 +5,7 @@ metadata:
 data:
   config.ini: |
     [default]
-    elasticsearch=http://{{ .Values.elastic_shortname }}:{{ .Values.elastic_port }}
+    elasticsearch=http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
     rotateIndex=daily
     passwordSecret=default-password
     httpRealm=Moloch

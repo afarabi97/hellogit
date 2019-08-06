@@ -2,6 +2,7 @@
     "id": "Moloch",
     "type": "chart",
     "node_affinity": "Sensor",
+    "devDependent": "moloch-viewer",
     "formControls": [{
           "type": "textinput",
           "default_value": "1000m",

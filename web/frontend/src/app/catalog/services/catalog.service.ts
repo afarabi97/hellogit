@@ -19,6 +19,7 @@ export const HTTP_OPTIONS = {
 export class CatalogService extends ApiService<any> {
   public snackbar: SnackbarWrapper;
   public chart: any;
+  public isLoading: boolean = false;
 
   /**
    *Creates an instance of CatalogService.
