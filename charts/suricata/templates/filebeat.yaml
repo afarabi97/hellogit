@@ -22,7 +22,7 @@ spec:
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: filebeat
-          subPath: filebeat-suricata.yml
+          subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
         args: ['setup', '-e', '--modules', 'suricata']

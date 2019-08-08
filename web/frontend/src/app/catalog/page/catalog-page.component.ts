@@ -529,7 +529,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
 
   /**
-   * parses out the .lan on the deployment name so that kubenetes doesnt crash
+   * parses out the .lan on the deployment name so that Kubernetes doesnt crash
    *
    * @param {string} application
    * @param {string} node_hostname

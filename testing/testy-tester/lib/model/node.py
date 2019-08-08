@@ -160,8 +160,8 @@ class CatalogSuricata(object):
 
     Attributes:
         affinity_hostname: Name of sensor
-        cpu_requests: CPU request sent to kubenetes
-        deployment_name: Name of the deployment set sent to kubenetes
+        cpu_request: CPU request sent to Kubernetes
+        deployment_name: Name of the deployment set sent to Kubernetes
         external_net: External net for suricata alerts
         home_net: Home net for suricata alerts
         interfaces: Monitoring interface suricata uses
@@ -177,7 +177,7 @@ class CatalogSuricata(object):
         :return:
         """
         self.affinity_hostname = yml_dict['affinity_hostname']
-        self.cpu_requests = yml_dict['cpu_requests']
+        self.cpu_request = yml_dict['cpu_request']
         self.deployment_name = yml_dict['deployment_name']
         self.external_net = yml_dict['external_net']
         self.home_net = yml_dict['home_net']
@@ -187,7 +187,7 @@ class CatalogSuricata(object):
     def to_dict(self):
         return {
             'affinity_hostname': self.affinity_hostname,
-            'cpu_requests': self.cpu_requests,
+            'cpu_request': self.cpu_request,
             'deployment_name': self.deployment_name,
             'external_net': self.external_net,
             'home_net': self.home_net,
@@ -196,14 +196,14 @@ class CatalogSuricata(object):
         }
 
     def __str__(self) -> str:
-        return "affinity_hostname: %s cpu_requests: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_requests, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
+        return "affinity_hostname: %s cpu_request: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_request, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.node_hostname)
 
 class CatalogMolochViewer(object):
     """
     Represents a suricata catalog object and all the variables inside it
 
     Attributes:
-        deployment_name: Name of the deployment set sent to kubenetes
+        deployment_name: Name of the deployment set sent to Kubernetes
         node_hostname: Name of sensor
         password: password for moloch login
         username: username for moloch login
@@ -237,8 +237,8 @@ class CatalogMolochCapture(object):
     Represents a suricata catalog object and all the variables inside it
 
     Attributes:
-        cpu_requests: CPU request sent to kubenetes
-        pcapWriteMethod: Wether moloch writes or not
+        cpu_request: CPU request sent to Kubernetes
+        pcapWriteMethod: Whether moloch writes or not
         affinity_hostname: Name of sensor
         node_hostname: Name of sensor
         bpf: Filter that write to PCAP
@@ -247,7 +247,7 @@ class CatalogMolochCapture(object):
         maxFileSizeG: Max file size for each pcap file
         magicMode: Magic Mode
         interfaces: Monitoring interface Moloch uses
-        deployment_name: Name of the deployment set sent to kubenetes
+        deployment_name: Name of the deployment set sent to Kubernetes
     """
 
     def __init__(self, yml_dict: Dict) -> None:
@@ -258,7 +258,7 @@ class CatalogMolochCapture(object):
         :param size: Size of the disk in GB
         :return:
         """
-        self.cpu_requests = yml_dict['cpu_requests']
+        self.cpu_request = yml_dict['cpu_request']
         self.pcapWriteMethod = yml_dict['pcapWriteMethod']
         self.affinity_hostname = yml_dict['affinity_hostname']
         self.node_hostname = yml_dict['node_hostname']
@@ -272,7 +272,7 @@ class CatalogMolochCapture(object):
 
     def to_dict(self):
         return {
-            'cpu_requests': self.cpu_requests,
+            'cpu_request': self.cpu_request,
             'pcapWriteMethod': self.pcapWriteMethod,
             'affinity_hostname': self.affinity_hostname,
             'node_hostname': self.node_hostname,
@@ -282,11 +282,79 @@ class CatalogMolochCapture(object):
             'maxFileSizeG': self.maxFileSizeG,
             'magicMode': self.magicMode,
             'interfaces': self.interfaces,
-            'deployment_name': self.interfaces
+            'deployment_name': self.deployment_name
         }
 
     def __str__(self) -> str:
-        return "cpu_requests: %s pcapWriteMethod: %s affinity_hostname: %s node_hostname: %s bpf: %s dontSaveBPFs: %s freespaceG: %s maxFileSizeG: %s magicMode: %s interfaces: %s deployment_name: %s" % (self.cpu_requests, self.pcapWriteMethod, self.affinity_hostname, self.node_hostname, self.bpf, self.dontSaveBPFs, self.freespaceG, self.maxFileSizeG, self.magicMode, self.interfaces, self.deployment_name )
+        return "cpu_request: %s pcapWriteMethod: %s affinity_hostname: %s node_hostname: %s bpf: %s dontSaveBPFs: %s freespaceG: %s maxFileSizeG: %s magicMode: %s interfaces: %s deployment_name: %s" % (self.cpu_request, self.pcapWriteMethod, self.affinity_hostname, self.node_hostname, self.bpf, self.dontSaveBPFs, self.freespaceG, self.maxFileSizeG, self.magicMode, self.interfaces, self.deployment_name )
+
+class CatalogEndgame2Elastic(object):
+    """
+    Represents a endgame2elastic catalog object and all the variables inside it
+
+    Attributes:
+        endgame_host: IP or hostname of Endgame server
+        endgame_username: Username for Endgame
+        endgame_password: Password for Endgame
+        run_every: How often to pull updates from Endgame (in minutes)
+        node_hostname: Name of sensor
+        deployment_name: Name of the deployment set sent to Kubernetes
+    """
+
+    def __init__(self, yml_dict: Dict) -> None:
+        self.endgame_host = yml_dict['endgame_host']
+        self.engame_username = yml_dict['endgame_username']
+        self.endgame_password = yml_dict['endgame_password']
+        self.run_every = yml_dict['run_every']
+        self.node_hostname = yml_dict['node_hostname']
+        self.deployment_name = yml_dict['deployment_name']
+
+    def to_dict(self):
+        return {
+            'endgame_host': self.endgame_host,
+            'endgame_username': self.endgame_username,
+            'endgame_password': self.endgame_password,
+            'run_every': self.run_every,
+            'node_hostname': self.node_hostname,
+            'deployment_name': self.deployment_name
+        }
+
+    def __str__(self) -> str:
+        return "endgame_host: %s endgame_username: %s endgame_password: %s run_every: %s node_hostname: %s deployment_name: %s" % (self.endgame_host, self.endgame_username, self.endgame_password, self.run_every, self.node_hostname, self.deployment_name )
+
+class CatalogZeek(object):
+    """
+    Represents a zeek catalog object and all the variables inside it
+
+    Attributes:
+        home_net: Home network
+        interfaces: List of interfaces
+        zeek_workers: Number of Zeek workers
+        affinity_hostname: Name of sensor
+        node_hostname: Name of sensor
+        deployment_name: Name of the deployment set sent to Kubernetes
+    """
+
+    def __init__(self, yml_dict: Dict) -> None:
+        self.home_net = yml_dict['home_net']
+        self.interfaces = yml_dict['interfaces']
+        self.zeek_workers = yml_dict['zeek_workers']
+        self.affinity_hostname = yml_dict['affinity_hostname']
+        self.node_hostname = yml_dict['node_hostname']
+        self.deployment_name = yml_dict['deployment_name']
+
+    def to_dict(self):
+        return {
+            'home_net': self.home_net,
+            'interfaces': self.interfaces,
+            'zeek_workers': self.zeek_workers,
+            'affinity_hostname': self.affinity_hostname,
+            'node_hostname': self.node_hostname,
+            'deployment_name': self.deployment_name
+        }
+
+    def __str__(self) -> str:
+        return "home_net: %s interfaces: %s zeek_workers: %s affinity_hostname: %s node_hostname: %s deployment_name: %s" % (self.home_net, self.interfaces, self.zeek_workers, self.affinity_hostname, self.node_hostname, self.deployment_name )
 
 class Node(object):
 
@@ -556,6 +624,24 @@ class Node(object):
         :return:
         """
         self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)
+
+    def set_endgame2elastic_catalog(self, endgame2elastic_catalog: Dict) -> None:
+        """
+        Configures the endgame2elastic catalog configuration for the node object.
+
+        :param endgame2elastic:
+        :return:
+        """
+        self.endgame2elastic_catalog = CatalogEndgame2Elastic(endgame2elastic_catalog)
+
+    def set_zeek_catalog(self, zeek_catalog: Dict) -> None:
+        """
+        Configures the zeej catalog configuration for the node object.
+
+        :param zeek_catalog:
+        :return:
+        """
+        self.zeek_catalog = CatalogZeek(zeek_catalog)
 
     def __str__(self) -> str:
         p_interfaces = '\n'.join([str(x) for x in self.interfaces])

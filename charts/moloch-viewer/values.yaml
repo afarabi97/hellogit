@@ -11,7 +11,7 @@ dir: '/opt/tfplenum/moloch'
 path: '/data/moloch'
 config_path: "/opt/tfplenum/moloch/etc"
 
-# Kubenetes and docker info
+# Kubernetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 version: 1.7.0v3
 cpu_request: 1000

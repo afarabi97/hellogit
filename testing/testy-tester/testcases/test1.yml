@@ -238,6 +238,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "ens224"
+          zeek_workers: 8
           node_hostname: "test1-sensor1.lan"
     test1-sensor2.lan:
       type: "remote_sensor" # Can be controller, sensor, or server
@@ -313,4 +314,5 @@ kit:
           home_net: ["any"]
           interfaces:
             - "ens224"
+          zeek_workers: 8
           node_hostname: "test1-sensor2.lan"

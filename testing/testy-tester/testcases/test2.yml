@@ -203,4 +203,5 @@ kit:
           home_net: ["any"]
           interfaces:
             - "ens224"
+          zeek_workers: 8
           node_hostname: "test2-sensor1.lan"

@@ -9,7 +9,7 @@ config_path: "/opt/tfplenum/moloch/etc"
 pcap_path: "/opt/tfplenum/moloch/raw"
 fpc_path: "/data/pcap"
 
-# Kubenetes and docker info
+# Kubernetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 version: 1.7.0v3
 cpu_request: 100
