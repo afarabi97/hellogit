@@ -1,29 +1,25 @@
 ---
 
-- name: Generate list of hosts that need managed logs
-  set_fact:
-    loggers: "{{ groups['sensors'] }}"
+- name: Create directories
+  file:
+    path: "{{ logs_dir }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+    state: directory
 
-- include_tasks: 01_prepare.yml
-  when: inventory_hostname in groups['master_server']
+- name: Setup log deleter
+  template:
+    src: "templates/delete_old.sh.j2"
+    dest: "{{ log_deleter_path }}"
+    owner: root
+    group: root
+    mode: 0744
 
-- block:
-  - name: Create directories
-    file:
-      path: "{{ logs_dir }}"
-      owner: root
-      group: root
-      mode: u+rw,g+rw
-      state: directory
-
-  - include_tasks: 05_files_loggers.yml
-    when: inventory_hostname in loggers
-
-  - include_tasks: 06_files_master.yml
-    when: inventory_hostname in groups['master_server']
-
-  - include_tasks: 20_setup.yml
-    when: inventory_hostname in groups['master_server']
-  when: loggers | length > 0
+- name: Add logrotate cronjob
+  cron:
+    name: "tfplenum-logdelete"
+    minute: "*/1"
+    job: "{{ log_deleter_path }}"
 
 ...

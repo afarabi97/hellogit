@@ -42,5 +42,6 @@ tmp/
 core/playbooks/files/admin.conf
 core/playbooks/files/join-node.sh
 playbooks/inventory/dev/*
+charts/*/*.tgz
 inventory.yml
 testing/testy-tester/testcases/userdefined/

@@ -208,23 +208,31 @@ kit:
       catalog:
         suricata:
           affinity_hostname: "test3-sensor1.lan"
-          cpu_requests: "1000m"
+          cpu_requests: "1000"
           deployment_name: "test3-sensor1-suricata"
-          external_net: "any"
-          home_net: "any"
+          external_net: ["any"]
+          home_net: ["any"]
           interfaces:
             - "ens224"
           node_hostname: "test3-sensor1.lan"
         moloch-capture:
-          cpu_requests: "1000m"
+          cpu_requests: "1000"
           pcapWriteMethod: "thread-direct"
           affinity_hostname: "test3-sensor1.lan"
           node_hostname: "test3-sensor1.lan"
           bpf: ""
           dontSaveBPFs: ""
-          freespaceG: 1
+          freespaceG: "25%"
           maxFileSizeG: 25
           magicMode: "basic"
           interfaces:
             - "ens224"
           deployment_name: "test3-sensor1-moloch"
+        zeek:
+          affinity_hostname: "test3-sensor1.lan"
+          cpu_request: "1000"
+          deployment_name: "test3-sensor1-zeek"
+          home_net: ["any"]
+          interfaces:
+            - "ens224"
+          node_hostname: "test3-sensor1.lan"

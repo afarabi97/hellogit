@@ -295,19 +295,6 @@
   tags:
     - metrics
 
-- name: Deploy Bro
-  hosts:
-    - master_server
-    - bro
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - bro
-  tags:
-  - bro
-
 - name: Deploy Moloch
   hosts:
     - master_server
@@ -322,7 +309,6 @@
 
 - name: Setup Log Management
   hosts:
-    - master_server
     - sensors
   gather_facts: no
   any_errors_fatal: true

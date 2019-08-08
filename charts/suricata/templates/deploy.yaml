@@ -42,7 +42,7 @@ spec:
               - IPC_LOCK
         resources:
           requests:
-            cpu: {{ .Values.cpu_requests }}
+            cpu: {{ .Values.cpu_request }}m
         volumeMounts:
         - name: configs
           mountPath: /etc/suricata/suricata.yaml

@@ -4,11 +4,16 @@ import os
 import subprocess
 import requests
 
-charts = [{ "name": "suricata",
+charts = [
+        { "name": "endgame2elastic",
                 "version": "1.0.0"},
         { "name": "moloch",
                 "version": "1.0.0"},
         { "name": "moloch-viewer",
+                "version": "1.0.0"},
+        { "name": "suricata",
+                "version": "1.0.0"},
+        { "name": "zeek",
                 "version": "1.0.0"}
     ]
 

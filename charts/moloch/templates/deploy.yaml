@@ -51,7 +51,7 @@ spec:
             name: webgui
         resources:
           requests:
-            cpu: {{ .Values.cpu_requests }}
+            cpu: {{ .Values.cpu_request }}m
           limits:
             memory: {{ .Values.mem_limit }}
         volumeMounts:

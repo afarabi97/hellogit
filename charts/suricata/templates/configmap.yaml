@@ -8,20 +8,24 @@ data:
     ---
     vars:
       address-groups:
-{{ if contains "any" .Values.home_net }}
+{{- if has "any" .Values.home_net }}
         HOME_NET: "any"
-{{ else }}
-        HOME_NET: "[{{ .Values.home_net }}]"
-{{ end }}
-{{ if and .Values.external_net (contains "any" .Values.external_net) }}
+{{- else }}
+        HOME_NET: "{{ .Values.home_net | toJson | replace "\"" "" }}"
+{{- end }}
+{{- if .Values.external_net }}
+{{- if has "any" .Values.external_net }}
         EXTERNAL_NET: "any"
-{{ else if and .Values.external_net (gt (len .Values.external_net) 0) }}
-        EXTERNAL_NET: "[{{ .Values.external_net }}]"
-{{ else if contains "any" .Values.home_net }}
-        EXTERNAL_NET: "any"
-{{ else }}
+{{- else if gt (len .Values.external_net) 0 }}
+        EXTERNAL_NET: "{{ .Values.external_net | toJson | replace "\"" "" }}"
+{{- else }}
         EXTERNAL_NET: "!$HOME_NET"
-{{ end }}
+{{- end }}
+{{- else if has "any" .Values.home_net }}
+        EXTERNAL_NET: "any"
+{{- else }}
+        EXTERNAL_NET: "!$HOME_NET"
+{{- end }}
         HTTP_SERVERS: "$HOME_NET"
         SMTP_SERVERS: "$HOME_NET"
         SQL_SERVERS: "$HOME_NET"

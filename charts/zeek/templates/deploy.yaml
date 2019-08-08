@@ -1,0 +1,129 @@
+{{- $d := dict "manager" (dict "type" "manager" "port" 47760) -}}
+{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47761) -}}
+{{- range $i, $e := until (.Values.zeek_loggers | int) -}}
+{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47762 $i)) -}}
+{{- range $interface_idx, $interface := $.Values.interfaces -}}
+{{- range $i, $e := until ($.Values.zeek_workers | int) -}}
+{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47762 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: zeek
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: zeek
+  template:
+    metadata:
+      labels:
+        component: zeek
+    spec:
+      # Due to a bug in the C++ Actor Framework (which powers Zeek's broker),
+      # this is necessary to get Zeek nodes to talk to each other.
+      shareProcessNamespace: true
+      hostNetwork: true
+      initContainers:
+      - name: init-zeek
+        image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
+        imagePullPolicy: IfNotPresent
+        command: [ '/bin/touch', '-a', '/bro/share/bro/site/custom/__load__.bro']
+        volumeMounts:
+        - name: custom-scripts
+          mountPath: /bro/share/bro/site/custom
+      containers:
+{{- range $node, $config := $d }}
+      - name: {{ $node }}
+        image: "{{ $.Values.image_name }}:{{ $.Values.image_tag }}"
+        imagePullPolicy: IfNotPresent
+{{- /*
+Liveness probes on the Zeek cluster have a high rate of false positives, which
+causes a lot of unnecessary restarts. This is okay on everything but the manager
+and proxy; these have a lot of open connections and the way Kubernetes restarts
+it leaves a lot of dangling connections, leaving it in an error state when it
+tries to restart.
+*/}}
+{{- if not (or (eq $config.type "manager") (eq $config.type "proxy")) }}
+        livenessProbe:
+            tcpSocket:
+                port: {{ $config.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 6
+{{- end }}
+{{- if eq $config.type "worker" }}
+        securityContext:
+              capabilities:
+                add:
+                  - NET_ADMIN
+                  - NET_RAW
+                  - SYS_NICE
+        resources:
+          requests:
+            cpu: {{ div (div $.Values.cpu_request $.Values.zeek_workers) (len $.Values.interfaces) }}m
+{{- else }}
+        resources:
+          requests:
+            cpu: 200m
+{{- end }}
+        volumeMounts:
+        - name: custom-scripts
+          mountPath: /bro/share/bro/site/custom
+          readOnly: true
+        - name: default-scripts
+          subPath: cluster-layout.bro
+          mountPath: /bro/share/bro/site/cluster-layout.bro
+          readOnly: true
+        - name: default-scripts
+          subPath: local.bro
+          mountPath: /bro/share/bro/site/local.bro
+          readOnly: true
+{{- if eq $config.type "logger" }}
+        - name: logs
+          mountPath: {{ $.Values.zeek_log_path }}
+        workingDir: {{ $.Values.zeek_log_path }}/{{ $config.logger_number }}
+{{- end }}
+        env:
+        - name: CLUSTER_NODE
+          value: {{ $node }}
+        args: [{{(eq $config.type "worker") | ternary (printf "\"-i\", \"%s\", " $config.interface) ""}} "-U", ".status", "frameworks/control/controllee", "local.bro", "base/frameworks/cluster" ]
+{{- end }}
+      volumes:
+      - name: logs
+        hostPath:
+          path: {{ .Values.zeek_log_path }}
+          type: DirectoryOrCreate
+      - name: custom-scripts
+        hostPath:
+          path: {{ .Values.zeek_scripts }}
+          type: DirectoryOrCreate
+      - name: default-scripts
+        configMap:
+          name: {{ .Release.Name }}
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - zeek
+            topologyKey: "kubernetes.io/hostname"
+
+...

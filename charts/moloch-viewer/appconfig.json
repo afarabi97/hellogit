@@ -4,21 +4,13 @@
     "node_affinity": "Server - Any",
     "formControls": [
         {
-          "type": "invisible",
-          "default_value": "",
-          "description": "",
-          "required": "true",
-          "regexp": "",
-          "name": "node_hostname"
-        },
-        {
           "type": "textinput",
           "default_value": "assessor",
           "description": "Enter moloch user name",
           "required": true,
           "regexp": "",
           "name": "user",
-          "error_message": "Enter Correct value"
+          "error_message": "Enter a value"
         },
         {
           "type": "textinput",
@@ -27,7 +19,11 @@
           "required": true,
           "regexp": "",
           "name": "pass",
-          "error_message": "Enter Correct value"
+          "error_message": "Enter a value"
+        },
+        {
+          "type": "invisible",
+          "name": "node_hostname"
         }
     ]
 }

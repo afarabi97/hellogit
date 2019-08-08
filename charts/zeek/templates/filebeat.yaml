@@ -5,29 +5,33 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-filebeat
   labels:
-    component: suricata-logshipper
+    component: zeek-logshipper
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: suricata-logshipper
+      component: zeek-logshipper
   template:
     metadata:
       labels:
-        component: suricata-logshipper
+        component: zeek-logshipper
     spec:
       initContainers:
-      - name: init-filebeat-suricata
+      - name: init-filebeat-zeek
         image: {{ .Values.filebeat_image_name  }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: filebeat
-          subPath: filebeat-suricata.yml
-          mountPath: /usr/share/filebeat/filebeat.yml
+          subPath: template.json
+          mountPath: /usr/share/filebeat/template.json
           readOnly: true
-        args: ['setup', '-e', '--modules', 'suricata']
+        - name: filebeat
+          subPath: pipeline.json
+          mountPath: /usr/share/filebeat/pipeline.json
+          readOnly: true
+        command: ['/bin/bash', '-c', '/usr/bin/curl -XPUT -H "Content-Type: application/json" "{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_template/zeek" -d@template.json && /usr/bin/curl -XPUT -H "Content-Type: application/json" "{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_ingest/pipeline/zeek" -d@pipeline.json']
       containers:
-      - name: filebeat-suricata
+      - name: filebeat-zeek
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         securityContext:
@@ -35,17 +39,17 @@ spec:
           runAsGroup: 0
         volumeMounts:
         - name: data
-          mountPath: {{ .Values.suricata_log_path }}
+          mountPath: {{ .Values.zeek_log_path }}
           readOnly: true
         - name: filebeat
           subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"']
       volumes:
       - name: data
         hostPath:
-          path: {{ .Values.suricata_log_path }}
+          path: {{ .Values.zeek_log_path }}
           type: DirectoryOrCreate
       - name: filebeat
         configMap:
@@ -66,7 +70,7 @@ spec:
               - key: component
                 operator: In
                 values:
-                - suricata-logshipper
+                - zeek-logshipper
             topologyKey: "kubernetes.io/hostname"
 
 ...

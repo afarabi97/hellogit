@@ -12,7 +12,7 @@ fpc_path: "/data/pcap"
 # Kubenetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 version: 1.7.0v3
-cpu_requests: 100m
+cpu_request: 100
 affinity_hostname: {}
 mem_limit: 7Gi
 
@@ -22,7 +22,7 @@ interfaces: ["eth0"]
 bpf: ""
 dontSaveBPFs: ""
 maxFileSizeG: 1
-freespaceG: 25
+freespaceG: 25%
 spiDataMaxIndices: "5"
 packetThreads: 3
 pcapWriteMethod: "thread-direct"

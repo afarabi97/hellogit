@@ -35,6 +35,9 @@ spec:
       - name: moloch-viewer
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_request }}m
         env:
         - name: PODTYPE
           value: "VIEWER"

@@ -14,7 +14,7 @@ config_path: "/opt/tfplenum/moloch/etc"
 # Kubenetes and docker info
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 version: 1.7.0v3
-cpu_requests: 100m
+cpu_request: 1000
 mem_limit: 7Gi
 
 # config options

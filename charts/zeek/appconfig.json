@@ -1,5 +1,5 @@
 {
-  "id": "suricata",
+  "id": "zeek",
   "type": "chart",
   "node_affinity": "Sensor",
   "formControls": [
@@ -13,15 +13,6 @@
       "error_message": "Enter a valid IP or 'any'"
     },
     {
-      "type": "textinputlist",
-      "default_value": "",
-      "description": "Enter your external/untrusted network (defaults to !home_net)",
-      "required": "false",
-      "regexp": "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[1-9])",
-      "name": "external_net",
-      "error_message": "Enter a valid IP or 'any'"
-    },
-    {
       "type": "interface",
       "default_value": "",
       "description": "Select the interfaces to listen on",
@@ -31,11 +22,28 @@
       "error_message": "Select one or more interfaces"
     },
     {
+      "type": "textinput",
+      "default_value": "8",
+      "description": "Enter the number of Zeek workers (one thread per worker)",
+      "required": "true",
+      "regexp": "^\\d+$",
+      "name": "zeek_workers",
+      "error_message": "Enter a valid number"
+    },
+    {
       "type": "invisible",
+      "default_value": "",
+      "description": "",
+      "required": "true",
+      "regexp": "",
       "name": "affinity_hostname"
     },
     {
       "type": "invisible",
+      "default_value": "",
+      "description": "",
+      "required": "true",
+      "regexp": "",
       "name": "node_hostname"
     }
   ]

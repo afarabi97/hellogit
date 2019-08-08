@@ -20,7 +20,7 @@ data:
     icmpTimeout=10
     maxStreams=14000000
     maxPackets=10000
-    freeSpaceG={{ .Values.freespaceG }}%
+    freeSpaceG={{ .Values.freespaceG }}
     viewPort=8005
     geoLite2Country=/data/moloch/etc/GeoLite2-Country.mmdb
     geoLite2ASN=/data/moloch/etc/GeoLite2-ASN.mmdb

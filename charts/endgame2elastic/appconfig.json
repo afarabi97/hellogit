@@ -4,14 +4,6 @@
     "node_affinity": "Server - Any",
     "formControls": [
         {
-          "type": "invisible",
-          "default_value": "",
-          "description": "",
-          "required": "true",
-          "regexp": "",
-          "name": "node_hostname"
-        },
-        {
           "type": "textinput",
           "default_value": "endgame.lan",
           "description": "Enter Endgame hostname or IP",
@@ -46,6 +38,10 @@
           "regexp": "^\\d+$",
           "name": "run_every",
           "error_message": "Enter valid number"
+        },
+        {
+          "type": "invisible",
+          "name": "node_hostname"
         }
     ]
 }
