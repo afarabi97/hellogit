@@ -10,9 +10,6 @@ host_configuration:
   iso_folder_path: "/root/"
 
 kit:
-  remote_sensor_portgroup: "73 Portgroup"
-  remote_sensor_network: "172.16.73.0"
-
   kickstart_configuration:
       netmask: "255.255.255.0"
 
@@ -241,7 +238,7 @@ kit:
           zeek_workers: 8
           node_hostname: "test1-sensor1.lan"
     test1-sensor2.lan:
-      type: "remote_sensor" # Can be controller, sensor, or server
+      type: "sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
       networking:
         nics:
