@@ -112,10 +112,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     if(this.chart.devDependent) {
       this._CatalogService.getByString("chart/" + this.chart.devDependent + "/status").subscribe(status => {
         if(status.length === 0 ) {
-          const message = "This Chart is Dependent on " + this.chart.devDependent + " and it is not installed, are you sure you want to continue.";
-          const title = this.chart.id + " is Dependent on " + this.chart.devDependent;
+          const message = "This chart is dependent on " + this.chart.devDependent + " and it is not installed, are you sure you want to continue.";
+          const title = this.chart.id + " is dependent on " + this.chart.devDependent;
           const option1 = "Take Me Back";
-          const option2 = "continue ";
+          const option2 = "Continue ";
 
           const dialogRef = this.dialog.open(ConfirmDailogComponent, {
             width: '35%',
@@ -294,10 +294,16 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       let hostname = this.configFormGroup.value[key];
       let object = {};
       object[key] = hostname;
+      if(object[key].home_net) {
+        object[key].home_net = JSON.parse(object[key].home_net);
+      }
+      if(object[key].external_net) {
+        object[key].external_net = JSON.parse(object[key].external_net);
+      }
       configArray.push(object);
     });
     this.configArray = configArray;
-
+    console.log(this.configArray);
     if(this.savedValues !== null) {
       this.savedValues.map( values => {
         this.processFormGroup.value.selectedNodes.map( nodes => {
@@ -504,7 +510,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     let nodeControls = this._formBuilder.group({});
     if (this.chart.formControls) {
       this.chart.formControls.map( control => {
-        if (control.type === "textinput" || control.type === "textinputlist" ) {
+        if (control.type === "textinput" || control.type ==="textinputlist") {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
             control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
             control.required ? Validators.required : Validators.nullValidator])));
@@ -513,20 +519,20 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         } else if (control.type === "checkbox") {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value));
         } else if (control.type === "interface") {
-          nodeControls.addControl(control.name, new FormControl([]))
+          nodeControls.addControl(control.name, new FormControl([]));
           if(value) {
-            nodeControls.controls[control.name].setValue(value[control.name], {onlySelf: true})
+            nodeControls.controls[control.name].setValue(value[control.name], {onlySelf: true});
           }
         } else {
-          nodeControls.addControl(control.name, new FormControl([]))
+          nodeControls.addControl(control.name, new FormControl([]));
         }
+
       });
     }
     const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname);
     nodeControls.addControl("deployment_name", new FormControl(deploymentName));
     return nodeControls;
   }
-
 
   /**
    * parses out the .lan on the deployment name so that Kubernetes doesnt crash

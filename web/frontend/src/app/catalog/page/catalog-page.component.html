@@ -53,7 +53,7 @@
                                 <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'" >
                                     <mat-form-field>
                                       <input matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                                        <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                      <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                                     </mat-form-field>
                                 </div>
                                 <!-- checkbox -->
@@ -65,11 +65,13 @@
                                                 [required]="control?.required">{{control?.description}}</mat-checkbox>
                                 </div>
                                 <!-- Text Input List -->
-                                <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
-                                    <mat-form-field>
+                                <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none" >
+                                  <div fxLayout="column" fxLayoutAlign="start center" >
+                                    <mat-form-field style="width: 100%;" >
                                       <input matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                      <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                                     </mat-form-field>
-                                    <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                  </div>
                                 </div>
                                 <!-- Interface -->
                                 <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
