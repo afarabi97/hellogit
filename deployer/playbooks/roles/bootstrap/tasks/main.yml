@@ -22,10 +22,15 @@
     name: "{{ package_list }}"
     state: latest
 
+- name: upgrade pip
+  pip:
+    name: pip
+    state: latest
+
 - name: install pip modules
   pip:
     name: "{{ pip_installs }}"
-    state: forcereinstall
+    state: present
 
 - name: Execute clone repo role.
   include_role:

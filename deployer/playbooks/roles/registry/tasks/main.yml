@@ -58,7 +58,7 @@
 - name: install pip modules
   pip:
     name: "{{ pip_installs }}"
-    state: forcereinstall
+    state: present
 
 - name: Create directory docker directory
   file:
