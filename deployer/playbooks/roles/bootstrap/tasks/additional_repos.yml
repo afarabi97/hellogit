@@ -20,9 +20,4 @@
     gpgcheck: "{{ epel_repo.gpgcheck }}"
     gpgkey: "{{ epel_repo.gpgkeyurl }}"
 
-# - name: install epel repo
-#   yum:
-#     name: http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#     state: present
-
 ...

@@ -27,3 +27,11 @@
   file:
     path: "~/.pip"
     state: absent
+
+- name: Remove docker images from docker after uploaded to registry
+  shell: |
+    docker rmi -f $(docker images -q)
+  tags:
+  - pull-docker-images
+  - pull-helm-images
+  ignore_errors: yes

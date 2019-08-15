@@ -3,6 +3,7 @@
 - name: Import tfplenum variables
   include_vars:
     file: "{{ tfplenum_vars }}"
+  tags: pull-helm-images
 
 - import_tasks: cleanup.yml
 
@@ -40,9 +41,9 @@
   include_role:
     name: registry
 
+- import_tasks: helm.yml
 - import_tasks: cleanup.yml
 - import_tasks: offline_repos.yml
-- import_tasks: helm.yml
 - import_tasks: update_etc_hosts.yml
 - import_tasks: update_controller_dns.yml
 - import_tasks: finish.yml

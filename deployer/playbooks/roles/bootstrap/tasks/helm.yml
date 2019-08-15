@@ -37,18 +37,22 @@
     file_type: directory
     recurse: no
   register: charts
+  tags: pull-helm-images
 
 - name: create charts
   shell: "helm package {{ item.path }} -d {{ chart_dir }}"
   with_items: "{{ charts.files }}"
+  tags: pull-helm-images
 
 - name: Fetch helm charts
   shell: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
   with_items:
     - "{{ helm_charts }}"
+  tags: pull-helm-images
 
 - name: Fetch chart images
   script: "{{ role_path }}/files/chart.py {{ chart_dir }}/"
   args:
     executable: python
   register: out
+  tags: pull-helm-images

@@ -915,6 +915,9 @@ class VirtualMachine:
         remote_shell.sudo('find . -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
         remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
 
+    def _run_reclaim_disk_space(self, remote_shell: Connection):
+        remote_shell.sudo('cd /; dd if=/dev/zero of=zerofillfile bs=1M; rm -rf zerofillfile;')
+
     def _clear_history(self, remote_shell: Connection):
         remote_shell.sudo('cat /dev/null > /root/.bash_history')
         remote_shell.sudo('cat /dev/null > /home/assessor/.bash_history', warn=True)
@@ -933,6 +936,7 @@ class VirtualMachine:
             self._update_network_scripts(iface_name, remote_shell)
             self._remove_extra_files(remote_shell)
             self._change_password(remote_shell)
+            self._run_reclaim_disk_space(remote_shell)
             self._clear_history(remote_shell)
 
     def export(self, destination: str="/root/controller.ova") -> None:

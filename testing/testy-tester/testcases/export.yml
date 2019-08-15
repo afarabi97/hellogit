@@ -5,7 +5,7 @@ host_configuration:
     cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
   storage:
-    datastore: "NVMe Storage"
+    datastore: "dev_datastore1"
     folder: "Testing"
   iso_folder_path: "/root/"
 
@@ -36,7 +36,7 @@ kit:
     export-controller.lan:
       type: "controller" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
-      vm_to_clone: "NVMEe Test Template"
+      vm_to_clone: "Test Template"
       domain: 'lan'
       gateway: "172.16.82.1"
       dns:

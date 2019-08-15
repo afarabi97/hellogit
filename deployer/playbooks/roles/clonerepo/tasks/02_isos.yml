@@ -17,6 +17,31 @@
     - "ansible_distribution == 'RedHat'"
     - RHEL_SOURCE_REPO == 'labrepo'
 
+- name: check if Centos iso exists
+  stat:
+    path: "{{ iso_centos_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result
+  when: BOOTSTRAP and ansible_distribution == 'CentOS'
+
+# Verify ISO
+- name: check if RHEL iso exists
+  stat:
+    path: "{{ iso_rhel_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result2
+  when: BOOTSTRAP and ansible_distribution == 'RedHat'
+
+- name: Verify Centos ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_centos_checksum
+
+- name: Verify Rhel ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
+
 - name: Mount content to {{ mnt_pth }}
   mount:
     fstype: iso9660
@@ -61,6 +86,16 @@
   with_items:
   - "{{ web_root }}/{{ ansible_distribution }}/"
 
-- name: Remove unnecessary media from system
-  shell: |
-    umount -f {{ mnt_pth }}
+- name: Mount content to {{ mnt_pth }}
+  mount:
+    state: absent
+    path: "{{ mnt_pth }}"
+
+- name: Remove isos
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+   - "{{ iso_centos_pth }}"
+   - "{{ iso_rhel_pth }}"
+
