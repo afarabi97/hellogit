@@ -20,7 +20,7 @@ mumble_version: "v1.0.0"
 suricata_version: "4.1.4"
 helm_version: "v2.14.1"
 chartmuseum_version: "2.3.1"
-elastic_6_version: "6.8.1"
+elastic_6_version: "6.8.2"
 elastic_7_version: "7.1.1"
 
 filebeat_image: beats/filebeat
@@ -37,8 +37,8 @@ kube_images:
   - docker.io/tfplenum/bro:{{bro_version}}
   - docker.elastic.co/{{filebeat_image}}:{{elastic_6_version}}
   - docker.elastic.co/kibana/kibana:{{elastic_6_version}}
-  - docker.elastic.co/logstash/logstash:{{elastic_6_version}}
   - docker.elastic.co/beats/metricbeat:{{elastic_6_version}}
+  - docker.elastic.co/logstash/logstash:{{elastic_6_version}}
   - k8s.gcr.io/kube-apiserver:v{{k8s_version}}
   - k8s.gcr.io/kube-controller-manager:v{{k8s_version}}
   - k8s.gcr.io/kube-scheduler:v{{k8s_version}}

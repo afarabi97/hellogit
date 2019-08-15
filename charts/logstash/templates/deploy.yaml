@@ -1,0 +1,53 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: logstash
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      component: logstash
+  template:
+    metadata:
+      labels:
+        component: logstash
+    spec:
+      containers:
+      - name: logstash
+        image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c", "/usr/share/logstash/bin/logstash-plugin install file:///usr/share/logstash/plugins/tld.zip && /usr/share/logstash/bin/logstash"]
+        env:
+        - name: LS_JAVA_OPTS
+          value: "-Xmx{{ .Values.heap_size }}g -Xms{{ .Values.heap_size }}g"
+        resources:
+          requests:
+            cpu: 1000m
+            memory: {{ .Values.heap_size }}Gi
+        volumeMounts:
+          - name: logstash
+            mountPath: "/usr/share/logstash/config/logstash.yml"
+            subPath: logstash.yml
+          - name: logstash
+            mountPath: "/usr/share/logstash/template.json"
+            subPath: template.json
+          - name: pipeline
+            mountPath: "/usr/share/logstash/pipeline"
+          - name: plugins
+            mountPath: "/usr/share/logstash/plugins"
+      nodeSelector:
+        role: "server"
+      volumes:
+        - name: logstash
+          configMap:
+            name: {{ .Release.Name }}
+        - name: pipeline
+          configMap:
+            name: {{ .Release.Name }}-pipeline
+        - name: plugins
+          configMap:
+            name: {{ .Release.Name }}-plugins

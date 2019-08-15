@@ -107,7 +107,7 @@ done
 {% endif %}
 
 # SELinux for data dir
-chcon -R -t container_share_t /data
+chcon -R -t container_file_t /data
 
 # Disable SSHD DNS lookups
 echo "UseDNS no" >> /etc/ssh/sshd_config

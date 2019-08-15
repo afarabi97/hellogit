@@ -1,0 +1,12 @@
+zookeeper_image_name: bitnami/zookeeper
+zookeeper_image_tag: 3.5.5
+zookeeper_path: /data/zookeeper
+kafka_image_name: bitnami/kafka
+kafka_image_tag: 2.3.0
+busybox_image_name: busybox
+busybox_image_tag: 1.29.3
+kafka_path: /data/kafka
+affinity_hostname: {}
+log_retention_hours: 24
+num_partitions: 40
+replication_factor: 1

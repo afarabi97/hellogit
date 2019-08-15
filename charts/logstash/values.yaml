@@ -1,0 +1,10 @@
+kafka_fqdn: kafka.default.svc.cluster.local
+kafka_port: 9092
+elastic_fqdn: elasticsearch.default.svc.cluster.local
+elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
+elastic_port: 9200
+image_name: logstash/logstash
+image_tag: 6.8.2
+replicas: 4
+heap_size: 12 # Heap size in GB
+workers: 4

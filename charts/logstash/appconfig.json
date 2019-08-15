@@ -1,0 +1,38 @@
+{
+    "id": "Logstash",
+    "type": "chart",
+    "node_affinity": "Server - Any",
+    "formControls": [
+        {
+          "type": "textinput",
+          "default_value": "4",
+          "description": "Enter how many logstash replicas to run",
+          "required": true,
+          "regexp": "^\\d+$",
+          "name": "replicas",
+          "error_message": "Enter valid number"
+        },
+        {
+          "type": "textinput",
+          "default_value": "12",
+          "description": "Enter how much memory to give each replica, in GB",
+          "required": true,
+          "regexp": "^\\d+$",
+          "name": "heap_size",
+          "error_message": "Enter valid number"
+        },
+        {
+          "type": "textinput",
+          "default_value": "4",
+          "description": "Enter how many workers to use on each replica",
+          "required": true,
+          "regexp": "^\\d+$",
+          "name": "workers",
+          "error_message": "Enter valid number"
+        },
+        {
+          "type": "invisible",
+          "name": "node_hostname"
+        }
+    ]
+}

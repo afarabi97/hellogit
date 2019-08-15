@@ -260,19 +260,6 @@
   tags:
     - elasticsearch
 
-- name: Deploy Logstash
-  hosts:
-    - master_server
-    - logstash
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - logstash
-  tags:
-    - logstash
-
 - name: Deploy Kibana
   hosts: master_server
   gather_facts: no

@@ -61,7 +61,7 @@ for chart in charts:
             f = open(path)
             contents = f.readlines()
             for line in contents:
-                if "kind: Deployment" in line or "kind: Statefulset" in line or "kind: Daemonset" in line or "kind: CronJob" in line:
+                if "kind: Deployment" in line or "kind: StatefulSet" in line or "kind: DaemonSet" in line or "kind: CronJob" in line:
                     subprocess.call(['/usr/local/bin/helm', 'template', 'charts/' + chart_name, '--debug', '--output-dir=./executed_charts', '-x' + 'templates/' + file])
 
 images = []

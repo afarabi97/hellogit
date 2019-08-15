@@ -243,11 +243,11 @@ class ServerCalculations:
 
     @property
     def elastic_data_memory(self) -> int:
-        return 32
+        return 18
 
     @property
     def elastic_data_jvm_memory(self) -> int:
-        return 30
+        return 16
 
     @property
     def elastic_data_cpu_request(self):
