@@ -3,21 +3,24 @@ Main module for handling all of the Kit Configuration REST calls.
 """
 import json
 import pymongo
+import pytz
+import requests
 from app import (app, logger, conn_mng, WEB_DIR, CORE_DIR)
-from app.service.job_service import run_command
-
 from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.resources import convert_KiB_to_GiB, convert_GiB_to_KiB, convert_MiB_to_KiB
+from app.service.job_service import run_command
+from datetime import datetime
+
+from fabric.runners import Result
 from flask import request, Response, jsonify
 from pathlib import Path
-from shared.connection_mngs import (KubernetesWrapper, objectify,
-                                    KitFormNotFound, KUBEDIR)
-from shared.constants import KIT_ID, KICKSTART_ID
-from shared.utils import decode_password
+from shared.connection_mngs import (KubernetesWrapper, KubernetesWrapper2, objectify,
+                                    KitFormNotFound, KUBEDIR, FabricConnection, FabricConnectionWrapper)
+from shared.constants import KIT_ID, KICKSTART_ID, NODE_TYPES, DATE_FORMAT_STR
+from shared.utils import decode_password, get_json_from_url, normalize_epoc_or_unixtimestamp
 from typing import List, Dict
 from urllib3.exceptions import MaxRetryError
 
-
-from app.resources import convert_KiB_to_GiB, convert_GiB_to_KiB, convert_MiB_to_KiB
 from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_node_list import V1NodeList
 
@@ -227,3 +230,133 @@ def get_health_status() -> Response:
         logger.exception(e)
     return jsonify({'totals': {}, 'pod_info': [], 'node_info': []})
 
+
+def get_kubernetes_service_ip(kubernetes_service_name: str) -> str:
+    if ".lan" not in kubernetes_service_name:
+        kubernetes_service_name = kubernetes_service_name + ".lan"
+
+    with FabricConnectionWrapper(conn_mng) as ssh_conn:
+        ret_val = ssh_conn.run('cat /etc/dnsmasq_kube_hosts', hide=True)  # type: Result
+        for line in ret_val.stdout.split('\n'):
+            tokens = line.split(' ')
+            if tokens[1] == kubernetes_service_name:
+                return tokens[0]
+
+    raise ValueError("{} was not found.".format(kubernetes_service_name))
+
+
+def _nomalize_elastic_timestamp(time: str) -> str:
+    """
+    :param: timestamp in "2019-08-16T20:24:25.195Z"
+    :return:
+    """
+    pos = time.rfind('.')
+    return time[:pos].replace('T', ' ')
+
+
+def _normalize_log_date(time: str) -> str:
+    """
+    :param time : date time string formated as 2019-08-16 20:30:33.217839499 +0000\n
+
+    :return: Normalized UTC time string
+    """
+    time = time.strip("\n")
+    pos = time.find('.')
+    pos2 = time.find(' ', pos)
+    time = time[:pos] + time[pos2:]
+    time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S %z')
+    utc_dt = time.astimezone(pytz.utc)
+
+    return utc_dt.strftime(DATE_FORMAT_STR)
+
+
+def _get_suricata_deployment_name(node: Dict) -> str:
+    pos = node['hostname'].rfind(".")
+    hostname_no_tld = node['hostname'][:pos]
+    suricata_deployment_name = hostname_no_tld + "-suricata"
+    with KubernetesWrapper2(conn_mng) as api:
+        for deployment in api.apps_V1_API.list_deployment_for_all_namespaces().items:
+            try:
+                if deployment.spec.template.spec.init_containers and deployment.spec.template.spec.init_containers[0]:
+                    if deployment.spec.template.spec.init_containers[0].name == "init-suricata":
+                        deployment_host = (deployment.spec.template.spec.affinity.node_affinity.
+                                            required_during_scheduling_ignored_during_execution.
+                                            node_selector_terms[0].match_expressions[0].values[0])
+                        if node['hostname'] == deployment_host:
+                            return deployment.metadata.name
+            except Exception as e:
+                logger.exception(e)
+
+    return suricata_deployment_name
+
+
+@app.route('/api/get_pipeline_status', methods=['GET'])
+def get_pipeline_status() -> Response:
+    ret_val = {}
+    kit = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    msg = "No events"
+    if kit:
+        for node in kit["form"]["nodes"]:
+            if node['node_type'] == NODE_TYPES[1]:
+                elastic_external_address = get_kubernetes_service_ip("elasticsearch")
+                pos = node['hostname'].rfind(".")
+                hostname_no_tld = node['hostname'][:pos]
+                suricata_deployment_name = _get_suricata_deployment_name(node)
+
+                bro_url = ("http://{elastic_ip}:9200/logstash-zeek-*/"
+                           "_search?size=1&_source=@timestamp&sort=@timestamp:desc&q=sensor_name:{hostname}"
+                           .format(elastic_ip=elastic_external_address, hostname=node['hostname']))
+
+                suricata_url = ("http://{elastic_ip}:9200/filebeat-*/_search?"
+                                "size=1&_source=@timestamp&sort=@timestamp:desc&q=beat.name:{suricata_deployment} AND tags:suricata"
+                                .format(elastic_ip=elastic_external_address, suricata_deployment=suricata_deployment_name))
+
+                moloch_url = ("http://{elastic_ip}:9200/sessions2*/_search?size=1&_source=timestamp&sort=timestamp:desc&q=node:{hostname_no_tld}"
+                              .format(elastic_ip=elastic_external_address, hostname_no_tld=hostname_no_tld))
+
+                ret_val[node['hostname']] = {}
+
+                try:
+                    ret_val[node['hostname']]["last_zeek_elastic_events"] = _nomalize_elastic_timestamp(get_json_from_url(bro_url)['hits']['hits'][0]['_source']['@timestamp'])
+                except IndexError:
+                    ret_val[node['hostname']]["last_zeek_elastic_events"] = msg
+
+                try:
+                    ret_val[node['hostname']]["last_suricata_elastic_events"] = _nomalize_elastic_timestamp(get_json_from_url(suricata_url)['hits']['hits'][0]['_source']['@timestamp'])
+                except IndexError:
+                    ret_val[node['hostname']]["last_suricata_elastic_events"] = msg
+
+                try:
+                    ret_val[node['hostname']]["last_moloch_elastic_events"] = normalize_epoc_or_unixtimestamp(get_json_from_url(moloch_url)['hits']['hits'][0]['_source']['timestamp'])
+                except IndexError:
+                    ret_val[node['hostname']]["last_moloch_elastic_events"] = msg
+
+                with FabricConnection(node['management_ip_address']) as shell:
+                    output = shell.run("ls --full-time -t /data/zeek/**/conn*.log | head -n1 | tr -s ' ' | cut -f6-8 -d' '", shell=False, hide=True) # type: Result
+                    if output.return_code == 0:
+                        if output.stdout == "":
+                            ret_val[node['hostname']]["last_zeek_log_event"] = msg
+                        else:
+                            ret_val[node['hostname']]["last_zeek_log_event"] = _normalize_log_date(output.stdout)
+                    else:
+                        ret_val[node['hostname']]["last_zeek_log_event"] = msg
+
+                    output = shell.run("ls --full-time -t /data/suricata/eve*.json | head -n1 | tr -s ' ' | cut -f6-8 -d' '", shell=False, hide=True) # type: Result
+                    if output.return_code == 0:
+                        if output.stdout == "":
+                            ret_val[node['hostname']]["last_suricata_log_event"] = msg
+                        else:
+                            ret_val[node['hostname']]["last_suricata_log_event"] = _normalize_log_date(output.stdout)
+                    else:
+                        ret_val[node['hostname']]["last_suricata_log_event"] = msg
+
+                    output = shell.run("ls --full-time -t /data/pcap/*.pcap | head -n1 | tr -s ' ' | cut -f6-8 -d' '", shell=False, hide=True) # type: Result
+                    if output.return_code == 0:
+                        if output.stdout == "":
+                            ret_val[node['hostname']]["last_pcap_log_event"] = msg
+                        else:
+                            ret_val[node['hostname']]["last_pcap_log_event"] = _normalize_log_date(output.stdout)
+                    else:
+                        ret_val[node['hostname']]["last_pcap_log_event"] = msg
+
+    return jsonify(ret_val)

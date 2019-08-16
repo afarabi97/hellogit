@@ -4,10 +4,14 @@ This module is for storing standard functions which can be reused anywhere withi
 """
 import base64
 import hashlib
+import requests
 import shutil
 import tarfile
+
+from datetime import datetime
 from pathlib import Path
 from typing import Union, Dict
+from shared.constants import DATE_FORMAT_STR
 
 
 def netmask_to_cidr(netmask: str) -> int:
@@ -122,3 +126,18 @@ def sanitize_dictionary(payload: Dict):
                     payload[key][index] = payload[key][index].strip()
                 elif isinstance(item, Dict):
                     sanitize_dictionary(item)
+
+
+def get_json_from_url(url: str) -> Dict:
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+
+    raise ValueError("Nothing")
+
+
+def normalize_epoc_or_unixtimestamp(time: int) -> str:
+    try:
+        return datetime.utcfromtimestamp(time).strftime(DATE_FORMAT_STR)
+    except ValueError:
+        return datetime.utcfromtimestamp(time / 1000).strftime(DATE_FORMAT_STR)

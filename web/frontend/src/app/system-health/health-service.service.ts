@@ -19,6 +19,11 @@ export class HealthServiceService {
     const url = '/api/get_health_status';
     return this.http.get(url).pipe();
   }
+
+  getPipelineStatus(): Observable<Object> {
+    const url = '/api/get_pipeline_status';
+    return this.http.get(url).pipe();
+  }
   
   describePod(podName: string, namespace: string): Observable<Object> {
     const url = `/api/describe_pod/${podName}/${namespace}`    

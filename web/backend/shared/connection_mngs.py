@@ -300,6 +300,28 @@ class KubernetesWrapper():
         self.close()
 
 
+class KubernetesWrapper2(KubernetesWrapper):
+
+    def __init__(self, mongo_conn: MongoConnectionManager=None):
+        """
+        :param mongo_conn: The MongoConnection manager, if this is passed in, the wrapper will not close it.
+                           if run the wrapper and dont set it the context manager will close it.
+        """
+        super().__init__(mongo_conn)
+        self._apps_apiv1 = client.AppsV1Api()
+
+    @property
+    def apps_V1_API(self) -> client.AppsV1Api():
+        return self._apps_apiv1
+
+    @property
+    def core_V1_API(self) -> client.CoreV1Api():
+        return self._kube_apiv1
+
+    def __enter__(self):
+        return self
+
+
 class FabricConnectionManager:
 
     def __init__(self, username: str, password: str, ipaddress: str):

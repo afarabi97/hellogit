@@ -18,7 +18,6 @@ import { KitFormComponent } from './kit-form/kit-form.component';
 import { BasicNodeResourceCardComponent } from './basic-node-resource-card/basic-node-resource-card.component';
 import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
 import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card/total-sensor-resources-card.component';
-import { CardSelectorComponent } from './card-selector/card-selector.component';
 import { TotalSystemResourceCardComponent } from './total-system-resource-card/total-system-resource-card.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { ModalArchiveDialogComponent } from './modal-archive-dialog/modal-archive-dialog.component';
@@ -84,6 +83,7 @@ import { DateTimeModule } from './date-time-picker/date-time.module';
 
 //Pipes
 import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
+import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 
 
 @NgModule({
@@ -103,7 +103,6 @@ import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
     BasicNodeResourceCardComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
-    CardSelectorComponent,
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
     PortalComponent,
@@ -126,6 +125,7 @@ import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
     ModalDialogMatComponent,
+    ModalDialogDisplayMatComponent,
     CapitalizeFirstPipe,
     CatalogComponent,
     CardComponent,
@@ -169,7 +169,8 @@ import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
     DateTimePickerDialogComponent,
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
-    ModalDialogMatComponent
+    ModalDialogMatComponent,
+    ModalDialogDisplayMatComponent
   ]
 })
 export class AppModule { }

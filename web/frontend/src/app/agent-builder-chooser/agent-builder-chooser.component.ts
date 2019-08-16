@@ -140,9 +140,9 @@ export class AgentBuilderChooserComponent implements OnInit {
           target.state = update.state;
           target.last_state_change = update.last_state_change;
           break;
-        }        
-      }      
-    } 
+        }
+      }
+    }
   }
 
   private refreshStateChanges(){
@@ -210,9 +210,11 @@ export class AgentBuilderChooserComponent implements OnInit {
           this.target_selection = target_config;
           break;
         }
-      }      
+      }
+    } else {
+      this.host_to_remove = target;
     }
-    
+
     let dialogForm = this.fb.group({
       user_name: new DialogFormControl("Domain username", '',
             Validators.compose([validateFromArray(target_config_validators.required)])),
@@ -266,7 +268,7 @@ export class AgentBuilderChooserComponent implements OnInit {
         this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.")
       });
     } else if (action === 'uninstall'){
-      this.agentBuilderSvc.uninstallAgents(payload).subscribe(data => {        
+      this.agentBuilderSvc.uninstallAgents(payload).subscribe(data => {
         this.displaySnackBar(data['message']);
       }, err => {
         this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
@@ -278,7 +280,7 @@ export class AgentBuilderChooserComponent implements OnInit {
         this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
       });
     } else {
-      this.agentBuilderSvc.installAgents(payload).subscribe(data => {        
+      this.agentBuilderSvc.installAgents(payload).subscribe(data => {
         this.displaySnackBar(data['message']);
       }, error => {
         this.displaySnackBar("Failed initiate install task for an unknown reason.");
