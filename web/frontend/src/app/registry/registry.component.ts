@@ -10,6 +10,8 @@ import { RegistryService } from './registry.service';
 export class RegistryComponent implements OnInit {
   registry;
 
+  columnsForImages = ['name', 'tags', 'image_id', 'image_size']
+
   constructor(private registrySrv: RegistryService,
               private title: Title) { }
 
