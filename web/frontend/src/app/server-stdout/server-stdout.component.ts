@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular
 import { ServerStdoutService } from './server-stdout.service';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { HtmlModalPopUp } from '../html-elements';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-server-stdout',
@@ -14,17 +15,16 @@ export class ServerStdoutComponent implements OnInit {
   @ViewChild('console')
   private consoleDiv: ElementRef;
   private jobName: string;
-  killModal: HtmlModalPopUp;
 
   messages: Array<{msg: string, color: string}>;
   constructor(private stdoutService: ServerStdoutService,
               private route: ActivatedRoute,
-              private title: Title
+              private title: Title,
+              private dialog: MatDialog
             ) {
     this.title.setTitle("Console Output");
     this.messages = new Array<{msg: string, color: string}>();
     this.jobName = null;
-    this.killModal = new HtmlModalPopUp('kill_modal');
   }
 
   /**
@@ -89,12 +89,18 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   openKillModal(){
-    this.killModal.updateModal('WARNING',
-      'Are you sure you want to kill this job?',
-      "Yes",
-      'Cancel'
-    )
-    this.killModal.openModal();
+    let option1 = "Cancel";
+    let option2 = "Yes";
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: '35%',
+      data: {"paneString": 'Are you sure you want to kill this job?', "paneTitle": 'Kill ' + this.jobName, "option1": option1, "option2": option2},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if( result === option2) {
+        this.killJob();
+      }
+    });
   }
 
   killJob() {

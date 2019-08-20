@@ -78,7 +78,7 @@ export function validateIPAddress(validatorObject: validatorObject, control: Abs
     const unfilledControls = [];
     // loop through dependant fields
     ip_range.map(ip => {
-      // if not an actual IP return 
+      // if not an actual IP return
       let fgIP = ops.parentFormGroup.get(ip.value);
 
       if (fgIP instanceof FormArray) {

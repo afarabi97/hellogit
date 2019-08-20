@@ -15,10 +15,9 @@ export class ConfirmDailogComponent {
    * @param {*} data
    * @memberof ConfirmDailogComponent
    */
-  constructor( public dialogRef: MatDialogRef<ConfirmDailogComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any) {
-
-  }
+  constructor(public dialogRef: MatDialogRef<ConfirmDailogComponent>,
+              @Inject(MAT_DIALOG_DATA)
+              public data: {paneString: string, paneTitle: string, option1: string, option2: string}) { }
 
   /**
    * closes the dialogRef
