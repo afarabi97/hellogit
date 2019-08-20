@@ -64,11 +64,6 @@
     msg: "elastic_datas is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_datas is not defined or elastic_datas is none
 
-- name: Checking that sensor_monitor_interface is set
-  fail:
-    msg: "sensor_monitor_interface is not defined or sensor_monitor_interface is not a list. Make sure it is defined in your inventory file. See sample inventory for help. All sensors must have monitor interface defined."
-  when: inventory_hostname in groups['sensors'] and (sensor_monitor_interface is not defined or sensor_monitor_interface is none or sensor_monitor_interface is string or sensor_monitor_interface is not iterable)
-
 - name: Checking that bro_wokers is set
   fail:
     msg: "bro_workers is not defined. Make sure it is defined in your inventory file. See sample inventory for help. This host is in the bro group and subsequently must have a bro workers count. Keep in mind bro_workers must be non-zero. If you want to get rid of bro, take the host out of the bro group."

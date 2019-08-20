@@ -11,6 +11,23 @@
       path: "{{ install_dir }}/interfaces"
       state: directory
 
+  - name: Setup interfaces variable
+    set_fact:
+      sensor_monitor_interface: []
+
+  - name: Get potential monitor interfaces
+    set_fact:
+      sensor_monitor_interface: "{{ sensor_monitor_interface + [ item ] }}"
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - "'veth' not in item"
+      - "'cni' not in item"
+      - "'docker' not in item"
+      - "'flannel' not in item"
+      - "'virbr0' not in item"
+      - "'lo' not in item"
+      - "management_interface != item"
+
   - block:
       - name: Set on boot to yes
         replace:

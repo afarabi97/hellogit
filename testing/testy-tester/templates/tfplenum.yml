@@ -245,10 +245,6 @@ all:
               bro_workers: 2
               moloch_threads: 1
               management_ipv4: "{{ node.management_interface.ip_address }}"
-              sensor_monitor_interface:
-{% for interface in node.interfaces %}{% if not interface.management_interface  %}
-                - {{ interface.interface_name }}
-{% endif %}{% endfor %}
               pcap_disk: /dev/sdb
               ceph_drive_list:
 {% endif %}{% endfor %}
@@ -271,10 +267,6 @@ all:
               bro_workers: 2
               moloch_threads: 1
               management_ipv4: "{{ node.management_interface.ip_address }}"
-              sensor_monitor_interface:
-{% for interface in node.interfaces %}{% if not interface.management_interface  %}
-                - {{ interface.interface_name }}
-{% endif %}{% endfor %}
               pcap_disk: /dev/sdb
               ceph_drive_list:
 {% endif %}{% endfor %}

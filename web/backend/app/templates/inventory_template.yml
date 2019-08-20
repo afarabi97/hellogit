@@ -269,13 +269,6 @@ all:
               moloch_threads: {{ node.cal.moloch_threads }}
               is_remote: {{ node.is_remote }}
 
-              # This is the interface the sensor will use for monitoring on Moloch,
-              # bro, and Suricata. Ex: ens4
-              sensor_monitor_interface:
-                - ens192
-              {% for interface in node.monitor_interface %}
-                - {{ interface }}{% endfor %}
-
               # The drive specified here will be dedicated to PCAP collection.
               pcap_disk: {% if node.pcap_drives is not none and node.pcap_drives|length > 0 %}{{ "/dev/" + node.pcap_drives[0] }}{% endif %}
             {% endif %}
