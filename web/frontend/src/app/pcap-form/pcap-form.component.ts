@@ -1,8 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PcapService } from './pcap.service';
 import { Title } from '@angular/platform-browser';
-import { HtmlModalPopUp } from '../html-elements';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalLoadingComponent } from '../modal-loading/modal-loading.component';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatTableDataSource} from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+
+const DIALOG_WIDTH = "800px";
 
 @Component({
   selector: 'app-pcap-form',
@@ -10,26 +16,29 @@ import { ModalLoadingComponent } from '../modal-loading/modal-loading.component'
   styleUrls: ['./pcap-form.component.css']
 })
 export class PcapFormComponent implements OnInit {
-  pcaps: Array<Object>;
+  pcaps: MatTableDataSource<Object>;
   hostname: string;
   pcapToUpload: File = null;
-  messageModal: HtmlModalPopUp;
-  confirmModal: HtmlModalPopUp;
   pcapToDelete: string;
 
   showMd5: boolean;
   showSha1: boolean;
   showSha256: boolean;
 
-  @ViewChild('loadingDialog')
-  private loadingDialog: ModalLoadingComponent;
+  displayColumns = [ 'name', 'mod_date', 'hash', 'action' ];
+
+  //@ViewChild('loadingDialog')
+  //private loadingDialog: ModalLoadingComponent;
+
+  @ViewChild('pcapPaginator')
+  private paginator: MatPaginator;
 
   constructor(private pcapSrv: PcapService,
-              private title: Title)
+              private title: Title,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar)
   {
     this.hostname = window.location.hostname;
-    this.messageModal = new HtmlModalPopUp('message_modal');
-    this.confirmModal = new HtmlModalPopUp('confirm_modal');
     this.pcapToDelete = "";
     this.showMd5 = true;
     this.showSha1 = false;
@@ -38,7 +47,8 @@ export class PcapFormComponent implements OnInit {
 
   private initalizePage(){
     this.pcapSrv.getPcaps().subscribe(data => {
-      this.pcaps = data as Array<Object>;
+      this.pcaps = new MatTableDataSource<Object>(data as Array<Object>);
+      this.pcaps.paginator = this.paginator;
     });
   }
 
@@ -51,39 +61,52 @@ export class PcapFormComponent implements OnInit {
     this.pcapToUpload = files.item(0);
   }
 
-  private openMessageModal(data: any){
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
+  }
+
+
+  private displayServiceResponse(data: any){
     if (data['success_message']){
-      this.messageModal.updateModal("INFO", data['success_message'], "Close");
+      this.displaySnackBar(data['success_message']);
       this.initalizePage();
     } else if (data['error_message']){
-      this.messageModal.updateModal("ERROR", data['error_message'], "Close");
+      this.displaySnackBar(data['error_message']);
     } else {
-      this.messageModal.updateModal("ERROR", "Failed for unknown reason.", "Close");
+      this.displaySnackBar("Failed for unknown reason");
     }
-
-    this.messageModal.openModal();
   }
 
   uploadFile(){
-    this.loadingDialog.openModal()
+    this.displaySnackBar("Loading " + this.pcapToUpload.name + "...");
     this.pcapSrv.uploadPcap(this.pcapToUpload).subscribe(data => {
       //This timeout is put in place to ensure that the modal will hide.
       //For very small PCAPs its possible to upload them faster than the
       //Loading dialog has time to open thus causing the modal to stay open forever.
       setTimeout(() => {
-        this.loadingDialog.hideModal();
-        this.openMessageModal(data);
+        this.displayServiceResponse(data);
       }, 1000);
     });
   }
 
   openConfirmModal(pcap: Object){
-    this.pcapToDelete = pcap['name'];
-    this.confirmModal.updateModal('WARNING',
-            'Are you sure you want to permanently delete ' + pcap['name']  + '?',
-            'Yes',
-            'Cancel');
-    this.confirmModal.openModal();
+    let doItText = 'Yes';
+    let dialogRef = this.dialog.open(ConfirmDailogComponent, {
+        width: DIALOG_WIDTH,
+        data: {
+          'paneString': 'Are you sure you want to permanently delete ' + pcap['name']  + '?',
+          'option1': doItText,
+          'option2': 'Cancel'
+        }
+      });
+      dialogRef.afterClosed().subscribe(
+        result => {
+          if(result == doItText) {
+            this.pcapToDelete = pcap['name'];
+            this.deleteFile();
+          }
+        }
+      );
   }
 
   getHash(hashes: Object): string {
@@ -95,11 +118,7 @@ export class PcapFormComponent implements OnInit {
       return hashes["sha1"];
     }
 
-    if(this.showSha256){
-      return hashes["sha256"];
-    }
-
-    return hashes["md5"];
+    return hashes["sha256"];
   }
 
   showMD5(){
@@ -121,8 +140,9 @@ export class PcapFormComponent implements OnInit {
   }
 
   deleteFile(){
+    console.log("Deleting", this.pcapToDelete)
     this.pcapSrv.deletePcap(this.pcapToDelete).subscribe(data => {
-      this.openMessageModal(data);
+      this.displayServiceResponse(data);
     });
   }
 }
