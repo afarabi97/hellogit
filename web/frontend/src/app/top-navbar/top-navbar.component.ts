@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
-
+import { DIPClockService } from '../services/dipclock.service';
+import { interval } from "rxjs";
+import { WebsocketService } from '../websocket.service';
 
 @Component({
   selector: 'app-top-navbar',
@@ -11,6 +12,9 @@ import { CookieService } from '../services/cookies.service';
 })
 export class TopNavbarComponent implements OnInit {
   showLinkNames = true;
+  time: Date;
+  timezone: string;
+
   sideNavigationButtons = [
     {
       children: [{ label: 'Portal', url: '/portal', icon: 'dashboard', isExternalLink: false }]
@@ -29,18 +33,57 @@ export class TopNavbarComponent implements OnInit {
       label: 'Policy Management',
       children: [{ label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false },
                  { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false }]
-    }, {
+    },
+    {
+      label: 'Tools',
+      children: [{ label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false }]
+    },
+    {
       label: 'Confluence',
       children: [{ label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true }]
-    }];
+    },
+    ];
 
   @ViewChild('notifications') notifications: NotificationsComponent;
 
-  constructor(private route: ActivatedRoute, private cookieService: CookieService) {
-  }
+  constructor(private cookieService: CookieService,
+              private clockService: DIPClockService,
+              private socketSrv: WebsocketService) { }
 
   ngOnInit() {
     this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
+    const clockCounter = interval(1000);
+
+    this.clockService.getCurrentDIPTime().subscribe(data => {
+      this.setClock(data);
+      clockCounter.subscribe(n => {
+        this.time = new Date(this.time.getTime() + 1000);
+      });
+    });
+
+    this.socketRefresh();
+  }
+
+  private setClock(data: Object){
+    this.timezone = data["timezone"];
+    let datetime = data["datetime"];
+    let dateParts = datetime.split(' ')[0].split("-");
+    let timeParts = datetime.split(' ')[1].split(":");
+
+    this.time = new Date(
+      dateParts[2], //Year
+      dateParts[0], //Month
+      dateParts[1], //Day
+      timeParts[0], // hours
+      timeParts[1], // minutes
+      timeParts[2] // seconds
+    );
+  }
+
+  private restartClock(){
+    this.clockService.getCurrentDIPTime().subscribe(data => {
+      this.setClock(data);
+    });
   }
 
   openNotifications() {
@@ -50,5 +93,11 @@ export class TopNavbarComponent implements OnInit {
   toggleSideNavigation() {
     this.showLinkNames = !this.showLinkNames;
     this.cookieService.set('isOpen', this.showLinkNames.toString());
+  }
+
+  private socketRefresh(){
+    this.socketSrv.getSocket().on('clockchange', (data: any) => {
+      this.restartClock();
+    });
   }
 }

@@ -7,7 +7,9 @@ import os, signal
 from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.service.job_service import run_command
+from app.service.job_service import run_command, run_command2
+from app.service.time_service import change_time_on_kit, TimeChangeFailure
+from app.service.socket_service import NotificationMessage, NotificationCode
 from app.node_facts import get_system_info
 from celery.app.control import Control, Inspect
 
@@ -15,7 +17,6 @@ from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from flask import request, jsonify, Response
 from typing import List, Dict, Tuple
-from app.service.socket_service import NotificationMessage, NotificationCode
 
 
 MIN_MBPS = 1000
@@ -250,3 +251,38 @@ def get_sensor_hostinfo() -> Response:
                 ret_val.append(host_simple)
 
     return jsonify(ret_val)
+
+
+@app.route('/api/change_kit_clock', methods=['POST'])
+def change_kit_clock() -> Response:
+    payload = request.get_json()
+    dateParts = payload['date'].split(' ')[0].split('/')
+    timeParts = payload['date'].split(' ')[1].split(':')
+    timeForm = {'timezone': payload['timezone'],
+                 'date': { 'year': dateParts[2], 'month': dateParts[0], 'day': dateParts[1]},
+                 'time': '{}:{}:{}'.format(timeParts[0], timeParts[1], timeParts[2])
+               }
+
+    try:
+        change_time_on_kit(timeForm)
+    except TimeChangeFailure as e:
+        return jsonify({"message": str(e)})
+
+    return jsonify({"message": "Successfully changed the clock on your Kit!"})
+
+
+@app.route('/api/get_current_dip_time', methods=['GET'])
+def get_current_dip_time():
+    timezone_stdout, ret_val = run_command2('timedatectl | grep "Time zone:"', use_shell=True)
+    if ret_val != 0:
+        return ERROR_RESPONSE
+
+    pos = timezone_stdout.find(":")
+    pos2 = timezone_stdout.find("(", pos)
+    timezone = timezone_stdout[pos+2:pos2-1]
+
+    date_stdout, ret_val = run_command2('date +"%m-%d-%Y %H:%M:%S"', use_shell=True)
+    if ret_val != 0:
+        return ERROR_RESPONSE
+
+    return jsonify({"timezone": timezone, "datetime": date_stdout.replace('\n', '')})

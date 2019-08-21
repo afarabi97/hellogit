@@ -5,7 +5,8 @@ export const enum DialogControlTypes {
   password,
   textarea,
   date,
-  dropdown
+  dropdown,
+  timezone
 }
 
 export class DialogFormControl extends FormControl {

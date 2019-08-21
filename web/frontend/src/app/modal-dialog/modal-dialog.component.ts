@@ -3,7 +3,6 @@ import { HtmlModalPopUp, ModalType,
         HtmlInput, HtmlDatePicker, HtmlDropDown, HtmlTextArea } from '../html-elements';
 import { FormControl } from '@angular/forms';
 import { KitFormTime } from '../kit-form/kit-form';
-import { DatePickerService } from "../date-picker/date-picker.service";
 
 
 @Component({
@@ -19,7 +18,7 @@ export class ModalDialogComponent implements OnInit {
   @Output()
   primaryButtonClick: EventEmitter<any> = new EventEmitter();
 
-  constructor(public _DatePickerService: DatePickerService) {}
+  constructor() {}
 
   ngOnInit() {}
 
@@ -78,7 +77,7 @@ export class ModalDialogComponent implements OnInit {
         timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         // this.modal.modalForm.timezone.setValue(timezone);
       }
-      this._DatePickerService.setDate(timezone);
+      // this._DatePickerService.setDate(timezone);
       this.setTime(timezone);
     }
   }

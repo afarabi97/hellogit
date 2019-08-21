@@ -1,0 +1,23 @@
+/* a {
+    cursor: pointer;
+    color: #00bc8c;
+}
+
+mat-card{
+  min-height: 10em;
+}
+
+.header-image {
+    background-size: cover;
+}
+.zoom {
+  transition: transform .2s;
+  cursor: pointer;
+}
+.zoom:hover {
+  transform: scale(1.05);
+}
+.mat-card-header-text{
+  margin:0px !important;
+}
+*/

@@ -1,7 +1,29 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDatepickerInputEvent } from '@angular/material';
+import { MatDatepickerInputEvent, MatSelectChange } from '@angular/material';
+
+
+export const TIMEZONES = [
+  'UTC',
+  'Browser',
+  'America/Chicago',
+  'America/Denver',
+  'America/Detroit',
+  'America/Los_Angeles',
+  'America/New_York'
+];
+
+export function getCurrentDate(timezone: string='UTC') {
+  const date = new Date();
+  const year = date.toLocaleString('en-US', {year: 'numeric', timeZone: timezone });
+  const month = date.toLocaleString('en-US', {month: '2-digit', timeZone: timezone });
+  const day = date.toLocaleString('en-US', {day: '2-digit', timeZone: timezone });
+  const hours = date.toLocaleString('en-US', {hour: '2-digit', hour12: false, timeZone: timezone });
+  const minutes = date.toLocaleString('en-US', {minute: '2-digit', timeZone: timezone });
+  const seconds = date.toLocaleString('en-US', {second: '2-digit', timeZone: timezone });
+  return new Date(parseInt(year), (parseInt(month) - 1), parseInt(day), parseInt(hours), parseInt(minutes), parseInt(seconds));
+}
 
 @Component({
     selector: 'app-date-time',
@@ -15,7 +37,7 @@ import { MatDatepickerInputEvent } from '@angular/material';
           matInput
           [value]="value | date:this.format"
           (change)="textChange($event)"
-          [formControl]="control"
+          [formControl]="datetime"
           placeholder="{{placeholder}}"
         />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -23,6 +45,12 @@ import { MatDatepickerInputEvent } from '@angular/material';
         <mat-error>Invalid Date provided</mat-error>
         <mat-hint *ngIf="!!mandatoryTime">Time of day cannot be changed</mat-hint>
       </mat-form-field>
+      <mat-form-field>
+        <mat-label>Time Zone</mat-label>
+        <mat-select [formControl]="timezone" (selectionChange)="changeDateTime($event)">
+            <mat-option value="{{timezone}}" *ngFor="let timezone of timeZones">{{timezone}}</mat-option>
+        </mat-select>
+        </mat-form-field>
     </div>
     `,
     providers: [{
@@ -31,26 +59,48 @@ import { MatDatepickerInputEvent } from '@angular/material';
         multi: true
     }]
 })
-export class DateTimeComponent implements ControlValueAccessor, OnChanges {
-    public  value: Date = null;
-    private onChange;
+export class DateTimeComponent implements OnChanges {
+    public timeZones = TIMEZONES;
+    public value: Date = null;
     private showPicker = false;
     public isDisabled = false;
 
-    // mat-form-field requires a form control to know how to set error state
-    // making a dummy control to satisfy its needs
-    control = new FormControl();
+    @Input()
+    datetime: FormControl;
 
-    @Input() format = 'M/dd/yyyy HH:mm:ss';
+    @Input()
+    timezone: FormControl;
+
+    @Input() format = 'MM/dd/yyyy HH:mm:ss';
     @Input() placeholder;
     @Input() mandatoryTime: string;
 
     constructor(
         private _datePipe: DatePipe
-    ) { }
+    ) {
+    }
 
     ngOnChanges() {
+      if (this.datetime){
+         this._changeDateTime();
+         this.writeValue(this.value);
+      }
+    }
+
+    private _changeDateTime(timezonestr: string="UTC"){
+      if (timezonestr === "Browser"){
+        let browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        this.timezone.setValue(browserTimezone);
+        timezonestr = browserTimezone;
+      }
+
+      this.value = getCurrentDate(timezonestr);
+      if (this.value && this.datetime)
         this.writeValue(this.value);
+    }
+
+    changeDateTime(timezoneChg: MatSelectChange){
+      this._changeDateTime(timezoneChg.value);
     }
 
     /**
@@ -70,7 +120,6 @@ export class DateTimeComponent implements ControlValueAccessor, OnChanges {
             hoursMinutesSeconds[1], // minutes
             hoursMinutesSeconds[2] // seconds
         );
-        this.onChange(this.value);
         this.showPicker = !this.showPicker;
     }
 
@@ -135,11 +184,10 @@ export class DateTimeComponent implements ControlValueAccessor, OnChanges {
                 this.value.setMinutes(newDate.getMinutes());
                 this.value.setSeconds(newDate.getSeconds());
             }
-            this.control.setValue(this._datePipe.transform(this.value, this.format));
-            this.control.setErrors(null);
-            this.onChange(this.value);
+            this.datetime.setValue(this._datePipe.transform(this.value, this.format));
+            this.datetime.setErrors(null);
         } else {
-            this.control.setErrors({ date: event.target.value });
+            this.datetime.setErrors({ date: event.target.value });
             this.value = prevDate;
         }
     }
@@ -150,7 +198,7 @@ export class DateTimeComponent implements ControlValueAccessor, OnChanges {
      */
     writeValue(obj: Date): void {
         this.value = obj && this.mandatoryTime ? this._getDateWithMandatoryTime(obj) : obj;
-        this.control.reset({ value: this._datePipe.transform(this.value, this.format), disabled: this.isDisabled });
+        this.datetime.reset({ value: this._datePipe.transform(this.value, this.format), disabled: this.isDisabled });
     }
 
     private _getDateWithMandatoryTime(date: Date): Date {
@@ -163,29 +211,5 @@ export class DateTimeComponent implements ControlValueAccessor, OnChanges {
             hoursMinutesSeconds[1], // minutes
             hoursMinutesSeconds[2] // seconds
         );
-    }
-
-    /**
-     * Implemented from ControlValueAccessor interface
-     * @param fn
-     */
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
-
-    /**
-     * Implemented from ControlValueAccessor interface. Nothing special needs to be done on touch of the field
-     * @param fn
-     */
-    registerOnTouched(fn: any): void {
-    }
-
-    /**
-     * Implemented from ControlValueAccessor interface
-     * @param {boolean} isDisabled
-     */
-    setDisabledState(isDisabled: boolean): void {
-        this.isDisabled = isDisabled;
-        this.control.reset({ value: this.control.value, disabled: isDisabled });
     }
 }

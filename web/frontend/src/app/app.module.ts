@@ -12,23 +12,19 @@ import { AppRoutingModule } from './/app-routing.module';
 import { TextInputComponent } from './text-input/text-input.component';
 import { TextAreaInputComponent } from './textarea-input/textarea-input.component';
 import { DropdownComponent } from './dropdown/dropdown.component';
-import { CheckboxComponent } from './checkbox/checkbox.component';
 import { ModalDialogComponent } from './modal-dialog/modal-dialog.component';
 import { KitFormComponent } from './kit-form/kit-form.component';
-import { BasicNodeResourceCardComponent } from './basic-node-resource-card/basic-node-resource-card.component';
 import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
 import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card/total-sensor-resources-card.component';
 import { TotalSystemResourceCardComponent } from './total-system-resource-card/total-system-resource-card.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { ModalArchiveDialogComponent } from './modal-archive-dialog/modal-archive-dialog.component';
 import { PortalComponent } from './portal/portal.component';
+import { ToolsFormComponent } from './tools-form/tools.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { SafePipe } from './globals';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DatePickerComponent } from './date-picker/date-picker.component';
-import { ModalIpSelectDialogComponent } from './modal-ip-select-dialog/modal-ip-select-dialog.component';
 import { RegistryComponent } from './registry/registry.component';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -78,7 +74,6 @@ import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-
 import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-dialog.component';
 
 // Date-Time
-import { DateTimePickerDialogComponent } from './date-time-picker-dialog/date-time-picker-dialog.component';
 import { DateTimeModule } from './date-time-picker/date-time.module';
 
 //Pipes
@@ -97,21 +92,17 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     TextInputComponent,
     TextAreaInputComponent,
     DropdownComponent,
-    CheckboxComponent,
     KitFormComponent,
-    ModalArchiveDialogComponent,
-    BasicNodeResourceCardComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
     PortalComponent,
+    ToolsFormComponent,
     SystemHealthComponent,
     SafePipe,
     ConfigmapsComponent,
     ConfigmapEditorComponent,
-    DatePickerComponent,
-    ModalIpSelectDialogComponent,
     RegistryComponent,
     ModalLoadingComponent,
     PcapFormComponent,
@@ -134,8 +125,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     NodeBackgroundComponent,
-    CatalogPageComponent,
-    DateTimePickerDialogComponent
+    CatalogPageComponent
   ],
   imports: [
     BrowserModule,
@@ -166,7 +156,6 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ConfirmDailogComponent,
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
-    DateTimePickerDialogComponent,
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
     ModalDialogMatComponent,

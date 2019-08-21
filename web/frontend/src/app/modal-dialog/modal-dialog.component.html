@@ -52,7 +52,6 @@
             <ng-container *ngFor="let controlName of objectKeys(modal.modalForm.controls)">
               <app-text-input *ngIf="isTextInput(modal.modalForm.controls[controlName])" [parentForm]="modal.modalForm" controlName="{{ controlName }}"></app-text-input>
               <app-textarea-input *ngIf="isTextArea(modal.modalForm.controls[controlName])" [parentForm]="modal.modalForm" controlName="{{ controlName }}"></app-textarea-input>
-              <app-date-picker *ngIf="isDateInput(modal.modalForm.controls[controlName])" [parentForm]="modal.modalForm" controlName="{{ controlName }}"></app-date-picker>
               <app-dropdown *ngIf="isDropdownInput(modal.modalForm.controls[controlName])" [parentForm]="modal.modalForm" controlName="{{ controlName }}" (dropDownChanged)="triggerCallback($event)"></app-dropdown>
             </ng-container>
           </div>

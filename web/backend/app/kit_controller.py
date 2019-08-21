@@ -9,14 +9,13 @@ from app.archive_controller import archive_form
 from app.common import OK_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.kit_service import perform_kit
-from bson import ObjectId
-from datetime import datetime
+from app.service.time_service import change_time_on_nodes
 from flask import request, Response, jsonify
 from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID
-from shared.connection_mngs import KUBEDIR, FabricConnectionManager
+from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 
 def _delete_kubernetes_conf():
@@ -59,53 +58,6 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     return False, None
 
 
-def zero_pad(num: int) -> str:
-    """
-    Zeros pads the numers that are lower than 10.
-
-    :return: string of the new number.
-    """
-    if num < 10:
-        return "0" + str(num)
-    return num
-
-
-def _execute_cmds(timeForm: Dict, password: str, ip_address: str) -> None:
-    """
-    Executes commands
-
-    :param timeForm: The time form from the main payload passed in from the Kit configuration page.
-    :param password: The ssh password of the box.
-    :param ip_address: The IP Address of the node.
-
-    :return:
-    """
-    hours, minutes = timeForm['time'].split(':')
-    with FabricConnectionManager('root', password, ip_address) as cmd:
-        ret_val = cmd.run('timedatectl set-timezone {}'.format(timeForm['timezone']))
-        time_cmd = "timedatectl set-time '{year}-{month}-{day} {hours}:{minutes}:00'".format(year=timeForm['date']['year'],
-                                                                                             month=zero_pad(timeForm['date']['month']),
-                                                                                             day=zero_pad(timeForm['date']['day']),
-                                                                                             hours=hours,
-                                                                                             minutes=minutes
-                                                                                            )
-        cmd.run('timedatectl set-ntp false', warn=True)
-        cmd.run(time_cmd)
-        cmd.run('timedatectl set-ntp true', warn=True)
-
-
-def _change_time_on_nodes(payload: Dict, password: str) -> None:
-    """
-    Sets the time on the nodes.  This function throws an exception on failure.
-
-    :param payload: The dictionary object containing the payload.
-    :return: None
-    """
-    timeForm = payload['timeForm']
-    for node in payload['kitForm']["nodes"]:
-        _execute_cmds(timeForm, password, node["management_ip_address"])
-
-
 def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
     """
     Main function for processing the kit and changing times on the nodes.
@@ -115,7 +67,7 @@ def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
     isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
     _delete_kubernetes_conf()
     if isSucessful:
-        _change_time_on_nodes(payload, root_password)
+        change_time_on_nodes(payload, root_password)
         return True, root_password
     return False, None
 

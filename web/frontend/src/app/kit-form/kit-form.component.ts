@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { DateTimePickerDialogComponent } from '../date-time-picker-dialog/date-time-picker-dialog.component';
 import { FormArray, FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors, validateFromArray } from '../validators/generic-validators.validator';
 import { KickstartService } from '../kickstart.service';
@@ -9,6 +8,9 @@ import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { Title } from '@angular/platform-browser';
+import { DialogFormControl, DialogControlTypes } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { getCurrentDate } from '../date-time-picker/date-time.component';
 
 
 @Component({
@@ -43,60 +45,68 @@ export class KitFormComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * opens a mat dialog with DateTimePickerDialogComponent with Execute Kit data
+   * opens a mat dialog with  with Execute Kit data
    *
    * @memberof KitFormComponent
    */
   openExecuteKitDialog(): void {
-    let message = 'Are you sure you want to execute this Kit configuration? Doing so will create a new cluster \
-       with the configuration you created.  All data will be wiped out if you are running this on an existing cluster! \
-       Before you can submit your Kit configuration, please make sure you enter the current UTC date and time below.  \
-       This will set the nodes in the cluster to the appropriate time before configuring the rest \
-       of the Kit.';
-    let title = "Execute Kit?";
-    let option1 = "Cancel";
-    let option2 = "Execute";
-    let date = new FormControl(new Date());
-    let timezone = new FormControl('UTC');
-    let data = {
-      paneString: message, paneTitle: title, option1: option1, option2: option2, date: date, timezone: timezone
-    };
-    this.openDateTimeDialog(data, false);
+    let dialogForm = this.formBuilder.group({
+      date: new DialogFormControl("Current Date & Time", getCurrentDate(), undefined,
+            undefined, undefined, DialogControlTypes.date),
+      timezone: new DialogFormControl("Timezone", 'UTC', undefined,
+            undefined, undefined, DialogControlTypes.timezone)
+    });
+
+    let dialogData = { title: "Execute Kit?",
+                       instructions: 'Are you sure you want to generate the Kit inventory?  \
+                                      Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
+                                      To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.',
+                       dialogForm: dialogForm,
+                       confirmBtnText: "Execute" };
+    this.openDateTimeDialog(dialogData, false);
   }
 
   /**
-   * opens a mat dialog with DateTimePickerDialogComponent with Kit inventory data
+   * opens a mat dialog with  with Kit inventory data
    *
    * @memberof KitFormComponent
    */
   public openGenKitInventoryDialog(): void {
-    let message = 'Are you sure you want to generate the Kit inventory?  \
-    Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
-    To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.';
-    let title = "Generate Kit Inventory?";
-    let option1 = "Cancel";
-    let option2 = "Generate";
-    let date = new FormControl(new Date());
-    let timezone = new FormControl('UTC');
-    let data = {
-      paneString: message, paneTitle: title, option1: option1, option2: option2, date: date, timezone: timezone
-    };
-    this.openDateTimeDialog(data, true);
+    let dialogForm = this.formBuilder.group({
+      date: new DialogFormControl("Current Date & Time", undefined, undefined,
+            undefined, undefined, DialogControlTypes.date),
+      timezone: new DialogFormControl("Timezone", 'UTC', undefined,
+            undefined, undefined, DialogControlTypes.timezone)
+    });
+
+    let dialogData = { title: "Generate Kit Inventory?",
+                       instructions: 'Are you sure you want to generate the Kit inventory?  \
+                                      Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
+                                      To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.',
+                       dialogForm: dialogForm,
+                       confirmBtnText: "Execute" };
+    this.openDateTimeDialog(dialogData, true);
   }
 
   /**
-   * opens a mat dialog with DateTimePickerDialogComponent
+   * opens a mat dialog with
    *
    * @private
    * @param {*} data
    * @param {boolean} generateKitInvetory
    * @memberof KitFormComponent
    */
-  private openDateTimeDialog(data, generateKitInvetory: boolean): void {
-    let callbackfn = (result) => {
-      if (result == data.option2) {
-        this.executeKitForm = new KitFormTime(data.date.value, data.timezone.value);
-        this.executeKitForm.date.month = this.executeKitForm.date.month + 1;
+  private openDateTimeDialog(dialogData: { title: string, instructions: string, dialogForm: FormGroup, confirmBtnText: string },
+                             generateKitInvetory: boolean): void {
+    const dialogRef = this.matDialog.open(ModalDialogMatComponent, {
+      width: "50%",
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      let form = result as FormGroup;
+      if (form && form.valid){
+        this.executeKitForm = new KitFormTime(form.get('date').value, form.get('timezone').value);
         if (!generateKitInvetory) {
           this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => this.openConsole());
         } else {
@@ -105,8 +115,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
           });
         }
       }
-    };
-    this.openDialog(DateTimePickerDialogComponent, data, callbackfn);
+    });
   }
 
   /**
@@ -360,20 +369,6 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    */
   public getFormValidationErrors(controls: FormGroupControls): AllValidationErrors[] {
     return getFormValidationErrors(controls);
-  }
-
-  /**
-   * opens a Mat Dialog
-   *
-   * @private
-   * @param {*} component
-   * @param {*} data
-   * @param {*} [callbackfn]
-   * @memberof KitFormComponent
-   */
-  private openDialog(component, data, callbackfn?): void {
-    const dialogRef = this.matDialog.open(component, { data: data, width: '50%' });
-    dialogRef.afterClosed().subscribe(result => result ? callbackfn(result) : result);
   }
 
   /**

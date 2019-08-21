@@ -15,9 +15,10 @@
       <input matInput [formControl]="control" matTooltip="{{ control.tooltip }}" type="password">
     </mat-form-field>
     <mat-error >{{ getErrorMessage(control) }}</mat-error>
+    <app-date-time *ngIf="isDateInput(control)" [datetime]="control" [timezone]="getTimezoneControl()" placeholder="Current Date & Time"></app-date-time>
   </ng-container>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button (click)="submitAndClose()" [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
+  <button mat-raised-button (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="submitAndClose()" [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
 </div>

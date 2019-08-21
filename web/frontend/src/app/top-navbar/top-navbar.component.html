@@ -3,6 +3,13 @@
       <h5 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>TFPlenum Controller</h5>
       <span class="version" *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>v3.3</span>
       <mat-list>
+        <mat-list-item>
+          <mat-icon mat-list-icon matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
+          <div *ngIf="showLinkNames" fxLayout="column" fxLayoutAlign="center none" style="padding-left: 16px;">
+            <div style="color:lightgreen;" mat-line>{{ time | date:'MM-dd-yy HH:mm:ss' }}</div>
+            <div style="color:lightgreen;" mat-line>{{ timezone }}</div>
+          </div>
+        </mat-list-item>
         <mat-list-item (click)="openNotifications()">
               <mat-icon class="notification-icon" mat-list-icon><app-notifications #notifications></app-notifications></mat-icon>
               <h4 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md mat-line>Notifications</h4>
@@ -45,4 +52,4 @@
     <div class="mat-drawer-main-content" >
       <router-outlet></router-outlet>
     </div>
-  </mat-drawer-container>
+</mat-drawer-container>

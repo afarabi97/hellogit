@@ -14,16 +14,6 @@ export const CIDR_CONSTRAINT: string = "any|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]
 export const KUBE_CIDR_CONSTRAINT: string = '^((2[0-2][0-3])|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){2}\\.((2[0-3]\\d)|(1\\d\\d)|([1-9]?\\d))$';
 
 // MISC
-export const TIMEZONES = [
-  'UTC',
-  'Browser',
-  'America/Chicago',
-  'America/Denver',
-  'America/Detroit',
-  'America/Los_Angeles',
-  'America/New_York'
-];
-
 export const KIT_ID = "kit_form";
 export const PORTAL_ID = 'portal_links';
 export const KICKSTART_ID = "kickstart_form";

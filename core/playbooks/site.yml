@@ -180,6 +180,18 @@
   tags:
     - common
 
+- name: Setup chrony on ctrl
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - chrony
+  tags:
+    - common
+
 - name: OpenVPN
   hosts:
     - master_server

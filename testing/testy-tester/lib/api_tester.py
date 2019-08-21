@@ -154,7 +154,7 @@ class KitPayloadGenerator:
                 "month": t.month,
                 "day": t.day
             },
-            "time": "{}:{}".format(zero_pad(t.hour), zero_pad(t.minute)),
+            "time": "{}:{}:00".format(zero_pad(t.hour), zero_pad(t.minute)),
             "timezone": "UTC"
         }
 

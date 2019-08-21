@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-catalog',
@@ -18,7 +19,8 @@ export class CatalogComponent implements OnInit {
    * @memberof CatalogComponent
    */
   constructor(
-    public _CatalogService: CatalogService
+    public _CatalogService: CatalogService,
+    private titleSvc: Title
   ) { }
 
   /**
@@ -27,6 +29,7 @@ export class CatalogComponent implements OnInit {
    * @memberof CatalogComponent
    */
   ngOnInit() {
+    this.titleSvc.setTitle("Catalog");
     this._CatalogService.getByString("charts").subscribe(data => {
       data.map( node => {
         this._CatalogService.getByString("chart/" + node.application + "/status").subscribe(statusGroup => {

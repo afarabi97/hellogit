@@ -34,6 +34,10 @@ export class ModalDialogMatComponent implements OnInit {
     return ret_val;
   }
 
+  getTimezoneControl(){
+    return this.dialogForm.get('timezone');
+  }
+
   isTextInput(control: DialogFormControl): boolean {
     return control.controlType === DialogControlTypes.text;
   }
@@ -44,6 +48,10 @@ export class ModalDialogMatComponent implements OnInit {
 
   isPasswordInput(control: DialogFormControl): boolean {
     return control.controlType === DialogControlTypes.password;
+  }
+
+  isDateInput(control: DialogFormControl): boolean{
+    return control.controlType === DialogControlTypes.date;
   }
 
   public getErrorMessage(control: DialogFormControl): string {
