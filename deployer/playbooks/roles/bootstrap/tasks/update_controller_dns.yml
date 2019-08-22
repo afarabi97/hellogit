@@ -16,6 +16,8 @@
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ controller_interface_name.stdout }}
     line: "DNS1=127.0.0.1"
     state: present
-  notify: "Restart Network Services"
+  notify:
+    - "Restart Network"
+    - "Restart NetworkManager"
 
 ...

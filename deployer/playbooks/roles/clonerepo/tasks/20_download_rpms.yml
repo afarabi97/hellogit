@@ -15,13 +15,31 @@
 
 - name: Download Packages
   shell: |
-    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64 {{ item }}
-  with_items: "{{ packages }}"
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64 {{ packages | join(' ') }}
 
 - name: Download Packages
   shell: |
-    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --archlist=x86_64 {{ item }}
-  with_items: "{{ packages_without_deps }}"
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --archlist=x86_64 {{ packages_without_deps | join(' ') }}
+
+- name: Add local iso repo
+  yum_repository:
+    description: "RedHat ISO Repo"
+    enabled: "true"
+    file: local
+    baseurl: "file:///mnt/"
+    name: "local_rhel_7"
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
+
+- name: Get packages from RedHat
+  shell: |
+    repoquery --repoid=local_rhel_7 --qf=%{name} -g --list --grouppkgs=all "{{ item }}" | xargs yumdownloader --enablerepo=local_rhel_7 --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64 {}
+  with_items: "{{ group_packages }}"
+
+- name: Remove local iso repo
+  yum_repository:
+    name: local_rhel_7
+    state: absent
 
 - name: remove unwanted packages
   shell: |
@@ -35,8 +53,24 @@
     path: "{{ TFPLENUM_REPO_DIR }}/repodata"
     state: absent
 
+- name: get comp xml name
+  shell: |
+    find "{{ mnt_pth }}/repodata" -type f -iname "*comps*.xml"
+  register: comps_result
+
+- name: Validate if comps.xml exists
+  stat:
+    path: "{{ comps_result.stdout }}"
+  register: comps_file
+
+- name: copy comps xml to offline repo
+  copy:
+    src: "{{ comps_file.stat.path }}"
+    dest: "{{ TFPLENUM_REPO_DIR }}/comps.xml"
+  when: comps_file.stat.exists
+
 - name: create repodata
-  shell: "createrepo {{ TFPLENUM_REPO_DIR }}"
+  shell: "createrepo -g {{ TFPLENUM_REPO_DIR }}/comps.xml {{ TFPLENUM_REPO_DIR }}"
 
 - name: get list of directories with wrong permissions
   shell: |

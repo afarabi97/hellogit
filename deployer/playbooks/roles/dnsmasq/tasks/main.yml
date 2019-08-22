@@ -9,7 +9,9 @@
         group: root
         mode: 0644
       register: dnsmasq_result
-      notify: "Restart Network Services"
+      notify:
+        - "Restart Network"
+        - "Restart NetworkManager"
 
     - meta: flush_handlers
 

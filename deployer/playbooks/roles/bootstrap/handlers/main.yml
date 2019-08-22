@@ -5,12 +5,12 @@
   service:
     name: NetworkManager
     state: restarted
-  listen: "Restart Network Services"
+  listen: "Restart NetworkManager"
 
 - name: Network Services
   service:
     name: network
     state: restarted
-  listen: "Restart Network Services"
+  listen: "Restart Network"
 
 ...

@@ -11,5 +11,7 @@
     regexp: "^{{ server_ip }} {{ ansible_controller_hostname }}"
     line: "{{ server_ip }} {{ ansible_controller_hostname }}"
     state: present
-  notify: "Restart Network Services"
+  notify:
+    - "Restart Network"
+    - "Restart NetworkManager"
 ...

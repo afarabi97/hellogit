@@ -42,6 +42,30 @@
     name: registry
 
 - import_tasks: helm.yml
+
+# - name: Copy dirs from rhel iso
+#   copy:
+#     src: "{{ item }}"
+#     dest: "{{ TFPLENUM_REPO_DIR }}"
+#     setype: cobbler_var_lib_t
+#   register: tftp
+#   with_items:
+#     - "{{ mnt_pth }}/EFI"
+#     - "{{ mnt_pth }}/images"
+#     - "{{ mnt_pth }}/isolinux"
+#     - "{{ mnt_pth }}/LiveOS"
+
+- name: Copy dirs from rhel iso
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize:
+    dest: "{{ TFPLENUM_REPO_DIR }}"
+    src:  "{{ mnt_pth }}/"
+    recursive: yes
+    rsync_opts:
+      - "--exclude=Packages"
+      - "--exclude=repodata"
+
+
 - import_tasks: cleanup.yml
 - import_tasks: offline_repos.yml
 - import_tasks: update_etc_hosts.yml

@@ -25,7 +25,7 @@
 
 - name: Setup RHEL Repos
   block:
-    - name: Place centos & rhel pxe files
+    - name: Labrepo rhel repos
       copy:
         src: "labrepo-rhel.repo"
         dest: "/etc/yum.repos.d/labrepo-rhel.repo"

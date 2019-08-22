@@ -113,10 +113,10 @@ iso_centos_url_labrepo: "http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-{{ iso_
 iso_centos_pth: "/root/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
 iso_centos_checksum: 38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c
 
-iso_rhel_version: "7.6"
+iso_rhel_version: "7.7"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_checksum: 60a0be5aeed1f08f2bb7599a578c89ec134b4016cd62a8604b29f15d543a469c
+iso_rhel_checksum: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
 
 BOOTSTRAP: false
 
@@ -131,5 +131,7 @@ chart_repos:
   - "bitnami https://charts.bitnami.com/bitnami"
   - "elastic https://helm.elastic.co"
 
+#Path where iso is to be mounted ex: /mnt
+mnt_pth: /mnt
 
 ...

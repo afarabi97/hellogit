@@ -78,7 +78,7 @@ function _configure_httpd {
 	run_cmd chmod 644 $certificate
 	run_cmd openssl dhparam -dsaparam -out /etc/ssl/certs/dhparam.pem 4096
 	run_cmd cat /etc/ssl/certs/dhparam.pem | sudo tee -a /etc/ssl/certs/apache-selfsigned.crt
-	mv -v /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf.bak
+	rm -rf /etc/httpd/conf.d/ssl.conf
 	run_cmd cp -v ./tfplenum.conf /etc/httpd/conf.d/
     run_cmd rm -rf /etc/httpd/conf.d/welcome.conf
 }
