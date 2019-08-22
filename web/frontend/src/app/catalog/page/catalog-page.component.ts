@@ -510,8 +510,13 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     let nodeControls = this._formBuilder.group({});
     if (this.chart.formControls) {
       this.chart.formControls.map( control => {
-        if (control.type === "textinput" || control.type ==="textinputlist") {
+        if (control.type === "textinput") {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
+            control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
+            control.required ? Validators.required : Validators.nullValidator])));
+        } else if (control.type ==="textinputlist") {
+          let strValue = JSON.stringify(value[control.name]);
+          nodeControls.addControl(control.name, new FormControl( value ? strValue : control.default_value, Validators.compose([
             control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
             control.required ? Validators.required : Validators.nullValidator])));
         } else if (control.type === "invisible") {

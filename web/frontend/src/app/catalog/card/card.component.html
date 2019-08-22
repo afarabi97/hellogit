@@ -17,7 +17,7 @@
       <div class="body" *ngIf="hovered" >{{chart.description}}</div>
       <div class="body" *ngIf="!hovered">
         <div *ngIf="chart?.nodes?.length !== 0">
-          <p *ngFor="let node of chart.nodes" style="color:white">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</p>
+          <div *ngFor="let node of chart.nodes" style="color:lightgreen">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</div>
         </div>
         <div *ngIf="chart?.nodes?.length === 0">
           <p style="color:white"> Not Installed </p>
