@@ -235,7 +235,7 @@ def restart_server(ip, token):
     reset_target = reset_action['target']
 
     if power_state == 'Off':
-        data = '{"ResetType": "On"}'
+        data = {"ResetType": "On"}
     elif 'GracefulRestart' in reset_options:
         data = {"ResetType": "GracefulRestart"}
     else:
@@ -252,6 +252,7 @@ def restart_server(ip, token):
         print(host + reset_target)
         print(data)
         print(reset_options)
+        print(power_state)
         raise Exception("Error restarting {}".format(ip))
 
 

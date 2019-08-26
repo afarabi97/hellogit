@@ -205,7 +205,7 @@ class Runner:
                     vcenter.get("datacenter"),
                     username,
                     password,
-                    iso_folder_path,  
+                    iso_folder_path,
                     vcenter=(True if vcenter else False),
                     install_type=host_config.get("install_type"),
                     image_folder_path=image_folder_path

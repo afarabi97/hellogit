@@ -30,7 +30,7 @@ kit:
 
   kit_configuration:
       # The branch we want to pull from.
-      branch_name: feature/redfish
+      branch_name: devel
       source_repo: labrepo
       # Kubernetes cidr will probably be different on a per kit basis
       kubernetes_cidr: "172.16.32.112"

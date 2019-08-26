@@ -602,8 +602,9 @@ def upload_vm(host_configuration: HostConfiguration, controller: Node) -> None:
             resp = content.fileManager.MakeDirectory(path, dc, False)
             logger.info("Created folder {}.".format(folder_name))
         except vim.fault.FileAlreadyExists:
-            logger.info("Folder {} already exists.".format(folder_name))
-            return 0
+            #logger.info("Folder {} already exists.".format(folder_name))
+            #return 0
+            pass
 
     # upload missing files
     rhel_directory = host_configuration.image_folder_path
@@ -706,6 +707,9 @@ def copy_vm(host_configuration: HostConfiguration, controller: Node) -> None:
 
     logger.info("Registering RHEL")
     register_rhel_vm(s, vm, creds, host_configuration, controller)
+
+    logging.info("Downloading RHEL iso")
+    download_rhel_iso(s, vm, creds, host_configuration, controller)
 
     # change root password
     logger.info("Changing root password.")
@@ -824,8 +828,6 @@ def add_disk_to_vm(vm, disk_size, share=False, disk_type="thin", unit_number=1, 
 
     return 1
 
-
-
 def change_root_password(service_instance, vm, creds, user, password):
     content = service_instance.RetrieveContent()
     execute = {
@@ -854,7 +856,13 @@ def run_vm_process(vm, creds, content, programPath, arguments):
 
         if res > 0:
             logger.info("Program submitted, PID is %d" % res)
-            time.sleep(3)
+
+            processes = pm.ListProcessesInGuest(vm, creds, [res])
+            retries = 0
+            if not processes and retries < 10:
+                time.sleep(3)
+                retries += 1
+                processes = pm.ListProcessesInGuest(vm, creds, [res])
 
             process = pm.ListProcessesInGuest(vm, creds, [res]).pop()
             pid_exitcode = process.exitCode
@@ -994,6 +1002,9 @@ def change_ip_address_in_vm(service_instance, vm, creds, host_configuration, nod
 
     wait_for_vm_tools(vm)
 
+    dns = ['DNS{i}={dns}'.format(i=i, dns=dns)
+            for i, dns in enumerate(node.dns_list, 1)]
+    dns = '\n'.join(dns)
     network_config = (
         "DEVICE=ens192\n"
         "ONBOOT=yes\n"
@@ -1001,25 +1012,19 @@ def change_ip_address_in_vm(service_instance, vm, creds, host_configuration, nod
         "IPADDR={addr}\n"
         "NETMASK={mask}\n"
         "GATEWAY={gateway}\n"
-        "DNS1=8.8.8.8\n"
+        "{dns}"
     ).format(
         addr=node.interfaces[0].ip_address,
         mask=node.interfaces[0].subnet_mask,
-        gateway=node.gateway
-    )
-    upload_file_to_vm(
-        host_configuration.ip_address,
-        service_instance,
-        vm, creds,
-        vm_path = '/etc/sysconfig/network-scripts/ifcfg-ens192',
-        file_contents=network_config,
+        gateway=node.gateway,
+        dns=dns
     )
 
     upload_file_to_vm(
         host_configuration.ip_address,
         service_instance,
         vm, creds,
-        vm_path = '/root/ifcfg-ens192.txt',
+        vm_path = '/etc/sysconfig/network-scripts/ifcfg-ens192',
         file_contents=network_config,
     )
 
@@ -1063,6 +1068,16 @@ def register_rhel_vm(service_instance, vm, creds, host_configuration, node):
     arguments = ' >> subscription.log'
     exit_code = run_vm_process(vm, creds, content, programPath, arguments)
 
+    return exit_code
+
+def download_rhel_iso(service_instance, vm, creds, host_configuration, node):
+    url = os.getenv('RHEL_ISO')
+    if not url:
+        raise Exception("Need to set RHEL_ISO environment variable to url of RHEL_ISO")
+    content = service_instance.RetrieveContent()
+    programPath = '/bin/curl'
+    arguments = '-O {url}'.format(url=url)
+    exit_code = run_vm_process(vm, creds, content, programPath, arguments)
     return exit_code
 
 def add_nic(vm, network):
