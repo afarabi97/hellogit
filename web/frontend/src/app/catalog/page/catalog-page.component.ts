@@ -1,13 +1,11 @@
-import {Component, Inject, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
-import {FormBuilder, FormGroup, Validators, FormControl, FormArray} from '@angular/forms';
+import { Component, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { ChartInfo, INodeInfo } from '../interface/chart.interface';
 import { MatStepper } from '@angular/material/stepper';
 import { CatalogService, config } from '../services/catalog.service';
 import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
-import { ConfigmapsComponent } from 'src/app/configmaps/configmaps.component';
-import { ArchiveSaveDialogComponent } from 'src/app/archive-save-dialog/archive-save-dialog.component';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 
 @Component({
@@ -514,9 +512,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
             control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
             control.required ? Validators.required : Validators.nullValidator])));
-        } else if (control.type ==="textinputlist") {
-          let strValue = JSON.stringify(value[control.name]);
-          nodeControls.addControl(control.name, new FormControl( value ? strValue : control.default_value, Validators.compose([
+        } else if (control.type ==="textinputlist") {         
+         // let strValue = JSON.stringify(value[control.name]);     
+          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
             control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
             control.required ? Validators.required : Validators.nullValidator])));
         } else if (control.type === "invisible") {
@@ -608,5 +606,4 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       controlValue.setValue(control.falseValue);
     }
   }
-
 }

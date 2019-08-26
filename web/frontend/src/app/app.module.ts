@@ -9,10 +9,6 @@ import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
 import { AppRoutingModule } from './/app-routing.module';
-import { TextInputComponent } from './text-input/text-input.component';
-import { TextAreaInputComponent } from './textarea-input/textarea-input.component';
-import { DropdownComponent } from './dropdown/dropdown.component';
-import { ModalDialogComponent } from './modal-dialog/modal-dialog.component';
 import { KitFormComponent } from './kit-form/kit-form.component';
 import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
 import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card/total-sensor-resources-card.component';
@@ -21,7 +17,6 @@ import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
-import { SafePipe } from './globals';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -29,14 +24,12 @@ import { RegistryComponent } from './registry/registry.component';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
-import { ModalLoadingComponent } from './modal-loading/modal-loading.component';
 
 //Poilicy Management
 import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
 import { PolicyManagementDialog } from './policy-management/dialog/policy-management-dialog.component';
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
 import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
-import { UploadDialogComponent } from './policy-management/upload-dialog/upload-dialog.component';
 
 //Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
@@ -90,9 +83,6 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     KickstartFormAutoCompleteComponent,
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
-    TextInputComponent,
-    TextAreaInputComponent,
-    DropdownComponent,
     KitFormComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
@@ -101,18 +91,14 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     PortalComponent,
     ToolsFormComponent,
     SystemHealthComponent,
-    SafePipe,
     ConfigmapsComponent,
     ConfigmapEditorComponent,
     RegistryComponent,
-    ModalLoadingComponent,
-    PcapFormComponent,
-    ModalDialogComponent,
+    PcapFormComponent,    
     PolicyManagementComponent,
     PolicyManagementDialog,
     PolicyManagementTable,
     PolicyManagementAddDialog,
-    UploadDialogComponent,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
@@ -153,7 +139,6 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     PolicyManagementComponent,
     PolicyManagementTable,
     PolicyManagementAddDialog,
-    UploadDialogComponent,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     ArchiveRestoreDialogComponent,

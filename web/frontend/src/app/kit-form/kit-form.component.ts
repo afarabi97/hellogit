@@ -1,9 +1,9 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormArray, FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors, validateFromArray } from '../validators/generic-validators.validator';
-import { KickstartService } from '../kickstart.service';
+import { KickstartService } from '../services/kickstart.service';
 import { KitFormTime, kit_validators, KitForm, KitFormNode, kitTooltips } from './kit-form';
-import { KitService } from '../kit.service';
+import { KitService } from '../services/kit.service';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';

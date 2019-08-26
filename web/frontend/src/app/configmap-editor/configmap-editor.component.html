@@ -1,19 +1,26 @@
-<div class="container-fluid" style="margin-top: 75px;">
+<div class="container-fluid">
   <mat-card>
     <mat-card-header>
-      {{ title }}
+      <mat-card-title>{{ title }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <textarea #editorCard class="form-control" rows="100" cols="50" [(ngModel)]="text"></textarea>
+      <div #outerCard fxLayout="row" fxLayoutAlign="start" style="overflow: auto;">
+        <div class="line-numbers">
+            <div *ngFor="let item of numbers; let i = index">{{ i + 1 }}</div>
+        </div>
+        <div class="text-area-wrapper">          
+          <textarea #editorCard class="text-area" rows="1000" cols="50" [(ngModel)]="text"></textarea>
+        </div>      
+      </div>      
     </mat-card-content>
-    <mat-card-footer>
-      <button mat-raised-button color="warn" class="btn-primary2" class="btn-danger2" type="button"
-        (click)="openCloseDialog()">
-        <mat-icon>highlight_off</mat-icon>&nbsp;Close without Saving
+    <mat-card-footer style="padding: 0em 2em 2em 2em;">
+      <button mat-raised-button color="warn" (click)="openCloseDialog()">
+        Close without Saving
       </button>
-      <button mat-raised-button color="primary" class="btn-primary2" style="float: right;" type="button"
-        (click)="openSaveDialog()">
-        &nbsp;&nbsp;&nbsp;<mat-icon>save</mat-icon>&nbsp;Save and Close&nbsp;&nbsp;&nbsp;
+      <button mat-raised-button
+              class="btn-primary2" style="float: right;"
+              (click)="openSaveDialog()">
+        Save and Close
       </button>
     </mat-card-footer>
   </mat-card>

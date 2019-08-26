@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Inject, AfterViewInit } from '@angular/co
 import { MatPaginator, MatTableDataSource } from '@angular/material';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
-import { ArchiveService } from 'src/app/archive.service';
+import { ArchiveService } from 'src/app/services/archive.service';
 @Component({
   selector: 'app-kickstart-form-restore',
   templateUrl: './archive-restore-dialog.component.html',

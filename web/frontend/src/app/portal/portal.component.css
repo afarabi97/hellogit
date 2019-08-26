@@ -1,22 +1,19 @@
 a {
     cursor: pointer;
-    color: #00bc8c;
+    color:#31dc31;
+    text-decoration: none;
 }
 
-mat-card{
-  min-height: 10em;
+a:hover {
+  color: lightgreen;
+  text-decoration: underline;
 }
 
-.header-image {
-    background-size: cover;
-} 
 .zoom {
   transition: transform .2s; /* Animation */
   cursor: pointer;
 }
+
 .zoom:hover {
   transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
-}
-.mat-card-header-text{
-  margin:0px !important;
 }

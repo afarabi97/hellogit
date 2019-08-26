@@ -27,7 +27,7 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let config">
-            <button mat-button title="Remove Config Map" class="btn-danger" 
+            <button mat-button matTooltip="Remove Config Map" class="btn-danger" 
             (click)="removeConfigMap(config.metadata.name, config)">
               <i class="material-icons" style="color: red">delete</i>
             </button>
@@ -36,7 +36,7 @@
 
         <ng-container matColumnDef="expandedDetail">
           <td mat-cell *matCellDef="let config" [attr.colspan]="outerTableColumns.length">
-            <button mat-button title="Add Config Data" class="btn-primary2" (click)="addConfigMapData(config)">
+            <button mat-button matTooltip="Add Config Data" class="btn-primary2" (click)="addConfigMapData(config)">
               <i class="material-icons">add_circle_outline</i> Add Config Data</button>
             <table *ngIf="config.data" mat-table [dataSource]="objectKeys(config.data)">
               <ng-container matColumnDef="filename">
@@ -47,9 +47,9 @@
                 <th mat-header-cell *matHeaderCellDef>Actions</th>
                 <td mat-cell *matCellDef="let filename">
                   <div class="btn-group">
-                    <button mat-button title="Edit Config Data" (click)="editConfigMapData(filename, config)">
+                    <button mat-button matTooltip="Edit Config Data" (click)="editConfigMapData(filename, config)">
                       <i class="material-icons">edit</i></button>
-                    <button mat-button title="Remove Config Data" (click)="removeConfigMapData(filename,config)">
+                    <button mat-button matTooltip="Remove Config Data" (click)="removeConfigMapData(filename,config)">
                       <i class="material-icons" style="color: red">delete</i></button>
                   </div>
                 </td>

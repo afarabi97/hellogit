@@ -128,7 +128,11 @@ class DatetimeService:
             if ret_val.return_code != 0:
                 raise TimeChangeFailure("Failed to run {} on {}".format(self._timezone_cmd, ip_address))
 
-            cmd.run(self._unset_ntp_cmd, warn=True)
+            try:
+                cmd.run(self._unset_ntp_cmd, warn=True)
+            except UnexpectedExit:
+                pass
+
             if is_master_server:
                 self._set_clock_using_timedatectl(cmd, ip_address)
             else:

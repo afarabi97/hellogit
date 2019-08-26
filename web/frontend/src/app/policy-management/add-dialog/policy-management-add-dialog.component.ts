@@ -4,10 +4,10 @@ import {  MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ErrorMessage, IHostInfo } from '../interface/rule.interface';
 import { RuleSet, IRuleSet } from '../interface/ruleSet.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /* Services */
 import { PolicyManagementService } from '../services/policy-management.service';
-import { HtmlModalPopUp, ModalType } from '../../html-elements';
 
 @Component({
   selector: 'policy-management-add-dialog',
@@ -17,17 +17,16 @@ import { HtmlModalPopUp, ModalType } from '../../html-elements';
 export class PolicyManagementAddDialog  implements OnInit{
   sensorList: Array<IHostInfo>;
   sensor = new FormControl();
-  ruleSetGroup: FormGroup;
-  messageDialog2: HtmlModalPopUp;
+  ruleSetGroup: FormGroup;  
 
   clearanceLevels: any[];
   ruleType: any[];
 
   constructor( public dialogRef: MatDialogRef<PolicyManagementAddDialog>,
                private formBuilder: FormBuilder,
+               private snackBar: MatSnackBar,
                public _PolicyManagementService: PolicyManagementService,
-               @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.messageDialog2 = new HtmlModalPopUp("msg_modal2");
+               @Inject(MAT_DIALOG_DATA) public data: any) {    
     this.clearanceLevels = _PolicyManagementService.clearanceLevels
     this.ruleType = _PolicyManagementService.ruleType
   }
@@ -42,6 +41,10 @@ export class PolicyManagementAddDialog  implements OnInit{
     } else {
       this.initializeForm(this.ruleSetGroup);
     }
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
   initializeForm(ruleSet: any, isEdit: boolean=false) {
@@ -68,9 +71,11 @@ export class PolicyManagementAddDialog  implements OnInit{
           this._PolicyManagementService.ruleSets[index] = data;          
           this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
         } else if (data instanceof ErrorMessage) {
-          this.messageDialog2.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-          this.messageDialog2.openModal();
+          this.displaySnackBar(data.error_message);
         }
+      }, err => {
+        this.displaySnackBar("Failed ot update ruleset of unknown reason.");
+        console.log(err);
       });
     } else {
       this._PolicyManagementService.createRuleSet(this.ruleSetGroup.value as IRuleSet).subscribe(data => {
@@ -78,9 +83,11 @@ export class PolicyManagementAddDialog  implements OnInit{
           this._PolicyManagementService.ruleSets.push(data);
           this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
         } else if (data instanceof ErrorMessage) {
-          this.messageDialog2.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-          this.messageDialog2.openModal();
+          this.displaySnackBar(data.error_message);
         }
+      }, err => {
+        this.displaySnackBar("Failed ot create ruleset of unknown reason.");
+        console.log(err);
       });
     }    
   }

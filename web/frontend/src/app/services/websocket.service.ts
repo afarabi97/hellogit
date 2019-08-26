@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import * as socketIo from 'socket.io-client';
 
 @Injectable({

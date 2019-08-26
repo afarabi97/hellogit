@@ -423,7 +423,10 @@ class Runner:
         :return:
         """
         for vm in vms:
-            vm.power_off()
+            try:
+                vm.power_off()
+            except AlreadyInDesiredState:
+                print("Already powered off skipping this step for {}".format(vm.vm_name))
 
     def _set_vm_macs(self, vms: List[VirtualMachine]):
         """

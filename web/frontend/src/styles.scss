@@ -18,10 +18,34 @@ snack-bar-container.mat-snack-bar-container {
   border: 1px solid black;
 }
 
+p {
+  color: lightgreen;
+}
+
+a {
+  color: #0f0;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #222;
+  border-color: #333;
+}
+
+.btn-primary2 {
+  background-color: #5f9ea0;
+  border-color: #006400;
+}
+
 .main-content2 {
   margin-top: 1.5em;
   width: fit-content;
   margin: 0 auto;
+
+  .btn-primary2 {
+    background-color: #5f9ea0;
+    border-color: #006400;
+  }
 
   .pageInstructions {
     background-color: #222;
@@ -52,11 +76,6 @@ snack-bar-container.mat-snack-bar-container {
     width: 74em;
     mat-card-title {
       width: 100%;
-    }
-
-    .btn-primary2 {
-      background-color: #5f9ea0;
-      border-color: #006400;
     }
 
     mat-card-header {
@@ -118,5 +137,69 @@ snack-bar-container.mat-snack-bar-container {
         }
       }
     }
+  }
+}
+
+.container-fluid {
+  width: 100%;
+  
+  mat-card {    
+    background-color: #222;    
+
+    mat-card-header {
+      mat-card-title {
+        margin-left: 20px;
+      }
+    }      
+
+    mat-card-content {
+      mat-form-field{
+        width: 100%;
+      }
+
+      .line-numbers {
+        display: inline-block;
+        font-family: sans-serif;
+        margin: 0px 5px 0px 0px;
+      }
+      
+      .line-numbers div {
+        font-size: 14px; 
+        font-family: sans-serif;
+      }
+      
+      .text-area-wrapper {
+        display: inline-block;
+        margin: 0px;
+        width: 80%;
+      }
+      
+      .text-area {
+        overflow: hidden; 
+        padding: 0px; 
+        overflow-x: auto;
+        overflow-y: hidden; 
+        font-size: 14px; 
+        font-family: sans-serif; 
+        width: 10000px;
+        background-color: black;
+        color: lightgreen;
+      }
+
+      textarea {
+        resize: none;
+      }
+    }
+  }
+
+  .line-numbers {
+    display: inline-block;
+    font-family: sans-serif;
+    margin: 0 5px 0 0;
+  }
+
+  .btn-primary2 {
+    background-color: #5f9ea0;
+    border-color: #006400;
   }
 }

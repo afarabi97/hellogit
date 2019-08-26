@@ -6,7 +6,8 @@ import { MatTableDataSource, MatPaginator, MatSort, MatSelectChange } from '@ang
 import { Rule, ErrorMessage, SuccessMessage } from '../interface/rule.interface';
 import { MatDialog } from '@angular/material';
 import { FormGroup } from '@angular/forms';
-import { HtmlModalPopUp, ModalType } from '../../html-elements';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 
 @Component({
   selector: 'policy-management-table',
@@ -19,9 +20,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   expandedElement: IRuleSet | null;
   objectKeys = Object.keys;
   filterGroup: FormGroup;
-  messageModal: HtmlModalPopUp;
-  removeRuleModal: HtmlModalPopUp;
-  removeRuleSetModal: HtmlModalPopUp;
+  
   isVisibleTest: boolean;
   isRulesVisible: Array<boolean>;
   ruleSetGroups: Array<string>;
@@ -33,10 +32,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
 
   constructor( public _PolicyManagementService: PolicyManagementService,
                private cdr: ChangeDetectorRef,
-               public dialog: MatDialog) {
-    this.messageModal = new HtmlModalPopUp("msg_modal");
-    this.removeRuleModal = new HtmlModalPopUp("remove_rule_modal");
-    this.removeRuleSetModal = new HtmlModalPopUp("remove_ruleset_modal");
+               public dialog: MatDialog,
+               private snackBar: MatSnackBar) {
+  
     this.isVisibleTest = false;
     this.isRulesVisible = new Array();
     this.ruleSetGroups = new Array();
@@ -44,6 +42,10 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
 
   applyFilter(filterValue: string) {
     this._PolicyManagementService.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
   private reloadRuleSetTable(ruleSetGroupName: string = "All"){
@@ -56,8 +58,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
 
     this._PolicyManagementService.getDistinctRuleSetGroups().subscribe(data => {
       if (data instanceof ErrorMessage){
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);        
       } else {
         this.ruleSetGroups = data as Array<string>;
       }
@@ -159,8 +160,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
         this._PolicyManagementService.ruleSets[index] = data;
         this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
       } else if (data instanceof ErrorMessage) {
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);
       }
     });
   }
@@ -172,8 +172,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   enableRule(rule: Rule, ruleSet: RuleSet) {    
     this._PolicyManagementService.toggleRule(ruleSet._id, rule).subscribe(data => {
       if (data instanceof ErrorMessage) {
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);
       } else if (data instanceof Rule) {
         rule.isEnabled = data.isEnabled;
         ruleSet.state = "Dirty";
@@ -181,51 +180,64 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
     });    
   }
 
-  removeRule() {
-    let ruleSet = this.removeRuleModal.cacheData['ruleSet'];
-    let rule = this.removeRuleModal.cacheData['rule'];
-    const index = ruleSet.rules.findIndex( i => i._id === rule._id);
-    this._PolicyManagementService.deleteRule(ruleSet._id, rule._id).subscribe(data => {
-      if (data instanceof ErrorMessage){
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
-      } else if (data instanceof SuccessMessage){
-        this._PolicyManagementService.innerRules.splice(index, 1);
-        this._PolicyManagementService.innerDataSource.data = this._PolicyManagementService.innerRules;
-        this.messageModal.updateModal("SUCCESS", data.success_message, "Close");
-        this.messageModal.openModal();
+  openRemoveRuleConfirmModal(rule: Rule, ruleSet: RuleSet){
+
+    const option2 = "Confirm";
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: "50%",
+      data: { "paneString": "Are you sure you want to permanently remove rule: " + rule.ruleName + "?",
+              "paneTitle": "Remove Rule", "option1": "Cancel", "option2": option2 },
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === option2) {
+        const index = ruleSet.rules.findIndex( i => i._id === rule._id);
+        this._PolicyManagementService.deleteRule(ruleSet._id, rule._id).subscribe(data => {
+          if (data instanceof ErrorMessage){
+            this.displaySnackBar(data.error_message);
+          } else if (data instanceof SuccessMessage){
+            this._PolicyManagementService.innerRules.splice(index, 1);
+            this._PolicyManagementService.innerDataSource.data = this._PolicyManagementService.innerRules;
+            this.displaySnackBar(data.success_message);            
+          }
+        }, err => {
+          this.displaySnackBar("Failed to delete rule.");
+          console.error("Delete rule error:", err);
+        });
       }
     });
   }
 
-  openRemoveRuleConfirmModal(rule: Rule, ruleSet: RuleSet){
-    this.removeRuleModal.updateModal("WARNING", "Are you sure you want to permanently remove rule: " + rule.ruleName + "?", "Yes", 
-                                     "Cancel", undefined, undefined, {rule: rule, ruleSet: ruleSet});
-    this.removeRuleModal.openModal();
-  }
-
-  removeRuleSet() {
-    let ruleSetID = this.removeRuleSetModal.cacheData as number;
+  private removeRuleSet(ruleSetID: number) {    
     this._PolicyManagementService.deleteRuleSet(ruleSetID).subscribe(data => {
       if (data instanceof ErrorMessage){
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);
       } else if (data instanceof SuccessMessage){
         this._PolicyManagementService.ruleSets = this._PolicyManagementService.ruleSets.filter( item => {
           return item._id !== ruleSetID;
         });
-
         this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
-        this.messageModal.updateModal("SUCCESS", data.success_message, "Close");
-        this.messageModal.openModal();
+        this.displaySnackBar(data.success_message);
       }
+    }, err => {
+      this.displaySnackBar("Failed to delete rule set.");
+      console.error("Delete rule error:", err);
     });
   }
 
   openRemoveRuleSetConfirmModal(ruleSet: RuleSet){
-    this.removeRuleSetModal.updateModal("WARNING", "Are you sure you want to permanently remove rule set: " + ruleSet.name + "?", "Yes", 
-                                     "Cancel", undefined, undefined, ruleSet._id);
-    this.removeRuleSetModal.openModal();
+    const option2 = "Confirm";
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: "50%",
+      data: { "paneString": "Are you sure you want to permanently remove rule set: " + ruleSet.name + "?",
+              "paneTitle": "Remove Rule Set", "option1": "Cancel", "option2": option2 },
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === option2) {
+        this.removeRuleSet(ruleSet._id);
+      }
+    });
   }
 
   editRuleSet(ruleSet: RuleSet) {

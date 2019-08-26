@@ -1,32 +1,36 @@
-<app-modal-dialog [modal]="messageDialog"></app-modal-dialog>
-<app-modal-loading #loadingDialog modalId="waitForRuleToUpload" title="Uploading rules file please wait..."></app-modal-loading>
-<div *ngIf="!_PolicyManagementService.isUserEditing" >
-  <div class="container">
-    <div class="card">
-      <div class="card-header">
-        <button title="Synchronize RuleSets" class="btn btn-primary" style="float: right;" (click)="ruleSync()"><i class="arrow_left-right_alt"></i> Rule Sync</button>
-        <!-- TODO consider removing this <button title="Upload Existing RuleSet from Local File" class="btn btn-primary" style="float: right;" (click)="uploadRuleSetFile()"><i class="icon_upload"></i> Upload RuleSet</button> -->
-        <button title="Add RuleSet" class="btn btn-primary" style="float: right;" (click)="addRuleSet()"><i class="icon_plus_alt2"></i> Add RuleSet</button>
+<div *ngIf="!_PolicyManagementService.isUserEditing" class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Page Instructions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="pageInstructions">
+        <p>
+          This page allows you to modify and synchronize Suricata rules on a per sensor basis.  Additionally,
+          Suricata rules can be enabled / disabled and tested against your own PCAP files.
+          <br><br>
+          Before you click the "Rule Sync" button in the top right, make sure you assigned sensors to the rule set
+          by clicking the Edit button and selecting sensors to apply to the rule set.
+          <br><br>
+          After you have clicked the "Rule Sync" button, make sure that state column displays "&lt;sensor_name&gt; - Synced"
+        </p>
       </div>
-      <div class="card-body">
-        <div class="card" style="margin-bottom: 15px;">
-          <div class="card-body page-instructions">
-            <h5>Page Instructions</h5>
-            <p class="card-text">
-              This page allows you to modify and synchronize Suricata rules on a per sensor basis.  Additionally,
-              Suricata rules can be enabled / disabled and tested against your own PCAP files.
-              <br><br>
-              Before you click the "Rule Sync" button in the top right, make sure you assigned sensors to the rule set
-              by clicking the Edit button and selecting sensors to apply to the rule set.
-              <br><br>
-              After you have clicked the "Rule Sync" button, make sure that state column displays "&lt;sensor_name&gt; - Synced"
-            </p>
-          </div>
-        </div>
-        <policy-management-table></policy-management-table>
-      </div>
-    </div>
-  </div>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <button mat-button MatTooltip="Synchronize RuleSets" class="btn-primary2"
+                (click)="ruleSync()"><i class="material-icons">swap_horiz</i> Rule Sync</button>
+        <button mat-button MatTooltip="Add RuleSet" class="btn-primary2" style="margin-right: 10px;"
+                (click)="addRuleSet()"><i class="material-icons">add_circle_outline</i> Add RuleSet</button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <policy-management-table></policy-management-table>
+    </mat-card-content>
+  </mat-card>
 </div>
 <policy-management-dialog *ngIf="_PolicyManagementService.isUserEditing"
                       (closeNoSaveEvent)="closeEditor($event)"

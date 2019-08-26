@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { PcapService } from './pcap.service';
 import { Title } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalLoadingComponent } from '../modal-loading/modal-loading.component';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,9 +25,6 @@ export class PcapFormComponent implements OnInit {
   showSha256: boolean;
 
   displayColumns = [ 'name', 'mod_date', 'hash', 'action' ];
-
-  //@ViewChild('loadingDialog')
-  //private loadingDialog: ModalLoadingComponent;
 
   @ViewChild('pcapPaginator')
   private paginator: MatPaginator;

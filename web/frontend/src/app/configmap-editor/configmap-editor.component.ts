@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ViewChild, 
          ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
-import { HtmlModalPopUp } from '../html-elements';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup'
 
 @Component({
@@ -12,6 +11,9 @@ export class ConfigmapEditorComponent implements OnInit {
 
   @ViewChild('editorCard')
   private editorCard: ElementRef;
+
+  @ViewChild('outerCard')
+  private outerCard: ElementRef;
 
   @Input()
   public title: string;
@@ -25,7 +27,10 @@ export class ConfigmapEditorComponent implements OnInit {
   @Output()
   closeSaveEvent: EventEmitter<any> = new EventEmitter();
 
+  numbers: Array<number>;
+
   constructor( private confirmer: ConfirmActionPopup) {
+    this.numbers = new Array(1000).fill(true);
   }
 
   /**
@@ -44,12 +49,12 @@ export class ConfigmapEditorComponent implements OnInit {
   private resizeEditor(){
     let height: string = "";
     if (window.innerHeight > 400){
-      height = (window.innerHeight - 230) + "px";
+      height = (window.innerHeight - 130) + "px";
     } else {
       height = "100px";
     }
-    this.editorCard.nativeElement.style.maxHeight = height;
-    this.editorCard.nativeElement.style.height = height;
+    this.outerCard.nativeElement.style.maxHeight = height;
+    this.outerCard.nativeElement.style.height = height;
   }
 
   openCloseDialog(){

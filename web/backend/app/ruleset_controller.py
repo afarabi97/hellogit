@@ -4,6 +4,7 @@ import tempfile
 
 from app import (app, logger, conn_mng, get_next_sequence, WEB_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
 from datetime import datetime
 from flask import jsonify, request, Response, send_file
@@ -133,17 +134,19 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
             theRule.save(filename)
             theRule.stream.seek(0)
 
+        pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_CONTAINER_VERSION)
         cmd = ("docker run --rm "
-               "-v {tmp_dir}:/etc/suricata/rules/ tfplenum/suricata:{version} "
+               "-v {tmp_dir}:/etc/suricata/rules/ localhost:5000/tfplenum/suricata:{version} "
                "suricata -c /etc/suricata/suricata.yaml -T").format(tmp_dir=tmpdirname,
                                                                     version=SURICATA_CONTAINER_VERSION)
+        
+        stdout, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        if ret_val == 0:
+            stdout, ret_val = run_command2(cmd, use_shell=True)
+            if ret_val == 0:
+                return True, ""
 
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        error_string, serr = proc.communicate()
-        if proc.returncode == 0:
-            return True, ""
-
-    return False, error_string.decode("UTF-8")
+    return False, stdout
 
 
 def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
@@ -159,20 +162,21 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
             theRule.save(filepath)
             theRule.stream.seek(0)
 
+        pull_docker_cmd = "docker pull localhost:5000/tfplenum/bro:{}".format(BRO_CONTAINER_VERSION)
+        stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+        if ret_val == 0:
+            cmd = ("docker run --rm "
+                "-v {tmp_dir}:{script_dir} localhost:5000/tfplenum/bro:{version} "
+                "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
+                                            version=BRO_CONTAINER_VERSION,
+                                            script_dir=BRO_RULE_DIR,
+                                            file_to_test=filename)
 
-        cmd = ("docker run --rm "
-               "-v {tmp_dir}:{script_dir} tfplenum/bro:{version} "
-               "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
-                                           version=BRO_CONTAINER_VERSION,
-                                           script_dir=BRO_RULE_DIR,
-                                           file_to_test=filename)
+            stdoutput, ret_val = run_command2(cmd, use_shell=True)
+            if ret_val == 0:
+                return True, ""
 
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        error_string, serr = proc.communicate()
-        if proc.returncode == 0:
-            return True, ""
-
-    return False, error_string.decode("UTF-8")
+    return False, stdoutput
 
 
 def create_rule_service(ruleset_id: int, rule: Dict):
@@ -186,41 +190,6 @@ def create_rule_service(ruleset_id: int, rule: Dict):
 
     return ret_val
 
-
-@app.route('/api/load_rules_from_file', methods=['POST'])
-def load_rules_from_file() -> Response:
-    rule_file = request.files['file']
-
-    if rule_file is None or not bool(rule_file):
-        return jsonify({"error_message": "No rules file sent."})
-
-    is_valid = False
-    if request.form['appType'] == RULE_TYPES[0]:
-        is_valid, error_msg = _validate_suricata_rule(rule)
-    elif request.form['appType'] == RULE_TYPES[1]:
-        is_valid, error_msg = _validate_bro_rule(rule)
-
-    if not valid:
-        return jsonify({"error_message": "Invalid Rules: {}".format(error_msg)})
-
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        file_path='{}/{}'.format(tmpdirname, request.form['filename'])
-        rule_file.save(file_path)
-        #Now, read in the file and save it to the database
-        ruleset = {
-            "appType": request.form['appType'],
-            "clearance": request.form['clearance'],
-            "name": request.form['name'],
-            "sensors": [],
-            "state": "Created",
-            "isEnabled": True,
-            "groupName": request.form['groupname']
-        }
-        ret_val = create_ruleset_service(ruleset)
-        create_ruleset_from_file(path = Path(file_path), ret_val = ret_val)
-
-    new_ruleset = conn_mng.mongo_ruleset.find_one({'_id': ret_val.inserted_id})
-    return jsonify(new_ruleset)
 
 @app.route('/api/create_rule', methods=['POST'])
 def create_rule() -> Response:
@@ -366,25 +335,26 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
             fp.write(rule_content)
 
         with tempfile.TemporaryDirectory() as results_tmp_dir:
+            pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_CONTAINER_VERSION)
             cmd = ("docker run --rm "
                    "-v {rules_dir}:/etc/suricata/rules/ "
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/var/log/suricata/ "
-                   "tfplenum/suricata:{version} "
+                   "localhost:5000/tfplenum/suricata:{version} "
                    "suricata -c /etc/suricata/suricata.yaml -r /pcaps/{pcap_name}").format(rules_dir=rules_tmp_dir,
                                                                                            pcap_dir=PCAP_UPLOAD_DIR,
                                                                                            results_dir=results_tmp_dir,
                                                                                            pcap_name=pcap_name,
-                                                                                           version=SURICATA_CONTAINER_VERSION)
+                                                                                           version=SURICATA_CONTAINER_VERSION)            
+            output, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            if ret_val == 0:
+                output, ret_val = run_command2(cmd, use_shell=True)
+                if ret_val == 0:
+                    results = Path(results_tmp_dir)
+                    for results_path in results.glob("eve-*"):
+                        return send_file(str(results_path))
 
-            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            error_string, serr = proc.communicate()
-            if proc.returncode == 0:
-                results = Path(results_tmp_dir)
-                for results_path in results.glob("eve-*"):
-                    return send_file(str(results_path))
-
-    return ERROR_RESPONSE
+    return jsonify({"message": output})
 
 
 def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
@@ -395,11 +365,12 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
             fp.write(rule_content)
 
         with tempfile.TemporaryDirectory() as results_tmp_dir:
+            pull_docker_cmd = "docker pull localhost:5000/tfplenum/bro:{}".format(BRO_CONTAINER_VERSION)
             cmd = ("docker run --rm "
                    "-v {tmp_dir}:{script_dir} "
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/data/ "
-                   " tfplenum/bro:{version} "
+                   "localhost:5000/tfplenum/bro:{version} "
                    "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir,
                                                                         pcap_dir=PCAP_UPLOAD_DIR,
                                                                         version=BRO_CONTAINER_VERSION,
@@ -407,19 +378,19 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
                                                                         pcap_name=pcap_name,
                                                                         results_dir=results_tmp_dir,
                                                                         file_to_test=filename)
-            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            std_out_bytes, serr = proc.communicate()
+            stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
+            if ret_val == 0:
+                stdoutput, ret_val = run_command2(cmd, use_shell=True)
+                if stdoutput != '':
+                    with Path(results_tmp_dir + '/stdout.log').open('w') as output:
+                        output.write(stdoutput)
 
-            if std_out_bytes != b'':
-                with Path(results_tmp_dir + '/stdout.log').open('w') as output:
-                    output.write(std_out_bytes.decode("utf-8"))
+                if ret_val == 0:
+                    results_tar_ball = results_tmp_dir + "/results"
+                    tar_folder(results_tmp_dir, results_tar_ball)
+                    return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")
 
-            if proc.returncode == 0:
-                results_tar_ball = results_tmp_dir + "/results"
-                tar_folder(results_tmp_dir, results_tar_ball)
-                return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")
-
-    return ERROR_RESPONSE
+    return jsonify({"message": stdoutput})
 
 
 @app.route('/api/test_rule_against_pcap', methods=['POST'])

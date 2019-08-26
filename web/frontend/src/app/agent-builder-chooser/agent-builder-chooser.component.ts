@@ -3,12 +3,12 @@ import { AgentBuilderService, AgentInstallerConfig,
          IpTargetList, Host, ErrorMessage,
          WindowsCreds } from './agent-builder.service';
 import * as FileSaver from 'file-saver';
-import { KitService } from '../kit.service';
+import { KitService } from '../services/kit.service';
 import { Title } from '@angular/platform-browser';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent, target_config_validators } from './agent-target-dialog/agent-target-dialog.component';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
-import { WebsocketService } from '../websocket.service';
+import { WebsocketService } from '../services/websocket.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';

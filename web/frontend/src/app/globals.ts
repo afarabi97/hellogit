@@ -1,53 +1,8 @@
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
-import { HelpPageInterface, HtmlInput } from './html-elements';
-import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer} from '@angular/platform-browser';
 import { HttpHeaders } from '@angular/common/http';
 
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
-
-@Pipe({ name: 'safe' })
-export class SafePipe implements PipeTransform {
-  constructor(private sanitizer: DomSanitizer) {}
-  transform(url) {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-} 
-
-function _instanceOfHelpPageInterface(object: any): object is HelpPageInterface{
-    return 'label' in object;
-}
-
-/**
- * Checks for invalid controls and appends them to the passed in array list. 
- * 
- * @param control 
- * @param errors 
- */
-export function CheckForInvalidControls(control: AbstractControl, errors: Array<string>){
-    let someForm = control as FormGroup;
-    for (let field in someForm.controls){
-        const field_ctl = someForm.get(field);
-        if (!(field_ctl instanceof FormControl)){
-            CheckForInvalidControls(field_ctl, errors);
-        }
-        else if (!field_ctl.valid){
-            if (field_ctl instanceof HtmlInput){
-                if (field_ctl.input_type === 'password'){
-                    errors.push('- ' + field_ctl.label + ' is invalid.');
-                }else {
-                    errors.push('- ' + field_ctl.label + ' is invalid. Current value is set to ' + field_ctl.value);
-                }                
-            } else if (_instanceOfHelpPageInterface(field_ctl)){
-                errors.push('- ' + field_ctl.label + ' is invalid. Current value is set to ' + field_ctl.value);
-            } else {
-                errors.push('- ' + field_ctl + ' is invalid. Current value is set to ' + field_ctl.value);
-            }            
-        }
-    }
-}
 
 export function netmaskToCIDR(netmask: string): number {
     let ret_val = netmask.split('.').map(Number).map(part => (part >>> 0).toString(2)).join('');

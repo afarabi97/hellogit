@@ -211,18 +211,4 @@ export class PolicyManagementService {
         const url = '/api/sync_rulesets';
         return this.http.get(url).pipe();
     }
-
-    uploadRuleFile(formObj: Object): Observable<IRuleSet | IError> {
-        const url = 'api/load_rules_from_file';
-        const formData: FormData = new FormData();
-        formData.append('file', formObj['file'], formObj['file'].name);
-        formData.append('filename', formObj['file'].name)
-        formData.append('name', formObj['ruleSetName']);
-        formData.append('clearance', formObj['clearance']);
-        formData.append('groupname', formObj['groupName']);
-        formData.append('appType', formObj['appType']);
-        return this.http.post(url, formData).pipe(
-            map(data => this.mapRuleSetOrError(data))
-        );
-    }
 }

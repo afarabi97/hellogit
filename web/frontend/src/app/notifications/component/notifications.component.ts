@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Notification } from '../interface/notifications.interface';
-import { WebsocketService } from '../../websocket.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { NotificationsModuleComponent } from './../notification-module/notifications-module.component';
 import { MatDialog } from '@angular/material';
 import { NotificationService } from '../services/notification.service';

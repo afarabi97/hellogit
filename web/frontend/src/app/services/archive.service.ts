@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { HTTP_OPTIONS } from './globals';
+import { HTTP_OPTIONS } from '../globals';
 import { Observable } from 'rxjs';
 
 @Injectable({

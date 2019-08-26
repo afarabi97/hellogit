@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { WebsocketService } from '../../websocket.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { NotificationService } from '../services/notification.service';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';

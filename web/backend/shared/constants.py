@@ -20,7 +20,7 @@ RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Bro")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
-SURICATA_CONTAINER_VERSION = "4.1.3"
+SURICATA_CONTAINER_VERSION = "4.1.4"
 BRO_CONTAINER_VERSION = "2.6.2"
 
 # The path inside of the docker container

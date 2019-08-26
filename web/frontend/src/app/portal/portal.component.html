@@ -1,77 +1,86 @@
-<div class="container" id="topheader">
-  <div class="card">
-    <div class="card-header">
-      Portal
-      <button mat-mini-fab color="primary" style="float:right;" (click)="addUserLink()">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-    <div class="card-body" fxFlexFill>
-      <mat-list>
-        <h3 mat-subheader>Common Links</h3>
-        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
-          style="padding:20px;">
-          <mat-card *ngFor="let link of links" fxLayout="column" class="zoom">
-            <mat-card-header fxFlex="20" class="margin:0;">
-              <mat-card-title style="margin:0 -16px;"><a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a>
-              </mat-card-title>
-              <mat-card-subtitle style="margin:0 -16px;"><a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a>
-              </mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content fxFlex style="padding-top: 10px; height:100%" *ngIf="link.logins">
-              <div>
+<div class="main-content2">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          Portal
+          <button mat-mini-fab color="primary" style="float:right;" (click)="addUserLink()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-grid-list cols="2" rowHeight="4:1" gutterSize="10px">
+          <h3 mat-subheader>Common Links</h3>
+          <mat-grid-tile *ngFor="let link of links" class="zoom" style="background: rgba(0,0,0,.38);" >              
+            <div fxLayout="column" fxLayoutAlign="space-around start" >
+              <div style="margin-bottom: 10px; font-size: 1.5em;">
+                <a href="{{ link.dns }}" target="_blank">{{ link.dns }}</a>
+              </div>
+              <div style="margin-bottom: 10px; font-size: 1.2em;">
+                <a href="{{ link.ip }}" target="_blank">{{ link.ip }}</a>
+              </div>
+              <div *ngIf="link.logins">
                 user/password: {{link.logins}}
               </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
 
-        <h3 mat-subheader>Dashboard Links</h3>
-        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
-          style="padding:20px;">
+        <mat-grid-list cols="2" rowHeight="4:1" gutterSize="10px">
+          <h3 mat-subheader>Dashboard Links</h3>
           <ng-container *ngFor="let link of links">
-            <mat-card *ngIf="link.dns === 'http://kibana.lan'" fxLayout="column" class="zoom"
-              (click)="onViewUrl(getBroDashboard(link.ip))">
-              <mat-card-header fxFlex="20" class="margin:0;">
-                <mat-card-title style="margin:0 -16px;">Bro Dashboard</mat-card-title>
-                <mat-card-subtitle style="margin:0 -16px;">{{link.ip}}</mat-card-subtitle>
-              </mat-card-header>
-            </mat-card>
-            <mat-card *ngIf="link.dns === 'http://kibana.lan'" fxLayout="column" class="zoom"
-              (click)="onViewUrl(getWinlogbeatDashboard(link.ip))">
-              <mat-card-header fxFlex="20" class="margin:0;">
-                <mat-card-title style="margin:0 -16px;">Winlogbeat Dashboard</mat-card-title>
-                <mat-card-subtitle style="margin:0 -16px;">{{link.ip}}</mat-card-subtitle>
-              </mat-card-header>
-            </mat-card>
+            <mat-grid-tile *ngIf="link.dns === 'http://kibana.lan'" 
+                           (click)="onViewUrl(getBroDashboard(link.ip))" 
+                           class="zoom" style="background: rgba(0,0,0,.38);" >              
+              <div fxLayout="column" fxLayoutAlign="space-around start" >
+                <div style="margin-bottom: 10px; font-size: 1.5em;">
+                  Bro Dashboard
+                </div>
+                <div style="margin-bottom: 10px; font-size: 1.2em;">
+                  {{link.ip}}
+                </div>             
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile *ngIf="link.dns === 'http://kibana.lan'" 
+                           (click)="onViewUrl(getWinlogbeatDashboard(link.ip))" 
+                           class="zoom" style="background: rgba(0,0,0,.38);" >              
+              <div fxLayout="column" fxLayoutAlign="space-around start" >
+                <div style="margin-bottom: 10px; font-size: 1.5em;">
+                  Winlogbeat Dashboard
+                </div>
+                <div style="margin-bottom: 10px; font-size: 1.2em;">
+                  {{link.ip}}
+                </div>             
+              </div>
+            </mat-grid-tile>
           </ng-container>
-        </div>
-
-        <h3 mat-subheader>User Links</h3>
-        <div gdColumns="repeat(auto-fill, minmax(250px, 1fr))" gdGap="15px" gdRows="repeat(200px 200px)"
-          style="padding:20px;">
-          <mat-card *ngFor="let link of user_links" fxLayout="column" class="zoom" (click)="onViewUrl(link.url)">
-            <mat-card-header fxFlex="20" class="margin:0;">
-              <!-- <img mat-card-avatar class="header-image" [src]="getIcon(link.url)"> -->
-              <mat-card-title style="margin:0 -16px;">{{link.name}}</mat-card-title>
-              <mat-card-subtitle style="margin:0 -16px;">{{link.url}}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content fxFlex style="padding-top: 10px; height:100%">
+        </mat-grid-list>
+    
+        <mat-grid-list cols="2" rowHeight="3:1" gutterSize="10px">
+          <h3 mat-subheader>User Links</h3>
+          <mat-grid-tile *ngFor="let link of user_links" class="zoom" style="background: rgba(0,0,0,.38);" 
+                          (click)="onViewUrl(link.url)">            
+            <div fxLayout="column" fxLayoutAlign="space-around start" style="padding: 2em; width: 100%; height: 100%">
+              <div style="margin-bottom: 10px; font-size: 1.5em;">
+                {{link.name}}
+              </div>
+              <div style="margin-bottom: 10px; font-size: 1.3em;">
+                {{link.url}}
+              </div>
               <div *ngIf="link.description.length < 170; else smallDescription;" matTooltip="{{link.description}}">
                 {{link.description}}
+              </div>
+              <div style="margin-top: 10px;">
+                <button mat-raised-button color="warn" (click)="openConfimRemoveUserLink($event, link)">Delete</button>
               </div>
               <ng-template #smallDescription>
                 <div matTooltip="{{link.description}}">
                   {{link.description.substring(0, 170)}}..
                 </div>
               </ng-template>
-            </mat-card-content>
-            <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxFlex="20">
-              <button mat-button color="warn" (click)="openConfimRemoveUserLink($event, link)">Delete</button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </mat-list>
-    </div>
-  </div>
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>        
+      </mat-card-content>
+    </mat-card>
 </div>

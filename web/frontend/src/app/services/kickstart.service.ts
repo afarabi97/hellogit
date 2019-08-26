@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { HTTP_OPTIONS } from './globals';
-import { SnackbarWrapper } from './classes/snackbar-wrapper';
+import { HTTP_OPTIONS } from '../globals';
+import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 
 
 @Injectable({

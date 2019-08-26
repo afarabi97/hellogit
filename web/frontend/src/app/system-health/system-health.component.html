@@ -34,7 +34,7 @@
         <ng-container matColumnDef="ready">
           <th mat-header-cell *matHeaderCellDef>Ready</th>
           <td mat-cell *matCellDef="let node">
-              <a title="{{ node.status.conditions[3].message }}" data-toggle="tooltip" data-placement="right">
+              <a matTooltip="{{ node.status.conditions[3].message }}">
                 <div *ngIf="node.status.conditions[3].status === 'True'; else notworking">
                   <i class="material-icons" style="color:lightgreen;">check_circle</i>
                 </div>

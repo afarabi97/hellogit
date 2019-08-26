@@ -1,17 +1,21 @@
 import { Component, OnInit, Input, ViewChild,
          ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
 import * as FileSaver from 'file-saver';
-import { HtmlModalPopUp, ModalType } from '../../html-elements';
+import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { PolicyManagementService } from '../services/policy-management.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 /* Interfaces */
 import { Rule, ErrorMessage, SuccessMessage } from '../interface/rule.interface';
 import { PcapService } from 'src/app/pcap-form/pcap.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export interface Food {
   value: string;
   viewValue: string;
 }
+
+const DIALOG_WIDTH = "50%";
 
 @Component({
   selector: 'policy-management-dialog',
@@ -31,11 +35,7 @@ export class PolicyManagementDialog implements OnInit {
 
   @Output()
   closeSaveEvent: EventEmitter<any> = new EventEmitter();
-
-  closeModal: HtmlModalPopUp;
-  saveModal: HtmlModalPopUp;
-  messageModal: HtmlModalPopUp;
-  isValidateOnly: boolean;
+  
   ruleGroup: FormGroup;
   pcaps: Array<Object>;
   selectedPcap: string;
@@ -43,11 +43,9 @@ export class PolicyManagementDialog implements OnInit {
 
   constructor(public _PolicyManagementService: PolicyManagementService,
               private formBuilder: FormBuilder,
-              private pcapSrv: PcapService) {
-    this.closeModal = new HtmlModalPopUp("editor_modal");
-    this.saveModal = new HtmlModalPopUp("save_modal");
-    this.messageModal = new HtmlModalPopUp("message_modal");
-    this.isValidateOnly = false;
+              private pcapSrv: PcapService,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar) {
     this.selectedPcap = "";
     this.numbers = new Array(1000).fill(true);
   }
@@ -93,18 +91,21 @@ export class PolicyManagementDialog implements OnInit {
           this.numbers = new Array(len).fill(true);
           this.editorCard.nativeElement.style.height = 21 * len + "px";
           this.ruleGroup.get('rule').setValue(data.rule);
-        } else if (data instanceof ErrorMessage){
-          this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-          this.messageModal.openModal();
+        } else if (data instanceof ErrorMessage){     
+          this.displaySnackBar(data.error_message);
         }
       });
     }
   }
 
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
+  }
+
   private resizeEditor(element: ElementRef) {
     let height: string = "";
     if (window.innerHeight > 400) {
-      height = (window.innerHeight - 330) + "px";
+      height = (window.innerHeight - 215) + "px";
     } else {
       height = "100px";
     }
@@ -113,20 +114,40 @@ export class PolicyManagementDialog implements OnInit {
   }
 
   openCloseDialog() {
-    this.closeModal.updateModal("Close without saving", "Are you sure you want to close this editor? All changes will be discarded.", "Yes", "Cancel");
-    this.closeModal.openModal();
+    const option2 = "Confirm";
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: DIALOG_WIDTH,
+      data: { "paneString": "Are you sure you want to close this editor? All changes will be discarded.",
+              "paneTitle": "Close without saving", "option1": "Cancel", "option2": option2 },
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === option2) {
+        this.closeEditor();
+      }
+    });
   }
 
-  openSaveDialog() {
-    this.saveModal.updateModal("Close and save", "Are you sure you want to save this Rule?", "Save", "Cancel");
-    this.saveModal.openModal();
-  }
-
-  closeWithoutSaving() {
+  private closeEditor(){
     this._PolicyManagementService.isUserEditing = false;
   }
 
-  closeAndSave() {
+  openSaveDialog() {
+    const option2 = "Confirm";
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: DIALOG_WIDTH,
+      data: { "paneString": "Are you sure you want to save this Rule file?",
+              "paneTitle": "Close and save", "option1": "Cancel", "option2": option2 },
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === option2) {
+        this.closeAndSave();
+      }
+    });
+  }
+
+  private closeAndSave() {
     if ( this._PolicyManagementService.isUserAdding === false) {
       this.editRule();
     } else {
@@ -137,11 +158,10 @@ export class PolicyManagementDialog implements OnInit {
   editRule() {
     this._PolicyManagementService.updateRule(this._PolicyManagementService.editRuleSet._id, this.ruleGroup.value).subscribe(data => {
       if (data instanceof Rule){
-        this.messageModal.updateModal("SUCCESS", "Successfully updated " + data.ruleName + ".", "Close");
-        this.messageModal.openModal();
+        this.displaySnackBar("Successfully updated " + data.ruleName + ".");
+        this.closeEditor();
       } else if (data instanceof ErrorMessage) {
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);
       }
     });
   }
@@ -150,26 +170,22 @@ export class PolicyManagementDialog implements OnInit {
     this._PolicyManagementService.createRule(this._PolicyManagementService.editRuleSet._id,
                                              this.ruleGroup.value).subscribe(data => {
       if (data instanceof Rule){
-        this.messageModal.updateModal("SUCCESS", "Successfully created " + data.ruleName + ".", "Close");
-        this.messageModal.openModal();
+        this.displaySnackBar("Successfully created " + data.ruleName + ".");
+        this.closeEditor();
       } else if (data instanceof ErrorMessage) {
-        this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-        this.messageModal.openModal();
+        this.displaySnackBar(data.error_message);
       }
     });
   }
 
   validateRule(){
-    this.isValidateOnly = true;
     this._PolicyManagementService.validateRule(this.ruleGroup.value).subscribe(data => {
-        if (data instanceof SuccessMessage){
-          this.messageModal.updateModal("SUCCESS", data.success_message, "Close");
-          this.messageModal.openModal();
-        } else if (data instanceof ErrorMessage) {
-          this.messageModal.updateModal("ERROR", data.error_message, "Close", undefined, ModalType.error);
-          this.messageModal.openModal();
-        }
-      });
+      if (data instanceof SuccessMessage){
+        this.displaySnackBar(data.success_message);
+      } else if (data instanceof ErrorMessage) {
+        this.displaySnackBar(data.error_message);
+      }
+    });
   }
 
   isRuleEnabled(): boolean{
@@ -179,6 +195,11 @@ export class PolicyManagementDialog implements OnInit {
   testAgainstPCAP(){
     this._PolicyManagementService.testRuleAgainstPCAP(this.selectedPcap, this.ruleGroup.value["rule"]).subscribe(
       data => {
+        if (data["message"]){
+          this.displaySnackBar(data["message"]);
+          return;
+        }
+
         if (data["type"] === "application/tar+gzip"){
           const json_blob = new Blob([data], { type: 'application/tar+gzip'});
           FileSaver.saveAs(json_blob, 'bro_test_results.tar.gz');
@@ -188,25 +209,14 @@ export class PolicyManagementDialog implements OnInit {
         }
       }, err => {
         if (err.status === 501){
-          this.messageModal.updateModal("ERROR", "Validation failed for testing against PCAP. \
-                                                  Please make sure you have selected a PCAP and your rules validate.",
-                                        "Close", undefined, ModalType.error);
+          this.displaySnackBar("Validation failed for testing against PCAP. \
+                                Please make sure you have selected a PCAP and your rules validate.");          
         } else {
           console.error(err);
-          this.messageModal.updateModal("ERROR", "Failed to test rule against PCAP for an unknown reason.",
-                                        "Close", undefined, ModalType.error);
-        }
-        this.messageModal.openModal();
+          this.displaySnackBar("Failed to test rule against PCAP for an unknown reason.");          
+        }        
       }
     );
-  }
-
-  closeEditor() {
-    if (this.isValidateOnly){
-      this.isValidateOnly = false;
-    } else if (this.messageModal.type !== ModalType.error) {
-      this._PolicyManagementService.isUserEditing = false;
-    }
   }
 
   getNumber(num: number){
