@@ -61,6 +61,7 @@ import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.com
 
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
+import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 
 // modules
 import { InjectorModule } from './utilily-modules/injector.module';
@@ -143,6 +144,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
   ],
   providers: [
     SnackbarWrapper,
+    ConfirmActionPopup,
     CookieService
   ],
   bootstrap: [AppComponent],

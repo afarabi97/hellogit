@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ViewChild, 
          ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
 import { HtmlModalPopUp } from '../html-elements';
+import { ConfirmActionPopup } from '../classes/ConfirmActionPopup'
 
 @Component({
   selector: 'app-configmap-editor',
@@ -24,12 +25,7 @@ export class ConfigmapEditorComponent implements OnInit {
   @Output()
   closeSaveEvent: EventEmitter<any> = new EventEmitter();
 
-  closeModal: HtmlModalPopUp;
-  saveModal: HtmlModalPopUp;
-
-  constructor() { 
-    this.closeModal = new HtmlModalPopUp("editor_modal");
-    this.saveModal = new HtmlModalPopUp("save_modal");
+  constructor( private confirmer: ConfirmActionPopup) {
   }
 
   /**
@@ -57,13 +53,25 @@ export class ConfigmapEditorComponent implements OnInit {
   }
 
   openCloseDialog(){
-    this.closeModal.updateModal("Close without saving", "Are you sure you want to close this editor? All changes will be discarded.", "Close", "Cancel");
-    this.closeModal.openModal();
+    this.confirmer.confirmAction(
+      "Close without saving",
+      "Are you sure you want to close this editor? All changes will be discarded.", 
+      "Close", 
+      "Closed without saving.",
+      "",
+      () => { this.closeWithoutSaving("") }
+    );
   }
 
   openSaveDialog(){
-    this.saveModal.updateModal("Close and save", "Are you sure you want to save this configuration?", "Save", "Cancel");
-    this.saveModal.openModal();
+    this.confirmer.confirmAction(
+      "Close and save",
+      "Are you sure you want to save this configuration?",
+      "Save", 
+      "Saved configuration file " + this.title,
+      "Could not save.",
+      () => { this.closeAndSave() } 
+    );
   }
 
   closeWithoutSaving(event: any){

@@ -1,9 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfigmapsService } from './configmaps.service';
-import { HtmlModalPopUp, ModalType } from '../html-elements';
-import { AddConfigDataForm, AddConfigMapForm } from './configmaps.form';
 import { Title } from '@angular/platform-browser';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 
+const DIALOG_WIDTH = '800px';
 @Component({
   selector: 'app-configmaps',
   templateUrl: './configmaps.component.html',
@@ -22,20 +28,20 @@ export class ConfigmapsComponent implements OnInit {
   activeConfigData: string;
   activeConfigMapIndex: number;
 
-  configMapsModal: HtmlModalPopUp;
-  addConfigMapDataModal: HtmlModalPopUp;
-  addConfigMapModal: HtmlModalPopUp;
+  innerTableColumns = [ "filename", "actions" ]
+  outerTableColumns = [ "namespace", "config_name", "creation_date", "actions" ]
 
-  constructor(private configMapSrv: ConfigmapsService, private title: Title) {
+  constructor(private configMapSrv: ConfigmapsService, private title: Title,
+              private dialog: MatDialog,
+              private snackBar: MatSnackBar,
+              private formBuilder: FormBuilder,
+              private confirmer: ConfirmActionPopup) {
     this.isUserEditing = false;
     this.isConfigMapVisible = new Array();
     this.configMaps = new Array();
     this.activeConfigDataTitle = "";
     this.activeConfigData = "";
     this.activeConfigMapIndex = -1;
-    this.configMapsModal = new HtmlModalPopUp("configmaps_modal");
-    this.addConfigMapDataModal = new HtmlModalPopUp("addconfigdata_modal");
-    this.addConfigMapModal = new HtmlModalPopUp("addconfigmap_modal");
     this.isDeleteConfigMap = false;
    }
 
@@ -57,21 +63,57 @@ export class ConfigmapsComponent implements OnInit {
     return ret_val;
   }
 
-  addConfigMap() {
-    this.addConfigMapModal.updateModal("Add Config Map", "Please fill out the form.", "Submit", "Cancel", ModalType.form, new AddConfigMapForm());
-    this.addConfigMapModal.openModal();
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
-  removeConfigMap(configName: string, configIndex: number) {
+  addConfigMap() {
+    let acdForm = this.formBuilder.group({
+      namespace: new DialogFormControl("Namespace", "", [Validators.minLength(3), Validators.required]),
+      name: new DialogFormControl("Name", "", 
+      [Validators.minLength(3),
+       Validators.required,
+       Validators.pattern('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$')])
+    });
+
+    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
+      width: DIALOG_WIDTH,
+      data: {
+        title: "Add Config Map",
+        instructions: "Please fill out the form.",
+        dialogForm: acdForm,
+        confirmBtnText: "Submit"
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(
+      result => {
+        let form = result as FormGroup;
+        if(form && form.valid) {
+          this.addNewConfigMap(form.getRawValue());
+        }
+      }
+    );
+  }
+
+  removeConfigMap(configName: string, config: Object) {
+    let configIndex = this._getConfigIndex(config);
     this.isDeleteConfigMap = true;
     this.activeConfigMapIndex = configIndex;
-    this.configMapsModal.updateModal("Delete " + configName, "Are you sure you want to remove this config map? " +
-                                     "All data entries will be removed and this could cause your system to break " +
-                                     "if you dont know what you are doing.", "Delete", "Cancel", ModalType.error);
-    this.configMapsModal.openModal();
+    this.confirmer.confirmAction(
+      "Delete " + configName,
+      "Are you sure you want to delete " + configName + "?\nAll data entries will be removed and this could cause your "
+      + "system to break if you don't know what you are doing.",
+      "Delete",
+      configName + " successfully deleted",
+      "Could not delete " + configName,
+      () => { this.confirmDeleteSubmission() }
+    );
+
   }
 
-  editConfigMapData(configDataName: string, configMapIndex: number){
+  editConfigMapData(configDataName: string, config: Object){
+    let configMapIndex = this._getConfigIndex(config)
     this.activeConfigDataTitle = "Editing " + configDataName;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
@@ -99,41 +141,60 @@ export class ConfigmapsComponent implements OnInit {
     this.configMapSrv.createConfigMap(newConfigMap).subscribe(data => {
       this.configMaps.splice(0, 0, data);
       this.isConfigMapVisible.splice(0, 0, true);
-      this.configMapsModal.updateModal("Success ", "Successfully added " + formSubmission['name'], "Ok");
-      this.configMapsModal.openModal();
+      this.displaySnackBar("Successfully added " + formSubmission['name']);
+      this.ngOnInit();
     }, error => {
-      console.log(error);
-      this.configMapsModal.updateModal("Error ", "Failed to save configmap. REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
-      this.configMapsModal.openModal();
+      this.displaySnackBar("Failed to save configmap. REASON: " + error["statusText"]);
     });
-
   }
 
-  removeConfigMapData(configDataName: string, configMapIndex: number){
+  removeConfigMapData(configDataName: string, config: Object){
+    let configMapIndex = this._getConfigIndex(config);
     this.isDeleteConfigMapData = true;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
-    this.configMapsModal.updateModal("Delete " + configDataName, "Are you sure you want to remove this data entry from the config map?", "Delete", "Cancel");
-    this.configMapsModal.openModal();
+    this.confirmer.confirmAction("Delete " + configDataName, 
+                       "Are you sure you want to remove this data entry from the config map?", 
+                       "Delete", 
+                       configDataName + " successfully deleted.",
+                       "Could not delete " + configDataName,
+                       () => { this.confirmDeleteSubmission() });
   }
 
-  addConfigMapData(configMapIndex: number){
+  addConfigMapData(config: Object){
+    let configMapIndex = this._getConfigIndex(config);
     this.activeConfigMapIndex = configMapIndex;
-    this.addConfigMapDataModal.updateModal("Add Config Map Data", "Please fill out the form.", "Submit", "Cancel", ModalType.form, new AddConfigDataForm());
-    this.addConfigMapDataModal.openModal();
+    let acdForm = this.formBuilder.group({
+      name: new DialogFormControl("Name", "", 
+        [Validators.minLength(3), Validators.required, Validators.pattern('^[A-z_0-9]+$')])
+    });
+    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
+      width: DIALOG_WIDTH,
+      data: {
+        title: "Add Config Map Data",
+        instructions: "Please a name for the config map data.",
+        dialogForm: acdForm,
+        confirmBtnText: "Submit"
+      }
+    });
+    dialogRef.afterClosed().subscribe(
+      result => {
+        let form = result as FormGroup;
+        if(form && form.valid) {
+          this.addNewConfigMapData(form.getRawValue());
+        }
+      }
+    );
   }
 
   private deleteConfigMapData() {
     delete this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex]).subscribe(data => {
       if (data) {
-        this.configMapsModal.updateModal("Success ", "Successfully deleted " + this.activeConfigDataKey + " configmap data!", "Ok");
-        this.configMapsModal.openModal();
+        this.displaySnackBar("Successfully deleted " + this.activeConfigDataKey + " configmap data.");
       }
     }, error => {
-      console.log(error);
-      this.configMapsModal.updateModal("Error ", "Failed to delete config map data REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
-      this.configMapsModal.openModal();
+      this.displaySnackBar("Failed to delete config map data REASON: " + error["statusText"]);
     });
   }
 
@@ -143,12 +204,10 @@ export class ConfigmapsComponent implements OnInit {
     this.configMapSrv.deleteConfigMap(namespace, name).subscribe(data => {
       this.configMaps.splice(this.activeConfigMapIndex, 1);
       this.isConfigMapVisible.splice(this.activeConfigMapIndex, 1);
-      this.configMapsModal.updateModal("Success ", "Successfully deleted " + name, "Ok");
-      this.configMapsModal.openModal();
+      this.ngOnInit();
+      this.displaySnackBar("Successfully deleted " + name);
     }, error => {
-      console.log(error);
-      this.configMapsModal.updateModal("Error ", "Failed to delete config map REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
-      this.configMapsModal.openModal();
+      this.displaySnackBar("Failed to delete config map REASON: " + error["statusText"]);
     });
   }
 
@@ -169,12 +228,27 @@ export class ConfigmapsComponent implements OnInit {
     this.isDeleteConfigMapData = false;
   }
 
-  toggleDataDropDown(index: number) {
+  toggleDataDropDown(configMap: Object) {
+    let index = this._getConfigIndex(configMap);
     this.isConfigMapVisible[index] = !this.isConfigMapVisible[index];
   }
 
   closeEditor(event: any) {
     this.isUserEditing = false;
+  }
+
+  private _getConfigIndex(config: Object){
+    for( let index = 0; index < this.configMaps.length; index++){
+      if (config["metadata"]["uid"] === this.configMaps[index]["metadata"]["uid"]){
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  checkConfigMapVisibility(config: Object): boolean {    
+    let index = this._getConfigIndex(config);
+    return this.isConfigMapVisible[index];
   }
 
   saveAndCloseEditor(dataToSave: string){
@@ -183,15 +257,12 @@ export class ConfigmapsComponent implements OnInit {
     this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = dataToSave;
     this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex]).subscribe(data => {
       if (data){
-        this.configMapsModal.updateModal("Success ", "Successfully saved " + data['name'] + " configmap!", "Ok");
-        this.configMapsModal.openModal();
+        this.displaySnackBar("Successfully saved " + data['name'] + " config map, " + this.activeConfigDataKey);
       }
     }, error => {
-      console.log(error);
       this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = previous_config_map;
-      this.configMapsModal.updateModal("Error ", "Failed to save configmap " + this.activeConfigDataKey +
-                                       ". REASON: " + error["statusText"], "Ok", undefined, ModalType.error);
-      this.configMapsModal.openModal();
+      this.displaySnackBar("Failed to save configmap " + this.activeConfigDataKey 
+                              + ". REASON: " + error["statusText"]);
     });
   }
 }

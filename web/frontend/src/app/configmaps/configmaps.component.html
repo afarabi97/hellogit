@@ -1,63 +1,70 @@
-<app-modal-dialog [modal]="configMapsModal" (primaryButtonClick)="confirmDeleteSubmission()"></app-modal-dialog>
-<app-modal-dialog [modal]="addConfigMapDataModal" (primaryButtonClick)="addNewConfigMapData($event)"></app-modal-dialog>
-<app-modal-dialog [modal]="addConfigMapModal" (primaryButtonClick)="addNewConfigMap($event)"></app-modal-dialog>
+<div *ngIf="!isUserEditing" class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Config Maps
+        <button mat-button class="btn-primary2" style="float: right;" (click)="addConfigMap()">
+          <i class="material-icons">add_circle_outline</i> Add Config Map
+        </button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="configMaps" multiTemplateDataRows>
+        <ng-container matColumnDef="namespace">
+          <th mat-header-cell *matHeaderCellDef>Namespace</th>
+          <td mat-cell *matCellDef="let config;">
+            <a class="dropdown-toggle" (click)="toggleDataDropDown(config)">{{ config.metadata.namespace }}</a>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="config_name">
+          <th mat-header-cell *matHeaderCellDef>Config Name</th>
+          <td mat-cell *matCellDef="let config;">{{ config.metadata.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="creation_date">
+          <th mat-header-cell *matHeaderCellDef>Creation Date</th>
+          <td mat-cell *matCellDef="let config;">{{ config.metadata.creation_timestamp }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let config">
+            <button mat-button title="Remove Config Map" class="btn-danger" 
+            (click)="removeConfigMap(config.metadata.name, config)">
+              <i class="material-icons" style="color: red">delete</i>
+            </button>
+          </td>
+        </ng-container>
 
-<div *ngIf="!isUserEditing" class="container">
-  <div class="card">
-    <div class="card-header">
-      Config Maps <button class="btn btn-primary" style="float: right;" (click)="addConfigMap()"><i class="icon_plus_alt2"></i> Add Config Map</button>
-    </div>
-    <div class="card-body">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Namespace</th>
-            <th scope="col">Config Name</th>
-            <th scope="col">Creation Date</th>
-            <th scope="col">Actions</th>            
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let config of configMaps; let configIndex=index">
-            <tr>
-              <td><a class="dropdown-toggle" (click)="toggleDataDropDown(configIndex)">{{ config.metadata.namespace }}</a></td>
-              <td>{{ config.metadata.name }}</td>
-              <td>{{ config.metadata.creation_timestamp }}</td>
-              <td><button title="Remove Config Map" class="btn btn-danger" (click)="removeConfigMap(config.metadata.name, configIndex)"><i
-                    class="icon_close_alt2"></i></button></td>
-            </tr>
-            <tr *ngIf="isConfigMapVisible[configIndex]">
-              <td colspan="4">
-                <button title="Add Config Data" class="btn btn-primary" (click)="addConfigMapData(configIndex)"><i class="icon_plus_alt2"></i> Add Config Data</button>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Filename</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody *ngIf="config.data">
-                    <tr *ngFor="let filename of objectKeys(config.data)">
-                      <td>{{ filename }}</td>
-                      <td>
-                        <div class="btn-group">
-                          <button title="Edit Config Data" class="btn btn-primary" (click)="editConfigMapData(filename, configIndex)"><i class="icon_pencil"></i></button>
-                          <button title="Remove Config Data" class="btn btn-danger" (click)="removeConfigMapData(filename, configIndex)"><i class="icon_close_alt2"></i></button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </ng-container>
-        </tbody>
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let config" [attr.colspan]="outerTableColumns.length">
+            <button mat-button title="Add Config Data" class="btn-primary2" (click)="addConfigMapData(config)">
+              <i class="material-icons">add_circle_outline</i> Add Config Data</button>
+            <table *ngIf="config.data" mat-table [dataSource]="objectKeys(config.data)">
+              <ng-container matColumnDef="filename">
+                <th mat-header-cell *matHeaderCellDef>Filename</th>
+                <td mat-cell *matCellDef="let filename">{{ filename }}</td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let filename">
+                  <div class="btn-group">
+                    <button mat-button title="Edit Config Data" (click)="editConfigMapData(filename, config)">
+                      <i class="material-icons">edit</i></button>
+                    <button mat-button title="Remove Config Data" (click)="removeConfigMapData(filename,config)">
+                      <i class="material-icons" style="color: red">delete</i></button>
+                  </div>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="innerTableColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: innerTableColumns;"></tr>
+            </table>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="outerTableColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: outerTableColumns">
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" [hidden]="!checkConfigMapVisibility(row)"></tr>
       </table>
-    </div>
-  </div>
+    </mat-card-content>
+  </mat-card>
 </div>
-<app-configmap-editor *ngIf="isUserEditing" 
-                      [text]="activeConfigData" 
-                      [title]="activeConfigDataTitle" 
-                      (closeNoSaveEvent)="closeEditor($event)" 
-                      (closeSaveEvent)="saveAndCloseEditor($event)"></app-configmap-editor>
+<app-configmap-editor *ngIf="isUserEditing" [text]="activeConfigData" [title]="activeConfigDataTitle"
+  (closeNoSaveEvent)="closeEditor($event)" (closeSaveEvent)="saveAndCloseEditor($event)"></app-configmap-editor>

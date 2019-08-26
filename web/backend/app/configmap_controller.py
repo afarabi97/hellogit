@@ -135,7 +135,7 @@ def delete_config_map(namespace: str, name: str) -> Response:
     """
     body = client.V1DeleteOptions()
     with KubernetesWrapper(conn_mng) as kube_apiv1:
-        kube_apiv1.delete_namespaced_config_map(name, namespace, body)
+        kube_apiv1.delete_namespaced_config_map(name, namespace, body=body)
         return OK_RESPONSE
     
     return ERROR_RESPONSE
