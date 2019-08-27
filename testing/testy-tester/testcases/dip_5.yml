@@ -50,7 +50,7 @@ kit:
       domain: 'lan'
       gateway: "172.16.32.1"
       dns:
-        #- "172.16.82.1"
+        - "172.16.82.1"
         - "8.8.8.8"
       networking:
         std_portgroup_name: "VM Network"
