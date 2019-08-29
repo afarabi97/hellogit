@@ -13,10 +13,95 @@ data:
     config.reload.automatic: true
     config.reload.interval: 10
     xpack.monitoring.enabled: true
-    xpack.monitoring.elasticsearch.url: http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
-    pipeline.batch.size: 4096
-    pipeline.batch.delay: 500
-    pipeline.workers: {{ .Values.workers }}
+    xpack.monitoring.elasticsearch.hosts: http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    pipeline.workers: 2
+    pipeline.batch.size: 1024
+
+  pipelines.yml: |
+    - pipeline.id: bro_input
+      path.config: "/usr/share/logstash/pipeline/bro_input.conf"
+    - pipeline.id: bro_preprocess
+      path.config: "/usr/share/logstash/pipeline/bro_preprocess.conf"
+      pipeline.workers: 10
+      pipeline.batch.size: 16384
+      pipeline.batch.delay: 500
+    - pipeline.id: bro_conn
+      path.config: "/usr/share/logstash/pipeline/bro_conn.conf"
+      pipeline.workers: 4
+      pipeline.batch.size: 8192
+    - pipeline.id: bro_dhcp
+      path.config: "/usr/share/logstash/pipeline/bro_dhcp.conf"
+    - pipeline.id: bro_dns
+      path.config: "/usr/share/logstash/pipeline/bro_dns.conf"
+    - pipeline.id: bro_dpd
+      path.config: "/usr/share/logstash/pipeline/bro_dpd.conf"
+    - pipeline.id: bro_files
+      path.config: "/usr/share/logstash/pipeline/bro_files.conf"
+    - pipeline.id: bro_ftp
+      path.config: "/usr/share/logstash/pipeline/bro_ftp.conf"
+    - pipeline.id: bro_http
+      path.config: "/usr/share/logstash/pipeline/bro_http.conf"
+    - pipeline.id: bro_irc
+      path.config: "/usr/share/logstash/pipeline/bro_irc.conf"
+    - pipeline.id: bro_kerberos
+      path.config: "/usr/share/logstash/pipeline/bro_kerberos.conf"
+    - pipeline.id: bro_notice
+      path.config: "/usr/share/logstash/pipeline/bro_notice.conf"
+    - pipeline.id: bro_rdp
+      path.config: "/usr/share/logstash/pipeline/bro_rdp.conf"
+    - pipeline.id: bro_signatures
+      path.config: "/usr/share/logstash/pipeline/bro_signatures.conf"
+    - pipeline.id: bro_smtp
+      path.config: "/usr/share/logstash/pipeline/bro_smtp.conf"
+    - pipeline.id: bro_snmp
+      path.config: "/usr/share/logstash/pipeline/bro_snmp.conf"
+    - pipeline.id: bro_software
+      path.config: "/usr/share/logstash/pipeline/bro_software.conf"
+    - pipeline.id: bro_ssh
+      path.config: "/usr/share/logstash/pipeline/bro_ssh.conf"
+    - pipeline.id: bro_ssl
+      path.config: "/usr/share/logstash/pipeline/bro_ssl.conf"
+    - pipeline.id: bro_syslog
+      path.config: "/usr/share/logstash/pipeline/bro_syslog.conf"
+    - pipeline.id: bro_tunnel
+      path.config: "/usr/share/logstash/pipeline/bro_tunnel.conf"
+    - pipeline.id: bro_weird
+      path.config: "/usr/share/logstash/pipeline/bro_weird.conf"
+    - pipeline.id: bro_mysql
+      path.config: "/usr/share/logstash/pipeline/bro_mysql.conf"
+    - pipeline.id: bro_socks
+      path.config: "/usr/share/logstash/pipeline/bro_socks.conf"
+    - pipeline.id: bro_x509
+      path.config: "/usr/share/logstash/pipeline/bro_x509.conf"
+    - pipeline.id: bro_intel
+      path.config: "/usr/share/logstash/pipeline/bro_intel.conf"
+    - pipeline.id: bro_modbus
+      path.config: "/usr/share/logstash/pipeline/bro_modbus.conf"
+    - pipeline.id: bro_sip
+      path.config: "/usr/share/logstash/pipeline/bro_sip.conf"
+    - pipeline.id: bro_radius
+      path.config: "/usr/share/logstash/pipeline/bro_radius.conf"
+    - pipeline.id: bro_pe
+      path.config: "/usr/share/logstash/pipeline/bro_pe.conf"
+    - pipeline.id: bro_rfb
+      path.config: "/usr/share/logstash/pipeline/bro_rfb.conf"
+    - pipeline.id: bro_dnp3
+      path.config: "/usr/share/logstash/pipeline/bro_dnp3.conf"
+    - pipeline.id: bro_smb_files
+      path.config: "/usr/share/logstash/pipeline/bro_smb_files.conf"
+    - pipeline.id: bro_smb_mapping
+      path.config: "/usr/share/logstash/pipeline/bro_smb_mapping.conf"
+    - pipeline.id: bro_ntlm
+      path.config: "/usr/share/logstash/pipeline/bro_ntlm.conf"
+    - pipeline.id: bro_dce_rpc
+      path.config: "/usr/share/logstash/pipeline/bro_dce_rpc.conf"
+    - pipeline.id: bro_postprocess
+      path.config: "/usr/share/logstash/pipeline/bro_postprocess.conf"
+      pipeline.workers: 10
+      pipeline.batch.size: 16384
+      pipeline.batch.delay: 500
+    - pipeline.id: beats
+      path.config: "/usr/share/logstash/pipeline/beats.conf"
 
   template.json: |
     {
@@ -24,11 +109,10 @@ data:
       "version":50001,
       "order" : 0,
       "settings":{
-        "number_of_replicas":0,
-        "number_of_shards":2,
+        "number_of_replicas":1,
+        "number_of_shards":4,
         "index.refresh_interval":"30s",
-        "index.mapping.total_fields.limit": 2000,
-        "index.merge.scheduler.max_thread_count": 1
+        "index.mapping.total_fields.limit": 2000
       },
       "mappings":{
         "doc":{

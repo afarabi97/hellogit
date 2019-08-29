@@ -1,7 +1,7 @@
 {
     "id": "Kafka",
     "type": "chart",
-    "node_affinity": "Server - Any",
+    "node_affinity": "Sensor",
     "formControls": [
         {
           "type": "textinput",
@@ -11,6 +11,10 @@
           "regexp": "^\\d+$",
           "name": "log_retention_hours",
           "error_message": "Enter valid number"
+        },
+        {
+          "type": "invisible",
+          "name": "affinity_hostname"
         },
         {
           "type": "invisible",

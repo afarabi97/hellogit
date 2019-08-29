@@ -1,0 +1,153 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: kafka
+spec:
+  selector:
+    matchLabels:
+      component: kafka
+  template:
+    metadata:
+      labels:
+        component: kafka
+        deployment: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: zookeeper
+        imagePullPolicy: IfNotPresent
+        image: "{{ .Values.zookeeper_image_name }}:{{ .Values.zookeeper_image_tag }}"
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        env:
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
+        - name: ZOO_SERVERS
+          value: localhost:2888:3888
+        readinessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 2181
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: zk-data
+          mountPath: /bitnami/zookeeper
+      - name: kafka
+        imagePullPolicy: IfNotPresent
+        image: "{{ .Values.kafka_image_name }}:{{ .Values.kafka_image_tag }}"
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+        - containerPort: 9092
+          hostPort: 9092
+          name: server
+        env:
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://:9092"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://$(POD_IP):9092"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "localhost:2181"
+        - name: KAFKA_CFG_LOG_RETENTION_HOURS
+          value: {{ .Values.log_retention_hours | quote }}
+        - name: KAFKA_CFG_NUM_PARTITIONS
+          value: {{ .Values.num_partitions | quote }}
+        readinessProbe:
+          tcpSocket:
+            port: server
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 12
+          timeoutSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: server
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /bitnami/kafka
+      - name: metricbeat
+        image: "{{ .Values.metricbeat_image_name }}:{{ .Values.metricbeat_image_tag }}"
+        args: ["-e"]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Values.elastic_fqdn | quote }}
+        - name: ELASTICSEARCH_PORT
+          value: {{ .Values.elastic_port | quote }}
+        - name: ELASTICSEARCH_USERNAME
+          value: "none"
+        - name: ELASTICSEARCH_PASSWORD
+          value: "none"
+        - name: ELASTIC_CLOUD_ID
+          value:
+        - name: ELASTIC_CLOUD_AUTH
+          value:
+        resources:
+          limits:
+            memory: 200Mi
+        volumeMounts:
+        - name: beats-config
+          mountPath: /usr/share/metricbeat/metricbeat.yml
+          subPath: metricbeat.yml
+          readOnly: true
+        - name: beats-modules
+          mountPath: /usr/share/metricbeat/modules.d
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: zk-data
+        hostPath:
+          path: {{ .Values.zookeeper_path }}
+          type: DirectoryOrCreate
+      - name: kafka-data
+        hostPath:
+          path: {{ .Values.kafka_path }}
+          type: DirectoryOrCreate
+      - name: beats-modules
+        configMap:
+          name: {{ .Release.Name }}-beats-modules
+      - name: beats-config
+        configMap:
+          name: {{ .Release.Name }}-beats-config
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - kafka
+            topologyKey: "kubernetes.io/hostname"

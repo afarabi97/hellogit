@@ -20,10 +20,13 @@ spec:
       - name: logstash
         image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
         imagePullPolicy: IfNotPresent
-        command: ["/bin/bash", "-c", "/usr/share/logstash/bin/logstash-plugin install file:///usr/share/logstash/plugins/tld.zip && /usr/share/logstash/bin/logstash"]
         env:
         - name: LS_JAVA_OPTS
           value: "-Xmx{{ .Values.heap_size }}g -Xms{{ .Values.heap_size }}g"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         resources:
           requests:
             cpu: 1000m
@@ -33,12 +36,13 @@ spec:
             mountPath: "/usr/share/logstash/config/logstash.yml"
             subPath: logstash.yml
           - name: logstash
+            mountPath: "/usr/share/logstash/config/pipelines.yml"
+            subPath: pipelines.yml
+          - name: logstash
             mountPath: "/usr/share/logstash/template.json"
             subPath: template.json
           - name: pipeline
             mountPath: "/usr/share/logstash/pipeline"
-          - name: plugins
-            mountPath: "/usr/share/logstash/plugins"
       nodeSelector:
         role: "server"
       volumes:
@@ -48,6 +52,3 @@ spec:
         - name: pipeline
           configMap:
             name: {{ .Release.Name }}-pipeline
-        - name: plugins
-          configMap:
-            name: {{ .Release.Name }}-plugins

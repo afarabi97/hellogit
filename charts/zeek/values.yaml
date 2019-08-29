@@ -1,8 +1,6 @@
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
 elastic_port: 9200
-kafka_fqdn: kafka.default.svc.cluster.local
-kafka_port: 9092
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: tfplenum/bro

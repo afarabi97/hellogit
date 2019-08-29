@@ -22,15 +22,6 @@
           "error_message": "Enter valid number"
         },
         {
-          "type": "textinput",
-          "default_value": "4",
-          "description": "Enter how many workers to use on each replica",
-          "required": true,
-          "regexp": "^\\d+$",
-          "name": "workers",
-          "error_message": "Enter valid number"
-        },
-        {
           "type": "invisible",
           "name": "node_hostname"
         }

@@ -93,7 +93,23 @@ tries to restart.
         env:
         - name: CLUSTER_NODE
           value: {{ $node }}
-        args: [{{(eq $config.type "worker") | ternary (printf "\"-i\", \"%s\", " $config.interface) ""}} "-U", ".status", "frameworks/control/controllee", "local.bro", "base/frameworks/cluster" ]
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        args:
+{{- if eq $config.type "worker" }}
+        - "-i"
+        - {{ $config.interface }}
+{{- end }}
+        - "-U"
+        - ".status"
+        - "frameworks/control/controllee"
+        - "local.bro"
+        - "base/frameworks/cluster"
+{{- if eq $config.type "logger" }}
+        - "Kafka::kafka_conf = table([\"metadata.broker.list\"] = \"$(NODE_NAME):9092\")"
+{{- end }}
 {{- end }}
       volumes:
       - name: logs
