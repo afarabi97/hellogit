@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 
-from app.service.socket_service import NotificationMessage, NotificationCode
+from app.service.socket_service import NotificationMessage, NotificationCode, notify_ruleset_refresh
 from shared.connection_mngs import (FabricConnection, MongoConnectionManager,
                                  KubernetesWrapper, objectify)
 from fabric.runners import Result
@@ -193,7 +193,7 @@ class RuleSynchronization():
                     bro_file = io.StringIO()
                     bro_file.write(rule['rule'])
                     bro_file.seek(0, os.SEEK_END)
-
+                    logger.debug(bro_file.getvalue())
                     rule_name = self._convert_bro_rule_name(rule['ruleName'])
                     bro_file_path = "%s/%s" % (rule_set_dir, rule_name)
                     fabric.put(bro_file, bro_file_path)
@@ -277,3 +277,4 @@ def perform_rulesync():
     _setup_logger(logger)
     rs = RuleSynchronization()
     rs.sync_rulesets()
+    notify_ruleset_refresh()

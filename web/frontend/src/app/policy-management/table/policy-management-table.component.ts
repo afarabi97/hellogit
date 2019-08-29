@@ -8,19 +8,24 @@ import { MatDialog } from '@angular/material';
 import { FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { WebsocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'policy-management-table',
   styleUrls: ['policy-management-table.component.css'],
   templateUrl: 'policy-management-table.component.html'
 })
-export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
+export class PolicyManagementTable implements OnInit, AfterViewInit {
   columnsToDisplay = ['Enabled', 'name', 'appType', 'clearance', 'state', 'sensors', 'Actions'];
   innerColumnsToDisplay = ['Enabled', 'ruleName', 'lastModifiedDate', 'Actions'];
+
+  ruleSetsDataSource: MatTableDataSource<Object>;
+  rulesDataSource: MatTableDataSource<Object>;
+
   expandedElement: IRuleSet | null;
   objectKeys = Object.keys;
   filterGroup: FormGroup;
-  
+
   isVisibleTest: boolean;
   isRulesVisible: Array<boolean>;
   ruleSetGroups: Array<string>;
@@ -30,18 +35,27 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('paginatorInner') paginatorInner: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor( public _PolicyManagementService: PolicyManagementService,
+  constructor( public policySrv: PolicyManagementService,
                private cdr: ChangeDetectorRef,
                public dialog: MatDialog,
-               private snackBar: MatSnackBar) {
-  
+               private snackBar: MatSnackBar,
+               private socketSrv: WebsocketService) {
+
     this.isVisibleTest = false;
     this.isRulesVisible = new Array();
     this.ruleSetGroups = new Array();
+    this.ruleSetsDataSource = new MatTableDataSource();
+    this.rulesDataSource = new MatTableDataSource();
   }
 
   applyFilter(filterValue: string) {
-    this._PolicyManagementService.dataSource.filter = filterValue.trim().toLowerCase();
+    this.ruleSetsDataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  private socketRefresh(){
+    this.socketSrv.getSocket().on('rulesetchange', (data: any) => {
+      this.reloadRuleSetTable();
+    });
   }
 
   private displaySnackBar(message: string, duration_seconds: number = 60){
@@ -49,16 +63,15 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   }
 
   private reloadRuleSetTable(ruleSetGroupName: string = "All"){
-    this._PolicyManagementService.getRuleSets(ruleSetGroupName).subscribe(ruleSets => {
+    this.policySrv.getRuleSets(ruleSetGroupName).subscribe(ruleSets => {
       this.isRulesVisible =  new Array(ruleSets.length).fill(false);
-      this._PolicyManagementService.ruleSets = ruleSets;
-      this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
+      this.ruleSetsDataSource.data = ruleSets;
       this.paginator._changePageSize(this.paginator.pageSize);
     });
 
-    this._PolicyManagementService.getDistinctRuleSetGroups().subscribe(data => {
+    this.policySrv.getDistinctRuleSetGroups().subscribe(data => {
       if (data instanceof ErrorMessage){
-        this.displaySnackBar(data.error_message);        
+        this.displaySnackBar(data.error_message);
       } else {
         this.ruleSetGroups = data as Array<string>;
       }
@@ -66,7 +79,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-    this._PolicyManagementService.dataSource.filterPredicate = (data, filter: string)  => {
+    this.ruleSetsDataSource.filterPredicate = (data, filter: string)  => {
       const accumulator = (currentTerm, key) => {
         return this.nestedFilterCheck(currentTerm, data, key);
       };
@@ -75,26 +88,28 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
       const transformedFilter = filter.trim().toLowerCase();
       return dataStr.indexOf(transformedFilter) !== -1;
     };
-    this._PolicyManagementService.dataSource.paginator = this.paginator;
-    this._PolicyManagementService.innerDataSource.paginator = this.paginatorInner;
-    this._PolicyManagementService.dataSource.sort = this.sort;
+    this.ruleSetsDataSource.paginator = this.paginator;
+    this.rulesDataSource.paginator = this.paginatorInner;
+    this.ruleSetsDataSource.sort = this.sort;
 
     this.reloadRuleSetTable();
+    this.socketRefresh();
   }
 
   ngAfterViewInit(): void {
-    this._PolicyManagementService.dataSource.paginator = this.paginator;
-    this._PolicyManagementService.innerDataSource.paginator = this.paginatorInner;
-    this._PolicyManagementService.dataSource.sort = this.sort;
-    this.cdr.detectChanges();
+    this.ruleSetsDataSource.paginator = this.paginator;
+    this.rulesDataSource.paginator = this.paginatorInner;
+    this.ruleSetsDataSource.sort = this.sort;
+    // this.cdr.detectChanges();
   }
 
   ngOnChanges() {
-    this._PolicyManagementService.dataSource = new MatTableDataSource(this._PolicyManagementService.ruleSets);
-    this._PolicyManagementService.innerDataSource = new MatTableDataSource(this._PolicyManagementService.innerRules);
-    this._PolicyManagementService.innerDataSource.paginator = this.paginatorInner;
-    this._PolicyManagementService.dataSource.paginator = this.paginator;
-    this._PolicyManagementService.dataSource.sort = this.sort;
+    console.log("ngOnChanges");
+    this.ruleSetsDataSource = new MatTableDataSource(this.ruleSetsDataSource.data);
+    this.rulesDataSource = new MatTableDataSource(this.rulesDataSource.data);
+    this.rulesDataSource.paginator = this.paginatorInner;
+    this.rulesDataSource.paginator = this.paginator;
+    this.rulesDataSource.sort = this.sort;
   }
 
   nestedFilterCheck(search: any, data: any, key: any) {
@@ -115,14 +130,15 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   }
 
   getRules(ruleset: RuleSet) {
-    const index = this._PolicyManagementService.ruleSets.findIndex( i => i._id === ruleset._id);    
+    let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
+    const index = ruleSets.findIndex( i => i._id === ruleset._id);
     let wereRulesVisible = this.isRulesVisible[index];
 
     //Make everything invisible
-    this.isRulesVisible =  new Array(this._PolicyManagementService.ruleSets.length).fill(false);
+    this.isRulesVisible =  new Array(ruleSets.length).fill(false);
 
     //Clear ruleSetRules
-    for (let ruleSet of this._PolicyManagementService.ruleSets){
+    for (let ruleSet of ruleSets){
       ruleSet.rules = null;
     }
 
@@ -130,54 +146,56 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
       this.isRulesVisible[index] = !this.isRulesVisible[index];
     }
 
-    this._PolicyManagementService.getRules(ruleset._id).subscribe(rules => {
+    this.policySrv.getRules(ruleset._id).subscribe(rules => {
       ruleset.rules = rules;
-      this._PolicyManagementService.innerRules = rules;
-      this._PolicyManagementService.innerDataSource.data = this._PolicyManagementService.innerRules;
-      this._PolicyManagementService.innerDataSource.paginator = this.paginatorInner;
+      this.rulesDataSource.data = rules;
+      this.rulesDataSource.paginator = this.paginatorInner;
     });
   }
 
+  private getRuleSetIndex(ruleSet: RuleSet): number{
+    let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
+    return ruleSets.findIndex( i => i._id === ruleSet._id);
+  }
+
   isRulesVisibleFn(ruleset: RuleSet){
-    const index = this._PolicyManagementService.ruleSets.findIndex( i => i._id === ruleset._id);    
-    return this.isRulesVisible[index];
+    return this.isRulesVisible[this.getRuleSetIndex(ruleset)];
   }
 
   editRule(ruleSet: RuleSet, rule: Rule) {
-    this._PolicyManagementService.editRule = rule;
-    this._PolicyManagementService.editRuleSet = ruleSet;
-    this._PolicyManagementService.isUserEditing = true;
-    this._PolicyManagementService.isUserAdding = false;
+    this.policySrv.editRule = rule;
+    this.policySrv.editRuleSet = ruleSet;
+    this.policySrv.isUserEditing = true;
+    this.policySrv.isUserAdding = false;
 
   }
 
-  enableRuleSet(ruleSet: RuleSet) {    
+  enableRuleSet(ruleSet: RuleSet) {
     let ruleSetValue = ruleSet;
     ruleSetValue.isEnabled = !ruleSetValue.isEnabled;
-    this._PolicyManagementService.updateRuleSet(ruleSet as IRuleSet).subscribe(data => {
+    this.policySrv.updateRuleSet(ruleSet as IRuleSet).subscribe(data => {
       if (data instanceof RuleSet) {
-        const index = this._PolicyManagementService.ruleSets.findIndex( i => i._id === ruleSet._id);
-        this._PolicyManagementService.ruleSets[index] = data;
-        this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
+        const index = this.getRuleSetIndex(ruleSet);
+        this.ruleSetsDataSource.data[index] = data;
       } else if (data instanceof ErrorMessage) {
         this.displaySnackBar(data.error_message);
       }
     });
   }
 
-  isRuleChecked(rule: Rule): boolean {    
+  isRuleChecked(rule: Rule): boolean {
     return rule.isEnabled;
   }
 
-  enableRule(rule: Rule, ruleSet: RuleSet) {    
-    this._PolicyManagementService.toggleRule(ruleSet._id, rule).subscribe(data => {
+  enableRule(rule: Rule, ruleSet: RuleSet) {
+    this.policySrv.toggleRule(ruleSet._id, rule).subscribe(data => {
       if (data instanceof ErrorMessage) {
         this.displaySnackBar(data.error_message);
       } else if (data instanceof Rule) {
         rule.isEnabled = data.isEnabled;
         ruleSet.state = "Dirty";
       }
-    });    
+    });
   }
 
   openRemoveRuleConfirmModal(rule: Rule, ruleSet: RuleSet){
@@ -192,13 +210,13 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
         const index = ruleSet.rules.findIndex( i => i._id === rule._id);
-        this._PolicyManagementService.deleteRule(ruleSet._id, rule._id).subscribe(data => {
+        this.policySrv.deleteRule(ruleSet._id, rule._id).subscribe(data => {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);
           } else if (data instanceof SuccessMessage){
-            this._PolicyManagementService.innerRules.splice(index, 1);
-            this._PolicyManagementService.innerDataSource.data = this._PolicyManagementService.innerRules;
-            this.displaySnackBar(data.success_message);            
+            // this.policySrv.innerRules.splice(index, 1);
+            this.rulesDataSource.data.splice(index, 1);
+            this.displaySnackBar(data.success_message);
           }
         }, err => {
           this.displaySnackBar("Failed to delete rule.");
@@ -208,15 +226,15 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  private removeRuleSet(ruleSetID: number) {    
-    this._PolicyManagementService.deleteRuleSet(ruleSetID).subscribe(data => {
+  private removeRuleSet(ruleSetID: number) {
+    this.policySrv.deleteRuleSet(ruleSetID).subscribe(data => {
       if (data instanceof ErrorMessage){
         this.displaySnackBar(data.error_message);
       } else if (data instanceof SuccessMessage){
-        this._PolicyManagementService.ruleSets = this._PolicyManagementService.ruleSets.filter( item => {
+        let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
+        this.ruleSetsDataSource.data = ruleSets.filter( item => {
           return item._id !== ruleSetID;
         });
-        this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
         this.displaySnackBar(data.success_message);
       }
     }, err => {
@@ -241,21 +259,43 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
   }
 
   editRuleSet(ruleSet: RuleSet) {
-    this._PolicyManagementService.editRuleSet = ruleSet;
+    this.policySrv.editRuleSet = ruleSet;
     const dialogRef = this.dialog.open(PolicyManagementAddDialog, {
-      width: '250px',
+      width: '500px',
       data: 'edit'
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      let ruleSetGroup = result as FormGroup
+      if (ruleSetGroup && ruleSetGroup.valid){
+        this.policySrv.updateRuleSet(ruleSetGroup.value as IRuleSet).subscribe(data => {
+          if (data instanceof RuleSet){
+            // console.log("made it here");
+            // const index = this.getRuleSetIndex(data);
+            // data.rules = (this.ruleSetsDataSource.data[index] as RuleSet).rules;
+            // console.log(data);
+            // this.rulesDataSource.data = data.rules;
+            // this.ruleSetsDataSource.data[index] = data;
+            // this.paginator._changePageSize(this.paginator.pageSize);
+            // this.rulesDataSource.paginator = this.paginatorInner;
 
+            this.reloadRuleSetTable();
+            // this.paginatorInner._changePageSize(this.paginatorInner.pageSize);
+          } else if (data instanceof ErrorMessage) {
+            this.displaySnackBar(data.error_message);
+          }
+        }, err => {
+          this.displaySnackBar("Failed ot update ruleset of unknown reason.");
+          console.log(err);
+        });
+      }
     });
   }
 
   addRule(ruleSet: RuleSet) {
-    this._PolicyManagementService.editRuleSet = ruleSet;
-    this._PolicyManagementService.isUserEditing = true;
-    this._PolicyManagementService.isUserAdding = true;
+    this.policySrv.editRuleSet = ruleSet;
+    this.policySrv.isUserEditing = true;
+    this.policySrv.isUserAdding = true;
   }
 
   isInstanceOfArray(someObj: any): boolean {
@@ -263,6 +303,39 @@ export class PolicyManagementTable implements OnInit, AfterViewInit, OnChanges {
       return false;
     }
     return someObj instanceof Array;
+  }
+
+  ruleSync() {
+    this.policySrv.syncRuleSets().subscribe(data => {
+      this.displaySnackBar("Started Rule Sync. Open the notification dialog on the left to see its progress.");
+    }, err => {
+      this.displaySnackBar("Failed to start the rule sync. Check logs in /var/log/tfplenum/ for more details.");;
+    });
+  }
+
+  addRuleSet(): void {
+    const dialogRef = this.dialog.open(PolicyManagementAddDialog, {
+      width: '500px',
+      data: 'add'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      let ruleSetGroup = result as FormGroup;
+      if (ruleSetGroup && ruleSetGroup.valid){
+        this.policySrv.createRuleSet(ruleSetGroup.value as IRuleSet).subscribe(data => {
+          if (data instanceof RuleSet){
+            this.ruleSetsDataSource.data.push(data);
+            this.paginator._changePageSize(this.paginator.pageSize);
+          } else if (data instanceof ErrorMessage) {
+            this.displaySnackBar(data.error_message);
+          }
+        }, err => {
+          this.displaySnackBar("Failed ot create ruleset of unknown reason.");
+          console.log(err);
+        });
+      }
+      console.log(result);
+    });
   }
 
 }

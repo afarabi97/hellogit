@@ -3,9 +3,7 @@
     <mat-card-header>
       <mat-card-title>
         Config Maps
-        <button mat-button class="btn-primary2" style="float: right;" (click)="addConfigMap()">
-          <i class="material-icons">add_circle_outline</i> Add Config Map
-        </button>
+        <button mat-raised-button color="primary" style="float: right;" (click)="addConfigMap()">Add Config Map</button>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -13,7 +11,11 @@
         <ng-container matColumnDef="namespace">
           <th mat-header-cell *matHeaderCellDef>Namespace</th>
           <td mat-cell *matCellDef="let config;">
-            <a class="dropdown-toggle" (click)="toggleDataDropDown(config)">{{ config.metadata.namespace }}</a>
+            <a (click)="toggleDataDropDown(config)">
+              <i class="material-icons" *ngIf="!checkConfigMapVisibility(config)">chevron_right</i>
+              <i class="material-icons" *ngIf="checkConfigMapVisibility(config)">expand_more</i>
+              <span style="vertical-align: super;">{{ config.metadata.namespace }}</span>
+            </a>
           </td>
         </ng-container>
         <ng-container matColumnDef="config_name">
@@ -27,7 +29,7 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let config">
-            <button mat-button matTooltip="Remove Config Map" class="btn-danger" 
+            <button mat-button matTooltip="Remove Config Map"
             (click)="removeConfigMap(config.metadata.name, config)">
               <i class="material-icons" style="color: red">delete</i>
             </button>
@@ -36,8 +38,7 @@
 
         <ng-container matColumnDef="expandedDetail">
           <td mat-cell *matCellDef="let config" [attr.colspan]="outerTableColumns.length">
-            <button mat-button matTooltip="Add Config Data" class="btn-primary2" (click)="addConfigMapData(config)">
-              <i class="material-icons">add_circle_outline</i> Add Config Data</button>
+            <button mat-raised-button matTooltip="Add Config Data" color="primary" (click)="addConfigMapData(config)">Add Config Data</button>
             <table *ngIf="config.data" mat-table [dataSource]="objectKeys(config.data)">
               <ng-container matColumnDef="filename">
                 <th mat-header-cell *matHeaderCellDef>Filename</th>

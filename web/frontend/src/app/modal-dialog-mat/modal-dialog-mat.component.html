@@ -19,6 +19,6 @@
   </ng-container>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
   <button mat-raised-button color="primary" (click)="submitAndClose()" [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
 </div>

@@ -1,10 +1,15 @@
-<div class="container-fluid" id="topheader">
-  <div class="card" style="margin-top: 80px;">
-    <div class="card-header">
-        <button class="btn btn-danger" (click)="openKillModal()"><i class="icon_stop_alt2"></i> Kill Job</button>
-        <button class="btn btn-danger" style="float: right;" (click)="clearConsole()"><i class="icon_trash"></i> Clear Console</button>
-    </div>
-    <div #console class="card-body console">
-      <p *ngFor="let msg of messages"><span [style.color]="msg.color">{{ msg.msg }}</span></p>
-    </div>
+<div class="container-fluid">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <button mat-raised-button color="warn" style="float: left;" (click)="openKillModal()"><i class="icon_stop_alt2"></i> Kill Job</button>
+        <button mat-raised-button color="warn" style="float: right;" (click)="clearConsole()"><i class="icon_trash"></i> Clear Console</button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div #console class="card-body console">
+        <p *ngFor="let msg of messages"><span [style.color]="msg.color">{{ msg.msg }}</span></p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

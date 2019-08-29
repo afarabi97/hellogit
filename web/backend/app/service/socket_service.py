@@ -111,5 +111,8 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
 def notify_page_refresh():
     socketio.emit('refresh', 'doit', broadcast=True)
 
-def noify_clock_refresh():
+def notify_clock_refresh():
     socketio.emit('clockchange', 'doit', broadcast=True)
+
+def notify_ruleset_refresh():
+    socketio.emit('rulesetchange', 'doit', broadcast=True)

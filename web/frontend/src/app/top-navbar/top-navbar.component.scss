@@ -12,7 +12,7 @@ mat-drawer-container {
   height: 100vh;
   background-color: $base-dark-background;
   mat-drawer {
-    background-color: $base-black-background;
+    background-color: $navbar-background-color;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -54,5 +54,13 @@ mat-drawer-container {
   }
   .mat-drawer-main-content {
     background-color: $base-dark-background;
+  }
+
+  .confluence-link:hover{
+    background-color: #1eb980;
+  }
+
+  .confluence-link{
+    text-decoration: none;
   }
 }

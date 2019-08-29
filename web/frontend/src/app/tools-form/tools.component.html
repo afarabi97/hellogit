@@ -21,7 +21,7 @@
       <app-date-time [datetime]="getDate()" [timezone]="getTimezone()" placeholder="Current Date & Time"></app-date-time>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-raised-button (click)="openConfirmResetClockDialog()"
+      <button mat-raised-button color="primary" (click)="openConfirmResetClockDialog()"
         [disabled]="resetClock.invalid || resetClock.disabled">Change Clock</button>
     </mat-card-actions>
   </mat-card>

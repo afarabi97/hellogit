@@ -1,6 +1,6 @@
 <h1 matDialogTitle>{{data.paneTitle}}</h1>
-<div mat-dialog-content>{{data.paneString}}</div>
+<div mat-dialog-content><p>{{data.paneString}}</p></div>
 <div mat-dialog-actions fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="end center">
-    <button mat-raised-button (click)="close('option1')">{{data.option1}}</button>
-    <button mat-raised-button color="warn" (click)="close('option2')">{{data.option2}}</button>
+    <button mat-raised-button color="warn" (click)="close('option1')">{{data.option1}}</button>
+    <button mat-raised-button color="primary" (click)="close('option2')">{{data.option2}}</button>
 </div>

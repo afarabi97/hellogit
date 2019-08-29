@@ -3,7 +3,6 @@ import { AgentBuilderService, AgentInstallerConfig,
          IpTargetList, Host, ErrorMessage,
          WindowsCreds } from './agent-builder.service';
 import * as FileSaver from 'file-saver';
-import { KitService } from '../services/kit.service';
 import { Title } from '@angular/platform-browser';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent, target_config_validators } from './agent-target-dialog/agent-target-dialog.component';
@@ -59,7 +58,6 @@ export class AgentBuilderChooserComponent implements OnInit {
   hostConfigPaginator: MatPaginator;
 
   constructor(private agentBuilderSvc: AgentBuilderService,
-              private kitSrv: KitService,
               private titleSvc: Title,
               private socketSrv: WebsocketService,
               private snackBar: MatSnackBar,
@@ -81,13 +79,6 @@ export class AgentBuilderChooserComponent implements OnInit {
   ngOnInit() {
     this.getSavedConfigs();
     this.getSavedTargetConfigs();
-    this.kitSrv.getKitForm().subscribe(data => {
-      if (data === undefined || data === null) {
-        this.displaySnackBar("Building the single executable for the Winlogbeat, Sysmon, "
-          + "etc cannot be done until after you have setup a DIP Kit. Please finished the installation of your DIP by first "
-          + "going to Kickstart and Kit pages.", 60);
-      }
-    });
     this.socketRefresh();
   }
 

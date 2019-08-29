@@ -61,6 +61,6 @@
   </mat-vertical-stepper>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [disabled]="!newHostAgentForm.valid" (click)="submitAndClose()">Add Configuration</button>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="!newHostAgentForm.valid" (click)="submitAndClose()">Add Configuration</button>
 </div>

@@ -20,10 +20,11 @@ export class PolicyManagementService {
     public isUserEditing: boolean = false;
     public activeConfigDataTitle: string;
     public activeConfigData: string;
-    public ruleSets: any;
-    public dataSource = new MatTableDataSource(this.ruleSets);
-    public innerRules;
-    public innerDataSource = new MatTableDataSource(this.innerRules);
+    // public ruleSets: any;
+    // public dataSource = new MatTableDataSource();
+    // public innerDataSource = new MatTableDataSource();
+    // public innerRules;
+
     public editRuleSet: RuleSet;
     public editRule: Rule;
     public isUserAdding: boolean = false;
@@ -31,11 +32,11 @@ export class PolicyManagementService {
     clearanceLevels: any[] = [
         { value: 'Unclassified'},
         { value: 'Confidential'},
-        { value: 'Secret'}, 
+        { value: 'Secret'},
         { value: 'Top Secret'}
      ];
-   
-     ruleType: any[] = [        
+
+     ruleType: any[] = [
         {value: 'Suricata'},
         {value: 'Bro'},
      ];
@@ -94,7 +95,7 @@ export class PolicyManagementService {
     private mapStrArrayOrError(something: Object): Array<string> | IError {
         if (something["error_message"]){
             return new ErrorMessage(something as IError);
-        }        
+        }
         return something as Array<string>;
     }
 

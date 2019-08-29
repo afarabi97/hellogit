@@ -56,7 +56,7 @@ export class NotificationsModuleComponent {
    * @memberof NotificationsModuleComponent
    */
   getSelectedButton(button) {
-    return button.name === this.selectedButton.name ? 'warn' : 'accent';
+    return button.name === this.selectedButton.name ? 'accent': 'primary';
   }
 
   /**

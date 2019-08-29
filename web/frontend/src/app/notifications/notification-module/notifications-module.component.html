@@ -1,29 +1,27 @@
-
-
 <div class="messageAll" fxLayout="row" fxLayoutAlign="space-between stretch">
+  <mat-card class="messageList__card">
+    <div class="messageList__buttonGroup" fxLayout="row" fxLayoutAlign="start stretch" *ngFor="let button of buttonList">
+        <button mat-raised-button
+                [color]="getSelectedButton(button)"
+                class="messageList__buttonGroup__button"
+                fxLayout="column"
+                fxLayoutAlign="space-evenly center"
+                (click)="buttonPress(button)">
+          <mat-icon style="font-size: 24px; margin-right: 10px;">{{button.icon}}</mat-icon>
+          {{button.name}}
+        </button>
+    </div>
+    <div class="messageList__buttonGroup" fxLayout="row" fxLayoutAlign="start stretch">
+      <button mat-raised-button
+              color="warn"
+              class="messageList__buttonGroup__button"
+              fxLayout="column"
+              fxLayoutAlign="center center"
+              (click)="clearAll()">Clear All
+      </button>
+    </div>
+  </mat-card>
 
-  <div class="messageList" fxLayout="column" fxlayoutalign="start stretch">
-    <mat-card class="messageList__card">
-      <div class="messageList__buttonGroup" fxLayout="row" fxLayoutAlign="start stretch" *ngFor="let button of buttonList">
-          <button mat-raised-button
-                  [color]="getSelectedButton(button)"
-                  class="messageList__buttonGroup__button"
-                  fxLayout="column"
-                  fxLayoutAlign="space-evenly center"
-                  (click)="buttonPress(button)">
-            <mat-icon style="font-size: 24px; margin-right: 10px;">{{button.icon}}</mat-icon>
-            {{button.name}}
-          </button>
-      </div>
-    </mat-card>
-    <button  mat-raised-button
-             color="warn"
-             class="messageList__clear"
-             fxLayout="column"
-             fxLayoutAlign="center center"
-             (click)="clearAll()">Clear All
-    </button>
-  </div>
   <div class="messageCenter" fxLayout="column" fxLayoutAlign="start center">
     <div class="messageCenter__center__outerCard">
       <div class="messageCenter__center__outerCard__margin" *ngFor="let list of buttonList" >
@@ -56,10 +54,6 @@
             </div>
           </div>
       </div>
-
     </div>
   </div>
-
-
 </div>
-

@@ -1,252 +1,244 @@
-<div class="main-content">
-  <mat-card class="kickstart-form" [formGroup]="kickStartFormGroup" fxLayout="column" fxLayoutAlign="center center">
+<div class="main-content2" [formGroup]="kickStartFormGroup" >
+  <!-- TITLE -->
+  <mat-card>
     <mat-card-header>
-      <mat-card-title>Kickstart</mat-card-title>
+      <mat-card-title>Kickstart Page Instructions</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <!-- TITLE -->
-      <mat-card class="kickstart-form-card">
-        <mat-card-header>
-          <mat-card-title>Page Instructions</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>
-            Fill out the form and click "Add Node" button at the bottom of the
-            page to add Servers and Sensors. The validation box at the botton of
-            the page will guide you through filling out the form correctly.
-          </p>
-          <p>
-            The "Open Console" button opens the logs of the last Kickstart run.
-          </p>
-          <p>
-            If the current Kickstart form loads and is disabled, you have an
-            active configuration. If you want to start a new configuration,
-            click "Archive and Clear Form" button at the top of the page. This
-            will save the current configuration if you want to restore it later.
-            If you want to change the existing configuration, click "Enable
-            Form" button at the top of the page and make your edits before
-            clicking "Execute Kickstart". If you want to add a new node, scroll
-            to the bottom of the page and click the "Add Node" button.
-          </p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="openConsole()">Open Console</button>
-          <div class="kick-start-page-instructions-buttons">
-            <button mat-raised-button color="accent" (click)="kickStartFormGroup.enable()">Enable</button>
-            <button mat-raised-button color="accent" (click)="openRestore()">Restore</button>
-            <button mat-raised-button color="primary" (click)="openSaveArchive()">Save</button>
-            <button mat-raised-button color="warn" (click)="clearKickstartFormGroup()"
-              [disabled]="kickStartFormGroup.disabled">Clear</button>
-          </div>
-        </mat-card-actions>
-      </mat-card>
-      <!-- SETTINGS -->
-      <mat-card class="kickstart-form-card">
-        <mat-card-header>
-          <mat-card-title>Settings</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <!-- Controller Settings -->
-          <section>
-            <h5>Controller Settings</h5>
-            <p>
-              Select which interface you would like to use as the controller
-              interface. This will be the interace used for services provided
-              to the kit.
-            </p>
-            <p>
-              <mat-error>Interfaces without IP Addresses will not be listed</mat-error>
-            </p>
-            <mat-form-field *ngFor="let interface of kickStartFormGroup['controls'].controller_interface['controls'];">
-              <mat-label>Select a controller interface</mat-label>
-              <mat-select disableRipple [formControl]="interface"
-                (selectionChange)="kickStartFormGroup.get('dhcp_range').reset();setGateway();">
-                <mat-option *ngFor="let interface of controllers" [value]="interface.ip_address">{{ interface.name }} -
-                  {{ interface.ip_address }}</mat-option>
-              </mat-select>
-              <mat-error>{{getErrorMessage(kickStartFormGroup.get("controller_interface"))}}</mat-error>
-            </mat-form-field>
-          </section>
-          <mat-divider></mat-divider>
-          <section>
-            <h5>Static Interface Settings</h5>
+      <p>
+        Fill out the form and click "Add Node" button at the bottom of the
+        page to add Servers and Sensors. The validation box at the botton of
+        the page will guide you through filling out the form correctly.
+      </p>
+      <p>
+        The "Open Console" button opens the logs of the last Kickstart run.
+      </p>
+      <p>
+        If the current Kickstart form loads and is disabled, you have an
+        active configuration. If you want to start a new configuration,
+        click "Archive and Clear Form" button at the top of the page. This
+        will save the current configuration if you want to restore it later.
+        If you want to change the existing configuration, click "Enable
+        Form" button at the top of the page and make your edits before
+        clicking "Execute Kickstart". If you want to add a new node, scroll
+        to the bottom of the page and click the "Add Node" button.
+      </p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="openConsole()">Open Console</button>
+      <div style="float: right;">
+        <button mat-raised-button color="accent" (click)="kickStartFormGroup.enable()">Enable</button>
+        <button mat-raised-button color="accent" (click)="openRestore()">Restore</button>
+        <button mat-raised-button color="primary" (click)="openSaveArchive()">Save</button>
+        <button mat-raised-button color="warn" (click)="clearKickstartFormGroup()"
+          [disabled]="kickStartFormGroup.disabled">Clear</button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+  <br>
+  <!-- SETTINGS -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Settings</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Controller Settings -->
+      <section fxLayout="column" fxLayoutAlign="start stretch">
+        <h5>Controller Settings</h5>
+        <p>
+          Select which interface you would like to use as the controller
+          interface. This will be the interace used for services provided
+          to the kit.
+        </p>
+        <p>
+          <mat-error>Interfaces without IP Addresses will not be listed</mat-error>
+        </p>
+        <mat-form-field *ngFor="let interface of kickStartFormGroup['controls'].controller_interface['controls'];">
+          <mat-label>Select a controller interface</mat-label>
+          <mat-select disableRipple [formControl]="interface"
+            (selectionChange)="kickStartFormGroup.get('dhcp_range').reset();setGateway();">
+            <mat-option *ngFor="let interface of controllers" [value]="interface.ip_address">{{ interface.name }} -
+              {{ interface.ip_address }}</mat-option>
+          </mat-select>
+          <mat-error>{{getErrorMessage(kickStartFormGroup.get("controller_interface"))}}</mat-error>
+        </mat-form-field>
+      </section>
+      <mat-divider></mat-divider>
+      <section fxLayout="column" fxLayoutAlign="start stretch">
+        <h5>Static Interface Settings</h5>
+        <mat-form-field>
+          <mat-label>Gateway</mat-label>
+          <input matInput placeholder="Enter your kit's gateway here." formControlName="gateway"
+            matTooltip="{{ getTooltip('gateway') }}" (inputChange)="getOpenIP()" />
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('gateway').valid &&
+              kickStartFormGroup.get('gateway').touched" matSuffix color="primary">check_circle</mat-icon>
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('gateway').invalid &&
+              kickStartFormGroup.get('gateway').touched" matSuffix color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(kickStartFormGroup.get("gateway"))}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Netmask</mat-label>
+          <input matInput placeholder="Please enter a valid Netmask" formControlName="netmask"
+            matTooltip="{{ getTooltip('netmask') }}" />
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('netmask').valid &&
+              kickStartFormGroup.get('netmask').touched" matSuffix color="primary">check_circle</mat-icon>
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('netmask').invalid &&
+              kickStartFormGroup.get('netmask').touched" matSuffix color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(kickStartFormGroup.get("netmask"))}}</mat-error>
+        </mat-form-field>
+      </section>
+      <mat-divider></mat-divider>
+      <!-- System Settings   -->
+      <section fxLayout="column" fxLayoutAlign="start stretch">
+        <h5>System Settings</h5>
+        <mat-form-field>
+          <mat-label>Root Password</mat-label>
+          <input matInput type="password"
+            placeholder="You must enter a root password with a minimum length of 6 characters."
+            formControlName="root_password" matTooltip="{{ getTooltip('root_password') }}" />
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('root_password').valid &&
+              kickStartFormGroup.get('root_password').touched" matSuffix color="primary">check_circle</mat-icon>
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('root_password').invalid &&
+              kickStartFormGroup.get('root_password').touched" matSuffix color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(kickStartFormGroup.get("root_password"))}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Retype Password</mat-label>
+          <input matInput type="password" placeholder="You must re-enter the root password"
+            formControlName="re_password" matTooltip="{{ getTooltip('re_password') }}" />
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('re_password').valid &&
+              kickStartFormGroup.get('re_password').touched" matSuffix color="primary">check_circle</mat-icon>
+          <mat-icon *ngIf="
+              kickStartFormGroup.get('re_password').invalid &&
+              kickStartFormGroup.get('re_password').touched" matSuffix color="warn">error</mat-icon>
+          <mat-error>{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
+        </mat-form-field>
+        <app-kickstart-form-autocomplete [formControlInput]="kickStartFormGroup.get('dhcp_range')"
+          matTooltip="{{ getTooltip('dhcp_range') }}" [options]="dhcp_range_options"
+          inputPlaceHolder='DHCP Range Start' [matError]="getErrorMessage(kickStartFormGroup.get('dhcp_range'))">
+        </app-kickstart-form-autocomplete>
+        <mat-hint *ngIf="kickStartFormGroup.get('dhcp_range').valid">{{dhcpInputEvent()}}</mat-hint>
+      </section>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <!-- NODES -->
+  <mat-card formArrayName="nodes">
+    <mat-card-header>
+      <mat-card-title>Nodes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-accordion multi="true">
+        <mat-expansion-panel expanded="true" *ngFor="
+            let node of kickStartFormGroup['controls'].nodes['controls'];
+            let i = index" style="background-color: #5555;">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
+          </mat-expansion-panel-header>
+          <section [formGroupName]="i" fxLayout="column" fxLayoutAlign="start stretch" style="margin-top: 10px;">
             <mat-form-field>
-              <mat-label>Gateway</mat-label>
-              <input matInput placeholder="Enter your kit's gateway here." formControlName="gateway"
-                matTooltip="{{ getTooltip('gateway') }}" (inputChange)="getOpenIP()" />
+              <mat-label>Hostname</mat-label>
+              <input matInput placeholder="Enter a node hostname ending with .lan" formControlName="hostname"
+                matTooltip="{{ getTooltip('hostname') }}" />
               <mat-icon *ngIf="
-                  kickStartFormGroup.get('gateway').valid &&
-                  kickStartFormGroup.get('gateway').touched" matSuffix color="primary">check_circle</mat-icon>
+                  node.get('hostname')?.valid &&
+                  node.get('hostname')?.touched" matSuffix color="primary">check_circle</mat-icon>
               <mat-icon *ngIf="
-                  kickStartFormGroup.get('gateway').invalid &&
-                  kickStartFormGroup.get('gateway').touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(kickStartFormGroup.get("gateway"))}}</mat-error>
+                  node.get('hostname')?.invalid &&
+                  node.get('hostname')?.touched" matSuffix color="warn">error</mat-icon>
+              <mat-error>{{getErrorMessage(node.get("hostname"))}}</mat-error>
             </mat-form-field>
-            <mat-form-field>
-              <mat-label>Netmask</mat-label>
-              <input matInput placeholder="Please enter a valid Netmask" formControlName="netmask"
-                matTooltip="{{ getTooltip('netmask') }}" />
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('netmask').valid &&
-                  kickStartFormGroup.get('netmask').touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('netmask').invalid &&
-                  kickStartFormGroup.get('netmask').touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(kickStartFormGroup.get("netmask"))}}</mat-error>
-            </mat-form-field>
-          </section>
-          <mat-divider></mat-divider>
-          <!-- System Settings   -->
-          <section>
-            <h5>System Settings</h5>
-            <mat-form-field>
-              <mat-label>Root Password</mat-label>
-              <input matInput type="password"
-                placeholder="You must enter a root password with a minimum length of 6 characters."
-                formControlName="root_password" matTooltip="{{ getTooltip('root_password') }}" />
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('root_password').valid &&
-                  kickStartFormGroup.get('root_password').touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('root_password').invalid &&
-                  kickStartFormGroup.get('root_password').touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(kickStartFormGroup.get("root_password"))}}</mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Retype Password</mat-label>
-              <input matInput type="password" placeholder="You must re-enter the root password"
-                formControlName="re_password" matTooltip="{{ getTooltip('re_password') }}" />
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('re_password').valid &&
-                  kickStartFormGroup.get('re_password').touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  kickStartFormGroup.get('re_password').invalid &&
-                  kickStartFormGroup.get('re_password').touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
-            </mat-form-field>
-          </section>
-          <mat-divider></mat-divider>
-          <section>
-            <h5>DHCP Settings</h5>
-            <app-kickstart-form-autocomplete [formControlInput]="kickStartFormGroup.get('dhcp_range')"
-              matTooltip="{{ getTooltip('dhcp_range') }}" [options]="dhcp_range_options"
-              inputPlaceHolder='DHCP Range Start' [matError]="getErrorMessage(kickStartFormGroup.get('dhcp_range'))">
+            <app-kickstart-form-autocomplete [formControlInput]="node.get('ip_address')"
+              matTooltip="{{ getTooltip('ip_address') }}" [options]="availableIPs"
+              inputPlaceHolder='Enter your node IP address here'
+              [matError]="getErrorMessage(node.get('ip_address'))">
             </app-kickstart-form-autocomplete>
-            <mat-hint *ngIf="kickStartFormGroup.get('dhcp_range').valid">{{dhcpInputEvent()}}</mat-hint>
+            <mat-form-field>
+              <mat-label>MAC Address</mat-label>
+              <input matInput placeholder="Enter a mac address" formControlName="mac_address"
+                matTooltip="{{ getTooltip('mac_address') }}" />
+              <mat-icon *ngIf="
+                  node.get('mac_address')?.valid &&
+                  node.get('mac_address')?.touched" matSuffix color="primary">check_circle</mat-icon>
+              <mat-icon *ngIf="
+                  node.get('mac_address')?.invalid &&
+                  node.get('mac_address')?.touched" matSuffix color="warn">error</mat-icon>
+              <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Boot Drive</mat-label>
+              <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
+                matTooltip="{{ getTooltip('boot_drive') }}" />
+              <mat-icon *ngIf="
+                    node.get('boot_drive')?.valid &&
+                    node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+              <mat-icon *ngIf="
+                    node.get('boot_drive')?.invalid &&
+                    node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
+              <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Data Drive</mat-label>
+              <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
+                matTooltip="{{ getTooltip('data_drive') }}" />
+              <mat-icon *ngIf="
+                  node.get('data_drive')?.valid &&
+                  node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+              <mat-icon *ngIf="
+                  node.get('data_drive')?.invalid &&
+                  node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
+              <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>PXE Type</mat-label>
+              <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
+                <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-action-row>
+              <button mat-raised-button color="warn" (click)="removeNode(nodesFormArray(), i)"
+                *ngIf="kickStartFormGroup.get('nodes').controls.length > 2"
+                [disabled]="kickStartFormGroup.disabled">Remove</button>
+            </mat-action-row>
           </section>
-        </mat-card-content>
-      </mat-card>
-      <!-- NODES -->
-      <mat-card class="kickstart-form-card" formArrayName="nodes">
-        <mat-card-header>
-          <mat-card-title>Nodes</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-accordion multi="true">
-            <mat-expansion-panel expanded="true" *ngFor="
-                let node of kickStartFormGroup['controls'].nodes['controls'];
-                let i = index">
-              <mat-expansion-panel-header>
-                <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
-              </mat-expansion-panel-header>
-              <section class="kickstart-form-card-panel-content" [formGroupName]="i">
-                <mat-form-field>
-                  <mat-label>Hostname</mat-label>
-                  <input matInput placeholder="Enter a node hostname ending with .lan" formControlName="hostname"
-                    matTooltip="{{ getTooltip('hostname') }}" />
-                  <mat-icon *ngIf="
-                      node.get('hostname')?.valid &&
-                      node.get('hostname')?.touched" matSuffix color="primary">check_circle</mat-icon>
-                  <mat-icon *ngIf="
-                      node.get('hostname')?.invalid &&
-                      node.get('hostname')?.touched" matSuffix color="warn">error</mat-icon>
-                  <mat-error>{{getErrorMessage(node.get("hostname"))}}</mat-error>
-                </mat-form-field>
-                <app-kickstart-form-autocomplete [formControlInput]="node.get('ip_address')"
-                  matTooltip="{{ getTooltip('ip_address') }}" [options]="availableIPs"
-                  inputPlaceHolder='Enter your node IP address here'
-                  [matError]="getErrorMessage(node.get('ip_address'))">
-                </app-kickstart-form-autocomplete>
-                <mat-form-field>
-                  <mat-label>MAC Address</mat-label>
-                  <input matInput placeholder="Enter a mac address" formControlName="mac_address"
-                    matTooltip="{{ getTooltip('mac_address') }}" />
-                  <mat-icon *ngIf="
-                      node.get('mac_address')?.valid &&
-                      node.get('mac_address')?.touched" matSuffix color="primary">check_circle</mat-icon>
-                  <mat-icon *ngIf="
-                      node.get('mac_address')?.invalid &&
-                      node.get('mac_address')?.touched" matSuffix color="warn">error</mat-icon>
-                  <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Boot Drive</mat-label>
-                  <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
-                    matTooltip="{{ getTooltip('boot_drive') }}" />
-                  <mat-icon *ngIf="
-                        node.get('boot_drive')?.valid &&
-                        node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-                  <mat-icon *ngIf="
-                        node.get('boot_drive')?.invalid &&
-                        node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
-                  <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>Data Drive</mat-label>
-                  <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
-                    matTooltip="{{ getTooltip('data_drive') }}" />
-                  <mat-icon *ngIf="
-                      node.get('data_drive')?.valid &&
-                      node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-                  <mat-icon *ngIf="
-                      node.get('data_drive')?.invalid &&
-                      node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
-                  <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
-                </mat-form-field>
-                <mat-form-field>
-                  <mat-label>PXE Type</mat-label>
-                  <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
-                    <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-                <mat-action-row>
-                  <button mat-raised-button color="warn" (click)="removeNode(nodesFormArray(), i)"
-                    *ngIf="kickStartFormGroup.get('nodes').controls.length > 2"
-                    [disabled]="kickStartFormGroup.disabled">Remove</button>
-                </mat-action-row>
-              </section>
-            </mat-expansion-panel>
-          </mat-accordion>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" [disabled]="kickStartFormGroup.disabled"
-            (click)="addNode(nodesFormArray())">Add Node</button>
-        </mat-card-actions>
-      </mat-card>
-      <!-- VALIDATION -->
-      <mat-card class="kickstart-form-card-validation">
-        <mat-card-header>
-          <mat-card-title>Validation</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <section>
-            <mat-list>
-              <mat-list-item class="validation-errors"
-                *ngFor="let error of getFormValidationErrors(kickStartFormGroup.controls);let j = index">
-                {{ j + 1 }}. {{ error.error_value }}
-              </mat-list-item>
-            </mat-list>
-            <div>
-              <p *ngIf="kickStartFormGroup.valid">
-                Looks good! Press 'Execute Kickstart' whenever you're ready!
-              </p>
-              <p *ngIf="kickStartFormGroup.disabled">
-                Kickstart is currently disabled. Enable it to edit the form.
-              </p>
-            </div>
-          </section>
-        </mat-card-content>
-      </mat-card>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" [disabled]="kickStartFormGroup.disabled"
+        (click)="addNode(nodesFormArray())">Add Node</button>
+    </mat-card-actions>
+  </mat-card>
+  <br>
+  <!-- VALIDATION -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Validation</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <section>
+        <mat-list>
+          <mat-list-item class="validation-errors"
+            *ngFor="let error of getFormValidationErrors(kickStartFormGroup.controls);let j = index">
+            {{ j + 1 }}. {{ error.error_value }}
+          </mat-list-item>
+        </mat-list>
+        <div>
+          <p *ngIf="kickStartFormGroup.valid">
+            Looks good! Press 'Execute Kickstart' whenever you're ready!
+          </p>
+          <p *ngIf="kickStartFormGroup.disabled">
+            Kickstart is currently disabled. Enable it to edit the form.
+          </p>
+        </div>
+      </section>
     </mat-card-content>
     <mat-card-actions>
       <button mat-raised-button color="primary" [disabled]="kickStartFormGroup.disabled || kickStartFormGroup.invalid"
@@ -255,4 +247,5 @@
       </button>
     </mat-card-actions>
   </mat-card>
+  <br>
 </div>

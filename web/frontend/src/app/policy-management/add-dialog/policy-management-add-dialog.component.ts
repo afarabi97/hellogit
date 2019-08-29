@@ -1,10 +1,9 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
-import {  MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ErrorMessage, IHostInfo } from '../interface/rule.interface';
-import { RuleSet, IRuleSet } from '../interface/ruleSet.interface';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { IHostInfo } from '../interface/rule.interface';
+import { RuleSet } from '../interface/ruleSet.interface';
 
 /* Services */
 import { PolicyManagementService } from '../services/policy-management.service';
@@ -14,45 +13,46 @@ import { PolicyManagementService } from '../services/policy-management.service';
   templateUrl: 'policy-management-add-dialog.component.html',
   styleUrls: ['policy-management-add-dialog.component.css'],
 })
-export class PolicyManagementAddDialog  implements OnInit{
+export class PolicyManagementAddDialog  implements OnInit {
   sensorList: Array<IHostInfo>;
+  sensorListSelection: Array<string>;
   sensor = new FormControl();
-  ruleSetGroup: FormGroup;  
+  ruleSetGroup: FormGroup;
 
   clearanceLevels: any[];
   ruleType: any[];
 
   constructor( public dialogRef: MatDialogRef<PolicyManagementAddDialog>,
                private formBuilder: FormBuilder,
-               private snackBar: MatSnackBar,
-               public _PolicyManagementService: PolicyManagementService,
-               @Inject(MAT_DIALOG_DATA) public data: any) {    
-    this.clearanceLevels = _PolicyManagementService.clearanceLevels
-    this.ruleType = _PolicyManagementService.ruleType
+               public policySrv: PolicyManagementService,
+               @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.clearanceLevels = policySrv.clearanceLevels
+    this.ruleType = policySrv.ruleType
   }
 
   ngOnInit() {
-    this._PolicyManagementService.getSensorHostInfo().subscribe(data => {
+    this.policySrv.getSensorHostInfo().subscribe(data => {
       this.sensorList = data;
+      this.sensorListSelection = [];
+
+      for (let item of this.sensorList){
+        this.sensorListSelection.push(item.hostname);
+      }
     });
 
     if (this.data === 'edit') {
-      this.initializeForm(this._PolicyManagementService.editRuleSet, true);
+      this.initializeForm(this.policySrv.editRuleSet, true);
     } else {
-      this.initializeForm(this.ruleSetGroup);
+      this.initializeForm(null);
     }
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
-  }
-
-  initializeForm(ruleSet: any, isEdit: boolean=false) {
+  initializeForm(ruleSet: RuleSet, isEdit: boolean=false) {
     this.ruleSetGroup = this.formBuilder.group({
       '_id': new FormControl(ruleSet ? ruleSet._id : '0'),
       'name': new FormControl(ruleSet ? ruleSet.name : '', Validators.compose([Validators.required])),
       'clearance': new FormControl(ruleSet ? ruleSet.clearance : ''),
-      'sensors': new FormControl(ruleSet ? ruleSet.sensors : []),
+      'sensors': new FormControl(),
       'appType': new FormControl(ruleSet ? ruleSet.appType : ''),
       'isEnabled': new FormControl(ruleSet ? ruleSet.isEnabled : true),
       'groupName': new FormControl(ruleSet ? ruleSet.groupName : '')
@@ -60,36 +60,27 @@ export class PolicyManagementAddDialog  implements OnInit{
 
     if (isEdit){
       this.ruleSetGroup.get('appType').disable();
+      let valuesToSelect = [];
+      for (let item of ruleSet.sensors){
+        valuesToSelect.push(item.hostname);
+      }
+
+      this.ruleSetGroup.get('sensors').setValue(valuesToSelect);
     }
   }
 
   onSubmit() {
-    if (this.data === 'edit') {
-      this._PolicyManagementService.updateRuleSet(this.ruleSetGroup.value as IRuleSet).subscribe(data => {
-        if (data instanceof RuleSet){
-          const index = this._PolicyManagementService.ruleSets.findIndex( i => i._id === data._id);
-          this._PolicyManagementService.ruleSets[index] = data;          
-          this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
-        } else if (data instanceof ErrorMessage) {
-          this.displaySnackBar(data.error_message);
+    let valuesToSendBack = [];
+    for (let hostname of this.ruleSetGroup.get("sensors").value){
+      for (let hostObj of this.sensorList){
+        if (hostname === hostObj.hostname){
+          valuesToSendBack.push(hostObj);
+          break;
         }
-      }, err => {
-        this.displaySnackBar("Failed ot update ruleset of unknown reason.");
-        console.log(err);
-      });
-    } else {
-      this._PolicyManagementService.createRuleSet(this.ruleSetGroup.value as IRuleSet).subscribe(data => {
-        if (data instanceof RuleSet){
-          this._PolicyManagementService.ruleSets.push(data);
-          this._PolicyManagementService.dataSource.data = this._PolicyManagementService.ruleSets;
-        } else if (data instanceof ErrorMessage) {
-          this.displaySnackBar(data.error_message);
-        }
-      }, err => {
-        this.displaySnackBar("Failed ot create ruleset of unknown reason.");
-        console.log(err);
-      });
-    }    
+      }
+    }
+    this.ruleSetGroup.get('sensors').setValue(valuesToSendBack);
+    this.dialogRef.close(this.ruleSetGroup);
   }
 
   isRuleSetEnabled(): boolean {

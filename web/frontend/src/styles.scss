@@ -5,50 +5,74 @@
 @import '~material-design-icons/iconfont/material-icons.css';
 
 .mat-error {
-    font-size: 1.15em !important;
+  font-size: $primary-font-size !important;
 }
 
 .mat-tooltip {
-    font-size: 1em !important;
+  font-size: $primary-font-size !important;
+}
+
+.mat-form-field{
+  font-size: $form-field-font-size !important;
 }
 
 snack-bar-container.mat-snack-bar-container {
-  background-color: #222;
-  color: lightgreen;
-  border: 1px solid black;
+  background-color: $first-elevation-dark-background;
+  color: $primary-text-color;
+  border: 1px solid $primary-border-color;
 }
 
 p {
-  color: lightgreen;
+  color: $primary-text-color;
+  font-size: $primary-font-size;
 }
 
 a {
-  color: #0f0;
+  color: $primary-link-color;
   cursor: pointer;
 }
 
 .btn-secondary {
-  background-color: #222;
-  border-color: #333;
+  background-color: $first-elevation-dark-background;
+  border-color: $secondary-border-color;
 }
 
-.btn-primary2 {
-  background-color: #5f9ea0;
-  border-color: #006400;
+mat-expansion-panel .mat-expansion-panel-body {
+  padding-right: 16px;
+}
+
+mat-dialog-container{
+  background-color: $first-elevation-dark-background !important;
+
+  .mat-stepper-horizontal, .mat-stepper-vertical {
+    background-color: inherit;
+  }
+}
+
+mat-dialog-container, .main-content2, .container-fluid {
+  .mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary{
+    background-color: $primary-btn-color;
+    color: $primary-btn-text-color;
+  }
+
+  .mat-flat-button.mat-warn, .mat-raised-button.mat-warn, .mat-fab.mat-warn, .mat-mini-fab.mat-warn {
+    background-color: $danger-btn-color;
+    color: $primary-btn-text-color;
+  }
+}
+
+* {
+  font-family: sans-serif, serif, 'Times New Roman', Times;
 }
 
 .main-content2 {
   margin-top: 1.5em;
   width: fit-content;
   margin: 0 auto;
-
-  .btn-primary2 {
-    background-color: #5f9ea0;
-    border-color: #006400;
-  }
+  max-width: 1200px;
 
   .pageInstructions {
-    background-color: #222;
+    background-color: $first-elevation-dark-background;
     padding: 15px 15px 3px 15px;
   }
 
@@ -66,20 +90,30 @@ a {
   }
 
   .mat-card-header .mat-card-title {
-    font-size: 16px;
+    font-size: 16pt;
+  }
+
+  .mat-form-field {
+    margin-bottom: 1em;
   }
 
   mat-card {
-    border: 1px solid black;
+    border: 1px solid $primary-border-color;
     padding: 0px;
-    background-color: #101010;
-    width: 74em;
+    background-color: $first-elevation-dark-background;
+    width: 1200px;
+
     mat-card-title {
       width: 100%;
     }
 
+    .validation-errors {
+      color: $warn;
+      height: 35px;
+    }
+
     mat-card-header {
-      background-color: black;
+      background-color: $header-background;
       border-radius: 4px 4px 0px 0px;
       padding: 12px 0px 0px 0px;
 
@@ -90,20 +124,13 @@ a {
           margin-bottom: 10px;
         }
       }
-
     }
 
     mat-card-actions {
-      background-color: black;
+      background-color: $footer-background;
       border-radius: 0px 0px 4px 4px;
       padding: 12px 0px 0px 0px;
       margin: 0px 0px 0px 0px;
-
-      .btn-danger2 {
-        background-color: #8b0000;
-        border-color: #8b0000;
-        margin-right: 16px;
-      }
 
       button {
         margin-bottom: 10px;
@@ -113,14 +140,14 @@ a {
 
     mat-card-content {
       padding: 16px;
-      background-color: #222;
+      background-color: $first-elevation-dark-background;
 
       .mat-paginator-outer-container {
-        background-color: #222;
+        background-color: $first-elevation-dark-background;
       }
 
       table {
-        background-color: #222;
+        background-color: $first-elevation-dark-background;
         width: 100%;
         th {
           font-weight: bold;
@@ -129,12 +156,20 @@ a {
         }
 
         .mat-paginator-outer-container {
-          background-color: #313131;
+          background-color: $second-elevation-dark-background;
         }
 
         table {
-          background-color: #313131;
+          background-color: $second-elevation-dark-background;
         }
+      }
+    }
+
+    mat-paginator {
+      font-size: 10pt;
+
+      .mat-paginator-page-size-select{
+        margin: 0px;
       }
     }
   }
@@ -142,45 +177,53 @@ a {
 
 .container-fluid {
   width: 100%;
-  
-  mat-card {    
-    background-color: #222;    
+
+  mat-card {
+    background-color: $first-elevation-dark-background;
+    padding: 0px;
 
     mat-card-header {
-      mat-card-title {
-        margin-left: 20px;
+      background-color: $header-background;
+      border-radius: 4px 4px 0px 0px;
+      padding: 12px 0px 0px 0px;
+
+      .mat-card-header-text{
+        width: 100%;
+        button {
+          float: right;
+          margin-bottom: 10px;
+        }
       }
-    }      
+    }
 
     mat-card-content {
+      padding-left: 1em;
+
       mat-form-field{
         width: 100%;
       }
 
       .line-numbers {
         display: inline-block;
-        font-family: sans-serif;
         margin: 0px 5px 0px 0px;
       }
-      
+
       .line-numbers div {
-        font-size: 14px; 
-        font-family: sans-serif;
+        font-size: 14px;
       }
-      
+
       .text-area-wrapper {
         display: inline-block;
         margin: 0px;
         width: 80%;
       }
-      
+
       .text-area {
-        overflow: hidden; 
-        padding: 0px; 
+        overflow: hidden;
+        padding: 0px;
         overflow-x: auto;
-        overflow-y: hidden; 
-        font-size: 14px; 
-        font-family: sans-serif; 
+        overflow-y: hidden;
+        font-size: 14px;
         width: 10000px;
         background-color: black;
         color: lightgreen;
@@ -190,16 +233,15 @@ a {
         resize: none;
       }
     }
+
+    mat-card-footer{
+      margin: 0px;
+      padding: 0px 15px 15px 15px;
+    }
   }
 
   .line-numbers {
     display: inline-block;
-    font-family: sans-serif;
     margin: 0 5px 0 0;
-  }
-
-  .btn-primary2 {
-    background-color: #5f9ea0;
-    border-color: #006400;
   }
 }

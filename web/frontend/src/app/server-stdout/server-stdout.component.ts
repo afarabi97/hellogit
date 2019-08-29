@@ -71,7 +71,7 @@ export class ServerStdoutComponent implements OnInit {
   private resizeConsole(){
     let height: string = "";
     if (window.innerHeight > 400){
-      height = (window.innerHeight - 170) + "px";
+      height = (window.innerHeight - 60) + "px";
     } else {
       height = "100px";
     }

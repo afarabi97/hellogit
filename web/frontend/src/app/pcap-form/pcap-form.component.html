@@ -21,11 +21,11 @@
     <mat-card-header>
       <mat-card-title>
         PCAP Test Files
-        <button mat-button class="btn-primary2" (click)="uploadFile()" style="float: right;"
+        <button mat-raised-button color="primary" (click)="uploadFile()" style="float: right;"
           [disabled]="!pcapToUpload" name="execute_kickstart">Upload
           <span *ngIf="pcapToUpload">&nbsp;{{ pcapToUpload.name }}</span></button>
-        <button mat-button class="btn-primary2" style="float:right; margin-right: 10px;" (click)="fileInput.click()">Choose PCAP File</button>
-        <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="pcap_file_uploader" accept=".pcap,.PCAP">        
+        <button mat-raised-button color="primary" style="float:right; margin-right: 10px;" (click)="fileInput.click()">Choose PCAP File</button>
+        <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="pcap_file_uploader" accept=".pcap,.PCAP">
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>

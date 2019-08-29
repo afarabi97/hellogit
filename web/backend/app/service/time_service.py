@@ -4,7 +4,7 @@ import os
 from app import app, logger, conn_mng, CORE_DIR
 from app.archive_controller import archive_form
 from app.service.job_service import run_command2
-from app.service.socket_service import noify_clock_refresh
+from app.service.socket_service import notify_clock_refresh
 from datetime import datetime, timedelta
 from fabric.connection import Connection
 from fabric.runners import Result
@@ -209,7 +209,7 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
         dt_srv.change_time_on_target(password, node["management_ip_address"], is_master)
 
     dt_srv.set_controller_clock(True)
-    noify_clock_refresh()
+    notify_clock_refresh()
 
 
 def change_time_on_kit(timeForm: Dict):
@@ -227,6 +227,6 @@ def change_time_on_kit(timeForm: Dict):
             dt_srv.change_time_on_target(password, node["management_ip_address"], is_master)
 
         dt_srv.set_controller_clock(False)
-        noify_clock_refresh()
+        notify_clock_refresh()
     else:
         raise TimeChangeFailure("Failed to change time as this kit has not been provisioned yet.")

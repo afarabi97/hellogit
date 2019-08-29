@@ -35,7 +35,7 @@ export class PolicyManagementDialog implements OnInit {
 
   @Output()
   closeSaveEvent: EventEmitter<any> = new EventEmitter();
-  
+
   ruleGroup: FormGroup;
   pcaps: Array<Object>;
   selectedPcap: string;
@@ -91,7 +91,7 @@ export class PolicyManagementDialog implements OnInit {
           this.numbers = new Array(len).fill(true);
           this.editorCard.nativeElement.style.height = 21 * len + "px";
           this.ruleGroup.get('rule').setValue(data.rule);
-        } else if (data instanceof ErrorMessage){     
+        } else if (data instanceof ErrorMessage){
           this.displaySnackBar(data.error_message);
         }
       });
@@ -105,7 +105,7 @@ export class PolicyManagementDialog implements OnInit {
   private resizeEditor(element: ElementRef) {
     let height: string = "";
     if (window.innerHeight > 400) {
-      height = (window.innerHeight - 215) + "px";
+      height = (window.innerHeight - 250) + "px";
     } else {
       height = "100px";
     }
@@ -210,11 +210,11 @@ export class PolicyManagementDialog implements OnInit {
       }, err => {
         if (err.status === 501){
           this.displaySnackBar("Validation failed for testing against PCAP. \
-                                Please make sure you have selected a PCAP and your rules validate.");          
+                                Please make sure you have selected a PCAP and your rules validate.");
         } else {
           console.error(err);
-          this.displaySnackBar("Failed to test rule against PCAP for an unknown reason.");          
-        }        
+          this.displaySnackBar("Failed to test rule against PCAP for an unknown reason.");
+        }
       }
     );
   }

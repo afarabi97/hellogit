@@ -16,7 +16,7 @@ import requests, json, yaml
 
 
 _MESSAGETYPE_PREFIX = "catalog"
-_CHART_EXEMPTS = ["chartmuseum"]
+_CHART_EXEMPTS = ["chartmuseum", "elasticsearch", 'kibana']
 
 @socketio.on('connect')
 def connect():

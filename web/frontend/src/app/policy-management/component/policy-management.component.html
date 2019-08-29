@@ -1,4 +1,4 @@
-<div *ngIf="!_PolicyManagementService.isUserEditing" class="main-content2">
+<div *ngIf="!policySrv.isUserEditing" class="main-content2">
   <mat-card>
     <mat-card-header>
       <mat-card-title>Page Instructions</mat-card-title>
@@ -18,20 +18,8 @@
     </mat-card-content>
   </mat-card>
   <br>
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>
-        <button mat-button MatTooltip="Synchronize RuleSets" class="btn-primary2"
-                (click)="ruleSync()"><i class="material-icons">swap_horiz</i> Rule Sync</button>
-        <button mat-button MatTooltip="Add RuleSet" class="btn-primary2" style="margin-right: 10px;"
-                (click)="addRuleSet()"><i class="material-icons">add_circle_outline</i> Add RuleSet</button>
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <policy-management-table></policy-management-table>
-    </mat-card-content>
-  </mat-card>
+  <policy-management-table></policy-management-table>
 </div>
-<policy-management-dialog *ngIf="_PolicyManagementService.isUserEditing"
+<policy-management-dialog *ngIf="policySrv.isUserEditing"
                       (closeNoSaveEvent)="closeEditor($event)"
                       (closeSaveEvent)="saveAndCloseEditor($event)"></policy-management-dialog>

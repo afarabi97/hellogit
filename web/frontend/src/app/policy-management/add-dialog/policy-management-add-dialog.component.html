@@ -1,8 +1,10 @@
 
 <h1 mat-dialog-title *ngIf="data === 'add'">Add RuleSet</h1>
 <h1 mat-dialog-title *ngIf="data === 'edit'">Edit RuleSet</h1>
-<div mat-dialog-content>
-  <form class="example-form" [formGroup]="ruleSetGroup">
+<div mat-dialog-content [formGroup]="ruleSetGroup"
+     fxLayout="column" fxLayoutAlign="start stretch"
+     style="overflow: unset;">
+
     <mat-form-field class="example-full-width">
       <input matInput placeholder="RuleSet Name" type="text" id="name" formControlName="name" required>
     </mat-form-field>
@@ -20,7 +22,7 @@
     <mat-form-field>
       <mat-label>Sensors</mat-label>
       <mat-select formControlName="sensors" multiple>
-        <mat-option *ngFor="let sensor of sensorList" [value]="sensor">{{sensor.hostname}}</mat-option>
+        <mat-option *ngFor="let sensor of sensorListSelection" [value]="sensor">{{sensor}}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field>
@@ -31,11 +33,10 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-label></mat-label>
     <mat-checkbox [checked]="isRuleSetEnabled()" formControlName="isEnabled">Is Enabled?</mat-checkbox>
-  </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="data" (click)="onSubmit()" cdkFocusInitial>Submit</button>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="data"
+          (click)="onSubmit()" cdkFocusInitial>Submit</button>
 </div>
