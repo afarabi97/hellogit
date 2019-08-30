@@ -25,7 +25,7 @@ maxFileSizeG: 1
 freespaceG: 25%
 spiDataMaxIndices: "5"
 packetThreads: 3
-pcapWriteMethod: "thread-direct"
+pcapWriteMethod: "simple"
 pcapWriteSize: "2560000"
 dbBulkSize: "400000"
 maxESConns: "30"

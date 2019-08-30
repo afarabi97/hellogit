@@ -196,7 +196,7 @@ kit:
           node_hostname: "sensor1"
         moloch-capture:
           cpu_request: "1000"
-          pcapWriteMethod: "thread-direct"
+          pcapWriteMethod: "simple"
           affinity_hostname: "sensor1"
           node_hostname: "sensor1"
           bpf: ""
@@ -262,7 +262,7 @@ kit:
           node_hostname: "sensor2"
         moloch-capture:
           cpu_request: "1000"
-          pcapWriteMethod: "thread-direct"
+          pcapWriteMethod: "simple"
           affinity_hostname: "sensor2"
           node_hostname: "sensor2"
           bpf: ""
@@ -328,7 +328,7 @@ kit:
             - "eno2"
         moloch-capture:
           cpu_request: "1000"
-          pcapWriteMethod: "thread-direct"
+          pcapWriteMethod: "simple"
           affinity_hostname: "sensor3"
           node_hostname: "sensor3"
           bpf: ""
@@ -394,7 +394,7 @@ kit:
           node_hostname: "sensor4"
         moloch-capture:
           cpu_request: "1000"
-          pcapWriteMethod: "thread-direct"
+          pcapWriteMethod: "simple"
           affinity_hostname: "sensor4"
           node_hostname: "sensor4"
           bpf: ""

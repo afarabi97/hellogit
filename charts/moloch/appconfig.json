@@ -6,9 +6,9 @@
     "formControls": [
         {
           "type": "checkbox",
-          "default_value": "thread-direct",
+          "default_value": "simple",
           "description": "Enable writing PCAPs",
-          "trueValue": "thread-direct",
+          "trueValue": "simple",
           "falseValue": null,
           "name": "pcapWriteMethod"
         },

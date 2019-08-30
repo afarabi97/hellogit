@@ -191,7 +191,7 @@ kit:
           node_hostname: "test4-sensor1.lan"
         moloch-capture:
           cpu_request: "1000"
-          pcapWriteMethod: "thread-direct"
+          pcapWriteMethod: "simple"
           affinity_hostname: "test4-sensor1.lan"
           node_hostname: "test4-sensor1.lan"
           bpf: ""
