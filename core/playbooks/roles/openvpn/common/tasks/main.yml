@@ -11,7 +11,7 @@
     state: present
 
 - name: Copy easy-rsa executable to /etc/openvpn
-  shell: "cp -r /usr/share/easy-rsa/3.0.3/* /etc/openvpn/"
+  shell: "cp -r /usr/share/easy-rsa/3/* /etc/openvpn/"
 
 - name: Initialize PKI for the server
   shell: ./easyrsa --batch init-pki

@@ -245,6 +245,10 @@ class CatalogPayloadGenerator:
         #    return node.endgame2elastic_catalog.deployment_name
         elif role == 'zeek':
             return node.zeek_catalog.deployment_name
+        elif role == 'kafka':
+            return node.kafka_catalog.deployment_name
+        elif role == 'logstash':
+            return node.logstash_catalog.deployment_name
 
     def _get_catalog_dict(self, role: str, node) -> Dict:
         if role == 'suricata':
@@ -257,6 +261,10 @@ class CatalogPayloadGenerator:
         #    return node.endgame2elastic_catalog.to_dict()
         elif role == 'zeek':
             return node.zeek_catalog.to_dict()
+        elif role == 'kafka':
+            return node.kafka_catalog.to_dict()
+        elif role == 'logstash':
+            return node.logstash_catalog.to_dict()
 
     def _construct_selectedNode_part(self, node_affinity: str, role: str) -> List[Dict]:
 
@@ -356,6 +364,12 @@ class APITester:
         #response = post_request(self._url.format("/api/catalog/install"), payload)
         #time.sleep(60)
         payload = self._catalog_payload_generator.generate("zeek","install","Sensor")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("kafka","install","Sensor")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("logstash","install","Server - Any")
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 

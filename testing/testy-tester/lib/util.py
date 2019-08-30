@@ -394,12 +394,16 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
             node.set_moloch_capture_catalog(moloch_capture_spec)
             zeek_spec = vms[v]['catalog']['zeek']
             node.set_zeek_catalog(zeek_spec)
+            kafka_spec = vms[v]['catalog']['kafka']
+            node.set_kafka_catalog(kafka_spec)
 
         if node.type == "master_server":
             moloch_viewer_spec = catalog.get('moloch-viewer')
             node.set_moloch_viewer_catalog(moloch_viewer_spec)
             #endgame2elastic_spec = vms[v]['catalog']['endgame2elastic']
             #node.set_endgame2elastic_catalog(endgame2elastic_spec)
+            logstash_spec = catalog.get('logstash')
+            node.set_logstash_catalog(logstash_spec)
 
         # Add node to list of nodes
         nodes.append(node)

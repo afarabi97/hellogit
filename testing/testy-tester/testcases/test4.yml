@@ -129,6 +129,12 @@ kit:
           user: "assessor"
           pass: "password"
           deployment_name: "server-moloch-viewer"
+        logstash:
+          node_hostname: "server"
+          kafka_clusters: ["test4-sensor1-kafka.default.svc.cluster.local:9092"]
+          replicas: 2
+          heap_size: 12
+          deployment_name: "server-logstash"
     test4-sensor1.lan:
       type: "sensor" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
@@ -204,4 +210,9 @@ kit:
           interfaces:
             - "ens224"
           zeek_workers: 8
+          node_hostname: "test4-sensor1.lan"
+        kafka:
+          affinity_hostname: "test4-sensor1.lan"
+          deployment_name: "test4-sensor1-kafka"
+          log_retention_hours: "24"
           node_hostname: "test4-sensor1.lan"
