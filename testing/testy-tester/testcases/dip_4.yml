@@ -193,6 +193,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "eno2"
+          pcapEnabled: false
           node_hostname: "sensor1"
         moloch-capture:
           cpu_request: "1000"
@@ -259,6 +260,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "eno2"
+          pcapEnabled: false
           node_hostname: "sensor2"
         moloch-capture:
           cpu_request: "1000"
@@ -326,6 +328,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "eno2"
+          pcapEnabled: false
         moloch-capture:
           cpu_request: "1000"
           pcapWriteMethod: "simple"
@@ -391,6 +394,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "eno2"
+          pcapEnabled: false
           node_hostname: "sensor4"
         moloch-capture:
           cpu_request: "1000"

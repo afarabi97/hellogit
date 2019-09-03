@@ -81,6 +81,7 @@
 - name: Validate Suricata
   hosts:
   - master_server
+  - sensors
   gather_facts: no
   roles:
     - suricata

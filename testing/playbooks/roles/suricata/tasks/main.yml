@@ -108,6 +108,23 @@
     assert:
       that: results_ss.json.hits.total != 0
       msg: "Failed verifying Elasticsearch received SMB logs from Suricata"
-  when: app_deployed|bool
+  when: (app_deployed|bool) and inventory_hostname in groups['master_server']
+
+- name: Check Suricata PCAP Data
+  find:
+    paths: "/data/pcap"
+    patterns: "suri*.pcap"
+  register: results_sp
+  until: results_sp.matched != 0
+  retries: 60
+  delay: 5
+  ignore_errors: yes
+  when: (app_deployed|bool) and inventory_hostname in groups['sensors']
+
+- name: Test | Check Suricata PCAP Results
+  assert:
+    that: results_sp.matched != 0
+    msg: "Failed verifying Suricata PCAP"
+  when: (app_deployed|bool) and inventory_hostname in groups['sensors']
 
 ...

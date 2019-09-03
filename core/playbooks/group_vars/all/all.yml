@@ -41,7 +41,7 @@ moloch_login: 'assessor'
 moloch_pass: 'password'
 
 # Directories in which to store IDS logs
-bro_log_path: "/data/bro"
+zeek_log_path: "/data/zeek"
 suricata_log_path: "/data/suricata"
 
 # How often to rotate IDS logs, in seconds

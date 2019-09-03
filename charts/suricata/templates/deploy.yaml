@@ -55,6 +55,8 @@ spec:
           readOnly: true
         - name: logs
           mountPath: /var/log/suricata
+        - name: pcap
+          mountPath: {{ .Values.fpc_path }}
         args: ['-c', '/etc/suricata/suricata.yaml', '--af-packet']
       volumes:
       - name: configs
@@ -71,6 +73,10 @@ spec:
       - name: logs
         hostPath:
           path: {{ .Values.suricata_log_path }}
+          type: DirectoryOrCreate
+      - name: pcap
+        hostPath:
+          path: {{ .Values.fpc_path }}
           type: DirectoryOrCreate
       affinity:
         nodeAffinity: # Only schedule on the intended host

@@ -188,6 +188,7 @@ kit:
           home_net: ["any"]
           interfaces:
             - "ens224"
+          pcapEnabled: true
           node_hostname: "test2-sensor1.lan"
         moloch-capture:
           cpu_request: "1000"

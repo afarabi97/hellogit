@@ -14,3 +14,5 @@ ids_log_rotate_interval: 300
 suricata_log_path: /data/suricata
 filebeat_image_name: beats/filebeat
 filebeat_image_tag: 6.8.2
+pcapEnabled: false
+fpc_path: "/data/pcap"

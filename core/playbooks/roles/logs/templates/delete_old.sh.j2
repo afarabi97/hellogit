@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Delete Bro/Suricata logs modified more than 10 minutes ago
-/bin/find {{ bro_log_path }} {{ suricata_log_path }} -mmin +10 -type f -regex '.*\.\(.*\.log\|json\)' -delete
+/bin/find {{ zeek_log_path }} {{ suricata_log_path }} -mmin +10 -type f -regex '.*\.\(.*\.log\|json\)' -delete
 
 # The stats log is not rotated by Suricata, so we will only keep a tail of this file
 if test -f "{{ suricata_log_path }}/stats.log"; then
