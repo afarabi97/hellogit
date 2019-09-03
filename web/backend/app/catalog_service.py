@@ -338,12 +338,12 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, n
         if "deployment_name" in node:
             deployment_name = node["deployment_name"]
             deployment_to_uninstall = deployment_name
-        if "old_deployment_name" in node:
-            old_deployment_name = node["old_deployment_name"]
-
+        if "status" in node:
+            status = node["status"]
+            if "deployment_name" in status:
+                old_deployment_name = status["deployment_name"]
         if (deployment_name and old_deployment_name) and (deployment_name != old_deployment_name):
             deployment_to_uninstall = old_deployment_name
-
 
         message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
         notification.setMessage(message=message)

@@ -301,7 +301,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       configArray.push(object);
     });
     this.configArray = configArray;
-    console.log(this.configArray);
     if(this.savedValues !== null) {
       this.savedValues.map( values => {
         this.processFormGroup.value.selectedNodes.map( nodes => {
@@ -512,11 +511,19 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
             control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
             control.required ? Validators.required : Validators.nullValidator])));
-        } else if (control.type ==="textinputlist") {         
-         // let strValue = JSON.stringify(value[control.name]);     
-          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
-            control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
-            control.required ? Validators.required : Validators.nullValidator])));
+        } else if (control.type ==="textinputlist") {
+
+          if(value === undefined || typeof value[control.name] === "string") {
+            nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
+              control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
+              control.required ? Validators.required : Validators.nullValidator])));
+          } else {
+            let strValue = JSON.stringify(value[control.name]);
+            nodeControls.addControl(control.name, new FormControl( value ? strValue : control.default_value, Validators.compose([
+              control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
+              control.required ? Validators.required : Validators.nullValidator])));
+          }
+
         } else if (control.type === "invisible") {
           nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : hostname));
         } else if (control.type === "checkbox") {
@@ -532,7 +539,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
       });
     }
-    const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname);
+    const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname, value);
     nodeControls.addControl("deployment_name", new FormControl(deploymentName));
     return nodeControls;
   }
@@ -545,11 +552,16 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @returns {string}
    * @memberof CatalogPageComponent
    */
-  makeRegexGreatAgain(application: string, node_hostname: string): string {
+  makeRegexGreatAgain(application: string, node_hostname: string, value?: any): string {
     const new_hostname = node_hostname.replace(/\.(lan)?$/, '');
     let deployment_name;
     this.chart.node_affinity === "Server - Any" ? deployment_name = application : deployment_name = new_hostname + '-' + application;
-    return deployment_name;
+    if( value !== undefined) {
+      return value.deployment_name !== deployment_name ? value.deployment_name : deployment_name
+    } else {
+      return deployment_name;
+    }
+    // return deployment_name;
   }
 
   /**

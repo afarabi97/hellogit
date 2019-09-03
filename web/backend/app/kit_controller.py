@@ -82,6 +82,7 @@ def execute_kit_inventory() -> Response:
     payload = request.get_json()
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
+        conn_mng.mongo_catalog_saved_values.delete_many({})
         cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml --extra-vars \"run_option=install\" ")
         task_id = perform_kit.delay(cmd_to_execute)
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
