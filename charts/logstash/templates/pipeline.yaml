@@ -1758,11 +1758,13 @@ data:
       # stdout { codec => rubydebug }
       elasticsearch {
         hosts => ["{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        index => "logstash-zeek-%{+YYMMdd'h'HH}"
+        ilm_rollover_alias => "logstash-zeek"
+        ilm_policy => "logstash-zeek"
+        # index => "logstash-zeek-%{+YYMMdd'h'HH}"
         # manage_template => false
         template_name => "logstash-zeek"
         template => "/usr/share/logstash/template.json"
-        template_overwrite => true
+        # template_overwrite => true
       }
     }
 

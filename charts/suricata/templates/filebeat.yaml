@@ -21,11 +21,23 @@ spec:
         image: {{ .Values.filebeat_image_name  }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
-        - name: filebeat
+        - name: configs
           subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
         args: ['setup', '-e', '--modules', 'suricata']
+      - name: ilm
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "if curl -XGET -sfI -o /dev/null {{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_ilm/policy/filebeat-suricata; then echo \"skipping ilm install\"; else curl -XPUT {{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_ilm/policy/filebeat-suricata -H \"Content-Type: application/json\" -d @/usr/share/logstash/ilm.json; fi"
+        volumeMounts:
+        - name: configs
+          mountPath: /usr/share/logstash/ilm.json
+          subPath: ilm.json
+          readOnly: true
       containers:
       - name: filebeat-suricata
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
@@ -37,7 +49,7 @@ spec:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
           readOnly: true
-        - name: filebeat
+        - name: configs
           subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
@@ -47,7 +59,7 @@ spec:
         hostPath:
           path: {{ .Values.suricata_log_path }}
           type: DirectoryOrCreate
-      - name: filebeat
+      - name: configs
         configMap:
           name: {{ .Release.Name }}-filebeat
       affinity:
