@@ -1,22 +1,17 @@
 #!/bin/bash
 
-# This script checks to see whether this pod is or is not a capture pod
-# Kubernetes will pass the PODTYPE variable as an environment variable with
-# value True to  those pods meant for capture and False for the viewer pod.
-# This allows us to only use one container for both the viewer and capture pods
+# To use this script, set the environment variable "CONTAINER_TYPE" to one of
+# CAPTURE, VIEWER, or BOOTSTRAP. The container will run the appropriate process.
 
-ulimit -l unlimited
-
-if [[ ! -z "${PODTYPE}" ]]; then  
-  if [[ "${PODTYPE}" == "CAPTURE" ]]; then    
-    cd /data/moloch/viewer
-    /data/moloch/bin/node /data/moloch/viewer/viewer.js -c /data/moloch/etc/config.ini > /data/moloch/logs/viewer.log &
+if [[ ! -z "${CONTAINER_TYPE}" ]]; then
+  if [[ "${CONTAINER_TYPE}" == "CAPTURE" ]]; then
+    ulimit -l unlimited
     /data/moloch/bin/moloch-capture -c /data/moloch/etc/config.ini
-  elif [[ "${PODTYPE}" == "VIEWER" ]]; then
+  elif [[ "${CONTAINER_TYPE}" == "VIEWER" ]]; then
     cd /data/moloch/viewer
     /data/moloch/bin/node /data/moloch/viewer/viewer.js -c /data/moloch/etc/config.ini
-  elif [[ "${PODTYPE}" == "BOOTSTRAP" ]]; then    
-    /usr/bin/expect /data/moloch/bin/auto-init
+  elif [[ "${CONTAINER_TYPE}" == "BOOTSTRAP" ]]; then
+    /data/moloch/db/db.pl "${ELASTIC_FQDN}:9200" initnoprompt
     /data/moloch/bin/moloch_add_user.sh -c /data/moloch/etc/config.ini "${MOLOCH_LOGIN}" "${MOLOCH_LOGIN}" "${MOLOCH_PASS}" --admin --webauth
   fi
 fi

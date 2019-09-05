@@ -15,7 +15,7 @@ spec:
         image: "{{ moloch_image }}:{{ moloch_version }}"
         imagePullPolicy: IfNotPresent
         env:
-        - name: PODTYPE
+        - name: CONTAINER_TYPE
           value: "BOOTSTRAP"
         - name: MOLOCH_LOGIN
           value: "{{ moloch_login }}"

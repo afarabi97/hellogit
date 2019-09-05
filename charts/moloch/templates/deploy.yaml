@@ -18,6 +18,7 @@ spec:
         component: moloch
         app: moloch-capture
     spec:
+      hostNetwork: true
       initContainers:
       - name: init-sync-files
         image: "{{ .Values.image }}:{{ .Values.version }}"
@@ -28,15 +29,12 @@ spec:
         - sync-files
         - {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }}
         - /data/moloch/raw/
-        securityContext:
-          privileged: true
-      hostNetwork: true
       containers:
-      - name: "moloch"
+      - name: capture
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
         env:
-        - name: PODTYPE
+        - name: CONTAINER_TYPE
           value: "CAPTURE"
         securityContext:
           capabilities:
@@ -46,9 +44,6 @@ spec:
               - NET_RAW
               - SYS_NICE
               - SYS_RESOURCE
-        ports:
-          - containerPort: {{ .Values.port }}
-            name: webgui
         resources:
           requests:
             cpu: {{ .Values.cpu_request }}m
@@ -58,6 +53,23 @@ spec:
         - name: configini
           subPath: config.ini
           mountPath: {{ .Values.path }}/etc/config.ini
+          readOnly: true
+        - name: data
+          mountPath: {{ .Values.pcap_path }}
+      - name: viewer
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_TYPE
+          value: "VIEWER"
+        ports:
+          - containerPort: {{ .Values.port }}
+            name: webgui
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+          readOnly: true
         - name: data
           mountPath: {{ .Values.pcap_path }}
       restartPolicy: Always
