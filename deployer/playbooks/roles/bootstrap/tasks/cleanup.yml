@@ -27,24 +27,3 @@
   file:
     path: "~/.pip"
     state: absent
-
-- name: Remove docker images from docker after uploaded to registry
-  shell: |
-    docker rmi -f $(docker images -q)
-  tags:
-  - pull-docker-images
-  - pull-helm-images
-  ignore_errors: yes
-
-- name: Unmount iso from {{ mnt_pth }}
-  mount:
-    state: absent
-    path: "{{ mnt_pth }}"
-
-- name: Remove isos
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-   - "{{ iso_centos_pth }}"
-   - "{{ iso_rhel_pth }}"
