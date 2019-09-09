@@ -1,41 +1,17 @@
 ---
-
-#### Retention Configuration ####
-
-elastic_close_interval: 15
-elastic_delete_interval: 60
-
-
 #### Main Role Configuration ####
 
+es_dir: "{{ install_dir  }}/elastic"
+es_upgrade_ver: "{{ elastic_7_version }}"
+elastic_dir: "{{ install_dir  }}/elasticsearch"
 elastic_user: 1000
 elastic_group: 1000
-elastic_data_port: '9200'
-elastic_management_port: '9300'
-elastic_dir: "{{ install_dir  }}/elasticsearch"
-elastic_pv_data_path: "/usr/share/elasticsearch/data"
-elastic_config_path: "/usr/share/elasticsearch/config"
-elasticsearch_image: 'elasticsearch/elasticsearch'
 
-es_max_local_storage_nodes: 1
-es_min_masters: 1
-es_data_nodes: 0
-elastic_mdi: false
-install_license: false
-
-elastic_masters: 0
-elastic_datas: 0
-elastic_ingests: 2
-elastic_searches: 0
-
-separate_master: false
-separate_data: true
-separate_ingest: false
-separate_search: false
-
-elastic_ingest_cpu_request: 2000m
-elastic_ingest_memory: 6
-elastic_ingest_jvm_memory: 4
-
-#### Storage configuration
+#### install path
 es_data_path: "{{data_path}}/elastic"
+es_num_procs: ""
+es_java_mem: ""
+es_cpu_limit: ""
+es_mem_limit: ""
+es_cpu_request: "2000m"
+es_mem_request: "6Gi"

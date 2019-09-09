@@ -1,4 +1,4 @@
-elastic_fqdn: elasticsearch.default.svc.cluster.local
+elastic_fqdn: elasticsearch-master.default.svc.cluster.local
 elastic_port: 9200
 endgame_host: endgame.lan
 endgame_username: admin

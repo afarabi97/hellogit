@@ -1,0 +1,10 @@
+---
+- name: Wait for Elasticsearch to become healthy
+  uri:
+    url: "http://{{ elastic_fqdn }}:9200/_cluster/health"
+    return_content: yes
+  register: results_elastic
+  until: (results_elastic.status == 200) and (results_elastic.json.status == 'green')
+  retries: 30
+  delay: 5
+...

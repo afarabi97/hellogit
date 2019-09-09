@@ -22,7 +22,7 @@ spec:
         - name: MOLOCH_PASS
           value: "{{ moloch_pass }}"
         - name: ELASTIC_FQDN
-          value: "{{ elastic_shortname }}"
+          value: "{{ elastic_fqdn }}"
         volumeMounts:
         - name: configini
           subPath: config.ini

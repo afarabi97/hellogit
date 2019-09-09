@@ -1,19 +1,22 @@
-######################################################
-################# Setup Elasticsearch ################
-######################################################
----
+- import_tasks: "preflight.yml"
 
-- import_tasks: 00_preflight.yml
-  when: inventory_hostname in groups['master_server']
+- import_tasks: "install.yml"
+  when:
+    - "run_option == 'install'"
+#    - es_installed == 0
 
-- import_tasks: 15_master.yml
-  when: separate_master and inventory_hostname in groups['master_server']
+- import_tasks: "uninstall.yml"
+  when:
+    - "run_option == 'uninstall'"
+    - es_installed == 1
 
-- import_tasks: 20_data.yml
-  when: inventory_hostname in groups['master_server']
+- import_tasks: "reinstall.yml"
+  when:
+    - "run_option == 'reinstall'"
 
-#- import_tasks: 25_ingest.yml
-#  when: inventory_hostname in groups['master_server']
+- import_tasks: "upgrade.yml"
+  when:
+    - "run_option == 'upgrade'"
+    - es_installed == 1
 
-- import_tasks: 50_post_install.yml
-  when: inventory_hostname in groups['master_server']
+- import_tasks: post_install.yml

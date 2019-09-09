@@ -8,7 +8,7 @@
 
 - name: Verify PCAP directory exists
   fail:
-    msg: "You set use_ceph_for_pcap to false indicating you plan to use direct attached storage for PCAP. The PCAP directory you defined {{ fpc_path }} does not exist or is not a directory. Verify it both exists and is a directory."
+    msg: " The PCAP directory you defined {{ fpc_path }} does not exist or is not a directory. Verify it both exists and is a directory."
   when: pcap_disk is none and (not fpc_path_test.stat.exists or not fpc_path_test.stat.isdir)
 
 ...

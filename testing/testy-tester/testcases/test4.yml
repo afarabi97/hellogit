@@ -189,6 +189,7 @@ kit:
           interfaces:
             - "ens224"
           node_hostname: "test4-sensor1.lan"
+          pcapEnabled: true
         moloch-capture:
           cpu_request: "1000"
           pcapWriteMethod: "simple"

@@ -1,9 +1,0 @@
-- name: Update moloch
-  shell: |
-    kubectl exec -ti moloch-0 -- /data/moloch/db/db.pl {{ elastic_fqdn }}:{{ elastic_data_port }} upgradenoprompt --shards {{ es_replicas }}
-  when: node_to_add is defined
-    and node_to_add in groups['elasticsearch']
-    and es_scale_result is defined
-    and es_scale_result.changed
-  tags:
-    - es-scale

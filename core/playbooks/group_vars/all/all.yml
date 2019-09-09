@@ -13,10 +13,10 @@ data_path: /data
 redis_sentinel_port: 26379
 
 # Elasticsearch
-elastic_cluster_name: tfplenum
-elastic_fqdn: "elasticsearch.{{ fqdn }}"
-elastic_headless_fqdn: "elasticsearch-headless.{{ fqdn }}"
-elastic_shortname: elasticsearch
+elastic_cluster_name: elasticsearch
+elastic_fqdn: "elasticsearch-master.{{ fqdn }}"
+elastic_headless_fqdn: "elasticsearch-master-headless.{{ fqdn }}"
+elastic_shortname: elasticsearch-master
 elastic_port: 9200
 kibana_port: 5601
 winlogbeat_port: 5045

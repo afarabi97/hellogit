@@ -1,0 +1,32 @@
+---
+- name: Create install directory
+  file:
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+    mode: u+rw,g+rw
+    path: "{{ elastic_dir }}"
+    state: directory
+
+- name: Create ES Data directory if it does not exist
+  file:
+    path: "{{ data_path }}/elastic"
+    state: directory
+    mode: '0775'
+    owner: 1000
+    group: 1000
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['servers'] }}"
+
+- name: Copy Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ elastic_dir }}/{{ item }}"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+    mode: u+rw,g+rw
+  with_items:
+    - values.yml
+
+- name: Deploy ES
+  command: "helm install --name elasticsearch chartmuseum/elasticsearch --values={{ elastic_dir }}/values.yml --wait"
+...

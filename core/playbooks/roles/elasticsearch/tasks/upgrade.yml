@@ -1,0 +1,2 @@
+- name: Upgrade ES
+  command: "helm upgrade --name elasticsearch chartmuseum/elasticsearch --version={{ es_upgrade_ver }} --values=values.yml --wait"

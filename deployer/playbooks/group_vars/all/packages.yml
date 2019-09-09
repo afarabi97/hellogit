@@ -10,8 +10,8 @@ direct_download_package_names:
   - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
   - "ftp://ftp.info-zip.org/pub/infozip/win32/unz552xn.exe"
   - "https://download.sysinternals.com/files/Sysmon.zip"
-  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-6.6.1-windows-x86_64.zip"
-  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-6.6.1-windows-x86.zip"
+  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86_64.zip"
+  - "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86.zip"
   - "https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz"
 
 packages:
@@ -54,6 +54,7 @@ packages:
   - nload
   - nmap
   - nodejs
+  - ntfs-3g
   - openvpn
   - perl
   - policycoreutils-python

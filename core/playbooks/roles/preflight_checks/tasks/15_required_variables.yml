@@ -44,25 +44,10 @@
     msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: logstash_cpu_request is not defined or logstash_cpu_request is none
 
-- name: Checking that elastic_data_jvm_memory is set
-  fail:
-    msg: "elastic_data_jvm_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_data_jvm_memory is not defined or elastic_data_jvm_memory is none
-
-- name: Checking that elastic_masters is set
-  fail:
-    msg: "elastic_masters is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_masters is not defined or elastic_masters is none
-
 - name: Checking that moloch_dontSaveBPFs is set
   fail:
     msg: "moloch_dontSaveBPFs is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_dontSaveBPFs is not defined or moloch_dontSaveBPFs is none
-
-- name: Checking that elastic_datas is set
-  fail:
-    msg: "elastic_datas is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_datas is not defined or elastic_datas is none
 
 - name: Checking that bro_wokers is set
   fail:

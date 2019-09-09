@@ -1,6 +1,5 @@
 tfp-env/
 rpmbuild/\.remote-sync\.json
-ceph-deploy/\.remote-sync\.json
 \.remote-sync\.json
 *.pyc
 .idea/

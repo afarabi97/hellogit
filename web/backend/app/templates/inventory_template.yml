@@ -86,28 +86,6 @@ all:
     # Elasticsearch Settings    #
     #############################
 
-    # The number of Elasticsearch data nodes you would like to run. These are
-    # different from elastic_masters in that they do not run the master role
-    # Unless your kit will exceed 5 nodes, you should probably leave this at 0
-    # unless you know what you are doing.
-
-    elastic_mdi: false
-    es_min_masters: 2
-
-    # data node
-    elastic_data_cpu_request: {{ template_ctx.server_cal.elastic_data_cpu_request }}m
-    elastic_data_jvm_memory: {{ template_ctx.server_cal.elastic_data_jvm_memory }}
-    elastic_data_memory: {{ template_ctx.server_cal.elastic_data_memory }}
-    elastic_datas: {{ template_ctx.server_cal.elastic_data_pod_count }}
-    separate_data: true
-
-    # master node
-    elastic_master_memory: {{ template_ctx.server_cal.elastic_master_memory }}
-    elastic_master_jvm_memory: {{ template_ctx.server_cal.elastic_master_jvm_memory }}
-    elastic_master_cpu_request: {{ template_ctx.server_cal.elastic_master_cpu_request }}m
-    elastic_masters: {{ template_ctx.server_cal.elastic_master_pod_count }}
-    separate_master: true
-
     # The percentage of maximum allocated space for Elasticsearch that can be filled
     # before Curator begins deleting indices. The oldest moloch indices that exceed
     # this threshold will be deleted.

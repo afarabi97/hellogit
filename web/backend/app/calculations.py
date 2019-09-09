@@ -164,8 +164,6 @@ class ServerCalculations:
         self._num_sensors = sensor_count
         self._server_res_pool = NodeResourcePool(get_servers_from_list(self._kit_form["nodes"]))
         self._log_stash_cpu_request = 0
-        self._elastic_cpu_request = 0
-        self._elastic_mem_request = 0
         self._is_large_build = False
 
         mem_capacity = self._server_res_pool.get_node_resources(0).mem_capacity
@@ -215,24 +213,6 @@ class ServerCalculations:
         return 4
 
     @property
-    def elastic_master_node_count(self) -> int:
-        return 3
-
-    @property
-    def elastic_min_masters(self) -> int:
-        if self._percentages._is_home_build:
-            return 1
-        return 2
-
-    @property
-    def elastic_data_node_count(self) -> int:
-        return self._num_servers
-
-    @property
-    def elastic_total_node_count(self) -> int:
-        return self.elastic_master_node_count + self.elastic_data_node_count
-
-    @property
     def elastic_curator_threshold(self) -> int:
         """
         The percentage of maximum allocated space for Elasticsearch that can be filled
@@ -241,43 +221,9 @@ class ServerCalculations:
         """
         return self._percentages.elastic_curator_threshold_perc
 
-    @property
-    def elastic_data_memory(self) -> int:
-        return 18
-
-    @property
-    def elastic_data_jvm_memory(self) -> int:
-        return 16
-
-    @property
-    def elastic_data_cpu_request(self):
-        if self._is_large_build:
-            return 16000
-        return 8000
-
-    @property
-    def elastic_master_cpu_request(self):
-        return 2000
-
-    @property
-    def elastic_master_memory(self):
-        return 6
-
-    @property
-    def elastic_master_jvm_memory(self):
-        return 4
-
     def to_dict(self) -> Dict:
         return {
             'elastic_curator_threshold': self.elastic_curator_threshold,
-            'elastic_master_memory': self.elastic_master_memory,
-            'elastic_master_pod_count': self.elastic_master_node_count,
-            'elastic_master_jvm_memory': self.elastic_master_jvm_memory,
-            'elastic_master_cpu_request': self.elastic_master_cpu_request,
-            'elastic_data_cpu_request': self.elastic_data_cpu_request,
-            'elastic_data_jvm_memory': self.elastic_data_jvm_memory,
-            'elastic_data_memory': self.elastic_data_memory,
-            'elastic_data_pod_count': self.elastic_data_node_count,
             'logstash_cpu_limit': self.logstash_cpu_limit,
             'logstash_cpu_request': self.logstash_cpu_request,
             'logstash_replicas': self.logstash_replicas,

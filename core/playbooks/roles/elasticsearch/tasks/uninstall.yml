@@ -1,0 +1,3 @@
+- name: Uninstall ES
+  command: "helm del --purge elasticsearch"
+  ignore_errors: true

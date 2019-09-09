@@ -400,6 +400,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     :return:
     """
     s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
+    content = s.RetrieveContent()
 
     # With this we are searching for the MOID of the VM to clone from
     template_vm = get_vm_by_name(s, controller.vm_to_clone)  # type: pyVmomi.VmomiSupport.vim.VirtualMachine
@@ -410,7 +411,10 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     # This constructs the reloacate spec needed in a later step by specifying the default resource pool (name=Resource)
     #  of the Cluster
     # Alternatively one can specify a custom resource pool inside of a Cluster
-    relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
+#    relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
+    datastore = _get_obj(content, [vim.Datastore], host_configuration.storage_datastore)
+    relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool,
+                                        datastore=datastore)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
     clone_spec = vim.vm.CloneSpec(powerOn=False,

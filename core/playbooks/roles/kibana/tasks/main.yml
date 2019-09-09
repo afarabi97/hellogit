@@ -61,7 +61,7 @@
     label: ""
 
 - name: Get Elasticsearch Service IP
-  shell: "kubectl get svc -n default | grep 'elasticsearch ' | awk '{print $4}'"
+  shell: "kubectl get svc -n default | grep 'elasticsearch-master ' | awk '{print $4}'"
   register: es_svc_ip
 
 - name: Get Kibana Service IP

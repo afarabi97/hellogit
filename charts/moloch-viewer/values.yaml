@@ -12,7 +12,7 @@ path: '/data/moloch'
 config_path: "/opt/tfplenum/moloch/etc"
 
 # Kubernetes and docker info
-elastic_fqdn: elasticsearch.default.svc.cluster.local
+elastic_fqdn: elasticsearch-master.default.svc.cluster.local
 version: 2.0.0
 cpu_request: 1000
 mem_limit: 7Gi

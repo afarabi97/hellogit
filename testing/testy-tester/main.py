@@ -146,6 +146,7 @@ class Runner:
         parser.add_argument("-dp", "--di2e-password", dest="di2e_password",
                             help="A password to the DI2E git repo.")
         parser.add_argument("--publish-to-labrepo", dest='publish_to_labrepo', nargs=3, metavar="<ip or hostnam> <username> <password>")
+        parser.add_argument('--vmware-datastore', dest='vmware_datastore')
 
         args = parser.parse_args()
         if not is_valid_file(args.filename):
@@ -210,10 +211,16 @@ class Runner:
                     install_type=host_config.get("install_type"),
                     image_folder_path=image_folder_path
                 )
-                self.host_configuration.set_storage_options(
-                    storage.get("datastore"),
-                    storage.get("folder")
-                )
+                if self.args.vmware_datastore is not None:
+                    self.host_configuration.set_storage_options(
+                        self.args.vmware_datastore,
+                        storage.get("folder")
+                    )
+                else:
+                    self.host_configuration.set_storage_options(
+                        storage.get("datastore"),
+                        storage.get("folder")
+                    )
 
                 # Returns a list of kit objects
                 self.kit = transform(self.configuration["kit"])  # type: Kit
