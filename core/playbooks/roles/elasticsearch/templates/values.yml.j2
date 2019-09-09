@@ -21,22 +21,22 @@
 {% endif %}
 
 {% if (groups['servers']|length) == 1 %}
-  {% if ansible_processor_count >= 32 %}
+  {% if ansible_processor_vcpus >= 32 %}
     {% set es_num_procs = 8 %}
   {% else %}
-    {% set es_num_procs = (ansible_processor_count*0.75/3)|int %}
+    {% set es_num_procs = (ansible_processor_vcpus*0.75/3)|int %}
   {% endif %}
 {% elif (groups['servers']|length) == 2 %}
-  {% if ansible_processor_count >= 24 %}
+  {% if ansible_processor_vcpus >= 24 %}
     {% set es_num_procs = 8 %}
   {% else %}
-    {% set es_num_procs = (ansible_processor_count*0.75/2)|int %}
+    {% set es_num_procs = (ansible_processor_vcpus*0.75/2)|int %}
   {% endif %}
 {% elif (groups['servers']|length) > 2 %}
-  {% if ansible_processor_count >= 16 %}
+  {% if ansible_processor_vcpus >= 16 %}
     {% set es_num_procs = 8 %}
   {% else %}
-    {% set es_num_procs = (ansible_processor_count*0.75)|int %}
+    {% set es_num_procs = (ansible_processor_vcpus*0.75)|int %}
   {% endif %}
 {% else %}
   {% set es_num_procs = 2 %}
