@@ -55,7 +55,7 @@ class SeleniumRunner:
             browser = webdriver.Chrome(chrome_options=chrome_options,
                                        executable_path='/usr/local/bin/chromedriver')
             return browser
-        
+
     def _perform_send_keys(self, selector: str, value: str, locate_by=By.NAME):
         """
         Performs a send keys operation to an element and execute send_keys.
@@ -69,7 +69,7 @@ class SeleniumRunner:
         actions = ActionChains(self._browser)
         actions.move_to_element(element).perform()
         element.send_keys(value)
-    
+
     def _perform_click_action(self, element_by_name: str, locate_by=By.NAME):
         element = WebDriverWait(self._browser, 10).until(
                                 EC.presence_of_element_located((locate_by, element_by_name)))
@@ -280,7 +280,7 @@ class KitSeleniumRunner(SeleniumRunner):
                             a browser should run in headless or non headless mode.
         :param controller_ip: The controller IP Address that is hosting the frontend
         """
-        super(KitSeleniumRunner, self).__init__(is_headless, controller_ip)    
+        super(KitSeleniumRunner, self).__init__(is_headless, controller_ip)
 
     def _fill_out_server_node(self, index: int, node: Node):
         """
@@ -299,17 +299,17 @@ class KitSeleniumRunner(SeleniumRunner):
         for drive_name in node.es_drives:
             es_drive_ident = "es_drives_server{server_index}_{drive_name}".format(server_index=str(index),
                                                                                   drive_name=drive_name)
-            self._perform_click_action(es_drive_ident)    
+            self._perform_click_action(es_drive_ident)
 
     def _run_global_setting_section(self, kit: Kit) -> None:
         """
         Using selenium this fucntion test the elements in the Global Settings Section
 
         :returns:
-        """        
+        """
         self._perform_click_action("kubernetes_services_cidrkube_dropdown")
         time.sleep(10)
-        self._perform_click_action(kit.kubernetes_cidr + "kube_dropdown")        
+        self._perform_click_action(kit.kubernetes_cidr + "kube_dropdown")
 
 
     def _fill_out_sensor_node(self, index: int, node: Node):
@@ -347,41 +347,7 @@ class KitSeleniumRunner(SeleniumRunner):
                                            sensor_index=str(index), interface_name=interface.interface_name)
                     self._perform_click_action(monitor_iface_ident)
                 except Exception as e:
-                    logging.exception(e)    
-
-    def _fill_out_global_IDS_settings(self, kit: Kit) -> None:
-        """
-        Using selenium this fucntion test the elements in the Total Sensor Sesources Section
-
-        :returns:
-        """
-        x = 0  # type: int
-
-        for home_net in kit.home_nets:
-            self._perform_click_action("add_home_net")
-
-            element = self._browser.find_element_by_name("home_net" + str(x))
-            element.send_keys(home_net)
-
-            # This condition is to ensure when the add home net button is
-            # clicked it doesn't add more home nets than we have
-            if x < len(kit.home_nets) - 1:
-                x += 1
-
-        x = 0  # type: int
-
-        if kit.external_nets is not None:
-            for external_net in kit.external_nets:
-                self._perform_click_action("add_external_net")
-
-                element = self._browser.find_element_by_name("external_net" + str(x))
-                element.send_keys(external_net)
-
-                # This condition is to ensure when the add home net button is
-                # clicked it doesn't add more home nets than we have
-                if x < len(kit.external_nets) - 1:
-                    self._perform_click_action("add_external_net")
-                    x += 1
+                    logging.exception(e)
 
     def _run_execute_kit(self) -> None:
         # Execute's Kickstart when all fields are configured
@@ -414,7 +380,7 @@ class KitSeleniumRunner(SeleniumRunner):
                     self._perform_click_action("Sensor" + str(index))
                     self._perform_click_action("is_master_serveris_remote_" + str(index))
                     self._fill_out_sensor_node(index, node)
-            
+
                 index = index + 1
 
     def run_tfplenum_configuration(self, kit: Kit) -> None:
@@ -436,9 +402,8 @@ class KitSeleniumRunner(SeleniumRunner):
             time.sleep(10)
 
             # Gather fact on sensor and server
-            self._fill_out_global_IDS_settings(kit)
             self._select_node_types(kit)
-            
+
             # Execute's Kickstart when all fields are configured
             self._run_execute_kit()
             wait_for_mongo_job("Kit", self._controller_ip, 60)

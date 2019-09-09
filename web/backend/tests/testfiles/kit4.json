@@ -4,7 +4,7 @@
         "enable_percentages": null,
         "endgame_iporhost": null,
         "endgame_password": null,
-        "endgame_username": null,        
+        "endgame_username": null,
         "kubernetes_services_cidr": "172.16.88.32",
         "sensor_resources": {
             "external_nets": [],
@@ -75,7 +75,7 @@
                     "sdb"
                 ],
                 "sensor_apps": [
-                    "suricata"                    
+                    "suricata"
                 ],
                 "sensor_type": "Local",
                 "suricata_cpu_percentage": "5"
@@ -139,8 +139,8 @@
                 "pcap_drives": [
                     "sdb"
                 ],
-                "sensor_apps": [                    
-                    "moloch"                  
+                "sensor_apps": [
+                    "moloch"
                 ],
                 "sensor_type": "Remote",
                 "suricata_cpu_percentage": "5"
@@ -148,7 +148,6 @@
         ],
         "server_resources": {
             "elastic_cpu_percentage": "87",
-            "elastic_curator_threshold": "89",
             "elastic_memory_percentage": "88",
             "elastic_storage_percentage": "79",
             "logstash_cpu_percentage": "6"

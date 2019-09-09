@@ -105,6 +105,8 @@
       kbn-xsrf: y
     body: "{{ lookup('file', '{{ item }}')}}"
     status_code: 200, 201
+  retries: 3
+  delay: 10
   with_fileglob:
     - "files/dashboards/*.json"
 

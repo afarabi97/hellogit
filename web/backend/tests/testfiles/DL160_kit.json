@@ -430,12 +430,11 @@
             "elastic_memory_percentage": "50",
             "logstash_cpu_percentage": "10",
             "elastic_storage_percentage": "80",
-            "elastic_curator_threshold": "90"
         },
         "dns_ip": null,
         "endgame_iporhost": "10.102.37.200",
         "endgame_username": "admin",
-        "endgame_password": "We.are.tfplenum4$",        
+        "endgame_password": "We.are.tfplenum4$",
         "enable_percentages": null
     },
     "timeForm": {

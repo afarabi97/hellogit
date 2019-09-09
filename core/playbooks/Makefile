@@ -95,13 +95,13 @@ elasticsearch-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,janitor,mumble --extra-vars "run_option=install"
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,janitor,mumble "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,janitor,mumble --extra-vars "run_option=install"
 
 metrics-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,janitor,mumble
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,mumble --extra-vars "run_option=install"
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,mumble --extra-vars --extra-vars "run_option=install"
 
 janitor-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor,mumble

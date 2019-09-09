@@ -156,7 +156,6 @@
             "elastic_memory_percentage": "50",
             "logstash_cpu_percentage": "10",
             "elastic_storage_percentage": "80",
-            "elastic_curator_threshold": "90"
         },
         "dns_ip": null,
         "endgame_iporhost": null,

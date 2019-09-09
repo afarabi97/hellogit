@@ -19,97 +19,6 @@ all:
     # DNS Server or the kit will break.
     dns_ip: {{ template_ctx.dns_ip }}
 
-
-    #############################
-    # CPU Allocations           #
-    #############################
-    logstash_cpu_limit: {{ template_ctx.server_cal.logstash_cpu_limit | int }}m
-    logstash_cpu_request: {{ template_ctx.server_cal.logstash_cpu_request | int }}m
-
-    ################################
-    # Full packet capture settings #
-    ################################
-
-    # Which application to use for FPC. Valid settings are 'moloch', 'suricata',
-    # or 'none'.
-    fpc_app: suricata
-
-    # We recommend you dedicate a separate disk to PCAP. The disk you will use
-    # for PCAP is defined on the sensor hosts in pcap_disk. If you define this
-    # value, that disk will be formatted and wiped and then /pcap used as a
-    # mount point to it.
-    fpc_path: /data/pcap
-
-    # This is the amount of free space (as a percentage) to leave available on
-    # the PCAP disk.
-    fpc_free: 25
-
-    # Max filesize for a single PCAP in GB
-    fpc_max_filesize: 1
-
-    #############################
-    # Moloch Settings           #
-    #############################
-
-    # Explanations taken from: https://github.com/aol/moloch/wiki/Settings
-
-    # The bpf filter used to reduce traffic. Used both on live and file traffic.
-    moloch_bpf: ""
-
-    # Semicolon ';' separated list of bpf filters which when matched for a
-    # session causes the remaining pcap from being saved for the session. It is
-    # possible to specify the number of packets to save per filter by ending
-    # with a :num. For example dontSaveBPFs = port 22:5 will only save 5 packets
-    # for port 22 sessions. Currently only the initial packet is matched against
-    # the bpfs.
-    moloch_dontSaveBPFs: ""
-
-    # The block size in bytes used for reads from each interface. There are 120 blocks per interface.
-    moloch_packet_v3_block_size: 8388608
-
-    # The number of threads used to read packets from each interface. These threads take the packets
-    # from the AF packet interface and place them into the packet queues.
-    moloch_packet_v3_num_threads: 8
-
-    # Advanced Moloch settings, do not touch unless you know what you're doing
-    moloch_spiDataMaxIndices: "5"
-    moloch_pcapWriteMethod: "simple"
-    moloch_pcapWriteSize: "2560000"
-    moloch_dbBulkSize: "400000"
-    moloch_maxESConns: "30"
-    moloch_maxESRequests: "500"
-    moloch_packetsPerPoll: "500000"
-    moloch_magicMode: "basic"
-    moloch_maxPacketsInQueue: "400000"
-
-    #############################
-    # Elasticsearch Settings    #
-    #############################
-
-    # The percentage of maximum allocated space for Elasticsearch that can be filled
-    # before Curator begins deleting indices. The oldest moloch indices that exceed
-    # this threshold will be deleted.
-    elastic_curator_threshold: {{ template_ctx.server_cal.elastic_curator_threshold }}
-
-    # logstash_replicas is the number of logstash instances you would like to run
-    logstash_replicas: {{ template_ctx.server_cal.logstash_replicas }}
-    logstash_memory_request: {{ template_ctx.server_cal.logstash_memory_request }}
-    logstash_memory_limit: {{ template_ctx.server_cal.logstash_memory_limit }}
-    logstash_jvm_memory: {{ template_ctx.server_cal.logstash_jvm_memory }}
-    logstash_pipeline_workers: {{ template_ctx.server_cal.logstash_pipeline_workers }}
-
-    #############################
-    # Bro/Suricata Settings     #
-    #############################
-
-    # This is used to define the home nets for bro/suricata
-    home_net:
-      - "0.0.0.0/1"
-
-    # This is used to define the external nets for bro/suricata
-    external_net:
-      - "0.0.0.0/1"
-
     #############################
     # Kubernetes Settings       #
     #############################
@@ -120,14 +29,6 @@ all:
     kubernetes_services_cidr: "{{ template_ctx.kubernetes_services_cidr }}"
 
     #############################
-    # End Game Settings       #
-    #############################
-
-    endgame_host: "{{ template_ctx.endgame_iporhost }}"
-    endgame_username: "{{ template_ctx.endgame_username }}"
-    endgame_password: "{{ template_ctx.endgame_password }}"
-
-    #############################
     # Software Locations        #
     #############################
 
@@ -135,51 +36,6 @@ all:
     # you have a full understanding of the consequences.
 
   children:
-
-    # Any host in this group will be eligible for use in the elasticsearch cluster.
-    # By default this is all hosts except remote_sensors. Keep in mind, just because
-    # a node is eligible to run Elasticsearch, doesn't mean it will - only that it
-    # can. Kubernetes will decide where to place instances based on resource consumption.
-    elasticsearch:
-      children:
-        servers:
-
-    # Any host in this group will be eligible to run Logstash. By default this is
-    # any host that also has Elasticsearch. Keep in mind, just because a node is
-    # eligible to run Logstash, doesn't mean it will - only that it can.
-    logstash:
-      children:
-        elasticsearch:
-
-    # Any host in this group will be eligible to run kibana. By default this is
-    # any host that also has Elasticsearch. Keep in mind, just because a node is
-    # eligible to run Kibana, doesn't mean it will - only that it can. Kubernetes
-    # will decide where to place instances based on resource consumption.
-    kibana:
-      children:
-        elasticsearch:
-
-    # Any host in this group will run Bro. By default this is all sensors and remote
-    # sensors
-    bro: {% if template_ctx.has_bro %}
-      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'bro' in node.sensor_apps %}
-        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
-      {% endif %}
-
-    # Any host in this group will run Moloch. By default this is all sensors and
-    # remote sensors
-    moloch: {% if template_ctx.has_moloch %}
-      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'moloch' in node.sensor_apps %}
-        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
-      {% endif %}
-
-    # Any host in this group will run Suricata. By default this is all sensors
-    # and remote sensors
-    suricata: {% if template_ctx.has_suricata %}
-      hosts: {% for node in template_ctx.nodes %}{% if node.node_type == "Sensor" %}{% if 'suricata' in node.sensor_apps %}
-        {{ node.hostname }}: {% endif %}{% endif %}{% endfor %}
-      {% endif %}
-
     nodes:
       children:
 
@@ -198,12 +54,6 @@ all:
             # This is the hostname of the sensor. Whatever you put here will be
             # used to overwrite the current hostname.
             {{ node.hostname }}:
-
-              # Applications
-              suricata: {{ node.has_suricata }}
-              bro: {{ node.has_bro }}
-              moloch: {{ node.has_moloch }}
-
               # This is the user you will use to SSH to each box for setup. This
               # should always be root.
               ansible_user: root
@@ -235,20 +85,7 @@ all:
               # This is the address Ansible will use to communicate with.
               management_ipv4: "{{ node.management_ip_address }}"
 
-              bro_cpu_request: {{ node.cal.bro_cpu_request | int }}m
-              moloch_cpu_request: {{ node.cal.moloch_cpu_request | int }}m
-              suricata_cpu_request: {{ node.cal.suricata_cpu_request | int }}m
-              moloch_mem_limit: {{ node.cal.moloch_mem_limit | int }}Gi
-
-              # This is the number of bro workers which will spawn on the sensor
-              bro_workers: {{ node.cal.bro_workers }}
-
-              # This is the number of threads which will be dedicated to Moloch
-              moloch_threads: {{ node.cal.moloch_threads }}
               is_remote: {{ node.is_remote }}
-
-              # The drive specified here will be dedicated to PCAP collection.
-              pcap_disk: {% if node.pcap_drives is not none and node.pcap_drives|length > 0 %}{{ "/dev/" + node.pcap_drives[0] }}{% endif %}
             {% endif %}
           {% endfor %}
 
@@ -285,10 +122,6 @@ all:
               kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
               management_ipv4: {{ node.management_ip_address }}
               is_master: {{ node.is_master_server }}
-              es_data_drive_list:
-              {% for drive in node.es_drives %}
-                - {{ "/dev/" + drive }}
-              {% endfor %}
             {% endif %}
             {% endfor %}
 

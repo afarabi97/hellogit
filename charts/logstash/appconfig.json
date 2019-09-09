@@ -2,6 +2,7 @@
     "id": "Logstash",
     "type": "chart",
     "node_affinity": "Server - Any",
+    "devDependent": "kafka",
     "formControls": [
         {
           "type": "textinput",

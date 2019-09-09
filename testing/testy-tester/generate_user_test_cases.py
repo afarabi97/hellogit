@@ -38,9 +38,6 @@ def main():
             yml_content["kit"]["kickstart_configuration"]["gateway"] = _change_ip(yml_content["kit"]["kickstart_configuration"]["gateway"], port)
             yml_content["kit"]["kit_configuration"]["kubernetes_cidr"] = _change_ip(yml_content["kit"]["kit_configuration"]["kubernetes_cidr"], port)
 
-            for index, home_net in enumerate(yml_content["kit"]["kit_configuration"]["home_nets"]):
-                yml_content["kit"]["kit_configuration"]["home_nets"][index] = _change_ip(yml_content["kit"]["kit_configuration"]["home_nets"][index], port)
-
             try:
                 yml_content["kit"]["remote_sensor_network"] = _change_ip(yml_content["kit"]["remote_sensor_network"], remote_port)
                 yml_content["kit"]["remote_sensor_portgroup"] = remote_sensor_port_group

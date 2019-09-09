@@ -635,13 +635,12 @@
             "elastic_cpu_percentage": "50",
             "elastic_memory_percentage": "50",
             "logstash_cpu_percentage": "10",
-            "elastic_storage_percentage": "80",
-            "elastic_curator_threshold": "90"
+            "elastic_storage_percentage": "80"
         },
-        "dns_ip": null,        
+        "dns_ip": null,
         "endgame_iporhost": null,
         "endgame_username": null,
-        "endgame_password": null,        
+        "endgame_password": null,
         "enable_percentages": null
     },
     "timeForm": {

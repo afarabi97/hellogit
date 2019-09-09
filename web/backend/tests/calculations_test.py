@@ -8,11 +8,11 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.append(SCRIPT_DIR + '/../')
 
-from app.calculations import (NodeResources, ServerCalculations, 
+from app.calculations import (NodeResources,
                               NodeCalculations, NodeValues, KitPercentages)
-from app.resources import (StoragePool, convert_GiB_to_KiB, 
-                           convert_GB_to_KB, convert_GiB_to_KiB, 
-                           convert_GiB_to_MiB, convert_KiB_to_GiB, 
+from app.resources import (StoragePool, convert_GiB_to_KiB,
+                           convert_GB_to_KB, convert_GiB_to_KiB,
+                           convert_GiB_to_MiB, convert_KiB_to_GiB,
                            convert_MiB_to_KiB)
 from app.kit_controller import _replace_kit_inventory
 from pathlib import Path
@@ -32,12 +32,12 @@ Allocatable: {'cpu': '14800m', 'memory': '15138448Ki', 'pods': '110'}
 class TestKitPercentages(unittest.TestCase):
 
     def setUp(self):
-        self.kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')        
+        self.kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit_form_submission = json.loads(self.kit.read_text(), encoding='utf-8')
         self.perc_cal1 = KitPercentages(kit_form_submission["kitForm"])
 
         self.kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')        
+        kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
         self.perc_cal2 = KitPercentages(kit_form_submission["kitForm"])
 
     def test_percentage_overrides(self):
@@ -59,9 +59,9 @@ class TestKitPercentages(unittest.TestCase):
     def test_default_percentage_totals_no_moloch(self):
         kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
         sensor_index = 0
-        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "suricata"]        
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "suricata"]
         percentages = KitPercentages(kit_form_submission["kitForm"])
-        
+
         moloch = percentages.moloch_cpu_perc(sensor_index)
         bro = percentages.bro_cpu_perc(sensor_index)
         suricata = percentages.suricata_cpu_perc(sensor_index)
@@ -69,13 +69,13 @@ class TestKitPercentages(unittest.TestCase):
         self.assertEqual(63, bro)
         self.assertEqual(37, suricata)
         self.assertEqual(100, moloch + bro + suricata)
-        
+
     def test_default_percentage_totals_no_suricata(self):
         kit_form_submission = json.loads(self.kit2.read_text(), encoding='utf-8')
         sensor_index = 0
-        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "moloch"]        
+        kit_form_submission["kitForm"]["sensors"][sensor_index]["sensor_apps"] = ["bro", "moloch"]
         percentages = KitPercentages(kit_form_submission["kitForm"])
-        
+
         moloch = percentages.moloch_cpu_perc(sensor_index)
         bro = percentages.bro_cpu_perc(sensor_index)
         suricata = percentages.suricata_cpu_perc(sensor_index)
@@ -140,12 +140,12 @@ class TestNodeResources(unittest.TestCase):
         self.assertEqual(9709160.0, node_res.mem_allocatable)
 
 
-class TestSensorCalculations(unittest.TestCase):    
-    
+class TestSensorCalculations(unittest.TestCase):
+
     def setUp(self):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')        
+        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
 
         json_file = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit_form_submission = json.loads(json_file.read_text(), encoding='utf-8')
@@ -159,7 +159,7 @@ class TestSensorCalculations(unittest.TestCase):
         json_file = Path(SCRIPT_DIR + '/testfiles/kit3.json')
         kit_form_submission = json.loads(json_file.read_text(), encoding='utf-8')
         self.node_cal3 = NodeCalculations(kit_form_submission["kitForm"])
-    
+
     def test_bro_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
@@ -170,7 +170,7 @@ class TestSensorCalculations(unittest.TestCase):
         self.assertEqual(1, self.node_cal2.number_of_nodes)
         self.assertEqual(10500, sensor.bro_cpu_request)
         self.assertEqual(10, sensor.bro_workers)
-        
+
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
@@ -178,7 +178,7 @@ class TestSensorCalculations(unittest.TestCase):
         self.assertEqual(4, sensor1.bro_workers)
         self.assertEqual(67200, sensor2.bro_cpu_request)
         self.assertEqual(67, sensor2.bro_workers)
-        
+
     def test_moloch_calculations(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
@@ -189,7 +189,7 @@ class TestSensorCalculations(unittest.TestCase):
         self.assertEqual(1, self.node_cal2.number_of_nodes)
         self.assertEqual(10500, sensor.moloch_cpu_request)
         self.assertEqual(10, sensor.moloch_threads)
-        
+
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
@@ -202,25 +202,25 @@ class TestSensorCalculations(unittest.TestCase):
     def test_suricata_cpu_request(self):
         sensor = self.node_cal1.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal1.number_of_nodes)
-        self.assertEqual(1472, sensor.suricata_cpu_request)        
+        self.assertEqual(1472, sensor.suricata_cpu_request)
 
         sensor = self.node_cal2.get_node_values[0] #type: NodeValues
         self.assertEqual(1, self.node_cal2.number_of_nodes)
-        self.assertEqual(4000, sensor.suricata_cpu_request)        
-        
+        self.assertEqual(4000, sensor.suricata_cpu_request)
+
         self.assertEqual(2, self.node_cal3.number_of_nodes)
         sensor1 = self.node_cal3.get_node_values[0] #type: NodeValues
         sensor2 = self.node_cal3.get_node_values[1] #type: NodeValues
-        self.assertEqual(1472, sensor1.suricata_cpu_request)        
+        self.assertEqual(1472, sensor1.suricata_cpu_request)
         self.assertEqual(25600, sensor2.suricata_cpu_request)
-        
+
 
 class TestStoragePool(unittest.TestCase):
 
     def setUp(self):
         kit = Path(SCRIPT_DIR + '/testfiles/kit1.json')
         kit2 = Path(SCRIPT_DIR + '/testfiles/kit2.json')
-        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')        
+        kit3 = Path(SCRIPT_DIR + '/testfiles/kit3.json')
         kit_form_submission = json.loads(kit.read_text(), encoding='utf-8')
         kit_form_submission["kitForm"]["enable_percentages"] = False
         self.storage1 = StoragePool(kit_form_submission["kitForm"]["servers"])
@@ -231,14 +231,14 @@ class TestStoragePool(unittest.TestCase):
         kit_form_submission = json.loads(kit3.read_text(), encoding='utf-8')
         self.storage3 = StoragePool(kit_form_submission["kitForm"]["servers"])
 
-    def test_drive_pool_storage(self):                
+    def test_drive_pool_storage(self):
         self.assertEqual(40000000, self.storage1.pool_capacity)
-        self.assertEqual(40000000, self.storage1.pool_allocatable)        
+        self.assertEqual(40000000, self.storage1.pool_allocatable)
         self.assertEqual(400000000, self.storage2.pool_capacity)
-        self.assertEqual(400000000, self.storage2.pool_allocatable)        
+        self.assertEqual(400000000, self.storage2.pool_allocatable)
         self.assertEqual(80000000, self.storage3.pool_capacity)
         self.assertEqual(80000000, self.storage3.pool_allocatable)
-            
+
 
 class TestInventoryFileCreation(unittest.TestCase):
 

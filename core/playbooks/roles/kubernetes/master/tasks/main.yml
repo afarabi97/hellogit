@@ -12,12 +12,6 @@
     - import_tasks: 15_setup_master_node.yml
 
 - import_tasks: 20_metallb.yml
-
-- name: Label master node with appropriate roles
-  import_role:
-    name: kubernetes/common
-    tasks_from: label_nodes.yml
-
 - import_tasks: 35_configure_dns.yml
 
 - name: Propagate controller with cluster admin credentials
