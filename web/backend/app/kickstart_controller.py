@@ -113,6 +113,7 @@ def get_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    print(mongo_document)
     if mongo_document is None:
         return OK_RESPONSE
 

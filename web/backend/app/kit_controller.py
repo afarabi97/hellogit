@@ -15,8 +15,9 @@ from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID
 from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
+from celery import chain
+from app.service.add_node_service import perform_add_node
 from typing import Dict, Tuple, Union
-
 
 def _delete_kubernetes_conf():
     """
@@ -119,19 +120,71 @@ def execute_add_node() -> Response:
     """
     payload = request.get_json()
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
+    isSucessful, root_password = _replace_kit_inventory(payload)
     if isSucessful:
         for nodeToAdd in payload['nodesToAdd']:
-            cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t preflight-add-node,disable-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap site.yml; "
-                            "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t docker -l {node} site.yml; "
-                            "ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node_to_add='{node}' -t pull_join_script,kube-node,es-scale,bro-scale,moloch-scale,enable-sensor-monitor-interface site.yml"
+            cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --extra-vars \"run_option=install\""
+                            ).format(playbook_pass=root_password)
+
+            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"run_option=install\" --limit {node}"
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
-            perform_kit.delay(cmd_to_execute)
-        return OK_RESPONSE
+
+            task_idOne = perform_kit.delay(cmd_to_executeOne)
+            print(task_idOne)
+            conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
+                                                            {"_id": "Kit", "task_id": str(task_idOne), "pid": ""},
+                                                            upsert=True)
+
+            task_idTwo = perform_add_node.delay(cmd_to_executeTwo)
+            print(task_idTwo)
+            conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
+                                                            {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
+                                                            upsert=True)
+            return (jsonify(str(task_idOne)), 200)
 
     logger.error("Executing add node configuration has failed.")
     return ERROR_RESPONSE
 
+
+@app.route('/api/execute_remove_node', methods=['POST'])
+def execute_remove_node() -> Response:
+    """
+    Generates the kit inventory file and executes the add node routine
+
+    :return: Response object
+    """
+    payload = request.get_json()
+    isSucessful, root_password = _replace_kit_inventory(payload)
+    if isSucessful:
+        cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}'"
+                        ).format(playbook_pass=root_password)
+        task_id = perform_kit.delay(cmd_to_execute)
+        mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
+                                                        {"_id": "Kit", "task_id": str(task_id), "pid": ""},
+                                                        upsert=True)
+
+        node_to_remove = None
+
+        if "remove_node" in payload:
+            node_to_remove = payload["remove_node"]
+
+        kickstart_form = mongo_document["form"]
+        kick_nodes = list(kickstart_form["nodes"])
+        for node in kick_nodes:
+            if str(node["hostname"]) == str(node_to_remove):
+                kick_nodes.remove(node)
+
+        kickstart_form["nodes"] = kick_nodes
+
+        current_kickstart_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                            {"_id": KICKSTART_ID, "form": kickstart_form},
+                                            upsert=True,
+                                            return_document=ReturnDocument.AFTER)  # type: InsertOneResult
+        return (jsonify(str(task_id)), 200)
+
+    logger.error("Executing remove node configuration has failed.")
+    return ERROR_RESPONSE
 
 @app.route('/api/get_kit_form', methods=['GET'])
 def get_kit_form() -> Response:

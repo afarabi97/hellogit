@@ -92,4 +92,11 @@ export class CatalogService extends ApiService<any> {
     let payload = { role: role, process: process, values: values };
       return this._http.post(url, payload, HTTP_OPTIONS).pipe();
   }
+
+  getinstalledapps(hostname): Observable<Object>{
+    const url = '/api/catalog/' + hostname + '/apps';
+    return this._http.get<Object>(url).pipe(
+      catchError(error => this.handleError(url, error))
+    );
+  }
 }

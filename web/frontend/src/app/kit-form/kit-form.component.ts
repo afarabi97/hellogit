@@ -8,10 +8,11 @@ import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { Title } from '@angular/platform-browser';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { CatalogService } from '../catalog/services/catalog.service';
 import { DialogFormControl, DialogControlTypes } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { getCurrentDate } from '../date-time-picker/date-time.component';
-
 
 @Component({
   selector: 'app-kit-form',
@@ -24,6 +25,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
   kickstartForm;
   kitFormGroup: FormGroup;
   nodes: FormArray;
+  addNodeButton: boolean = false;
 
   constructor(private kickStartSrv: KickstartService,
     private title: Title,
@@ -31,7 +33,8 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     private kitSrv: KitService,
     private formBuilder: FormBuilder,
     private snackbar: SnackbarWrapper,
-    private matDialog: MatDialog) {
+    private matDialog: MatDialog,
+    private _CatalogService: CatalogService) {
     this.kitFormGroup = this.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
   }
@@ -244,7 +247,9 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     const kitFormGroup = this.formBuilder.group({
       nodes: this.formBuilder.array([]),
       kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
-      dns_ip: new FormControl('')
+      dns_ip: new FormControl(''),
+      remove_node: new FormControl(''),
+      nodesToAdd: this.formBuilder.array([]),
     });
     kitFormGroup.setValidators(Validators.compose([
       validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
@@ -382,6 +387,18 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     return this.kitFormGroup.get('nodes') as FormArray;
   }
 
+
+  /**
+   * returns the KitFormGroup nodes as FormArray
+   *
+   * @readonly
+   * @type {FormArray}
+   * @memberof KitFormComponent
+   */
+  get addedKitNodes(): FormArray {
+    return this.kitFormGroup.get('nodesToAdd') as FormArray;
+  }
+
   /**
    * returns a tooltip from KickStartTooltips
    *
@@ -402,6 +419,129 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    */
   public getErrorMessage(control: FormControl | AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
+  }
+
+  /**
+   * removes a formcontrol form nodeArray at index
+   *
+   * @param {FormArray} nodeArray
+   * @param {number} index
+   * @memberof KickstartFormComponent
+   */
+  public removeNode(index: number): void {
+
+
+    const message = "Are you sure you want to delete this sensor ";
+    const title = "Deleting sensor";
+    const option1 = "Take me back";
+    const option2 = "Continue";
+
+    const dialogRef = this.matDialog.open(ConfirmDailogComponent, {
+      width: '35%',
+      data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if( result === option2) {
+        const nodeArray:FormArray = this.kitFormGroup.get('nodes') as FormArray;
+        const removeNode = nodeArray.at(index);
+        const hostname = removeNode.get('hostname').value;
+        nodeArray.removeAt(index);
+        this.kitFormGroup.get("remove_node").setValue(hostname);
+
+        this.kitSrv.executeRemoveNode(this.kitFormGroup.getRawValue()).subscribe( result => {
+          this.openConsole();
+        });
+      }
+    });
+  }
+
+  /**
+   * Checks to see if there are any installed applications on the node
+   *
+   * @param {number} index
+   * @memberof KitFormComponent
+   */
+  public canRemove(index: number): void {
+
+    const nodeArray:FormArray = this.kitFormGroup.get('nodes') as FormArray;
+    const removeNode = nodeArray.at(index);
+    const hostname = removeNode.get('hostname').value;
+
+    this._CatalogService.getinstalledapps(hostname).subscribe( result => {
+
+      if( result !== null && result === [] ) {
+
+        let message = " Uninstall the following applications: " + result;
+        // result.map( apps => {
+        //   message += apps + ' ';
+        // });
+        const title = "Installed applications on " + hostname;
+        const option2 = "Take me to catalog";
+        const option1 = "Return to page";
+
+        const dialogRef = this.matDialog.open(ConfirmDailogComponent, {
+          width: '35%',
+          data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if( result === option1) {
+            this.router.navigate(['/catalog']);
+          }
+        });
+      } else {
+        this.removeNode(index);
+      }
+    });
+  }
+
+
+  /**
+   * adds any new nodes found in the kickstart form
+   *
+   * @memberof KitFormComponent
+   */
+  public addNode() {
+    let kickstartHost = [];
+    this.kickstartForm.nodes.map( node => {
+      kickstartHost.push(node.ip_address);
+    });
+    let kitHost = [];
+    this.kitFormGroup.value.nodes.map( node => {
+      kitHost.push(node.management_ip_address);
+    });
+    let difference = kickstartHost.filter(x => !kitHost.includes(x));
+    difference.forEach( diff => {
+      this.kickStartSrv.gatherDeviceFacts(diff).subscribe(data => {
+        let nodes = this.kitFormGroup.get('nodes') as FormArray;
+        let newNodes = this.kitFormGroup.get('nodesToAdd') as FormArray;
+        let newNode = this.newNode(data);
+        nodes.push(newNode);
+        newNodes.push(newNode);
+      });
+    });
+    this.kitFormGroup.setValidators(Validators.compose([]));
+    this.kitFormGroup.controls['nodesToAdd'].enable();
+    this.addNodeButton = true;
+    let nodes = this.kitFormGroup.get("nodes") as FormArray;
+    let masterServerIp;
+    nodes.value.map( node => {
+      if(node.is_master_server === true) {
+        masterServerIp = node.management_ip_address;
+      }
+    });
+    let dns = this.kitFormGroup.get('dns_ip') as FormArray;
+    dns.setValue(masterServerIp);
+  }
+
+
+  /**
+   * is the sumbit for add node
+   *
+   * @memberof KitFormComponent
+   */
+  public submitAddNode() {
+    this.kitSrv.executeAddNode(this.kitFormGroup.getRawValue()).subscribe(data => this.openConsole());
   }
 
 }

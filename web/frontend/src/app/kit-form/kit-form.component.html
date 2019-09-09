@@ -1,200 +1,209 @@
 <div class="main-content2" [formGroup]="kitFormGroup">
-  <!-- Title -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Kit Configuration Page Instructions</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p>
-        Before filling out the form, make sure you have added all of your nodes to the Kickstart page. The
-        validation box at the botton of the page will guide you through filling out the form correctly.
-      </p>
-      <p>
-        The "Open Console" button opens the logs of the last Kit configuration run.
-      </p>
-      <p>
-        If the current Kit form loads and is disabled, you have an active configuration. If you want to start a new
-        configuration, click "Clear Form" button at the top of the page. If you want to change the existing
-        configuration, click "Enable Form" button at
-        the top of the page and make your edits before clicking "Execute Kit".
-      </p>
-      <p>
-        If you have an active configuration (IE: Form is disabled), and want to add a node to the Kit. First add the
-        node to Kickstart page, then come back to this page to finish the rest of the configuration. Click "Add
-        Node" at the botton of the page to execute.
-        NOTE: The "Add Node" button will not be visible until the procedures are executed correctly.
-      </p>
-    </mat-card-content>
-
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="openConsole()">
-        Open Console
-      </button>
-      <div style="float: right;">
-        <button mat-raised-button color="accent" (click)="kitFormGroup.enable()">Enable</button>
-        <button mat-raised-button color="warn" (click)="clearkitFormGroup()">Clear</button>
-      </div>
-    </mat-card-actions>
-  </mat-card>
-  <br>
-  <!-- Kubernetes -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Kubernetes</mat-card-title>
-    </mat-card-header>
-    <mat-card-content fxLayout="column" fxLayoutAlign="center stretch">
-      <app-kickstart-form-autocomplete [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')"
-        matTooltip="{{ getTooltip('kubernetes_services_cidr') }}" [options]="avaiable_ip_addrs"
-        inputPlaceHolder='Kubernetes Service IP Range Start'
-        [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
-      </app-kickstart-form-autocomplete>
-      <mat-hint> {{ kubernetesInputEvent() }}</mat-hint>
-    </mat-card-content>
-  </mat-card>
-  <br>
-  <!-- Resources -->
-  <div style="width:100%; border-right: 1px solid black; border-left: 1px solid black;">
-    <div fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="10px">
-    <mat-card style="border-left: none;">
-      <mat-card-header>
-        <mat-card-title>Total System Resources</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <app-total-system-resource-card [nodes]="kitFormGroup.get('nodes')">
-        </app-total-system-resource-card>
-      </mat-card-content>
-    </mat-card>
+    <!-- Title -->
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Total Server Resources</mat-card-title>
+        <mat-card-title>Kit Configuration Page Instructions</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <app-total-server-resources-card [nodes]="kitFormGroup.get('nodes')">
-        </app-total-server-resources-card>
+        <p>
+          Before filling out the form, make sure you have added all of your nodes to the Kickstart page. The
+          validation box at the botton of the page will guide you through filling out the form correctly.
+        </p>
+        <p>
+          The "Open Console" button opens the logs of the last Kit configuration run.
+        </p>
+        <p>
+          If the current Kit form loads and is disabled, you have an active configuration. If you want to start a new
+          configuration, click "Clear Form" button at the top of the page. If you want to change the existing
+          configuration, click "Enable Form" button at
+          the top of the page and make your edits before clicking "Execute Kit".
+        </p>
+        <p>
+          If you have an active configuration (IE: Form is disabled), and want to add a node to the Kit. First add the
+          node to Kickstart page, then come back to this page to finish the rest of the configuration. Click "Add
+          Node" at the botton of the page to execute.
+          NOTE: The "Add Node" button will not be visible until the procedures are executed correctly.
+        </p>
       </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="openConsole()">
+          Open Console
+        </button>
+        <div style="float: right;">
+          <button mat-raised-button color="accent" (click)="kitFormGroup.enable()">Enable</button>
+          <button mat-raised-button color="warn" (click)="clearkitFormGroup()">Clear</button>
+        </div>
+      </mat-card-actions>
     </mat-card>
-    <mat-card style="border-right: none;">
+    <br>
+    <!-- Kubernetes -->
+    <mat-card>
       <mat-card-header>
-        <mat-card-title>Total Sensor Resources</mat-card-title>
+        <mat-card-title>Kubernetes</mat-card-title>
       </mat-card-header>
-      <mat-card-content style="height: 70%;">
-        <app-total-sensor-resources-card [nodes]="kitFormGroup.get('nodes')">
-        </app-total-sensor-resources-card>
+      <mat-card-content fxLayout="column" fxLayoutAlign="center stretch">
+        <app-kickstart-form-autocomplete [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')"
+          matTooltip="{{ getTooltip('kubernetes_services_cidr') }}" [options]="avaiable_ip_addrs"
+          inputPlaceHolder='Kubernetes Service IP Range Start'
+          [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
+        </app-kickstart-form-autocomplete>
+        <mat-hint> {{ kubernetesInputEvent() }}</mat-hint>
       </mat-card-content>
     </mat-card>
+    <br>
+    <!-- Resources -->
+    <div style="width:100%; border-right: 1px solid black; border-left: 1px solid black;">
+      <div fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="10px">
+      <mat-card style="border-left: none;">
+        <mat-card-header>
+          <mat-card-title>Total System Resources</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-total-system-resource-card [nodes]="kitFormGroup.get('nodes')">
+          </app-total-system-resource-card>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Total Server Resources</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-total-server-resources-card [nodes]="kitFormGroup.get('nodes')">
+          </app-total-server-resources-card>
+        </mat-card-content>
+      </mat-card>
+      <mat-card style="border-right: none;">
+        <mat-card-header>
+          <mat-card-title>Total Sensor Resources</mat-card-title>
+        </mat-card-header>
+        <mat-card-content style="height: 70%;">
+          <app-total-sensor-resources-card [nodes]="kitFormGroup.get('nodes')">
+          </app-total-sensor-resources-card>
+        </mat-card-content>
+      </mat-card>
+      </div>
     </div>
-  </div>
-  <br>
-  <!-- Node -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Nodes</mat-card-title>
-    </mat-card-header>
-    <mat-card-content fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
-      <mat-progress-bar mode="indeterminate"
-        *ngIf="kickstartForm?.nodes?.length > kitFormGroup.get('nodes')?.controls?.length">
-      </mat-progress-bar>
-      <mat-accordion multi="true" formArrayName="nodes">
-        <mat-expansion-panel expanded="true" *ngFor="let node of kitNodes.controls; let i = index" style="background-color: #5555;">
-          <mat-expansion-panel-header>
-            <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
-            <mat-panel-description>{{node.get('hostname').value}}</mat-panel-description>
-          </mat-expansion-panel-header>
-          <section style="padding: 0.3em;" [formGroupName]="i">
-            <div *ngIf="!node.get('deviceFacts')" fxLayout="row" fxLayoutAlign="center center">
-              <mat-spinner></mat-spinner>
-            </div>
-            <div fxLayout="row" fxLayoutAlign="space-between stretch" fxLayoutGap="20px"
-              fxLayout.xs="column" *ngIf="node.get('deviceFacts')">
-              <mat-card style="border: none;" fxFlex="30%">
-                <mat-card-content style="background-color: #222;">
-                  <mat-list>
-                    <mat-list-item>
-                      <mat-icon mat-list-icon>developer_board</mat-icon>
-                      <h4 mat-line>CPU Cores Available:
-                        {{node.get('deviceFacts').value.cpus_available | number:'1.0-2'}} </h4>
-                    </mat-list-item>
-                    <mat-list-item>
-                      <mat-icon mat-list-icon>memory</mat-icon>
-                      <h4 mat-line>Memory Available:
-                        {{node.get('deviceFacts').value.memory_available | number:'1.0-2' }} GB
-                      </h4>
-                    </mat-list-item>
-                    <!-- <mat-list-item>
-                      <mat-icon mat-list-icon>sd_storage</mat-icon>
-                      <h4 mat-line>Available Drive Space: {{TODO}} </h4>
-                    </mat-list-item> -->
-                    <mat-list-item>
-                      <mat-icon mat-list-icon>router</mat-icon>
-                      <h4 mat-line>IP Address: {{node.get('deviceFacts').value.default_ipv4_settings?.address}}
-                      </h4>
-                    </mat-list-item>
-                  </mat-list>
-                </mat-card-content>
-              </mat-card>
-              <div fxFlex fxLayout="column" fxLayoutAlign="start stretch">
-                <mat-form-field>
-                  <mat-label>Select Node Type</mat-label>
-                  <mat-select formControlName="node_type" matTooltip="{{ getTooltip('node_type') }}">
-                    <mat-option value="Server">Server</mat-option>
-                    <mat-option value="Sensor">Sensor</mat-option>
-                  </mat-select>
-                </mat-form-field>
-                <!-- SERVER -->
-                <div *ngIf="node.controls.node_type.value == 'Server'" fxLayout="column"
-                  fxLayoutAlign="start stretch">
-                  <mat-checkbox formControlName="is_master_server"
-                    (change)="singleSelectCheckbox(kitFormGroup.get('nodes').controls,'is_master_server', i)"
-                    matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
-                    Server</mat-checkbox>
-                </div>
-                <!-- SENSOR -->
-                <div *ngIf="node.controls.node_type.value == 'Sensor'" fxLayout="column"
-                  fxLayoutAlign="start stretch">
-                  <mat-checkbox matTooltip="When checked, remote will install and configure open VPN on this sensor"
-                    formControlName="is_remote" matTooltip="{{ getTooltip('is_master_server') }}">Remote
-                  </mat-checkbox>
+    <br>
+    <!-- Node -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Nodes</mat-card-title>
+      <div *ngIf="kickstartForm?.nodes?.length > kitFormGroup.get('nodes')?.controls?.length" style="float: right;">
+        <button mat-raised-button color="accent" (click)="addNode()">Add Node</button>
+      </div>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
+        <mat-progress-bar mode="indeterminate"
+          *ngIf="(kickstartForm?.nodes?.length > kitFormGroup.get('nodes')?.controls?.length || kitFormGroup.get('nodes')?.controls?.length === 1) && addNodeButton === false">
+        </mat-progress-bar>
+        <mat-accordion multi="true" formArrayName="nodes">
+          <mat-expansion-panel expanded="true" *ngFor="let node of kitNodes.controls; let i = index" style="background-color: #5555;">
+            <mat-expansion-panel-header>
+              <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
+              <mat-panel-description>{{node.get('hostname').value}}</mat-panel-description>
+            </mat-expansion-panel-header>
+            <section style="padding: 0.3em;" [formGroupName]="i">
+              <div *ngIf="!node.get('deviceFacts')" fxLayout="row" fxLayoutAlign="center center">
+                <mat-spinner></mat-spinner>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="space-between stretch" fxLayoutGap="20px"
+                fxLayout.xs="column" *ngIf="node.get('deviceFacts')">
+                <mat-card style="border: none;" fxFlex="30%">
+                  <mat-card-content style="background-color: #222;">
+                    <mat-list>
+                      <mat-list-item>
+                        <mat-icon mat-list-icon>developer_board</mat-icon>
+                        <h4 mat-line>CPU Cores Available:
+                          {{node.get('deviceFacts').value.cpus_available | number:'1.0-2'}} </h4>
+                      </mat-list-item>
+                      <mat-list-item>
+                        <mat-icon mat-list-icon>memory</mat-icon>
+                        <h4 mat-line>Memory Available:
+                          {{node.get('deviceFacts').value.memory_available | number:'1.0-2' }} GB
+                        </h4>
+                      </mat-list-item>
+                      <!-- <mat-list-item>
+                        <mat-icon mat-list-icon>sd_storage</mat-icon>
+                        <h4 mat-line>Available Drive Space: {{TODO}} </h4>
+                      </mat-list-item> -->
+                      <mat-list-item>
+                        <mat-icon mat-list-icon>router</mat-icon>
+                        <h4 mat-line>IP Address: {{node.get('deviceFacts').value.default_ipv4_settings?.address}}
+                        </h4>
+                      </mat-list-item>
+                    </mat-list>
+                  </mat-card-content>
+                </mat-card>
+                <div fxFlex fxLayout="column" fxLayoutAlign="start stretch">
+                  <mat-form-field>
+                    <mat-label>Select Node Type</mat-label>
+                    <mat-select formControlName="node_type" matTooltip="{{ getTooltip('node_type') }}">
+                      <mat-option value="Server">Server</mat-option>
+                      <mat-option value="Sensor">Sensor</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <!-- SERVER -->
+                  <div *ngIf="node.controls.node_type.value == 'Server'" fxLayout="column"
+                    fxLayoutAlign="start stretch">
+                    <mat-checkbox formControlName="is_master_server"
+                      (change)="singleSelectCheckbox(kitFormGroup.get('nodes').controls,'is_master_server', i)"
+                      matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
+                      Server</mat-checkbox>
+                  </div>
+                  <!-- SENSOR -->
+                  <div *ngIf="node.controls.node_type.value == 'Sensor'" fxLayout="column"
+                    fxLayoutAlign="start stretch">
+                    <mat-checkbox matTooltip="When checked, remote will install and configure open VPN on this sensor"
+                      formControlName="is_remote" matTooltip="{{ getTooltip('is_master_server') }}">Remote
+                    </mat-checkbox>
+          <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
+            <button mat-raised-button color="warn"  (click)="canRemove(i)">Remove</button>
+          </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </mat-card-content>
-  </mat-card>
-  <br>
-  <!-- Validation -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Validation</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <section>
-        <mat-list>
-          <mat-list-item class="validation-errors"
-            *ngFor="let error of getFormValidationErrors(kitFormGroup.controls); let j = index">
-            {{ j + 1 }}. {{ error.error_value }}
-          </mat-list-item>
-          <mat-list-item class="validation-errors" *ngIf="kitFormGroup?.errors && kitFormGroup.enabled">
-            {{getFormValidationErrors(kitFormGroup.controls).length + 1}}. {{ kitFormGroup?.errors?.error_message }}
-          </mat-list-item>
-        </mat-list>
-        <div>
-          <p *ngIf="kitFormGroup.valid">
-            Looks good! Press 'Execute Kit' whenever you're ready!
-          </p>
-          <p *ngIf="kitFormGroup.disabled">
-            Kit is currently disabled. Enable it to edit the form.
-          </p>
-        </div>
-      </section>
-    </mat-card-content>
+            </section>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
+    <br>
+    <!-- Validation -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Validation</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <section>
+          <mat-list>
+            <mat-list-item class="validation-errors"
+              *ngFor="let error of getFormValidationErrors(kitFormGroup.controls); let j = index">
+              {{ j + 1 }}. {{ error.error_value }}
+            </mat-list-item>
+            <mat-list-item class="validation-errors" *ngIf="kitFormGroup?.errors && kitFormGroup.enabled">
+              {{getFormValidationErrors(kitFormGroup.controls).length + 1}}. {{ kitFormGroup?.errors?.error_message }}
+            </mat-list-item>
+          </mat-list>
+          <div>
+            <p *ngIf="kitFormGroup.valid">
+              Looks good! Press 'Execute Kit' whenever you're ready!
+            </p>
+            <p *ngIf="kitFormGroup.disabled">
+              Kit is currently disabled. Enable it to edit the form.
+            </p>
+          </div>
+        </section>
+      </mat-card-content>
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-      <button mat-raised-button color="primary" (click)="openExecuteKitDialog()"
-        [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
-      <button mat-raised-button color="primary" (click)="openGenKitInventoryDialog()"
-        [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
-    </mat-card-actions>
-  </mat-card>
-  <br>
-</div>
+        <button mat-raised-button (click)="openExecuteKitDialog()" *ngIf="!addNodeButton"
+          [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
+          <!-- TODO: fix validation -->
+        <button mat-raised-button (click)="submitAddNode()" *ngIf="addNodeButton"
+          >Add Nodes</button>
+        <button mat-raised-button (click)="openGenKitInventoryDialog()"
+          [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
+      </mat-card-actions>
+    </mat-card>
+    <br>
+  </div>

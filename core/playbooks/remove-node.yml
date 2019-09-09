@@ -44,18 +44,18 @@
       ignore_errors: yes
       with_items: "{{ groups['nodes_to_remove'] }}"
 
-- name: Clean up node
-  hosts: nodes_to_remove
-  roles:
-    - { role: kubernetes/reset }
-
 - name: Delete node from k8s
-  hosts: master_server
+  hosts: nodes_to_remove
   tasks:
     - name: Delete nodes from k8s cluster
       shell: |
         kubectl delete node {{ item }}
       with_items: "{{ groups['nodes_to_remove'] }}"
+
+- name: Clean up node
+  hosts: nodes_to_remove
+  roles:
+    - { role: kubernetes/reset }
 
 - name: Reboot node
   hosts: nodes_to_remove

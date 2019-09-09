@@ -9,13 +9,6 @@
   command: "hostname -f"
   register: hostname
 
-#- name: Change the hostname to our standard
-#  hostname:
-#    name: "{{ inventory_hostname }}"
-#  register: hostname
-
-- debug: "msg={{ansible_nodename}}"
-
 - name: Validate ansible_nodename == inventory_hostname
   assert:
     that:
@@ -23,6 +16,8 @@
 
 - import_tasks: 05_configure_dnsmasq.yml
   when: inventory_hostname in groups['master_server']
+  tags:
+    - update-dnsmasq-hosts
 
 - import_tasks: 10_update_dns.yml
   when: inventory_hostname not in groups['master_server']

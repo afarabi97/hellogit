@@ -40,6 +40,13 @@ export class KitService {
     );
   }
 
+  executeRemoveNode(kitForm: Object) {
+    const url = '/api/execute_remove_node';
+    return this.http.post(url, kitForm, HTTP_OPTIONS).pipe(
+      catchError(err => this.handleError())
+    );
+  }
+
   /**
    * Handle Http operation that failed.
    * Let the app continue.

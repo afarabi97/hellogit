@@ -107,6 +107,9 @@ class KitInventoryGenerator:
         if self._template_ctx['dns_ip'] is None:
             self._template_ctx['dns_ip'] = ''
 
+        if "remove_node" not in self._template_ctx:
+            self._template_ctx["remove_node"] = ''
+
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in

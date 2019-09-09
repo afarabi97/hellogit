@@ -2,6 +2,7 @@
   get_url:
     url: "{{ offline_repo_base }}/charts/chartmuseum-{{chartmuseum_version}}.tgz"
     dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
+  when: inventory_hostname in groups['master_server']
 
 - name: deploy chartmuseum
   command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.role=server --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
@@ -14,9 +15,11 @@
     connect_timeout: 3
     delay: 3
     timeout: 180
+  when: inventory_hostname in groups['master_server']
 
 - name: add chart repos
   command: "helm repo add chartmuseum http://chartmuseum.{{ fqdn }}:8080"
+  when: inventory_hostname in groups['master_server']
 
 - name: copy charts
   copy:

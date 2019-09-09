@@ -133,5 +133,9 @@ all:
       #  tfplenumsensor1.lan:
       #  tfplenumserver2.lan:
       #  tfplenumserver1.lan:
+      {% if template_ctx.remove_node %}
+      hosts:
+        {{template_ctx.remove_node}}
+      {% endif %}
 
 ...
