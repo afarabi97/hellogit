@@ -23,7 +23,6 @@ from lib.vsphere.vcenter.helper import vm_placement_helper
 from lib.vsphere.vcenter.helper.vm_helper import get_vm
 from lib.model.host_configuration import HostConfiguration
 from lib.connection_mngs import FabricConnectionWrapper
-from lib.util import retry
 
 from pathlib import Path
 
@@ -805,7 +804,7 @@ class VirtualMachine:
         self.vm_name = node.hostname  # type: str
         self.vm = get_vm(self.client, self.vm_name)  # type: VM
 
-    @retry(count=10, time_to_sleep_between_retries=15)
+
     def create(self) -> VM:
         """
         Create the VM

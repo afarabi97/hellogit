@@ -441,7 +441,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
                 spec=clone_spec))
     Disconnect(s)
 
-
+@retry(count=10, time_to_sleep_between_retries=15)
 def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, host_configuration: HostConfiguration) -> List[VirtualMachine]:
     """
     Destroys and ceates the VMs specified in the VMs.yml file on the chosen target VMWare devices

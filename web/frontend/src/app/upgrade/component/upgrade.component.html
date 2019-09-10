@@ -6,7 +6,7 @@
           <mat-form-field>
             <mat-label>Select this controllers management interface IP Address</mat-label>
             <mat-select disableRipple formControlName="new_ctrl_ip" [required]=true>
-              <mat-option *ngFor="let interface of ctrlDeviceFacts.interfaces" [value]="interface.ip_address">
+              <mat-option *ngFor="let interface of ctrlDeviceFacts['interfaces']" [value]="interface.ip_address">
                 {{ interface.name }} - {{ interface.ip_address }}</mat-option>
             </mat-select>
             <mat-error>{{ getErrorMessage(upgradeFormGroup.get("new_ctrl_ip")) }}</mat-error>
