@@ -18,11 +18,11 @@ elastic_fqdn: "elasticsearch-master.{{ fqdn }}"
 elastic_headless_fqdn: "elasticsearch-master-headless.{{ fqdn }}"
 elastic_shortname: elasticsearch-master
 elastic_port: 9200
-kibana_port: 5601
 winlogbeat_port: 5045
 
 # Kibana
 kibana_fqdn: "kibana.{{ fqdn }}"
+kibana_port: 5601
 
 # Logstash
 logstash_fqdn: "logstash.{{ fqdn }}"
@@ -71,12 +71,4 @@ ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_port: 5000
 docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port }}"
-CentOS_Repos:
-  - "CentOS-Base"
-  - "CentOS-CR"
-  - "CentOS-Debuginfo"
-  - "CentOS-fasttrack"
-  - "CentOS-Media"
-  - "CentOS-Sources"
-  - "CentOS-Vault"
 ...

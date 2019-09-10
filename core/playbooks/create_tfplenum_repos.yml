@@ -66,7 +66,7 @@
         path: "{{ curr_repo_path }}"
         state: absent
 
-    - name: create centos directory
+    - name: create directory
       file:
         path: "{{ curr_repo_path }}"
         state: directory

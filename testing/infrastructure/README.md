@@ -1,4 +1,4 @@
-For labrepo.sh, you must install it on a RHEL 7 server. For all other scripts, install on Centos 7.
+For labrepo.sh, you must install it on a RHEL 7 server.
 
 To install infrastructure do the following:
 

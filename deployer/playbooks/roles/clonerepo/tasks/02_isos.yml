@@ -1,11 +1,4 @@
 ---
-- name: Download CentOS ISO
-  get_url:
-    checksum: "sha256:{{ iso_centos_checksum }}"
-    url: "{{ iso_centos_url_online }}"
-    dest: "{{ iso_centos_pth }}"
-  when:
-    - "ansible_distribution == 'CentOS'"
 
 # TODO we need a way to pull down RHEL ISO image.
 - name: Download RHEL ISO
@@ -17,13 +10,6 @@
     - "ansible_distribution == 'RedHat'"
     - RHEL_SOURCE_REPO == 'labrepo'
 
-- name: check if Centos iso exists
-  stat:
-    path: "{{ iso_centos_pth }}"
-    checksum_algorithm: sha256
-  register: iso_path_result
-  when: BOOTSTRAP and ansible_distribution == 'CentOS'
-
 # Verify ISO
 - name: check if RHEL iso exists
   stat:
@@ -32,27 +18,10 @@
   register: iso_path_result2
   when: BOOTSTRAP and ansible_distribution == 'RedHat'
 
-- name: Verify Centos ISO Checksum
-  fail:
-    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
-  when: ansible_distribution == 'CentOS' and iso_path_result.stat.exists and iso_path_result.stat.checksum != iso_centos_checksum
-
 - name: Verify Rhel ISO Checksum
   fail:
     msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
   when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
-
-- name: Mount content to {{ mnt_pth }}
-  mount:
-    fstype: iso9660
-    state: mounted
-    opts: loop
-    path: "{{ mnt_pth }}"
-    src: "{{ iso_centos_pth }}"
-  when:
-    - mnt_pth != ""
-    - "ansible_distribution == 'CentOS'"
-  register: mounted
 
 - name: Mount content to {{ mnt_pth }}
   mount:

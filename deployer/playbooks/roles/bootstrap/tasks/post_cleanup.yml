@@ -20,5 +20,4 @@
     path: "{{ item }}"
     state: absent
   with_items:
-   - "{{ iso_centos_pth }}"
    - "{{ iso_rhel_pth }}"

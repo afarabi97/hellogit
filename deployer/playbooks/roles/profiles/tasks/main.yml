@@ -22,4 +22,4 @@
     setype: httpd_sys_content_t
     path: "{{ ks_template_dir }}/uefi"
 
-- import_tasks: centos_rhel.yml
+- import_tasks: rhel.yml

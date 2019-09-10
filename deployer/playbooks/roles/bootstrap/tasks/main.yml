@@ -14,8 +14,6 @@
 
 - import_tasks: rhel_repos.yml
   when: TFPLENUM_OS_TYPE == "rhel"
-- import_tasks: centos_repos.yml
-  when: TFPLENUM_OS_TYPE == "centos"
 - import_tasks: additional_repos.yml
 
 - name: "Install required packages"

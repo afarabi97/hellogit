@@ -59,12 +59,6 @@ all:
     # Default: ansible controller ip address
     server_ip: '{{ template_ctx["controller_interface"][0] }}'
 
-    # COREOS VARS
-    # Only used if you are loading coreos operating system
-    # This is the ssh public key for core user
-    # Define: null
-    core_sshAuthorizedKeys: #
-
   children:
     nodes:
       children:

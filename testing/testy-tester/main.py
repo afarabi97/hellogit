@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-__author__ = 'Grant Curell'
 __vcenter_version__ = '6.7c'
 
 import urllib3

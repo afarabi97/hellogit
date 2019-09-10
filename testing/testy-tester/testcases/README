@@ -1,7 +1,7 @@
 ## Overview
 
-This folder is for any test cases that we wish to run in the Jenkins pipeline.  
-Adding a valid YAML file into this folder and committing it to devel will add  
+This folder is for any test cases that we wish to run in the Jenkins pipeline.
+Adding a valid YAML file into this folder and committing it to devel will add
 new stages and test cases for jenkins pipeline.
 
 ## Test Cases
@@ -10,10 +10,10 @@ new stages and test cases for jenkins pipeline.
 * OS: RHEL
 * 1 sensor
 * 1 remote sensor
-* 2 servers  
+* 2 servers
 * Controller: 172.16.82.96
 * Master Server: 172.16.82.97
-  
+
 ### test2
 * OS: RHEL
 * 1 sensor
@@ -27,11 +27,10 @@ new stages and test cases for jenkins pipeline.
 * 2 servers
 * Controller: 172.16.82.64
 * Master Server: 172.16.82.65
-  
+
 ### test4
-* OS: CentOS
+* OS: RHEL
 * 1 sensor
 * 1 server
 * Controller: 172.16.82.33
 * Master Server: 172.16.82.34
-

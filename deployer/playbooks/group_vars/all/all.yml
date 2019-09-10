@@ -66,26 +66,6 @@ epel_repo:
     failovermethod: "priority"
     download_path: "{{ tfplenumoffline_dir }}"
 
-# labrepo_gpg_keys:
-#   epel:
-#     name: "epel"
-#     gpgkeyurl: "http://yum.labrepo.lan/epel/RPM-GPG-KEY-EPEL-7"
-#     gpgkeyname:  "RPM-GPG-KEY-EPEL-7"
-#   kube:
-#     name: "kubernetes"
-#     gpgkeyurl: "http://yum.labrepo.lan/kubernetes/yum-key.gpg"
-#     gpgkeyname: "yum-key.gpg"
-#   mongo:
-#     name: "mongodb-org-4.0"
-#     gpgkeyurl: "http://yum.labrepo.lan/mongodb-org-4.0/server-4.0.asc"
-#     gpgkeyname: "server-4.0.asc"
-
-# gpg_keys:
-#   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-#   - "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
-#   - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-#   - "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
-
 pip_downloads:
   - docker
   - elasticsearch
@@ -106,12 +86,6 @@ pip_installs:
   - "docker"
   - "pyyaml"
   - "pyhelm"
-
-iso_centos_version: 1810
-iso_centos_url_online: "http://mirrors.mit.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
-iso_centos_url_labrepo: "http://isos.labrepo.lan/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
-iso_centos_pth: "/root/CentOS-7-x86_64-Minimal-{{ iso_centos_version }}.iso"
-iso_centos_checksum: 38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c
 
 iso_rhel_version: "7.7"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"

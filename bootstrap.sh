@@ -193,53 +193,6 @@ function subscription_prompts(){
 
 }
 
-function centos_default_repos(){
-    cat <<EOF > /etc/yum.repos.d/CentOS-Base.repo
-# CentOS-Base.repo
-#
-# The mirror system uses the connecting IP address of the client and the
-# update status of each mirror to pick mirrors that are updated to and
-# geographically close to the client.  You should use this for CentOS updates
-# unless you are manually picking other mirrors.
-#
-# If the mirrorlist= does not work for you, as a fall back you can try the
-# remarked out baseurl= line instead.
-#
-#
-
-[base]
-name=CentOS-\$releasever - Base
-mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=os&infra=\$infra
-#baseurl=http://mirror.centos.org/centos/\$releasever/os/\$basearch/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-
-#released updates
-[updates]
-name=CentOS-\$releasever - Updates
-mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=updates&infra=\$infra
-#baseurl=http://mirror.centos.org/centos/\$releasever/updates/\$basearch/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-
-#additional packages that may be useful
-[extras]
-name=CentOS-\$releasever - Extras
-mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=extras&infra=\$infra
-#baseurl=http://mirror.centos.org/centos/\$releasever/extras/\$basearch/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-
-#additional packages that extend functionality of existing packages
-[centosplus]
-name=CentOS-\$releasever - Plus
-mirrorlist=http://mirrorlist.centos.org/?release=\$releasever&arch=\$basearch&repo=centosplus&infra=\$infra
-#baseurl=http://mirror.centos.org/centos/\$releasever/centosplus/\$basearch/
-gpgcheck=1
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-EOF
-}
 
 function setup_ansible(){
 cat <<EOF > /etc/yum.repos.d/ansible.repo
@@ -285,8 +238,6 @@ EOF
 
     elif [ "$RHEL_SOURCE_REPO" == "public" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
         subscription_prompts
-    elif [ "$TFPLENUM_OS_TYPE" == "centos" ]; then
-        centos_default_repos
     fi
 
     yum clean all > /dev/null
@@ -453,15 +404,6 @@ EOF
   git config --global credential.helper "/bin/bash ~/credential-helper.sh"
 }
 
-function set_os_type(){
-    local os_id=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
-    if [ "$os_id" == '"centos"' ]; then
-        export TFPLENUM_OS_TYPE=centos
-    else
-        export TFPLENUM_OS_TYPE=rhel
-    fi
-}
-
 function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
     pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
@@ -480,7 +422,7 @@ function prompts(){
     echo "---------------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP ${boostrap_version}"
     echo "---------------------------------"
-    set_os_type
+    export TFPLENUM_OS_TYPE=rhel
     prompt_runtype
     get_controller_ip
 
