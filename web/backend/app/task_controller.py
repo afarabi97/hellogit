@@ -2,13 +2,8 @@ from app import app, conn_mng
 from flask import jsonify, Response
 import json
 from bson import ObjectId
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
 
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks() -> Response:

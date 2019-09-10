@@ -21,6 +21,7 @@ from typing import List, Dict, Tuple
 
 MIN_MBPS = 1000
 
+
 @app.route('/api/gather_device_facts', methods=['POST'])
 def gather_device_facts() -> Response:
     """

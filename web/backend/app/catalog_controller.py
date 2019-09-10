@@ -1,5 +1,5 @@
 from app import app, socketio, logger, conn_mng
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
 from flask import jsonify, request, Response, send_file
 from typing import Dict, Tuple, List
 from shared.connection_mngs import FabricConnectionWrapper
@@ -13,12 +13,6 @@ from celery import chain
 NAMESPACE = "default"
 CHART_REPO_PORT="8080"
 
-
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
 
 def get_helm_repo_health(repo_ip: str) -> bool:
     """

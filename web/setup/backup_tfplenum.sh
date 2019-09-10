@@ -7,10 +7,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 WEB_DIR="$SCRIPT_DIR/../"
 
 function backup_tfplenum {
-    mkdir -p $WEB_DIR/backups    
+    mkdir -p $WEB_DIR/backups
     pushd $WEB_DIR/backups > /dev/null
     mkdir backup/
-    mongodump --archive=backup/tfplenum_database.gz --gzip --db tfplenum_database
+    mongodump --archive=backup/tfplenum_database.gz --gzip --db tfplenum_database --excludeCollection version
     cp -rv /var/www/html/THISISCVAH/ backup/.
     cp -rv /var/www/html/OJCCTM/ backup/.
     tar -czvf tfplenum_backup_${DATE_STR}.tar.gz backup/

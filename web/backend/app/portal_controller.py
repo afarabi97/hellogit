@@ -12,14 +12,21 @@ from flask import send_file, Response, request, jsonify
 from bson import ObjectId
 import json
 
-DISCLUDES = ("elasticsearch-master.lan", "mysql.lan", "mumble-server.lan", "logstash.lan")
+DISCLUDES = ("elasticsearch.lan",
+        "elasticsearch-master.lan",
+        "mysql.lan",
+        "mumble-server.lan",
+        "logstash.lan",
+        "chartmuseum.lan",
+        "elasticsearch-data.lan",
+        "tiller-deploy.lan")
 
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     if dns == "grr-frontend.lan":
-        if ip:
+        if ip:            
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
-        else:
+        else: 
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
     elif dns == "moloch.lan":
         if ip:
@@ -72,7 +79,7 @@ def get_portal_links() -> Response:
             return jsonify(portal_links)
     except Exception as e:
         return jsonify([])
-
+    
     return ERROR_RESPONSE
 
 
@@ -85,11 +92,11 @@ def get_user_links() -> Response:
     user_links = conn_mng.mongo_user_links.find({})
     return cursorToJsonResponse(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
-@app.route('/api/add_user_link', methods=['POST'])
+@app.route('/api/add_user_link', methods=['POST']) 
 def add_user_link() -> Response:
     """
     Add a new link to mongo_user_links.
-    :return: flask.Response containing all user link data, including the new
+    :return: flask.Response containing all user link data, including the new 
     one.
     """
     link_data = request.get_json()
@@ -100,7 +107,7 @@ def add_user_link() -> Response:
     return get_user_links()
 
 
-@app.route('/api/remove_user_link/<link_id>', methods=['DELETE'])
+@app.route('/api/remove_user_link/<link_id>', methods=['DELETE']) 
 def remove_user_link(link_id: str) -> Response:
     """
     Remove a user link from mong_user_links.

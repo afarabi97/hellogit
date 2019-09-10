@@ -5,6 +5,7 @@ You can put constants or shared functions in this module.
 from flask import Response
 from typing import List
 import json
+from bson import ObjectId
 
 OK_RESPONSE = Response()
 OK_RESPONSE.status_code = 200
@@ -15,18 +16,24 @@ NOTFOUND_RESPONSE.status_code = 404
 ERROR_RESPONSE = Response()
 ERROR_RESPONSE.status_code = 500
 
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+
 def cursorToJson(csr, fields: List[str] = None, sort_field: str = None) -> List:
     """
     Take a cursor returned from a MongoDB search and convert
     it to list of records
-    :param csr: Cursor returned from a MongoDB search (or any iterable 
+    :param csr: Cursor returned from a MongoDB search (or any iterable
     container)
     :param fields: List of field names to include in the response.
     :param sort_field: Optional field name to sort return records by
     :return: List of records containing the data of the records in the cursor.
     """
     records = []
-    for record in csr: 
+    for record in csr:
         new_record = {}
         if fields:
             for field in fields:
@@ -43,11 +50,11 @@ def cursorToJsonResponse(csr, fields: List[str] = None, sort_field: str = None) 
     """
     Take a cursor returned from a MongoDB search and convert
     it to an API response containing the data.
-    :param csr: Cursor returned from a MongoDB search (or any iterable 
+    :param csr: Cursor returned from a MongoDB search (or any iterable
     container)
     :param fields: List of field names to include in the response.
     :param sort_field: Optional field name to sort return records by
     :return: flask.Response containing the data of the records in the cursor.
     """
-    records = cursorToJson(csr, fields, sort_field) 
+    records = cursorToJson(csr, fields, sort_field)
     return Response(json.dumps(records), mimetype='application/json')

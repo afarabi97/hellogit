@@ -1,0 +1,58 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+- name: Tag master server
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: master_server
+      when: hostvars[item].is_master | default(false)
+      with_items: "{{ groups['all'] }}"
+
+- name: Tag remote sensors
+  hosts: localhost
+  tags: always
+  tasks:
+    - add_host:
+        hostname: "{{ item }}"
+        groups: remote_sensors
+      when: hostvars[item].is_remote | default(false)
+      with_items: "{{ groups['all'] }}"
+
+- name: dnsmasq
+  hosts:
+    - servers
+    - sensors
+  gather_facts: yes
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+    - name: Disable possible existing OpenVPN
+      systemd:
+        name: openvpn-client.service
+        enabled: no
+        state: stopped
+      when: inventory_hostname in groups['remote_sensors']
+      ignore_errors: yes
+  roles:
+    - dnsmasq
+  tags: dnsmasq
+
+- name: Repos
+  hosts:
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - repos
+  tags:
+    - repos

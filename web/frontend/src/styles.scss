@@ -97,6 +97,12 @@ mat-dialog-container, .main-content2, .container-fluid {
     margin-bottom: 1em;
   }
 
+  mat-vertical-stepper {
+    background-color: $first-elevation-dark-background;
+    width: 1200px;
+    margin-top: 40px;
+  }
+
   mat-card {
     border: 1px solid $primary-border-color;
     padding: 0px;

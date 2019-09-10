@@ -1,0 +1,31 @@
+---
+
+- name: create list
+  set_fact:
+    host_list: "{{ groups['servers'] }} + {{ groups['sensors'] }}"
+  tags:
+    - update-dnsmasq-hosts
+
+- name: Set hostname
+  command: "hostnamectl set-hostname {{inventory_hostname}}"
+
+- name: Check hostname
+  command: "hostname -f"
+  register: hostname
+
+- debug: "msg={{ansible_nodename}}"
+
+- name: Validate ansible_nodename == inventory_hostname
+  assert:
+    that:
+      ansible_nodename == inventory_hostname
+
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
+
+- import_tasks: 05_configure_dnsmasq.yml
+  when: inventory_hostname in groups['master_server']
+
+...

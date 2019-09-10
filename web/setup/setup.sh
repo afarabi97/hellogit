@@ -1,6 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 FRONTEND_DIR="$SCRIPT_DIR/../"
+DIP_VERSION=`cat /etc/dip-version`
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root or use sudo."

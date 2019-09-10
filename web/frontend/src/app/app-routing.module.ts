@@ -13,6 +13,7 @@ import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-buil
 import { CatalogComponent } from './catalog/component/catalog.component';
 import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
+import { UpgradeComponent } from './upgrade/component/upgrade.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -28,7 +29,8 @@ const routes: Routes = [
   { path: 'pcaps', component: PcapFormComponent},
   { path: 'catalog', component: CatalogComponent},
   { path: 'tools', component: ToolsFormComponent},
-  { path: 'application/:id', component : CatalogPageComponent}
+  { path: 'application/:id', component : CatalogPageComponent},
+  { path: 'upgrade', component: UpgradeComponent}
 ];
 
 

@@ -24,6 +24,6 @@
 - name: Install Pip Modules
   pip:
     name: "{{ pip_installs }}"
-    state: forcereinstall
+    state: present
 
 ...

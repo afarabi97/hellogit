@@ -10,6 +10,7 @@ PLAYBOOK_DIR = CORE_DIR / 'playbooks'
 DEPLOYER_DIR = SHARED_DIR / '../../../deployer'
 WEB_DIR = SHARED_DIR / '../../'
 TESTING_DIR = SHARED_DIR / '../../../testing'
+UPGRADES_DIR = SHARED_DIR / '../../../upgrades'
 
 KIT_ID = "kit_form"
 PORTAL_ID = 'portal_links'

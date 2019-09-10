@@ -1,4 +1,6 @@
 #!/bin/bash
+export DIP_VERSION=3.3.0
+echo "${DIP_VERSION}" > /etc/dip-version
 boostrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="vim net-tools wget"

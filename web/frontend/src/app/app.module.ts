@@ -50,7 +50,10 @@ import { NotificationsModuleComponent } from './notifications/notification-modul
 // ConfirmDialog
 import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.component';
 
-import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component'
+import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
+
+// Upgrade
+import { UpgradeComponent } from './upgrade/component/upgrade.component';
 
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
@@ -94,7 +97,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ConfigmapsComponent,
     ConfigmapEditorComponent,
     RegistryComponent,
-    PcapFormComponent,    
+    PcapFormComponent,
     PolicyManagementComponent,
     PolicyManagementDialog,
     PolicyManagementTable,
@@ -112,7 +115,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     NodeBackgroundComponent,
-    CatalogPageComponent
+    CatalogPageComponent,
+    UpgradeComponent
   ],
   imports: [
     BrowserModule,
