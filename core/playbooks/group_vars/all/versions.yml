@@ -16,7 +16,6 @@ kube_state_version: "v1.6.0"
 metallb_version: "v0.7.3"
 metrics_server_version: "v0.3.3"
 moloch_version: "2.0.0"
-mumble_version: "v1.0.0"
 suricata_version: "4.1.4"
 helm_version: "v2.14.3"
 chartmuseum_version: "2.3.2"
@@ -33,7 +32,6 @@ kube_images:
   - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
-  - docker.io/tfplenum/mumble-server:{{mumble_version}}
   - docker.io/tfplenum/bro:{{bro_version}}
   - docker.elastic.co/beats/metricbeat:{{elastic_7_version}}
   - docker.elastic.co/beats/filebeat:{{elastic_7_version}}

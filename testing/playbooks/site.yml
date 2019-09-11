@@ -95,12 +95,4 @@
     - moloch
   tags: moloch
 
-- name: Validate Mumble
-  hosts:
-  - master_server
-  gather_facts: no
-  roles:
-    - mumble-server
-  tags: mumble-server
-
 ...

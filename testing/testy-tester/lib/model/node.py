@@ -344,6 +344,7 @@ class CatalogZeek(object):
         home_net: Home network
         interfaces: List of interfaces
         zeek_workers: Number of Zeek workers
+        log_retention_hours: Number of hours to retain data
         affinity_hostname: Name of sensor
         node_hostname: Name of sensor
         deployment_name: Name of the deployment set sent to Kubernetes
@@ -353,6 +354,7 @@ class CatalogZeek(object):
         self.home_net = yml_dict['home_net']
         self.interfaces = yml_dict['interfaces']
         self.zeek_workers = yml_dict['zeek_workers']
+        self.log_retention_hours = yml_dict['log_retention_hours']
         self.affinity_hostname = yml_dict['affinity_hostname']
         self.node_hostname = yml_dict['node_hostname']
         self.deployment_name = yml_dict['deployment_name']
@@ -362,33 +364,6 @@ class CatalogZeek(object):
             'home_net': self.home_net,
             'interfaces': self.interfaces,
             'zeek_workers': self.zeek_workers,
-            'affinity_hostname': self.affinity_hostname,
-            'node_hostname': self.node_hostname,
-            'deployment_name': self.deployment_name
-        }
-
-    def __str__(self) -> str:
-        return "home_net: %s interfaces: %s zeek_workers: %s affinity_hostname: %s node_hostname: %s deployment_name: %s" % (self.home_net, self.interfaces, self.zeek_workers, self.affinity_hostname, self.node_hostname, self.deployment_name )
-
-class CatalogKafka(object):
-    """
-    Represents a Kafka catalog object and all the variables inside it
-
-    Attributes:
-        log_retention_hours: Number of hours to retain data
-        affinity_hostname: Name of sensor
-        node_hostname: Name of sensor
-        deployment_name: Name of the deployment set sent to Kubernetes
-    """
-
-    def __init__(self, yml_dict: Dict) -> None:
-        self.log_retention_hours = yml_dict['log_retention_hours']
-        self.affinity_hostname = yml_dict['affinity_hostname']
-        self.node_hostname = yml_dict['node_hostname']
-        self.deployment_name = yml_dict['deployment_name']
-
-    def to_dict(self):
-        return {
             'log_retention_hours': self.log_retention_hours,
             'affinity_hostname': self.affinity_hostname,
             'node_hostname': self.node_hostname,
@@ -396,7 +371,7 @@ class CatalogKafka(object):
         }
 
     def __str__(self) -> str:
-        return "log_retention_hours: %s affinity_hostname: %s node_hostname: %s deployment_name: %s" % (self.log_retention_hours, self.affinity_hostname, self.node_hostname, self.deployment_name )
+        return "home_net: %s interfaces: %s zeek_workers: %s log_retention_hours: %s affinity_hostname: %s node_hostname: %s deployment_name: %s" % (self.home_net, self.interfaces, self.zeek_workers, self.log_retention_hours, self.affinity_hostname, self.node_hostname, self.deployment_name )
 
 class CatalogLogstash(object):
     """
@@ -715,15 +690,6 @@ class Node(object):
         :return:
         """
         self.zeek_catalog = CatalogZeek(zeek_catalog)
-
-    def set_kafka_catalog(self, kafka_catalog: Dict) -> None:
-        """
-        Configures the kafka catalog configuration for the node object.
-
-        :param kafka_catalog:
-        :return:
-        """
-        self.kafka_catalog = CatalogKafka(kafka_catalog)
 
     def set_logstash_catalog(self, logstash_catalog: Dict) -> None:
         """

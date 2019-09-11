@@ -123,7 +123,7 @@ kit:
           deployment_name: "server-moloch-viewer"
         logstash:
           node_hostname: "server"
-          kafka_clusters: ["sensor1-kafka.default.svc.cluster.local:9092","sensor2-kafka.default.svc.cluster.local:9092","sensor3-kafka.default.svc.cluster.local:9092","sensor4-kafka.default.svc.cluster.local:9092"]
+          kafka_clusters: ["sensor1-zeek.default.svc.cluster.local:9092","sensor2-zeek.default.svc.cluster.local:9092","sensor3-zeek.default.svc.cluster.local:9092","sensor4-zeek.default.svc.cluster.local:9092"]
           replicas: 4
           heap_size: 12
           deployment_name: "server-logstash"
@@ -212,11 +212,7 @@ kit:
             - "p2p1"
           zeek_workers: 8
           node_hostname: "sensor1"
-        kafka:
-          affinity_hostname: "sensor1"
-          deployment_name: "sensor1-kafka"
           log_retention_hours: "24"
-          node_hostname: "sensor1"
 
     sensor2:
       oob_ip: "" # Out of band management IP for the system (Idrac, HiLo, IPMI
@@ -280,11 +276,7 @@ kit:
             - "p2p1"
           zeek_workers: 8
           node_hostname: "sensor2"
-        kafka:
-          affinity_hostname: "sensor2"
-          deployment_name: "sensor2-kafka"
           log_retention_hours: "24"
-          node_hostname: "sensor2"
 
     sensor3:
       oob_ip: "" # Out of band management IP for the system (Idrac, HiLo, IPMI
@@ -348,11 +340,7 @@ kit:
             - "p2p1"
           zeek_workers: 8
           node_hostname: "sensor3"
-        kafka:
-          affinity_hostname: "sensor3"
-          deployment_name: "sensor3-kafka"
           log_retention_hours: "24"
-          node_hostname: "sensor3"
 
     sensor4:
       oob_ip: "" # Out of band management IP for the system (Idrac, HiLo, IPMI
@@ -416,8 +404,4 @@ kit:
             - "p2p1"
           zeek_workers: 8
           node_hostname: "sensor4"
-        kafka:
-          affinity_hostname: "sensor4"
-          deployment_name: "sensor4-kafka"
           log_retention_hours: "24"
-          node_hostname: "sensor4"

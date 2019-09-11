@@ -4,11 +4,11 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
   labels:
-    component: kafka
+    component: zeek
 spec:
   ports:
   - port: 9092
     name: server
   selector:
-    component: kafka
+    component: zeek
     deployment: {{ .Release.Name }}

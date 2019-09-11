@@ -329,11 +329,3 @@
   tags:
     - janitor
     - enable-sensor-monitor-interface
-
-- name: Mumble Server
-  any_errors_fatal: true
-  hosts:
-    - master_server
-  roles:
-    - mumble
-  tags: mumble

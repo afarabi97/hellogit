@@ -17,7 +17,7 @@
   command: kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
   when: inventory_hostname in groups['master_server']
 
-- name: Initiallizing Tiller
+- name: Initializing Tiller
   command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200 --replicas 2 --wait
   when: inventory_hostname in groups['master_server']
 

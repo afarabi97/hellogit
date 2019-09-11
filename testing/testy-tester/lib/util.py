@@ -394,8 +394,6 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
             node.set_moloch_capture_catalog(moloch_capture_spec)
             zeek_spec = vms[v]['catalog']['zeek']
             node.set_zeek_catalog(zeek_spec)
-            kafka_spec = vms[v]['catalog']['kafka']
-            node.set_kafka_catalog(kafka_spec)
 
         if node.type == "master_server":
             moloch_viewer_spec = catalog.get('moloch-viewer')

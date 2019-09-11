@@ -14,6 +14,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}
+  labels:
+    component: zeek
 data:
   cluster-layout.bro: |
     redef Cluster::manager_is_logger = F;
@@ -119,3 +121,51 @@ data:
     redef Kafka::tag_json = T;
     redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, DCE_RPC::LOG, DHCP::LOG, DNP3::LOG, DPD::LOG, Files::LOG, FTP::LOG, Intel::LOG, IRC::LOG, KRB::LOG, Modbus::LOG, mysql::LOG, Notice::LOG, NTLM::LOG, PE::LOG, RADIUS::LOG, RDP::LOG, RFB::LOG, Signatures::LOG, SIP::LOG, SMB::FILES_LOG, SMB::MAPPING_LOG, SMTP::LOG, SNMP::LOG, SOCKS::LOG, Software::LOG, SSH::LOG, SSL::LOG, Syslog::LOG, Tunnel::LOG, Weird::LOG, X509::LOG);
     redef Kafka::topic_name = "bro-raw";
+    redef Kafka::kafka_conf = table(["metadata.broker.list"] = "localhost:9092");
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-beats-config
+  labels:
+    component: zeek
+data:
+  metricbeat.yml: |-
+    metricbeat.config.modules:
+      # Mounted `metricbeat-daemonset-modules` configmap:
+      path: ${path.config}/modules.d/*.yml
+      # Reload module configs as they change:
+      reload.enabled: false
+
+    processors:
+      - add_cloud_metadata:
+
+    cloud.id: ${ELASTIC_CLOUD_ID}
+    cloud.auth: ${ELASTIC_CLOUD_AUTH}
+
+    setup.dashboards.enabled: true
+    setup.kibana.host: "{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
+
+    output.elasticsearch:
+      hosts: ['${ELASTICSEARCH_HOST:elasticsearch-master}:${ELASTICSEARCH_PORT:9200}']
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-beats-modules
+  labels:
+    component: zeek
+data:
+  kafka.yml: |-
+    - module: kafka
+      metricsets:
+      - partition
+      - consumergroup
+      period: 10s
+      hosts: ["localhost:9092"]

@@ -12,5 +12,15 @@ zeek_log_path: /data/zeek
 zeek_loggers: 1
 zeek_workers: 8
 zeek_scripts: /opt/tfplenum/zeek/scripts
-filebeat_image_name: beats/filebeat
-filebeat_image_tag: 6.8.1
+zookeeper_image_name: bitnami/zookeeper
+zookeeper_image_tag: 3.5.5-r96
+zookeeper_path: /data/zookeeper
+kafka_image_name: bitnami/kafka
+kafka_image_tag: 2.3.0-r59
+kafka_path: /data/kafka
+metricbeat_image_name: beats/metricbeat
+metricbeat_image_tag: 7.3.1
+kibana_fqdn: kibana.default.svc.cluster.local
+kibana_port: 80
+log_retention_hours: 24
+num_partitions: 20

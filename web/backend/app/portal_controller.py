@@ -15,7 +15,6 @@ import json
 DISCLUDES = ("elasticsearch.lan",
         "elasticsearch-master.lan",
         "mysql.lan",
-        "mumble-server.lan",
         "logstash.lan",
         "chartmuseum.lan",
         "elasticsearch-data.lan",

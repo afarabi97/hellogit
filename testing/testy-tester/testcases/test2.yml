@@ -129,7 +129,7 @@ kit:
           deployment_name: "server-moloch-viewer"
         logstash:
           node_hostname: "server"
-          kafka_clusters: ["test2-sensor1-kafka.default.svc.cluster.local:9092"]
+          kafka_clusters: ["test2-sensor1-zeek.default.svc.cluster.local:9092"]
           replicas: 2
           heap_size: 12
           deployment_name: "server-logstash"
@@ -210,8 +210,4 @@ kit:
             - "ens224"
           zeek_workers: 8
           node_hostname: "test2-sensor1.lan"
-        kafka:
-          affinity_hostname: "test2-sensor1.lan"
-          deployment_name: "test2-sensor1-kafka"
           log_retention_hours: "24"
-          node_hostname: "test2-sensor1.lan"
