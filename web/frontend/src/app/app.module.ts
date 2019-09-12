@@ -23,9 +23,12 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RegistryComponent } from './registry/registry.component';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { PcapFormComponent } from './pcap-form/pcap-form.component';
 
-//Poilicy Management
+//PCAP Test Page
+import { PcapFormComponent } from './pcap-form/pcap-form.component';
+import { ReplayPcapDialog } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
+
+//Policy Management
 import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
 import { PolicyManagementDialog } from './policy-management/dialog/policy-management-dialog.component';
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
@@ -116,7 +119,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ConfirmDailogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
-    UpgradeComponent
+    UpgradeComponent,
+    ReplayPcapDialog
   ],
   imports: [
     BrowserModule,
@@ -150,7 +154,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
     ModalDialogMatComponent,
-    ModalDialogDisplayMatComponent
+    ModalDialogDisplayMatComponent,
+    ReplayPcapDialog
   ]
 })
 export class AppModule { }

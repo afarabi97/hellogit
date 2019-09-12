@@ -2,14 +2,15 @@
    the Endgame agent. #}
 
   $root_dir = Get-Location
-  Expand-Archive .\{{ endgame_installer }}
+
   {% set installer = endgame_installer | regex_replace('.zip$', '') %}
+  Unzip "$FOLDER\{{ endgame_installer }}" "$FOLDER\{{ installer }}"
   Set-Location -Path .\{{ installer }}\windows\
   {% set windows_installer_name = installer | regex_replace('SensorInstaller-','SensorWindowsInstaller-') %}
   .\{{ windows_installer_name }}.exe -k {{ endgame_api_key }} `
-            -c .\{{ windows_installer_name }}.cfg {{ install_param }} 
+            -c .\{{ windows_installer_name }}.cfg {{ install_param }}
   if( -not $? ){
-    $Script:return_value = $return_value -bor [OutputErrorValue]::endgame
+    $Script:return_value = $return_value -bor $endgame
   }
 
   Do {

@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PcapService } from './pcap.service';
 import { Title } from '@angular/platform-browser';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { FormGroup } from '@angular/forms';
+import { ReplayPcapDialog } from './replay-pcap-dialog/replay-pcap-dialog.component';
 
 const DIALOG_WIDTH = "800px";
 
@@ -24,15 +25,14 @@ export class PcapFormComponent implements OnInit {
   showSha1: boolean;
   showSha256: boolean;
 
-  displayColumns = [ 'name', 'mod_date', 'hash', 'action' ];
+  displayColumns = [ 'name', 'mod_date', 'hash', 'size', 'action' ];
 
   @ViewChild('pcapPaginator')
   private paginator: MatPaginator;
 
   constructor(private pcapSrv: PcapService,
               private title: Title,
-              private dialog: MatDialog,
-              private snackBar: MatSnackBar)
+              private dialog: MatDialog)
   {
     this.hostname = window.location.hostname;
     this.pcapToDelete = "";
@@ -57,24 +57,19 @@ export class PcapFormComponent implements OnInit {
     this.pcapToUpload = files.item(0);
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
-  }
-
-
   private displayServiceResponse(data: any){
     if (data['success_message']){
-      this.displaySnackBar(data['success_message']);
+      this.pcapSrv.displaySnackBar(data['success_message']);
       this.initalizePage();
     } else if (data['error_message']){
-      this.displaySnackBar(data['error_message']);
+      this.pcapSrv.displaySnackBar(data['error_message']);
     } else {
-      this.displaySnackBar("Failed for unknown reason");
+      this.pcapSrv.displaySnackBar("Failed for unknown reason");
     }
   }
 
   uploadFile(){
-    this.displaySnackBar("Loading " + this.pcapToUpload.name + "...");
+    this.pcapSrv.displaySnackBar("Loading " + this.pcapToUpload.name + "...");
     this.pcapSrv.uploadPcap(this.pcapToUpload).subscribe(data => {
       //This timeout is put in place to ensure that the modal will hide.
       //For very small PCAPs its possible to upload them faster than the
@@ -139,6 +134,24 @@ export class PcapFormComponent implements OnInit {
     console.log("Deleting", this.pcapToDelete)
     this.pcapSrv.deletePcap(this.pcapToDelete).subscribe(data => {
       this.displayServiceResponse(data);
+    });
+  }
+
+  openPCAPReplayModal(pcap: Object){
+    const dialogRef = this.dialog.open(ReplayPcapDialog, {
+      width: DIALOG_WIDTH,
+      data: pcap['name']
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result)
+      let form = result as FormGroup;
+      if (form && form.valid){
+        this.pcapSrv.replayPcap(form.getRawValue()).subscribe(data => {
+          this.pcapSrv.displaySnackBar("Replaying " + form.get('pcap').value + " on " + form.get('sensor').value +
+                                ". Open the notification manager to track its progress.");
+        });
+      }
     });
   }
 }

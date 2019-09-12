@@ -9,7 +9,7 @@ Param (
 {% endif %}
 {% include 'InstallerCommon.j2' %}
 
-function CheckService([string]$service_name, [OutputErrorValue]$error_flag = [OutputErrorValue]::no_error ) {
+function CheckService([string]$service_name, $error_flag = $no_error ) {
   Sleep 1
   $svc = Get-Service -Name $service_name -ErrorAction SilentlyContinue
   if( -not $svc -or -not $svc.Status -eq "Running" ) {
@@ -27,13 +27,13 @@ Try {
     "`t-logstash_port port_num`tUse port_num as the LogstashSearch port"
     exit -1
   }
-  
+
   function ReplaceInFile([string]$filename, [string]$old_text, [string]$new_text) {
     if($new_text -and $old_text -ne $new_text) {
       (Get-Content $filename -Raw).Replace($old_text, $new_text) | Set-Content $filename
     }
   }
-  
+
   function RegexReplaceInFile([string]$filename, `
                               [string]$prefix, `
                               [string]$target, `
@@ -45,21 +45,22 @@ Try {
                   -old_text ($Matches.pfx + $Matches.tgt) `
                   -new_text ($Matches.pfx + $new_text)
   }
-  
+
   #Install Winlogbeat
   $Error.Clear()
   $wlb_archive = "{{ winlogbeat_installer.files.0.path | win_basename | regex_replace('.zip', '') }}"
-  Expand-Archive -Path .\$wlb_archive.zip -Destination {{ target_dir }}\ -Force
+  Unzip "$FOLDER\$wlb_archive.zip" "C:\Program Files\"
   [String]$wlb_path = '{{ target_dir | regex_replace('[\'"]', "") }}\' + $wlb_archive
   [String]$wlb_dest = '{{ target_dir | regex_replace('[\'"]', "") }}\Winlogbeat'
   Write-Host "wlb_path: ", $wlb_path
   if( Test-Path $wlb_dest ) {
     UninstallWinlogbeat
   }
+
   Rename-Item -Path $wlb_path -NewName Winlogbeat
   [string]$wlb_config = $wlb_dest + "\winlogbeat.yml"
   Copy-Item -Path .\winlogbeat.yml -Destination $wlb_config  -Force
-  
+
   {# Use a bunch of regular expression to find and replace text in winlogbeat.yml. REs are #}
   {# based the default configuration file of version 6.5.2. If the file is changed up in #}
   {# future releases, these REs might not work. #}
@@ -75,17 +76,16 @@ Try {
                        -target '[^\"]*' `
                        -new_text $logstash_port
   }
-  
+
   {{ target_dir }}\Winlogbeat\install-service-winlogbeat.ps1
-  
+
   $wlb_service = Get-Service -Name winlogbeat
   $wlb_service.Start()
 
-  CheckService -service_name winlogbeat -error_flag ([OutputErrorValue]::winlogbeat)
-
+  CheckService -service_name winlogbeat -error_flag ($winlogbeat)
 } Catch {
   Write-Host "Caught exception installing winlogbeat: ", $_.Exception.Message
-  $Script:return_value = $return_value -bor [OutputErrorValue]::winlogbeat
+  $Script:return_value = $return_value -bor $winlogbeat
 }
 
 {% endif %}
@@ -94,20 +94,13 @@ Try {
 #Install Sysmon
 Try {
   $Error.Clear()
-
-  Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon -Force
-
-  if (CheckService -service_name {{ sysmon_service_name }}) {
-    UninstallSysmon
-    Expand-Archive -Path .\Sysmon.zip -Destination {{ target_dir }}\Sysmon -Force
-  }
-  {{ target_dir }}\Sysmon\{{ sysmon_service_name }}.exe -i -accepteula 
-
-  CheckService -service_name {{ sysmon_service_name }} -error_flag ([OutputErrorValue]::sysmon)
-
+  UninstallSysmon
+  Unzip "$FOLDER\Sysmon.zip" "C:\Program Files\Sysmon"
+  {{ target_dir }}\Sysmon\{{ sysmon_service_name }}.exe -i -accepteula
+  CheckService -service_name {{ sysmon_service_name }} -error_flag ($sysmon)
 } Catch {
   Write-Host "Caught exception installing sysmon: ", $_.Exception
-  $Script:return_value = $return_value -bor [OutputErrorValue]::sysmon
+  $Script:return_value = $return_value -bor $sysmon
 }
 {% endif %}
 
@@ -119,8 +112,10 @@ Try {
 
 } Catch {
   Write-Host "Caught exception installing endgame", $_.Exception
-  $Script:return_value = $return_value -bor [OutputErrorValue]::endgame
+  $Script:return_value = $return_value -bor $endgame
 }
 {% endif %}
 
+
+echo "Return Code: $return_value"
 return $return_value

@@ -54,6 +54,10 @@ export class ModalDialogMatComponent implements OnInit {
     return control.controlType === DialogControlTypes.date;
   }
 
+  isDropDown(control: DialogFormControl): boolean {
+    return control.controlType === DialogControlTypes.dropdown;
+  }
+
   public getErrorMessage(control: DialogFormControl): string {
     return control.errors ? control.errors.error_message : '';
   }

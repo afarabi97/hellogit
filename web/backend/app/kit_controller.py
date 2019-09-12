@@ -53,7 +53,7 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     current_kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if current_kit_configuration and current_kickstart_config:
         if current_kit_configuration["form"] and current_kickstart_config["form"]["root_password"]:
-            kit_generator = KitInventoryGenerator(kit_form)
+            kit_generator = KitInventoryGenerator(kit_form, current_kickstart_config["form"])
             kit_generator.generate()
             return True, decode_password(current_kickstart_config["form"]["root_password"])
     return False, None
@@ -130,13 +130,11 @@ def execute_add_node() -> Response:
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
 
             task_idOne = perform_kit.delay(cmd_to_executeOne)
-            print(task_idOne)
             conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                             {"_id": "Kit", "task_id": str(task_idOne), "pid": ""},
                                                             upsert=True)
 
             task_idTwo = perform_add_node.delay(cmd_to_executeTwo)
-            print(task_idTwo)
             conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
                                                             {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
                                                             upsert=True)

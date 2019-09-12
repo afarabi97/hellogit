@@ -7,13 +7,14 @@ from pypsrp.powershell import PSDataStreams
 from pypsrp.shell import Process, SignalCode, WinRS, CommandState
 from pypsrp.wsman import WSMan
 from shared.utils import fix_hostname
+from smbprotocol.exceptions import SMBException
 from smb.SMBConnection import SMBConnection
 from time import sleep
 from typing import Tuple, Union, List
 
 
 WINRM_PROTOCOLS = ("kerberos", "negotiate", "ntlm", "certificate", "smb")
-
+DEFAULT_TIMEOUT = 300
 
 class WinrmFileNotFound(Exception):
     pass
@@ -49,6 +50,8 @@ class WindowsConnectionManager:
         self._winrs = None
         self._smb_command_connected = False
         self._protocol = protocol
+        self._username = username
+        self._password = password
 
         if protocol not in WINRM_PROTOCOLS:
             raise ValueError("Not a valid protocol please use one of " + str(WINRM_PROTOCOLS))
@@ -102,19 +105,19 @@ class WindowsConnectionManager:
                                            password=password,
                                            port=self._port)
 
-    def run_command(self, cmd: str, timeout_seconds: int=300) -> Tuple[str, str, int]:
+    def run_command(self, cmd: str, timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
         """
         Executes a Windows remote command.
         :param cmd: The windows command to run
         :param timeout_seconds: Timeout in seconds defaults to 10.
         :return: return_code, stdout, stderr
-        """
+        """        
         with WinRS(self._wsman) as shell:
             process = Process(shell, cmd)
             process.begin_invoke()
             future_time = datetime.utcnow() + timedelta(seconds=timeout_seconds)
             while process.state == CommandState.RUNNING or process.state == CommandState.PENDING:
-                process.poll_invoke()
+                process.poll_invoke(30)
                 if future_time <= datetime.utcnow():
                     print("The following command timed out: {}".format(cmd))
                     process.signal(SignalCode.CTRL_C)
@@ -124,17 +127,27 @@ class WindowsConnectionManager:
             process.end_invoke()
             return process.stdout.decode("utf-8"), process.stderr.decode("utf-8"), process.rc
 
-    def run_smb_command(self, cmd: str, executable: str="cmd.exe") -> Tuple[str, str, int]:
+    def run_smb_command(self, cmd: str, executable: str="cmd.exe", timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
         if not self._smb_command_connected:
-            self._smb_executer.connect()
-            self._smb_executer.create_service()
+            try:
+                self._smb_executer.connect()
+            except SMBException as e:
+                print(str(e))
+                self._smb_executer = SMBClient(self._host,
+                                               username=self._username,
+                                               password=self._password,
+                                               port=self._port,
+                                               encrypt=False)
+                self._smb_executer.connect()
 
+            self._smb_executer.create_service()
         self._smb_command_connected = True
 
         args = "/c \"{}\""
         if executable == "powershell.exe":
             args = "-noprofile -executionpolicy bypass /c \"{}\""
-        stdout, stderr, rc = self._smb_executer.run_executable(executable, arguments=args.format(cmd))
+
+        stdout, stderr, rc = self._smb_executer.run_executable(executable, arguments=args.format(cmd), run_elevated=True, timeout_seconds=timeout_seconds)
         return stdout.decode("utf-8"), stderr.decode("utf-8"), rc
 
     def cleanup_smb_command_operations(self):

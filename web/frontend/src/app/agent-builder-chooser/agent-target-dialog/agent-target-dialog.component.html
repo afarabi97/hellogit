@@ -7,10 +7,10 @@
         <input matInput formControlName="config_name">
       </mat-form-field>
         <mat-radio-group formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
-          <mat-radio-button value="negotiate">Negotiate</mat-radio-button>
-          <mat-radio-button value="kerberos">Kerberos</mat-radio-button>
-          <mat-radio-button value="ntlm">NTLM</mat-radio-button>
-          <mat-radio-button value="smb">SMB</mat-radio-button>
+          <mat-radio-button value="negotiate" style="margin-bottom: 5px">WinRM Negotiate</mat-radio-button>
+          <mat-radio-button value="kerberos" style="margin-bottom: 5px">WinRM Kerberos</mat-radio-button>
+          <mat-radio-button value="ntlm" style="margin-bottom: 5px">WinRM NTLM</mat-radio-button>
+          <mat-radio-button value="smb">PSEXEC over SMB</mat-radio-button>
         </mat-radio-group>
       </form>
     </mat-step>
@@ -26,11 +26,6 @@
           <input matInput formControlName="domain_name">
         </mat-form-field>
         <mat-error >{{ getErrorMessage(kerberosForm, 'domain_name') }}</mat-error>
-        <mat-form-field>
-          <mat-label>DNS Server IP</mat-label>
-          <input matInput formControlName="dns_server">
-        </mat-form-field>
-        <mat-error >{{ getErrorMessage(kerberosForm, 'dns_server') }}</mat-error>
         <mat-form-field>
           <mat-label>Key Controller Hostname</mat-label>
           <input matInput formControlName="key_controller">
@@ -58,10 +53,6 @@
           <mat-label>Windows DNS Suffix</mat-label>
           <input matInput formControlName="domain_name">
         </mat-form-field>
-        <mat-form-field>
-          <mat-label>DNS Server IP</mat-label>
-          <input matInput formControlName="dns_server">
-        </mat-form-field>
       </form>
     </mat-step>
     <mat-step label="SMB Configuration" *ngIf="isSMB" [stepControl]="smbForm">
@@ -77,10 +68,6 @@
         <mat-form-field>
           <mat-label>Windows DNS Suffix</mat-label>
           <input matInput formControlName="domain_name">
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>DNS Server IP</mat-label>
-          <input matInput formControlName="dns_server">
         </mat-form-field>
       </form>
     </mat-step>

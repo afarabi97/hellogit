@@ -5,13 +5,7 @@ import { FormBuilder, FormControl,
          FormGroup, Validators } from '@angular/forms';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { MatRadioChange } from '@angular/material';
-
-
-export const target_config_validators = {
-  required: [
-    { error_message: 'Required field', validatorFn: 'required' }
-  ]
-}
+import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 
 
 const WINRM_PORT = "5985";
@@ -46,7 +40,8 @@ export class AgentTargetDialogComponent implements OnInit {
     this.isSMB = false;
     this.dnsInstructions = "The \"Windows DNS Suffix\" and \"DNS Server IP\" are optional. If you do not include them, you will need to use the IP address of the Windows target(s). \
                             If you put in the \"DNS Server IP\" and leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate \
-                            fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>)."
+                            fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If you add both the DNS IP and the Windows DNS suffix, \
+                            you will only need to specifiy the Windows hostnames when filling out the targets for this configuration."
   }
 
   onNoClick(): void {
@@ -61,30 +56,26 @@ export class AgentTargetDialogComponent implements OnInit {
 
     this.kerberosForm = this.fb.group({
       port: new FormControl('',
-                  Validators.compose([validateFromArray(target_config_validators.required)])),
+                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       domain_name: new FormControl('',
-                   Validators.compose([validateFromArray(target_config_validators.required)])),
-      dns_server: new FormControl('',
-                  Validators.compose([validateFromArray(target_config_validators.required)])),
+                   Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       key_controller: new FormControl('',
-                  Validators.compose([validateFromArray(target_config_validators.required)])),
+                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       admin_server: new FormControl('',
-                  Validators.compose([validateFromArray(target_config_validators.required)])),
+                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
     });
 
     this.ntlmForm = this.fb.group({
       port: new FormControl('',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
+            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       domain_name: new FormControl(''),
-      dns_server: new FormControl(''),
-      is_ssl: new FormControl(false)      
+      is_ssl: new FormControl(false)
     });
 
     this.smbForm = this.fb.group({
       port: new FormControl('',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
-      domain_name: new FormControl(''),
-      dns_server: new FormControl(''),
+            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      domain_name: new FormControl('')
     });
   }
 

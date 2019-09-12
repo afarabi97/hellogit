@@ -17,6 +17,7 @@ export class NotificationService extends ApiService<any> {
                             {"name": "Kit", "selected": false, "title": "Kit Messages", "role": "kit", "notifications": [], "icon": "storage"},
                             {"name": "RuleSync", "selected": false, "title": "RuleSync Messages", "role": "rulesync", "notifications": [], "icon": "swap_horiz"},
                             {"name": "Agent", "selected": false, "title": "Agent Messages", "role": "agent", "notifications": [], "icon": "desktop_windows"},
+                            {"name": "PCAP", "selected": false, "title": "PCAP Replay", "role": "pcap", "notifications": [], "icon": "network_check"},
                             {"name": "Upgrade", "selected": false, "title": "Upgrade Messages", "role": "upgrade", "notifications": [], "icon": "timeline"}];
 
 

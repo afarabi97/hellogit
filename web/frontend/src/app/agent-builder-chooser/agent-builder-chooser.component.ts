@@ -5,7 +5,7 @@ import { AgentBuilderService, AgentInstallerConfig,
 import * as FileSaver from 'file-saver';
 import { Title } from '@angular/platform-browser';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
-import { AgentTargetDialogComponent, target_config_validators } from './agent-target-dialog/agent-target-dialog.component';
+import { AgentTargetDialogComponent } from './agent-target-dialog/agent-target-dialog.component';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../services/websocket.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,6 +17,8 @@ import { validateFromArray } from '../validators/generic-validators.validator';
 
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
+import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
+
 
 
 const DIALOG_WIDTH = "800px";
@@ -29,11 +31,11 @@ const DIALOG_MAX_HEIGHT = "800px";
 })
 export class AgentBuilderChooserComponent implements OnInit {
   columnsForInstallerConfigs: string[] = ['select', 'config_name', 'winlog_beat_dest_ip',
-                                          'system_arch', 'install_sysmon',
+                                          'install_sysmon',
                                           'install_winlogbeat', 'install_endgame',
                                           'endgame_sensor_name', 'actions'];
 
-  columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'dns_server', 'domain_name', 'actions'];
+  columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'domain_name', 'actions'];
   columnsForHosts: string[] = ['hostname', 'state', 'last_state_change', 'actions'];
 
   savedConfigs: MatTableDataSource<AgentInstallerConfig>;
@@ -80,6 +82,18 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.getSavedConfigs();
     this.getSavedTargetConfigs();
     this.socketRefresh();
+
+    this.agentBuilderSvc.checkLogStashInstalled().subscribe(data =>{
+      let status = data as Array<Object>;
+      if (status && status.length > 0){
+        if (status[0]["status"] !== "DEPLOYED"){
+          this.displaySnackBar("Logstash is not in a deployed state.  Please check the system health page or try to reinstall Logstash on the catalog page.");
+        }
+      } else {
+        this.displaySnackBar("Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. \
+          Please go to the Catalog page and install it.  Failing to install it will cause Winlogbeats and Endgame agent data capture to Elasticsearch to fail.")
+      }
+    });
   }
 
   private socketRefresh(){
@@ -175,9 +189,9 @@ export class AgentBuilderChooserComponent implements OnInit {
         try {
           const installer_blob =
           new Blob([installer_response], {
-            type: 'application/vnd.microsoft.portable-executable'
+            type: 'zip'
           });
-          FileSaver.saveAs(installer_blob, 'monitor_install.exe');
+          FileSaver.saveAs(installer_blob, 'agents.zip');
           this.displaySnackBar("Download complete. Check your Downloads directory for the file.")
         } finally {
           this.is_downloading = false;
@@ -208,9 +222,9 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     let dialogForm = this.fb.group({
       user_name: new DialogFormControl("Domain username", '',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
+            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       password: new DialogFormControl("Domain Password", '',
-            Validators.compose([validateFromArray(target_config_validators.required)]),
+            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
             undefined, undefined, DialogControlTypes.password)
     });
 
@@ -377,16 +391,6 @@ export class AgentBuilderChooserComponent implements OnInit {
     return config.ntlm.port;
   }
 
-  getDNSIP(config: IpTargetList): string {
-    if (config.protocol === "kerberos"){
-      return config.kerberos.dns_server;
-    } else if (config.protocol === "smb"){
-      return config.smb.dns_server;
-    }
-
-    return config.ntlm.dns_server;
-  }
-
   getDomainSuffix(config: IpTargetList): string {
     if (config.protocol === "kerberos"){
       return config.kerberos.domain_name;
@@ -425,7 +429,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     console.log(targetConfig);
     let dialogForm = this.fb.group({
       hostnames: new DialogFormControl("Windows Hostname", '',
-                                       Validators.compose([validateFromArray(target_config_validators.required)]),
+                                       Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
                                        undefined,
                                        "The application will attempt to install agents to the Windows machines specified.",
                                        DialogControlTypes.textarea)

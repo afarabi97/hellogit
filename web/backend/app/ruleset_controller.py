@@ -323,7 +323,7 @@ def validate_rule() -> Response:
     elif rule_type == RULE_TYPES[1]:
         is_success, error_output = _validate_bro_rule(rule)
         if is_success:
-            return jsonify({"success_message": "Bro script successfully validated!"})
+            return jsonify({"success_message": "Zeek script successfully validated!"})
 
     return jsonify({"error_message": error_output.split('\n')})
 

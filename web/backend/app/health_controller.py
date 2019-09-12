@@ -298,17 +298,17 @@ def get_pipeline_status() -> Response:
     if kit:
         for node in kit["form"]["nodes"]:
             if node['node_type'] == NODE_TYPES[1]:
-                elastic_external_address = get_kubernetes_service_ip("elasticsearch")
+                elastic_external_address = get_kubernetes_service_ip("elasticsearch-master")
                 pos = node['hostname'].rfind(".")
                 hostname_no_tld = node['hostname'][:pos]
                 suricata_deployment_name = _get_suricata_deployment_name(node)
 
                 bro_url = ("http://{elastic_ip}:9200/logstash-zeek-*/"
-                           "_search?size=1&_source=@timestamp&sort=@timestamp:desc&q=sensor_name:{hostname}"
+                           "_search?size=1&_source=@timestamp&sort=@timestamp:desc&q=sensor_name:\"{hostname}\""
                            .format(elastic_ip=elastic_external_address, hostname=node['hostname']))
 
                 suricata_url = ("http://{elastic_ip}:9200/filebeat-*/_search?"
-                                "size=1&_source=@timestamp&sort=@timestamp:desc&q=beat.name:{suricata_deployment} AND tags:suricata"
+                                "size=1&_source=@timestamp&sort=@timestamp:desc&q=agent.name:{suricata_deployment} AND tags:suricata"
                                 .format(elastic_ip=elastic_external_address, suricata_deployment=suricata_deployment_name))
 
                 moloch_url = ("http://{elastic_ip}:9200/sessions2*/_search?size=1&_source=timestamp&sort=timestamp:desc&q=node:{hostname_no_tld}"

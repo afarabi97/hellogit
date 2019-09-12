@@ -20,17 +20,17 @@
       <input matInput placeholder="Group Name" type="text" id="groupName" formControlName="groupName" required>
     </mat-form-field>
     <mat-form-field>
-      <mat-label>Sensors</mat-label>
-      <mat-select formControlName="sensors" multiple>
-        <mat-option *ngFor="let sensor of sensorListSelection" [value]="sensor">{{sensor}}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field>
       <mat-label>Rule Type</mat-label>
-      <mat-select id="appType" formControlName="appType">
+      <mat-select id="appType" formControlName="appType" (selectionChange)="changeSensorList($event)">
         <mat-option *ngFor="let type of ruleType" [value]="type.value">
           {{type.value}}
         </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Sensors</mat-label>
+      <mat-select formControlName="sensors" multiple>
+        <mat-option *ngFor="let sensor of sensorListSelection" [value]="sensor">{{sensor}}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-checkbox [checked]="isRuleSetEnabled()" formControlName="isEnabled">Is Enabled?</mat-checkbox>

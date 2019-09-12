@@ -1,6 +1,6 @@
 {% include 'InstallerCommon.j2' %}
 
-function CheckNoService([string]$service_name, [OutputErrorValue]$error_flag) {
+function CheckNoService([string]$service_name, $error_flag) {
   Sleep 1
   $svc = Get-Service -Name $service_name -ErrorAction SilentlyContinue
   if( $svc ) {
@@ -13,14 +13,14 @@ function CheckNoService([string]$service_name, [OutputErrorValue]$error_flag) {
 {% if install_sysmon | upper == 'TRUE' %}
 #Uninstall Sysmon
 UninstallSysmon
-CheckNoService -service_name {{ sysmon_service_name }} -error_flag ([OutputErrorValue]::sysmon)
+CheckNoService -service_name {{ sysmon_service_name }} -error_flag ($sysmon)
 {% endif %}
 
 
 {% if install_winlogbeat | upper == 'TRUE' %}
 #Uninstall Winlogbeat
 UninstallWinlogbeat
-CheckNoService -service_name winlogbeat -error_flag ([OutputErrorValue]::winlogbeat)
+CheckNoService -service_name winlogbeat -error_flag ($winlogbeat)
 {% endif %}
 
 {% if install_endgame | upper == 'TRUE' %}
@@ -29,4 +29,5 @@ CheckNoService -service_name winlogbeat -error_flag ([OutputErrorValue]::winlogb
 {% include 'EndgameInstaller.j2' %}
 {% endif %}
 
+echo "Return Code: $return_value"
 return $return_value

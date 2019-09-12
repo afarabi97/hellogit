@@ -7,7 +7,7 @@ import { Rule, IRule, IError, ErrorMessage,
          ISuccess, SuccessMessage,
          IHostInfo, HostInfo } from '../interface/rule.interface';
 import { HttpHeaders } from '@angular/common/http';
-import { MatTableDataSource } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -20,10 +20,6 @@ export class PolicyManagementService {
     public isUserEditing: boolean = false;
     public activeConfigDataTitle: string;
     public activeConfigData: string;
-    // public ruleSets: any;
-    // public dataSource = new MatTableDataSource();
-    // public innerDataSource = new MatTableDataSource();
-    // public innerRules;
 
     public editRuleSet: RuleSet;
     public editRule: Rule;
@@ -38,10 +34,10 @@ export class PolicyManagementService {
 
      ruleType: any[] = [
         {value: 'Suricata'},
-        {value: 'Bro'},
+        {value: 'Zeek'},
      ];
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private snackBar: MatSnackBar) {
         this.activeConfigDataTitle = "";
         this.activeConfigData = "";
     }
@@ -211,5 +207,14 @@ export class PolicyManagementService {
     syncRuleSets(){
         const url = '/api/sync_rulesets';
         return this.http.get(url).pipe();
+    }
+
+    checkCatalogStatus(application: string): Observable<Object> {
+      const url = `/api/catalog/chart/${application}/status`;
+      return this.http.get(url);
+    }
+
+    displaySnackBar(message: string, duration_seconds: number = 60){
+      this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
     }
 }

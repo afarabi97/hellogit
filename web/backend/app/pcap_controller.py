@@ -1,11 +1,14 @@
 import hashlib
-from app import app, logger
+from app import app, logger, conn_mng
+from app.common import OK_RESPONSE, ERROR_RESPONSE
+from shared.constants import KICKSTART_ID
+from app.service.pcap_service import replay_pcap_srv
 from datetime import datetime
 from flask import jsonify, request, Response
 from pathlib import Path
 from pymongo.results import InsertOneResult
 from shared.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
-from shared.utils import hash_file
+from shared.utils import hash_file, decode_password
 from werkzeug.utils import secure_filename
 from bson import ObjectId
 
@@ -16,12 +19,12 @@ def get_pcaps() -> Response:
     pcap_dir = Path(PCAP_UPLOAD_DIR)
     for pcap in pcap_dir.glob("*.pcap"):
         dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-        hashes = hash_file(str(pcap))        
-        pcap = {'name': pcap.name, 
+        hashes = hash_file(str(pcap))
+        pcap = {'name': pcap.name,
                 'size': pcap.stat().st_size,
-                'createdDate': datetime.fromtimestamp(pcap.stat().st_mtime).strftime(DATE_FORMAT_STR), 
-                'hashes': hashes}    
-        ret_val.append(pcap)    
+                'createdDate': datetime.fromtimestamp(pcap.stat().st_mtime).strftime(DATE_FORMAT_STR),
+                'hashes': hashes}
+        ret_val.append(pcap)
     return jsonify(sorted(ret_val, key=lambda x: x['name']))
 
 
@@ -29,11 +32,11 @@ def get_pcaps() -> Response:
 def create_pcap() -> Response:
     if 'upload_file' not in request.files:
         return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
-    
+
     pcap_dir = Path(PCAP_UPLOAD_DIR)
     if not pcap_dir.exists():
         pcap_dir.mkdir(parents=True, exist_ok=True)
-    
+
     pcap_file = request.files['upload_file']
     filename = secure_filename(pcap_file.filename)
 
@@ -53,3 +56,15 @@ def delete_pcap(pcap_name: str) -> Response:
         pcap_file.unlink()
         return jsonify({"success_message": "PCAP successfully deleted!"})
     return jsonify({"error_message": "PCAP failed to delete!"})
+
+
+@app.route('/api/replay_pcap', methods=['POST'])
+def replay_pcap() -> Response:
+    payload = request.get_json()
+    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if kickstart_configuration:
+        root_password = decode_password(kickstart_configuration["form"]["root_password"])
+        replay_pcap_srv.delay(payload, root_password)
+        return OK_RESPONSE
+
+    return ERROR_RESPONSE

@@ -25,7 +25,7 @@ def main():
     out_test_case_dir = SCRIPT_DIR + '/testcases/userdefined'
     Path(out_test_case_dir).mkdir(parents=True, exist_ok=True)
 
-    for path in Path(test_cases_dir).glob("*.yml"):
+    for path in Path(test_cases_dir).glob("test*.yml"):
         yml_content = None
         out_file_name = (folder_name + "_" + path.name).lower()
         with open(str(path), 'r') as kit_schema:

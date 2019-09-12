@@ -18,7 +18,7 @@ KICKSTART_ID = "kickstart_form"
 DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
 
 RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
-RULE_TYPES = ("Suricata", "Bro")
+RULE_TYPES = ("Suricata", "Zeek")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
 SURICATA_IMAGE_VERSION = "4.1.4"

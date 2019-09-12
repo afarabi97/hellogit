@@ -7,6 +7,9 @@ import { FormBuilder, FormControl,
          ValidationErrors} from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EndgameService } from './endgame.service'
+import { MatStepper } from '@angular/material';
+import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
+import { validateFromArray } from 'src/app/validators/generic-validators.validator';
 
 const TRAFFIC_DEST_DESC: string = "If you have a DIP setup with a PF Sense firewall, please enter the external IP Address of that here. \
                                    If not, please provide the Kuberenetes service IP Address.  When entering the PF sense firewall, keep in mind \
@@ -57,21 +60,19 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   ngOnInit() {
     this.newHostAgentForm = this.fb.group({
-      config_name: new FormControl('', Validators.compose([Validators.required])),
-      system_arch: new FormControl('', Validators.compose([Validators.required])),
+      config_name: new FormControl('', Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)])),
       install_sysmon: new FormControl(false),
       install_winlogbeat: new FormControl(false),
-      winlog_beat_dest_ip: new FormControl(''),
+      winlog_beat_dest_ip: new FormControl(),
       winlog_beat_dest_port: new FormControl('5045'),
       install_endgame: new FormControl(false),
 
       endgame_sensor_id: new FormControl(),
       endgame_sensor_name: new FormControl(),
-
       endgame_server_ip: new FormControl(),
       endgame_user_name: new FormControl(),
       endgame_password: new FormControl(),
-      endgame_port: new FormControl('443')
+      endgame_port: new FormControl('443', Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]))
     });
 
     this.newHostAgentForm.setValidators(this.formLevelValidations);
@@ -89,8 +90,8 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   toggleWinlogBeatValidators(event: MatCheckboxChange) {
     if (event.checked) {
-      this.newHostAgentForm.get('winlog_beat_dest_ip').setValidators(Validators.compose([Validators.required]));
-      this.newHostAgentForm.get('winlog_beat_dest_port').setValidators(Validators.compose([Validators.required]));
+      this.newHostAgentForm.get('winlog_beat_dest_ip').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
+      this.newHostAgentForm.get('winlog_beat_dest_port').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
     } else{
       this.newHostAgentForm.get('winlog_beat_dest_ip').setValidators(null);
       this.newHostAgentForm.get('winlog_beat_dest_port').setValidators(null);
@@ -99,11 +100,11 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   toggleEndgameValidators(event: MatCheckboxChange) {
     if (event.checked) {
-      this.newHostAgentForm.get('endgame_sensor_id').setValidators(Validators.compose([Validators.required]));
-      this.newHostAgentForm.get('endgame_server_ip').setValidators(Validators.compose([Validators.required]));
-      this.newHostAgentForm.get('endgame_user_name').setValidators(Validators.compose([Validators.required]));
-      this.newHostAgentForm.get('endgame_password').setValidators(Validators.compose([Validators.required]));
-      this.newHostAgentForm.get('endgame_port').setValidators(Validators.compose([Validators.required]));
+      this.newHostAgentForm.get('endgame_sensor_id').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      this.newHostAgentForm.get('endgame_server_ip').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
+      this.newHostAgentForm.get('endgame_user_name').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      this.newHostAgentForm.get('endgame_password').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      this.newHostAgentForm.get('endgame_port').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
     } else {
       this.newHostAgentForm.get('endgame_sensor_id').setValidators(null);
       this.newHostAgentForm.get('endgame_server_ip').setValidators(null);
@@ -143,7 +144,7 @@ export class AgentInstallerDialogComponent implements OnInit {
     this.dialogRef.close(this.newHostAgentForm);
   }
 
-  getEndgameSensorProfiles() {
+  getEndgameSensorProfiles(stepper: MatStepper) {
     this.endgame_server_reachable = false;
     if(this.newHostAgentForm.get('endgame_password').valid &&
        this.newHostAgentForm.get('endgame_server_ip').valid &&
@@ -158,7 +159,8 @@ export class AgentInstallerDialogComponent implements OnInit {
           for (let profile of profile_data){
             this.sensor_profiles.push({name: profile['name'], value: profile['id']})
           }
-          this.snackBar.open("Successfully connected to Endgame. You can now go to the next step in the process.", "Close", { duration: 5000});
+          stepper.next();
+          this.snackBar.open("Successfully connected to Endgame.", "Close", { duration: 5000});
         },
         err => {
             this.endgame_server_reachable = false;
@@ -166,5 +168,9 @@ export class AgentInstallerDialogComponent implements OnInit {
         }
       );
     }
+  }
+
+  public getErrorMessage(control: FormControl | AbstractControl): string {
+    return control.errors ? control.errors.error_message : '';
   }
 }

@@ -29,7 +29,10 @@ common:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
 
 dnsmasq:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq --extra-vars "run_option=install"
+
+update_ctrl_dns:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t update_ctrl_dns
 
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
@@ -105,19 +108,3 @@ janitor-rerun:
 
 change-interfaces:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces,vars-configmap
-
-#Requires FIREWALL_URL and LOGSTASH_PORT to be specified on the command line, e.g.
-#make winlogbeat FIREWALL_URL=localhost LOGSTASH_PORT=9200 INSTALL_WLB=TRUE INSTALL_SYSMON=TRUE
-winlogbeat:
-	ansible-playbook winlogbeat.yml -i $(INVENTORY) -t winlogbeat \
-	--extra-vars "winlog_beat_dest_ip=$(WINLOG_BEAT_DEST_IP) winlog_beat_dest_port=$(LOGSTASH_PORT) \
-	install_winlogbeat=$(INSTALL_WLB) install_sysmon=$(INSTALL_SYSMON) \
-	install_endgame=$(INSTALL_ENDGAME) \
-	endgame_server=$(ENDGAME_SERVER) \
-	endgame_port=$(ENDGAME_PORT) \
-	endgame_user='$(ENDGAME_USER)' \
-	endgame_password=$(ENDGAME_PASSWORD) \
-	endgame_config_name='$(ENDGAME_CONFIG_NAME)' \
-	endgame_vdi=$(ENDGAME_VDI) \
-	endgame_dissolvable=$(ENDGAME_DISSOLVABLE) \
-	endgame_sensor_id=$(ENDGAME_SENSOR_ID)"

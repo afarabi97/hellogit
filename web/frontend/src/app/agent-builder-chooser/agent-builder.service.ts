@@ -50,7 +50,6 @@ export class WindowsCreds {
 
 export class Kerberos {
   domain_name: string;
-  dns_server: string;
   key_controller: string;
   admin_server: string;
   port: string;
@@ -58,13 +57,11 @@ export class Kerberos {
   constructor(configs: Kerberos) {
     if (configs){
       this.domain_name = configs.domain_name;
-      this.dns_server = configs.dns_server;
       this.key_controller = configs.key_controller;
       this.admin_server = configs.admin_server;
       this.port = configs.port;
     } else {
       this.domain_name = "";
-      this.dns_server = "";
       this.key_controller = "";
       this.admin_server = "";
       this.port = "";
@@ -74,7 +71,6 @@ export class Kerberos {
 
 export class Ntlm {
   domain_name: string;
-  dns_server: string;
   is_ssl: boolean;
   port: string;
 
@@ -82,12 +78,10 @@ export class Ntlm {
     if (ntlm){
       this.is_ssl = ntlm.is_ssl;
       this.port = ntlm.port;
-      this.dns_server = ntlm.dns_server;
       this.domain_name = ntlm.domain_name;
     } else {
       this.is_ssl = false;
       this.port = "";
-      this.dns_server = "";
       this.domain_name = "";
     }
   }
@@ -95,17 +89,14 @@ export class Ntlm {
 
 export class SMB {
   domain_name: string;
-  dns_server: string;
   port: string;
 
   constructor(smb: SMB){
-    if (smb){      
+    if (smb){
       this.port = smb.port;
-      this.dns_server = smb.dns_server;
       this.domain_name = smb.domain_name;
     } else {
       this.port = "";
-      this.dns_server = "";
       this.domain_name = "";
     }
   }
@@ -163,7 +154,6 @@ export class AgentInstallerConfig {
 
   endgame_server_ip: string;
   endgame_user_name: string;
-  system_arch: string;
 
 
   constructor(obj: AgentInstallerConfig){
@@ -180,7 +170,6 @@ export class AgentInstallerConfig {
     this.endgame_user_name = obj.endgame_user_name;
     this.endgame_server_ip = obj.endgame_server_ip;
     this.endgame_sensor_id = obj.endgame_sensor_id;
-    this.system_arch = obj.system_arch;
   }
 }
 
@@ -323,4 +312,10 @@ export class AgentBuilderService {
     payload['target'] = target;
     return this.http.post(url, payload)
   }
+
+  checkLogStashInstalled(): Observable<Object> {
+    const url = "/api/catalog/chart/logstash/status";
+    return this.http.get(url);
+  }
+
 }

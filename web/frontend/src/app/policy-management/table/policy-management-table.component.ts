@@ -78,6 +78,21 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     });
   }
 
+  private checkBroSuricataBothInstalled(){
+    this.policySrv.checkCatalogStatus("suricata").subscribe(suricata => {
+      let suricata_status = suricata as Array<Object>;
+      this.policySrv.checkCatalogStatus("zeek").subscribe(zeek => {
+        let zeek_status = zeek as Array<Object>;
+        if (suricata_status && suricata_status.length == 0){
+          if (zeek_status && zeek_status.length == 0){
+            this.displaySnackBar("Before using this page, you need to have at least one sensor that has either \
+                                  Zeek or Suricata installed. Go to the catalog page and install one or both of those applications.")
+          }
+        }
+      });
+    });
+  }
+
   ngOnInit() {
     this.ruleSetsDataSource.filterPredicate = (data, filter: string)  => {
       const accumulator = (currentTerm, key) => {
@@ -93,6 +108,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     this.ruleSetsDataSource.sort = this.sort;
 
     this.reloadRuleSetTable();
+    this.checkBroSuricataBothInstalled();
     this.socketRefresh();
   }
 

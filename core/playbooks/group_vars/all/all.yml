@@ -58,6 +58,7 @@ package_list:
   - net-tools
   - lsof
   - rsync
+  - tcpreplay
 
 
 pip_installs:

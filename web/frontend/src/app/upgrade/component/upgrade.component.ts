@@ -4,19 +4,9 @@ import {FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractCont
 import { MatStepper } from '@angular/material/stepper';
 import { KickstartService } from 'src/app/services/kickstart.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
-import { IP_CONSTRAINT } from 'src/app/frontend-constants';
+import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-
-export const UPGRADE_VALIDATORS = {
-  required: [
-    { error_message: 'Required field', validatorFn: 'required' }
-  ],
-  isValidIP: [
-    { error_message: 'Invalid IP Address', validatorFn: 'pattern', ops: { pattern: new RegExp(IP_CONSTRAINT) } },
-    { error_message: 'Required field', validatorFn: 'required' }
-  ]
-}
 
 @Component({
   selector: 'app-upgrade',
@@ -43,15 +33,15 @@ export class UpgradeComponent implements OnInit {
     });
 
     this.upgradeFormGroup = this.formBuilder.group({
-      original_controller_ip: new FormControl('', Validators.compose([ validateFromArray(UPGRADE_VALIDATORS.isValidIP) ])),
-      new_ctrl_ip: new FormControl('', Validators.compose([validateFromArray(UPGRADE_VALIDATORS.required)])),
+      original_controller_ip: new FormControl('', Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP) ])),
+      new_ctrl_ip: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       hidden: new FormControl(undefined, Validators.compose([Validators.required])),
     });
 
     this.upgradePathFormGroup = this.formBuilder.group({
-      selectedPath: new FormControl('', Validators.compose([validateFromArray(UPGRADE_VALIDATORS.required)])),
-      username: new FormControl('', Validators.compose([validateFromArray(UPGRADE_VALIDATORS.required)])),
-      password: new FormControl('', Validators.compose([validateFromArray(UPGRADE_VALIDATORS.required)])),
+      selectedPath: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      username: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
+      password: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
     });
   }
 

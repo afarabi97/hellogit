@@ -1,6 +1,6 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatSelectChange } from '@angular/material';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { IHostInfo } from '../interface/rule.interface';
 import { RuleSet } from '../interface/ruleSet.interface';
@@ -31,19 +31,40 @@ export class PolicyManagementAddDialog  implements OnInit {
   }
 
   ngOnInit() {
-    this.policySrv.getSensorHostInfo().subscribe(data => {
-      this.sensorList = data;
-      this.sensorListSelection = [];
-
-      for (let item of this.sensorList){
-        this.sensorListSelection.push(item.hostname);
-      }
-    });
-
+    this.changeSensorSelection();
     if (this.data === 'edit') {
       this.initializeForm(this.policySrv.editRuleSet, true);
     } else {
       this.initializeForm(null);
+    }
+  }
+
+  private changeSensorSelection(application:string = "suricata"){
+    this.policySrv.getSensorHostInfo().subscribe(data => {
+      this.sensorList = data;
+      this.sensorListSelection = [];
+
+      this.policySrv.checkCatalogStatus(application).subscribe(data => {
+        let statuses = data as Array<Object>;
+        for (let item of statuses) {
+          if (item["status"] === "DEPLOYED") {
+            this.sensorListSelection.push(item["hostname"]);
+          }
+        }
+
+        if (this.sensorListSelection.length === 0){
+          this.policySrv.displaySnackBar("No sensors have " + application + " installed. To fix this go to \
+                                          the catalog page and install the desired application.");
+        }
+      });
+    });
+  }
+
+  changeSensorList(event: MatSelectChange){
+    if (event.value === "Suricata"){
+      this.changeSensorSelection();
+    } else if (event.value === "Zeek"){
+      this.changeSensorSelection("zeek");
     }
   }
 

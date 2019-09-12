@@ -21,3 +21,14 @@ export const CTRL_SELECTED = "A controller interface must first be selected.";
 export const SENSOR_APPS = ["bro", "suricata", "moloch"];
 export const GENERAL_KIT_FAILURE_MSG = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';
 export const NODE_TYPES = ["Server", "Sensor"];
+
+
+export const COMMON_VALIDATORS = {
+  required: [
+    { error_message: 'Required field', validatorFn: 'required' }
+  ],
+  isValidIP: [
+    { error_message: 'Invalid IP Address', validatorFn: 'pattern', ops: { pattern: new RegExp(IP_CONSTRAINT) } },
+    { error_message: 'Required field', validatorFn: 'required' }
+  ]
+}

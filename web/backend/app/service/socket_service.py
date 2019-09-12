@@ -73,10 +73,12 @@ class NotificationMessage(object):
     def post_to_websocket_api(self) -> None:
         try:
             notification = self.toJson()
+            result = conn_mng.mongo_notifications.insert_one(notification)
+            if result and result.inserted_id:
+                notification["_id"] = str(result.inserted_id)
             socketio.emit(self.messageType, notification, broadcast=True)
-            conn_mng.mongo_notifications.insert_one(notification)
         except Exception as exc:
-            logger.error(exc)
+            logger.exception(exc)
 
 
 def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> None:

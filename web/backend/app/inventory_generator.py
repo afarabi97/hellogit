@@ -67,8 +67,9 @@ class KitInventoryGenerator:
     """
     The KitInventory generator class
     """
-    def __init__(self, kit_form: Dict):
+    def __init__(self, kit_form: Dict, kickstart_form: Dict):
         self._template_ctx = kit_form
+        self._kickstart_form = kickstart_form
 
         self._servers_list = get_servers_from_list(self._template_ctx["nodes"])
         self._sensors_list = get_sensors_from_list(self._template_ctx["nodes"])
@@ -110,6 +111,9 @@ class KitInventoryGenerator:
         if "remove_node" not in self._template_ctx:
             self._template_ctx["remove_node"] = ''
 
+    def _set_pfsense_ipaddress(self) -> None:
+        self._template_ctx["pfsense_ipaddress"] = self._kickstart_form["gateway"]
+
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
@@ -117,6 +121,8 @@ class KitInventoryGenerator:
         """
         self._set_defaults()
         self._set_reservations()
+        self._set_pfsense_ipaddress()
+
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
         if not os.path.exists(str(CORE_DIR / 'playbooks')):

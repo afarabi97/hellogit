@@ -9,6 +9,7 @@ from bson import ObjectId
 import requests
 from celery import chain
 from app.catalog import Catalog
+from typing import Set, List
 
 TILLER_SERVER = None
 CHART_LIST = None
@@ -26,8 +27,32 @@ def check_catalog(force:bool = False) -> None:
 @app.route('/api/catalog/<application>/saved_values', methods=['GET'])
 def get_saved_values(application: str) -> str:
     if application:
-            saved_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": application }))
-            return JSONEncoder().encode(saved_values)
+        saved_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": application }))
+        return JSONEncoder().encode(saved_values)
+
+    return ERROR_RESPONSE
+
+
+def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
+    for config in values:
+        if sensor_hostname == config["values"]["node_hostname"]:
+            for iface_name in config["values"]["interfaces"]:
+                out_ifaces.add(iface_name)
+
+
+@app.route('/api/catalog/get_configured_ifaces/<sensor_hostname>', methods=['GET'])
+def get_configured_ifaces(sensor_hostname: str):
+    if sensor_hostname:
+        ifaces = set()
+        zeek_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "zeek" }))
+        suricata_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "suricata" }))
+        if zeek_values and len(zeek_values) > 0:
+            _add_to_set(sensor_hostname, zeek_values, ifaces)
+
+        if suricata_values and len(suricata_values) > 0:
+            _add_to_set(sensor_hostname, suricata_values, ifaces)
+
+        return jsonify(list(ifaces))
     return ERROR_RESPONSE
 
 

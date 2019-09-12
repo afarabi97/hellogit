@@ -10,11 +10,14 @@ import shutil
 import tempfile
 import json
 import copy
+import zipfile
 
 from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
-from app.service.job_service import run_command, run_command2
-from app.service.agent_service import perform_agent_reinstall, add_dns_entry, remove_dns_entry
+from app.service.job_service import run_command2
+from app.service.agent_service import (perform_agent_reinstall,
+                                       build_agent_if_not_exists,
+                                       AGENT_FILENAME_x64, AGENT_FILENAME_x32)
 from bson import ObjectId
 from celery import chain, group, chord
 from copy import copy
@@ -22,9 +25,9 @@ from flask import send_file, Response, request, jsonify
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
-from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR
 from shared.connection_mngs import MongoConnectionManager
-from shared.utils import encode_password, decode_password, fix_hostname, sanitize_dictionary
+from shared.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
 from werkzeug.utils import secure_filename
 
@@ -39,42 +42,6 @@ JINJA_ENV = Environment(
 )
 
 
-def _get_extra_vars_build(payload: Dict, install_path_str: str):
-    installer_config = payload['installer_config']
-    extra_vars = {
-        "winlog_beat_dest_ip": "" if installer_config['winlog_beat_dest_ip'] == None else installer_config['winlog_beat_dest_ip'].strip(),
-        "system_arch": "" if installer_config['system_arch'] == None else installer_config['system_arch'].strip(),
-        "installer_dir": install_path_str,
-        "winlog_beat_dest_port": "" if installer_config['winlog_beat_dest_port'] == None else installer_config['winlog_beat_dest_port'].strip(),
-        "install_winlogbeat": installer_config['install_winlogbeat'],
-        "install_sysmon": installer_config['install_sysmon'],
-        "install_endgame": installer_config['install_endgame'],
-        "endgame_server": "" if installer_config['endgame_server_ip'] == None else installer_config['endgame_server_ip'].strip(),
-        "endgame_port": "" if installer_config['endgame_port'] == None else installer_config['endgame_port'].strip(),
-        "endgame_user": "" if installer_config['endgame_user_name'] == None else installer_config['endgame_user_name'].strip(),
-        "endgame_password": decode_password(installer_config['endgame_password']).replace('$', '\\$'),
-        "endgame_sensor_id": installer_config['endgame_sensor_id'],
-        "targets": []
-    }
-    return extra_vars
-
-
-def _build_agent_if_not_exists(payload: Dict):    
-    folder_name = payload['installer_config']['_id']
-    agent_dir = Path(AGENT_UPLOAD_DIR + "/" + folder_name)
-    agent_path = Path('{}/{}'.format(str(agent_dir), 'monitor_install.exe'))
-    if not agent_path.exists():
-        agent_dir.mkdir(parents=True, exist_ok=True)
-        extra_vars = _get_extra_vars_build(payload, str(agent_dir))
-        command = "ansible-playbook winlogbeat.yml -i inventory.yml -t winlogbeat \
-                    --extra-vars '{}'".format(extra_vars)
-        logger.debug("Command: {}".format(command))
-
-        stdout = run_command(command, working_dir = str(PLAYBOOK_DIR))
-        if stdout:
-            logger.debug(stdout)
-
-
 @app.route('/api/generate_windows_installer', methods=['POST'])
 def build_installer() -> Response:
     """
@@ -87,13 +54,22 @@ def build_installer() -> Response:
     sanitize_dictionary(payload)
     installer_config = payload['installer_config']
     folder_name = installer_config['_id']
-    agent_dir = Path(AGENT_UPLOAD_DIR + "/" + folder_name)    
-    _build_agent_if_not_exists(payload)
+    agent_dir = Path(AGENT_UPLOAD_DIR + "/" + folder_name)
+    build_agent_if_not_exists(payload, AGENT_FILENAME_x64, "x86_64")
+    build_agent_if_not_exists(payload, AGENT_FILENAME_x32, "x86")
 
-    agent_path = Path('{}/{}'.format(str(agent_dir), 'monitor_install.exe'))
-    logger.debug('Sending file: {}'.format(agent_path))
-    ret_value = send_file(str(agent_path), mimetype='application/vnd.microsoft.portable-executable')
-    return ret_value
+    agent_path_64 = Path('{}/{}'.format(str(agent_dir), AGENT_FILENAME_x64))
+    agent_path_32 = Path('{}/{}'.format(str(agent_dir), AGENT_FILENAME_x32))
+
+    zip_path = str(agent_dir) + '/agents.zip'
+    zipf = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
+    zipf.write(str(agent_path_64), "/agents/" + AGENT_FILENAME_x64)
+    zipf.write(str(agent_path_32), "/agents/" + AGENT_FILENAME_x32)
+    zipf.close()
+    logger.debug('Sending file: {}'.format(zip_path))
+    return send_file(zip_path,
+                     mimetype='zip',
+                     attachment_filename='agents.zip')
 
 
 @app.route('/api/endgame_sensor_profiles', methods=['POST'])
@@ -172,6 +148,7 @@ def save_agent_installer_target_list() -> Response:
         field='name',
         cnxn = win_targets_cnxn,
         return_func = get_agent_installer_target_lists)
+
 
 @app.route('/api/delete_agent_installer_target_list/<name>', methods=['DELETE'])
 def delete_agent_installer_target_list(name: str) -> Response:
@@ -289,22 +266,13 @@ def _create_kerberos_configuration(target_config: Dict):
 
 def _create_and_run_celery_tasks(payload: Dict,
                                  targets: Union[List, str],
-                                 do_uninstall_only=False):
+                                 do_uninstall_only:bool=False):
     tasks = []
     if isinstance(targets, str):
         targets = [targets]
 
     target_config = payload['target_config']
-    if (target_config["protocol"] == "ntlm" or
-        target_config["protocol"] == "negotiate"):
-        dns_server_ip = target_config["ntlm"]["dns_server"]
-        add_dns_entry(dns_server_ip)
-    elif target_config["protocol"] == "smb":
-        dns_server_ip = target_config["smb"]["dns_server"]
-        add_dns_entry(dns_server_ip)
-    elif target_config["protocol"] == "kerberos":
-        dns_server_ip = target_config["kerberos"]["dns_server"]
-        add_dns_entry(dns_server_ip)
+    if target_config["protocol"] == "kerberos":
         _create_kerberos_configuration(target_config)
         username = payload["windows_domain_creds"]["user_name"]
         password = payload["windows_domain_creds"]["password"]
@@ -313,14 +281,9 @@ def _create_and_run_celery_tasks(payload: Dict,
     else:
         raise ValueError("Protocol not supported")
 
-    _, ret_val = run_command2("systemctl restart celery")
-    if ret_val != 0:
-        return ERROR_RESPONSE
-
     for hostname_or_ip in targets:
         tasks.append(perform_agent_reinstall.si(payload, hostname_or_ip, do_uninstall_only))
 
-    tasks.append(remove_dns_entry.si(dns_server_ip))
     chain(*tasks)()
 
 
@@ -334,13 +297,6 @@ def uninstall_agents() -> Response:
     if len(targets) == 0:
         return jsonify({"message": "Failed to initiate uninstall task. No targets were specified for this configuration. Did you forget to add them?"})
 
-    try:
-        _build_agent_if_not_exists(payload)
-    except TypeError:
-        return jsonify({"message": "Failed ot initiate uninstall task. \
-                                    Did you forget to select a Windows installer \
-                                    configuration in step 1?."})
-
     _create_and_run_celery_tasks(payload, targets, do_uninstall_only=True)
     return jsonify({"message": "Initiated uninstall task. Open the notification manager to track its progress."})
 
@@ -351,13 +307,6 @@ def uninstall_agent() -> Response:
     sanitize_dictionary(payload)
     target = payload['target']
 
-    try:
-        _build_agent_if_not_exists(payload)
-    except TypeError:
-        return jsonify({"message": "Failed ot initiate uninstall task on {}. \
-                                    Did you forget to select a Windows installer \
-                                    configuration in step 1?.".format(hostname)})
-
     _create_and_run_celery_tasks(payload, target['hostname'], do_uninstall_only=True)
     return jsonify({"message": "Initiated uninstall task on {}. \
                     Open the notification manager to track its progress.".format(target["hostname"])})
@@ -365,19 +314,12 @@ def uninstall_agent() -> Response:
 
 @app.route('/api/install_agents', methods=['POST'])
 def install_agents() -> Response:
-    payload = request.get_json()    
+    payload = request.get_json()
     sanitize_dictionary(payload)
     target_config = payload['target_config']
     targets = [target['hostname'] for target in target_config.pop('targets')]
     if len(targets) == 0:
         return jsonify({"message": "Failed to initiated install task. No targets were specified for this configuration. Did you forget to add them?"})
-
-    try:
-        _build_agent_if_not_exists(payload)
-    except TypeError:
-        return jsonify({"message": "Failed ot initiate install task. \
-                                    Did you forget to select a Windows installer \
-                                    configuration in step 1?."})
 
     _create_and_run_celery_tasks(payload, targets)
     return jsonify({"message": "Initiated install task. Open the notification manager to track its progress."})
@@ -390,14 +332,7 @@ def reinstall_agent() -> Response:
     target_config = payload['target_config']
     target = payload['target']
     hostname = target['hostname']
-    
-    try:
-        _build_agent_if_not_exists(payload)
-    except TypeError:
-        return jsonify({"message": "Failed ot initiate reinstall task on {}. \
-                                    Did you forget to select a Windows installer \
-                                    configuration in step 1?.".format(hostname)})
-    
+
     _create_and_run_celery_tasks(payload, hostname)
     return jsonify({"message": "Initiated reinstall task on {}. \
                                 Open the notification manager to track its progress.".format(hostname)})

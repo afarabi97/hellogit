@@ -23,9 +23,9 @@ DISCLUDES = ("elasticsearch.lan",
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     if dns == "grr-frontend.lan":
-        if ip:            
+        if ip:
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
-        else: 
+        else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
     elif dns == "moloch.lan":
         if ip:
@@ -38,6 +38,13 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': ''})
+    elif dns == "beagle.lan":
+        saved_values = conn_mng.mongo_catalog_saved_values.find_one({ "application": "beagle" })
+        port = saved_values['values']['beagle_port']
+        if ip:
+            portal_links.append({'ip': 'http://' + ip + ":" + port, 'dns': 'https://' + dns + ":" + port, 'logins': ''})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns + ":" + port, 'logins': ''})
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
@@ -78,7 +85,7 @@ def get_portal_links() -> Response:
             return jsonify(portal_links)
     except Exception as e:
         return jsonify([])
-    
+
     return ERROR_RESPONSE
 
 
@@ -91,11 +98,11 @@ def get_user_links() -> Response:
     user_links = conn_mng.mongo_user_links.find({})
     return cursorToJsonResponse(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
-@app.route('/api/add_user_link', methods=['POST']) 
+@app.route('/api/add_user_link', methods=['POST'])
 def add_user_link() -> Response:
     """
     Add a new link to mongo_user_links.
-    :return: flask.Response containing all user link data, including the new 
+    :return: flask.Response containing all user link data, including the new
     one.
     """
     link_data = request.get_json()
@@ -106,7 +113,7 @@ def add_user_link() -> Response:
     return get_user_links()
 
 
-@app.route('/api/remove_user_link/<link_id>', methods=['DELETE']) 
+@app.route('/api/remove_user_link/<link_id>', methods=['DELETE'])
 def remove_user_link(link_id: str) -> Response:
     """
     Remove a user link from mong_user_links.
