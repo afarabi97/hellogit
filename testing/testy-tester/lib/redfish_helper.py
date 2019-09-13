@@ -19,6 +19,13 @@ HEADERS = {
 
 TOKEN_LOOKUP = {}
 
+def logout(token):
+    h = HEADERS.copy()
+    h['x-auth-token'] = token
+
+    session_url = TOKEN_LOOKUP[token]['session_url']
+    resp = requests.delete(session_url, headers=h, verify=False)
+
 def get_token(ip, username, password, token=None):
     headers = {
         'OData-Version': '4.0',
@@ -42,11 +49,13 @@ def get_token(ip, username, password, token=None):
     resp = requests.post(session_url, data=json.dumps(body),
                         headers=HEADERS, verify=False)
     token = resp.headers.get('X-Auth-Token')
+
+    data = resp.json()
     TOKEN_LOOKUP[token] = {
         'username': username,
-        'password': password
+        'password': password,
+        'session_url': host + data['@odata.id']
     }
-
     if not token:
         raise Exception("Invalid login for redfish.")
     return token
@@ -199,19 +208,17 @@ def get_pxe_mac(ip, token):
         resp = requests.get(interfaces_url, headers=h, verify=False)
         interfaces = resp.json()
 
-        nic_url = None
-        for member in interfaces['Members']:
-            member_id = member['@odata.id']
-            if 'NIC.Embedded.1-1-1' in member_id:
-                nic_url = member_id
-                break
-
-        nic_url = "{}{}".format(host, nic_url)
-        resp = requests.get(nic_url, headers=h, verify=False)
-        nic = resp.json()
-        name = nic['@odata.id']
-        pxe_mac = nic['MACAddress']
-        return pxe_mac
+        members = sorted( [x['@odata.id'] for x in interfaces['Members'] ])
+        # find the interface that has status Enabled
+        for member in members:
+            nic_url = "{}{}".format(host, member)
+            resp = requests.get(nic_url, headers=h, verify=False)
+            nic = resp.json()
+            name = nic['@odata.id']
+            state = nic['Status']['State']
+            if state == 'Enabled':
+                pxe_mac = nic['MACAddress']
+                return pxe_mac
 
     else:
         raise Exception("Couldn't find MAC for hardware. Please look at redfish implementation to fix.")
@@ -319,7 +326,7 @@ def example():
 
     ip = '172.16.22.21'
     USER_NAME = "root"
-    PASSWORD = os.getenv('PASSWORD')
+    PASSWORD = os.getenv('REDFISH_PWD')
 
     ip = '172.16.22.21'
 
@@ -344,7 +351,7 @@ def example():
     ips = [
         #'172.16.22.26', #problem server
         #'172.16.22.25', #problem server
-        '172.16.22.34',
+        #'172.16.22.34',
         #'172.16.22.25',
         #'172.16.22.33',
         #'172.16.22.24',
@@ -352,18 +359,20 @@ def example():
         #'172.16.22.23',
         #'172.16.22.25', # HP DL-160
         #'172.16.22.21', # supermicro
-        #'172.16.22.46', # R440
+        '172.16.22.41', # R440
+        #'172.16.22.47', # R440
     ]
 
     for ip in ips:
         token = get_token(ip, USER_NAME, PASSWORD)
         print("Getting MAC")
         mac = get_pxe_mac(ip, token)
-        print("Setting boot order")
-        result = set_pxe_boot(ip, token)
-        print("Restarting server")
-        result = restart_server(ip, token)
+        #print("Setting boot order")
+        #result = set_pxe_boot(ip, token)
+        #print("Restarting server")
+        #result = restart_server(ip, token)
         print("{} - {}".format(ip, mac))
+        logout(token)
 
     sys.exit(0)
 

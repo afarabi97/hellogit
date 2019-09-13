@@ -3,6 +3,7 @@ redfish:
   user: root
   password: <SET ENV VAR $REDFISH_PASSWORD>
   servers:
+    - 172.16.22.47
     - 172.16.22.46
     - 172.16.22.45
   sensors:
@@ -103,7 +104,7 @@ kit:
         - "172.16.33.1"
       networking:
         nics:
-          ens192:
+          p1p1:
             type: "manual" # This can be auto, manual, or link-local
             ip_address: "172.16.33.5"
             subnet_mask: "255.255.255.0"
@@ -137,9 +138,31 @@ kit:
         - "172.16.33.1"
       networking:
         nics:
-          ens192:
+          p1p1:
             type: "manual" # This can be auto, manual, or link-local
             ip_address: "172.16.33.6"
+            subnet_mask: "255.255.255.0"
+            start_connected: True
+            management_interface: True
+            monitoring_interface: False
+            mac_auto_generated: False
+            mac_address: "" # Will be pulled via redfish api
+      boot_drive_name: "sda"
+      es_drives:
+        - sdb
+
+    server3:
+      oob_ip: "" # Out of band management IP for the system (Idrac, HiLo, IPMI
+      type: "server" # Can be controller, sensor, or server
+      domain: 'lan'
+      gateway: "172.16.33.1"
+      dns:
+        - "172.16.33.1"
+      networking:
+        nics:
+          p1p1:
+            type: "manual" # This can be auto, manual, or link-local
+            ip_address: "172.16.33.7"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -161,7 +184,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.7"
+            ip_address: "172.16.33.10"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -226,7 +249,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.8"
+            ip_address: "172.16.33.11"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -291,7 +314,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.9"
+            ip_address: "172.16.33.12"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -356,7 +379,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.10"
+            ip_address: "172.16.33.13"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True

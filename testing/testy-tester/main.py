@@ -537,6 +537,7 @@ class Runner:
 
                 node.set_management_interface_mac(pxe_mac)
                 node.set_management_interface_boot_mode(boot_mode)
+                redfish.logout(token)
 
         logging.info("Configuring Kickstart")
         # runner = KickstartSeleniumRunner(self.args.is_headless, self.controller_node.management_interface.ip_address)
@@ -549,6 +550,7 @@ class Runner:
             for ip in redfish_config[t]:
                 token = redfish.get_token(ip, redfish_config['user'], redfish_config['password'])
                 result = redfish.restart_server(ip, token)
+                redfish.logout(token)
 
         logging.info("Waiting for servers and sensors to become alive...")
         test_vms_up_and_alive(self.kit, self.kit.nodes, 60)
@@ -699,6 +701,7 @@ class Runner:
             for ip in redfish_config[t]:
                 token = redfish.get_token(ip, redfish_config['user'], redfish_config['password'])
                 result = redfish.restart_server(ip, token)
+                redfish.logout(token)
 
         logging.info("Waiting for servers and sensors to become alive...")
         test_vms_up_and_alive(self.kit, self.kit.nodes, 60)
