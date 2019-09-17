@@ -28,6 +28,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   public savedValues: any;
   public statuses: any;
   public configArray: Array<any> = [];
+  public kafkaArray: Array<any> = [];
 
   /**
    *Creates an instance of CatalogPageComponent.
@@ -127,6 +128,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           });
         }
       });
+      if(this.chart.devDependent === "kafka") {
+        this.setupKafkaArray();
+      }
     }
   }
 
@@ -246,9 +250,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.serverAny();
     this.configReady();
     if (this.isReady === true ) {
-      this.makeFormgroup();
+      this.makeFormgroup(stepper);
     }
-    stepper.next();
+
   }
 
   /**
@@ -298,6 +302,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       if(object[key].external_net) {
         object[key].external_net = JSON.parse(object[key].external_net);
       }
+      if(object[key].kafka_clusters) {
+        object[key].kafka_clusters = JSON.parse(object[key].kafka_clusters);
+      }
       configArray.push(object);
     });
     this.configArray = configArray;
@@ -314,7 +321,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     } else {
       this.getValuesCall();
     }
-    this.isAdvance = true;
+
+    setTimeout(() => {
+      this.isAdvance = true;
+    }, 1000);
+
   }
 
   /**
@@ -395,7 +406,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    *
    * @memberof CatalogPageComponent
    */
-  makeFormgroup() {
+  makeFormgroup(stepper: MatStepper) {
     this.processFormGroup.value.selectedNodes.map(nodes => {
       let nodeControls;
       this.addDeploymentName();
@@ -406,13 +417,14 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
             obj = value.values;
           }
         });
-        nodeControls = this.initConfigFormControl(nodes.hostname, obj);
+          nodeControls = this.initConfigFormControl(nodes.hostname, obj);
       } else {
         nodeControls = this.initConfigFormControl(nodes.hostname);
       }
       this.configFormGroup.addControl(nodes.hostname, nodeControls);
     });
     this.cdRef.detectChanges();
+    stepper.next();
   }
 
   /**
@@ -451,6 +463,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       default:
     }
     this.router.navigate(['/catalog']);
+    this._CatalogService.isLoading = false;
   }
 
 
@@ -533,6 +546,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           if(value) {
             nodeControls.controls[control.name].setValue(value[control.name], {onlySelf: true});
           }
+        } else if (control.type === "kafka-cluster-cluster") {
+            let strValue = JSON.stringify(this.kafkaArray);
+            nodeControls.addControl(control.name, new FormControl( strValue ));
         } else {
           nodeControls.addControl(control.name, new FormControl([]));
         }
@@ -544,6 +560,21 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     return nodeControls;
   }
 
+  setupKafkaArray() {
+    let kafkaValues;
+    let array = [];
+    this._CatalogService.getByString("kafka/saved_values").subscribe(values => {
+      kafkaValues = values.length !== 0 ? values : null;
+      if(values !== null) {
+        values.map( value => {
+          let val = value.deployment_name + ".default.svc.cluster.local:9092";
+          array.push(val);
+        });
+      }
+    });
+
+    this.kafkaArray = array;
+  }
   /**
    * parses out the .lan on the deployment name so that Kubernetes doesnt crash
    *

@@ -86,6 +86,13 @@
                                     </div>
                                   </div>
                                 </div>
+                                <!-- Kafka -->
+                                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'kafka-cluster-cluster'" >
+                                    <mat-form-field>
+                                      <input matInput matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                      <mat-error *ngIf="isInvalidForm(sensor, control)">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                    </mat-form-field>
+                                </div>
                               </div>
                           </div>
                         </div>
@@ -96,9 +103,8 @@
                   <mat-step>
                       <form>
                         <ng-template matStepLabel>Values File Overview </ng-template>
-
                         <div *ngFor="let sensor of processFormGroup.value.selectedNodes" [formGroup]="valueFormGroup" >
-                          <h4>{{ sensor.deployment_name | capitalizeFirst }}</h4>
+                          <h4>{{ sensor?.deployment_name | capitalizeFirst }}</h4>
                           <mat-checkbox (click)="AdvanceConfiguration(sensor)">Enable Edit</mat-checkbox>
                           <mat-form-field class="text-area">
                               <textarea matInput formControlName="{{sensor.deployment_name}}" style="width:100%; min-height: 150px; height: 300px" placeholder="Edit Values File"></textarea>

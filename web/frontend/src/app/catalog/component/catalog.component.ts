@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
 import { Title } from '@angular/platform-browser';
+import { Notification } from '../../notifications/interface/notifications.interface';
+import { WebsocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-catalog',
@@ -20,7 +22,8 @@ export class CatalogComponent implements OnInit {
    */
   constructor(
     public _CatalogService: CatalogService,
-    private titleSvc: Title
+    private titleSvc: Title,
+    public _WebsocketService:WebsocketService
   ) { }
 
   /**
@@ -45,8 +48,27 @@ export class CatalogComponent implements OnInit {
         });
       });
       this.charts = data;
+    });
 
-
+    this._WebsocketService.onBroadcast()
+    .subscribe((message: Notification) => {
+      if(message.role === "catalog" && message.status === "DEPLOYED") {
+        this._CatalogService.getByString("chart/" + message.application.toLowerCase() + "/status").subscribe(statusGroup => {
+          this.charts.map( chart => {
+            if( chart.application === message.application.toLowerCase()) {
+              chart.nodes = statusGroup;
+            }
+          });
+          this._CatalogService.isLoading = true;
+        });
+      } else if (message.role === "catalog" && message.action === "Deleting") {
+        this.charts.map( chart => {
+          if( chart.application === message.application.toLowerCase()) {
+            chart.nodes = [];
+          }
+        });
+        this._CatalogService.isLoading = true;
+      }
     });
 
   }

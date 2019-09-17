@@ -35,7 +35,6 @@ export class WebsocketService {
       return new Observable<any>(observer => {
           this.socket.on('broadcast', (data: any) => {
             observer.next(data);
-            console.log(data);
           });
       });
   }

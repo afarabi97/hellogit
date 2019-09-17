@@ -25,6 +25,15 @@
         {
           "type": "invisible",
           "name": "node_hostname"
+        },
+        {
+          "type": "kafka-cluster-cluster",
+          "default_value": "",
+          "description": "This is a list of kafka cluster to pass to logstash, only edit if you know what your doing",
+          "required": true,
+          "regexp": "",
+          "name": "kafka_clusters",
+          "error_message": "This is not valid"
         }
     ]
 }

@@ -7,11 +7,11 @@ import { CatalogService } from '../services/catalog.service';
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
 })
-export class CardComponent{
+export class CardComponent {
   @Input() chart: Chart;
-  color: string = '#e74c3c';
-  hoverColor: string = '#222222';
-  hovered: boolean = false;
+  public color: string = '#e74c3c';
+  public hoverColor: string = '#222222';
+  public hovered: boolean = false;
 
   /**
    *Creates an instance of CardComponent.
@@ -20,7 +20,6 @@ export class CardComponent{
   constructor( private _CatalogService: CatalogService) {
 
   }
-
 
   /**
    * tells when you the card is using the mouse over event
