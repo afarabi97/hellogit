@@ -11,7 +11,7 @@ if [[ ! -z "${CONTAINER_TYPE}" ]]; then
     cd /data/moloch/viewer
     /data/moloch/bin/node /data/moloch/viewer/viewer.js -c /data/moloch/etc/config.ini
   elif [[ "${CONTAINER_TYPE}" == "BOOTSTRAP" ]]; then
-    /data/moloch/db/db.pl "${ELASTIC_FQDN}:9200" initnoprompt
+    /data/moloch/db/db.pl "${ELASTIC_FQDN}:9200" initnoprompt --replicas 1 --shardsPerNode 3
     /data/moloch/bin/moloch_add_user.sh -c /data/moloch/etc/config.ini "${MOLOCH_LOGIN}" "${MOLOCH_LOGIN}" "${MOLOCH_PASS}" --admin --webauth
   fi
 fi

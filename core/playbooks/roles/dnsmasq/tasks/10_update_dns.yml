@@ -31,7 +31,7 @@
 
 - name: interface list
   set_fact:
-    interface_list: "{{ interface_list }} + [ '{{ item.stdout }}' ]"
+    interface_list: "{{ interface_list + [item.stdout] }}"
   with_items: "{{ nmcli_conn_name.results }}"
   when: item.changed and item.stdout is defined
 

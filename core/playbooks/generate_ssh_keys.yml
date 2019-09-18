@@ -4,7 +4,7 @@
 
 - name: For each host, ssh-copy-id my ssh public keys to the host
   shell: "sshpass -p '{{ ansible_ssh_pass }}' ssh-copy-id -oStrictHostKeyChecking=no {{ item }}"
-  with_items: "{{ ssh_known_hosts }} + {{ ssh_short_known_hosts }}"
+  with_items: "{{ ssh_known_hosts + ssh_short_known_hosts }}"
   when: not (( ansible_ssh_pass is undefined ) or ( ansible_ssh_pass is none ) or ( ansible_ssh_pass | trim == ''))
 
 ...

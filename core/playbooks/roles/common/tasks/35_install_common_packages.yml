@@ -16,6 +16,13 @@
     name: "{{ package_list }}"
     state: installed
 
+- name: upgrade pip
+  pip:
+    name:
+    - pip
+    - setuptools
+    state: latest
+
 - name: Install PBR Pip Module
   pip:
     name: pbr

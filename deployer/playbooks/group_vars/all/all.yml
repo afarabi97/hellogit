@@ -79,6 +79,7 @@ pip_downloads:
   - pyhelm
   - grpcio
   - pbr
+  - openshift
 
 pip_installs:
   - "junit-xml==1.8"
@@ -86,6 +87,7 @@ pip_installs:
   - "docker"
   - "pyyaml"
   - "pyhelm"
+  - "openshift"
 
 iso_rhel_version: "7.7"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"

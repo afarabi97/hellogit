@@ -21,9 +21,12 @@
     name: "{{ package_list }}"
     state: latest
 
-- name: upgrade pip
+- name: upgrade packages
   pip:
-    name: pip
+    name:
+    - pip
+    - setuptools
+    - jinja2
     state: latest
 
 - name: install pip modules

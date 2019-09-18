@@ -1,46 +1,46 @@
-{% if (groups['servers']|length) == 1 %}
-  {% if (ansible_memtotal_mb/1024)|round|int > 120 %}
-    {% set es_java_mem = 30 %}
-  {% else %}
-    {% set es_java_mem = (ansible_memtotal_mb/1024*0.75/3)|int %}
-  {% endif %}
-{% elif (groups['servers']|length) == 2 %}
-  {% if (ansible_memtotal_mb/1024)|round|int > 80 %}
-    {% set es_java_mem = 30 %}
-  {% else %}
-    {% set es_java_mem = (ansible_memtotal_mb/1024*0.75/2)|int %}
-  {% endif %}
-{% elif (groups['servers']|length) > 2 %}
-  {% if (ansible_memtotal_mb/1024)|round|int > 40 %}
-    {% set es_java_mem = 30 %}
-  {% else %}
-    {% set es_java_mem = (ansible_memtotal_mb/1024*0.75)|int %}
-  {% endif %}
-{% else %}
-  {% set es_java_mem = 4 %}
-{% endif %}
+{%- if (groups['servers']|length) == 1 %}
+  {%- if (ansible_memtotal_mb/1024)|round|int > 120 %}
+    {%- set es_java_mem = 30 %}
+  {%- else %}
+    {%- set es_java_mem = (ansible_memtotal_mb/1024*0.75/3)|int %}
+  {%- endif %}
+{%- elif (groups['servers']|length) == 2 %}
+  {%- if (ansible_memtotal_mb/1024)|round|int > 80 %}
+    {%- set es_java_mem = 30 %}
+  {%- else %}
+    {%- set es_java_mem = (ansible_memtotal_mb/1024*0.75/2)|int %}
+  {%- endif %}
+{%- elif (groups['servers']|length) > 2 %}
+  {%- if (ansible_memtotal_mb/1024)|round|int > 40 %}
+    {%- set es_java_mem = 30 %}
+  {%- else %}
+    {%- set es_java_mem = (ansible_memtotal_mb/1024*0.75)|int %}
+  {%- endif %}
+{%- else %}
+  {%- set es_java_mem = 4 %}
+{%- endif %}
 
-{% if (groups['servers']|length) == 1 %}
-  {% if ansible_processor_vcpus >= 32 %}
-    {% set es_num_procs = 8 %}
-  {% else %}
-    {% set es_num_procs = (ansible_processor_vcpus*0.75/3)|int %}
-  {% endif %}
-{% elif (groups['servers']|length) == 2 %}
-  {% if ansible_processor_vcpus >= 24 %}
-    {% set es_num_procs = 8 %}
-  {% else %}
-    {% set es_num_procs = (ansible_processor_vcpus*0.75/2)|int %}
-  {% endif %}
-{% elif (groups['servers']|length) > 2 %}
-  {% if ansible_processor_vcpus >= 16 %}
-    {% set es_num_procs = 8 %}
-  {% else %}
-    {% set es_num_procs = (ansible_processor_vcpus*0.75)|int %}
-  {% endif %}
-{% else %}
-  {% set es_num_procs = 2 %}
-{% endif %}
+{%- if (groups['servers']|length) == 1 %}
+  {%- if ansible_processor_vcpus >= 32 %}
+    {%- set es_num_procs = 8 %}
+  {%- else %}
+    {%- set es_num_procs = (ansible_processor_vcpus*0.75/3)|int %}
+  {%- endif %}
+{%- elif (groups['servers']|length) == 2 %}
+  {%- if ansible_processor_vcpus >= 24 %}
+    {%- set es_num_procs = 8 %}
+  {%- else %}
+    {%- set es_num_procs = (ansible_processor_vcpus*0.75/2)|int %}
+  {%- endif %}
+{%- elif (groups['servers']|length) > 2 %}
+  {%- if ansible_processor_vcpus >= 16 %}
+    {%- set es_num_procs = 8 %}
+  {%- else %}
+    {%- set es_num_procs = (ansible_processor_vcpus*0.75)|int %}
+  {%- endif %}
+{%- else %}
+  {%- set es_num_procs = 2 %}
+{%- endif %}
 
 esConfig:
   elasticsearch.yml: |
@@ -51,7 +51,16 @@ esConfig:
     xpack.monitoring.collection.enabled: "true"
 
 image: "elasticsearch/elasticsearch"
-imageTag: "{{ elastic_7_version }}"
+imageTag: "{{ elastic_7_version }}" # {{ '' }} This is to fix a bug with Jinja rendering -- yes it's crazy
+
+extraInitContainers: |
+  - name: permissions
+    image: {% raw -%} "{{ .Values.image }}:{{ .Values.imageTag }}" {%- endraw %}
+
+    command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+    volumeMounts:
+    - name: elasticsearch-master
+      mountPath: /usr/share/elasticsearch/data
 
 esJavaOpts: "-Xmx{{ es_java_mem }}g -Xms{{ es_java_mem }}g"
 
@@ -61,9 +70,10 @@ resources:
     memory: "{{ es_java_mem/4 }}Gi"
   limits:
     cpu: "{{ es_num_procs * 1.25 * 1000 }}m"
-    memory: "{{ es_java_mem * 1.25 }}Gi"
+    memory: "{{ es_java_mem * 1.25 }}Gi" # {{ '' }} This is to fix a bug with Jinja rendering -- yes it's crazy
 
-extraVolumes: {% raw %} "{{ .Values.test | indent 2 }}"  {% endraw %} # Fix for incorrect indetation in the statefuleset template. This may break if the Public Helm Chart is updated.
+# Fix for incorrect indentation in the statefuleset template. This may break if the Public Helm Chart is updated.
+extraVolumes: {% raw -%} "{{ .Values.test | indent 2 }}" {%- endraw %}
 
 test: |
   - name: elasticsearch-master

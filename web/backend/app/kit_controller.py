@@ -126,7 +126,7 @@ def execute_add_node() -> Response:
             cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --extra-vars \"run_option=install\""
                             ).format(playbook_pass=root_password)
 
-            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"run_option=install\" --limit {node}"
+            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"run_option=install add_node=true\" --limit {node}"
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
 
             task_idOne = perform_kit.delay(cmd_to_executeOne)
@@ -140,6 +140,7 @@ def execute_add_node() -> Response:
             conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
                                                             {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
                                                             upsert=True)
+
             return (jsonify(str(task_idOne)), 200)
 
     logger.error("Executing add node configuration has failed.")

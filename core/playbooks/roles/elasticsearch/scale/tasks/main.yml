@@ -1,0 +1,17 @@
+- name: Get current ES data
+  k8s_facts:
+    kind: StatefulSet
+    name: elasticsearch-master
+    namespace: default
+  register: es_sts
+  when: "add_node is defined and add_node == 'true'"
+
+- name: Scale ES
+  k8s:
+    kind: StatefulSet
+    name: elasticsearch-master
+    namespace: default
+    definition:
+      spec:
+        replicas: "{{ ((es_sts.resources[0].spec.replicas|int) + 1) | int }}"
+  when: "add_node is defined and add_node == 'true'"

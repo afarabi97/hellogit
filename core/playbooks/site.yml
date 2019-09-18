@@ -104,7 +104,7 @@
   connection: ssh
   any_errors_fatal: true
   vars:
-    ssh_known_hosts: "{{ groups['servers'] }} + {{ groups['sensors'] }}"
+    ssh_known_hosts: "{{ groups['servers'] + groups['sensors'] }}"
 
     # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
     # feeds it into map, which then
@@ -230,6 +230,16 @@
     - elasticsearch
   tags:
     - elasticsearch
+
+# Only used when adding servers dynamically
+- name: Scale Elasticsearch
+  hosts: all
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - elasticsearch/scale
 
 - name: Deploy Kibana
   hosts: master_server

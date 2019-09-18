@@ -2,7 +2,6 @@
   "id": "zeek",
   "type": "chart",
   "node_affinity": "Sensor",
-  "devDependent": "logstash",
   "formControls": [
     {
       "type": "textinputlist",

@@ -1,7 +1,7 @@
 ---
 - name: create list
   set_fact:
-    host_list: "{{ groups['servers'] }} + {{ groups['sensors'] }}"
+    host_list: "{{ groups['servers'] + groups['sensors'] }}"
 
 - name: Copy over hosts template
   template:
