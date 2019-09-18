@@ -1,7 +1,7 @@
 # Build Bro
 FROM centos:7 as builder
 
-ENV VER 2.6.2
+ENV VER 2.6.4
 ENV WD /scratch
 
 WORKDIR /scratch
@@ -14,9 +14,9 @@ RUN git clone --depth 1 https://github.com/corelight/bro-community-id.git
 RUN git clone --depth 1 https://github.com/apache/metron-bro-plugin-kafka.git
 ADD ./common/buildbro.sh ${WD}/common/buildbro.sh
 RUN chmod +x ${WD}/common/buildbro.sh && ${WD}/common/buildbro.sh ${VER} http://www.zeek.org/downloads/bro-${VER}.tar.gz
-RUN cd ${WD}/bro-af_packet-plugin && ./configure --bro-dist=/usr/src/bro-${VER} --with-latest-kernel && make install
-RUN cd ${WD}/bro-community-id && ./configure --bro-dist=/usr/src/bro-${VER} && make install
-RUN cd ${WD}/metron-bro-plugin-kafka && ./configure --bro-dist=/usr/src/bro-${VER} && make install
+RUN cd ${WD}/bro-af_packet-plugin && ./configure --bro-dist=/usr/src/zeek-${VER} --with-latest-kernel && make install
+RUN cd ${WD}/bro-community-id && ./configure --bro-dist=/usr/src/zeek-${VER} && make install
+RUN cd ${WD}/metron-bro-plugin-kafka && ./configure --bro-dist=/usr/src/zeek-${VER} && make install
 
 
 # Get geoip data
@@ -35,7 +35,7 @@ RUN yum install -y epel-release && yum install --downloadonly --downloaddir=. li
 
 # Build the final image
 FROM registry.access.redhat.com/ubi8-minimal
-ENV VER 2.6.2
+ENV VER 2.6.4
 
 WORKDIR /data
 
@@ -44,10 +44,10 @@ COPY --from=rpms /rpms /tmp/rpms
 RUN microdnf install libpcap && microdnf clean all && \
   rpm -ivh --force /tmp/rpms/* && rm -rf /tmp/rpms
 
-COPY --from=builder /usr/local/bro-${VER} /usr/local/bro-${VER}
+COPY --from=builder /usr/local/zeek-${VER} /usr/local/zeek-${VER}
 COPY --from=geogetter /usr/share/GeoIP/* /usr/share/GeoIP/
-RUN ln -s /usr/local/bro-${VER} /bro && \
-    mkdir -p /usr/share/bro/site/scripts/plugins
+RUN ln -s /usr/local/zeek-${VER} /zeek && \
+    mkdir -p /usr/share/zeek/site/scripts/plugins
 
-ENTRYPOINT ["/bro/bin/bro"]
+ENTRYPOINT ["/zeek/bin/bro"]
 CMD ["-h"]

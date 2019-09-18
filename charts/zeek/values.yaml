@@ -3,8 +3,8 @@ elastic_headless_fqdn: elasticsearch-master-headless.default.svc.cluster.local
 elastic_port: 9200
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
-image_name: tfplenum/bro
-image_tag: 2.6.2
+image_name: tfplenum/zeek
+image_tag: 2.6.4
 cpu_request: 2000
 affinity_hostname: {}
 ids_log_rotate_interval: 300

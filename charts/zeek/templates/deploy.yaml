@@ -35,10 +35,10 @@ spec:
       - name: init-zeek
         image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
         imagePullPolicy: IfNotPresent
-        command: [ '/bin/touch', '-a', '/bro/share/bro/site/custom/__load__.bro']
+        command: [ '/bin/touch', '-a', '/zeek/share/bro/site/custom/__load__.bro']
         volumeMounts:
         - name: custom-scripts
-          mountPath: /bro/share/bro/site/custom
+          mountPath: /zeek/share/bro/site/custom
       containers:
 {{- range $node, $config := $d }}
       - name: {{ $node }}
@@ -76,15 +76,15 @@ tries to restart.
 {{- end }}
         volumeMounts:
         - name: custom-scripts
-          mountPath: /bro/share/bro/site/custom
+          mountPath: /zeek/share/bro/site/custom
           readOnly: true
         - name: default-scripts
           subPath: cluster-layout.bro
-          mountPath: /bro/share/bro/site/cluster-layout.bro
+          mountPath: /zeek/share/bro/site/cluster-layout.bro
           readOnly: true
         - name: default-scripts
           subPath: local.bro
-          mountPath: /bro/share/bro/site/local.bro
+          mountPath: /zeek/share/bro/site/local.bro
           readOnly: true
 {{- if eq $config.type "logger" }}
         - name: logs

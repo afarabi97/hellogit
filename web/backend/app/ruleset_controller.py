@@ -14,8 +14,8 @@ from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
 from pymongo.results import InsertOneResult, UpdateResult
 from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
-                              PCAP_UPLOAD_DIR, SURICATA_CONTAINER_VERSION,
-                              RULE_TYPES, BRO_CONTAINER_VERSION,
+                              PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
+                              RULE_TYPES, ZEEK_IMAGE_VERSION,
                               BRO_RULE_DIR)
 from shared.utils import tar_folder
 from typing import Dict, Tuple, List
@@ -134,12 +134,12 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
             theRule.save(filename)
             theRule.stream.seek(0)
 
-        pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_CONTAINER_VERSION)
+        pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_IMAGE_VERSION)
         cmd = ("docker run --rm "
                "-v {tmp_dir}:/etc/suricata/rules/ localhost:5000/tfplenum/suricata:{version} "
                "suricata -c /etc/suricata/suricata.yaml -T").format(tmp_dir=tmpdirname,
-                                                                    version=SURICATA_CONTAINER_VERSION)
-        
+                                                                    version=SURICATA_IMAGE_VERSION)
+
         stdout, ret_val = run_command2(pull_docker_cmd, use_shell=True)
         if ret_val == 0:
             stdout, ret_val = run_command2(cmd, use_shell=True)
@@ -162,13 +162,13 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
             theRule.save(filepath)
             theRule.stream.seek(0)
 
-        pull_docker_cmd = "docker pull localhost:5000/tfplenum/bro:{}".format(BRO_CONTAINER_VERSION)
+        pull_docker_cmd = "docker pull localhost:5000/tfplenum/zeek:{}".format(ZEEK_IMAGE_VERSION)
         stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
         if ret_val == 0:
             cmd = ("docker run --rm "
-                "-v {tmp_dir}:{script_dir} localhost:5000/tfplenum/bro:{version} "
+                "-v {tmp_dir}:{script_dir} localhost:5000/tfplenum/zeek:{version} "
                 "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
-                                            version=BRO_CONTAINER_VERSION,
+                                            version=ZEEK_IMAGE_VERSION,
                                             script_dir=BRO_RULE_DIR,
                                             file_to_test=filename)
 
@@ -335,7 +335,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
             fp.write(rule_content)
 
         with tempfile.TemporaryDirectory() as results_tmp_dir:
-            pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_CONTAINER_VERSION)
+            pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_IMAGE_VERSION)
             cmd = ("docker run --rm "
                    "-v {rules_dir}:/etc/suricata/rules/ "
                    "-v {pcap_dir}:/pcaps/ "
@@ -345,7 +345,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
                                                                                            pcap_dir=PCAP_UPLOAD_DIR,
                                                                                            results_dir=results_tmp_dir,
                                                                                            pcap_name=pcap_name,
-                                                                                           version=SURICATA_CONTAINER_VERSION)            
+                                                                                           version=SURICATA_IMAGE_VERSION)
             output, ret_val = run_command2(pull_docker_cmd, use_shell=True)
             if ret_val == 0:
                 output, ret_val = run_command2(cmd, use_shell=True)
@@ -365,15 +365,15 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
             fp.write(rule_content)
 
         with tempfile.TemporaryDirectory() as results_tmp_dir:
-            pull_docker_cmd = "docker pull localhost:5000/tfplenum/bro:{}".format(BRO_CONTAINER_VERSION)
+            pull_docker_cmd = "docker pull localhost:5000/tfplenum/zeek:{}".format(ZEEK_IMAGE_VERSION)
             cmd = ("docker run --rm "
                    "-v {tmp_dir}:{script_dir} "
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/data/ "
-                   "localhost:5000/tfplenum/bro:{version} "
+                   "localhost:5000/tfplenum/zeek:{version} "
                    "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir,
                                                                         pcap_dir=PCAP_UPLOAD_DIR,
-                                                                        version=BRO_CONTAINER_VERSION,
+                                                                        version=ZEEK_IMAGE_VERSION,
                                                                         script_dir=BRO_RULE_DIR,
                                                                         pcap_name=pcap_name,
                                                                         results_dir=results_tmp_dir,

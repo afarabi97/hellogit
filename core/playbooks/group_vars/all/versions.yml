@@ -3,7 +3,7 @@
 # Use include_vars function to utilize this file.
 
 # VERSIONS
-bro_version: "2.6.2"
+zeek_version: "2.6.4"
 busybox_version: "1.29.3"
 coreos_version: "1688.5.3"
 flannel_version: "v0.11.0"
@@ -32,7 +32,7 @@ kube_images:
   - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
-  - docker.io/tfplenum/bro:{{bro_version}}
+  - docker.io/tfplenum/zeek:{{zeek_version}}
   - docker.elastic.co/beats/metricbeat:{{elastic_7_version}}
   - docker.elastic.co/beats/filebeat:{{elastic_7_version}}
   - docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}

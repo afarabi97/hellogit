@@ -21,11 +21,11 @@ RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Bro")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
-SURICATA_CONTAINER_VERSION = "4.1.4"
-BRO_CONTAINER_VERSION = "2.6.2"
+SURICATA_IMAGE_VERSION = "4.1.4"
+ZEEK_IMAGE_VERSION = "2.6.4"
 
 # The path inside of the docker container
-BRO_RULE_DIR = "/usr/local/bro-2.6.2/share/bro/site"
+BRO_RULE_DIR = "/zeek/share/bro/site"
 
 NODE_TYPES = ["Server", "Sensor"]
 class TARGET_STATES(Enum):
