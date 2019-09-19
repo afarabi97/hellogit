@@ -189,6 +189,7 @@ kit:
           interfaces:
             - "p2p1"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "sensor1"
         moloch-capture:
           cpu_request: "1000"
@@ -253,6 +254,7 @@ kit:
           interfaces:
             - "p2p1"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "sensor2"
         moloch-capture:
           cpu_request: "1000"
@@ -317,6 +319,7 @@ kit:
           interfaces:
             - "p2p1"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "sensor3"
         moloch-capture:
           cpu_request: "1000"
@@ -381,6 +384,7 @@ kit:
           interfaces:
             - "p2p1"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "sensor4"
         moloch-capture:
           cpu_request: "1000"

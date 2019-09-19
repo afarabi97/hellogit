@@ -24,7 +24,7 @@
     {
       "type": "textinput",
       "default_value": "8",
-      "description": "Enter the number of Zeek workers (one thread per worker)",
+      "description": "Enter the number of Zeek workers per interface (one thread per worker)",
       "required": true,
       "regexp": "^\\d+$",
       "name": "zeek_workers",

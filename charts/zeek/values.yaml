@@ -5,7 +5,6 @@ home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: tfplenum/zeek
 image_tag: 2.6.4
-cpu_request: 2000
 affinity_hostname: {}
 ids_log_rotate_interval: 300
 zeek_log_path: /data/zeek

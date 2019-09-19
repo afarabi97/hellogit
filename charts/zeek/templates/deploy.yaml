@@ -67,8 +67,8 @@ tries to restart.
                   - NET_RAW
                   - SYS_NICE
         resources:
-          requests:
-            cpu: {{ div (div $.Values.cpu_request $.Values.zeek_workers) (len $.Values.interfaces) }}m
+          limits:
+            cpu: 1
 {{- else }}
         resources:
           requests:

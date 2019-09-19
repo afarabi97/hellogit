@@ -39,6 +39,15 @@
       "error_message": "Select one or more interfaces"
     },
     {
+      "type": "textinput",
+      "default_value": "8",
+      "description": "Enter the number of Suricata threads per interface",
+      "required": true,
+      "regexp": "^\\d+$",
+      "name": "suricata_threads",
+      "error_message": "Enter a valid number"
+    },
+    {
       "type": "invisible",
       "name": "affinity_hostname"
     },

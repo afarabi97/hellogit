@@ -219,6 +219,7 @@ kit:
           interfaces:
             - "ens224"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "test1-sensor1.lan"
         moloch-capture:
           cpu_request: "1000"
@@ -297,6 +298,7 @@ kit:
           interfaces:
             - "ens224"
           pcapEnabled: true
+          suricata_threads: 8
           node_hostname: "test1-sensor2.lan"
         moloch-capture:
           cpu_request: "1000"

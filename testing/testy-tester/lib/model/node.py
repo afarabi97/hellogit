@@ -177,6 +177,7 @@ class CatalogSuricata(object):
         home_net: Home net for suricata alerts
         interfaces: Monitoring interface suricata uses
         pcapEnabled: Is PCAP enabled
+        suricata_threads: Number of threads per interface
         node_hostname: Name of sensor
     """
 
@@ -195,6 +196,7 @@ class CatalogSuricata(object):
         self.home_net = yml_dict['home_net']
         self.interfaces = yml_dict['interfaces']
         self.pcapEnabled = yml_dict['pcapEnabled']
+        self.suricata_threads = yml_dict['suricata_threads']
         self.node_hostname = yml_dict['node_hostname']
 
     def to_dict(self):
@@ -206,11 +208,12 @@ class CatalogSuricata(object):
             'home_net': self.home_net,
             'interfaces': self.interfaces,
             'pcapEnabled': self.pcapEnabled,
+            'suricata_threads': self.suricata_threads,
             'node_hostname': self.node_hostname
         }
 
     def __str__(self) -> str:
-        return "affinity_hostname: %s cpu_request: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s pcapEnabled: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_request, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.pcapEnabled, self.node_hostname)
+        return "affinity_hostname: %s cpu_request: %s deployment_name: %s external_net: %s home_net: %s interfaces: %s pcapEnabled: %s suricata_threads: %s node_hostname: %s" % (self.affinity_hostname, self.cpu_request, self.deployment_name, self.external_net, self.home_net, self.interfaces, self.suricata_threads, self.pcapEnabled, self.node_hostname)
 
 class CatalogMolochViewer(object):
     """

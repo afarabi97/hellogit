@@ -200,6 +200,7 @@ data:
     af-packet:
     {{- range $i, $val :=  .Values.interfaces }}
       - interface: {{ $val }}
+        threads: {{ .Values.suricata_threads }}
         cluster-id: {{ sub 99 $i }}
         cluster-type: cluster_flow
         defrag: yes
