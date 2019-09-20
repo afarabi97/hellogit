@@ -3,87 +3,31 @@ from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
 from flask import jsonify, request, Response, send_file
 from typing import Dict, Tuple, List
 from shared.connection_mngs import FabricConnectionWrapper
-from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps
+from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_chart_release_lists
 import json
 from bson import ObjectId
 import requests
 from celery import chain
+from app.catalog import Catalog
 
+TILLER_SERVER = None
+CHART_LIST = None
 
 NAMESPACE = "default"
-CHART_REPO_PORT="8080"
+catalog = None
 
-
-def get_helm_repo_health(repo_ip: str) -> bool:
-    """
-    Gets the helm repo health from chartmuseum
-
-    """
-    healthy = False
-
-    URL = "http://" + repo_ip + ":" + CHART_REPO_PORT + "/health"
-    r = requests.get(url = URL)
-    data = r.json()
-
-    if data['healthy']:
-        healthy = True
-
-    return healthy
-
-def get_tiller_service() -> str:
-    """
-    Gets tiller service ip address from kubernetes
-
-    :return (str): Return tiller service ip address
-    """
-    with FabricConnectionWrapper() as ssh_conn:
-        execute_cmd_get_ip = ("kubectl get service tiller-deploy -n kube-system --no-headers | awk '{ print $4 }'")
-        ip_ret_val = ssh_conn.run(execute_cmd_get_ip, hide=True)  # type: Result
-        ip_ret_val = ip_ret_val.stdout.strip() # type: str
-        if ip_ret_val == '<none>':
-            ip_ret_val = None
-        return ip_ret_val
-
-def get_helm_repo_service() -> str:
-    """
-    Gets tiller service ip address from kubernetes
-
-    :return (str): Return tiller service ip address
-    """
-    ip_ret_val = ""
-
-    with FabricConnectionWrapper() as ssh_conn:
-        execute_cmd_get_ip = ("kubectl get service chartmuseum --no-headers | awk '{ print $4 }'")
-        ip_ret_val = ssh_conn.run(execute_cmd_get_ip, hide=True)  # type: Result
-        ip_ret_val= ip_ret_val.stdout.strip()  # type: str
-        if ip_ret_val == '<none>':
-            ip_ret_val = None
-
-    return ip_ret_val
-
-def get_helm_repo() -> str:
-    """
-    Gets the helm repo ip and health
-
-    """
-    healthy = False
-
-    ip = get_helm_repo_service()
-    if ip:
-        healthy = get_helm_repo_health(ip)
-
-    if healthy:
-        return "http://" + ip + ":" + CHART_REPO_PORT
-
-    return ""
+def check_catalog(force:bool = False) -> None:
+    global catalog
+    if catalog is None:
+        catalog = Catalog()
+    if force:
+        catalog = Catalog()
 
 @app.route('/api/catalog/<application>/saved_values', methods=['GET'])
 def get_saved_values(application: str) -> str:
-
     if application:
             saved_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": application }))
             return JSONEncoder().encode(saved_values)
-
     return ERROR_RESPONSE
 
 
@@ -94,6 +38,7 @@ def install () -> Response:
 
     :return (Response): Returns a Reponse object
     """
+    check_catalog()
     payload = request.get_json()
     application = payload["role"]
     processdic = payload["process"]
@@ -102,10 +47,9 @@ def install () -> Response:
     values = payload["values"]
 
     if process == "install":
-        tiller_ip = get_tiller_service()
-        helm_repo_uri = get_helm_repo()
-        if tiller_ip and helm_repo_uri:
-            results = install_helm_apps.delay(tiller_ip, helm_repo_uri, application, NAMESPACE, node_affinity=node_affinity, values=values)  #type: list
+        if catalog.tiller_service_ip and catalog.helm_repo_uri:
+            results = install_helm_apps.delay(catalog.tiller_service_ip, catalog.helm_repo_uri, application, NAMESPACE, node_affinity=node_affinity, values=values)  #type: list
+            catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
             return (jsonify(str(results)), 200)
 
         results = dict()
@@ -133,7 +77,7 @@ def delete () -> Response:
 
     :return (Response): Returns a Reponse object
     """
-
+    check_catalog()
     payload = request.get_json()
     application = payload["role"]
     processdic = payload["process"]
@@ -141,7 +85,8 @@ def delete () -> Response:
     nodes = processdic["selectedNodes"]
 
     if process == "uninstall":
-        results = delete_helm_apps.delay(get_tiller_service(), application, NAMESPACE, nodes)  #type: Response
+        results = delete_helm_apps.delay(catalog.tiller_service_ip, application, NAMESPACE, nodes)  #type: Response
+        catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
         return jsonify(str(results))
 
     logger.error("Executing /api/catalog/delete has failed.")
@@ -154,7 +99,7 @@ def reinstall() -> Response:
 
     :return (Response): Returns a Reponse object
     """
-
+    check_catalog()
     payload = request.get_json()
     application = payload["role"]
     processdic = payload["process"]
@@ -164,12 +109,10 @@ def reinstall() -> Response:
     values = payload["values"]
 
     if process == "reinstall":
-        tiller_ip = get_tiller_service()
-        helm_repo_uri = get_helm_repo()
-        if tiller_ip and helm_repo_uri:
-            results = chain(delete_helm_apps.si(tiller_server_ip=tiller_ip, application=application, namespace=NAMESPACE, nodes=nodes),
-            install_helm_apps.si(tiller_server_ip=tiller_ip, chart_repo_uri=helm_repo_uri, application=application, namespace=NAMESPACE, node_affinity=node_affinity, values=values))()
-
+        if catalog.tiller_service_ip and catalog.helm_repo_uri:
+            results = chain(delete_helm_apps.si(tiller_server_ip=catalog.tiller_service_ip, application=application, namespace=NAMESPACE, nodes=nodes),
+            install_helm_apps.si(tiller_server_ip=catalog.tiller_service_ip, chart_repo_uri=catalog.helm_repo_uri, application=application, namespace=NAMESPACE, node_affinity=node_affinity, values=values))()
+            catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
             return jsonify(str(results))
 
         results = dict()
@@ -197,12 +140,12 @@ def generate_values_file () -> Response:
 
     :return (Response): Returns a Reponse object
     """
+    check_catalog()
     payload = request.get_json()
     application = payload["role"]
     configs = payload["configs"]
-    helm_repo_uri = get_helm_repo()
-    if helm_repo_uri:
-        results = generate_values(helm_repo_uri, application, NAMESPACE, configs)
+    if catalog.helm_repo_uri:
+        results = generate_values(catalog.helm_repo_uri, application, NAMESPACE, configs)
         return jsonify(results)
 
     return ERROR_RESPONSE
@@ -210,25 +153,40 @@ def generate_values_file () -> Response:
 
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
-    helm_repo_uri = get_helm_repo()
-    if helm_repo_uri:
-        charts = get_repo_charts(helm_repo_uri)  #type: list
+    check_catalog()
+    catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
+    if catalog.helm_repo_uri:
+        charts = get_repo_charts(catalog.helm_repo_uri)  #type: list
         return jsonify(charts)
     return ERROR_RESPONSE
 
 @app.route('/api/catalog/chart/<application>/status', methods=['GET'])
 def get_app_status(application: str) -> Response:
-    tiller_ip = get_tiller_service()
-    if tiller_ip:
-        results = get_app_state(tiller_ip, application, NAMESPACE)
+    check_catalog()
+    if catalog.chart_releases is None:
+        catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
+
+    if catalog.chart_releases is not None:
+        results = get_app_state(catalog.chart_releases, application, NAMESPACE)
+        return jsonify(results)
+    return ERROR_RESPONSE
+
+@app.route('/api/catalog/chart/<application>/status/force', methods=['GET'])
+def get_app_status_force(application: str) -> Response:
+    check_catalog(True)
+    if catalog.chart_releases is None:
+        catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
+
+    if catalog.chart_releases is not None:
+        results = get_app_state(catalog.chart_releases, application, NAMESPACE)
         return jsonify(results)
     return ERROR_RESPONSE
 
 @app.route('/api/catalog/chart/<application>/info', methods=['GET'])
 def get_chart_info(application: str) -> Response:
-    helm_repo_uri = get_helm_repo()
-    if helm_repo_uri:
-        results = chart_info(helm_repo_uri, application)  #type: list
+    check_catalog()
+    if catalog.helm_repo_uri:
+        results = chart_info(catalog.helm_repo_uri, application)  #type: list
         return jsonify(results)
     return ERROR_RESPONSE
 

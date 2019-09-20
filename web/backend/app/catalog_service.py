@@ -1,4 +1,4 @@
-from app import app, celery, socketio, logger, conn_mng
+from app import app, celery, logger, conn_mng
 from pyhelm.chartbuilder import ChartBuilder
 from pyhelm.tiller import Tiller
 from pyhelm.repo import SchemeError
@@ -10,23 +10,13 @@ from app.node_facts import get_system_info
 from shared.utils import decode_password
 import re
 import grpc
-from flask_socketio import SocketIO, emit, join_room, rooms
 from app.service.socket_service import NotificationMessage, NotificationCode
 import requests, json, yaml
 
 
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-
-@socketio.on('connect')
-def connect():
-    print('Client connected to websocket')
-
-
-@socketio.on('disconnect')
-def disconnect():
-    print('Client disconnected from websocket')
-
+TILLER_SERVER = None
 
 def get_node_type(hostname: str) -> str:
     """
@@ -145,28 +135,23 @@ def chart_info(chart_repo_uri: str, application: str) -> dict:
 
     return info
 
+def get_chart_release_lists(tiller_server_ip: str):
+    chart_releases = None
+    try:
+        global TILLER_SERVER
+        if TILLER_SERVER is None:
+            TILLER_SERVER = Tiller(tiller_server_ip)
+        chart_releases = TILLER_SERVER.list_releases()
+    except Exception as exc:
+        logger.error(exc)
+        print("ERROR: " + str(exc))
+        return exc
+    return chart_releases
 
 
-def get_node_apps(node_hostname: str) -> list:
-    deployed_apps = []
-    saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
-    for v in saved_values:
-        if "values" in v:
-            if "node_hostname" in v["values"]:
-                node_type = get_node_type(v["values"]["node_hostname"])
-                if node_type:
-                    hostname = v["values"]["node_hostname"]
-                    if hostname == node_hostname:
-                        deployed_apps.append(v["application"])
-
-    return deployed_apps
-
-
-def get_app_state(tiller_server_ip: str, application: str, namespace: str) -> list:
-    tiller_server = Tiller(tiller_server_ip)
+def get_app_state(chart_releases: dict, application: str, namespace: str) -> list:
     deployed_apps = []
     try:
-        chart_releases = tiller_server.list_releases()
         for c in chart_releases:
             chart_name = c.chart.metadata.name
             if chart_name not in _CHART_EXEMPTS and chart_name == application:
@@ -242,7 +227,9 @@ def generate_values(chart_repo_uri: str, application: str, namespace: str, confi
 @celery.task
 def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: str, namespace: str, node_affinity: str, values: list, task_id=None):
     response = []
-    tiller_server = Tiller(tiller_server_ip)
+    global TILLER_SERVER
+    if TILLER_SERVER is None:
+        TILLER_SERVER = Tiller(tiller_server_ip)
 
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
     try:
@@ -287,7 +274,7 @@ def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: 
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
 
-                result = tiller_server.install_release(chartb.get_helm_chart(), namespace,
+                result = TILLER_SERVER.install_release(chartb.get_helm_chart(), namespace,
                                         dry_run=False, name=deployment_name,
                                         values=value_items)
 
@@ -340,7 +327,9 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, n
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
 
     response = []
-    tiller_server = Tiller(tiller_server_ip)
+    global TILLER_SERVER
+    if TILLER_SERVER is None:
+        TILLER_SERVER = Tiller(tiller_server_ip)
 
     new_values = []
 
@@ -374,7 +363,7 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, n
             if node_hostname:
                 execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
 
-            result = tiller_server.uninstall_release(deployment_to_uninstall, True, True)
+            result = TILLER_SERVER.uninstall_release(deployment_to_uninstall, True, True)
             response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
 
             # Remove old saved values

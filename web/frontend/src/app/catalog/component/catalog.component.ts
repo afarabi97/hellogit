@@ -4,6 +4,7 @@ import { CatalogService } from '../services/catalog.service';
 import { Title } from '@angular/platform-browser';
 import { Notification } from '../../notifications/interface/notifications.interface';
 import { WebsocketService } from '../../services/websocket.service';
+import { take, first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-catalog',
@@ -50,10 +51,10 @@ export class CatalogComponent implements OnInit {
       this.charts = data;
     });
 
-    this._WebsocketService.onBroadcast()
+    this._WebsocketService.onBroadcast().pipe(take(2))
     .subscribe((message: Notification) => {
       if(message.role === "catalog" && message.status === "DEPLOYED") {
-        this._CatalogService.getByString("chart/" + message.application.toLowerCase() + "/status").subscribe(statusGroup => {
+        this._CatalogService.getByString("chart/" + message.application.toLowerCase() + "/status/force").subscribe(statusGroup => {
           this.charts.map( chart => {
             if( chart.application === message.application.toLowerCase()) {
               chart.nodes = statusGroup;
@@ -61,7 +62,7 @@ export class CatalogComponent implements OnInit {
           });
           this._CatalogService.isLoading = true;
         });
-      } else if (message.role === "catalog" && message.action === "Deleting") {
+      } else if (message.role === "catalog" && message.action === "Deleting" && this.charts !== undefined) {
         this.charts.map( chart => {
           if( chart.application === message.application.toLowerCase()) {
             chart.nodes = [];
