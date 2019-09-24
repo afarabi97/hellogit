@@ -4,6 +4,9 @@
   file:
     path: "{{ TFPLENUM_REPO_DIR }}"
     state: absent
+  with_items:
+    - "{{ TFPLENUM_REPO_DIR }}"
+    - "/tmp/var/"
 
 - name: "Create tfplenum repo directory"
   file:

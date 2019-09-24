@@ -40,6 +40,11 @@
     group: root
     mode: 0755
 
+- name: Add tfplenum log rotate
+  copy:
+    src: "tfplenum-logrotate"
+    dest: "/etc/logrotate.d/tfplenum"
+
 - name: restart crond
   systemd:
     name: crond

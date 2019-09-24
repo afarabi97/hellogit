@@ -2,20 +2,24 @@
 
 - import_tasks: "install.yml"
   when:
+    - run_option is defined
     - "run_option == 'install'"
 #    - es_installed == 0
 
 - import_tasks: "uninstall.yml"
   when:
+    - run_option is defined
     - "run_option == 'uninstall'"
     - es_installed == 1
 
 - import_tasks: "reinstall.yml"
   when:
+    - run_option is defined
     - "run_option == 'reinstall'"
 
 - import_tasks: "upgrade.yml"
   when:
+    - run_option is defined
     - "run_option == 'upgrade'"
     - es_installed == 1
 

@@ -15,6 +15,15 @@
     set_fact:
       sensor_monitor_interface: []
 
+  - name: Get management interface device id
+    set_fact:
+      management_interface: "{{ item }}"
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - hostvars[inventory_hostname]['ansible_' + item] is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+
   - name: Get potential monitor interfaces
     set_fact:
       sensor_monitor_interface: "{{ sensor_monitor_interface + [ item ] }}"

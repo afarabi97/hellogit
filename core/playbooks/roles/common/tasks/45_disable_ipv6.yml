@@ -35,7 +35,7 @@
   sysctl:
     name: "{{ item.item }}"
     state: present
-    value: 1
+    value: "1"
     reload: yes
   when: item.rc == 0
   with_items:

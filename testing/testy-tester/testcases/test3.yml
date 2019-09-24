@@ -152,7 +152,7 @@ kit:
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 60
+        size: 64
         hot_add_enabled: False
       boot_drive_name: "sda"
       es_drives:
@@ -191,12 +191,12 @@ kit:
             dv_portgroup_name: "Monitoring Portgroup"
             std_portgroup_name:
       cpu_spec:
-        sockets: 12
+        sockets: 24
         cores_per_socket: 1
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 12
+        size: 64
         hot_add_enabled: False
       boot_drive_name: "sda"
       pcap_drives:
