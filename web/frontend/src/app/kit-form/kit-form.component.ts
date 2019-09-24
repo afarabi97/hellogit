@@ -260,7 +260,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
       const nodes = kitFormGroup.get('nodes') as FormArray;
       kitForm.nodes.map(node => nodes.push(this.newNode(node)));
       nodes.disable();
-      kitFormGroup.disable()
+      kitFormGroup.disable();
     }
     return kitFormGroup;
   }
@@ -273,14 +273,14 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    * @returns
    * @memberof KitFormComponent
    */
-  private newNode(node) {
+  private newNode(node, addNode?: boolean) {
     let genericNode = this.formBuilder.group({
       node_type: new FormControl(node && node.node_type ? node.node_type : '', Validators.compose([validateFromArray(kit_validators.node_type)])),
       hostname: new FormControl(node ? node.hostname : ''),
       management_ip_address: node ? node.management_ip_address ? node.management_ip_address : node.default_ipv4_settings.address : '',
       deviceFacts: node && node.deviceFacts ? node.deviceFacts : node
     });
-    genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node));
+    genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
     return genericNode;
   }
 
@@ -294,11 +294,11 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    * @param {KitFormNode} node
    * @memberof KitFormComponent
    */
-  private addNodeControls(value: string, genericNode: FormGroup, node: KitFormNode): void {
+  private addNodeControls(value: string, genericNode: FormGroup, node: KitFormNode, addNode?: boolean): void {
     if (value === 'Sensor') {
       this.addSensorControls(genericNode, node.is_remote);
     } else if (value === 'Server') {
-      this.addServerControls(genericNode, node.is_master_server, node);
+      this.addServerControls(genericNode, node.is_master_server, node, addNode);
     }
   }
 
@@ -324,11 +324,14 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    * @param {FormGroup} genericNode
    * @memberof KitFormComponent
    */
-  private addServerControls(genericNode: FormGroup, value, node): void {
+  private addServerControls(genericNode: FormGroup, value, node, addNode?: boolean): void {
     genericNode.addControl('is_master_server', new FormControl(value ? value : false));
     // set the node to false because otherwise
     if (value) {
       node["is_master_server"] = false;
+    }
+    if (addNode) {
+      genericNode.addControl('is_add_node', new FormControl(true));
     }
     // remove Server Controls
     if (genericNode.get('is_remote')) {
@@ -515,7 +518,7 @@ export class KitFormComponent implements OnInit, AfterViewInit {
       this.kickStartSrv.gatherDeviceFacts(diff).subscribe(data => {
         let nodes = this.kitFormGroup.get('nodes') as FormArray;
         let newNodes = this.kitFormGroup.get('nodesToAdd') as FormArray;
-        let newNode = this.newNode(data);
+        let newNode = this.newNode(data, true);
         nodes.push(newNode);
         newNodes.push(newNode);
       });
@@ -534,6 +537,20 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     dns.setValue(masterServerIp);
   }
 
+  /**
+   * Test Server nodes to see if it was an added Server
+   *
+   * @param {*} node
+   * @returns
+   * @memberof KitFormComponent
+   */
+  testAddNode(node) {
+    if (node.get('is_add_node') === null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   /**
    * is the sumbit for add node

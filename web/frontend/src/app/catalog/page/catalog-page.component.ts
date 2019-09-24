@@ -82,11 +82,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         "process":"reinstall",
         "name": "Reinstall",
         "children": []
-      },
-      {
-        "process":"upgrade",
-        "name": "Upgrade",
-        "children": []
       }];
       this.isDevDependent();
 
@@ -180,9 +175,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
                       process.children.push(node);
                       break;
                     case 'uninstall':
-                      process.children.push(node);
-                      break;
-                    case 'upgrade':
                       process.children.push(node);
                       break;
                   }

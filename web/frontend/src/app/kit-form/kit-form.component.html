@@ -31,8 +31,8 @@
           Open Console
         </button>
         <div style="float: right;">
-          <button mat-raised-button color="accent" (click)="kitFormGroup.enable()">Enable</button>
-          <button mat-raised-button color="warn" (click)="clearkitFormGroup()">Clear</button>
+          <button mat-raised-button color="accent" *ngIf="addNodeButton === false" (click)="kitFormGroup.enable()">Enable</button>
+          <button mat-raised-button color="warn" *ngIf="addNodeButton === false" (click)="clearkitFormGroup()">Clear</button>
         </div>
       </mat-card-actions>
     </mat-card>
@@ -89,7 +89,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Nodes</mat-card-title>
-      <div *ngIf="kickstartForm?.nodes?.length > kitFormGroup.get('nodes')?.controls?.length" style="float: right;">
+      <div *ngIf="kickstartForm?.nodes?.length > kitFormGroup.get('nodes')?.controls?.length" style="float: right; padding-right: 25px; padding-bottom: 10px;">
         <button mat-raised-button color="accent" (click)="addNode()">Add Node</button>
       </div>
       </mat-card-header>
@@ -146,7 +146,7 @@
                   <!-- SERVER -->
                   <div *ngIf="node.controls.node_type.value == 'Server'" fxLayout="column"
                     fxLayoutAlign="start stretch">
-                    <mat-checkbox formControlName="is_master_server"
+                    <mat-checkbox formControlName="is_master_server" *ngIf="testAddNode(node)"
                       (change)="singleSelectCheckbox(kitFormGroup.get('nodes').controls,'is_master_server', i)"
                       matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
                       Server</mat-checkbox>
