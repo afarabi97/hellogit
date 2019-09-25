@@ -1,2 +1,4 @@
+---
 - include: uninstall.yml
+  when:  es_installed
 - include: install.yml

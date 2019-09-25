@@ -1,6 +1,6 @@
 ---
 
-- name: 'Start {{ item }}'
+- name: 'Start crio and kubelet'
   systemd:
     name: "{{ item }}"
     state: 'started'

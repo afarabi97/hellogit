@@ -1,0 +1,4 @@
+---
+- import_tasks: uninstall.yml
+  when: helm_installed.stat.exists == True
+- import_tasks: install.yml

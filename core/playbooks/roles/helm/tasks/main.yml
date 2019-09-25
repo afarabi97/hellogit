@@ -1,25 +1,9 @@
+---
+
 - import_tasks: "preflight.yml"
 
-- import_tasks: "install.yml"
-  when:
-    - run_option is defined
-    - "run_option == 'install'"
-    - helm_installed.stat.exists == False
-
 - import_tasks: "uninstall.yml"
-  when:
-    - run_option is defined
-    - "run_option == 'uninstall'"
-    - helm_installed.stat.exists == True
+  when: helm_installed.stat.exists == True
 
-- import_tasks: "reinstall.yml"
-  when:
-    - run_option is defined
-    - "run_option == 'reinstall'"
-    - helm_installed.stat.exists == True
+- import_tasks: "install.yml"
 
-- import_tasks: "upgrade.yml"
-  when:
-    - run_option is defined
-    - "run_option == 'upgrade'"
-    - helm_installed.stat.exists == True

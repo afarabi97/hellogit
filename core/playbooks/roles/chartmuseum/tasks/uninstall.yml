@@ -1,0 +1,6 @@
+---
+
+- name: Remove Chartmuseum
+  shell: |
+    helm delete chartmuseum --purge
+

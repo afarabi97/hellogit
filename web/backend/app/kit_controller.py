@@ -84,7 +84,7 @@ def execute_kit_inventory() -> Response:
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
-        cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml --extra-vars \"run_option=install\" ")
+        cmd_to_execute = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "' site.yml")
         task_id = perform_kit.delay(cmd_to_execute)
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(task_id), "pid": ""},
@@ -123,10 +123,10 @@ def execute_add_node() -> Response:
     isSucessful, root_password = _replace_kit_inventory(payload)
     if isSucessful:
         for nodeToAdd in payload['nodesToAdd']:
-            cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap --extra-vars \"run_option=install\""
+            cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap"
                             ).format(playbook_pass=root_password)
 
-            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"run_option=install add_node=true\" --limit {node}"
+            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"add_node=true\" --limit {node}"
                             ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
 
             task_idOne = perform_kit.delay(cmd_to_executeOne)

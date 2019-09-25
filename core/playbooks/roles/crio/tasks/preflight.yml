@@ -1,0 +1,6 @@
+---
+
+- name: Checking if crio is Installed
+  stat:
+    path: /usr/bin/crio
+  register: crio_installed

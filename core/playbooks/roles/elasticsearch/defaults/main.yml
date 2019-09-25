@@ -4,8 +4,8 @@
 es_dir: "{{ install_dir  }}/elastic"
 es_upgrade_ver: "{{ elastic_7_version }}"
 elastic_dir: "{{ install_dir  }}/elasticsearch"
-elastic_user: 1000
-elastic_group: 1000
+elastic_user: "1000"
+elastic_group: "1000"
 
 #### install path
 es_data_path: "{{data_path}}/elastic"

@@ -6,6 +6,7 @@
   register: es_sts
   when: "add_node is defined and add_node == 'true'"
 
+
 - name: Scale ES
   k8s:
     kind: StatefulSet

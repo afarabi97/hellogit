@@ -1,0 +1,8 @@
+---
+
+- name: Check if chartmuseum rest api exists
+  uri:
+    url: http://chartmuseum.{{ fqdn }}:8080
+    return_content: yes
+  register: chartmuseum_results
+  ignore_errors: yes

@@ -1,4 +1,15 @@
 ---
+
+- name: Checking if crio is Installed
+  stat:
+    path: /usr/bin/crio
+  register: crio_installed
+
+- name: Check Kube Install
+  import_role:
+    name: kubernetes/common
+    tasks_from: check_kube_install
+
 - name: Check Worker Node
   import_role:
     name: kubernetes/common

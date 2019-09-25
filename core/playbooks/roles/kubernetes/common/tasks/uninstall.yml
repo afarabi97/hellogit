@@ -1,0 +1,4 @@
+---
+- name: Reset Kube
+  import_role:
+    name: kubernetes/reset

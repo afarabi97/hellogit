@@ -196,7 +196,6 @@
   pre_tasks:
     - setup:
   roles:
-    - kubernetes/common
     - kubernetes/master
   tags:
     - kube-master
@@ -211,7 +210,6 @@
   pre_tasks:
     - setup:
   roles:
-    - kubernetes/common
     - kubernetes/node
   tags:
     - kube-node
@@ -227,7 +225,7 @@
 - name: chartmuseum
   any_errors_fatal: true
   hosts:
-    - all
+    - master_server
   roles:
     - chartmuseum
   tags: chartmuseum

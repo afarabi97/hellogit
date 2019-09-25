@@ -4,11 +4,6 @@
 # Checking that required variables are set #
 ############################################
 
-- name: Checking run_option is Set
-  fail:
-    msg: 'Run option is not defined properly. Run option needs to be set to install, reinstall, uninstall, or upgrade. i.e. --extra-vars "run_option=install"'
-  when: run_option not in ['install', 'uninstall', 'reinstall', 'upgrade'] or run_option is not defined or run_option is none
-
 - name: Check if remote_sensors is defined
   fail:
     msg: 'Verify you have the remote_sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.'

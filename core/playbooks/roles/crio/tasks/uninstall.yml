@@ -1,0 +1,52 @@
+---
+
+- name: Checking if kubeadm is Installed
+  stat:
+    path: /usr/bin/kubeadm
+  register: kubeadm_installed
+
+- name: Reset Kubernetes Node
+  command: kubeadm reset -f -v1
+  register: kube_reset_result
+  when: kubeadm_installed.stat.exists
+  ignore_errors: yes
+
+- name: reload iptables
+  import_role:
+    name: common
+    tasks_from: 50_setup_firewall
+
+- name: Make sure crio is running
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items:
+    - crio
+    - crio-shutdown
+
+- name: Check if any pods are still running
+  shell: |
+    crictl ps -qa
+  register: running_pods
+
+- name: Stop all running containers
+  shell: |
+    crictl stop $(crictl ps -qa)
+    crictl rm $(crictl ps -qa)
+  ignore_errors: yes
+  when: running_pods.stdout != ""
+
+- name: Uninstall CRI-O
+  yum:
+    name: [ buildah, cri-o, cri-tools, runc, containernetworking-plugins, container-selinux, criu ]
+    state: absent
+
+- name: Clean up directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/cni/net.d"
+    - "/usr/lib/systemd/system/crio.service"
+    - "/usr/bin/crictl"

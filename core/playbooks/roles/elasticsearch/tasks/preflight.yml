@@ -1,9 +1,14 @@
-- name: Checking run_option is Set
-  fail:
-    msg: 'Run option is not defined properly. Run option needs to be set to install, reinstall, uninstall, or upgrade. i.e. --extra-vars "run_option=install"'
-  when: run_option not in ['install', 'uninstall', 'reinstall', 'upgrade'] or run_option is not defined or run_option is none
+---
+
+- set_fact:
+    es_installed: false
 
 - name: Checking if Elastic is already deployed
-  shell: helm list | grep elastic | grep -c DEPLOYED
-  register: es_installed
-  failed_when: es_installed.rc >= 2
+  shell: helm list --all | grep -c elastic
+  register: es_results
+  failed_when: es_results.rc >= 2
+
+- set_fact:
+    es_installed: true
+  when: es_results is defined and es_results.stdout|int > 0
+

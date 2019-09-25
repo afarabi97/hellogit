@@ -1,0 +1,33 @@
+---
+
+- set_fact:
+    kube_installed: false
+    kube_install_complete: false
+
+- name: Checking if kubelet is Installed
+  stat:
+    path: /usr/bin/kubelet
+  register: kubelet_installed
+
+- debug:
+    msg: "{{ kubelet_installed.stat.exists }}"
+
+- name: Checking if kubeadm is Installed
+  stat:
+    path: /usr/bin/kubeadm
+  register: kubeadm_installed
+
+- debug:
+    msg: "{{ kubeadm_installed.stat.exists }}"
+
+- name: Checking if kubectl is Installed
+  stat:
+    path: /usr/bin/kubectl
+  register: kubectl_installed
+
+- debug:
+    msg: "{{ kubectl_installed.stat.exists }}"
+
+- set_fact:
+    kube_installed: true
+  when: kubelet_installed.stat.exists or kubeadm_installed.stat.exists or kubectl_installed.stat.exists

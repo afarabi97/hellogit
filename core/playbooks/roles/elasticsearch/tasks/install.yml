@@ -11,9 +11,9 @@
   file:
     path: "{{ data_path }}/elastic"
     state: directory
-    mode: '0775'
-    owner: 1000
-    group: 1000
+    mode: "0775"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
   delegate_to: "{{ item }}"
   loop: "{{ groups['servers'] }}"
 

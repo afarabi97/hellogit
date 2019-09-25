@@ -1,0 +1,39 @@
+---
+
+- name: Download chartmuseum chart
+  get_url:
+    url: "{{ offline_repo_base }}/charts/chartmuseum-{{chartmuseum_version}}.tgz"
+    dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
+
+- name: deploy chartmuseum
+  command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.role=server --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
+
+- name: Wait for service to be ready
+  wait_for:
+    port: 8080
+    host: chartmuseum.{{ fqdn }}
+    connect_timeout: 3
+    delay: 3
+    timeout: 180
+
+- name: add chart repos
+  command: "helm repo add chartmuseum http://chartmuseum.{{ fqdn }}:8080"
+
+- name: copy charts
+  copy:
+    src: /var/www/html/offlinerepo/charts
+    dest: /tmp/
+
+- name: Get files on remote machine
+  find:
+    paths: /tmp/charts/
+    patterns: '*.tgz'
+    recurse: no
+  register: charts
+
+- name: load charts
+  command:  "helm push {{ item.path }} chartmuseum"
+  with_items: "{{ charts.files }}"
+
+- name: update helm repo
+  command: helm repo update
