@@ -15,6 +15,13 @@ export class ConfigmapsService {
     return this.http.get(url).pipe();
   }
 
+  getConfigMap(namespace: string, 
+               config_name: string, 
+               data_name: string): Observable<Object>{
+    const url = `/api/get_config_map/${namespace}/${config_name}/${data_name}`;
+    return this.http.get(url).pipe();
+  }
+
   saveConfigMap(configMap: Object): Observable<Object> {
     const url = '/api/save_config_map';
     return this.http.post(url, configMap, HTTP_OPTIONS).pipe();

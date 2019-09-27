@@ -116,7 +116,13 @@ export class ConfigmapsComponent implements OnInit {
     this.activeConfigDataTitle = "Editing " + configDataName;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
-    this.activeConfigData = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
+    let metadata = this.configMaps[this.activeConfigMapIndex]['metadata'];
+
+    this.configMapSrv.getConfigMap(metadata['namespace'], metadata['name'], this.activeConfigDataKey).subscribe(data => {
+      this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = data;
+      this.activeConfigData = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
+    });
+    
     this.isUserEditing = true;
   }
 
