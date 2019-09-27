@@ -123,7 +123,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           });
         }
       });
-      if(this.chart.devDependent === "kafka") {
+      if(this.chart.devDependent === "zeek") {
         this.setupKafkaArray();
       }
     }
@@ -555,7 +555,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   setupKafkaArray() {
     let kafkaValues;
     let array = [];
-    this._CatalogService.getByString("kafka/saved_values").subscribe(values => {
+
+    this._CatalogService.getByString("zeek/saved_values").subscribe(values => {
       kafkaValues = values.length !== 0 ? values : null;
       if(values !== null) {
         values.map( value => {
@@ -564,7 +565,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         });
       }
     });
-
     this.kafkaArray = array;
   }
   /**
