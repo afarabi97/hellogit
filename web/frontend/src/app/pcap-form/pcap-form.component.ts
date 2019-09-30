@@ -130,8 +130,7 @@ export class PcapFormComponent implements OnInit {
     this.showMd5 = false;
   }
 
-  deleteFile(){
-    console.log("Deleting", this.pcapToDelete)
+  deleteFile(){    
     this.pcapSrv.deletePcap(this.pcapToDelete).subscribe(data => {
       this.displayServiceResponse(data);
     });
@@ -144,7 +143,6 @@ export class PcapFormComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result)
       let form = result as FormGroup;
       if (form && form.valid){
         this.pcapSrv.replayPcap(form.getRawValue()).subscribe(data => {

@@ -10,11 +10,6 @@ export class HealthServiceService {
 
   constructor(private http: HttpClient) { }
 
-  performSystemsCheck(): Observable<Object> {
-    const url = '/api/perform_systems_check';
-    return this.http.get(url).pipe();
-  }
-
   getHealthStatus(): Observable<Object> {
     const url = '/api/get_health_status';
     return this.http.get(url).pipe();

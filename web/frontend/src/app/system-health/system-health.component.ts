@@ -6,7 +6,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { MatTabChangeEvent } from '@angular/material';
-
+import { interval, Subscription } from 'rxjs';
+import { ModalTableComponent } from './table-dialog/modal-table.component';
 
 const MODAL_SIZE ='900px';
 
@@ -26,6 +27,7 @@ export class SystemHealthComponent implements OnInit {
   tabs_names: Array<string>;
   allPodeStatuses: Array<Object>;
   podsStatuses: MatTableDataSource<Array<Object>>;
+  podErrors: MatTableDataSource<Array<Object>>;
   nodeStatuses: MatTableDataSource<Array<Object>>;
   totals: Object;
 
@@ -33,8 +35,10 @@ export class SystemHealthComponent implements OnInit {
   displayedPipeline: Object;
 
   isNodeResourcesVisible: Array<boolean>;
-  isPodResourcesVisible: Array<boolean>;
   currentTabIndex: number;
+
+  private updateSubscription: Subscription;
+
 
   constructor(private title: Title,
               private healthSrv: HealthServiceService,
@@ -44,16 +48,38 @@ export class SystemHealthComponent implements OnInit {
   ngOnInit() {
     this.title.setTitle("System Health");
     this.currentTabIndex = 0;
-    this._refreshHealthPage();
+    this._reloadHealthPage();
+
+    //Refresh the page every 15 seconds with the new health data.
+    this.updateSubscription = interval(15000).subscribe((val) => {
+      this._refreshHealthPage();
+    });
   }
 
-  private _refreshHealthPage(){
+  ngOnDestroy() {
+    this.updateSubscription.unsubscribe();
+  }
+
+  private _reloadPodErrors(data: Object){
+    this.podErrors = new MatTableDataSource<Array<Object>>();
+
+    for (let item of data['pod_info']){
+      for (let container of this.getPodStatus(item["status"])){
+        if (container.status !== "running"){
+          this.podErrors.data.push(item);
+          break;
+        }
+      }
+    }
+  }
+
+  private _reloadHealthPage(){
     this.healthSrv.getHealthStatus().subscribe(data => {
       this.allPodeStatuses = data['pod_info'];
+      this._reloadPodErrors(data);
       this.podsStatuses = new MatTableDataSource<Array<Object>>(data['pod_info']);
       this.nodeStatuses = new MatTableDataSource<Array<Object>>(data['node_info']);
       this.isNodeResourcesVisible = new Array(this.nodeStatuses.data.length).fill(false);
-      this.isPodResourcesVisible = new Array(this.podsStatuses.data.length).fill(false);
       this.totals = data['totals'] as Object;
 
       this.tabs_names = new Array<string>();
@@ -68,6 +94,47 @@ export class SystemHealthComponent implements OnInit {
       let t = new MatTabChangeEvent()
       t.index = this.currentTabIndex;
       this.changeTab(t);
+    });
+  }
+
+  private _spliceInArray(newStuff: Array<any>, oldStuff: Array<any>){
+    outer:
+    for (let item of newStuff){
+      for (let index = 0; index < oldStuff.length; index++){
+        let oldStatus = oldStuff[index];
+        if (item["metadata"]["name"] === oldStatus["metadata"]["name"])  {
+          oldStuff.splice(index, 1, item);
+          continue outer;
+        }
+      }
+    }
+  }
+
+  private _refreshHealthPage(){
+    this.healthSrv.getHealthStatus().subscribe(data => {
+      this._reloadPodErrors(data);
+      this.totals = data['totals'] as Object;
+      if (data['pod_info'].length === this.allPodeStatuses.length &&
+          data['node_info'].length === this.nodeStatuses.data.length )
+      {
+        this._spliceInArray(data['node_info'], this.nodeStatuses.data);
+        this._spliceInArray(data['pod_info'], this.allPodeStatuses);
+        this._spliceInArray(data['pod_info'], this.podsStatuses.data);
+      } else {
+        this._reloadHealthPage();
+      }
+    });
+
+    this.healthSrv.getPipelineStatus().subscribe(data => {
+      if (this.pipelineStatus){
+        for (let key in data){
+          for (let innerKey in data[key]){
+            this.pipelineStatus[key][innerKey] = data[key][innerKey];
+          }
+        }
+      } else {
+        this.pipelineStatus = data;
+      }
     });
   }
 
@@ -106,17 +173,11 @@ export class SystemHealthComponent implements OnInit {
     return false;
   }
 
-  togglePodDropDown(podObj: Object){
-    let index = this._getPodIndex(podObj);
-    if (index !== -1)
-      this.isPodResourcesVisible[index] = !this.isPodResourcesVisible[index];
-  }
-
-  isPodResourceVisible(podObj: Object): boolean {
-    let index = this._getPodIndex(podObj);
-    if (index !== -1)
-      return this.isPodResourcesVisible[index];
-    return false
+  openPodDialog(podObj: Object){
+    this.dialog.open(ModalTableComponent, {
+      width: MODAL_SIZE,
+      data: { title: podObj["metadata"]["name"], pod: podObj}
+    });
   }
 
   changeTab(tab: MatTabChangeEvent){
@@ -143,11 +204,6 @@ export class SystemHealthComponent implements OnInit {
       this.displayedPipeline = null;
     }
     this.podsStatuses.data = ret_val;
-    this.isPodResourcesVisible = new Array(this.podsStatuses.data.length).fill(false);
-  }
-
-  performSystemsCheck(){
-    this._refreshHealthPage();
   }
 
   openConsole(){
@@ -194,7 +250,7 @@ export class SystemHealthComponent implements OnInit {
     }
   }
 
-  getPostStatus(stateObj: Object): Array<{name: string, status: string}> {
+  getPodStatus(stateObj: Object): Array<{name: string, status: string}> {
     let retVal: Array<{name: string, status: string}> = [];
 
     if (stateObj["phase"] === "Pending"){
@@ -225,31 +281,5 @@ export class SystemHealthComponent implements OnInit {
       }
     }
     return retVal;
-  }
-
-  getRequest(container: Object, key: string): string {
-    if (container){
-      if (container['resources']) {
-        if (container['resources']['requests']) {
-          if (container['resources']['requests'][key]){
-            return container['resources']['requests'][key];
-          }
-        }
-      }
-    }
-    return "Not Set";
-  }
-
-  getLimit(container: Object, key: string): string {
-    if (container){
-      if (container['resources']) {
-        if (container['resources']['limits']) {
-          if (container['resources']['limits'][key]){
-            return container['resources']['limits'][key];
-          }
-        }
-      }
-    }
-    return "Not Set";
   }
 }

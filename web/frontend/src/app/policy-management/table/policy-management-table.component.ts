@@ -286,17 +286,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
       if (ruleSetGroup && ruleSetGroup.valid){
         this.policySrv.updateRuleSet(ruleSetGroup.value as IRuleSet).subscribe(data => {
           if (data instanceof RuleSet){
-            // console.log("made it here");
-            // const index = this.getRuleSetIndex(data);
-            // data.rules = (this.ruleSetsDataSource.data[index] as RuleSet).rules;
-            // console.log(data);
-            // this.rulesDataSource.data = data.rules;
-            // this.ruleSetsDataSource.data[index] = data;
-            // this.paginator._changePageSize(this.paginator.pageSize);
-            // this.rulesDataSource.paginator = this.paginatorInner;
-
             this.reloadRuleSetTable();
-            // this.paginatorInner._changePageSize(this.paginatorInner.pageSize);
           } else if (data instanceof ErrorMessage) {
             this.displaySnackBar(data.error_message);
           }
@@ -350,7 +340,6 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
           console.log(err);
         });
       }
-      console.log(result);
     });
   }
 

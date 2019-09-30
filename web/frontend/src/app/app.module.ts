@@ -19,6 +19,8 @@ import { ToolsFormComponent } from './tools-form/tools.component';
 import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
 
 import { SystemHealthComponent } from './system-health/system-health.component';
+import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
+
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -123,7 +125,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     NodeBackgroundComponent,
     CatalogPageComponent,
     UpgradeComponent,
-    ReplayPcapDialog
+    ReplayPcapDialog,
+    ModalTableComponent
   ],
   imports: [
     BrowserModule,
@@ -158,7 +161,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     AgentTargetDialogComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
-    ReplayPcapDialog
+    ReplayPcapDialog,
+    ModalTableComponent
   ]
 })
 export class AppModule { }

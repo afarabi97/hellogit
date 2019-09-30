@@ -426,7 +426,6 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openAddWindowsHostModal(targetConfig: IpTargetList) {
-    console.log(targetConfig);
     let dialogForm = this.fb.group({
       hostnames: new DialogFormControl("Windows Hostname", '',
                                        Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
