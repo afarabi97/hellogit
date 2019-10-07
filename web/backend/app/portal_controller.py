@@ -32,19 +32,19 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': 'assessor/password'})
         else:
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': 'assessor/password'})
-
     elif dns == "kubernetes-dashboard.lan":
         if ip:
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': ''})
-    elif dns == "beagle.lan":
-        saved_values = conn_mng.mongo_catalog_saved_values.find_one({ "application": "beagle" })
-        port = saved_values['values']['beagle_port']
+    elif dns == "hive.lan":
+        cortex_port = "9001"
         if ip:
-            portal_links.append({'ip': 'http://' + ip + ":" + port, 'dns': 'https://' + dns + ":" + port, 'logins': ''})
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': 'http://' + ip + ":" + cortex_port, 'dns': 'http://' + dns + ":" + cortex_port, 'logins': ''})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns + ":" + port, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': 'http://' + dns + ":" + cortex_port, 'logins': ''})
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})

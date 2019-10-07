@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}
+    spec:
+      initContainers:
+      - name: elastic-init
+        image: "{{ .Values.elastic_image }}"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/usr/bin/chmod -R 777 /usr/share/elasticsearch/data"
+        volumeMounts:
+        - name: elasticdb
+          mountPath: /usr/share/elasticsearch/data
+      containers:
+      - name: elastic
+        image: "{{ .Values.elastic_image }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9200
+        env:
+          - name: http.host
+            value: 0.0.0.0
+          - name: cluster.name
+            value: hive
+          - name: thread_pool.index.queue_size
+            value: "100000"
+          - name: thread_pool.search.queue_size
+            value: "100000"
+          - name: thread_pool.bulk.queue_size
+            value: "100000"
+          - name: discovery.type
+            value: single-node
+        volumeMounts:
+        - name: elasticdb
+          mountPath: /usr/share/elasticsearch/data
+      - name: cortex
+        image: "{{ .Values.cortex_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/opt/cortex/entrypoint --es-uri http://localhost:9200"
+        ports:
+        - containerPort: {{ .Values.corex_port }}
+        volumeMounts:
+        - name: hiveconfig
+          mountPath: /etc/cortex/application.conf
+          subPath: cortex.conf
+      - name: hive
+        image: "{{ .Values.hive_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/opt/thehive/entrypoint --es-uri http://localhost:9200"
+        ports:
+        - containerPort: {{ .Values.hive_port }}
+        volumeMounts:
+        - name: hiveconfig
+          mountPath: /etc/thehive/application.conf
+          subPath: hive.conf
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: hiveconfig
+        configMap:
+          name: hiveconfig
+      - name: elasticdb
+        hostPath:
+          path: /data/hive
+          type: DirectoryOrCreate

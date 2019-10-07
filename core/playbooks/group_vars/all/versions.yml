@@ -22,6 +22,9 @@ chartmuseum_version: "2.3.2"
 elastic_7_version: "7.3.1"
 elastic_7_chart_version: "7.3.0"
 window_remote_installer_version: "1.2"
+hive_elastic_version: "6.8.0"
+hive_cortex_version: "3.0.0"
+hive_version: "3.4.0"
 
 filebeat_image: beats/filebeat
 
@@ -32,13 +35,16 @@ kube_images:
   - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
-  - docker.io/tfplenum/zeek:{{zeek_version}}  
+  - docker.io/tfplenum/zeek:{{zeek_version}}
   - docker.elastic.co/beats/metricbeat:{{elastic_7_version}}
   - docker.elastic.co/beats/filebeat:{{elastic_7_version}}
   - docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}
   - docker.elastic.co/kibana/kibana:{{elastic_7_version}}
   - docker.elastic.co/logstash/logstash:{{elastic_7_version}}
   - docker.io/tfplenum/windows_remote_installer:{{window_remote_installer_version}}
+  - docker.io/elasticsearch:{{hive_elastic_version}}
+  - docker.io/thehiveproject/cortex:{{hive_cortex_version}}
+  - docker.io/thehiveproject/thehive:{{hive_version}}
   - k8s.gcr.io/kube-apiserver:v{{k8s_version}}
   - k8s.gcr.io/kube-controller-manager:v{{k8s_version}}
   - k8s.gcr.io/kube-scheduler:v{{k8s_version}}
