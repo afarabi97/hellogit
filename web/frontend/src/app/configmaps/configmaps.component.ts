@@ -25,6 +25,7 @@ export class ConfigmapsComponent implements OnInit {
   activeConfigDataTitle: string;
   activeConfigDataKey: string;
   activeConfigData: string;
+  activeConfigMapName: string;
   activeConfigMapIndex: number;
 
   innerTableColumns = [ "filename", "actions" ]
@@ -40,6 +41,7 @@ export class ConfigmapsComponent implements OnInit {
     this.configMaps = new Array();
     this.activeConfigDataTitle = "";
     this.activeConfigData = "";
+    this.activeConfigMapName = "";
     this.activeConfigMapIndex = -1;
     this.isDeleteConfigMap = false;
    }
@@ -69,7 +71,7 @@ export class ConfigmapsComponent implements OnInit {
   addConfigMap() {
     let acdForm = this.formBuilder.group({
       namespace: new DialogFormControl("Namespace", "", [Validators.minLength(3), Validators.required]),
-      name: new DialogFormControl("Name", "", 
+      name: new DialogFormControl("Name", "",
       [Validators.minLength(3),
        Validators.required,
        Validators.pattern('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$')])
@@ -117,12 +119,13 @@ export class ConfigmapsComponent implements OnInit {
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
     let metadata = this.configMaps[this.activeConfigMapIndex]['metadata'];
+    this.activeConfigMapName = metadata['name'];
 
     this.configMapSrv.getConfigMap(metadata['namespace'], metadata['name'], this.activeConfigDataKey).subscribe(data => {
       this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = data;
       this.activeConfigData = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     });
-    
+
     this.isUserEditing = true;
   }
 
@@ -158,9 +161,9 @@ export class ConfigmapsComponent implements OnInit {
     this.isDeleteConfigMapData = true;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
-    this.confirmer.confirmAction("Delete " + configDataName, 
-                       "Are you sure you want to remove this data entry from the config map?", 
-                       "Delete", 
+    this.confirmer.confirmAction("Delete " + configDataName,
+                       "Are you sure you want to remove this data entry from the config map?",
+                       "Delete",
                        configDataName + " successfully deleted.",
                        "Could not delete " + configDataName,
                        () => { this.confirmDeleteSubmission() });
@@ -170,7 +173,7 @@ export class ConfigmapsComponent implements OnInit {
     let configMapIndex = this._getConfigIndex(config);
     this.activeConfigMapIndex = configMapIndex;
     let acdForm = this.formBuilder.group({
-      name: new DialogFormControl("Name", "", 
+      name: new DialogFormControl("Name", "",
         [Validators.minLength(3), Validators.required, Validators.pattern('^[A-z_0-9]+$')])
     });
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
@@ -251,22 +254,24 @@ export class ConfigmapsComponent implements OnInit {
     return -1;
   }
 
-  checkConfigMapVisibility(config: Object): boolean {    
+  checkConfigMapVisibility(config: Object): boolean {
     let index = this._getConfigIndex(config);
     return this.isConfigMapVisible[index];
   }
 
-  saveAndCloseEditor(dataToSave: string){
+  saveAndCloseEditor(dataToSave: {configData: string, associatedPods: Array<{podName:string, namespace: string}>}){
+
     let previous_config_map = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.isUserEditing = false;
-    this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = dataToSave;
-    this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex]).subscribe(data => {
+    this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = dataToSave.configData;
+    this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex], dataToSave.associatedPods).subscribe(data => {
       if (data){
-        this.displaySnackBar("Successfully saved " + data['name'] + " config map, " + this.activeConfigDataKey);
+        this.displaySnackBar("Successfully saved " + data['name'] + " config map, " + this.activeConfigDataKey +
+                             ". Check notification manager for pod bounce status.");
       }
     }, error => {
       this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = previous_config_map;
-      this.displaySnackBar("Failed to save configmap " + this.activeConfigDataKey 
+      this.displaySnackBar("Failed to save configmap " + this.activeConfigDataKey
                               + ". REASON: " + error["statusText"]);
     });
   }

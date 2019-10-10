@@ -15,16 +15,22 @@ export class ConfigmapsService {
     return this.http.get(url).pipe();
   }
 
-  getConfigMap(namespace: string, 
-               config_name: string, 
+  getAssociatedPods(config_map_name: string): Observable<Object>{
+    const url = `/api/get_associated_pods/${config_map_name}`
+    return this.http.get(url).pipe();
+  }
+
+  getConfigMap(namespace: string,
+               config_name: string,
                data_name: string): Observable<Object>{
     const url = `/api/get_config_map/${namespace}/${config_name}/${data_name}`;
     return this.http.get(url).pipe();
   }
 
-  saveConfigMap(configMap: Object): Observable<Object> {
+  saveConfigMap(configMap: Object, associatedPods: Array<{podName:string, namespace: string}>=[]): Observable<Object> {
     const url = '/api/save_config_map';
-    return this.http.post(url, configMap, HTTP_OPTIONS).pipe();
+    let payload = {configMap: configMap, associatedPods: associatedPods}
+    return this.http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
   deleteConfigMap(namespace: string, name: string): Observable<Object> {

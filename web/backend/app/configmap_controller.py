@@ -6,10 +6,27 @@ import requests
 import multiprocessing
 from app import app, logger, conn_mng
 from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.service.configmap_service import bounce_pods
 from flask import jsonify, Response, request
 from kubernetes import client, config
-from shared.connection_mngs import KubernetesWrapper, KitFormNotFound
-from typing import Dict
+from kubernetes.client.models.v1_pod_list import V1PodList
+from kubernetes.client.models.v1_pod import V1Pod
+from shared.connection_mngs import KubernetesWrapper, KitFormNotFound, objectify
+from typing import Dict, List
+
+
+@app.route('/api/get_associated_pods/<config_map_name>', methods=['GET'])
+def get_associated_pods(config_map_name: str) -> List:
+    ret_val = []
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        api_response = kube_apiv1.list_pod_for_all_namespaces() # type: V1PodList
+        for item in  api_response.items:
+            for volume in item.spec.volumes:
+                if volume.config_map:
+                    if config_map_name == volume.config_map.name:
+                        ret_val.append({"podName": item.metadata.name, "namespace": item.metadata.namespace})
+
+    return jsonify(ret_val)
 
 
 @app.route('/api/get_config_maps', methods=['GET'])
@@ -21,7 +38,7 @@ def get_config_maps() -> Response:
     """
     try:
         with KubernetesWrapper(conn_mng) as kube_apiv1:
-            api_response = kube_apiv1.list_config_map_for_all_namespaces()  
+            api_response = kube_apiv1.list_config_map_for_all_namespaces()
             return jsonify(api_response.to_dict())
     except KitFormNotFound as e:
         logger.exception(e)
@@ -30,7 +47,7 @@ def get_config_maps() -> Response:
     return ERROR_RESPONSE
 
 
-def _get_configmap_data(search_dict: Dict, namespace: str, config_name: str, data_name: str):    
+def _get_configmap_data(search_dict: Dict, namespace: str, config_name: str, data_name: str):
     for i in search_dict['items']:
         if i['metadata']['namespace'] == namespace and i['metadata']['name'] == config_name:
             return i['data'][data_name]
@@ -64,20 +81,23 @@ def save_config_map() -> Response:
     :return Response:
     """
     payload = request.get_json()
-    metadata = client.V1ObjectMeta(name=payload['metadata']['name'], namespace=payload['metadata']['namespace'])
+    configMap = payload["configMap"]
+    associatedPods = payload["associatedPods"]
+    metadata = client.V1ObjectMeta(name=configMap['metadata']['name'], namespace=configMap['metadata']['namespace'])
 
     body = client.V1ConfigMap(
         api_version="v1",
         kind="ConfigMap",
-        data=payload['data'],
+        data=configMap['data'],
         metadata=metadata
     )
 
-    config_map_name = payload['metadata']['name']
-    config_map_namespace = payload['metadata']['namespace']
+    config_map_name = configMap['metadata']['name']
+    config_map_namespace = configMap['metadata']['namespace']
 
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         api_response = kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
+        bounce_pods.delay(associatedPods)
         return jsonify({'name': config_map_name})
 
     return ERROR_RESPONSE
@@ -100,11 +120,11 @@ def create_config_map() -> Response:
         kind="ConfigMap",
         metadata=metadata
     )
-    
+
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         api_response = kube_apiv1.create_namespaced_config_map(namespace, body)
         return jsonify(api_response.to_dict())
-    
+
     return ERROR_RESPONSE
 
 
@@ -122,5 +142,5 @@ def delete_config_map(namespace: str, name: str) -> Response:
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         kube_apiv1.delete_namespaced_config_map(name, namespace, body=body)
         return OK_RESPONSE
-    
+
     return ERROR_RESPONSE
