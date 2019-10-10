@@ -12,14 +12,21 @@ from app.service.time_service import change_time_on_kit, TimeChangeFailure
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.node_facts import get_system_info
 from celery.app.control import Control, Inspect
-
-from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.utils import filter_ip, netmask_to_cidr, decode_password
+from fabric.runners import Result
 from flask import request, jsonify, Response
+from paramiko.ssh_exception import AuthenticationException
+from pymongo import ReturnDocument
+from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
+from shared.utils import filter_ip, netmask_to_cidr, decode_password, encode_password
+from shared.connection_mngs import FabricConnectionManager
 from typing import List, Dict, Tuple
 
 
 MIN_MBPS = 1000
+
+
+class AmmendedPasswordNotFound(Exception):
+    pass
 
 
 @app.route('/api/gather_device_facts', methods=['POST'])
@@ -287,3 +294,53 @@ def get_current_dip_time():
         return ERROR_RESPONSE
 
     return jsonify({"timezone": timezone, "datetime": date_stdout.replace('\n', '')})
+
+
+def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict]) -> str:
+    for item in ammended_passwords:
+        if item["ip_address"] == ip_address_lookup:
+            return item["password"]
+    raise AmmendedPasswordNotFound()
+
+
+@app.route('/api/change_kit_password', methods=['POST'])
+def change_kit_password():
+    payload = request.get_json()
+    passwordForm = payload["passwordForm"]
+    ammendedPasswords = payload["amendedPasswords"]
+    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if current_config:
+        old_password = decode_password(current_config["form"]["root_password"])
+        password_hash, ret_code = run_command2('perl -e "print crypt(\'{}\', "Q9"),"'.format(passwordForm["root_password"]))
+        change_root_pwd = "usermod --password {} root".format(password_hash)
+
+        for node in current_config["form"]["nodes"]:
+            ip = node["ip_address"]
+
+            if ret_code != 0:
+                return ERROR_RESPONSE
+
+            try:
+                amended_password = _get_ammended_password(ip, ammendedPasswords)
+                correct_password = amended_password
+            except AmmendedPasswordNotFound:
+                correct_password = old_password
+
+            try:
+                with FabricConnectionManager("root", correct_password, ip) as shell:
+                    ret = shell.run(change_root_pwd) # type: Result
+                    if ret.return_code != 0:
+                        return ERROR_RESPONSE
+            except AuthenticationException:
+                return jsonify(node)
+
+        current_config["form"]["root_password"] = encode_password(passwordForm["root_password"])
+        current_config["form"]["re_password"] = encode_password(passwordForm["root_password"])
+        new_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                            {"_id": KICKSTART_ID, "form": current_config["form"]},
+                                            upsert=False,
+                                            return_document=ReturnDocument.AFTER)
+        if not new_configuration:
+            return ERROR_RESPONSE
+
+    return jsonify({"message": "Successfully changed the password of your Kit!"})

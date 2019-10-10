@@ -12,4 +12,10 @@ export class ToolsService {
     const url = '/api/change_kit_clock';
     return this.http.post(url, timeObj).pipe();
   }
+
+  changeKitPassword(passwordForm: Object, amendedPasswords: Array<Object>){
+    const url = '/api/change_kit_password';
+    let payload = {passwordForm: passwordForm, amendedPasswords: amendedPasswords}
+    return this.http.post(url, payload).pipe();
+  }
 }

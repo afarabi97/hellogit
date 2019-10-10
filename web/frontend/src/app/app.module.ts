@@ -16,6 +16,8 @@ import { TotalSystemResourceCardComponent } from './total-system-resource-card/t
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
+import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
+
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
@@ -96,6 +98,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ServerStdoutComponent,
     PortalComponent,
     ToolsFormComponent,
+    ChangePasswordFormComponent,
     SystemHealthComponent,
     ConfigmapsComponent,
     ConfigmapEditorComponent,
