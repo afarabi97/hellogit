@@ -208,7 +208,8 @@ class Runner:
                     iso_folder_path,
                     vcenter=(True if vcenter else False),
                     install_type=host_config.get("install_type"),
-                    image_folder_path=image_folder_path
+                    image_folder_path=image_folder_path,
+                    resource_pool=vcenter.get("resource_pool")
                 )
                 if self.args.vmware_datastore is not None:
                     self.host_configuration.set_storage_options(

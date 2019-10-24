@@ -63,8 +63,9 @@ package_list:
 
 pip_installs:
   - netaddr
+  - grpcio-tools==1.24.1
+  - grpcio==1.24.1
   - pyhelm
-  - grpcio
   - openshift
 
 ansible_controller_hostname: "controller.lan"

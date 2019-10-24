@@ -407,19 +407,23 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
 
     # This will retrieve the Cluster MOID
     cluster = get_cluster(s, host_configuration.cluster_name)  # type: pyVmomi.VmomiSupport.vim.ClusterComputeResource
+    if host_configuration.resource_pool:
+        resource_pool = get_resource_pool(s, host_configuration.resource_pool)
+    else:
+        resource_pool = cluster.resourcePool
 
     # This constructs the reloacate spec needed in a later step by specifying the default resource pool (name=Resource)
     #  of the Cluster
     # Alternatively one can specify a custom resource pool inside of a Cluster
 #    relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
     datastore = _get_obj(content, [vim.Datastore], host_configuration.storage_datastore)
-    relocate_spec = vim.vm.RelocateSpec(pool=cluster.resourcePool,
+    relocate_spec = vim.vm.RelocateSpec(pool=resource_pool,
                                         datastore=datastore)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
     clone_spec = vim.vm.CloneSpec(powerOn=False,
-                                 template=False,
-                                 location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
+                                  template=False,
+                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
     logger.info("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     logger.info("You can watch the progress bar in vCenter.")

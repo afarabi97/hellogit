@@ -9,12 +9,19 @@ class HostConfiguration(object):
         netmask (str): See frontend help page
     """
 
-    def __init__(self, ip_address: str, cluster_name: str, datacenter: str,
-            username: str, password: str, iso_folder_path: str,
-            vcenter: bool = True,
-            install_type: str = None,
-            rhel_base_image_dir: str = None,
-            image_folder_path: str = None) -> None:
+    def __init__(self,
+                 ip_address: str,
+                 cluster_name: str,
+                 datacenter: str,
+                 username: str,
+                 password: str,
+                 iso_folder_path: str,
+                 vcenter: bool = True,
+                 install_type: str = None,
+                 rhel_base_image_dir: str = None,
+                 image_folder_path: str = None,
+                 resource_pool: str = None) -> None:
+
         self.ip_address = ip_address
         self.cluster_name = cluster_name
         self.datacenter = datacenter
@@ -27,6 +34,7 @@ class HostConfiguration(object):
         self.install_type = install_type or 'virtual'
         self.rhel_base_image_dir = rhel_base_image_dir or 'rhel_base'
         self.image_folder_path = image_folder_path
+        self.resource_pool = resource_pool
 
 
     def set_storage_options(self, datastore: str, folder: str) -> None:

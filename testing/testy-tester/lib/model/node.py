@@ -760,7 +760,8 @@ class VirtualMachine:
             self.host_configuration.datacenter,
             self.host_configuration.storage_folder,
             self.host_configuration.cluster_name,
-            self.host_configuration.storage_datastore)  # type: PlacementSpec
+            self.host_configuration.storage_datastore,
+            self.host_configuration.resource_pool)  # type: PlacementSpec
 
         # Get a standard network backing
         # TODO: Left it here just in case we swap to a non distributed switch
@@ -780,7 +781,6 @@ class VirtualMachine:
 
         :return (VM): Returns a VM object
         """
-
         gigabyte = 1024 * 1024 * 1024  # type: int
         gigabyte_memory = 1024  # type: int
 

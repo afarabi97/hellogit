@@ -76,8 +76,9 @@ pip_downloads:
   - requests
   - "restresponse==2.0.0"
   - urllib3
-  - pyhelm
-  - grpcio
+  - pyhelm==2.14.4
+  - grpcio==1.24.1
+  - grpcio-tools==1.24.1
   - pbr
   - openshift
 

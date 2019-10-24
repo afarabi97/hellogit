@@ -1,3 +1,5 @@
+{{- $root := . -}}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -200,7 +202,7 @@ data:
     af-packet:
     {{- range $i, $val :=  .Values.interfaces }}
       - interface: {{ $val }}
-        threads: {{ .Values.suricata_threads }}
+        threads: {{ $root.Values.suricata_threads }}
         cluster-id: {{ sub 99 $i }}
         cluster-type: cluster_flow
         defrag: yes

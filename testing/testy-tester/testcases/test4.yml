@@ -4,8 +4,9 @@ host_configuration:
     ip_address: "172.16.20.106"
     cluster_name: "SIL_Dev-Cluster"
     datacenter: "SIL_Datacenter"
+    resource_pool: Testing
   storage:
-    datastore: "dev_datastore1"
+    datastore: "dev-vol00"
     folder: "Testing"
   iso_folder_path: "/root/"
 
@@ -164,7 +165,7 @@ kit:
         hot_add_enabled: False
         hot_remove_enabled: False
       memory_spec:
-        size: 64
+        size: 30
         hot_add_enabled: False
       boot_drive_name: "sda"
       pcap_drives:
