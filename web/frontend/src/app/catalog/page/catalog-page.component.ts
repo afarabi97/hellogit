@@ -257,10 +257,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this.nodes.map( node => {
         if (node.is_master_server === true) {
           node.hostname = "server";
-          let selectedNodes = this.processFormGroup.get("selectedNodes").value;
+          this.processFormGroup.get("selectedNodes").setValue([]);
+          const selectedNodes = this.processFormGroup.get("selectedNodes").value;
           selectedNodes.push(node);
         }
-      })
+      });
     }
   }
 
