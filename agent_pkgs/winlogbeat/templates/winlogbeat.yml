@@ -95,7 +95,7 @@ setup.template.settings:
 #-------------------------- Elasticsearch output ------------------------------
 #output.elasticsearch:
   # Array of hosts to connect to.
-  {# hosts: ["{{ hosts.elasticsearch }}:{{ elastic_port }}"] #}
+  # hosts: []
 
   # Enabled ilm (beta) to use index lifecycle management instead daily indices.
   #ilm.enabled: false
@@ -108,7 +108,7 @@ setup.template.settings:
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["{{ winlog_beat_dest_ip }}:{{ winlog_beat_dest_port }}"]
+  hosts: ["{{ template_ctx.winlog_beat_dest_ip }}:{{ template_ctx.winlog_beat_dest_port }}"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications

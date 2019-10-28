@@ -16,8 +16,7 @@ from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,
-                                       build_agent_if_not_exists,
-                                       AGENT_FILENAME_x64, AGENT_FILENAME_x32)
+                                       build_agent_if_not_exists)
 from bson import ObjectId
 from celery import chain, group, chord
 from copy import copy
@@ -55,17 +54,7 @@ def build_installer() -> Response:
     installer_config = payload['installer_config']
     folder_name = installer_config['_id']
     agent_dir = Path(AGENT_UPLOAD_DIR + "/" + folder_name)
-    build_agent_if_not_exists(payload, AGENT_FILENAME_x64, "x86_64")
-    build_agent_if_not_exists(payload, AGENT_FILENAME_x32, "x86")
-
-    agent_path_64 = Path('{}/{}'.format(str(agent_dir), AGENT_FILENAME_x64))
-    agent_path_32 = Path('{}/{}'.format(str(agent_dir), AGENT_FILENAME_x32))
-
-    zip_path = str(agent_dir) + '/agents.zip'
-    zipf = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
-    zipf.write(str(agent_path_64), "/agents/" + AGENT_FILENAME_x64)
-    zipf.write(str(agent_path_32), "/agents/" + AGENT_FILENAME_x32)
-    zipf.close()
+    zip_path = build_agent_if_not_exists(payload)
     logger.debug('Sending file: {}'.format(zip_path))
     return send_file(zip_path,
                      mimetype='zip',
@@ -278,13 +267,9 @@ def _create_and_run_celery_tasks(payload: Dict,
         password = payload["windows_domain_creds"]["password"]
         dns_suffix = target_config["kerberos"]["domain_name"]
         _authenticate_with_kinit(username, password, dns_suffix)
-    else:
-        raise ValueError("Protocol not supported")
 
     for hostname_or_ip in targets:
-        tasks.append(perform_agent_reinstall.si(payload, hostname_or_ip, do_uninstall_only))
-
-    chain(*tasks)()
+        perform_agent_reinstall.apply_async(args=[payload, hostname_or_ip, do_uninstall_only], kwargs={}, time_limit=120, soft_time_limit=110)
 
 
 @app.route('/api/uninstall_agents', methods=['POST'])

@@ -1,8 +1,0 @@
----
-- name: Download Tools 
-  get_url:
-    url: "http://{{ inventory_hostname }}/offlinerepo/{{ item }}"
-    dest: "{{ role_path }}/files"
-  with_items: "{{ tool_binaries }}" 
-  delegate_to: localhost
-...

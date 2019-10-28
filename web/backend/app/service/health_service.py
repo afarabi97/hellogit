@@ -143,7 +143,7 @@ def _excute_pipeline_datetime_update(queue: Queue):
     queue.put(ret_val)
 
 
-@celery.task
+@celery.task(time_limit=14)
 def update_pipeline_datetimes():
     # This task is run in a separate process and is then killed to prevent leaking file descriptors to occur in celery workers.
     queue = Queue()

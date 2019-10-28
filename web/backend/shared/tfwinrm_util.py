@@ -1,13 +1,15 @@
+from base64 import b64encode
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from pypsexec.client import Client as SMBClient
+from pypsexec.exceptions import SCMRException
 from pypsrp.client import Client
 from pypsrp.powershell import PSDataStreams
 from pypsrp.shell import Process, SignalCode, WinRS, CommandState
 from pypsrp.wsman import WSMan
 from shared.utils import fix_hostname
-from smbprotocol.exceptions import SMBException
+from smbprotocol.exceptions import SMBException, SMBResponseException
 from smb.SMBConnection import SMBConnection
 from time import sleep
 from typing import Tuple, Union, List
@@ -80,7 +82,6 @@ class WindowsConnectionManager:
                                   port=self._port)
             self._wsman = self._client.wsman
         elif protocol == WINRM_PROTOCOLS[3]:
-            self._client.execute_ps()
             self._client = Client(self._host,
                                   auth=WINRM_PROTOCOLS[3],
                                   username=username,
@@ -111,7 +112,7 @@ class WindowsConnectionManager:
         :param cmd: The windows command to run
         :param timeout_seconds: Timeout in seconds defaults to 10.
         :return: return_code, stdout, stderr
-        """        
+        """
         with WinRS(self._wsman) as shell:
             process = Process(shell, cmd)
             process.begin_invoke()
@@ -127,7 +128,7 @@ class WindowsConnectionManager:
             process.end_invoke()
             return process.stdout.decode("utf-8"), process.stderr.decode("utf-8"), process.rc
 
-    def run_smb_command(self, cmd: str, executable: str="cmd.exe", timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
+    def run_smb_command(self, cmd: str, executable: str="powershell.exe", timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
         if not self._smb_command_connected:
             try:
                 self._smb_executer.connect()
@@ -140,24 +141,33 @@ class WindowsConnectionManager:
                                                encrypt=False)
                 self._smb_executer.connect()
 
+            try:
+                self._smb_executer.cleanup()
+            except (SCMRException, SMBResponseException) as e:
+                print("WARN: " + str(e))
             self._smb_executer.create_service()
         self._smb_command_connected = True
 
         args = "/c \"{}\""
         if executable == "powershell.exe":
-            args = "-noprofile -executionpolicy bypass /c \"{}\""
+            encoded_cmd = b64encode(cmd.encode('UTF-16LE'))
+            args = "-noprofile -executionpolicy bypass -EncodedCommand {}".format(encoded_cmd.decode("UTF-8"))
 
         stdout, stderr, rc = self._smb_executer.run_executable(executable, arguments=args.format(cmd), run_elevated=True, timeout_seconds=timeout_seconds)
         return stdout.decode("utf-8"), stderr.decode("utf-8"), rc
 
     def cleanup_smb_command_operations(self):
         if self._smb_command_connected:
-            self._smb_executer.remove_service()
+            try:
+                self._smb_executer.cleanup()
+            except (SCMRException, SMBResponseException) as e:
+                print("WARN: " + str(e))
             self._smb_executer.disconnect()
             self._smb_command_connected = False
 
     def run_powershell_cmd(self, cmd: str) -> Tuple[str, str, bool]:
-        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass /c \"{}\"".format(cmd))
+        encoded_cmd = b64encode(cmd.encode('UTF-16LE'))
+        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -EncodedCommand {}".format(encoded_cmd.decode("UTF-8")))
         return stdout, stderr, rc
 
     def run_powershell_file(self, file_path: str) -> Tuple[str, str, bool]:
