@@ -200,7 +200,7 @@ pipeline {
                                     -vu $VCENTER_USR -vp $VCENTER_PSW \
                                     -eu $ESXI_USR -ep $ESXI_PSW"
 
-                        def command = "${BASE_COMMAND} --cleanup"
+                        def command = "${base} --cleanup"
                         println command
                         sh(command)
                     }

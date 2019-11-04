@@ -49,10 +49,3 @@
   with_items:
     - "{{ helm_charts }}"
   tags: pull-helm-images
-
-- name: Fetch chart images
-  script: "{{ role_path }}/files/chart.py {{ chart_dir }}/"
-  args:
-    executable: python
-  register: out
-  tags: pull-helm-images
