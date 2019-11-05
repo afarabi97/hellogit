@@ -1,0 +1,51 @@
+<div mat-dialog-content>
+  <mat-vertical-stepper #stepper [linear]=true>
+    <mat-step label="Configure a NFS server">
+      <p>
+         When choosing a location for your NFS server please
+         make sure there is plenty of storage for the snapshots.
+         Snapshots from an Elasticsearch can take terabytes of space.
+      </p>
+      <h3>Linux Instructions</h3>
+      <ol>
+        <li>Open a shell of your choosing to a Linux server which will act as the share.</li>
+        <li>Run the following commands:</li>
+<pre style="background-color: black">
+<code>
+    yum -y install nfs-utils
+    mkdir /tfplenum_backup
+    echo "/tfplenum_backup &lt;kit_subnet&gt;/24(rw,no_root_squash,no_subtree_check)"
+         &gt; /etc/exports
+    exportfs -r
+    systemctl restart nfs
+    firewall-cmd --permanent --add-port=111/tcp
+    firewall-cmd --permanent --add-port=111/udp
+    firewall-cmd --permanent --add-port=2049/udp
+    firewall-cmd --permanent --add-port=2049/tcp
+    firewall-cmd --reload
+</code>
+</pre>
+        <li>Make sure you can ping and reach your NFS server.</li>
+      </ol>
+    </mat-step>
+    <mat-step label="Put Sensors into Maintenance mode">
+      <p>Going forward it is highley recommended that you take the configured monitoring interfaces down on your sensors before proceeding.</p>
+      <app-node-maintenance-form [hasTitle]="false"></app-node-maintenance-form>
+    </mat-step>
+    <mat-step label="Mount server nodes to NFS share" [stepControl]="nfsSetup">
+      <form [formGroup]="nfsSetup">
+        <mat-form-field>
+          <mat-label>NFS Hostname or IP</mat-label>
+          <input matInput formControlName="nfs_host">
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="isMountBtnDisabled" (click)="mountShares(stepper)">Mount Shares to Nodes</button>
+      </form>
+    </mat-step>
+    <mat-step label="Restart Elasticsearch Pods and complete registration." [stepControl]="elkRestart">
+      <button mat-raised-button color="primary" (click)="restartElasticSearchAndCompleteRegistration(stepper)">Execute</button>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Close</button>
+</div>

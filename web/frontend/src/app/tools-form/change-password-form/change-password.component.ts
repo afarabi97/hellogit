@@ -30,12 +30,18 @@ export const target_config_validators = {
 export class ChangePasswordFormComponent implements OnInit {
 
   changePasswordForm: FormGroup;
+  isCardVisible: boolean;
 
   constructor(private toolsSrv: ToolsService,
               private dialog: MatDialog,
               private formBuilder: FormBuilder,
               private snackBar: MatSnackBar)
   {
+    this.isCardVisible = false;
+  }
+
+  toggleCard(){
+    this.isCardVisible = !this.isCardVisible;
   }
 
   ngOnInit() {

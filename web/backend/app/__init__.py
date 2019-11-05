@@ -112,3 +112,4 @@ from app import notification_controller
 from app import task_controller
 from app import version_controller
 from app import upgrade_controller
+from app import tools_controller

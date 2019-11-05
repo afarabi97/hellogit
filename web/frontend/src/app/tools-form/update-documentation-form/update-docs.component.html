@@ -1,8 +1,14 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Update Controller Documentation</mat-card-title>
+    <mat-card-title>
+      <a (click)="toggleCard()">
+        <i class="material-icons" *ngIf="!isCardVisible">chevron_right</i>
+        <i class="material-icons" *ngIf="isCardVisible">expand_more</i>
+        <span style="vertical-align: top;">Update Controller Documentation</span>
+      </a>
+    </mat-card-title>
   </mat-card-header>
-  <mat-card-content fxLayout="column" fxLayoutAlign="start start">
+  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="start start">
     <div>
       <ol>
         <li>Navigate to <strong>6 System Documentation/Releases</strong> on the DI2E confluence page. Click <a href="https://confluence.di2e.net/pages/viewpage.action?pageId=287884557">here</a> to access it.</li>
@@ -18,12 +24,12 @@
         <li>Finally select the <strong>THISISCVAH</strong> link in the navigation bar!</li>
       </ol>
     </div>
-    <div>
-      <button mat-raised-button color="primary" (click)="fileInput.click()">Choose Zip File</button>
-      <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="zip_file_uploader" accept=".zip">
-      <button mat-raised-button color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!zipToUpload" name="execute_kickstart">Upload
-        <span *ngIf="zipToUpload">&nbsp;{{ zipToUpload.name }}</span>
-      </button>
-    </div>
   </mat-card-content>
+  <mat-card-actions *ngIf="isCardVisible">
+    <button mat-raised-button color="primary" (click)="fileInput.click()">Choose Zip File</button>
+    <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="zip_file_uploader" accept=".zip">
+    <button mat-raised-button color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!zipToUpload" name="execute_kickstart">Upload
+      <span *ngIf="zipToUpload">&nbsp;{{ zipToUpload.name }}</span>
+    </button>
+  </mat-card-actions>
 </mat-card>

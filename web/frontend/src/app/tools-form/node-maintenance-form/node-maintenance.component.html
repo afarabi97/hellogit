@@ -1,8 +1,14 @@
 <mat-card>
-  <mat-card-header>
-    <mat-card-title>Node Maintenance</mat-card-title>
+  <mat-card-header *ngIf="hasTitle">
+    <mat-card-title>
+      <a (click)="toggleCard()">
+        <i class="material-icons" *ngIf="!isCardVisible">chevron_right</i>
+        <i class="material-icons" *ngIf="isCardVisible">expand_more</i>
+        <span style="vertical-align: top;">Node Maintenance</span>
+      </a>
+    </mat-card-title>
   </mat-card-header>
-  <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">
+  <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
     <table mat-table [dataSource]="interfaceStatus">
       <ng-container matColumnDef="node">
         <th mat-header-cell *matHeaderCellDef> Node </th>
@@ -10,7 +16,7 @@
       </ng-container>
 
       <ng-container matColumnDef="interfaces">
-        <th mat-header-cell *matHeaderCellDef> Interfaces </th>
+        <th mat-header-cell *matHeaderCellDef> Interfaces</th>
         <td mat-cell *matCellDef="let node" style="width: 33%;">
           <div *ngFor="let interface of node.interfaces | keyvalue">
             <span>{{ interface.key }}: {{ interface.value }}</span>

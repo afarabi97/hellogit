@@ -59,6 +59,7 @@ package_list:
   - lsof
   - rsync
   - tcpreplay
+  - nfs-utils
 
 
 pip_installs:

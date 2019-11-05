@@ -16,6 +16,7 @@ AGENT_PKGS_DIR = SHARED_DIR / '../../../agent_pkgs'
 KIT_ID = "kit_form"
 PORTAL_ID = 'portal_links'
 KICKSTART_ID = "kickstart_form"
+ELK_SNAPSHOT_STATE = "elk_snapshot"
 DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
 
 RULESET_STATES = ("Created", "Dirty", "Synced", "Error")

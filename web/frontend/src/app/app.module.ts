@@ -15,11 +15,15 @@ import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card
 import { TotalSystemResourceCardComponent } from './total-system-resource-card/total-system-resource-card.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
+
+//Tools page
 import { ToolsFormComponent } from './tools-form/tools.component';
 import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
 import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
 import { KitClockFormComponent } from './tools-form/change-kit-clock-form/change-kitclock.component';
 import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form/node-maintenance.component';
+import { SnapShotCreatorComponent } from './tools-form/snapshot-creator/snapshot-creator.component';
+import { SnapShotSetupComponent } from './tools-form/snapshot-creator/setup-wizard/snap-setup-wizard.component';
 
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
@@ -105,6 +109,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ToolsFormComponent,
     KitClockFormComponent,
     ChangePasswordFormComponent,
+    SnapShotCreatorComponent,
     UpdateDocsFormComponent,
     NodeMaintenanceFormComponent,
     SystemHealthComponent,
@@ -119,6 +124,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
+    SnapShotSetupComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     CapitalizeFirstPipe,
@@ -165,6 +171,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ArchiveSaveDialogComponent,
     AgentInstallerDialogComponent,
     AgentTargetDialogComponent,
+    SnapShotSetupComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     ReplayPcapDialog,

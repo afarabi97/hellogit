@@ -89,12 +89,12 @@ export class SystemHealthComponent implements OnInit {
       this.tabs_names.push("Unassigned Pods");
     });
 
-    this.healthSrv.getPipelineStatus().subscribe(data => {
-      this.pipelineStatus = data;
-      let t = new MatTabChangeEvent()
-      t.index = this.currentTabIndex;
-      this.changeTab(t);
-    });
+    // this.healthSrv.getPipelineStatus().subscribe(data => {
+    //   this.pipelineStatus = data;
+    //   let t = new MatTabChangeEvent()
+    //   t.index = this.currentTabIndex;
+    //   this.changeTab(t);
+    // });
   }
 
   private _spliceInArray(newStuff: Array<any>, oldStuff: Array<any>){
@@ -125,17 +125,17 @@ export class SystemHealthComponent implements OnInit {
       }
     });
 
-    this.healthSrv.getPipelineStatus().subscribe(data => {
-      if (this.pipelineStatus){
-        for (let key in data){
-          for (let innerKey in data[key]){
-            this.pipelineStatus[key][innerKey] = data[key][innerKey];
-          }
-        }
-      } else {
-        this.pipelineStatus = data;
-      }
-    });
+    // this.healthSrv.getPipelineStatus().subscribe(data => {
+    //   if (this.pipelineStatus){
+    //     for (let key in data){
+    //       for (let innerKey in data[key]){
+    //         this.pipelineStatus[key][innerKey] = data[key][innerKey];
+    //       }
+    //     }
+    //   } else {
+    //     this.pipelineStatus = data;
+    //   }
+    // });
   }
 
   getTotalObj(hostname: string): Object {

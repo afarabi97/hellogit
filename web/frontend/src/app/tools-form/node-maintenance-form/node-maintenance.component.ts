@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ToolsService } from '../tools.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
@@ -10,7 +10,14 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 export class NodeMaintenanceFormComponent implements OnInit {
   displayedColumns: string[] = ['node', 'interfaces', 'actions']
   interfaceStatus = []
-  constructor(private toolsSrv: ToolsService){ }
+  isCardVisible: boolean;
+
+  @Input()
+  hasTitle: boolean;
+
+  constructor(private toolsSrv: ToolsService){
+    this.hasTitle = true;
+  }
 
   ngOnInit() {
     this.getNodeMaintenanceTableData();
@@ -19,16 +26,18 @@ export class NodeMaintenanceFormComponent implements OnInit {
   ngAfterViewInit() {
   }
 
+  toggleCard(){
+    this.isCardVisible = !this.isCardVisible;
+  }
+
   private getNodeMaintenanceTableData(): void {
     this.toolsSrv.getAllConfiguredIfaces().subscribe(data => {
-      this.interfaceStatus = data as Array<Object>;      
+      this.interfaceStatus = data as Array<Object>;
     });
   }
 
 
   toggleMaintenance(event: MatSlideToggleChange, node: Object): void {
-    console.log(event);
-    let hostname = node["node"];
     let interfaces = node["interfaces"];
     let changeStateTo = event['checked'] ? "up": "down";
     for (let iface in interfaces) {
@@ -38,13 +47,13 @@ export class NodeMaintenanceFormComponent implements OnInit {
     }
   }
 
-  isSliderChecked(node: Object): boolean {    
+  isSliderChecked(node: Object): boolean {
     if (node){
       for (let key in node['interfaces']){
         if (node['interfaces'][key] === "down"){
           return false;
         }
-      }      
+      }
     }
     return true;
   }
@@ -54,7 +63,7 @@ export class NodeMaintenanceFormComponent implements OnInit {
       return "Active";
     } else {
       return "Maintenance";
-    }  
+    }
   }
-  
+
 }

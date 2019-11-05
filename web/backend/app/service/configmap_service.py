@@ -5,10 +5,12 @@ from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import run_command2
 from typing import List
 
+_JOB_NAME = "tools"
+
 
 @celery.task
 def bounce_pods(associatedPods: List):
-    notification = NotificationMessage(role="kit")
+    notification = NotificationMessage(role=_JOB_NAME)
     for pod in associatedPods:
         notification.setStatus(status=NotificationCode.STARTED.name)
         notification.setMessage("Started pod bounce for {}.".format(pod["podName"]))

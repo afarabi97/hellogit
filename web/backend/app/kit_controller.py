@@ -15,7 +15,6 @@ from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID
 from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
-from celery import chain
 from app.service.add_node_service import perform_add_node
 from typing import Dict, Tuple, Union
 

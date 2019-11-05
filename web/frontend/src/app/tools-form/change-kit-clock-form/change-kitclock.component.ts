@@ -27,6 +27,7 @@ export const target_config_validators = {
 export class KitClockFormComponent implements OnInit {
 
   resetClock: FormGroup;
+  isCardVisible: boolean;
 
   constructor(private toolsSrv: ToolsService,
               private title: Title,
@@ -34,6 +35,11 @@ export class KitClockFormComponent implements OnInit {
               private formBuilder: FormBuilder,
               private snackBar: MatSnackBar)
   {
+    this.isCardVisible = false;
+  }
+
+  toggleCard(){
+    this.isCardVisible = !this.isCardVisible;
   }
 
   ngOnInit() {

@@ -11,9 +11,14 @@ import { ToolsService } from '../tools.service';
 export class UpdateDocsFormComponent implements OnInit {
 
   zipToUpload: File = null;
+  isCardVisible: boolean;
   constructor(private snackBar: MatSnackBar, private toolSrv: ToolsService){}
 
   ngOnInit() { }
+
+  toggleCard(){
+    this.isCardVisible = !this.isCardVisible;
+  }
 
   private displaySnackBar(message: string, duration_seconds: number = 60){
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})

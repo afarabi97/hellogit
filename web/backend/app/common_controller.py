@@ -10,100 +10,17 @@ import zipfile
 from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form
 from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.service.job_service import run_command, run_command2
-from app.service.time_service import change_time_on_kit, TimeChangeFailure
+from app.service.job_service import run_command
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.node_facts import get_system_info
-from celery.app.control import Control, Inspect
 from fabric.runners import Result
 from flask import request, jsonify, Response
-from paramiko.ssh_exception import AuthenticationException
-from pathlib import Path
-from pymongo import ReturnDocument
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.utils import filter_ip, netmask_to_cidr, decode_password, encode_password
-from shared.connection_mngs import FabricConnectionManager, FabricConnection
+from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from typing import List, Dict, Tuple, Set
-from werkzeug.utils import secure_filename
-
-from socket import gethostbyname
 
 
 MIN_MBPS = 1000
-
-@app.route('/api/ip_set_link/<sensor_name>/<sensor_iface>/<state>', methods=['GET'])
-def ip_set_link(sensor_name: str, sensor_iface: str, state: str):
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        for node in kit_configuration["form"]["nodes"]:
-            if node["hostname"] == sensor_name:
-                with FabricConnection(node['management_ip_address']) as shell:
-                    ret_val = shell.run("ip address show {} up".format(sensor_iface))
-                    if (state == "up"):
-                        shell.run("ip link set {} up".format(sensor_iface))
-                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "yes"}
-                    elif (state == "down"):
-                        shell.run("ip link set {} down".format(sensor_iface))
-                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "no"}
-                    else:
-                        return ERROR_RESPONSE
-    return jsonify(result)
-
-def get_interface_state(node: str, iface: str):
-    with FabricConnection(gethostbyname(node)) as shell:
-        ret_val = shell.run("ip address show {} up".format(iface))
-
-        if (ret_val.return_code ==  0) and (ret_val.stdout == ""):
-            result = "down"
-        elif ret_val.return_code == 0:
-            result = "up"
-        else:
-            result = "ERROR"
-
-    return result
-
-def _add_to_set(values: List, out_ifaces: Set):
-    for config in values:
-        for iface_name in config["values"]["interfaces"]:
-            out_ifaces.add(iface_name)
-
-@app.route('/api/get_all_configured_ifaces', methods=['GET'])
-def get_all_configured_ifaces():
-    allConfiguredIfaces = []
-
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        nodes = kit_configuration["form"]["nodes"]
-        for node in nodes:
-            hostname = node["hostname"]
-            node_type = node["node_type"]
-            if  node_type == "Sensor":
-                ifaces = set()
-                moloch_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "moloch" }))
-                zeek_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "zeek" }))
-                suricata_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "suricata" }))
-                
-                if moloch_values and len(moloch_values) > 0:
-                    _add_to_set(moloch_values, ifaces)
-
-                if zeek_values and len(zeek_values) > 0:
-                    _add_to_set(zeek_values, ifaces)
-
-                if suricata_values and len(suricata_values) > 0:
-                    _add_to_set(suricata_values, ifaces)
-            
-                status = {}
-                for iface in list(ifaces):
-                  status[iface] = get_interface_state(hostname, iface)
-
-                allConfiguredIfaces.append({"node": hostname, "interfaces": status})
-
-        return jsonify(allConfiguredIfaces)
-    return ERROR_RESPONSE
-
-
-class AmmendedPasswordNotFound(Exception):
-    pass
 
 
 @app.route('/api/gather_device_facts', methods=['POST'])
@@ -146,6 +63,7 @@ def gather_device_facts() -> Response:
         logger.exception(e)
         return jsonify(error_message=str(e))
 
+
 def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
@@ -154,6 +72,7 @@ def check_pid(pid):
         return False
     else:
         return True
+
 
 @app.route('/api/kill_job', methods=['POST'])
 def kill_job() -> Response:
@@ -338,112 +257,3 @@ def get_sensor_hostinfo() -> Response:
     return jsonify(ret_val)
 
 
-@app.route('/api/change_kit_clock', methods=['POST'])
-def change_kit_clock() -> Response:
-    payload = request.get_json()
-    dateParts = payload['date'].split(' ')[0].split('/')
-    timeParts = payload['date'].split(' ')[1].split(':')
-    timeForm = {'timezone': payload['timezone'],
-                 'date': { 'year': dateParts[2], 'month': dateParts[0], 'day': dateParts[1]},
-                 'time': '{}:{}:{}'.format(timeParts[0], timeParts[1], timeParts[2])
-               }
-
-    try:
-        change_time_on_kit(timeForm)
-    except TimeChangeFailure as e:
-        return jsonify({"message": str(e)})
-
-    return jsonify({"message": "Successfully changed the clock on your Kit!"})
-
-
-@app.route('/api/get_current_dip_time', methods=['GET'])
-def get_current_dip_time():
-    timezone_stdout, ret_val = run_command2('timedatectl | grep "Time zone:"', use_shell=True)
-    if ret_val != 0:
-        return ERROR_RESPONSE
-
-    pos = timezone_stdout.find(":")
-    pos2 = timezone_stdout.find("(", pos)
-    timezone = timezone_stdout[pos+2:pos2-1]
-
-    date_stdout, ret_val = run_command2('date +"%m-%d-%Y %H:%M:%S"', use_shell=True)
-    if ret_val != 0:
-        return ERROR_RESPONSE
-
-    return jsonify({"timezone": timezone, "datetime": date_stdout.replace('\n', '')})
-
-
-def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict]) -> str:
-    for item in ammended_passwords:
-        if item["ip_address"] == ip_address_lookup:
-            return item["password"]
-    raise AmmendedPasswordNotFound()
-
-
-@app.route('/api/change_kit_password', methods=['POST'])
-def change_kit_password():
-    payload = request.get_json()
-    passwordForm = payload["passwordForm"]
-    ammendedPasswords = payload["amendedPasswords"]
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_config:
-        old_password = decode_password(current_config["form"]["root_password"])
-        password_hash, ret_code = run_command2('perl -e "print crypt(\'{}\', "Q9"),"'.format(passwordForm["root_password"]))
-        change_root_pwd = "usermod --password {} root".format(password_hash)
-
-        for node in current_config["form"]["nodes"]:
-            ip = node["ip_address"]
-
-            if ret_code != 0:
-                return ERROR_RESPONSE
-
-            try:
-                amended_password = _get_ammended_password(ip, ammendedPasswords)
-                correct_password = amended_password
-            except AmmendedPasswordNotFound:
-                correct_password = old_password
-
-            try:
-                with FabricConnectionManager("root", correct_password, ip) as shell:
-                    ret = shell.run(change_root_pwd) # type: Result
-                    if ret.return_code != 0:
-                        return ERROR_RESPONSE
-            except AuthenticationException:
-                return jsonify(node)
-
-        current_config["form"]["root_password"] = encode_password(passwordForm["root_password"])
-        current_config["form"]["re_password"] = encode_password(passwordForm["root_password"])
-        new_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                            {"_id": KICKSTART_ID, "form": current_config["form"]},
-                                            upsert=False,
-                                            return_document=ReturnDocument.AFTER)
-        if not new_configuration:
-            return ERROR_RESPONSE
-
-    return jsonify({"message": "Successfully changed the password of your Kit!"})
-
-
-@app.route('/api/update_documentation', methods=['POST'])
-def update_documentation() -> Response:
-    if 'upload_file' not in request.files:
-        return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
-
-    with tempfile.TemporaryDirectory() as upload_path: # type: str
-        incoming_file = request.files['upload_file']
-        filename = secure_filename(incoming_file.filename)
-
-        pos = filename.rfind('.') + 1
-        if filename[pos:] != 'zip':
-            return jsonify({"error_message": "Failed to upload file. Files must end with the .zip extension."})
-
-        abs_save_path = str(upload_path) + '/' + filename
-        incoming_file.save(abs_save_path)
-
-        extracted_path = "/var/www/html/THISISCVAH"
-        shutil.rmtree(extracted_path, ignore_errors=True)
-        Path(extracted_path).mkdir(parents=True, exist_ok=False)
-
-        with zipfile.ZipFile(abs_save_path) as zip_ref:
-            zip_ref.extractall(extracted_path)
-
-        return jsonify({"success_message": "Successfully updated confluence documentation!"})

@@ -48,6 +48,7 @@ esConfig:
     cluster.initial_master_nodes: "elasticsearch-master-0, elasticsearch-master-1, elasticsearch-master-2"
     processors: {{ es_num_procs }}
     node.max_local_storage_nodes: "20"
+    path.repo: ["/mnt/elastic_snapshots"]
     xpack.monitoring.collection.enabled: "true"
 
 image: "elasticsearch/elasticsearch"
@@ -61,6 +62,8 @@ extraInitContainers: |
     volumeMounts:
     - name: elasticsearch-master
       mountPath: /usr/share/elasticsearch/data
+    - name: elastic-snapshots
+      mountPath: /mnt/elastic_snapshots
 
 esJavaOpts: "-Xmx{{ es_java_mem }}g -Xms{{ es_java_mem }}g"
 
@@ -80,10 +83,16 @@ test: |
     hostPath:
       path: "{{ data_path }}/elastic"
       type: DirectoryOrCreate
+  - name: elastic-snapshots
+    hostPath:
+      path: /mnt/tfplenum_backup/elastic_snapshots
+      type: DirectoryOrCreate
 
 extraVolumeMounts: |
   - name: elasticsearch-master
     mountPath: /usr/share/elasticsearch/data
+  - name: elastic-snapshots
+    mountPath: /mnt/elastic_snapshots
 
 antiAffinity: "soft" # Attempts to seperate the ES nodes as best effort. Allows more than one data node per physical server.
 

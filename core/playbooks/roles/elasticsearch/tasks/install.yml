@@ -17,6 +17,16 @@
   delegate_to: "{{ item }}"
   loop: "{{ groups['servers'] }}"
 
+- name: Create elastic_snapshots directory if it does not exist
+  file:
+    path: /mnt/tfplenum_backup/elastic_snapshots
+    state: directory
+    mode: "0775"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['servers'] }}"
+
 - name: Copy Templates
   template:
     src: "templates/{{ item }}.j2"
