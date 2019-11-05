@@ -17,6 +17,8 @@ import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
 import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
+import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
+import { KitClockFormComponent } from './tools-form/change-kit-clock-form/change-kitclock.component';
 
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
@@ -100,7 +102,9 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ServerStdoutComponent,
     PortalComponent,
     ToolsFormComponent,
+    KitClockFormComponent,
     ChangePasswordFormComponent,
+    UpdateDocsFormComponent,
     SystemHealthComponent,
     ConfigmapsComponent,
     ConfigmapEditorComponent,

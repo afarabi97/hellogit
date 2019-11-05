@@ -4,27 +4,18 @@
       <mat-card-title>Page Instructions</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="pageInstructions">
+      <div class="pageInstructions" style="padding: 0px">
         <p>
-          This page is a general purpose page for setting the clock.
-          Changing the time here will propagate to all nodes in your cluster.
+          This page is a general purpose page for setting the clock, changing your Kit password and updating the controller's documentation.
+          Changing the time or password here will propagate to all nodes in your cluster.
         </p>
       </div>
     </mat-card-content>
   </mat-card>
   <br>
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Change Kit Clock</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <app-date-time [datetime]="getDate()" [timezone]="getTimezone()" placeholder="Current Date & Time"></app-date-time>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="openConfirmResetClockDialog()"
-        [disabled]="resetClock.invalid || resetClock.disabled">Change Clock</button>
-    </mat-card-actions>
-  </mat-card>
+  <app-kit-clock></app-kit-clock>
   <br>
   <app-change-password-form></app-change-password-form>
+  <br>
+  <app-update-docs-form></app-update-docs-form>
 </div>

@@ -108,8 +108,8 @@ def run_command(command: str,
     return sout.decode('utf-8')
 
 def run_command2(command: str,
-                working_dir: str=None,
-                use_shell:bool=False) -> Tuple[str, int]:
+                 working_dir: str=None,
+                 use_shell:bool=False) -> Tuple[str, int]:
     proc = _open_proc(command, working_dir, use_shell)
     sout, _ = proc.communicate()
     return sout.decode('utf-8'), proc.poll()

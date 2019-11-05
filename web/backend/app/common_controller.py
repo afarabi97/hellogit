@@ -3,6 +3,9 @@ This is the main module for all the shared REST calls
 """
 import json
 import os, signal
+import shutil
+import tempfile
+import zipfile
 
 from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form
@@ -15,11 +18,13 @@ from celery.app.control import Control, Inspect
 from fabric.runners import Result
 from flask import request, jsonify, Response
 from paramiko.ssh_exception import AuthenticationException
+from pathlib import Path
 from pymongo import ReturnDocument
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password, encode_password
 from shared.connection_mngs import FabricConnectionManager
 from typing import List, Dict, Tuple
+from werkzeug.utils import secure_filename
 
 
 MIN_MBPS = 1000
@@ -344,3 +349,29 @@ def change_kit_password():
             return ERROR_RESPONSE
 
     return jsonify({"message": "Successfully changed the password of your Kit!"})
+
+
+@app.route('/api/update_documentation', methods=['POST'])
+def update_documentation() -> Response:
+    if 'upload_file' not in request.files:
+        return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
+
+    with tempfile.TemporaryDirectory() as upload_path: # type: str
+        incoming_file = request.files['upload_file']
+        filename = secure_filename(incoming_file.filename)
+
+        pos = filename.rfind('.') + 1
+        if filename[pos:] != 'zip':
+            return jsonify({"error_message": "Failed to upload file. Files must end with the .zip extension."})
+
+        abs_save_path = str(upload_path) + '/' + filename
+        incoming_file.save(abs_save_path)
+
+        extracted_path = "/var/www/html/THISISCVAH"
+        shutil.rmtree(extracted_path, ignore_errors=True)
+        Path(extracted_path).mkdir(parents=True, exist_ok=False)
+
+        with zipfile.ZipFile(abs_save_path) as zip_ref:
+            zip_ref.extractall(extracted_path)
+
+        return jsonify({"success_message": "Successfully updated confluence documentation!"})
