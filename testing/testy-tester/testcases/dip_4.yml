@@ -51,8 +51,6 @@ kit:
       # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       vm_guestos: RHEL_7_64
-      #vm_to_clone: "NVMEe Test Template"
-      vm_to_clone: redhat
       domain: 'lan'
       gateway: "172.16.31.1"
       dns:

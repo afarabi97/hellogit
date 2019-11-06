@@ -45,8 +45,6 @@ kit:
     Controller:
       type: "controller" # Can be controller, sensor, or server
       vm_guestos: RHEL_7_64
-      #vm_to_clone: "NVMEe Test Template"
-      vm_to_clone: redhat
       domain: 'lan'
       gateway: "172.16.32.1"
       dns:

@@ -73,7 +73,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller \
+                        def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller ${build_type} \
                         --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}' \
                         --tfplenum-commit-hash ${tfplenum_commit_hash}"
                         println command

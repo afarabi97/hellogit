@@ -391,7 +391,7 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     logger.info("Successfully changed network")
 
 
-def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
+def clone_vm(host_configuration: HostConfiguration, controller: Node, use_baseline_snapshot=False) -> None:
     """
     Clones a target VM by name
 
@@ -421,9 +421,15 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
                                         datastore=datastore)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
-    clone_spec = vim.vm.CloneSpec(powerOn=False,
-                                  template=False,
-                                  location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
+    if use_baseline_snapshot:
+        clone_spec = vim.vm.CloneSpec(powerOn=False,
+                                      template=False,
+                                      location=relocate_spec,
+                                      snapshot=template_vm.snapshot.rootSnapshotList[0].snapshot)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
+    else:
+        clone_spec = vim.vm.CloneSpec(powerOn=False,
+                                      template=False,
+                                      location=relocate_spec)  # type: pyVmomi.VmomiSupport.vim.vm.CloneSpec
 
     logger.info("Cloning the VM... this could take a while. Depending on drive speed and VM size, 5-30 minutes")
     logger.info("You can watch the progress bar in vCenter.")
@@ -444,6 +450,18 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node) -> None:
                 folder=template_vm.parent,
                 spec=clone_spec))
     Disconnect(s)
+
+def take_snapshot(vm_name: str, host_configuration: HostConfiguration):    
+    s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
+    content = s.RetrieveContent()
+    vm = _get_obj(content, [vim.VirtualMachine], vm_name)
+    if len(vm.rootSnapshot) < 1:
+        task = vm.CreateSnapshot_Task(name='baseline',
+                                      memory=False,
+                                      quiesce=False)
+        wait_for_task(task)
+        logging.info("Successfully taken snapshot of '{}'".format(vm.name))
+        Disconnect(s)
 
 @retry(count=10, time_to_sleep_between_retries=15)
 def destroy_and_create_vms(nodes: List[Node], client: VsphereClient, host_configuration: HostConfiguration) -> List[VirtualMachine]:

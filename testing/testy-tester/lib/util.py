@@ -302,12 +302,12 @@ def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
         if interface.management_interface:
             interface.ip_address = new_management_ip
 
-def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
+def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
     nodes = []  # type: List[Node]
     for v in vms:
         node = Node(v, vms[v]['type'])  # type: Node
         if node.type == "controller":
-            node.set_vm_to_clone(vms[v]['vm_to_clone'])
+            node.set_vm_to_clone(vm_to_clone)
             node.set_dns_list(vms[v]['dns'])
             node.set_gateway(vms[v]['gateway'])
             node.set_domain(vms[v]['domain'])
@@ -408,7 +408,7 @@ def _transform_nodes(vms: Dict, kit: Kit) -> List[Node]:
     return nodes
 
 
-def transform(configuration: OrderedDict) -> List[Kit]:
+def transform(configuration: OrderedDict, vm_to_clone: str) -> List[Kit]:
     """
     Transform the yaml configuration into a list of Kit objects
 
@@ -456,11 +456,11 @@ def transform(configuration: OrderedDict) -> List[Kit]:
     machines.update(metal)
 
     # Add list of nodes to kit
-    kit.set_nodes(_transform_nodes(machines, kit))
+    kit.set_nodes(_transform_nodes(machines, kit, vm_to_clone))
 
     try:
         vms = configuration["VMs"]["ADD_NODE_VMs"]  # type: dict
-        kit.set_add_nodes(_transform_nodes(vms, kit))
+        kit.set_add_nodes(_transform_nodes(vms, kit, vm_to_clone))
     except KeyError as e:
         logging.warning("Add node functionality will be skipped since there "
                         "is nothing under the ADD_NODE_VMs section")

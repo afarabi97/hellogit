@@ -1,0 +1,41 @@
+pipeline {
+    agent {
+        label "tfplenum"
+    }
+    environment {
+        REDFISH     =    credentials('REDFISH')
+        ESXI        =    credentials('ESXI')
+        DI2E        =    credentials('di2e-user-password')
+        VCENTER     =    credentials('vcenter-user-password')
+        RHEL_ORG    =    credentials('rhel-subscription-org')
+        RHEL_KEY    =    credentials('rhel-subscription-key')
+        IMAGE_PATH  =    '/var/lib/jenkins/images/rhel/'
+    }
+    stages {
+        stage('checkout'){
+            steps {
+                cleanWs()
+                git branch: '${tfplenum_commit_hash}', credentialsId: 'di2e-user-password', url: 'https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git'
+            }
+        }
+        stage('setup controller') {
+            options {
+                timeout(time: 120, unit: 'MINUTES')
+            }
+            steps {
+                script {
+                    def base = "python3.6 testing/testy-tester/main.py \
+                                    --path testing/testy-tester/testcases/${kit} \
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW' \
+                                    --tfplenum-commit-hash ${tfplenum_commit_hash}"
+
+                    def command = "${base} --setup-controller build_from_scratch"
+                    println command
+                    sh(command)
+                }
+            }
+        }
+    }
+}

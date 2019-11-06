@@ -57,13 +57,36 @@ class ControllerModifier:
         cmd = "hostnamectl set-hostname {hostname}".format(hostname="controller.lan")
         self._conn.connection.run(cmd)
 
+    def _update_code(self, git_username: str, git_password: str, branch_name: str):
+        self._conn.connection.run("git config --global --unset credential.helper", warn=True)
+        self._conn.connection.run("""
+cat <<EOF > ~/credential-helper.sh
+#!/bin/bash
+echo username="{}"
+echo password="{}"
+EOF
+""".format(git_username, git_password))
+        self._conn.connection.run('git config --global credential.helper "/bin/bash ~/credential-helper.sh"')
+        self._conn.connection.run('cd /opt/tfplenum && git fetch')
+        self._conn.connection.run('cd /opt/tfplenum && git checkout {}'.format(branch_name))
+        self._conn.connection.run('cd /opt/tfplenum && git pull --rebase')        
+        self._conn.connection.run('git config --global --unset credential.helper', warn=True)
+        self._conn.connection.run('/opt/tfplenum/web/setup/redeploy.sh')
+
     def change_hostname(self):
         try:
             self._set_hostname()
         finally:
             if self._conn:
                 self._conn.close()
-
+  
+    def update_cloned_nightly_build(self, git_username: str, git_password: str, branch_name: str):
+        try:
+            self._set_hostname()
+            self._update_code(git_username, git_password, branch_name)
+        finally:
+            if self._conn:
+                self._conn.close()
 
     def make_controller_changes(self):
         try:

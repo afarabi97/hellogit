@@ -16,7 +16,7 @@ kit:
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)
       gateway: "172.16.82.1"
-      dhcp_range: "172.16.82.208"
+      dhcp_range: "172.16.82.192"
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
@@ -25,7 +25,8 @@ kit:
       source_repo: labrepo
 
       # Kubernetes cidr will probably be different on a per kit basis
-      kubernetes_cidr: "172.16.82.48"
+      kubernetes_cidr: "172.16.82.112"
+
       home_nets:
           - "172.16.82.0/24"
 
@@ -34,20 +35,23 @@ kit:
 
   VMs:
     # Note: You should not have more than one of these
-    export-controller.lan:
+    nightly-test-controller.lan:
       type: "controller" # Can be controller, sensor, or server
+
+      # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
+      # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       vm_guestos: RHEL_7_64
       vm_to_clone: "Test Template"
       domain: 'lan'
       gateway: "172.16.82.1"
       dns:
-          - "172.16.82.1"
+        - "172.16.82.1"
       networking:
         std_portgroup_name: "VM Network"
         nics:
           ens192:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.82.20"
+            ip_address: "172.16.82.19"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -82,3 +86,4 @@ kit:
         - "CDROM" # CDROM will be ignored if iso_file is None
         - "DISK"
         - "ETHERNET"
+    

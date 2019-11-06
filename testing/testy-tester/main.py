@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import yaml
 
 from argparse import ArgumentParser, Namespace
@@ -23,7 +24,8 @@ from lib.docs_exporter import MyConfluenceExporter
 
 # VCenter
 from lib.vm_utilities import (destroy_vms, destroy_and_create_vms, create_client, clone_vm,
-                              delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms)
+                              delete_vm, change_network_port_group, change_ip_address, get_vms, get_all_vms,
+                              take_snapshot)
 
 # ESXi
 from lib.vm_utilities import (create_smart_connect_client, delete_esxi_vm,
@@ -54,6 +56,10 @@ CONFLUENCE_URL = 'https://confluence.di2e.net'
 TFPLENUM_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
 
+CLONE_FROM_NIGHTLY_BUILD = "clone_from_nightly"
+BUILD_FROM_SCRATCH = "build_from_scratch"
+
+
 def is_valid_file(path: str) -> bool:
     """
     Test to ensure the file in question being passed exists and is a file.
@@ -78,6 +84,7 @@ class Runner:
         self.vsphere_client = None  # type: VsphereClient
         self.host_configuration = None  # type: HostConfiguration
         self.baremetal = False
+        self._vm_to_clone = "Test Template"
 
     def _validate_export_location(self):
         if os.path.exists(self.args.export_location) and os.path.isdir(self.args.export_location):
@@ -102,7 +109,7 @@ class Runner:
         parser.add_argument("-p", "--path", dest="filename", required=True,
                             help="Input yaml configuration file", metavar="FILE")
 
-        parser.add_argument('--setup-controller', dest='setup_controller', action='store_true')
+        parser.add_argument('--setup-controller', dest='setup_controller', metavar="<clone_from_nightly|build_from_scratch>")
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
         parser.add_argument('--run-kit', dest='run_kit', action='store_true')
         parser.add_argument('--run-catalog', dest='run_catalog', action='store_true')
@@ -168,6 +175,13 @@ class Runner:
         ch.setFormatter(formatter)
         kit_builder.addHandler(ch)
 
+    def _set_vm_to_clone(self):        
+        self.baremetal = self.host_configuration.install_type == "baremetal"
+        if self.baremetal:
+            self._vm_to_clone = "redhat"
+        elif self.args.setup_controller and self.args.setup_controller == CLONE_FROM_NIGHTLY_BUILD:
+            self._vm_to_clone = "nightly-test-controller.lan"        
+            
     def _parse_config(self):
         """
         Parses the config file and sets up some class variables which
@@ -222,9 +236,9 @@ class Runner:
                         storage.get("folder")
                     )
 
+                self._set_vm_to_clone()
                 # Returns a list of kit objects
-                self.kit = transform(self.configuration["kit"])  # type: Kit
-
+                self.kit = transform(self.configuration["kit"], self._vm_to_clone)  # type: Kit
                 for node in self.kit.nodes:
                     if node.suricata_catalog:
                         print(str(node.suricata_catalog))
@@ -302,7 +316,7 @@ class Runner:
                                           password=self.di2e_password)
         confluence.set_permissions(page_title, is_restricted=False)
 
-    def _setup_vcenter_controller(self):
+    def _build_controller(self):
         """
         Does everything that is needed to setup a fully functional controller.
         It deletes the controller if it already exists before cloning from a template.
@@ -311,6 +325,9 @@ class Runner:
         :return:
         """
         if not self.args.setup_controller:
+            return
+
+        if self.args.setup_controller != BUILD_FROM_SCRATCH:
             return
 
         logging.info("Deleting controller....")
@@ -327,12 +344,20 @@ class Runner:
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         ctrl_vm.power_on()
 
+        time.sleep(60)
+
         logging.info("Waiting for controller to become alive...")
         test_vms_up_and_alive(self.kit, [self.controller_node], 20)
 
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.change_hostname()
         self._perform_bootstrap()
+        
+        try:
+            ctrl_vm.power_off()
+            take_snapshot(self.controller_node.hostname, self.host_configuration) 
+        except Exception as e:
+            traceback.print_exc()
 
     def _setup_esxi_controller(self):
         if not self.args.setup_controller:
@@ -356,6 +381,33 @@ class Runner:
         self._perform_bootstrap()
 
         ctrl_modifier.make_controller_changes()
+
+    def _clone_and_configure_nightly_controller(self):
+        if not self.args.setup_controller:
+            return
+
+        if self.args.setup_controller != CLONE_FROM_NIGHTLY_BUILD:
+            return
+
+        logging.info("Deleting controller....")
+        delete_vm(self.vsphere_client, self.controller_node.hostname)
+
+        logging.info("Cloning nightly controller build....")
+        clone_vm(self.host_configuration, self.controller_node, use_baseline_snapshot=True)
+
+        logging.info("Changing controller portgroup and IP Address...")
+        change_network_port_group(self.host_configuration, self.controller_node)
+        change_ip_address(self.host_configuration, self.controller_node)
+
+        logging.info("Powering the controller")
+        ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
+        ctrl_vm.power_on()
+
+        logging.info("Waiting for controller to become alive...")
+        test_vms_up_and_alive(self.kit, [self.controller_node], 20)
+
+        ctrl_modifier = ControllerModifier(self.controller_node)
+        ctrl_modifier.update_cloned_nightly_build(self.di2e_username, self.di2e_password, self.args.tfplenum_commit_hash)
 
     def _export_controller(self):
         if not self.args.export_controller:
@@ -766,9 +818,9 @@ class Runner:
         self._setup_logging()
         self._parse_config()
 
-        if (self.args.setup_controller or self.args.run_kickstart or self.args.run_kit or self.args.cleanup_kit or
-                self.args.run_add_node or self.args.run_integration_tests or self.args.simulate_powerfailure or
-                self.args.add_docs_to_controller or self.args.export_controller):
+        if (self.args.setup_controller or self.args.run_kickstart or self.args.run_kit or
+            self.args.cleanup_kit or self.args.run_add_node or self.args.run_integration_tests or self.args.simulate_powerfailure or
+            self.args.add_docs_to_controller or self.args.export_controller):
 
             self._setup_vmware_clients()
 
@@ -781,10 +833,11 @@ class Runner:
             run_kickstart = self._run_physical_kickstart
             simulate_powerfailure = self._simulate_physical_powerfailure
         else:
-            setup_controller = self._setup_vcenter_controller
+            setup_controller = self._clone_and_configure_nightly_controller
             run_kickstart = self._run_virtual_kickstart
             simulate_powerfailure = self._simulate_virtual_powerfailure
 
+        self._build_controller()
         setup_controller()
         self._set_perms_restricted_on_page()
         self._set_perms_unrestricted_on_page()
@@ -797,12 +850,12 @@ class Runner:
 
         self._run_kit()
         self._run_catalog()
+
         #TODO this functionality is currently being worked on, it needs to be brought back at a later point.
         # self._run_add_node()
+
         self._run_integration()
-
         simulate_powerfailure()
-
         self._cleanup()
 
 
