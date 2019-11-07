@@ -4,7 +4,7 @@
 
 image:
   repository: rocketchat/rocket.chat
-  tag: latest
+  tag: 2.2.0
   pullPolicy: IfNotPresent
 
 ## Host for the application
