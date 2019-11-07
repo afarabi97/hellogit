@@ -18,7 +18,11 @@ charts = [
         { "name": "zeek",
                 "version": "1.0.0"},
         { "name": "hive",
-                "version": "1.0.0"}
+                "version": "1.0.0"},
+        { "name": "rocketchat",
+                "version": "1.1.13"},
+        { "name": "mongodb",
+                "version": "7.2.10"}
     ]
 
 CHARTMUSEUM_PORT="8080"
