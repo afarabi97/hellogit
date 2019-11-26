@@ -26,4 +26,14 @@ export class ToolsService {
     formData.append('upload_file', pcap_file, pcap_file.name)
     return this.http.post(url, formData).pipe();
   }
+
+  getAllConfiguredIfaces(): Observable<Object>{
+    const url = `/api/get_all_configured_ifaces`;
+    return this.http.get(url);
+  }
+
+  ip_set_link(sensor_name: string, sensor_iface: string, state: string): Observable<Object>{
+    const url = `/api/ip_set_link/${sensor_name}/${sensor_iface}/${state}`;
+    return this.http.get(url);
+  }
 }

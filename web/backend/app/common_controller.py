@@ -22,12 +22,84 @@ from pathlib import Path
 from pymongo import ReturnDocument
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password, encode_password
-from shared.connection_mngs import FabricConnectionManager
-from typing import List, Dict, Tuple
+from shared.connection_mngs import FabricConnectionManager, FabricConnection
+from typing import List, Dict, Tuple, Set
 from werkzeug.utils import secure_filename
+
+from socket import gethostbyname
 
 
 MIN_MBPS = 1000
+
+@app.route('/api/ip_set_link/<sensor_name>/<sensor_iface>/<state>', methods=['GET'])
+def ip_set_link(sensor_name: str, sensor_iface: str, state: str):
+    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    if kit_configuration:
+        for node in kit_configuration["form"]["nodes"]:
+            if node["hostname"] == sensor_name:
+                with FabricConnection(node['management_ip_address']) as shell:
+                    ret_val = shell.run("ip address show {} up".format(sensor_iface))
+                    if (state == "up"):
+                        shell.run("ip link set {} up".format(sensor_iface))
+                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "yes"}
+                    elif (state == "down"):
+                        shell.run("ip link set {} down".format(sensor_iface))
+                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "no"}
+                    else:
+                        return ERROR_RESPONSE
+    return jsonify(result)
+
+def get_interface_state(node: str, iface: str):
+    with FabricConnection(gethostbyname(node)) as shell:
+        ret_val = shell.run("ip address show {} up".format(iface))
+
+        if (ret_val.return_code ==  0) and (ret_val.stdout == ""):
+            result = "down"
+        elif ret_val.return_code == 0:
+            result = "up"
+        else:
+            result = "ERROR"
+
+    return result
+
+def _add_to_set(values: List, out_ifaces: Set):
+    for config in values:
+        for iface_name in config["values"]["interfaces"]:
+            out_ifaces.add(iface_name)
+
+@app.route('/api/get_all_configured_ifaces', methods=['GET'])
+def get_all_configured_ifaces():
+    allConfiguredIfaces = []
+
+    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    if kit_configuration:
+        nodes = kit_configuration["form"]["nodes"]
+        for node in nodes:
+            hostname = node["hostname"]
+            node_type = node["node_type"]
+            if  node_type == "Sensor":
+                ifaces = set()
+                moloch_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "moloch" }))
+                zeek_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "zeek" }))
+                suricata_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "suricata" }))
+                
+                if moloch_values and len(moloch_values) > 0:
+                    _add_to_set(moloch_values, ifaces)
+
+                if zeek_values and len(zeek_values) > 0:
+                    _add_to_set(zeek_values, ifaces)
+
+                if suricata_values and len(suricata_values) > 0:
+                    _add_to_set(suricata_values, ifaces)
+            
+                status = {}
+                for iface in list(ifaces):
+                  status[iface] = get_interface_state(hostname, iface)
+
+                allConfiguredIfaces.append({"node": hostname, "interfaces": status})
+
+        return jsonify(allConfiguredIfaces)
+    return ERROR_RESPONSE
 
 
 class AmmendedPasswordNotFound(Exception):
