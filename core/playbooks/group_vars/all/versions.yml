@@ -5,7 +5,7 @@
 # VERSIONS
 rocketchat_version: "2.2.0"
 mongodb_version: "4.0.12-debian-9-r22"
-zeek_version: "2.6.4"
+zeek_version: "3.0.0"
 busybox_version: "1.29.3"
 coreos_version: "1688.5.3"
 flannel_version: "v0.11.0"

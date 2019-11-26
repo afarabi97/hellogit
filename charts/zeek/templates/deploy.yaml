@@ -35,10 +35,10 @@ spec:
       - name: init-zeek
         image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
         imagePullPolicy: IfNotPresent
-        command: [ '/bin/touch', '-a', '/zeek/share/bro/site/custom/__load__.bro']
+        command: [ '/bin/touch', '-a', '/zeek/share/zeek/site/custom/__load__.zeek']
         volumeMounts:
         - name: custom-scripts
-          mountPath: /zeek/share/bro/site/custom
+          mountPath: /zeek/share/zeek/site/custom
       containers:
 {{- range $node, $config := $d }}
       - name: {{ $node }}
@@ -76,15 +76,15 @@ tries to restart.
 {{- end }}
         volumeMounts:
         - name: custom-scripts
-          mountPath: /zeek/share/bro/site/custom
+          mountPath: /zeek/share/zeek/site/custom
           readOnly: true
         - name: default-scripts
-          subPath: cluster-layout.bro
-          mountPath: /zeek/share/bro/site/cluster-layout.bro
+          subPath: cluster-layout.zeek
+          mountPath: /zeek/share/zeek/site/cluster-layout.zeek
           readOnly: true
         - name: default-scripts
-          subPath: local.bro
-          mountPath: /zeek/share/bro/site/local.bro
+          subPath: local.zeek
+          mountPath: /zeek/share/zeek/site/local.zeek
           readOnly: true
 {{- if eq $config.type "logger" }}
         - name: logs
@@ -106,7 +106,7 @@ tries to restart.
         - "-U"
         - ".status"
         - "frameworks/control/controllee"
-        - "local.bro"
+        - "local.zeek"
         - "base/frameworks/cluster"
 {{- end }}
       - name: zookeeper

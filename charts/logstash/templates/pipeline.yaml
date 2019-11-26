@@ -13,7 +13,7 @@ data:
     input {
 {{- range $index, $cluster := .Values.kafka_clusters }}
       kafka {
-        topics => ["bro-raw"]
+        topics => ["zeek-raw"]
         max_poll_records => "8192"
         consumer_threads => 10
         group_id => "logstash_bro_{{ $index }}"
