@@ -13,11 +13,11 @@ function install_endgame(){
     Remove-Item .\windows -Recurse -ErrorAction SilentlyContinue
     Remove-Item .\macos -Recurse -ErrorAction SilentlyContinue
     Remove-Item .\solaris -Recurse -ErrorAction SilentlyContinue
-    $zip_name = $(Get-ChildItem . | Where Name -match "SensorInstaller-*").name
+    $zip_name = $(dir ".\SensorInstaller-*").name
     _unzip "$Script:script_path\$zip_name" "$Script:script_path\"
     Set-Location -Path $Script:script_path\windows\
-    $installer_name = $(Get-ChildItem . | Where Name -match "-*.exe").name
-    $config_name = $(Get-ChildItem . | Where Name -match "-*.cfg").name
+    $installer_name = $(dir "*.exe").name
+    $config_name = $(dir "*.cfg").name
     $my_exe = ".\$installer_name"
     $arguments = " -k {{ template_ctx.api_token }} -c $config_name"
     Start-Process $my_exe $arguments -NoNewWindow
@@ -25,5 +25,10 @@ function install_endgame(){
 }
 
 install_endgame
-echo "Return Code: $return_value"
+if ($return_value -eq 0){
+    echo "Successfully installed endgame agent!"
+} else {
+    echo "Failed with return Code: $return_value"
+}
+
 return $return_value

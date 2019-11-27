@@ -28,7 +28,7 @@ function CheckService([string]$service_name) {
 function install_sysmon() {
     Try {
         _unzip "$Script:script_path\Sysmon.zip" "C:\Program Files\Sysmon"
-        & C:\'Program Files'\Sysmon\$Script:service_name.exe -i -accepteula
+        & C:\'Program Files'\Sysmon\$Script:service_name.exe -i -accepteula 2> $null
         CheckService -service_name $Script:service_name
     } Catch {
         Write-Host "Caught exception installing sysmon: ", $_.Exception
@@ -38,5 +38,10 @@ function install_sysmon() {
 
 set_service_name
 install_sysmon
-echo "Return Code: $return_value"
+
+if ($return_value -eq 0){
+    echo "Successfully installed Sysmon!"
+} else {
+    echo "Failed with return Code: $return_value"
+}
 return $return_value

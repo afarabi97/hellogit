@@ -178,6 +178,8 @@ class AgentBuilder:
     def build_agent(self) -> str:
         # if not Path(self._zip_path).exists():
         with tempfile.TemporaryDirectory() as agent_path: # type: str
+            shutil.copy2("/opt/tfplenum/agent_pkgs/install.ps1", agent_path)
+            shutil.copy2("/opt/tfplenum/agent_pkgs/uninstall.ps1", agent_path)
             self._package_endgame(agent_path)
             self._package_sysmon(agent_path)
             self._package_winlogbeat(agent_path)
@@ -239,12 +241,7 @@ class WinRunner:
             }
             Unzip "C:\\agent.zip" "C:\\"
             cd C:\\tfplenum_agent
-            $folders = Get-ChildItem
-            foreach ($folder in $folders) {
-                cd $folder
-                .\\uninstall.ps1
-                cd ..
-            }
+            .\\uninstall.ps1
             cd C:\\
             '''
         else:
@@ -255,17 +252,7 @@ class WinRunner:
             }
             Unzip "C:\\agent.zip" "C:\\"
             cd C:\\tfplenum_agent
-            $folders = Get-ChildItem
-            foreach ($folder in $folders) {
-                cd $folder
-                if ($folder.Name -eq "endgame"){
-                    .\\install.ps1
-                } else {
-                    .\\uninstall.ps1
-                    .\\install.ps1
-                }
-                cd ..
-            }
+            .\\install.ps1
             cd C:\\
             '''
 

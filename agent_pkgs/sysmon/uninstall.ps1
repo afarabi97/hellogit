@@ -29,5 +29,10 @@ function uninstall_sysmon {
 set_service_name
 uninstall_sysmon
 
-echo "Return Code: $return_value"
+if ($return_value -eq 0){
+    echo "Successfully uninstalled Sysmon!"
+} else {
+    echo "Failed with return Code: $return_value"
+}
+
 return $return_value

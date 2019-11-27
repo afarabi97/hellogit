@@ -2,7 +2,6 @@ $return_value = 0x00
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
 $winlog_beat_version = "7.3.1"
 
-
 function _unzip() {
    param([string]$zipfile, [string]$outpath)
    $Shell = new-object -com Shell.Application
@@ -44,5 +43,10 @@ function install_winlogbeat() {
 set_winlogbeat_archive_name
 install_winlogbeat
 
-echo "Return Code: $return_value"
+if ($return_value -eq 0){
+    echo "Successfully installed Winlogbeat!"
+} else {
+    echo "Failed with return Code: $return_value"
+}
+
 return $return_value

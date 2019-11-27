@@ -75,6 +75,10 @@ export class ConfigmapEditorComponent implements OnInit {
   }
 
   openSaveDialog(){
+    if (this.configMapName === null || this.configMapName === ""){
+      this.configMapName = "doesNotExist";
+    }
+
     this.configMapSrv.getAssociatedPods(this.configMapName).subscribe(data => {
       this.associatedPods = data as Array<{podName:string, namespace: string}>;
       let confirmText = 'Are you sure you want to save this configuration? Doing so will cause ';

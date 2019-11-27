@@ -42,5 +42,11 @@ function UninstallWinlogbeat() {
 
 set_winlogbeat_archive_name
 UninstallWinlogbeat
-echo "Return Code: $return_value"
+
+if ($return_value -eq 0){
+    echo "Successfully uninstalled Winlogbeat agent!"
+} else {
+    echo "Failed with return Code: $return_value"
+}
+
 return $return_value

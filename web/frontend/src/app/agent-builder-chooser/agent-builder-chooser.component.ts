@@ -198,7 +198,8 @@ export class AgentBuilderChooserComponent implements OnInit {
         }
       },
       err => {
-        try{
+        try {
+          console.error(err)
           let notification_text = 'Could not build agent installer: ' + err['statusText'];
           this.displaySnackBar(notification_text);
         } finally {
