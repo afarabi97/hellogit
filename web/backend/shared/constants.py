@@ -24,7 +24,7 @@ RULE_TYPES = ("Suricata", "Zeek")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
 SURICATA_IMAGE_VERSION = "4.1.4"
-ZEEK_IMAGE_VERSION = "2.6.4"
+ZEEK_IMAGE_VERSION = "3.0.0"
 
 # The path inside of the docker container
 BRO_RULE_DIR = "/zeek/share/bro/site"

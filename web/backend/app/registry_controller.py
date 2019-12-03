@@ -26,7 +26,7 @@ def get_imageid_and_size(repo: str, tag: str) -> Tuple[str, float]:
         for layer in manifest['layers']:
             total += layer['size']
 
-        #Covert it back to MB    
+        #Covert it back to MB
         total = total / 1000 / 1000
         return image_id, round(total, 2)
     return "", 0.0
@@ -36,7 +36,7 @@ def get_imageid_and_size(repo: str, tag: str) -> Tuple[str, float]:
 def get_docker_registry():
     ret_val = []
     try:
-        response = requests.get('http://localhost:5000/v2/_catalog') # type: Response        
+        response = requests.get('http://localhost:5000/v2/_catalog') # type: Response
         if response.status_code == 200:
             repos = response.json()['repositories']
             for repo in repos:

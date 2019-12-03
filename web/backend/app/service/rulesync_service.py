@@ -161,9 +161,9 @@ class RuleSynchronization():
         return name.replace(' ', '_')
 
     def _convert_bro_rule_name(self, name: str) -> str:
-        pos = name.rfind('.bro')
+        pos = name.rfind('.zeek')
         if pos == -1:
-            name = name + '.bro'
+            name = name + '.zeek'
         return name.replace(' ', '_')
 
     def _sync_bro_rulesets(self, fabric: Connection, ip_address: str, hostname: str):
@@ -214,7 +214,7 @@ class RuleSynchronization():
             self._send_notification("Nothing to sync for bro rules.", NotificationCode.CANCELLED.name)
             return
 
-        bro_load_file_path = "%s/__load__.bro" % BRO_CUSTOM_DIR
+        bro_load_file_path = "%s/__load__.zeek" % BRO_CUSTOM_DIR
         fabric.put(bro_load_file, bro_load_file_path)
         self._run_cmd_or_raise(fabric, "chmod 0744 %s" % bro_load_file_path)
         self._run_cmd_or_raise(fabric, "kubectl delete pod %s" % bro_pod_name)
