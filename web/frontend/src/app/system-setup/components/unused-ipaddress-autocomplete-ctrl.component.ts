@@ -3,7 +3,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
 @Component({
-  selector: 'app-kickstart-form-autocomplete',
+  selector: 'unused-ipaddress-autocomplete-ctrl',
   template: `
     <form>
     <mat-form-field>
@@ -39,7 +39,7 @@ import { map, startWith, tap } from 'rxjs/operators';
         }
   `]
 })
-export class KickstartFormAutoCompleteComponent implements OnChanges {
+export class UnusedIpAddressAutoCompleteComponent implements OnChanges {
   @Input() formControlInput: FormControl = new FormControl();
   @Input() options: string[] = [];
   @Input() inputPlaceHolder: string;

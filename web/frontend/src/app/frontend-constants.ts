@@ -42,3 +42,5 @@ export const COMMON_VALIDATORS = {
     { error_message: 'Retyping Root password is required', validatorFn: 'required' }
   ]
 }
+
+export const PXE_TYPES: string[] = ['BIOS', 'UEFI', 'DL160', 'SuperMicro'];

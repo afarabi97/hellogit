@@ -24,6 +24,7 @@ export class TopNavbarComponent implements OnInit {
                  { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false },
                  { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false },
                  { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false },
+                 { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false },
                  { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false }]
     }, {
       label: 'Kubernetes',
@@ -70,7 +71,7 @@ export class TopNavbarComponent implements OnInit {
     let datetime = data["datetime"];
     let dateParts = datetime.split(' ')[0].split("-");
     let timeParts = datetime.split(' ')[1].split(":");
-    
+
     this.time = new Date(
       dateParts[2], //Year
       dateParts[0] - 1, //Month

@@ -116,6 +116,3 @@ health-metrics-rerun:
 
 change-interfaces:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces,vars-configmap
-
-nfsclients:
-	ansible-playbook nfsclient.yml -i $(INVENTORY) -t nfsclient --extra-vars "nfs_server_host=172.16.77.96"

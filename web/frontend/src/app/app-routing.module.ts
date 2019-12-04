@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
-import { KitFormComponent } from './kit-form/kit-form.component';
+import { KickstartComponent } from './system-setup/kickstart/kickstart.component';
+import { KitComponent } from './system-setup/kit/kit.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
@@ -13,14 +13,15 @@ import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-buil
 import { CatalogComponent } from './catalog/component/catalog.component';
 import { CatalogPageComponent } from './catalog/page/catalog-page.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
-import { UpgradeComponent } from './upgrade/component/upgrade.component';
+import { UpgradeComponent } from './system-setup/upgrade/upgrade.component';
+import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
   { path: 'health', component:  SystemHealthComponent},
-  { path: 'kickstart', component: KickstartFormComponent },
-  { path: 'kit_configuration', component: KitFormComponent },
+  { path: 'kickstart', component: KickstartComponent },
+  { path: 'kit_configuration', component: KitComponent },
   { path: 'configmaps', component: ConfigmapsComponent },
   { path: 'stdout/:id', component: ServerStdoutComponent },
   { path: 'registry', component: RegistryComponent },
@@ -30,7 +31,8 @@ const routes: Routes = [
   { path: 'catalog', component: CatalogComponent},
   { path: 'tools', component: ToolsFormComponent},
   { path: 'application/:id', component : CatalogPageComponent},
-  { path: 'upgrade', component: UpgradeComponent}
+  { path: 'upgrade', component: UpgradeComponent},
+  { path: 'add_node', component: AddNodeComponent}
 ];
 
 

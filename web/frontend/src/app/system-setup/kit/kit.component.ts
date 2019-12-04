@@ -1,40 +1,42 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormArray, FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { getFormValidationErrors, FormGroupControls, AllValidationErrors, validateFromArray } from '../validators/generic-validators.validator';
+import { getFormValidationErrors, FormGroupControls, AllValidationErrors, validateFromArray } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
-import { KitFormTime, kit_validators, KitForm, KitFormNode, kitTooltips } from './kit-form';
+import { KitFormTime, kit_validators, KitForm, kitTooltips } from './kit-form';
 import { KitService } from '../services/kit.service';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { SnackbarWrapper } from '../classes/snackbar-wrapper';
+import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { Title } from '@angular/platform-browser';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
-import { CatalogService } from '../catalog/services/catalog.service';
-import { DialogFormControl, DialogControlTypes } from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { getCurrentDate } from '../date-time-picker/date-time.component';
+import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { CatalogService } from '../../catalog/services/catalog.service';
+import { DialogFormControl, DialogControlTypes } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+import { getCurrentDate } from '../../date-time-picker/date-time.component';
 
 @Component({
   selector: 'app-kit-form',
-  templateUrl: './kit-form.component.html',
-  styleUrls: ['./kit-form.component.scss']
+  templateUrl: './kit.component.html',
+  styleUrls: ['./kit.component.scss']
 })
-export class KitFormComponent implements OnInit, AfterViewInit {
+export class KitComponent implements OnInit, AfterViewInit {
   avaiable_ip_addrs: string[];
   executeKitForm: KitFormTime;
   kickstartForm;
   kitFormGroup: FormGroup;
   nodes: FormArray;
-  addNodeButton: boolean = false;
+
+  isGettingDeviceFacts :boolean;
 
   constructor(private kickStartSrv: KickstartService,
-    private title: Title,
-    private router: Router,
-    private kitSrv: KitService,
-    private formBuilder: FormBuilder,
-    private snackbar: SnackbarWrapper,
-    private matDialog: MatDialog,
-    private _CatalogService: CatalogService) {
+              private title: Title,
+              private router: Router,
+              private kitSrv: KitService,
+              private formBuilder: FormBuilder,
+              private snackbar: SnackbarWrapper,
+              private matDialog: MatDialog,
+              private _CatalogService: CatalogService) {
+    this.isGettingDeviceFacts = false;
     this.kitFormGroup = this.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
   }
@@ -45,6 +47,17 @@ export class KitFormComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.initalizeForm();
+  }
+
+  hasRetrievedDeviceFacts(): boolean {
+    let nodes = this.kitFormGroup.get('nodes') as FormArray;
+    for (let control of nodes.controls) {
+      // console.log(control.get('deviceFacts').value);
+      if (!control.get('deviceFacts').value){
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -219,23 +232,6 @@ export class KitFormComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * forces only one formControl to be true in FormArray
-   *
-   * @param {*} formArray
-   * @param {string} formName
-   * @param {number} index
-   * @memberof KitFormComponent
-   */
-  public singleSelectCheckbox(formArray, formName: string, index: number): void {
-    formArray.map((control, i) => {
-      let arrFormGroup = control as FormGroup;
-      if (arrFormGroup.get(formName) && index !== i) {
-        control.get(formName).setValue(false);
-      }
-    });
-  }
-
-  /**
    * returns a new KitFormGroup
    *
    * @private
@@ -258,85 +254,11 @@ export class KitFormComponent implements OnInit, AfterViewInit {
     ]));
     if (kitForm) {
       const nodes = kitFormGroup.get('nodes') as FormArray;
-      kitForm.nodes.map(node => nodes.push(this.newNode(node)));
+      kitForm.nodes.map(node => nodes.push(this.kitSrv.newKitNodeForm(node)));
       nodes.disable();
       kitFormGroup.disable();
     }
     return kitFormGroup;
-  }
-
-  /**
-   *  returns a new Node FormGroup
-   *
-   * @private
-   * @param {*} node
-   * @returns
-   * @memberof KitFormComponent
-   */
-  private newNode(node, addNode?: boolean) {
-    let genericNode = this.formBuilder.group({
-      node_type: new FormControl(node && node.node_type ? node.node_type : '', Validators.compose([validateFromArray(kit_validators.node_type)])),
-      hostname: new FormControl(node ? node.hostname : ''),
-      management_ip_address: node ? node.management_ip_address ? node.management_ip_address : node.default_ipv4_settings.address : '',
-      deviceFacts: node && node.deviceFacts ? node.deviceFacts : node
-    });
-    genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
-    return genericNode;
-  }
-
-
-  /**
-   * adds additional controls based on node_type
-   *
-   * @private
-   * @param {string} value
-   * @param {FormGroup} genericNode
-   * @param {KitFormNode} node
-   * @memberof KitFormComponent
-   */
-  private addNodeControls(value: string, genericNode: FormGroup, node: KitFormNode, addNode?: boolean): void {
-    if (value === 'Sensor') {
-      this.addSensorControls(genericNode, node.is_remote);
-    } else if (value === 'Server') {
-      this.addServerControls(genericNode, node.is_master_server, node, addNode);
-    }
-  }
-
-  /**
-   * adds the sensor controls
-   *
-   * @private
-   * @param {FormGroup} genericNode
-   * @memberof KitFormComponent
-   */
-  private addSensorControls(genericNode: FormGroup, value): void {
-    genericNode.addControl('is_remote', new FormControl(value ? value : false));
-    // remove Server Controls
-    if (genericNode.get('is_master_server')) {
-      genericNode.removeControl('is_master_server');
-    }
-  }
-
-  /**
-   * adds server controls
-   *
-   * @private
-   * @param {FormGroup} genericNode
-   * @memberof KitFormComponent
-   */
-  private addServerControls(genericNode: FormGroup, value, node, addNode?: boolean): void {
-    genericNode.addControl('is_master_server', new FormControl(value ? value : false));
-    // set the node to false because otherwise
-    if (value) {
-      node["is_master_server"] = false;
-    }
-    if (addNode) {
-      genericNode.addControl('is_add_node', new FormControl(true));
-    }
-    // remove Server Controls
-    if (genericNode.get('is_remote')) {
-      genericNode.removeControl('is_remote');
-    }
   }
 
   /**
@@ -358,14 +280,21 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    * @memberof KitFormComponent
    */
   private getNodeDeviceFacts(kickstartNodes: any[]): void {
-    kickstartNodes.map(node => {
-      this.kickStartSrv.gatherDeviceFacts(node.ip_address).subscribe(data => {
-        let nodes = this.kitFormGroup.get('nodes') as FormArray;
-        let newNode = this.newNode(data);
-        nodes.push(newNode);
-        this.nodes = nodes;
+    this.isGettingDeviceFacts = true;
+    for (let i = 0; i < kickstartNodes.length; i++){
+      this.kickStartSrv.gatherDeviceFacts(kickstartNodes[i].ip_address).subscribe(data => {
+        if (data){
+          let nodes = this.kitFormGroup.get('nodes') as FormArray;
+          let newNode = this.kitSrv.newKitNodeForm(data);
+          nodes.push(newNode);
+          this.nodes = nodes;
+
+          if (i === (kickstartNodes.length - 1)){
+            this.isGettingDeviceFacts = false;
+          }
+        }
       });
-    });
+    }
   }
 
   /**
@@ -432,8 +361,6 @@ export class KitFormComponent implements OnInit, AfterViewInit {
    * @memberof KickstartFormComponent
    */
   public removeNode(index: number): void {
-
-
     const message = "Are you sure you want to delete this sensor ";
     const title = "Deleting sensor";
     const option1 = "Take me back";
@@ -476,9 +403,6 @@ export class KitFormComponent implements OnInit, AfterViewInit {
       if( result !== null && result === [] ) {
 
         let message = " Uninstall the following applications: " + result;
-        // result.map( apps => {
-        //   message += apps + ' ';
-        // });
         const title = "Installed applications on " + hostname;
         const option2 = "Take me to catalog";
         const option1 = "Return to page";
@@ -496,69 +420,6 @@ export class KitFormComponent implements OnInit, AfterViewInit {
         this.removeNode(index);
       }
     });
-  }
-
-
-  /**
-   * adds any new nodes found in the kickstart form
-   *
-   * @memberof KitFormComponent
-   */
-  public addNode() {
-    let kickstartHost = [];
-    this.kickstartForm.nodes.map( node => {
-      kickstartHost.push(node.ip_address);
-    });
-    let kitHost = [];
-    this.kitFormGroup.value.nodes.map( node => {
-      kitHost.push(node.management_ip_address);
-    });
-    let difference = kickstartHost.filter(x => !kitHost.includes(x));
-    difference.forEach( diff => {
-      this.kickStartSrv.gatherDeviceFacts(diff).subscribe(data => {
-        let nodes = this.kitFormGroup.get('nodes') as FormArray;
-        let newNodes = this.kitFormGroup.get('nodesToAdd') as FormArray;
-        let newNode = this.newNode(data, true);
-        nodes.push(newNode);
-        newNodes.push(newNode);
-      });
-    });
-    this.kitFormGroup.setValidators(Validators.compose([]));
-    this.kitFormGroup.controls['nodesToAdd'].enable();
-    this.addNodeButton = true;
-    let nodes = this.kitFormGroup.get("nodes") as FormArray;
-    let masterServerIp;
-    nodes.value.map( node => {
-      if(node.is_master_server === true) {
-        masterServerIp = node.management_ip_address;
-      }
-    });
-    let dns = this.kitFormGroup.get('dns_ip') as FormArray;
-    dns.setValue(masterServerIp);
-  }
-
-  /**
-   * Test Server nodes to see if it was an added Server
-   *
-   * @param {*} node
-   * @returns
-   * @memberof KitFormComponent
-   */
-  testAddNode(node) {
-    if (node.get('is_add_node') === null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * is the sumbit for add node
-   *
-   * @memberof KitFormComponent
-   */
-  public submitAddNode() {
-    this.kitSrv.executeAddNode(this.kitFormGroup.getRawValue()).subscribe(data => this.openConsole());
   }
 
 }

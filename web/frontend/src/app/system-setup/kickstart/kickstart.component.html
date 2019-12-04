@@ -20,8 +20,8 @@
         will save the current configuration if you want to restore it later.
         If you want to change the existing configuration, click "Enable
         Form" button at the top of the page and make your edits before
-        clicking "Execute Kickstart". If you want to add a new node, scroll
-        to the bottom of the page and click the "Add Node" button.
+        clicking "Execute Kickstart". If you want to add a new node, go to the
+        Add Node page which can be accessed on your side navigation bar.
       </p>
     </mat-card-content>
     <mat-card-actions>
@@ -120,10 +120,10 @@
               kickStartFormGroup.get('re_password').touched" matSuffix color="warn">error</mat-icon>
           <mat-error>{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
         </mat-form-field>
-        <app-kickstart-form-autocomplete [formControlInput]="kickStartFormGroup.get('dhcp_range')"
+        <unused-ipaddress-autocomplete-ctrl [formControlInput]="kickStartFormGroup.get('dhcp_range')"
           matTooltip="{{ getTooltip('dhcp_range') }}" [options]="dhcp_range_options"
           inputPlaceHolder='DHCP Range Start' [matError]="getErrorMessage(kickStartFormGroup.get('dhcp_range'))">
-        </app-kickstart-form-autocomplete>
+        </unused-ipaddress-autocomplete-ctrl>
         <mat-hint *ngIf="kickStartFormGroup.get('dhcp_range').valid">{{dhcpInputEvent()}}</mat-hint>
       </section>
     </mat-card-content>
@@ -143,65 +143,7 @@
             <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
           </mat-expansion-panel-header>
           <section [formGroupName]="i" fxLayout="column" fxLayoutAlign="start stretch" style="margin-top: 10px;">
-            <mat-form-field>
-              <mat-label>Hostname</mat-label>
-              <input matInput placeholder="Enter a node hostname ending with .lan" formControlName="hostname"
-                matTooltip="{{ getTooltip('hostname') }}" />
-              <mat-icon *ngIf="
-                  node.get('hostname')?.valid &&
-                  node.get('hostname')?.touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  node.get('hostname')?.invalid &&
-                  node.get('hostname')?.touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(node.get("hostname"))}}</mat-error>
-            </mat-form-field>
-            <app-kickstart-form-autocomplete [formControlInput]="node.get('ip_address')"
-              matTooltip="{{ getTooltip('ip_address') }}" [options]="availableIPs"
-              inputPlaceHolder='Enter your node IP address here'
-              [matError]="getErrorMessage(node.get('ip_address'))">
-            </app-kickstart-form-autocomplete>
-            <mat-form-field>
-              <mat-label>MAC Address</mat-label>
-              <input matInput placeholder="Enter a mac address" formControlName="mac_address"
-                matTooltip="{{ getTooltip('mac_address') }}" />
-              <mat-icon *ngIf="
-                  node.get('mac_address')?.valid &&
-                  node.get('mac_address')?.touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  node.get('mac_address')?.invalid &&
-                  node.get('mac_address')?.touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Boot Drive</mat-label>
-              <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
-                matTooltip="{{ getTooltip('boot_drive') }}" />
-              <mat-icon *ngIf="
-                    node.get('boot_drive')?.valid &&
-                    node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                    node.get('boot_drive')?.invalid &&
-                    node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Data Drive</mat-label>
-              <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
-                matTooltip="{{ getTooltip('data_drive') }}" />
-              <mat-icon *ngIf="
-                  node.get('data_drive')?.valid &&
-                  node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-              <mat-icon *ngIf="
-                  node.get('data_drive')?.invalid &&
-                  node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
-              <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>PXE Type</mat-label>
-              <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
-                <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <app-kickstart-node-form [node]="node" [availableIPs]="availableIPs"></app-kickstart-node-form>
             <mat-action-row>
               <button mat-raised-button color="warn" (click)="removeNode(nodesFormArray(), i)"
                 *ngIf="kickStartFormGroup.get('nodes').controls.length > 2"

@@ -86,8 +86,8 @@ export class PcapFormComponent implements OnInit {
         width: DIALOG_WIDTH,
         data: {
           'paneString': 'Are you sure you want to permanently delete ' + pcap['name']  + '?',
-          'option1': doItText,
-          'option2': 'Cancel'
+          'option1': 'Cancel',
+          'option2': doItText
         }
       });
       dialogRef.afterClosed().subscribe(

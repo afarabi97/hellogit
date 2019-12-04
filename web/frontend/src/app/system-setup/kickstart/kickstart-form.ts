@@ -1,4 +1,4 @@
-import { IP_CONSTRAINT } from '../frontend-constants';
+import { IP_CONSTRAINT } from '../../frontend-constants';
 /**
  * How to use form validation:
  * The following is an object that has key value pair, where value is an array of validation objects and the key is the formcontrolName. The validation objects in the array are the following:
@@ -70,7 +70,6 @@ import { IP_CONSTRAINT } from '../frontend-constants';
 
 
 export const kickstart_validators = {
-  //mips validations
   hostname: [
     { ops: { pattern: /^[a-z]([a-z]|[0-9]|[-])*[.]lan$/ }, error_message: 'Hostnames must be alphanumeric and end with .lan. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
@@ -83,7 +82,7 @@ export const kickstart_validators = {
     { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }
   ],
   mac_address: [
-    { error_message: (value) => `Duplicate IP Address found: ${value}. Node must have a unique MAC Address.`, validatorFn: 'unique' },
+    { error_message: (value) => `Duplicate MAC Address found: ${value}. Node must have a unique MAC Address.`, validatorFn: 'unique' },
     { error_message: 'Mac Address is required', validatorFn: 'required' },
     { ops: { pattern: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/ }, error_message: 'You must enter a valid MAC Address.', validatorFn: 'pattern' }
 
@@ -117,12 +116,12 @@ export const kickStartTooltips = {
   This field is specifically used as a part of the static interface assignment during the operating system installation.',
   netmask: 'The netmask is the network address used for subnetting.  \
   This field is specifically used as a part of the static interface assignment during the operating system installation.',
-  hostname: 'The hostname is the mipss name that will be assigned during the installation of the operating system.  \
+  hostname: 'The hostname is the nodes name that will be assigned during the installation of the operating system.  \
   This should match the hostname used by the DNS server.',
-  ip_address: `The mips ip address is used during the kickstart process to statically assign the mips's interface.`,
+  ip_address: `The node's ip address is used during the kickstart process to statically assign its network interface.`,
   mac_address: `The mac address is the network interface's physical  address.  \
-  This address is used by the dhcp server to provide the mips a specific pxe file used for network booting.\
-  If the mac address is incorrect the mips will be able to network boot.`,
+  This address is used by the dhcp server to provide the node a specific pxe file used for network booting.\
+  If the mac address is incorrect the node will not be able to network boot.`,
   dhcp_range: 'DHCP range is the range of addresses the DHCP server will use for kickstarting \
   machines on the network. This means it will take whatever IP address you select \
   and create range addresses from that IP +16. For example, \

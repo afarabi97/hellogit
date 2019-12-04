@@ -12,7 +12,7 @@ from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, jsonify, Response
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
-from shared.constants import KICKSTART_ID
+from shared.constants import KICKSTART_ID, ADDNODE_ID
 from shared.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
 from typing import Dict
 
@@ -51,6 +51,50 @@ def save_kickstart_to_mongo(kickstart_form: Dict) -> None:
                                                   upsert=True)  # type: InsertOneResult
 
 
+@app.route('/api/test123', methods=['GET'])
+def test123() -> Response:
+    t = {'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff', 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
+    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": "add_node_wizard"}, {"_id": "add_node_wizard", "form": t, "step": 3}, upsert=True)
+    return OK_RESPONSE
+
+
+@app.route('/api/get_add_node_wizard_state', methods=['GET'])
+def get_add_node_wizard_state() -> Response:
+    ret_val = conn_mng.mongo_add_node_wizard.find_one({"_id": ADDNODE_ID})
+    return jsonify(ret_val)
+
+class IndexNotFound(Exception):
+    pass
+
+
+def _get_index(kickstart_form: Dict, new_node: Dict) -> int:
+    #{'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff',
+    # 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
+    for index, node in enumerate(kickstart_form["nodes"]):
+        if node['hostname'] == new_node['hostname'] and node['ip_address'] == new_node['ip_address']:
+            return index
+    raise IndexNotFound()
+
+
+def _handle_add_node(add_node_payload: Dict) -> Dict:
+    # This code executes when the payload is from the add node wizard on the frontend.
+    kickstart_form = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})["form"]
+    add_node_state = conn_mng.mongo_add_node_wizard.find_one({"_id": ADDNODE_ID})
+    if add_node_state:
+        #If a node already exists, check if it exists and remove it from the node collection
+        try:
+            index = _get_index(kickstart_form, add_node_state["form"])
+            del kickstart_form["nodes"][index]
+        except IndexNotFound as e:
+            pass
+
+    kickstart_form["nodes"].append(add_node_payload)
+    kickstart_form["re_password"] = decode_password(kickstart_form["re_password"])
+    kickstart_form["root_password"] = decode_password(kickstart_form["root_password"])
+    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": ADDNODE_ID}, {"_id": ADDNODE_ID, "form": add_node_payload, "step": 3}, upsert=True)
+    return kickstart_form
+
+
 @app.route('/api/generate_kickstart_inventory', methods=['POST'])
 def generate_kickstart_inventory() -> Response:
     """
@@ -59,7 +103,13 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    kickstart_form = request.get_json()
+    payload = request.get_json()
+
+    if 'nodes' in payload:
+        kickstart_form = payload
+    else:
+        kickstart_form = _handle_add_node(payload)
+
     if not kickstart_form['continue']:
         invalid_ips = []
         for node in kickstart_form["nodes"]:

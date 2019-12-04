@@ -2,40 +2,38 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import { debounceTime } from 'rxjs/operators';
-import { ArchiveSaveDialogComponent } from '../archive-save-dialog/archive-save-dialog.component';
-import { ArchiveRestoreDialogComponent } from '../archive-restore-dialog/archive-restore-dialog.component';
-import { ArchiveService } from '../services/archive.service';
-import { SnackbarWrapper } from '../classes/snackbar-wrapper';
-import { CTRL_SELECTED, KICKSTART_ID } from '../frontend-constants';
+import { ArchiveSaveDialogComponent } from '../../archive-save-dialog/archive-save-dialog.component';
+import { ArchiveRestoreDialogComponent } from '../../archive-restore-dialog/archive-restore-dialog.component';
+import { ArchiveService } from '../../services/archive.service';
+import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { CTRL_SELECTED, KICKSTART_ID } from '../../frontend-constants';
 import { KickstartService } from '../services/kickstart.service';
 import { kickStartTooltips, kickstart_validators } from './kickstart-form';
-import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from '../validators/generic-validators.validator';
-import { isIpv4InSubnet } from '../globals';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from '../../validators/generic-validators.validator';
+import { isIpv4InSubnet } from '../../globals';
+import { SystemSetupService } from '../services/system-setup.service';
 
 @Component({
   selector: 'app-kickstart-form',
-  templateUrl: './kickstart-form.component.html',
-  styleUrls: ['./kickstart-form.component.scss']
+  templateUrl: './kickstart.component.html',
+  styleUrls: ['./kickstart.component.scss']
 })
-export class KickstartFormComponent implements OnInit {
+export class KickstartComponent implements OnInit {
   public availableIPs: string[] = [];
   public controllers: any[] = [];
   private defaultDisk: string;
   public dhcp_range_options: string[] = [];
   private default_ipv4_settings;
   public kickStartFormGroup: FormGroup;
-  public pxe_types: string[] = ['BIOS', 'UEFI', 'DL160', 'SuperMicro'];
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
     private kickStartSrv: KickstartService,
     private matDialog: MatDialog,
-    private router: Router,
     private snackbarWrapper: SnackbarWrapper,
-    private title: Title) {
+    private title: Title,
+    private systemSetupSrv: SystemSetupService) {
     this.initKickStartForm();
   }
 
@@ -111,15 +109,6 @@ export class KickstartFormComponent implements OnInit {
   }
 
   /**
-   * routes the app to /stdout/Kickstart
-   *
-   * @memberof KickstartFormComponent
-   */
-  public openConsole(): void {
-    this.router.navigate(['/stdout/Kickstart']);
-  }
-
-  /**
    * sets availableIPs to the reponse from api for unused IPS
    *
    * @memberof KickstartFormComponent
@@ -136,7 +125,7 @@ export class KickstartFormComponent implements OnInit {
   }
 
   /**
-   * sets KiackStartFromGroup to a new FormGroup
+   * Sets KickstartFormGroup to a new FormGroup
    *
    * @param {*} [kickstartForm]
    * @memberof KickstartFormComponent
@@ -146,7 +135,7 @@ export class KickstartFormComponent implements OnInit {
     if (this.kickStartFormGroup.get('dhcp_range').value) {
       this.dhcp_range_options = [this.kickStartFormGroup.get('dhcp_range').value];
     }
-    // add one noode to the formArray at this point because uniqueArray needs to exist for validation reference 
+    // add one noode to the formArray at this point because uniqueArray needs to exist for validation reference
     const nodesFormArray = this.kickStartFormGroup.get('nodes') as FormArray;
     if (kickstartForm) {
       kickstartForm.nodes.map((node, index) => {
@@ -286,7 +275,7 @@ export class KickstartFormComponent implements OnInit {
 
   /**
    *
-   * @return {FormArray} 
+   * @return {FormArray}
    * @memberof KickstartFormComponent
    */
   public nodesFormArray(): FormArray {
@@ -306,7 +295,7 @@ export class KickstartFormComponent implements OnInit {
 
   /**
    * returns All the validations Errors from array FormGroupControls
-   * 
+   *
    * @param {FormGroupControls} controls
    * @returns {AllValidationErrors[]}
    * @memberof KickstartFormComponent
@@ -377,43 +366,7 @@ export class KickstartFormComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   public onSubmit(): void {
-    let payload = this.kickStartFormGroup.getRawValue();
-    payload['continue'] = false;
-    this.kickStartSrv.generateKickstartInventory(payload)
-      .subscribe(data => {
-        if (data !== null && data['error_message']) {
-          let message = data['error_message'];
-          let title = "Kickstart Error";
-          let option1 = "Cancel";
-          let option2 = "Continue";
-          this.matDialog.open(ConfirmDailogComponent, {
-            width: '35%',
-            data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
-          }).afterClosed().subscribe(response => {
-            if (response == option2) {
-              this.continueAnyways();
-            }
-          });
-        } else {
-          this.openConsole()
-        }
-      });
-  }
-
-
-  /**
-   * overrides the kickstart on submit
-   *
-   * @private
-   * @memberof KickstartFormComponent
-   */
-  private continueAnyways() {
-    let payload = this.kickStartFormGroup.getRawValue();
-    payload['continue'] = true;
-    this.kickStartSrv.generateKickstartInventory(payload)
-      .subscribe(data => {
-        this.openConsole();
-      });
+    this.systemSetupSrv.executeKickstart(this.kickStartFormGroup);
   }
 
   /**
@@ -431,11 +384,11 @@ export class KickstartFormComponent implements OnInit {
 
   /**
    * Opens the IP Change Modal in the event we have a controller IP change detection.
-   * 
+   *
    * @param oldIP - The current configuration IP address.
    */
   private openIPChangedModal(oldIP: string) {
-    //The kickstartfomr interface selections was refreshed before we 
+    //The kickstartfomr interface selections was refreshed before we
     //Map an old form to an exisiting one.
     let openmodal = true;
     for (let newip of this.controllers) {
@@ -477,7 +430,7 @@ export class KickstartFormComponent implements OnInit {
 
   /**
    * sets the gateway based on controller_interface
-   * 
+   *
    */
   public setGateway(): void {
     let controller_interface = this.kickStartFormGroup.get('controller_interface').value[0];
@@ -485,6 +438,10 @@ export class KickstartFormComponent implements OnInit {
     this.kickStartFormGroup.get('gateway').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
     this.getAvaliableIPBlock(this.kickStartFormGroup);
     this.getOpenIP();
+  }
+
+  public openConsole(){
+    this.systemSetupSrv.openKickstartConsole();
   }
 
 }

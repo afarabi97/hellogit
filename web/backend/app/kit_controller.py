@@ -12,7 +12,7 @@ from app.service.kit_service import perform_kit
 from app.service.time_service import change_time_on_nodes
 from flask import request, Response, jsonify
 from pymongo.collection import ReturnDocument
-from shared.constants import KIT_ID, KICKSTART_ID
+from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
 from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
 from app.service.add_node_service import perform_add_node
@@ -117,28 +117,33 @@ def execute_add_node() -> Response:
 
     :return: Response object
     """
-    payload = request.get_json()
+    add_node_payload = request.get_json()
+    current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    current_kit_configuration["form"]["nodes"].append(add_node_payload)
+
+    #Remove the state of the add node wizard
+    conn_mng.mongo_add_node_wizard.delete_one({"_id": ADDNODE_ID})
+
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    isSucessful, root_password = _replace_kit_inventory(payload)
+    isSucessful, root_password = _replace_kit_inventory(current_kit_configuration["form"])
     if isSucessful:
-        for nodeToAdd in payload['nodesToAdd']:
-            cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap"
-                            ).format(playbook_pass=root_password)
+        cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap"
+                        ).format(playbook_pass=root_password)
 
-            cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"add_node=true\" --limit {node}"
-                            ).format(playbook_pass=root_password, node=nodeToAdd['hostname'])
+        cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"add_node=true\" --limit {node}"
+                        ).format(playbook_pass=root_password, node=add_node_payload['hostname'])
 
-            task_idOne = perform_kit.delay(cmd_to_executeOne)
-            conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                            {"_id": "Kit", "task_id": str(task_idOne), "pid": ""},
-                                                            upsert=True)
+        task_idOne = perform_kit.delay(cmd_to_executeOne)
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
+                                                        {"_id": "Kit", "task_id": str(task_idOne), "pid": ""},
+                                                        upsert=True)
 
-            task_idTwo = perform_add_node.delay(cmd_to_executeTwo)
-            conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
-                                                            {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
-                                                            upsert=True)
+        task_idTwo = perform_add_node.delay(cmd_to_executeTwo)
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
+                                                        {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
+                                                        upsert=True)
 
-            return (jsonify(str(task_idOne)), 200)
+        return (jsonify(str(task_idOne)), 200)
 
     logger.error("Executing add node configuration has failed.")
     return ERROR_RESPONSE

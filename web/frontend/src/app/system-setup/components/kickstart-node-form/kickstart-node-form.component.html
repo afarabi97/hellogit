@@ -1,0 +1,60 @@
+<form [formGroup]="node" fxLayout="column" fxLayoutAlign="space-around stretch">
+  <mat-form-field>
+    <mat-label>Hostname</mat-label>
+    <input matInput
+           placeholder="Enter a node hostname ending with .lan"
+           formControlName="hostname"
+           matTooltip="{{ getTooltip('hostname') }}" />
+
+    <mat-icon *ngIf="node.get('hostname')?.valid && node.get('hostname')?.touched" matSuffix color="primary">check_circle</mat-icon>
+    <mat-icon *ngIf="node.get('hostname')?.invalid && node.get('hostname')?.touched" matSuffix color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(node.get("hostname")) }}</mat-error>
+  </mat-form-field>
+  <unused-ipaddress-autocomplete-ctrl [formControlInput]="node.get('ip_address')"
+    matTooltip="{{ getTooltip('ip_address') }}" [options]="availableIPs"
+    inputPlaceHolder='Enter your node IP address here'
+    [matError]="getErrorMessage(node.get('ip_address'))">
+  </unused-ipaddress-autocomplete-ctrl>
+  <mat-form-field>
+    <mat-label>MAC Address</mat-label>
+    <input matInput placeholder="Enter a mac address" formControlName="mac_address"
+      matTooltip="{{ getTooltip('mac_address') }}" />
+    <mat-icon *ngIf="
+        node.get('mac_address')?.valid &&
+        node.get('mac_address')?.touched" matSuffix color="primary">check_circle</mat-icon>
+    <mat-icon *ngIf="
+        node.get('mac_address')?.invalid &&
+        node.get('mac_address')?.touched" matSuffix color="warn">error</mat-icon>
+    <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Boot Drive</mat-label>
+    <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
+      matTooltip="{{ getTooltip('boot_drive') }}" />
+    <mat-icon *ngIf="
+          node.get('boot_drive')?.valid &&
+          node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+    <mat-icon *ngIf="
+          node.get('boot_drive')?.invalid &&
+          node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Data Drive</mat-label>
+    <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
+      matTooltip="{{ getTooltip('data_drive') }}" />
+    <mat-icon *ngIf="
+        node.get('data_drive')?.valid &&
+        node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+    <mat-icon *ngIf="
+        node.get('data_drive')?.invalid &&
+        node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
+    <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>PXE Type</mat-label>
+    <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
+      <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

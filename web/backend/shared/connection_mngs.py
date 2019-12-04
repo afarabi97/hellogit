@@ -88,6 +88,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kickstart
 
     @property
+    def mongo_add_node_wizard(self) -> Collection:
+        return self._tfplenum_database.add_node_wizard
+
+    @property
     def mongo_counters(self) -> Collection:
         return self._tfplenum_database.counters
 

@@ -7,14 +7,20 @@ import {FlexLayoutModule} from "@angular/flex-layout";
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
-import { KickstartFormComponent } from './kickstart-form/kickstart-form.component';
+import { KickstartComponent } from './system-setup/kickstart/kickstart.component';
 import { AppRoutingModule } from './/app-routing.module';
-import { KitFormComponent } from './kit-form/kit-form.component';
-import { TotalServerResourcesCardComponent } from './total-server-resources-card/total-server-resources-card.component';
-import { TotalSensorResourcesCardComponent } from './total-sensor-resources-card/total-sensor-resources-card.component';
-import { TotalSystemResourceCardComponent } from './total-system-resource-card/total-system-resource-card.component';
+
+//Kit Page
+import { KitComponent } from './system-setup/kit/kit.component';
+import { TotalServerResourcesCardComponent } from './system-setup/components/total-server-resources-card/total-server-resources-card.component';
+import { TotalSensorResourcesCardComponent } from './system-setup/components/total-sensor-resources-card/total-sensor-resources-card.component';
+import { TotalSystemResourceCardComponent } from './system-setup/components/total-system-resource-card/total-system-resource-card.component';
+import { KickstartNodeFormComponent } from './system-setup/components/kickstart-node-form/kickstart-node-form.component';
+import { KitNodeFormComponent } from './system-setup/components/kit-node-form/kit-node-form.component';
+
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
+import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 
 //Tools page
 import { ToolsFormComponent } from './tools-form/tools.component';
@@ -67,7 +73,7 @@ import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.componen
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 
 // Upgrade
-import { UpgradeComponent } from './upgrade/component/upgrade.component';
+import { UpgradeComponent } from './system-setup/upgrade/upgrade.component';
 
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
@@ -78,7 +84,7 @@ import { InjectorModule } from './utilily-modules/injector.module';
 import { CookieService } from './services/cookies.service';
 
 // Kickstart Form
-import { KickstartFormAutoCompleteComponent } from './kickstart-form/components/kickstart-form-autocomplete.component';
+import { UnusedIpAddressAutoCompleteComponent } from './system-setup/components/unused-ipaddress-autocomplete-ctrl.component';
 
 // Archives
 import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-restore-dialog.component';
@@ -96,11 +102,11 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
   declarations: [
     AppComponent,
     TopNavbarComponent,
-    KickstartFormComponent,
-    KickstartFormAutoCompleteComponent,
+    KickstartComponent,
+    UnusedIpAddressAutoCompleteComponent,
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
-    KitFormComponent,
+    KitComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
     TotalSystemResourceCardComponent,
@@ -138,7 +144,10 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     CatalogPageComponent,
     UpgradeComponent,
     ReplayPcapDialog,
-    ModalTableComponent
+    ModalTableComponent,
+    AddNodeComponent,
+    KickstartNodeFormComponent,
+    KitNodeFormComponent
   ],
   imports: [
     BrowserModule,

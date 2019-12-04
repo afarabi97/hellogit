@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UpgradeService } from '../services/upgrade.service';
 import {FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
-import { KickstartService } from 'src/app/services/kickstart.service';
+import { KickstartService } from '../services/kickstart.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { MatSnackBar } from '@angular/material/snack-bar';
