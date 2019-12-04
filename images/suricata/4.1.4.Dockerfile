@@ -1,7 +1,7 @@
 # Build Suricata
 FROM centos:7 as builder
 
-ENV VER 5.0.0
+ENV VER 4.1.4
 ENV URL https://www.openinfosecfoundation.org/download/suricata-${VER}.tar.gz
 
 WORKDIR /scratch
@@ -13,7 +13,7 @@ RUN yum install -y epel-release && \
         libevent-devel libnet-devel libnetfilter_queue-devel libpcap-devel \
         libprelude-devel libtool libtool-ltdl-devel libyaml-devel lua-devel \
         luajit-devel lz4-devel make nss-devel openssl-devel pcre-devel \
-        zlib-devel libmaxminddb-devel && \
+        zlib-devel && \
     yum clean all && \
     curl -L ${URL} | tar xvzf - && \
     cd suricata-${VER} && \
@@ -37,7 +37,7 @@ RUN yum install -y epel-release && \
 
 # Build the final image
 FROM registry.access.redhat.com/ubi8-minimal
-ENV VER 5.0.0
+ENV VER 4.1.4
 
 COPY --from=builder /usr/local/suricata-${VER} /usr/local/suricata-${VER}
 COPY --from=builder /etc/suricata /etc/suricata
@@ -54,7 +54,6 @@ COPY --from=builder \
     /usr/lib64/libnet.so.1 \
     /usr/lib64/libnetfilter_queue.so.1 \
     /usr/lib64/libnfnetlink.so.0 \
-    /usr/lib64/libmaxminddb.so.0 \
     /usr/lib64/
 
 RUN microdnf install python2 libpcap nss && \

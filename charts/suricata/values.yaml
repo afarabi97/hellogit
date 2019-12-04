@@ -7,8 +7,8 @@ suricata_threads: 8
 home_net: ["192.168.0.0/16"]
 external_net: null
 interfaces: ["eth0"]
-image_name: cyd/suricata
-image_tag: 5.0.0
+image_name: tfplenum/suricata
+image_tag: 4.1.4
 cpu_request: 1000
 affinity_hostname: {}
 ids_log_rotate_interval: 300
