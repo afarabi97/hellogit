@@ -23,7 +23,7 @@ RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Zeek")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
-SURICATA_IMAGE_VERSION = "4.1.4"
+SURICATA_IMAGE_VERSION = "5.0.0"
 ZEEK_IMAGE_VERSION = "3.0.0"
 
 # The path inside of the docker container

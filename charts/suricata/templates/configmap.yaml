@@ -228,7 +228,7 @@ data:
           enabled: yes
           detection-ports:
             dp: 443
-          ja3-fingerprints: no
+          ja3-fingerprints: yes
         dcerpc:
           enabled: yes
         ftp:
