@@ -97,6 +97,17 @@ def _get_node_info(nodes: V1NodeList) -> List:
     ret_val = []
     for item in nodes.to_dict()['items']:
         try:
+
+            name = item["metadata"]["name"]
+            metrics = conn_mng.mongo_metrics.find_one({'_id': name})
+            if (metrics == None):
+                pass
+            else:
+                item['metadata']['annotations']['tfplenum/memory'] = metrics['memory']
+                item['metadata']['annotations']['tfplenum/root_usage'] = metrics['root_usage']
+                item['metadata']['annotations']['tfplenum/data_usage'] = metrics['data_usage']
+                item['metadata']['annotations']['tfplenum/cpu_percent'] = metrics['cpu_percent']
+
             item['status']['allocatable']['cpu'] = str(_get_cpu_total(item['status']['allocatable']['cpu'])) + "m"
             item['status']['allocatable']["ephemeral-storage"] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
             item['status']['allocatable']['memory'] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['memory']))) + "Gi"

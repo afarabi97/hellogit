@@ -1,0 +1,41 @@
+import psutil
+import requests
+import time
+import logging
+from logging.handlers import RotatingFileHandler
+from logging import Logger
+logger = logging.getLogger('metrics_logger')
+
+LOG_FILENAME = '/var/log/health_metrics.log'
+
+
+def _setup_logger(log_handle: Logger, max_bytes: int=1000000, backup_count: int=2):
+    handler = RotatingFileHandler(LOG_FILENAME, maxBytes=max_bytes, backupCount=backup_count)
+    log_handle.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)7s:%(asctime)s:%(filename)20s:%(funcName)20s():%(lineno)5s:%(message)s')
+    handler.setFormatter(formatter)
+    log_handle.addHandler(handler)
+
+
+def main():
+    _setup_logger(logger)
+    try:
+        metrics = {}
+        metrics['memory'] = psutil.virtual_memory()
+        metrics['root_usage'] = psutil.disk_usage('/')
+        metrics['data_usage'] = psutil.disk_usage('/data')
+        metrics['cpu_percent'] = psutil.cpu_percent()
+        metrics['time'] = time.time()
+
+        request = requests.post("https://{{ ansible_controller_hostname }}/api/metrics/{{ inventory_hostname }}", json=metrics, verify=False)
+        if request.status_code == 200:
+            logger.info('Updated metrics.')
+        else:
+            logger.info('Failed to POST metrics.')
+        
+    except Exception as e:
+        loggers.exception(e)
+
+
+if __name__ == "__main__":
+    main()

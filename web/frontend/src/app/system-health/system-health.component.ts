@@ -8,6 +8,8 @@ import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/moda
 import { MatTabChangeEvent } from '@angular/material';
 import { interval, Subscription } from 'rxjs';
 import { ModalTableComponent } from './table-dialog/modal-table.component';
+import {MatTable} from '@angular/material';
+import { ViewChild } from '@angular/core';
 
 const MODAL_SIZE ='900px';
 
@@ -18,8 +20,7 @@ const MODAL_SIZE ='900px';
 })
 export class SystemHealthComponent implements OnInit {
   columnsForNodeStatues: string[] = ['name', 'type', 'ip_address',
-                                     'ready', 'out_of_disk', 'memory_pressure',
-                                     'disk_pressure', 'actions'];
+                                     'ready', 'storage', 'memory', 'cpu', 'actions'];
 
   columnsForPodStatues: string[] = ['namespace', 'pod_name', 'container_states',
                                     'restart_count', 'actions'];
@@ -30,6 +31,8 @@ export class SystemHealthComponent implements OnInit {
   podErrors: MatTableDataSource<Array<Object>>;
   nodeStatuses: MatTableDataSource<Array<Object>>;
   totals: Object;
+
+  @ViewChild('nodeStatusesTable') nodeTable: MatTable<any>;
 
   pipelineStatus: Object;
   displayedPipeline: Object;
@@ -120,6 +123,7 @@ export class SystemHealthComponent implements OnInit {
         this._spliceInArray(data['node_info'], this.nodeStatuses.data);
         this._spliceInArray(data['pod_info'], this.allPodeStatuses);
         this._spliceInArray(data['pod_info'], this.podsStatuses.data);
+        this.nodeTable.renderRows();
       } else {
         this._reloadHealthPage();
       }

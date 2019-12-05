@@ -19,6 +19,18 @@ from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from typing import List, Dict, Tuple, Set
 
+@app.route('/api/metrics/<name>', methods=['POST', 'GET'])
+def metrics(name):
+    if (request.method == 'POST'):
+        data = request.get_json()
+        data['_id'] = name
+        conn_mng.mongo_metrics.find_one_and_replace({"_id": name}, data, upsert=True)
+        return jsonify(data)
+    elif (request.method == 'GET'):
+        data = conn_mng.mongo_metrics.find_one({"_id": name})
+        return jsonify(data)
+    else:
+        return ERROR_RESPONSE
 
 MIN_MBPS = 1000
 

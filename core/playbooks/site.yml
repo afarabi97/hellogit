@@ -308,3 +308,14 @@
   tags:
     - janitor
     - enable-sensor-monitor-interface
+
+- name: Schedule a cron job to gather health metrics.
+  hosts:
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - frontend_health_metrics
+  tags:
+    - frontend-health-metrics

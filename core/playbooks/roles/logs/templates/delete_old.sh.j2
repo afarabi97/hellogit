@@ -8,6 +8,11 @@ if test -f "{{ suricata_log_path }}/stats.log"; then
     echo "$(tail -n 10000 {{ suricata_log_path }}/stats.log)" > {{ suricata_log_path }}/stats.log
 fi
 
+FILES=`/bin/find {{ fpc_path }} -type f -name "suri*"`
+if [ -z "$FILES" ]; then
+    exit
+fi
+
 # If Suricata is running FPC, we need to manage the space ourselves -- delete old files until we are only using X% of the drive
 /bin/find {{ fpc_path }} -type f -name "suri*" | /usr/bin/xargs ls -1rt | while read f; do
     if [ $(df -P {{ fpc_path }} | tail -n1 | tr -s ' ' | tr -d '%' | cut -f5 -d' ') -le {{ 100 - fpc_free | int }} ]; then

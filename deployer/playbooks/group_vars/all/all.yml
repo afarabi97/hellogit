@@ -81,6 +81,7 @@ pip_downloads:
   - grpcio-tools==1.24.1
   - pbr
   - openshift
+  - psutil
 
 pip_installs:
   - "junit-xml==1.8"
