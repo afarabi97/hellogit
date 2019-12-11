@@ -61,9 +61,9 @@ pipeline {
                     notifySlack('Building controller')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW \
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW' \
                                     --tfplenum-commit-hash ${tfplenum_commit_hash}"
 
                     def command = "${base} --setup-controller"
@@ -81,9 +81,9 @@ pipeline {
                     notifySlack('Run kickstart')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --run-kickstart"
                     println command
@@ -100,9 +100,9 @@ pipeline {
                     notifySlack('Run kit')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --run-kit"
                     println command
@@ -119,9 +119,9 @@ pipeline {
                     notifySlack('Run catalog')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --run-catalog"
                     println command
@@ -139,9 +139,9 @@ pipeline {
                     sh("mkdir -p $WORKSPACE/reports")
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --run-integration-tests"
                     println command
@@ -159,9 +159,9 @@ pipeline {
                     notifySlack('Simulate power failure')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --simulate-powerfailure"
                     println command
@@ -178,9 +178,9 @@ pipeline {
                     notifySlack('Run integration testing')
                     def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                     def command = "${base} --run-integration-tests"
                     println command
@@ -196,9 +196,9 @@ pipeline {
                     if (currentBuild.result == 'SUCCESS' && params.cleanup_kit) {
                         def base = "python3.6 testing/testy-tester/main.py \
                                     --path testing/testy-tester/testcases/${kit} \
-                                    -du $DI2E_USR -dp $DI2E_PSW \
-                                    -vu $VCENTER_USR -vp $VCENTER_PSW \
-                                    -eu $ESXI_USR -ep $ESXI_PSW"
+                                    -du '$DI2E_USR' -dp '$DI2E_PSW' \
+                                    -vu '$VCENTER_USR' -vp '$VCENTER_PSW' \
+                                    -eu '$ESXI_USR' -ep '$ESXI_PSW'"
 
                         def command = "${base} --cleanup"
                         println command

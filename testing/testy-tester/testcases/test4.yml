@@ -1,10 +1,10 @@
 ---
 host_configuration:
   vcenter:
-    ip_address: "172.16.20.106"
-    cluster_name: "SIL_Dev-Cluster"
-    datacenter: "SIL_Datacenter"
-    resource_pool: Testing
+    ip_address: "10.10.103.10"
+    cluster_name: "Development_Cluster"
+    datacenter: "DEV_Datacenter"
+    resource_pool:
   storage:
     datastore: "dev-vol00"
     folder: "Testing"

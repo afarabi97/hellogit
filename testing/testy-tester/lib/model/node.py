@@ -1025,7 +1025,7 @@ class VirtualMachine:
 
         username = self.host_configuration.username.replace("@", "%40")
         cmd = ("ovftool --noSSLVerify vi://{username}:'{password}'@{vsphere_ip}"
-               "/SIL_Datacenter/vm/{folder}/{vm_name} {destination}"
+               "/DEV_Datacenter/vm/{folder}/{vm_name} {destination}"
                .format(username=username,
                        password=self.host_configuration.password,
                        vsphere_ip=self.host_configuration.ip_address,

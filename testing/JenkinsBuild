@@ -50,7 +50,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
                         def command = "sudo python3.6 testing/testy-tester/main.py --export-offline-docs \"${tfplenum_confluence_page}\" --export-location \"${tfplenum_export_loc}\" \
-                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
                         println command
                         sh(command)
                     }
@@ -60,13 +60,7 @@ pipeline {
         stage('ship phyical stack build') {
             steps {
                 script {
-                    checkout([$class: 'GitSCM', branches: [[name: 'devel']], doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'physical-stack-build-${tfplenum_export_version}']],
-                        submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'di2e-user-password',
-                        url: 'https://bitbucket.di2e.net/scm/thisiscvah/physical-stack-build.git']]])
-
-                    sh('rm -rf physical-stack-build-${tfplenum_export_version}/.git*')
-                    sh('zip -r physical-stack-build-${tfplenum_export_version}.zip physical-stack-build-${tfplenum_export_version}')
+                    sh('zip -r physical-stack-build-${tfplenum_export_version}.zip infrastucture/')
                     sh('sudo cp physical-stack-build-${tfplenum_export_version}.zip ${tfplenum_export_loc}/${tfplenum_export_version}')
                 }
             }
@@ -80,7 +74,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
                         def command = "sudo python3.6 testing/testy-tester/main.py --setup-controller \
-                        --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password} \
+                        --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}' \
                         --tfplenum-commit-hash ${tfplenum_commit_hash}"
                         println command
                         sh(command)
@@ -94,7 +88,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
                         def command = "sudo python3.6 testing/testy-tester/main.py --add-docs-to-controller \"${tfplenum_confluence_page}\" --export-location \"${tfplenum_export_loc}\" \
-                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
                         println command
                         sh(command)
                     }
@@ -107,7 +101,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
                         def command = "sudo python3.6 testing/testy-tester/main.py --export-controller --export-location \"${tfplenum_export_loc}\" \
-                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
                         println command
                         sh(command)
                     }
@@ -120,7 +114,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
                         def command = "sudo python3.6 testing/testy-tester/main.py --generate-hash-file-for-exports --export-location \"${tfplenum_export_loc}\" \
-                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du ${di2e_username} -dp ${di2e_password} -vu ${vcenter_username} -vp ${vcenter_password}"
+                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
                         println command
                         sh(command)
                     }
