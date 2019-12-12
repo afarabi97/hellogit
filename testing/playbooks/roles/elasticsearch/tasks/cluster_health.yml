@@ -3,6 +3,11 @@
 - name: Get elasticsearch cluster health
   uri:
     url: "{{ elastic_uri }}/_cluster/health"
+    return_content: yes
+    validate_certs: no
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
   register: elasticsearch_health_result
   until: elasticsearch_health_result.json.status != 'red'
   retries: 10

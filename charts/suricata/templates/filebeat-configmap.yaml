@@ -7,37 +7,6 @@ metadata:
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
-  ilm.json: |
-    {
-      "policy": {
-        "phases": {
-          "hot": {
-            "min_age": "0ms",
-            "actions": {
-              "rollover": {
-                "max_age": "1d",
-                "max_size": "200gb"
-              },
-              "set_priority": {
-                "priority": 100
-              }
-            }
-          },
-          "warm": {
-            "min_age": "0ms",
-            "actions": {
-              "forcemerge": {
-                "max_num_segments": 1
-              },
-              "set_priority": {
-                "priority": 50
-              }
-            }
-          }
-        }
-      }
-    }
-
   filebeat.yml: |
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
@@ -57,14 +26,21 @@ data:
 
     #============================== Kibana =====================================
 
-    setup.kibana:
-      host: "{{ .Values.kibana_fqdn }}:80"
+    setup.dashboards.enabled: true
+    setup.kibana.host: "https://{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
+    setup.kibana.ssl.enabled: true
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/kibana-ca.crt"]
+    setup.kibana.username: ${ELASTICSEARCH_USERNAME}
+    setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
 
     #================================ Outputs =====================================
 
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
-      hosts: ["{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
+      hosts: ["https://{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
       worker: 6
       bulk_max_size: 4096
       compression_level: 3
@@ -73,6 +49,10 @@ data:
     queue.mem:
       events: 65536
       flush.min_events: 4096
-      flush.timeout: 30s
+      flush.timeout: 30s    
 
-    xpack.monitoring.enabled: true
+    monitoring:
+      enabled: true
+      elasticsearch:
+        username: ${ELASTICSEARCH_USERNAME}
+        password: ${ELASTICSEARCH_PASSWORD}

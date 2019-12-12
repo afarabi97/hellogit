@@ -3,8 +3,8 @@ image: 'tfplenum/moloch'
 port: "8005"
 
 # Username and password for Web login
-user: 'assessor'
-pass: 'password'
+username: 'assessor'
+password: 'password'
 
 # Location of moloch dirs/files
 dir: '/opt/tfplenum/moloch'
@@ -12,8 +12,8 @@ path: '/data/moloch'
 config_path: "/opt/tfplenum/moloch/etc"
 
 # Kubernetes and docker info
-elastic_fqdn: elasticsearch-master.default.svc.cluster.local
-version: 2.0.0
+elastic_fqdn: elasticsearch.default.svc.cluster.local
+version: 2.1.0
 cpu_request: 1000
 mem_limit: 7Gi
 
@@ -23,3 +23,5 @@ maxESConns: "30"
 maxESRequests: "500"
 packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
+es_user: moloch
+es_password: password

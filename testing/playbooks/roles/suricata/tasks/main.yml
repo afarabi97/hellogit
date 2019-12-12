@@ -67,7 +67,11 @@
   - name: Check Suricata HTTP Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:80+OR+suricata.eve.dest_port:80)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_sh
     until: results_sh.json.hits.total != 0
     retries: 60
@@ -82,7 +86,11 @@
   - name: Check Suricata DNS Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:53+OR+suricata.eve.dest_port:53)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_sd
     until: results_sd.json.hits.total != 0
     retries: 60
@@ -97,7 +105,11 @@
   - name: Check Suricata SMB Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:445+OR+suricata.eve.dest_port:445)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes        
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_ss
     until: results_ss.json.hits.total != 0
     retries: 60

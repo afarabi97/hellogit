@@ -1,6 +1,40 @@
 ---
+
 - name: Uninstall ES
-  command: "helm del --purge elasticsearch"
+  command: "{{ item }}"
+  ignore_errors: true
+  with_items:
+    - "kubectl delete elasticsearch.elasticsearch.k8s.elastic.co/tfplenum"
+    - "kubectl delete kibana.kibana.k8s.elastic.co/tfplenum"
+    - "kubectl delete svc -l component=elasticsearch"
+    - "kubectl delete svc -l component=elasticsearch-headless"
+    - "kubectl delete svc -l component=kibana"
+
+- name: Delete Additional ES Secrets
+  command: "kubectl delete secret {{ item }} --ignore-not-found"
+  with_items:
+    - "-n default tfplenum-logstash-user"
+    - "-n default kibana-secret-settings"
+
+- name: Wait for all es pods to die
+  shell: |
+    while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep tfplenum-es- | tail -n +0 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  ignore_errors: true
+
+- name: Wait for all kibana pods to die
+  shell: |
+    while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep tfplenum-kb- | tail -n +0 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  ignore_errors: true
+
+- name: Uninstall ECK Operator
+  shell: |
+    kubectl delete -f {{ elastic_dir }}/operator.yml
   ignore_errors: true
 
 - name: Create ES Data directory if it does not exist
@@ -9,3 +43,5 @@
     state: absent
   delegate_to: "{{ item }}"
   loop: "{{ groups['servers'] }}"
+
+...

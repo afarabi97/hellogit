@@ -23,12 +23,8 @@ spec:
       - name: init-sync-files
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
-        command:
-        - /data/moloch/db/db.pl
-        - "{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"
-        - sync-files
-        - {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }}
-        - /data/moloch/raw/
+        command: ["/bin/sh"]
+        args: ["-c", "/data/moloch/db/db.pl --insecure https://{{ .Values.es_user }}:{{ .Values.es_password }}@{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }} sync-files {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }} /data/moloch/raw/"]
       containers:
       - name: capture
         image: "{{ .Values.image }}:{{ .Values.version }}"
@@ -56,6 +52,14 @@ spec:
           readOnly: true
         - name: data
           mountPath: {{ .Values.pcap_path }}
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
+        - mountPath: /etc/ssl/certs/kibana-ca.crt
+          name: kibana-certs
+          readOnly: true
+          subPath: ca.crt
       - name: viewer
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
@@ -72,6 +76,14 @@ spec:
           readOnly: true
         - name: data
           mountPath: {{ .Values.pcap_path }}
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
+        - mountPath: /etc/ssl/certs/kibana-ca.crt
+          name: kibana-certs
+          readOnly: true
+          subPath: ca.crt
       restartPolicy: Always
       volumes:
       - name: configini
@@ -81,6 +93,16 @@ spec:
         hostPath:
           path: {{ .Values.fpc_path }}
           type: DirectoryOrCreate
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
+      - name: kibana-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-kb-http-certs-public
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

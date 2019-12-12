@@ -16,20 +16,20 @@ k8s_resizer_version: "1.8.4"
 k8s_version: "1.13.11"
 kube_state_version: "v1.6.0"
 metallb_version: "v0.7.3"
-metrics_server_version: "v0.3.3"
-moloch_version: "2.0.0"
+moloch_version: "2.1.0"
 suricata_version: "5.0.0"
 helm_version: "v2.14.3"
 chartmuseum_version: "2.3.2"
 chartmuseum_image_version: "v0.8.2"
-elastic_7_version: "7.3.1"
-elastic_7_chart_version: "7.3.0"
+elastic_7_version: "7.5.0"
+elastic_7_chart_version: "7.4.0"
 window_remote_installer_version: "1.2"
 hive_elastic_version: "6.8.0"
 hive_cortex_version: "3.0.0"
 hive_version: "3.4.0"
 zookeeper_image_version: 3.5.5-r96
 kafka_image_version: 2.3.0-r59
+elastic_operator: 1.0.0-beta1
 
 # Docker Image List
 kube_images:
@@ -50,6 +50,7 @@ kube_images:
   - docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}
   - docker.elastic.co/kibana/kibana:{{elastic_7_version}}
   - docker.elastic.co/logstash/logstash:{{elastic_7_version}}
+  - docker.elastic.co/eck/eck-operator:{{elastic_operator}}
   - docker.io/tfplenum/windows_remote_installer:{{window_remote_installer_version}}
   - docker.io/elasticsearch:{{hive_elastic_version}}
   - docker.io/thehiveproject/cortex:{{hive_cortex_version}}
@@ -58,7 +59,6 @@ kube_images:
   - k8s.gcr.io/kube-controller-manager:v{{k8s_version}}
   - k8s.gcr.io/kube-scheduler:v{{k8s_version}}
   - k8s.gcr.io/kube-proxy:v{{k8s_version}}
-  - k8s.gcr.io/metrics-server-amd64:{{metrics_server_version}}
   - k8s.gcr.io/pause:{{k8s_pause_version}}
   - k8s.gcr.io/etcd:{{k8s_etcd_version}}
   - k8s.gcr.io/coredns:{{k8s_coredns_version}}

@@ -16,28 +16,6 @@ spec:
       labels:
         component: suricata-logshipper
     spec:
-      initContainers:
-      - name: init-filebeat-suricata
-        image: {{ .Values.filebeat_image_name  }}:{{ .Values.filebeat_image_tag }}
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-        - name: configs
-          subPath: filebeat.yml
-          mountPath: /usr/share/filebeat/filebeat.yml
-          readOnly: true
-        args: ['setup', '-e', '--modules', 'suricata']
-      - name: ilm
-        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
-        imagePullPolicy: IfNotPresent
-        command:
-        - "/bin/bash"
-        - "-c"
-        - "if curl -XGET -sfI -o /dev/null {{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_ilm/policy/filebeat-suricata; then echo \"skipping ilm install\"; else curl -XPUT {{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}/_ilm/policy/filebeat-suricata -H \"Content-Type: application/json\" -d @/usr/share/logstash/ilm.json; fi"
-        volumeMounts:
-        - name: configs
-          mountPath: /usr/share/logstash/ilm.json
-          subPath: ilm.json
-          readOnly: true
       containers:
       - name: filebeat-suricata
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
@@ -45,6 +23,17 @@ spec:
         securityContext:
           runAsUser: 0
           runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -53,6 +42,14 @@ spec:
           subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
+        - mountPath: /etc/ssl/certs/kibana-ca.crt
+          name: kibana-certs
+          readOnly: true
+          subPath: ca.crt
         args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-*.json]']
       volumes:
       - name: data
@@ -62,6 +59,16 @@ spec:
       - name: configs
         configMap:
           name: {{ .Release.Name }}-filebeat
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
+      - name: kibana-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-kb-http-certs-public
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

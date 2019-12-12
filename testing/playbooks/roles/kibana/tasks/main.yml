@@ -5,7 +5,7 @@
 
 - name: get kibana pods
   shell: |
-    {{ cmd }} | grep 'kibana-'
+    {{ cmd }} | grep 'tfplenum-kb-'
   register: get_pods
   changed_when: get_pods.failed
 
@@ -20,7 +20,11 @@
 - name: Check Kibana Dashboards
   uri:
     url: "{{ elastic_uri }}/.kibana/_search?q=type:dashboard+AND+\"Bro\""
-    return_content: y
+    return_content: yes
+    validate_certs: no
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
   register: results_kd
 
 - name: Test | Check Kibana Dashboards

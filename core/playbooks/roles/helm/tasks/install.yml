@@ -1,3 +1,13 @@
+---
+
+- name: Deleting Kube Cluster Role Binding
+  command: kubectl delete clusterrolebinding tiller --ignore-not-found
+  when: inventory_hostname in groups['master_server']
+
+- name: Deleting Tiller Service Account
+  command: kubectl delete serviceaccount tiller -n kube-system --ignore-not-found
+  when: inventory_hostname in groups['master_server']
+
 - name: Downloading and Unpacking Helm
   unarchive:
     src: "{{ offline_repo_base }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
@@ -25,13 +35,10 @@
   command: kubectl patch svc tiller-deploy -n kube-system -p '{"spec":{"type":"LoadBalancer"}}'
   when: inventory_hostname in groups['master_server']
 
-- name: Wait for service to be ready
-  wait_for:
-    port: 44134
-    host: tiller-deploy
-    connect_timeout: 3
-    delay: 3
-    timeout: 180
+- name: Wait for tiller to be ready
+  shell: |
+    kubectl wait --for=condition=available deployment/tiller-deploy -n kube-system
+  when: inventory_hostname in groups['master_server']
 
 - name: Removing Default Helm Repo
   shell: helm repo remove stable

@@ -24,4 +24,20 @@
 - name: Flush Config
   command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'
 
+- name: Get ES Password
+  shell: |
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+
+- name: Deploy Moloch Index Template
+  uri:
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_template/sessions2_template?include_type_name=true"
+    method: PUT
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('template', 'templates/sessions2-template.json.j2')}}"
+    status_code: 200, 201
+
 ...

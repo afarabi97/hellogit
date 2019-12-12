@@ -1,0 +1,28 @@
+{
+    "cluster": [
+        "manage_index_templates",
+        "monitor",
+        "manage_ilm",
+        "manage_ml",
+        "read_ilm",
+        "manage_ingest_pipelines"
+    ],
+    "indices": [
+        {
+            "names": [
+                "logstash-*",
+                "metricbeat-*",
+                ".monitoring*",
+                "filebeat-*"
+            ],
+            "privileges": [
+                "manage",
+                "read",
+                "create_index",
+                "create_doc",
+                "view_index_metadata",
+                "create"
+            ]
+        }
+    ]
+}

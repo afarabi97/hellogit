@@ -1757,7 +1757,10 @@ data:
     output {
       # stdout { codec => rubydebug }
       elasticsearch {
-        hosts => ["{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+        hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+        cacert => '/etc/ssl/certs/elasticsearch-ca.crt'
+        user => "${ELASTICSEARCH_USERNAME}"
+        password => "${ELASTICSEARCH_PASSWORD}"
         ilm_rollover_alias => "logstash-zeek"
         ilm_policy => "logstash-zeek"
         # index => "logstash-zeek-%{+YYMMdd'h'HH}"
@@ -1778,7 +1781,10 @@ data:
     output {
       # stdout { codec => rubydebug }
       elasticsearch {
-        hosts => ["{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+        hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+        cacert => '/etc/ssl/certs/elasticsearch-ca.crt'
+        user => "${ELASTICSEARCH_USERNAME}"
+        password => "${ELASTICSEARCH_PASSWORD}"
         index => "winlogbeat-%{+YYMMdd'h'HH}"
         manage_template => false
       }

@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch kibana metrics kubernetes-rerun elasticsearch-rerun kibana-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch kibana metrics kubernetes-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
 
 # Default target, build *and* run tests
 all:
@@ -67,52 +67,44 @@ moloch:
 logs:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs
 
-janitor:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor
-
 health-metrics:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t frontend-health-metrics
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 chartmuseum-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,frontend-health-metrics
 
 metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,frontend-health-metrics
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,janitor,frontend-health-metrics --extra-vars
-
-janitor-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t janitor,frontend-health-metrics
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,frontend-health-metrics --extra-vars
 
 health-metrics-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t frontend-health-metrics
 
 change-interfaces:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces,vars-configmap
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces

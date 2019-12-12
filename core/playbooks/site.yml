@@ -26,6 +26,20 @@
       when: hostvars[item].is_remote | default(false)
       with_items: "{{ groups['all'] }}"
 
+- name: Set Kit Size
+  hosts: master_server
+  tags: always
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  tasks:
+  - name: Set Kit Size
+    set_fact:
+      kit_size: >-
+        {% if (groups['servers']|length) >= 2 %}{% if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{% endif %}{% endif %}
+      cacheable: yes
+
 - name: Setup Repos
   hosts:
     - servers
@@ -241,17 +255,7 @@
   tags:
     - elasticsearch
 
-# Only used when adding servers dynamically
-- name: Scale Elasticsearch
-  hosts: all
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - elasticsearch/scale
-
-- name: Deploy Kibana
+- name: Deploy kibana
   hosts: master_server
   gather_facts: no
   any_errors_fatal: true
@@ -261,6 +265,16 @@
     - kibana
   tags:
     - kibana
+
+# Only used when adding servers dynamically
+- name: Scale Elasticsearch
+  hosts: all
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - elasticsearch/scale
 
 - name: Deploy metric services
   hosts: master_server
@@ -296,18 +310,6 @@
     - logs
   tags:
     - logs
-
-- name: Enable janitor script on master server
-  hosts: master_server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - janitor
-  tags:
-    - janitor
-    - enable-sensor-monitor-interface
 
 - name: Schedule a cron job to gather health metrics.
   hosts:

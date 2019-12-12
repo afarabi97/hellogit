@@ -4,3 +4,13 @@
   shell: |
     helm delete chartmuseum --purge
 
+- name: Wait for chartmuseum to be removed
+  shell: |
+    kubectl wait --for=condition=delete deployment/chartmuseum-chartmuseum
+  ignore_errors: true
+
+- name: Delete directory
+  file:
+    path: "{{chartmuseum_data_dir}}"
+    state: absent
+

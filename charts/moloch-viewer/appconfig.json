@@ -9,7 +9,7 @@
           "description": "Enter moloch user name",
           "required": true,
           "regexp": "",
-          "name": "user",
+          "name": "username",
           "error_message": "Enter a value"
         },
         {
@@ -18,7 +18,7 @@
           "description": "Enter moloch password",
           "required": true,
           "regexp": "",
-          "name": "pass",
+          "name": "password",
           "error_message": "Enter a value"
         },
         {

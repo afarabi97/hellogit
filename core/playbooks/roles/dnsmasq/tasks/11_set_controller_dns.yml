@@ -1,11 +1,5 @@
 ---
 
-# - debug:
-#     msg: "{{ ansible_facts }}"
-
-# - debug:
-#     msg: "{{ ansible_default_ipv4.address }}"
-
 - name: Get Controller Interface Name
   shell: |
     ip -o addr | grep {{ ansible_default_ipv4.address }} | awk '{ print $2 }'

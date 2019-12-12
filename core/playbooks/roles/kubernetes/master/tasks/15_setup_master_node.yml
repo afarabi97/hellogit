@@ -7,3 +7,6 @@
 
 - name: 'Label masters'
   command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
+
+- name: 'Label masters'
+  command: 'kubectl label nodes {{ ansible_fqdn }} dedicated=master --overwrite=true'

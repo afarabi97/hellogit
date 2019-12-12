@@ -5,8 +5,9 @@ metadata:
 data:
   config.ini: |
     [default]
-    elasticsearch=http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
-    rotateIndex=daily
+    elasticsearch=https://{{ .Values.es_user }}:{{ .Values.es_password }}@{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    caTrustFile=/etc/ssl/certs/elasticsearch-ca.crt
+    rotateIndex=hourly6
     passwordSecret=default-password
     httpRealm=Moloch
     interface={{- range  .Values.interfaces }}{{ . }};{{- end }}

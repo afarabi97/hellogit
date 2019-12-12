@@ -1,10 +1,122 @@
 ---
+
 - name: Wait for Elasticsearch to become healthy
-  uri:
-    url: "http://{{ elastic_fqdn }}:9200/_cluster/health"
-    return_content: yes
+  shell: |
+    kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum  | awk '{ print $2 }'
   register: results_elastic
-  until: (results_elastic.status == 200) and (results_elastic.json.status == 'green')
-  retries: 30
+  until: (results_elastic.stdout == 'green')
+  retries: 60
   delay: 5
+
+- name: Get ES Password
+  shell: |
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+
+- name: Check Elasticsearch endpoint is ready
+  uri:
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}"
+    return_content: yes
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+  register: results_elastic
+  until: (results_elastic.status == 200)
+  retries: 60
+  delay: 5
+
+- name: Create logtsash role
+  uri:
+    method: POST
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
+    status_code: 200, 201
+  with_items:
+    - logstash_writer
+    - moloch_writer
+
+- set_fact:
+    logstash_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+
+- name: Create logstash user secret
+  shell: |
+    kubectl create secret generic tfplenum-logstash-user --from-literal=username={{logstash_user}} --from-literal=password={{logstash_password}}
+
+- name: Create logtsash user
+  uri:
+    method: POST
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('template', 'files/users/{{item}}.json.j2')}}"
+    status_code: 200, 201
+  with_items:
+    - "{{logstash_user}}"
+
+- name: Create users
+  uri:
+    method: POST
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
+    status_code: 200, 201
+  with_items:
+    - moloch
+
+- name: Apply ES License
+  uri:
+    method: POST
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_license"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/license.json')}}"
+    status_code: 200, 201
+
+- name: Load Index Policies
+  uri:
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_ilm/policy/{{ item }}"
+    method: PUT
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('template', 'files/policies/{{item}}.json.j2') }}"
+    status_code: 200, 201
+  with_items:
+    - endgame-custom
+    - filebeat-suricata
+    - logstash-zeek
+    - winlogbeat-custom
+    - moloch-custom
+  register: policy_results
+  until: policy_results.status == 200
+  retries: 10
+  delay: 5
+
+- name: Create logtsash role
+  uri:
+    method: POST
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
+    status_code: 200, 201
+  with_items:
+    - logstash_writer
+    - moloch_writer
+
 ...

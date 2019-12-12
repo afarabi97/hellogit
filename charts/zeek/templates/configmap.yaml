@@ -145,13 +145,17 @@ data:
     cloud.id: ${ELASTIC_CLOUD_ID}
     cloud.auth: ${ELASTIC_CLOUD_AUTH}
 
-    setup.dashboards.enabled: true
-    setup.kibana.host: "{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
-
     output.elasticsearch:
-      hosts: ['${ELASTICSEARCH_HOST:elasticsearch-master}:${ELASTICSEARCH_PORT:9200}']
+      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+
+    monitoring:
+      enabled: true
+      elasticsearch:
+        username: ${ELASTICSEARCH_USERNAME}
+        password: ${ELASTICSEARCH_PASSWORD}    
 
 ---
 

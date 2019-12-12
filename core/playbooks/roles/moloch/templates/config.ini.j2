@@ -1,6 +1,7 @@
 [default]
-elasticsearch=http://{{ elastic_fqdn }}:{{ elastic_port }}
-rotateIndex=daily
+elasticsearch=https://{{ es_moloch_user }}:{{ es_moloch_password }}@{{ elastic_fqdn }}:{{ elastic_port }}
+rotateIndex=hourly6
+caTrustFile=/etc/ssl/certs/elasticsearch-ca.crt
 passwordSecret = default-password
 httpRealm = Moloch
 interface=eth0

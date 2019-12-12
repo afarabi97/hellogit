@@ -54,6 +54,20 @@
     - kubernetes
   tags: kubernetes
 
+- name: Get ES Password from K8s
+  hosts: master_server
+  tags: always
+  tasks:
+    - name: Get ES Password
+      shell: |
+        kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+      register: es_password_results
+      changed_when: false
+    - set_fact:
+        elastic_password: "{{ es_password_results.stdout }}"
+        elastic_username: "elastic"
+        cacheable: yes
+
 - name: Validate Elasticsearch
   hosts:
   - master_server

@@ -77,7 +77,7 @@ def _excute_pipeline_datetime_update(queue: Queue):
     kit = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     msg = "No events"
     if kit:
-        ELASTIC_EXTRENAL_ADDRESS = get_kubernetes_service_ip("elasticsearch-master")
+        ELASTIC_EXTRENAL_ADDRESS = get_kubernetes_service_ip("elasticsearch")
 
         for node in kit["form"]["nodes"]:
             if node['node_type'] == NODE_TYPES[1]:

@@ -63,6 +63,7 @@ packages:
   - python-gobject
   - rsync
   - runc
+  - setroubleshoot
   - sshpass
   - syslinux
   - tcpdump

@@ -1,4 +1,5 @@
 ---
+
 - name: Create install directory
   file:
     group: "{{ elastic_group }}"
@@ -35,8 +36,15 @@
     owner: "{{ elastic_user }}"
     mode: u+rw,g+rw
   with_items:
-    - values.yml
+    - operator.yml
+    - deploy.yml
 
-- name: Deploy ES
-  command: "helm install --name elasticsearch chartmuseum/elasticsearch --values={{ elastic_dir }}/values.yml --wait"
+- name: Install ECK Operator
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/operator.yml
+
+- name: Install Elasticsearch
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/deploy.yml
+
 ...

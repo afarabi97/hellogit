@@ -13,9 +13,13 @@ data:
     config.reload.automatic: true
     config.reload.interval: 10
     xpack.monitoring.enabled: true
-    xpack.monitoring.elasticsearch.hosts: http://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    xpack.monitoring.elasticsearch.hosts: https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    xpack.monitoring.elasticsearch.username: "${ELASTICSEARCH_USERNAME}"
+    xpack.monitoring.elasticsearch.password: "${ELASTICSEARCH_PASSWORD}"
+    xpack.monitoring.elasticsearch.ssl.certificate_authority: /etc/ssl/certs/elasticsearch-ca.crt
     pipeline.workers: 2
     pipeline.batch.size: 1024
+
 
   pipelines.yml: |
     - pipeline.id: bro_input
@@ -102,37 +106,6 @@ data:
       pipeline.batch.delay: 500
     - pipeline.id: beats
       path.config: "/usr/share/logstash/pipeline/beats.conf"
-
-  ilm.json: |
-    {
-      "policy": {
-        "phases": {
-          "hot": {
-            "min_age": "0ms",
-            "actions": {
-              "rollover": {
-                "max_age": "1d",
-                "max_size": "200gb"
-              },
-              "set_priority": {
-                "priority": 100
-              }
-            }
-          },
-          "warm": {
-            "min_age": "0ms",
-            "actions": {
-              "forcemerge": {
-                "max_num_segments": 1
-              },
-              "set_priority": {
-                "priority": 50
-              }
-            }
-          }
-        }
-      }
-    }
 
   template.json: |
     {

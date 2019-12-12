@@ -14,15 +14,14 @@ redis_sentinel_port: 26379
 
 # Elasticsearch
 elastic_cluster_name: elasticsearch
-elastic_fqdn: "elasticsearch-master.{{ fqdn }}"
-elastic_headless_fqdn: "elasticsearch-master-headless.{{ fqdn }}"
-elastic_shortname: elasticsearch-master
+elastic_fqdn: "elasticsearch.{{ fqdn }}"
+elastic_headless_fqdn: "elasticsearch-headless.{{ fqdn }}"
 elastic_port: 9200
 winlogbeat_port: 5045
 
 # Kibana
 kibana_fqdn: "kibana.{{ fqdn }}"
-kibana_port: 5601
+kibana_port: 443
 
 # Logstash
 logstash_fqdn: "logstash.{{ fqdn }}"
@@ -75,4 +74,11 @@ ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_port: 5000
 docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port }}"
+
+# kit size is defaulted -1
+# 0 == tiny  (old DL160s)
+# 1 == small (DL160s with extra memory)
+# 2 == large (R440s)
+kit_size: -1
+
 ...

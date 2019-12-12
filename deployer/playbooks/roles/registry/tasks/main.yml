@@ -102,7 +102,7 @@
     loop_var: "async_result_item"
   register: job_results
   until: job_results.finished
-  retries: 60
+  retries: 120
   tags: pull-docker-images
 
 - name: Tag local images for upload to registry
@@ -129,7 +129,7 @@
     loop_var: "async_result_item"
   register: job_push_results
   until: job_push_results.finished
-  retries: 60
+  retries: 120
   tags: pull-docker-images
 
 ...

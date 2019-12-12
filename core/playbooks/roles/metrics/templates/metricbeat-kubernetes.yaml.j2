@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metricbeat-daemonset-config
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 data:
@@ -28,15 +28,16 @@ data:
     cloud.auth: ${ELASTIC_CLOUD_AUTH}
 
     output.elasticsearch:
-      hosts: ['${ELASTICSEARCH_HOST:elasticsearch-master}:${ELASTICSEARCH_PORT:9200}']
+      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metricbeat-daemonset-modules
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 data:
@@ -83,16 +84,25 @@ data:
       #bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       #ssl.certificate_authorities:
         #- /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+    - module: kubernetes
+      metricsets:
+        - proxy
+      period: 10s
+      host: ${NODE_NAME}
+      hosts: ["localhost:10249"]
 ---
 # Deploy a Metricbeat instance per node for node metrics retrieval
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: metricbeat
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 spec:
+  selector:
+    matchLabels:
+      k8s-app: metricbeat
   template:
     metadata:
       labels:
@@ -104,7 +114,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: metricbeat
-        image: "beats/metricbeat:{{ metricbeat_version }}"
+        image: beats/metricbeat:{{ metricbeat_version }}
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",
@@ -112,13 +122,16 @@ spec:
         ]
         env:
         - name: ELASTICSEARCH_HOST
-          value: elasticsearch-master
+          value: {{elastic_fqdn}}
         - name: ELASTICSEARCH_PORT
-          value: "9200"
+          value: "{{elastic_port}}"
         - name: ELASTICSEARCH_USERNAME
-          value: "none"
+          value: elastic
         - name: ELASTICSEARCH_PASSWORD
-          value: "none"
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-es-elastic-user
+              key: elastic
         - name: ELASTIC_CLOUD_ID
           value:
         - name: ELASTIC_CLOUD_AUTH
@@ -132,6 +145,9 @@ spec:
         resources:
           limits:
             memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
         volumeMounts:
         - name: config
           mountPath: /etc/metricbeat.yml
@@ -148,6 +164,10 @@ spec:
         - name: cgroup
           mountPath: /hostfs/sys/fs/cgroup
           readOnly: true
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
       volumes:
       - name: proc
         hostPath:
@@ -170,12 +190,17 @@ spec:
         hostPath:
           path: /var/lib/metricbeat-data
           type: DirectoryOrCreate
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metricbeat-deployment-config
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 data:
@@ -192,16 +217,25 @@ data:
     cloud.id: ${ELASTIC_CLOUD_ID}
     cloud.auth: ${ELASTIC_CLOUD_AUTH}
 
+    setup.dashboards.enabled: true
+    setup.kibana.host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
+    setup.kibana.ssl.enabled: true
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/kibana-ca.crt"]
+    setup.kibana.username: ${ELASTICSEARCH_USERNAME}
+    setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+
     output.elasticsearch:
-      hosts: ['${ELASTICSEARCH_HOST:elasticsearch-master}:${ELASTICSEARCH_PORT:9200}']
+      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metricbeat-deployment-modules
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 data:
@@ -214,6 +248,8 @@ data:
         - state_replicaset
         - state_pod
         - state_container
+        - state_cronjob
+        - state_resourcequota
         # Uncomment this to get k8s events:
         #- event
       period: 10s
@@ -221,14 +257,17 @@ data:
       hosts: ["kube-state-metrics:8080"]
 ---
 # Deploy singleton instance in the whole cluster for some unique data sources, like kube-state-metrics
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metricbeat
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 spec:
+  selector:
+    matchLabels:
+      k8s-app: metricbeat
   template:
     metadata:
       labels:
@@ -239,20 +278,23 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: metricbeat
-        image: "beats/metricbeat:{{ metricbeat_version }}"
+        image: beats/metricbeat:{{ metricbeat_version }}
         args: [
           "-c", "/etc/metricbeat.yml",
           "-e",
         ]
         env:
         - name: ELASTICSEARCH_HOST
-          value: elasticsearch-master
+          value: {{elastic_fqdn}}
         - name: ELASTICSEARCH_PORT
-          value: "9200"
+          value: "{{elastic_port}}"
         - name: ELASTICSEARCH_USERNAME
           value: elastic
         - name: ELASTICSEARCH_PASSWORD
-          value: changeme
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-es-elastic-user
+              key: elastic
         - name: ELASTIC_CLOUD_ID
           value:
         - name: ELASTIC_CLOUD_AUTH
@@ -266,6 +308,9 @@ spec:
         resources:
           limits:
             memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
         volumeMounts:
         - name: config
           mountPath: /etc/metricbeat.yml
@@ -274,6 +319,14 @@ spec:
         - name: modules
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
+        - mountPath: /etc/ssl/certs/kibana-ca.crt
+          name: kibana-certs
+          readOnly: true
+          subPath: ca.crt
       volumes:
       - name: config
         configMap:
@@ -283,21 +336,31 @@ spec:
         configMap:
           defaultMode: 0600
           name: metricbeat-deployment-modules
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
+      - name: kibana-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-kb-http-certs-public
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: metricbeat
 subjects:
 - kind: ServiceAccount
   name: metricbeat
-  namespace: kube-system
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: metricbeat
   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: metricbeat
@@ -319,6 +382,7 @@ rules:
   resources:
   - statefulsets
   - deployments
+  - replicasets
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - ""
@@ -331,7 +395,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: metricbeat
-  namespace: kube-system
+  namespace: default
   labels:
     k8s-app: metricbeat
 ---

@@ -1,12 +1,23 @@
 ---
 
+- name: Create directory
+  file:
+    path: "{{chartmuseum_data_dir}}"
+    owner: "1000"
+    group: "1000"
+    mode: 0755
+    state: directory
+
 - name: Download chartmuseum chart
   get_url:
     url: "{{ offline_repo_base }}/charts/chartmuseum-{{chartmuseum_version}}.tgz"
     dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
 
 - name: deploy chartmuseum
-  command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.role=server --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
+  command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
+
+- name: Patching Chartmuseum
+  command: kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='[{"op":"replace","path":"/spec/template/spec/volumes/0","value":{"name":"storage-volume","hostPath":{"path":"{{chartmuseum_data_dir}}","type":"DirectoryOrCreate"}}}]'
 
 - name: Wait for service to be ready
   wait_for:
@@ -22,18 +33,23 @@
 - name: copy charts
   copy:
     src: /var/www/html/offlinerepo/charts
-    dest: /tmp/
+    dest: "/tmp"
 
 - name: Get files on remote machine
   find:
-    paths: /tmp/charts/
+    paths: "/tmp/charts"
     patterns: '*.tgz'
     recurse: no
   register: charts
 
 - name: load charts
-  command:  "helm push {{ item.path }} chartmuseum"
+  shell:  "helm push {{ item.path }} chartmuseum"
   with_items: "{{ charts.files }}"
+  register: helm_push_results
+  until: helm_push_results.rc == 0
+  retries: 20
+  delay: 5
 
 - name: update helm repo
-  command: helm repo update
+  shell: helm repo update
+

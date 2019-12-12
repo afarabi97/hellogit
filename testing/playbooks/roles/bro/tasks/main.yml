@@ -53,7 +53,11 @@
   - name: Check Zeek HTTP Result
     uri:
       url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_bh
     until: results_bh.json.hits.total != 0
     retries: 60
@@ -69,6 +73,10 @@
     uri:
       url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=event_type:bro_dns+AND+@timestamp:[now-15m+TO+now]"
       return_content: yes
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_bd
     until: results_bd.json.hits.total != 0
     retries: 60
@@ -83,7 +91,11 @@
   - name: Check Zeek SMB Result
     uri:
       url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=event_type:bro_smb_mapping+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_bs
     until: results_bs.json.hits.total != 0
     retries: 60

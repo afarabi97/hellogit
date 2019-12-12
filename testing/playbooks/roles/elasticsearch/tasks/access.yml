@@ -1,8 +1,13 @@
 ---
 
-- name: Get elasticsearch main page
+- name: Check Elasticsearch endpoint is ready
   uri:
-    url: "{{ elastic_uri }}"
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}"
+    return_content: yes
+    validate_certs: no
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
   register: elasticsearch_result
   ignore_errors: yes
 

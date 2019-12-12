@@ -10,8 +10,8 @@ pcap_path: "/data/moloch/raw"
 fpc_path: "/data/pcap"
 
 # Kubernetes and docker info
-version: 2.0.0
-elastic_fqdn: elasticsearch-master.default.svc.cluster.local
+version: 2.1.0
+elastic_fqdn: elasticsearch.default.svc.cluster.local
 cpu_request: 100
 affinity_hostname: {}
 mem_limit: 7Gi
@@ -34,3 +34,6 @@ packetsPerPoll: "500000"
 magicMode: "basic"
 tpacketv3BlockSize: 8388608
 maxPacketsInQueue: "400000"
+es_user: moloch
+es_password: password
+

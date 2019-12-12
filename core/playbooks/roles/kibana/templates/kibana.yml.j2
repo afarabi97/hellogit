@@ -1,0 +1,69 @@
+{% set kibana_memory = 1 %}
+{% set kibana_cpu = "1000m" %}
+
+{% if kit_size == 2 %}
+  {% set kibana_memory = 6 %}
+  {% set kibana_cpu = "1000m" %}
+{% elif kit_size == 1 %}
+  {% set kibana_memory = 1 %}
+  {% set kibana_cpu = "1000m" %}
+{% elif kit_size == 0 %}
+  {% set kibana_memory = 1 %}
+  {% set kibana_cpu = "1000m" %}
+{% endif %}
+
+---
+apiVersion: kibana.k8s.elastic.co/v1beta1
+kind: Kibana
+metadata:
+  name: tfplenum
+spec:
+  version: {{elastic_7_version}}
+  http:
+    tls:
+      selfSignedCertificate:
+        subjectAltNames:
+        - dns: {{kibana_fqdn}}
+  count: 1
+  config:
+    xpack.monitoring.ui.container.elasticsearch.enabled: true
+    xpack.reporting.enabled: true
+    elasticsearch.requestTimeout: 100000
+    elasticsearch.shardTimeout: 0
+  elasticsearchRef:
+    name: "tfplenum"
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: {{kibana_memory}}Gi
+            cpu: {{kibana_cpu}}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  labels:
+    component: kibana
+spec:
+  selector:
+    common.k8s.elastic.co/type: kibana
+    kibana.k8s.elastic.co/name: tfplenum
+  ports:
+  - name: http
+    port: {{kibana_port}}
+    targetPort: http
+  type: LoadBalancer
+
+...

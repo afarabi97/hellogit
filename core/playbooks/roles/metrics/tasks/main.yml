@@ -18,10 +18,9 @@
   loop:
     - kube-state-metrics.yaml
     - metricbeat-kubernetes.yaml
-    - metrics-server.yaml
 
 - name: Flush services
-  command: "kubectl delete -f {{ metrics_dir }}/kube-state-metrics.yaml -f {{ metrics_dir }}/metricbeat-kubernetes.yaml -f {{ metrics_dir }}/metrics-server.yaml --ignore-not-found=true"
+  command: "kubectl delete -f {{ metrics_dir }}/kube-state-metrics.yaml -f {{ metrics_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
 
 - name: Deploy services
   include_role:
@@ -33,7 +32,6 @@
   loop:
     - kube-state-metrics.yaml
     - metricbeat-kubernetes.yaml
-    - metrics-server.yaml
 
 - name: Wait for Metricbeat to be ready
   import_role:
@@ -41,7 +39,7 @@
     tasks_from: kube_wait
   vars:
     type: "deployments"
-    namespace: "kube-system"
+    namespace: "default"
     resource_name: "metricbeat"
     label: ""
 

@@ -67,7 +67,11 @@
   - name: Check HTTP Moloch Data
     uri:
       url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_mh
     until: results_mh.json.hits.total != 0
     retries: 60
@@ -82,7 +86,11 @@
   - name: Check DNS Moloch Data
     uri:
       url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
-      return_content: yes
+      return_content: yes      
+      validate_certs: no
+      user: "{{ elastic_username }}"
+      password: "{{ elastic_password }}"
+      force_basic_auth: yes
     register: results_md
     until: results_md.json.hits.total != 0
     retries: 60

@@ -1,3 +1,5 @@
+---
+# TODO: FIX SCALING
 - name: Get current ES data
   k8s_facts:
     kind: StatefulSet

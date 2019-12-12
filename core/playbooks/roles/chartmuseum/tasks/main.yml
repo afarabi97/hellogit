@@ -2,6 +2,6 @@
 - import_tasks: preflight.yml
 
 - import_tasks: uninstall.yml
-  when: chartmuseum_results.status == 200
+  when: chartmuseum_deployed
 
 - import_tasks: install.yml

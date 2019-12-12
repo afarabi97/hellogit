@@ -1,8 +1,9 @@
 kafka_clusters: []
-elastic_fqdn: elasticsearch-master.default.svc.cluster.local
-elastic_headless_fqdn: elasticsearch-master-headless.default.svc.cluster.local
+elastic_fqdn: elasticsearch.default.svc.cluster.local
+elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
 elastic_port: 9200
 image_name: logstash/logstash
-image_tag: 7.3.1
+image_tag: 7.5.0
 replicas: 4
 heap_size: 12 # Heap size in GB
+cpu_request: 5000

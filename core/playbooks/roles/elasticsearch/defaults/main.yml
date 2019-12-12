@@ -9,9 +9,12 @@ elastic_group: "1000"
 
 #### install path
 es_data_path: "{{data_path}}/elastic"
+elastic_pv_data_path: "/usr/share/elasticsearch/data"
 es_num_procs: ""
 es_java_mem: ""
 es_cpu_limit: ""
 es_mem_limit: ""
 es_cpu_request: "2000m"
 es_mem_request: "6Gi"
+logstash_indices: "logstash-*"
+logstash_user: "logstash_internal"

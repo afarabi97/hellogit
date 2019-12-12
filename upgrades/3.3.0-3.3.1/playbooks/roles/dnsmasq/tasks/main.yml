@@ -13,8 +13,6 @@
   command: "hostname -f"
   register: hostname
 
-- debug: "msg={{ansible_nodename}}"
-
 - name: Validate ansible_nodename == inventory_hostname
   assert:
     that:

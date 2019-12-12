@@ -128,8 +128,8 @@ kit:
         logstash:
           node_hostname: "server"
           kafka_clusters: ["test3-sensor1-zeek.default.svc.cluster.local:9092"]
-          replicas: 4
-          heap_size: 12
+          replicas: 2
+          heap_size: 4
           deployment_name: "server-logstash"
     test3-server2.lan:
       type: "server" # Can be controller, sensor, or server
@@ -219,7 +219,7 @@ kit:
           interfaces:
             - "ens224"
           pcapEnabled: true
-          suricata_threads: 8
+          suricata_threads: 2
           node_hostname: "test3-sensor1.lan"
         moloch-capture:
           cpu_request: "1000"
@@ -241,6 +241,6 @@ kit:
           home_net: ["any"]
           interfaces:
             - "ens224"
-          zeek_workers: 8
+          zeek_workers: 4
           node_hostname: "test3-sensor1.lan"
           log_retention_hours: "24"

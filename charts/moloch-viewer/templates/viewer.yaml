@@ -41,6 +41,10 @@ spec:
         env:
         - name: CONTAINER_TYPE
           value: "VIEWER"
+        - name: MOLOCH_USER
+          value: "{{ .Values.username }}"
+        - name: MOLOCH_PASSWORD
+          value: "{{ .Values.password }}"
         ports:
         - containerPort: {{ .Values.port }}
           name: webgui
@@ -48,10 +52,28 @@ spec:
         - name: configini
           subPath: config.ini
           mountPath: {{ .Values.path }}/etc/config.ini
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
+        - mountPath: /etc/ssl/certs/kibana-ca.crt
+          name: kibana-certs
+          readOnly: true
+          subPath: ca.crt
       restartPolicy: Always
       volumes:
       - name: configini
         configMap:
           name: {{.Release.Name}}
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
+      - name: kibana-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-kb-http-certs-public
       nodeSelector:
         role: server

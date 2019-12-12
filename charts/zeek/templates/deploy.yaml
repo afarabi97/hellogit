@@ -191,9 +191,15 @@ tries to restart.
         - name: ELASTICSEARCH_PORT
           value: {{ .Values.elastic_port | quote }}
         - name: ELASTICSEARCH_USERNAME
-          value: "none"
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
         - name: ELASTICSEARCH_PASSWORD
-          value: "none"
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
         - name: ELASTIC_CLOUD_ID
           value:
         - name: ELASTIC_CLOUD_AUTH
@@ -209,6 +215,10 @@ tries to restart.
         - name: beats-modules
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
+        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
+          name: elasticsearch-certs
+          readOnly: true
+          subPath: ca.crt
       restartPolicy: Always
       volumes:
       - name: logs
@@ -236,6 +246,11 @@ tries to restart.
       - name: beats-config
         configMap:
           name: {{ .Release.Name }}-beats-config
+      - name: elasticsearch-certs
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: tfplenum-es-http-certs-public
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

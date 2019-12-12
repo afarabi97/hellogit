@@ -21,4 +21,7 @@ moloch_path: '{{ data_path }}/moloch'
 moloch_config_path: "{{ moloch_path }}/etc"
 moloch_pcap_path: "{{ moloch_path }}/raw"
 
+es_moloch_user: moloch
+es_moloch_password: password
+
 ...

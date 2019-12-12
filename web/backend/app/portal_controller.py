@@ -13,7 +13,7 @@ from bson import ObjectId
 import json
 
 DISCLUDES = ("elasticsearch.lan",
-        "elasticsearch-master.lan",
+        "elasticsearch-headless.lan",
         "mysql.lan",
         "logstash.lan",
         "chartmuseum.lan",

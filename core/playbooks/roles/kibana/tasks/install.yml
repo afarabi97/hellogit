@@ -1,0 +1,80 @@
+---
+
+- name: Create install directory
+  file:
+    path: "{{ kibana_dir }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Copy Kibana Template
+  template:
+    src: "templates/kibana.yml.j2"
+    dest: "{{ kibana_dir }}/kibana.yml"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+# - set_fact:
+#     kibana_secret: "{{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}"
+
+# - name: Create Kibana Secret
+#   shell: |
+#     kubectl create secret generic kibana-secret-settings \
+#     --from-literal=xpack.security.encryptionKey={{kibana_secret}}
+
+- name: Install Kibana
+  shell: |
+    kubectl apply -f {{ kibana_dir }}/kibana.yml
+
+- name: Get ES Password
+  shell: |
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+
+- name: Wait for Kibana to become healthy
+  uri:
+    url: "https://{{ kibana_fqdn }}/api/status"
+    return_content: yes
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+  register: results_kibana
+  until: (results_kibana.status == 200) and (results_kibana.json.status.overall.state == 'green')
+  retries: 35
+  delay: 5
+
+- name: Load Dashboards
+  uri:
+    url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
+    method: POST
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body: "{{ lookup('file', '{{ item }}')}}"
+    status_code: 200, 201
+    force_basic_auth: yes
+  retries: 3
+  delay: 10
+  with_fileglob:
+    - "files/dashboards/*.json"
+
+- name: Set Default Kibana Pattern
+  uri:
+    url: "https://{{ kibana_fqdn }}/api/kibana/settings/defaultIndex"
+    method: POST
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body:
+      value: "logstash-zeek-*"
+    status_code: 200, 201
+    force_basic_auth: yes

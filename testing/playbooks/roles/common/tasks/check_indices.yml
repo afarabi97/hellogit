@@ -3,6 +3,11 @@
 - name: Get elasticsearch indices
   uri:
     url: "{{ elastic_uri }}/_cat/indices?v&format=json"
+    return_content: yes
+    validate_certs: no
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
   register: elasticsearch_indices
 
 - set_fact:

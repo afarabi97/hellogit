@@ -1,0 +1,11 @@
+{
+  "username": "moloch",
+  "roles": [
+    "moloch_writer"
+  ],
+  "full_name": "moloch user",
+  "email": "moloch@tfplenum.lan",
+  "metadata": {},
+  "enabled": true,
+  "password": "password"
+}
