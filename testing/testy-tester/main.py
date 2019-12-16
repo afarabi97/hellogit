@@ -175,13 +175,13 @@ class Runner:
         ch.setFormatter(formatter)
         kit_builder.addHandler(ch)
 
-    def _set_vm_to_clone(self):        
+    def _set_vm_to_clone(self):
         self.baremetal = self.host_configuration.install_type == "baremetal"
         if self.baremetal:
             self._vm_to_clone = "redhat"
         elif self.args.setup_controller and self.args.setup_controller == CLONE_FROM_NIGHTLY_BUILD:
-            self._vm_to_clone = "nightly-test-controller.lan"        
-            
+            self._vm_to_clone = "nightly-test-controller.lan"
+
     def _parse_config(self):
         """
         Parses the config file and sets up some class variables which
@@ -352,12 +352,15 @@ class Runner:
         ctrl_modifier = ControllerModifier(self.controller_node)
         ctrl_modifier.change_hostname()
         self._perform_bootstrap()
-        
+
         try:
             ctrl_vm.power_off()
-            take_snapshot(self.controller_node.hostname, self.host_configuration) 
+            take_snapshot(self.controller_node.hostname, self.host_configuration)
         except Exception as e:
             traceback.print_exc()
+
+        self._clone_and_configure_nightly_controller()
+
 
     def _setup_esxi_controller(self):
         if not self.args.setup_controller:
@@ -833,11 +836,13 @@ class Runner:
             run_kickstart = self._run_physical_kickstart
             simulate_powerfailure = self._simulate_physical_powerfailure
         else:
-            setup_controller = self._clone_and_configure_nightly_controller
+            if self.args.setup_controller == CLONE_FROM_NIGHTLY_BUILD:
+                setup_controller = self._clone_and_configure_nightly_controller
+            elif self.args.setup_controller == BUILD_FROM_SCRATCH:
+                setup_controller = self._build_controller
             run_kickstart = self._run_virtual_kickstart
             simulate_powerfailure = self._simulate_virtual_powerfailure
 
-        self._build_controller()
         setup_controller()
         self._set_perms_restricted_on_page()
         self._set_perms_unrestricted_on_page()

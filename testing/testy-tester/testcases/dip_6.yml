@@ -49,7 +49,7 @@ kit:
       domain: 'lan'
       gateway: "172.16.33.1"
       dns:
-        - "172.16.82.1"
+        - "172.16.25.10"
         - "8.8.8.8"
       networking:
         std_portgroup_name: "VM Network"
@@ -189,7 +189,7 @@ kit:
             monitoring_interface: False
             mac_auto_generated: False
             mac_address: "" # Will be pulled via redfish api
-          p2p1:
+          p2p4:
             type: "manual" # This can be auto, manual, or link-local
             ip_address:
             start_connected: True
@@ -208,7 +208,7 @@ kit:
           external_net: ["any"]
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           pcapEnabled: true
           suricata_threads: 8
           node_hostname: "sensor1"
@@ -223,7 +223,7 @@ kit:
           maxFileSizeG: 25
           magicMode: "basic"
           interfaces:
-            - "p2p1"
+            - "p2p4"
           deployment_name: "sensor1-moloch"
         zeek:
           affinity_hostname: "sensor1"
@@ -231,7 +231,7 @@ kit:
           deployment_name: "sensor1-zeek"
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           zeek_workers: 8
           node_hostname: "sensor1"
           log_retention_hours: "24"
@@ -254,7 +254,7 @@ kit:
             monitoring_interface: False
             mac_auto_generated: False
             mac_address: "" # Will be pulled via redfish api
-          p2p1:
+          p2p4:
             type: "manual" # This can be auto, manual, or link-local
             ip_address:
             start_connected: True
@@ -273,7 +273,7 @@ kit:
           external_net: ["any"]
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           pcapEnabled: true
           suricata_threads: 8
           node_hostname: "sensor2"
@@ -288,7 +288,7 @@ kit:
           maxFileSizeG: 25
           magicMode: "basic"
           interfaces:
-            - "p2p1"
+            - "p2p4"
           deployment_name: "sensor2-moloch"
         zeek:
           affinity_hostname: "sensor2"
@@ -296,7 +296,7 @@ kit:
           deployment_name: "sensor2-zeek"
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           zeek_workers: 8
           node_hostname: "sensor2"
           log_retention_hours: "24"
@@ -319,7 +319,7 @@ kit:
             monitoring_interface: False
             mac_auto_generated: False
             mac_address: "" # Will be pulled via redfish api
-          p2p1:
+          p2p4:
             type: "manual" # This can be auto, manual, or link-local
             ip_address:
             start_connected: True
@@ -338,7 +338,7 @@ kit:
           external_net: ["any"]
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           pcapEnabled: true
           suricata_threads: 8
           node_hostname: "sensor3"
@@ -353,7 +353,7 @@ kit:
           maxFileSizeG: 25
           magicMode: "basic"
           interfaces:
-            - "p2p1"
+            - "p2p4"
           deployment_name: "sensor3-moloch"
         zeek:
           affinity_hostname: "sensor3"
@@ -361,7 +361,7 @@ kit:
           deployment_name: "sensor3-zeek"
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           zeek_workers: 8
           node_hostname: "sensor3"
           log_retention_hours: "24"
@@ -384,7 +384,7 @@ kit:
             monitoring_interface: False
             mac_auto_generated: False
             mac_address: "" # Will be pulled via redfish api
-          p2p1:
+          p2p4:
             type: "manual" # This can be auto, manual, or link-local
             ip_address:
             start_connected: True
@@ -403,7 +403,7 @@ kit:
           external_net: ["any"]
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           pcapEnabled: true
           suricata_threads: 8
           node_hostname: "sensor4"
@@ -418,7 +418,7 @@ kit:
           maxFileSizeG: 25
           magicMode: "basic"
           interfaces:
-            - "p2p1"
+            - "p2p4"
           deployment_name: "sensor4-moloch"
         zeek:
           affinity_hostname: "sensor4"
@@ -426,7 +426,7 @@ kit:
           deployment_name: "sensor4-zeek"
           home_net: ["any"]
           interfaces:
-            - "p2p1"
+            - "p2p4"
           zeek_workers: 8
           node_hostname: "sensor4"
           log_retention_hours: "24"
