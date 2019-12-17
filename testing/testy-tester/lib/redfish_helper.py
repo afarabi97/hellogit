@@ -49,12 +49,12 @@ def get_token(ip, username, password, token=None):
     resp = requests.post(session_url, data=json.dumps(body),
                         headers=HEADERS, verify=False)
     token = resp.headers.get('X-Auth-Token')
-
+    session_url = data.get('@odata.id')
     data = resp.json()
     TOKEN_LOOKUP[token] = {
         'username': username,
         'password': password,
-        'session_url': host + data['@odata.id']
+        'session_url': host + session_url if session_url else None
     }
     if not token:
         raise Exception("Invalid login for redfish.")

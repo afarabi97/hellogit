@@ -830,6 +830,7 @@ class Runner:
         self.controller_node = get_node(self.kit, "controller")  # type: Node
 
         # setup baremetal vs virtual functions
+        setup_controller = None
         self.baremetal = self.host_configuration.install_type == "baremetal"
         if self.baremetal:
             setup_controller = self._setup_esxi_controller
@@ -838,7 +839,7 @@ class Runner:
         else:
             if self.args.setup_controller == CLONE_FROM_NIGHTLY_BUILD:
                 setup_controller = self._clone_and_configure_nightly_controller
-            elif self.args.setup_controller == BUILD_FROM_SCRATCH:
+            else:
                 setup_controller = self._build_controller
             run_kickstart = self._run_virtual_kickstart
             simulate_powerfailure = self._simulate_virtual_powerfailure
