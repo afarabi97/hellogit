@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine
+  labels:
+    component: redmine
+spec:
+  selector:
+    component: {{ .Release.Name }}
+  ports:
+  - name: redmine
+    port: {{ .Values.redmineExternalPort }}
+    targetPort: {{ .Values.redmineInternalPort }}
+    protocol: TCP
+  type: LoadBalancer

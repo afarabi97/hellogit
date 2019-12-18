@@ -1,0 +1,7 @@
+apiVersion: v1
+name: redmine
+home: https://github.com/redmine/redmine
+version: 1.0.0
+appVersion: 4.0.5
+description: Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.
+details: This chart will install the Redmine application using Postgres database

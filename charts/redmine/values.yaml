@@ -1,0 +1,12 @@
+# Default values for redmine and postgres
+replicas: 1
+redmineImage: redmine:4.0.5
+postgresImage: postgres:12.1
+redmineExternalPort: 80
+redmineInternalPort: 3000
+
+# database variables
+postgresqlDatabase: redmine
+postgresqlUsername: admin
+postgresqlPassword: P@ssw0rdP@ssw0rd!
+

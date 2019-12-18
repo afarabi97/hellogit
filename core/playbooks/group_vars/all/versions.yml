@@ -30,6 +30,9 @@ hive_version: "3.4.0"
 zookeeper_image_version: 3.5.5-r96
 kafka_image_version: 2.3.0-r59
 elastic_operator: 1.0.0-beta1
+redmine_version: "4.0.5"
+postgres_version: "12.1"
+
 
 # Docker Image List
 kube_images:
