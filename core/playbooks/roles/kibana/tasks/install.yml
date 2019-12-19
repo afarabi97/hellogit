@@ -46,6 +46,36 @@
   retries: 35
   delay: 5
 
+- name: Create Index Pattern
+  template:
+    src: "templates/{{ item }}.json.j2"
+    dest: "/tmp/{{ item }}.json"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - pattern
+  vars:
+    value: !unsafe '{{value}}'
+    rawValue: !unsafe '{{rawValue}}'
+  delegate_to: localhost
+
+- name: Load Index Pattern
+  uri:
+    url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
+    method: POST
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body: "{{ lookup('file', '/tmp/pattern.json')}}"
+    status_code: 200, 201
+    force_basic_auth: yes
+  retries: 3
+  delay: 10
+
 - name: Load Dashboards
   uri:
     url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
