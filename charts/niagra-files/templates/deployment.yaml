@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.nifi_replicas }}
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}
+    spec:
+      initContainers:
+      - name: nifi-init
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/usr/bin/chmod -R 777 {{ .Values.nifi_base_dir }}"
+        volumeMounts:
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/logs
+          subPath: logs
+        #- name: nifi-data
+      #    mountPath: {{ .Values.nifi_base_dir }}/conf
+      #    subPath: conf
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/database_repository
+          subPath: database_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/flowfile_repository
+          subPath: flowfile_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/content_repository
+          subPath: content_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/provenance_repository
+          subPath: provenance_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/state
+          subPath: state
+      containers:
+      - name: niagra-files
+        image: "{{ .Values.nifi_image }}:{{ .Values.nifi_version }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "sed -i -e 's@./conf/flow.xml.gz@./flowfile_repository/flow.xml.gz@g' {{ .Values.nifi_base_dir }}/conf/nifi.properties;/opt/nifi/scripts/start.sh"
+
+       # resources:
+       #   requests:
+       #     cpu: {{ .Values.cpu_request }}m
+        ports:
+        - containerPort: {{ .Values.nifi_port }}
+          name: webgui
+        volumeMounts:
+        # - name: config
+        #   subPath: nifi.properties
+        #   mountPath: {{ .Values.nifi_base_dir }}/conf/nifi.properties
+        #   readOnly: true
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/logs
+          subPath: logs
+        #- name: nifi-data
+      #    mountPath: {{ .Values.nifi_base_dir }}/conf
+      #    subPath: conf
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/database_repository
+          subPath: database_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/flowfile_repository
+          subPath: flowfile_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/content_repository
+          subPath: content_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/provenance_repository
+          subPath: provenance_repository
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/state
+          subPath: state
+      restartPolicy: Always
+      nodeSelector:
+        role: server
+      volumes:
+      # - name: config
+      #   configMap:
+      #     name: {{.Release.Name}}
+      - name: nifi-data
+        hostPath:
+          path: {{ .Values.path }}
+          type: DirectoryOrCreate
+# -------
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: {{ .Release.Name }}-zk
+#   labels:
+#     component: {{ .Release.Name }}-zk
+# spec:
+#   replicas: {{ .Values.zk_replicas }}
+#   selector:
+#     matchLabels:
+#       component: {{ .Release.Name }}-zk
+#   template:
+#     metadata:
+#       labels:
+#         component: {{ .Release.Name }}-zk
+#     spec:
+#       containers:
+#       - name: niagra-files
+#         image: "{{ .Values.zk_image }}:{{ .Values.zk_version }}"
+#         imagePullPolicy: IfNotPresent
+#        resources:
+#          requests:
+#            cpu: {{ .Values.cpu_request }}m
+#         ports:
+#         - containerPort: {{ .Values.port }}
+#           name: webgui
+#       restartPolicy: Always
+#       nodeSelector:
+#         role: server
