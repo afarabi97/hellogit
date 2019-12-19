@@ -9,17 +9,18 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
-    <table mat-table [dataSource]="interfaceStatus">
+    <table mat-table [dataSource]="nodes">
       <ng-container matColumnDef="node">
         <th mat-header-cell *matHeaderCellDef> Node </th>
-        <td mat-cell *matCellDef="let node" style="width: 33%;"> {{node.node}} </td>
+        <td mat-cell *matCellDef="let node" style="width: 33%;"> {{ node.node }} </td>
       </ng-container>
 
       <ng-container matColumnDef="interfaces">
         <th mat-header-cell *matHeaderCellDef> Interfaces</th>
         <td mat-cell *matCellDef="let node" style="width: 33%;">
-          <div *ngFor="let interface of node.interfaces | keyvalue">
-            <span>{{ interface.key }}: {{ interface.value }}</span>
+          <div *ngFor="let interface of node.interfaces">
+            <span *ngIf='interface.state'>{{ interface.name }}: {{ interface.state }}</span>
+            <span *ngIf='!interface.state'>{{ interface.name }}: error</span>
           </div>
         </td>
       </ng-container>
@@ -27,7 +28,7 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> Actions </th>
         <td mat-cell *matCellDef="let node" style="width: 33%;">
-          <mat-slide-toggle [checked]="isSliderChecked(node)" (change)="toggleMaintenance($event, node)">{{ getSliderLabel(node) }}</mat-slide-toggle>
+          <mat-slide-toggle [checked]="isSliderChecked(node)" (change)="set_interface_state($event, node)">{{ getSliderLabel(node) }}</mat-slide-toggle>
         </td>
       </ng-container>
 

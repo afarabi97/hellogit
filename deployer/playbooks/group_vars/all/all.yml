@@ -68,12 +68,12 @@ epel_repo:
 
 pip_downloads:
   - docker
-  - elasticsearch
+  - elasticsearch==7.1.0
   - flask
   - ipaddress
   - junit-xml
   - netaddr
-  - requests
+  - requests==2.22.0
   - "restresponse==2.0.0"
   - urllib3
   - pyhelm==2.14.4
@@ -81,7 +81,9 @@ pip_downloads:
   - grpcio-tools==1.24.1
   - pbr
   - openshift
-  - psutil
+  - aniso8601==8.0.0
+  - kubernetes==10.0.1
+  - psutil==5.6.7
 
 pip_installs:
   - "junit-xml==1.8"

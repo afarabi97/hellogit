@@ -8,8 +8,8 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
   styleUrls: ['./node-maintenance.component.css']
 })
 export class NodeMaintenanceFormComponent implements OnInit {
-  displayedColumns: string[] = ['node', 'interfaces', 'actions']
-  interfaceStatus = []
+  displayedColumns: string[] = ['node', 'interfaces', 'actions'];
+  nodes = [];
   isCardVisible: boolean;
 
   @Input()
@@ -31,17 +31,18 @@ export class NodeMaintenanceFormComponent implements OnInit {
   }
 
   private getNodeMaintenanceTableData(): void {
-    this.toolsSrv.getAllConfiguredIfaces().subscribe(data => {
-      this.interfaceStatus = data as Array<Object>;
+    this.toolsSrv.get_monitoring_interfaces().subscribe(data => {
+      this.nodes = data as Array<Object>;
     });
   }
 
 
-  toggleMaintenance(event: MatSlideToggleChange, node: Object): void {
+  set_interface_state(event: MatSlideToggleChange, node: Object): void {
     let interfaces = node["interfaces"];
-    let changeStateTo = event['checked'] ? "up": "down";
-    for (let iface in interfaces) {
-      this.toolsSrv.ip_set_link(node["node"], iface, changeStateTo).subscribe(data => {
+    let hostname = node["node"];
+    let state = event['checked'] ? "up": "down";
+    for (let iface of interfaces) {
+      this.toolsSrv.change_state_of_remote_network_device(hostname, iface['name'], state).subscribe(data => {
         this.getNodeMaintenanceTableData();
       });
     }
@@ -49,8 +50,8 @@ export class NodeMaintenanceFormComponent implements OnInit {
 
   isSliderChecked(node: Object): boolean {
     if (node){
-      for (let key in node['interfaces']){
-        if (node['interfaces'][key] === "down"){
+      for (let iface of node['interfaces']){
+        if (iface['state'] === 'down') {
           return false;
         }
       }

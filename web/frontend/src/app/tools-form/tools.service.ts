@@ -29,13 +29,13 @@ export class ToolsService {
     return this.http.post(url, formData).pipe();
   }
 
-  getAllConfiguredIfaces(): Observable<Object>{
-    const url = `/api/get_all_configured_ifaces`;
-    return this.http.get(url);
+  change_state_of_remote_network_device(node: string, device: string, state: string): Observable<Object>{
+    const url = `/api/${node}/set_interface_state/${device}/${state}`;
+    return this.http.post(url, {});
   }
 
-  ip_set_link(sensor_name: string, sensor_iface: string, state: string): Observable<Object>{
-    const url = `/api/ip_set_link/${sensor_name}/${sensor_iface}/${state}`;
+  get_monitoring_interfaces(): Observable<Object>{
+    const url = `/api/monitoring_interfaces`;
     return this.http.get(url);
   }
 

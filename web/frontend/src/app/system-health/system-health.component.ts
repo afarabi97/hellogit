@@ -26,8 +26,8 @@ export class SystemHealthComponent implements OnInit {
                                     'restart_count', 'actions'];
 
   tabs_names: Array<string>;
-  allPodeStatuses: Array<Object>;
-  podsStatuses: MatTableDataSource<Array<Object>>;
+  podStatus: Object;
+  unscheduledPodStatus: MatTableDataSource<Array<Object>>;
   podErrors: MatTableDataSource<Array<Object>>;
   nodeStatuses: MatTableDataSource<Array<Object>>;
   totals: Object;
@@ -35,7 +35,6 @@ export class SystemHealthComponent implements OnInit {
   @ViewChild('nodeStatusesTable') nodeTable: MatTable<any>;
 
   pipelineStatus: Object;
-  displayedPipeline: Object;
 
   isNodeResourcesVisible: Array<boolean>;
   currentTabIndex: number;
@@ -51,11 +50,12 @@ export class SystemHealthComponent implements OnInit {
   ngOnInit() {
     this.title.setTitle("System Health");
     this.currentTabIndex = 0;
+
     this._reloadHealthPage();
 
-    //Refresh the page every 15 seconds with the new health data.
+    // Refresh the page every 15 seconds with the new health data.
     this.updateSubscription = interval(15000).subscribe((val) => {
-      this._refreshHealthPage();
+      this._reloadHealthPage();
     });
   }
 
@@ -63,83 +63,90 @@ export class SystemHealthComponent implements OnInit {
     this.updateSubscription.unsubscribe();
   }
 
-  private _reloadPodErrors(data: Object){
-    this.podErrors = new MatTableDataSource<Array<Object>>();
+  private _reloadPodErrors(pods){
+    let podErrors = pods.filter(pod => {
+      let podStatus = pod['status'];
+      let containers = this.getPodStatus(podStatus);
+      let hasError = containers.some(container => {
+        return container['status'] !== 'running';
+      });
+      return hasError;
+    });
 
-    for (let item of data['pod_info']){
-      for (let container of this.getPodStatus(item["status"])){
-        if (container.status !== "running"){
-          this.podErrors.data.push(item);
-          break;
-        }
-      }
-    }
+    this.podErrors = new MatTableDataSource<Array<Object>>(podErrors);
   }
 
-  private _reloadHealthPage(){
+  private _getLookup(nodes: Object) {
+    let lookup = {};
+
+    for (let node in nodes) {
+
+      let address = nodes[node]["metadata"]["public_ip"];
+      let hostname = nodes[node]["metadata"]["name"];
+
+      lookup[address] = hostname;
+    }
+
+    return lookup;
+  }
+
+  private _getPodStatusTabData(pods, lookup) {
+    let podStatus = {};
+    let unscheduledPodStatus = [];
+
+    for (let pod of pods) {
+        let host_ip = pod["status"]["host_ip"];
+        if (host_ip) {
+          let hostname = lookup[host_ip];
+          if (hostname in podStatus) {
+            podStatus[hostname].push(pod);
+          } else {
+            podStatus[hostname] = [pod];
+          }
+        } else {
+          unscheduledPodStatus.push(pod);
+        }
+    }
+
+    let _podStatus = {};
+    for (let key in podStatus) {
+      _podStatus[key] = new MatTableDataSource<Array<Object>>(podStatus[key]);
+    }
+
+    let _unscheduledPodStatus = new MatTableDataSource<Array<Object>>(unscheduledPodStatus);
+
+    let _tabs = new Array<string>();
+    for (let node in _podStatus){
+      _tabs.push(node);
+    }
+
+    let result: [Object, MatTableDataSource<Array<Object>>, Array<string>];
+    result = [_podStatus, _unscheduledPodStatus, _tabs];
+    return result;
+  }
+
+
+  private _reloadHealthPage() {
     this.healthSrv.getHealthStatus().subscribe(data => {
-      this.allPodeStatuses = data['pod_info'];
-      this._reloadPodErrors(data);
-      this.podsStatuses = new MatTableDataSource<Array<Object>>(data['pod_info']);
-      this.nodeStatuses = new MatTableDataSource<Array<Object>>(data['node_info']);
+      let nodes = data['node_info'];
+      this.nodeStatuses = new MatTableDataSource<Array<Object>>(nodes);
+
       this.isNodeResourcesVisible = new Array(this.nodeStatuses.data.length).fill(false);
       this.totals = data['totals'] as Object;
 
-      this.tabs_names = new Array<string>();
-      for (let node of data['node_info']){
-        this.tabs_names.push(node['metadata']['name'])
-      }
-      this.tabs_names.push("Unassigned Pods");
+      let pods = data['pod_info'];
+      this._reloadPodErrors(pods);
+
+      let lookup = this._getLookup(nodes);
+      let tab_data = this._getPodStatusTabData(pods, lookup);
+      this.podStatus = tab_data[0];
+      this.unscheduledPodStatus = tab_data[1];
+      this.tabs_names = tab_data[2].sort();
     });
 
-    // this.healthSrv.getPipelineStatus().subscribe(data => {
-    //   this.pipelineStatus = data;
-    //   let t = new MatTabChangeEvent()
-    //   t.index = this.currentTabIndex;
-    //   this.changeTab(t);
-    // });
-  }
-
-  private _spliceInArray(newStuff: Array<any>, oldStuff: Array<any>){
-    outer:
-    for (let item of newStuff){
-      for (let index = 0; index < oldStuff.length; index++){
-        let oldStatus = oldStuff[index];
-        if (item["metadata"]["name"] === oldStatus["metadata"]["name"])  {
-          oldStuff.splice(index, 1, item);
-          continue outer;
-        }
-      }
-    }
-  }
-
-  private _refreshHealthPage(){
-    this.healthSrv.getHealthStatus().subscribe(data => {
-      this._reloadPodErrors(data);
-      this.totals = data['totals'] as Object;
-      if (data['pod_info'].length === this.allPodeStatuses.length &&
-          data['node_info'].length === this.nodeStatuses.data.length )
-      {
-        this._spliceInArray(data['node_info'], this.nodeStatuses.data);
-        this._spliceInArray(data['pod_info'], this.allPodeStatuses);
-        this._spliceInArray(data['pod_info'], this.podsStatuses.data);
-        this.nodeTable.renderRows();
-      } else {
-        this._reloadHealthPage();
-      }
+    this.healthSrv.getPipelineStatus().subscribe(data => {
+      this.pipelineStatus = data;
     });
-
-    // this.healthSrv.getPipelineStatus().subscribe(data => {
-    //   if (this.pipelineStatus){
-    //     for (let key in data){
-    //       for (let innerKey in data[key]){
-    //         this.pipelineStatus[key][innerKey] = data[key][innerKey];
-    //       }
-    //     }
-    //   } else {
-    //     this.pipelineStatus = data;
-    //   }
-    // });
   }
 
   getTotalObj(hostname: string): Object {
@@ -149,15 +156,6 @@ export class SystemHealthComponent implements OnInit {
   private _getNodeIndex(nodeObj: Object){
     for (let index =0; index < this.nodeStatuses.data.length; index++){
       if (nodeObj["metadata"]["name"] === this.nodeStatuses.data[index]["metadata"]["name"]){
-        return index;
-      }
-    }
-    return -1;
-  }
-
-  private _getPodIndex(nodeObj: Object){
-    for (let index =0; index < this.podsStatuses.data.length; index++){
-      if (nodeObj["metadata"]["name"] === this.podsStatuses.data[index]["metadata"]["name"]){
         return index;
       }
     }
@@ -186,28 +184,6 @@ export class SystemHealthComponent implements OnInit {
 
   changeTab(tab: MatTabChangeEvent){
     this.currentTabIndex = tab.index;
-    let node = this.nodeStatuses.data[tab.index];
-    let ret_val = [];
-    if (node){
-      let ipAddress = this.nodeStatuses.data[tab.index]["metadata"]["public_ip"];
-      for (let pod of this.allPodeStatuses){
-        if (ipAddress === pod["status"]["host_ip"]){
-          ret_val.push(pod);
-        }
-      }
-      if (this.pipelineStatus){
-        this.displayedPipeline = this.pipelineStatus[this.nodeStatuses.data[tab.index]["metadata"]["name"]];
-      }
-    } else {
-      for (let pod of this.allPodeStatuses){
-        if (pod["status"]["host_ip"] === undefined ||
-            pod["status"]["host_ip"] === null){
-          ret_val.push(pod);
-        }
-      }
-      this.displayedPipeline = null;
-    }
-    this.podsStatuses.data = ret_val;
   }
 
   openConsole(){
@@ -250,7 +226,7 @@ export class SystemHealthComponent implements OnInit {
     if (pod['status']['container_statuses']){
       return pod['status']['container_statuses'][0]['restart_count'];
     } else {
-      return "N/A"
+      return "N/A";
     }
   }
 

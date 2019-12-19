@@ -13,6 +13,7 @@ data_path: /data
 redis_sentinel_port: 26379
 
 # Elasticsearch
+elastic_service_name: elasticsearch
 elastic_cluster_name: elasticsearch
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_headless_fqdn: "elasticsearch-headless.{{ fqdn }}"

@@ -241,75 +241,85 @@ def take_elasticsearch_snapshot():
     check_snapshot_status.delay(service_ip, snapshot_name)
     return jsonify(snapshot)
 
+class RemoteNetworkDevice(object):
+    def __init__(self, node, device):
+      self._node = node
+      self._device = device
 
-@app.route('/api/ip_set_link/<sensor_name>/<sensor_iface>/<state>', methods=['GET'])
-def ip_set_link(sensor_name: str, sensor_iface: str, state: str):
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        for node in kit_configuration["form"]["nodes"]:
-            if node["hostname"] == sensor_name:
-                with FabricConnection(node['management_ip_address']) as shell:
-                    ret_val = shell.run("ip address show {} up".format(sensor_iface))
-                    if (state == "up"):
-                        shell.run("ip link set {} up".format(sensor_iface))
-                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "yes"}
-                    elif (state == "down"):
-                        shell.run("ip link set {} down".format(sensor_iface))
-                        result = {"sensor_name": sensor_name, "sensor_iface": sensor_iface, "active": "no"}
-                    else:
-                        return ERROR_RESPONSE
-    return jsonify(result)
+    def up(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run("bash -c 'ip link set {} up'".format(self._device))
+            if result.return_code == 0:
+                return {"node": self._node, "device": self._device, "state": "up"}
+            else:
+                return {}
+
+    def down(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run("bash -c 'ip link set {} down'".format(self._device))
+            if result.return_code == 0:
+                return {"node": self._node, "device": self._device, "state": "down"}
+            else:
+                return {}
+    
+    def get_state(self):
+        with FabricConnection(self._node) as shell:
+            result = shell.run("bash -c 'ip address show {} up'".format(self._device))
+
+            if result.return_code == 0:
+                if result.stdout == "":
+                    return {"node": self._node, "device": self._device, "state": "down"}  
+                else:
+                    return {"node": self._node, "device": self._device, "state": "up"}                 
+            else:
+                return {}
 
 
-def get_interface_state(node: str, iface: str):
-    with FabricConnection(gethostbyname(node)) as shell:
-        ret_val = shell.run("ip address show {} up".format(iface))
-
-        if (ret_val.return_code ==  0) and (ret_val.stdout == ""):
-            result = "down"
-        elif ret_val.return_code == 0:
-            result = "up"
+@app.route('/api/<node>/set_interface_state/<device>/<state>', methods=['POST'])
+def change_state_of_remote_network_device(node: str, device: str, state: str):
+    device = RemoteNetworkDevice(node, device)
+    if state == "up":
+        result = device.up()
+        if result:
+            return jsonify(result)
         else:
-            result = "ERROR"
+            return ERROR_RESPONSE
 
-    return result
-
-
-def _add_to_set(values: List, out_ifaces: Set):
-    for config in values:
-        for iface_name in config["values"]["interfaces"]:
-            out_ifaces.add(iface_name)
-
-
-@app.route('/api/get_all_configured_ifaces', methods=['GET'])
-def get_all_configured_ifaces():
-    allConfiguredIfaces = []
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        nodes = kit_configuration["form"]["nodes"]
-        for node in nodes:
-            hostname = node["hostname"]
-            node_type = node["node_type"]
-            if  node_type == "Sensor":
-                ifaces = set()
-                moloch_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "moloch" }))
-                zeek_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "zeek" }))
-                suricata_values = list(conn_mng.mongo_catalog_saved_values.find({ "application": "suricata" }))
-
-                if moloch_values and len(moloch_values) > 0:
-                    _add_to_set(moloch_values, ifaces)
-
-                if zeek_values and len(zeek_values) > 0:
-                    _add_to_set(zeek_values, ifaces)
-
-                if suricata_values and len(suricata_values) > 0:
-                    _add_to_set(suricata_values, ifaces)
-
-                status = {}
-                for iface in list(ifaces):
-                  status[iface] = get_interface_state(hostname, iface)
-
-                allConfiguredIfaces.append({"node": hostname, "interfaces": status})
-
-        return jsonify(allConfiguredIfaces)
+    if state == "down":
+        result = device.down()
+        if result:
+            return jsonify(result)
+        else:
+            return ERROR_RESPONSE
+    
     return ERROR_RESPONSE
+
+@app.route('/api/monitoring_interfaces', methods=['GET'])
+def get_monitoring_interfaces():
+    nodes = {}
+    applications = ["moloch", "zeek", "suricata"]
+
+    documents = list(conn_mng.mongo_catalog_saved_values.find({ "application": {"$in": applications} }))
+
+    for document in documents:
+        hostname = document['values']['node_hostname']
+        interfaces = document['values']['interfaces']
+        try:
+            for interface in interfaces:
+                nodes[hostname].add(interface)
+        except KeyError:
+            nodes[hostname] = set(interfaces)
+    
+    result = []
+    for hostname, interfaces in nodes.items():
+        node = {'node': hostname, 'interfaces': []}
+        for interface in interfaces:
+            device = RemoteNetworkDevice(hostname, interface)
+            try:
+                state = device.get_state()['state']
+                node['interfaces'].append({'name': interface, 'state': state})
+            except KeyError:
+                node['interfaces'].append({'name': interface})
+        result.append(node)
+
+    return jsonify(result)

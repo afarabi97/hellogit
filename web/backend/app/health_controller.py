@@ -5,7 +5,6 @@ from app import (app, logger, conn_mng, WEB_DIR, CORE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.resources import convert_KiB_to_GiB, convert_GiB_to_KiB, convert_MiB_to_KiB
 from app.service.job_service import run_command
-from app.service.health_service import update_pipeline_datetimes
 from datetime import datetime
 
 from fabric.runners import Result
@@ -19,6 +18,8 @@ from typing import List, Dict
 
 from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_node_list import V1NodeList
+
+import socket
 
 
 def _get_mem_total(memory_str: str) -> int:
@@ -99,14 +100,10 @@ def _get_node_info(nodes: V1NodeList) -> List:
         try:
 
             name = item["metadata"]["name"]
-            metrics = conn_mng.mongo_metrics.find_one({'_id': name})
-            if (metrics == None):
-                pass
-            else:
-                item['metadata']['annotations']['tfplenum/memory'] = metrics['memory']
-                item['metadata']['annotations']['tfplenum/root_usage'] = metrics['root_usage']
-                item['metadata']['annotations']['tfplenum/data_usage'] = metrics['data_usage']
-                item['metadata']['annotations']['tfplenum/cpu_percent'] = metrics['cpu_percent']
+            metrics = conn_mng.mongo_metrics.find({'node': name, "type": "psutil"})
+            if metrics:
+                for metric in metrics:
+                    item['metadata']['annotations']['tfplenum/{}'.format(metric['name'])] = metric['value']
 
             item['status']['allocatable']['cpu'] = str(_get_cpu_total(item['status']['allocatable']['cpu'])) + "m"
             item['status']['allocatable']["ephemeral-storage"] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
@@ -191,12 +188,14 @@ def _get_totals(pods: V1PodList, nodes: V1NodeList) -> Dict:
 
 def _get_health_status() -> Dict:
     with KubernetesWrapper(conn_mng) as kube_apiv1:
-        ret_val = {}
         pods = kube_apiv1.list_pod_for_all_namespaces(watch=False) # type: V1PodList
         nodes = kube_apiv1.list_node() # type: V1NodeList
+
+        ret_val = {}
         ret_val['totals'] = _get_totals(pods, nodes)
-        ret_val['pod_info'] = _get_pod_info(pods)
         ret_val['node_info'] = _get_node_info(nodes)
+        ret_val['pod_info'] = _get_pod_info(pods)
+
         return ret_val
 
 
@@ -215,13 +214,15 @@ def get_health_status() -> Response:
 
 @app.route('/api/get_pipeline_status', methods=['GET'])
 def get_pipeline_status() -> Response:
-    result = update_pipeline_datetimes.delay()
-    iterations = 0
-    while not result.ready():
-        sleep(1)
-        iterations += 1
-        if iterations > 20:
-            return jsonify({})
+    status = {}
+    documents = list(conn_mng.mongo_metrics.find({'type': 'elastic'}))
+    for document in documents:
+        hostname = document['node']
+        name = document['name']
+        value = document['value']
+        try:
+            status[hostname][name] = value
+        except KeyError:
+            status[hostname] = {name: value}
 
-    result_output = result.get()
-    return jsonify(result_output)
+    return jsonify(status)
