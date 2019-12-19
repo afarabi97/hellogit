@@ -101,7 +101,7 @@
   loop_control:
     loop_var: "async_result_item"
   register: job_results
-  until: job_results.finished
+  until: job_results.finished is defined and job_results.finished
   retries: 120
   tags: pull-docker-images
 
@@ -128,7 +128,7 @@
   loop_control:
     loop_var: "async_result_item"
   register: job_push_results
-  until: job_push_results.finished
+  until: job_push_results.finished is defined and job_push_results.finished
   retries: 120
   tags: pull-docker-images
 
