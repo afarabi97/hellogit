@@ -400,6 +400,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   makeFormgroup(stepper: MatStepper) {
+    this.configFormGroup.controls = {};
     this.processFormGroup.value.selectedNodes.map(nodes => {
       let nodeControls;
       this.addDeploymentName();
