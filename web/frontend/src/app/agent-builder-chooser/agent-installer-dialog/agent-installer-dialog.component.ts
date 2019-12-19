@@ -89,29 +89,45 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   toggleWinlogBeatValidators(event: MatCheckboxChange) {
+    let dest_ip = this.newHostAgentForm.get('winlog_beat_dest_ip');
+    let dest_port = this.newHostAgentForm.get('winlog_beat_dest_port');
     if (event.checked) {
-      this.newHostAgentForm.get('winlog_beat_dest_ip').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
-      this.newHostAgentForm.get('winlog_beat_dest_port').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      dest_ip.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
+      dest_port.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
     } else{
-      this.newHostAgentForm.get('winlog_beat_dest_ip').setValidators(null);
-      this.newHostAgentForm.get('winlog_beat_dest_port').setValidators(null);
+      dest_ip.setValidators(null);
+      dest_port.setValidators(null);
     }
+    dest_ip.updateValueAndValidity();
+    dest_port.updateValueAndValidity();
   }
 
   toggleEndgameValidators(event: MatCheckboxChange) {
+    let sensor_id = this.newHostAgentForm.get('endgame_sensor_id');
+    let server_ip = this.newHostAgentForm.get('endgame_server_ip');
+    let user_name = this.newHostAgentForm.get('endgame_user_name');
+    let password = this.newHostAgentForm.get('endgame_password')
+    let port = this.newHostAgentForm.get('endgame_port');
+
     if (event.checked) {
-      this.newHostAgentForm.get('endgame_sensor_id').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
-      this.newHostAgentForm.get('endgame_server_ip').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
-      this.newHostAgentForm.get('endgame_user_name').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
-      this.newHostAgentForm.get('endgame_password').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
-      this.newHostAgentForm.get('endgame_port').setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      sensor_id.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      server_ip.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
+      user_name.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      password.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
+      port.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
     } else {
-      this.newHostAgentForm.get('endgame_sensor_id').setValidators(null);
-      this.newHostAgentForm.get('endgame_server_ip').setValidators(null);
-      this.newHostAgentForm.get('endgame_user_name').setValidators(null);
-      this.newHostAgentForm.get('endgame_password').setValidators(null);
-      this.newHostAgentForm.get('endgame_port').setValidators(null);
+      sensor_id.setValidators(null);
+      server_ip.setValidators(null);
+      user_name.setValidators(null);
+      password.setValidators(null);
+      port.setValidators(null);
     }
+
+    sensor_id.updateValueAndValidity();
+    server_ip.updateValueAndValidity();
+    user_name.updateValueAndValidity();
+    password.updateValueAndValidity();
+    port.updateValueAndValidity();
   }
 
   isWinlogBeat(): boolean {
