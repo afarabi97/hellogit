@@ -111,9 +111,9 @@ export class NotificationsComponent implements OnInit {
     } else if (seconds >= 3600 && seconds < 86400) {
       message.displayTime = Math.floor(seconds / 3600) + ' h';
     } else if (seconds >= 86400 && seconds < 604800) {
-      message.displayTime = Math.floor(seconds / 86400) + ' h';
+      message.displayTime = Math.floor(seconds / 86400) + ' day(s)';
     } else if (seconds >= 604800) {
-      message.displayTime = Math.floor(seconds / 604800) + ' h';
+      message.displayTime = Math.floor(seconds / 604800) + ' week(s)';
     } else {
       message.displayTime = '';
     }
