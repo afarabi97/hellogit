@@ -323,73 +323,51 @@ def connection_manager(ip, username, password):
 
 def example():
     import os
+    from argparse import ArgumentParser
 
-    ip = '172.16.22.21'
+    parser = ArgumentParser()
+    parser.add_argument("-p", "--pxe", dest="pxe", action='store_true', default=False)
+    args = parser.parse_args()
+    pxe = args.pxe
+    
     USER_NAME = "root"
     PASSWORD = os.getenv('REDFISH_PWD')
-
-    ip = '172.16.22.21'
-
     ips = [
-        '172.16.22.25', # hp
-        '172.16.22.26',
-        #'172.16.22.35',
-        #'172.16.22.36',
-
-        '172.16.22.21', # supermicro
-        '172.16.22.22',
-        '172.16.22.23',
-        '172.16.22.24',
-
-        '172.16.22.45', # dell
-        '172.16.22.44',
-        '172.16.22.43',
-        '172.16.22.42',
-        '172.16.22.41',
-    ]
-
-    ips = [
-        #'172.16.22.26', #problem server
-        #'172.16.22.25', #problem server
-        #'172.16.22.34',
-        #'172.16.22.25',
-        #'172.16.22.33',
-        #'172.16.22.24',
-        #'172.16.22.33',
-        #'172.16.22.23',
         #'172.16.22.25', # HP DL-160
         #'172.16.22.21', # supermicro
         '172.16.22.41', # R440
+        '172.16.22.42', # R440
+        '172.16.22.43', # R440
+        '172.16.22.44', # R440
+        '172.16.22.45', # R440
+        '172.16.22.46', # R440
+        '172.16.22.47', # R440
         #'172.16.22.47', # R440
     ]
-
     for ip in ips:
         token = get_token(ip, USER_NAME, PASSWORD)
         print("Getting MAC")
         mac = get_pxe_mac(ip, token)
-        #print("Setting boot order")
-        #result = set_pxe_boot(ip, token)
-        #print("Restarting server")
-        #result = restart_server(ip, token)
-        print("{} - {}".format(ip, mac))
+	print("{} - {}".format(ip, mac))
+        if pxe:
+	    print("Setting boot order")
+	    result = set_pxe_boot(ip, token)
+	    print("Restarting server")
+	    result = restart_server(ip, token)
         logout(token)
-
     sys.exit(0)
 
 
 def example2():
     #token = get_token(ip, USER_NAME, PASSWORD)
     remote_mgmt = connection_manager(ip, USER_NAME, PASSWORD)
-
     network_adapters = remote_mgmt.Systems.systems_dict['1'] \
                 .network_adapters_collection \
                 .network_adapters_dict
 
     print( network_adapters['1'].get_mac() )
     print( network_adapters['2'].get_mac() )
-
     import pdb; pdb.set_trace()
-
     print("Redfish API version : {} \n".format(remote_mgmt.get_api_version()))
     print("UUID : {} \n".format(remote_mgmt.Root.get_api_UUID()))
     print("System 1 :\n")
@@ -400,7 +378,5 @@ def example2():
         remote_mgmt.Systems.systems_dict["1"].get_parameter("SerialNumber")))
 
 
-
 if __name__ == '__main__':
-
     example()
