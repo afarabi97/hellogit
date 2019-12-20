@@ -106,8 +106,10 @@ class Runner:
                                              It can setup Kits, export docs, export controller OVA and does \
                                              other various actions.")
 
-        parser.add_argument("-p", "--path", dest="filename", required=True,
+        parser.add_argument("-p", "--path", dest="filename", required=False,
                             help="Input yaml configuration file", metavar="FILE")
+        parser.add_argument("-t", "--testcase", dest="testcase", required=False,
+                            help="Input test case name")
 
         parser.add_argument('--setup-controller', dest='setup_controller', metavar="<clone_from_nightly|build_from_scratch>")
         parser.add_argument('--run-kickstart', dest='run_kickstart', action='store_true')
@@ -155,11 +157,14 @@ class Runner:
         parser.add_argument('--vmware-datastore', dest='vmware_datastore')
 
         args = parser.parse_args()
+        if not args.filename and args.testcase:
+            args.filename = "testy-tester/testcases/{}.yml".format(args.testcase)
         if not is_valid_file(args.filename):
             parser.error("The file %s does not exist!" % args.filename)
         self.args = args
         self.di2e_username = self.args.di2e_username
-        self.di2e_password = self.args.di2e_password
+        self.di2e_password = self.args.di2e_password or os.getenv('DI2E_PWD')
+
 
     def _setup_logging(self):
         """
@@ -208,8 +213,8 @@ class Runner:
                     password = self.args.vcenter_password
                 elif esxi:
                     host = esxi
-                    username = self.args.esxi_username
-                    password = self.args.esxi_password
+                    username = self.args.esxi_username or os.getenv('ESXI_USER', 'root')
+                    password = self.args.esxi_password or os.getenv('ESXI_PWD')
                 else:
                     raise Exception("Need either a vcenter or ESXi host in config.")
 
@@ -382,6 +387,8 @@ class Runner:
         ctrl_modifier.change_hostname()
 
         self._perform_bootstrap()
+
+        ctrl_modifier.make_controller_changes()
 
     def _clone_and_configure_nightly_controller(self):
         if not self.args.setup_controller:

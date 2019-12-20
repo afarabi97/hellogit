@@ -709,7 +709,14 @@ def copy_vm(host_configuration: HostConfiguration, controller: Node) -> None:
     vm = get_vm_by_name(s, controller.hostname)
     power_off_vm(vm)
 
-    disk_size = 30
+    disk_size = 50
+    root_disk = [x for x in controller.disks if x.name == 'root']
+    if len(root_disk) > 0:
+        try:
+            disk_size = int(root_disk[0].size)
+        except:
+            logger.warning("Ignoring non-integer disk size {}".format(root_disk[0].size))
+
     logger.info("Resizing disk to {} GB".format(disk_size))
     vm = get_vm_by_name(s, controller.hostname)
     resize_vm_disk(vm, 1, disk_size)

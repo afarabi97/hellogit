@@ -89,8 +89,10 @@ def wait_for_pods_to_be_alive(master_srv: Node, timeout_minutes: int=10):
     password = master_srv.password
     ip_address = master_srv.management_interface.ip_address
     future_time = datetime.utcnow() + timedelta(minutes=timeout_minutes)
-    logging.info("Wait for kubernetes to update its weird state.")
-    time.sleep(60)
+
+    #logging.info("Wait for kubernetes to update its weird state.")
+    #time.sleep(60)
+
     with KubernetesWrapper(username, password, ip_address) as kube_apiv1:
         while True:
             if future_time <= datetime.utcnow():

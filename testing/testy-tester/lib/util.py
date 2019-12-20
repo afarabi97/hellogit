@@ -399,7 +399,7 @@ def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
 
         if node.type == "master_server":
             moloch_viewer_spec = catalog.get('moloch-viewer')
-            node.set_moloch_viewer_catalog(moloch_viewer_spec)                        
+            node.set_moloch_viewer_catalog(moloch_viewer_spec)
             logstash_spec = catalog.get('logstash')
             node.set_logstash_catalog(logstash_spec)
 

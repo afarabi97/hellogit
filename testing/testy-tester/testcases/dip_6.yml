@@ -56,7 +56,7 @@ kit:
         nics:
           ens192:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.241"
+            ip_address: "172.16.33.15"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -86,6 +86,7 @@ kit:
         hot_add_enabled: False
       disks:
         boot: 30 # Name of disk followed by capacity in GiBs
+        root: 50
       iso_file: "rhel-server-7.4-x86_64-dvd.iso"
       boot_order: # Valid options are CDROM, DISK, and ETHERNET
         - "CDROM" # CDROM will be ignored if iso_file is None
@@ -104,7 +105,7 @@ kit:
         nics:
           p1p1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.5"
+            ip_address: "172.16.33.40"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -138,7 +139,7 @@ kit:
         nics:
           p1p1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.6"
+            ip_address: "172.16.33.41"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -160,7 +161,7 @@ kit:
         nics:
           p1p1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.7"
+            ip_address: "172.16.33.42"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -182,7 +183,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.10"
+            ip_address: "172.16.33.50"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -247,7 +248,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.11"
+            ip_address: "172.16.33.51"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -312,7 +313,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.12"
+            ip_address: "172.16.33.52"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
@@ -377,7 +378,7 @@ kit:
         nics:
           em1:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.33.13"
+            ip_address: "172.16.33.53"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
