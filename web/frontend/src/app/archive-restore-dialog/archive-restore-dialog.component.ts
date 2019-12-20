@@ -13,7 +13,9 @@ export class ArchiveRestoreDialogComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(false, []);
   showSelectedRow: boolean;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  @ViewChild(MatPaginator, {static: false})
+  paginator: MatPaginator;
 
   constructor(public dialogRef: MatDialogRef<ArchiveRestoreDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data,

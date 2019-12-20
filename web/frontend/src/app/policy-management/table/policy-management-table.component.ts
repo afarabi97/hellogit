@@ -31,9 +31,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   ruleSetGroups: Array<string>;
 
 
-  @ViewChild('paginator') paginator: MatPaginator;
-  @ViewChild('paginatorInner') paginatorInner: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('paginator', {static: false}) paginator: MatPaginator;
+  @ViewChild('paginatorInner', {static: false}) paginatorInner: MatPaginator;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   constructor( public policySrv: PolicyManagementService,
                private cdr: ChangeDetectorRef,

@@ -3,7 +3,7 @@ import traceback
 from app import celery, logger, conn_mng
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.socket_service import notify_snapshot_refresh
-from shared.connection_mngs import ElasticsearchManager
+from shared.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
 from time import sleep
 
 _JOB_NAME = "tools"
@@ -19,7 +19,7 @@ def check_snapshot_status(elk_service_ip: str, snapshot_name: str):
         notification.setMessage("Snapshot {} in progress.".format(snapshot_name))
         notification.setStatus(NotificationCode.IN_PROGRESS.name)
         notification.post_to_websocket_api()
-        mng = ElasticsearchManager(elk_service_ip)
+        mng = ElasticsearchManager(elk_service_ip, conn_mng)
         while True:
             snapshot_status = mng.snapshot_status(snapshot_name)
             if snapshot_status == "SUCCESS":
@@ -36,7 +36,3 @@ def check_snapshot_status(elk_service_ip: str, snapshot_name: str):
         notification.setMessage(msg)
         notification.setStatus(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
-
-
-
-

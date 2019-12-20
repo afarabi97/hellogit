@@ -175,18 +175,15 @@ def retrieve_service_ip_address(service_name: str) -> str:
 @app.route('/api/restart_elastic_search_and_complete_registration', methods=['POST'])
 def restart_elastic_search() -> Response:
     global REGISTRATION_JOB
-    associatedPods = request.get_json()
-    service_ip = retrieve_service_ip_address("elasticsearch-master")
-    mng = ElasticsearchManager(service_ip)
-    results = chain(bounce_pods.si(associatedPods), finish_repository_registration.si(service_ip))
-    REGISTRATION_JOB = results()
+    service_ip = retrieve_service_ip_address("elasticsearch")
+    REGISTRATION_JOB = finish_repository_registration.delay(service_ip)
     return OK_RESPONSE
 
 
 @app.route('/api/elk_snapshot_state', methods=['GET'])
 def is_elk_snapshot_repo_setup():
     global REGISTRATION_JOB
-    service_ip = retrieve_service_ip_address("elasticsearch-master")
+    service_ip = retrieve_service_ip_address("elasticsearch")
     if REGISTRATION_JOB:
         if REGISTRATION_JOB.state != "SUCCESS":
             return jsonify({"is_setup": "inprogress"})
@@ -194,7 +191,7 @@ def is_elk_snapshot_repo_setup():
             REGISTRATION_JOB = None
 
     try:
-        mng = ElasticsearchManager(service_ip)
+        mng = ElasticsearchManager(service_ip, conn_mng)
         ret_val = mng.get_repository()
         return jsonify({"is_setup": "complete"})
     except (NotFoundError, ConnectionError):
@@ -212,8 +209,8 @@ def get_elasticsearch_snapshots():
     'state': 'SUCCESS', 'start_time': '2019-11-22T21:12:17.561Z', 'start_time_in_millis': 1574457137561, 'end_time': '2019-11-22T21:12:28.532Z',
     'end_time_in_millis': 1574457148532, 'duration_in_millis': 10971, 'failures': [], 'shards': {'total': 21, 'failed': 0, 'successful': 21}}]
     """
-    service_ip = retrieve_service_ip_address("elasticsearch-master")
-    mng = ElasticsearchManager(service_ip)
+    service_ip = retrieve_service_ip_address("elasticsearch")
+    mng = ElasticsearchManager(service_ip, conn_mng)
     return jsonify(mng.get_snapshots())
 
 
@@ -233,8 +230,8 @@ def _get_next_snaphot_name(snapshots: List[Dict]) -> str:
 
 @app.route('/api/take_elasticsearch_snapshot', methods=['GET'])
 def take_elasticsearch_snapshot():
-    service_ip = retrieve_service_ip_address("elasticsearch-master")
-    mng = ElasticsearchManager(service_ip)
+    service_ip = retrieve_service_ip_address("elasticsearch")
+    mng = ElasticsearchManager(service_ip, conn_mng)
     ret_val = mng.get_snapshots()
     snapshot_name = _get_next_snaphot_name(ret_val)
     snapshot = mng.take_snapshot(snapshot_name)
@@ -261,16 +258,16 @@ class RemoteNetworkDevice(object):
                 return {"node": self._node, "device": self._device, "state": "down"}
             else:
                 return {}
-    
+
     def get_state(self):
         with FabricConnection(self._node) as shell:
             result = shell.run("bash -c 'ip address show {} up'".format(self._device))
 
             if result.return_code == 0:
                 if result.stdout == "":
-                    return {"node": self._node, "device": self._device, "state": "down"}  
+                    return {"node": self._node, "device": self._device, "state": "down"}
                 else:
-                    return {"node": self._node, "device": self._device, "state": "up"}                 
+                    return {"node": self._node, "device": self._device, "state": "up"}
             else:
                 return {}
 
@@ -291,7 +288,7 @@ def change_state_of_remote_network_device(node: str, device: str, state: str):
             return jsonify(result)
         else:
             return ERROR_RESPONSE
-    
+
     return ERROR_RESPONSE
 
 @app.route('/api/monitoring_interfaces', methods=['GET'])
@@ -309,7 +306,7 @@ def get_monitoring_interfaces():
                 nodes[hostname].add(interface)
         except KeyError:
             nodes[hostname] = set(interfaces)
-    
+
     result = []
     for hostname, interfaces in nodes.items():
         node = {'node': hostname, 'interfaces': []}

@@ -46,7 +46,7 @@ export class TopNavbarComponent implements OnInit {
     },
     ];
 
-  @ViewChild('notifications') notifications: NotificationsComponent;
+  @ViewChild('notifications', {static: false}) notifications: NotificationsComponent;
 
   constructor(private cookieService: CookieService,
               private clockService: DIPClockService,

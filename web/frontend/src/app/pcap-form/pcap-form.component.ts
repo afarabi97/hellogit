@@ -27,7 +27,7 @@ export class PcapFormComponent implements OnInit {
 
   displayColumns = [ 'name', 'mod_date', 'hash', 'size', 'action' ];
 
-  @ViewChild('pcapPaginator')
+  @ViewChild('pcapPaginator', {static: false})
   private paginator: MatPaginator;
 
   constructor(private pcapSrv: PcapService,
@@ -130,7 +130,7 @@ export class PcapFormComponent implements OnInit {
     this.showMd5 = false;
   }
 
-  deleteFile(){    
+  deleteFile(){
     this.pcapSrv.deletePcap(this.pcapToDelete).subscribe(data => {
       this.displayServiceResponse(data);
     });

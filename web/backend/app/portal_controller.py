@@ -1,17 +1,17 @@
 """
 Main module that controls the REST calls for the portal page.
 """
+import json
+
 from app import (app, conn_mng, logger)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
 from fabric.runners import Result
 from flask import jsonify, Response
-from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper2
+from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper2, get_elastic_password
 from shared.constants import PORTAL_ID
 from typing import List
 from flask import send_file, Response, request, jsonify
 from bson import ObjectId
-import json
-from base64 import b64decode
 
 DISCLUDES = ("elasticsearch.lan",
         "elasticsearch-headless.lan",
@@ -21,12 +21,6 @@ DISCLUDES = ("elasticsearch.lan",
         "elasticsearch-data.lan",
         "tiller-deploy.lan")
 
-def get_elastic_password():
-    with KubernetesWrapper2(conn_mng) as api:
-        v1 = api.core_V1_API
-        response = v1.read_namespaced_secret('tfplenum-es-elastic-user', 'default')
-        password = b64decode(response.data['elastic']).decode('utf-8')
-        return password
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     if dns == "grr-frontend.lan":
@@ -53,7 +47,7 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
             portal_links.append({'ip': '', 'dns': 'http://' + dns + ":" + cortex_port, 'logins': ''})
     elif dns == "kibana.lan":
-        password = get_elastic_password()
+        password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)
         if ip:
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': logins})

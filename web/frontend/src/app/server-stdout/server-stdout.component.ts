@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ServerStdoutComponent implements OnInit {
 
-  @ViewChild('console')
+  @ViewChild('console', {static: false})
   private consoleDiv: ElementRef;
   private jobName: string;
 

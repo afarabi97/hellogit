@@ -383,8 +383,6 @@ class Runner:
 
         self._perform_bootstrap()
 
-        ctrl_modifier.make_controller_changes()
-
     def _clone_and_configure_nightly_controller(self):
         if not self.args.setup_controller:
             return
@@ -406,6 +404,7 @@ class Runner:
         ctrl_vm = VirtualMachine(self.vsphere_client, self.controller_node, self.host_configuration)
         ctrl_vm.power_on()
 
+        time.sleep(60)
         logging.info("Waiting for controller to become alive...")
         test_vms_up_and_alive(self.kit, [self.controller_node], 20)
 

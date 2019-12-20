@@ -6,7 +6,7 @@ host_configuration:
     datacenter: "DEV_Datacenter"
     resource_pool:
   storage:
-    datastore: "dev-vol00"
+    datastore: "NVMe Storage"
     folder: "Testing"
   iso_folder_path: "/root/"
 

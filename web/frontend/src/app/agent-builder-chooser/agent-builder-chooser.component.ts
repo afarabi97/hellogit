@@ -50,13 +50,13 @@ export class AgentBuilderChooserComponent implements OnInit {
   is_downloading: boolean;
   selectedIndexValue: boolean;
 
-  @ViewChild('installerConfigPaginator')
+  @ViewChild('installerConfigPaginator', {static: false})
   installerConfigPaginator: MatPaginator;
 
-  @ViewChild('targetConfigPaginator')
+  @ViewChild('targetConfigPaginator', {static: false})
   targetConfigPaginator: MatPaginator;
 
-  @ViewChild('hostConfigPaginator')
+  @ViewChild('hostConfigPaginator', {static: false})
   hostConfigPaginator: MatPaginator;
 
   constructor(private agentBuilderSvc: AgentBuilderService,

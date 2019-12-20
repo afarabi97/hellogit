@@ -1,6 +1,7 @@
 import json
 import os
 
+from base64 import b64decode
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
@@ -378,13 +379,27 @@ class FabricConnectionManager:
         self.close()
 
 
+def get_elastic_password(conn_mng: MongoConnectionManager):
+    with KubernetesWrapper2(conn_mng) as api:
+        v1 = api.core_V1_API
+        response = v1.read_namespaced_secret('tfplenum-es-elastic-user', 'default')
+        password = b64decode(response.data['elastic']).decode('utf-8')
+        return password
+
+
 class ElasticsearchManager:
     default_repo = "tfplenum"
     managed_indicies = "logstash-*,endgame-*,filebeat-*,winlogbeat-*,sessions2-*"
 
-    def __init__(self, elastic_ip: str):
+    def __init__(self, elastic_ip: str, conn_mng: MongoConnectionManager):
         self._elastic_ip = elastic_ip
-        self._es = Elasticsearch([self._elastic_ip])
+        password = get_elastic_password(conn_mng)
+        self._es = Elasticsearch([self._elastic_ip],
+                                 use_ssl=True,
+                                 verify_certs=False,
+                                 http_auth=('elastic', password),
+                                 scheme="https")
+
         self._snapper = SnapshotClient(self._es)
         self._cluster_client = ClusterClient(self._es)
         self._indicies_client = IndicesClient(self._es)

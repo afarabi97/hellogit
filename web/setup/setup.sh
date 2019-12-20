@@ -17,24 +17,23 @@ function _install_deps(){
 }
 
 function _install_nodejs(){
-    run_cmd rm -rf node-v8.11.4-linux-x64*
-	run_cmd wget https://nodejs.org/dist/v8.11.4/node-v8.11.4-linux-x64.tar.xz
-    run_cmd tar xf node-v8.11.4-linux-x64.tar.xz
-    run_cmd cd node-v8.11.4-linux-x64/
+    run_cmd rm -rf node-v13.5.0-linux-x64*
+	run_cmd wget https://nodejs.org/dist/v13.5.0/node-v13.5.0-linux-x64.tar.xz
+    run_cmd tar xf node-v13.5.0-linux-x64.tar.xz
+    run_cmd cd node-v13.5.0-linux-x64/
     run_cmd cp -R * /usr/local/
     run_cmd cd ..
-	run_cmd rm -rf node-v8.11.4-linux-x64/
-	run_cmd rm -f node-v8.11.4-linux-x64.tar.xz
+	run_cmd rm -rf node-v13.5.0-linux-x64/
+	run_cmd rm -f node-v13.5.0-linux-x64.tar.xz
     run_cmd node -v
     run_cmd npm -v
 }
 
 function _install_angular(){
 	pushd $FRONTEND_DIR/frontend > /dev/null
-	run_cmd npm install -g npm@latest
-	run_cmd npm install -g @angular/cli@7.3.9
+	run_cmd npm install -g npm@~6.13.4
+    run_cmd npm install -g @angular/cli@~8.3.21
 	run_cmd npm cache verify
-	run_cmd npm i
     run_cmd npm install
 	npm audit fix
 	popd > /dev/null

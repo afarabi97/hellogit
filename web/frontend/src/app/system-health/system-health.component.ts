@@ -32,7 +32,7 @@ export class SystemHealthComponent implements OnInit {
   nodeStatuses: MatTableDataSource<Array<Object>>;
   totals: Object;
 
-  @ViewChild('nodeStatusesTable') nodeTable: MatTable<any>;
+  @ViewChild('nodeStatusesTable', {static: false}) nodeTable: MatTable<any>;
 
   pipelineStatus: Object;
 

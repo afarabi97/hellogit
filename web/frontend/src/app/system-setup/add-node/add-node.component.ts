@@ -48,7 +48,7 @@ export class AddNodeComponent implements OnInit {
   hasWizardState: boolean;
 
 
-  @ViewChild('stepper')
+  @ViewChild('stepper', {static: false})
   stepper: MatStepper;
 
   constructor(private fb: FormBuilder,

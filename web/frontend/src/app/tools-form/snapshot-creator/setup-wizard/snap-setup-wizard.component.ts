@@ -59,10 +59,9 @@ export class SnapShotSetupComponent implements OnInit {
 
   private restartELK(stepper: MatStepper){
     this.toolSvc.restartElasticSearch(this.associatedPods).subscribe(data => {
-      this.toolSvc.displaySnackBar("Elasticsearch restart has started. Please wait a few minutes \
-                                    before attempting to register the repository.");
       this.elkRestart.get('is_successful').setValue(true);
-      this.toolSvc.displaySnackBar("Restarting Elasticsearch cluster and finishing repo Registration! To track its progress open the notification manager.");
+      this.toolSvc.displaySnackBar("Restarting Elasticsearch cluster and finishing repo Registration! \
+                                    To track its progress open the notification manager.");
       this.dialogRef.close();
     }, err => {
       console.error(err);
@@ -71,27 +70,16 @@ export class SnapShotSetupComponent implements OnInit {
   }
 
   restartElasticSearchAndCompleteRegistration(stepper: MatStepper){
-    this.toolSvc.getAssociatedPods("elasticsearch-master-config").subscribe(data => {
-      this.associatedPods = data as Array<{podName:string, namespace: string}>;
-      let confirmText = 'Are you sure you want to restart your Elasticsearch cluster and complete snapshot registration? Doing so will cause ';
-      for (let index = 0; index < this.associatedPods.length; index++){
-        let podName = this.associatedPods[index].podName;
-        confirmText = confirmText.concat(podName);
-        if (index !== (this.associatedPods.length - 1)){
-          confirmText = confirmText.concat(", ")
-        }
-      }
-
-      confirmText = confirmText.concat(' to bounce on your Kubernetes cluster which will bring down Elasticsearch temporarily.');
-      this.confirmer.confirmAction(
-        "Restart ELK",
-        confirmText,
-        "Confirm",
-        "Restart ELK",
-        "Could not save.",
-        () => { this.restartELK(stepper) }
-      );
-    });
+    let confirmText = 'Are you sure you want to restart your Elasticsearch cluster and \
+                       complete snapshot registration? Doing so may cause Elasticsearch to become temporarily unavailable.';
+    this.confirmer.confirmAction(
+      "Restart ELK",
+      confirmText,
+      "Confirm",
+      "Restart ELK",
+      "Could not save.",
+      () => { this.restartELK(stepper) }
+    );
   }
 
   ngOnInit() {

@@ -10,10 +10,10 @@ import { ConfigmapsService } from '../configmaps/configmaps.service';
 })
 export class ConfigmapEditorComponent implements OnInit {
 
-  @ViewChild('editorCard')
+  @ViewChild('editorCard', {static: false})
   private editorCard: ElementRef;
 
-  @ViewChild('outerCard')
+  @ViewChild('outerCard', {static: false})
   private outerCard: ElementRef;
 
   @Input()

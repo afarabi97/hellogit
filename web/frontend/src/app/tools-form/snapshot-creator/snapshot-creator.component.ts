@@ -23,7 +23,7 @@ export class SnapShotCreatorComponent implements OnInit {
   kibanaLink: string;
   displayColumns = [ 'name', 'state', 'start_time', 'end_time' ];
 
-  @ViewChild('snapshotPaginator')
+  @ViewChild('snapshotPaginator', {static: false})
   private paginator: MatPaginator;
 
   constructor(private dialog: MatDialog,
