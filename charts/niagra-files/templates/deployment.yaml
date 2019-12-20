@@ -22,7 +22,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "/usr/bin/chmod -R 777 {{ .Values.nifi_base_dir }}"
+        - "chown -R 1000:1000 {{ .Values.nifi_base_dir }}"
         volumeMounts:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
