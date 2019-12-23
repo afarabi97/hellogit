@@ -16,16 +16,16 @@ spec:
     spec:
       initContainers:
       - name: elastic-init
-        image: "{{ .Values.elastic_image }}"
+        image: "busybox:1.29.3"
         securityContext:
           runAsUser: 0
         command:
         - "/bin/sh"
         - "-c"
-        - "/usr/bin/chmod -R 777 /usr/share/elasticsearch/data"
+        - "chown -R 1000 /elastic-data"
         volumeMounts:
         - name: elasticdb
-          mountPath: /usr/share/elasticsearch/data
+          mountPath: /elastic-data
       containers:
       - name: elastic
         image: "{{ .Values.elastic_image }}"
