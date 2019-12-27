@@ -22,7 +22,11 @@ charts = [
         { "name": "rocketchat",
                 "version": "1.1.13"},
         { "name": "mongodb",
-                "version": "7.2.10"}
+                "version": "7.2.10"},
+        { "name": "niagra-files",
+                "version": "1.0.0"},
+        { "name": "redmine",
+                "version": "1.0.0"}
     ]
 
 CHARTMUSEUM_PORT="8080"

@@ -53,6 +53,12 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': logins})
+    elif dns == "redmine.lan":
+        logins = 'admin/admin'
+        if ip:
+            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': logins})
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
