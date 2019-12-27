@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox'
 import { FormBuilder, FormControl,
@@ -10,11 +10,9 @@ import { EndgameService } from './endgame.service'
 import { MatStepper } from '@angular/material';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { validateFromArray } from 'src/app/validators/generic-validators.validator';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AppConfig, ElementSpec } from '../agent-builder.service';
 
-const TRAFFIC_DEST_DESC: string = "If you have a DIP setup with a PF Sense firewall, please enter the external IP Address of that here. \
-                                   If not, please provide the Kuberenetes service IP Address.  When entering the PF sense firewall, keep in mind \
-                                   that targets from outside of the DIP must go through this firewall and the administrator of that firewall will \
-                                   need to enable port forwarding to the appropriate kubectl services";
 
 @Component({
   selector: 'agent-installer-dialog',
@@ -27,13 +25,22 @@ export class AgentInstallerDialogComponent implements OnInit {
   endgame_server_reachable: boolean;
   sensor_profiles: Array<{name: string, value: string}>
 
+  // Custom packages
+  appConfigs: Array<AppConfig>;
+  appNames: Array<string>;
+  configs: {[key: string]: AppConfig};
+  applicableConfigs: Array<AppConfig>;
+  applications: FormGroup;
+  options: FormGroup;
+  formElements = ['textinput', 'checkbox'];
+
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AgentInstallerDialogComponent>,
     private endgameSrv: EndgameService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.externalIPToolTip = TRAFFIC_DEST_DESC;
     this.endgame_server_reachable = false;
     this.sensor_profiles = new Array();
   }
@@ -46,68 +53,62 @@ export class AgentInstallerDialogComponent implements OnInit {
   /**
    * Ensures that at least one application is selected before form vailidates appropriatley.
    */
-  private formLevelValidations(control: AbstractControl): ValidationErrors | null {
-    if (control){
-      let formGroup = control as FormGroup;
-      if (!formGroup.get('install_sysmon').value)
-        if (!formGroup.get('install_winlogbeat').value)
-          if (!formGroup.get('install_endgame').value)
-            return {"custom_error": "At least one application needs to be selected"};
+  private formLevelValidations(control: FormGroup): ValidationErrors | null {
+
+    if (control.get('install_endgame').value) {
+      return null;
     }
 
-    return null;
+    if (control.get('customPackages')) {
+      return null
+    }
+
+    return {"custom_error": "At least one application needs to be selected"};
   }
 
   ngOnInit() {
-    this.newHostAgentForm = this.fb.group({
-      config_name: new FormControl('', Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)])),
-      install_sysmon: new FormControl(false),
-      install_winlogbeat: new FormControl(false),
-      winlog_beat_dest_ip: new FormControl(),
-      winlog_beat_dest_port: new FormControl('5045'),
-      install_endgame: new FormControl(false),
+    let required = Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]);
 
-      endgame_sensor_id: new FormControl(),
-      endgame_sensor_name: new FormControl(),
-      endgame_server_ip: new FormControl(),
-      endgame_user_name: new FormControl(),
-      endgame_password: new FormControl(),
-      endgame_port: new FormControl('443', Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]))
-    });
+    this.newHostAgentForm = this.fb.group(
+      {
+        config_name: ['', required],
+        install_endgame: [false],
+        endgame_options: this.fb.group({
+          endgame_server_ip: [null],
+          endgame_user_name: [null],
+          endgame_password: [null],
+          endgame_port: ['443', required]
+        }),
+        endgame_sensor_id: [null],
+        endgame_sensor_name: [null]
+      },
+      {validators: this.formLevelValidations}
+    );
 
-    this.newHostAgentForm.setValidators(this.formLevelValidations);
-  }
+    // Custom packages
+    this.appConfigs = this.data;
+    let appNames = [];
+    let configs = {};
 
-  createStepperValidation(...controls: string[]){
-    let ret_val = []
-
-    controls.map(control => {
-      ret_val.push(this.newHostAgentForm.get(control));
-    });
-
-    return this.fb.array(ret_val);
-  }
-
-  toggleWinlogBeatValidators(event: MatCheckboxChange) {
-    let dest_ip = this.newHostAgentForm.get('winlog_beat_dest_ip');
-    let dest_port = this.newHostAgentForm.get('winlog_beat_dest_port');
-    if (event.checked) {
-      dest_ip.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.isValidIP)]));
-      dest_port.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
-    } else{
-      dest_ip.setValidators(null);
-      dest_port.setValidators(null);
+    for (let config of this.appConfigs) {
+        let name = config['name'];
+        appNames.push(name);
+        configs[name] = config;
     }
-    dest_ip.updateValueAndValidity();
-    dest_port.updateValueAndValidity();
+
+    this.appNames = appNames;
+    this.configs = configs;
+    this.applicableConfigs = [];
+    this.applications = this.createPackageControls(appNames);
+
   }
 
   toggleEndgameValidators(event: MatCheckboxChange) {
     let sensor_id = this.newHostAgentForm.get('endgame_sensor_id');
-    let server_ip = this.newHostAgentForm.get('endgame_server_ip');
-    let user_name = this.newHostAgentForm.get('endgame_user_name');
-    let password = this.newHostAgentForm.get('endgame_password')
-    let port = this.newHostAgentForm.get('endgame_port');
+    let server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
+    let user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
+    let password = this.newHostAgentForm.get('endgame_options.endgame_password')
+    let port = this.newHostAgentForm.get('endgame_options.endgame_port');
 
     if (event.checked) {
       sensor_id.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
@@ -128,10 +129,6 @@ export class AgentInstallerDialogComponent implements OnInit {
     user_name.updateValueAndValidity();
     password.updateValueAndValidity();
     port.updateValueAndValidity();
-  }
-
-  isWinlogBeat(): boolean {
-    return this.newHostAgentForm.get('install_winlogbeat').value;
   }
 
   isEndgame(): boolean {
@@ -162,10 +159,10 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   getEndgameSensorProfiles(stepper: MatStepper) {
     this.endgame_server_reachable = false;
-    if(this.newHostAgentForm.get('endgame_password').valid &&
-       this.newHostAgentForm.get('endgame_server_ip').valid &&
-       this.newHostAgentForm.get('endgame_user_name').valid &&
-       this.newHostAgentForm.get('endgame_port').valid)
+    if(this.newHostAgentForm.get('endgame_options.endgame_password').valid &&
+       this.newHostAgentForm.get('endgame_options.endgame_server_ip').valid &&
+       this.newHostAgentForm.get('endgame_options.endgame_user_name').valid &&
+       this.newHostAgentForm.get('endgame_options.endgame_port').valid)
     {
       this.endgameSrv.getEndgameSensorProfiles(this.newHostAgentForm.getRawValue()).subscribe(
         profile_data => {
@@ -188,5 +185,117 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   public getErrorMessage(control: FormControl | AbstractControl): string {
     return control.errors ? control.errors.error_message : '';
+  }
+
+  // Custom packages
+  private createPackageControls(appNames) {
+    let controls = {};
+    for (let appName of appNames) {
+        controls[appName] = new FormControl(false);
+    }
+
+    return new FormGroup(controls);
+  }
+
+  private createTextinputControl(spec: ElementSpec) {
+      let validators = [];
+      let regexp = spec['regexp'];
+      let required = spec['required'];
+      let default_value = spec['default_value'] || null;
+
+      if (regexp)
+      {
+          let pattern = Validators.pattern(regexp);
+          validators.push(pattern);
+      }
+
+      if (required)
+      {
+          let required = Validators.required;
+          validators.push(required);
+      }
+
+      let control = new FormControl(default_value, validators);
+      return control;
+  }
+
+  private createCheckboxControl(spec: ElementSpec) {
+      let default_value = spec['default_value'] || null;
+      return new FormControl(default_value);
+  }
+
+  private createControl(spec: ElementSpec) {
+      let control: FormControl;
+
+      switch(spec.type) {
+          case 'textinput':
+              control = this.createTextinputControl(spec);
+              break;
+          case 'checkbox':
+              control = this.createCheckboxControl(spec);
+              break;
+          default:
+              control = null;
+      }
+
+      return control;
+  }
+
+  private getFormSpec(appConfig: AppConfig) {
+      let formSpec = appConfig['form'];
+      return formSpec ? formSpec.filter((elementSpec: ElementSpec) => this.formElements.includes(elementSpec.type)) : [];
+  }
+
+  private createFormGroup(appConfig: AppConfig) {
+      // Removes any unknown elements.
+      let formSpec = this.getFormSpec(appConfig);
+
+      if (formSpec.length > 0) {
+          let controls = {};
+
+          for (let elementSpec of formSpec) {
+              let name = elementSpec.name
+              controls[name] = this.createControl(elementSpec);
+          }
+
+          return new FormGroup(controls);
+      } else {
+          return new FormGroup({});
+      }
+  }
+
+  onApplicationChange(event: MatCheckboxChange, appConfig: AppConfig) {
+    let checked = event.checked;
+    let name = appConfig['name'];
+
+    if (checked) {
+        let form = this.createFormGroup(appConfig);
+
+        if (form) {
+            if (this.options) {
+                this.options.addControl(name, form);
+            } else {
+                this.options = new FormGroup({[name]: form});
+                this.newHostAgentForm.addControl('customPackages', this.options);
+            }
+        }
+    } else {
+        if (this.options) {
+            this.options.removeControl(name)
+            if (Object.keys(this.options.controls).length === 0) {
+                this.options = null;
+                this.newHostAgentForm.removeControl('customPackages');
+            }
+        }
+    }
+
+    let applicableConfigs = [];
+    if(this.options) {
+        for (let name in this.options.controls) {
+            applicableConfigs.push(this.configs[name]);
+        }
+    }
+    this.applicableConfigs = applicableConfigs;
+
   }
 }

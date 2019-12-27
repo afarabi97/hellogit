@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AgentBuilderService, AgentInstallerConfig,
          IpTargetList, Host, ErrorMessage,
-         WindowsCreds } from './agent-builder.service';
+         WindowsCreds, AppConfig } from './agent-builder.service';
 import * as FileSaver from 'file-saver';
 import { Title } from '@angular/platform-browser';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
+import { AgentDetailsDialogComponent } from './agent-details-dialog/agent-details-dialog.component';
 import { AgentTargetDialogComponent } from './agent-target-dialog/agent-target-dialog.component';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../services/websocket.service';
@@ -19,6 +20,7 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 
+import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
 
 
 const DIALOG_WIDTH = "800px";
@@ -30,14 +32,12 @@ const DIALOG_MAX_HEIGHT = "800px";
   styleUrls: ['./agent-builder-chooser.component.css']
 })
 export class AgentBuilderChooserComponent implements OnInit {
-  columnsForInstallerConfigs: string[] = ['select', 'config_name', 'winlog_beat_dest_ip',
-                                          'install_sysmon',
-                                          'install_winlogbeat', 'install_endgame',
-                                          'endgame_sensor_name', 'actions'];
+  columnsForInstallerConfigs: string[] = ['select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions'];
 
   columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'domain_name', 'actions'];
   columnsForHosts: string[] = ['hostname', 'state', 'last_state_change', 'actions'];
 
+  appConfigs: Array<AppConfig>;
   savedConfigs: MatTableDataSource<AgentInstallerConfig>;
   savedTargetConfigs: MatTableDataSource<IpTargetList>;
   hostsToShow: MatTableDataSource<Host>;
@@ -79,6 +79,10 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.agentBuilderSvc.getAppConfigs().subscribe(appConfigs => {
+      this.appConfigs = appConfigs;
+    });
+
     this.getSavedConfigs();
     this.getSavedTargetConfigs();
     this.socketRefresh();
@@ -93,6 +97,14 @@ export class AgentBuilderChooserComponent implements OnInit {
         this.displaySnackBar("Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. \
           Please go to the Catalog page and install it.  Failing to install it will cause Winlogbeats and Endgame agent data capture to Elasticsearch to fail.")
       }
+    });
+  }
+
+  showConfig() {
+    const dialogRef = this.dialog.open(AgentDetailsDialogComponent, {
+      width: DIALOG_WIDTH,
+      maxHeight: DIALOG_MAX_HEIGHT,
+      data: { appConfigs: this.appConfigs, config: this.config_selection }
     });
   }
 
@@ -342,12 +354,20 @@ export class AgentBuilderChooserComponent implements OnInit {
   addNewConfiguration(){
     const dialogRef = this.dialog.open(AgentInstallerDialogComponent, {
       width: DIALOG_WIDTH,
-      maxHeight: DIALOG_MAX_HEIGHT
+      maxHeight: DIALOG_MAX_HEIGHT,
+      data: this.appConfigs
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.valid){
-        this.agentBuilderSvc.saveConfig(result.getRawValue()).subscribe(
+        let formData = result.getRawValue();
+        let endgame = formData['endgame_options']
+        delete formData['endgame_options']
+
+        let scratch = {...formData, ...endgame}
+        formData = scratch;
+       
+        this.agentBuilderSvc.saveConfig(formData).subscribe(
           configs => {
             this.setSavedConfigs(configs);
             this.displaySnackBar("Saved configuration successfully.");
@@ -514,10 +534,4 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  getTrafficDest(config: AgentInstallerConfig): string{
-    if (config && config.winlog_beat_dest_ip){
-      return config.winlog_beat_dest_ip + ":" + config.winlog_beat_dest_port;
-    }
-    return "";
-  }
 }

@@ -8,11 +8,10 @@ import urllib3
 import sys
 import shutil
 import tempfile
-import json
 import copy
 import zipfile
 
-from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR)
+from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR, AGENT_PKGS_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,
@@ -20,7 +19,7 @@ from app.service.agent_service import (perform_agent_reinstall,
 from bson import ObjectId
 from celery import chain, group, chord
 from copy import copy
-from flask import send_file, Response, request, jsonify
+from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
@@ -30,6 +29,7 @@ from shared.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
 from werkzeug.utils import secure_filename
 
+from contextlib import ExitStack
 
 win_install_cnxn = conn_mng.mongo_windows_installer_configs
 win_targets_cnxn = conn_mng.mongo_windows_target_lists
@@ -39,6 +39,19 @@ JINJA_ENV = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR)),
     autoescape=select_autoescape(['html', 'xml'])
 )
+
+
+@app.route('/api/custom_windows_installer_packages', methods=['GET'])
+def getAppConfigs():
+    configs = []
+
+    filenames = AGENT_PKGS_DIR.glob('*/appconfig.json')
+    with ExitStack() as stack:
+        files = [stack.enter_context(open(fname)) for fname in filenames]
+        for sfile in files:
+            configs.append(json.load(sfile))
+    
+    return jsonify(configs)
 
 
 @app.route('/api/generate_windows_installer', methods=['POST'])

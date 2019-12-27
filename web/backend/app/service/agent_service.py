@@ -21,6 +21,7 @@ from pathlib import Path
 from pprint import PrettyPrinter
 from pypsrp.powershell import PSDataStreams
 from typing import Dict, List
+from contextlib import ExitStack
 
 
 _JOB_NAME = "agent"
@@ -95,11 +96,10 @@ class EndgameAgentPuller:
 class AgentBuilder:
 
     def __init__(self, payload: Dict):
+        self._packages = self._get_packages()
         self._payload = payload
-        self._installer_config = payload["installer_config"]
+        self._installer_config = payload['installer_config']
         self._install_endgame = self._installer_config["install_endgame"]
-        self._install_winlogbeat = self._installer_config["install_winlogbeat"]
-        self._install_sysmon = self._installer_config["install_sysmon"]
         self._output_folder = "/var/www/html/agents/" + self._installer_config["_id"]
         self._zip_path = self._output_folder + '/agent.zip'
         Path(self._output_folder).mkdir(parents=True, exist_ok=True)
@@ -142,28 +142,35 @@ class AgentBuilder:
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/install.ps1", {"api_token": api_token})
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/uninstall.ps1", {"api_token": api_token})
         self._copy_package(folder_to_copy, dst_folder)
+    
+    def _get_packages(self):
+        with ExitStack() as stack:
+            appconfigs = AGENT_PKGS_DIR.rglob('*/appconfig.json')
+            packages = {}
+            for appconfig in appconfigs:
+                _file = stack.enter_context(open(appconfig))
+                package_name = json.load(_file).get('name', None)
+                packages[package_name] = {'folder': appconfig.parent.name}
+            return packages
 
-    def _package_winlogbeat(self, dst_folder: str):
-        if not self._install_winlogbeat:
-            return
+    def _package_generic(self, pkg_folder: Path, dst_folder: Path, tpl_context: Dict):
+        tpl_dir = pkg_folder / 'templates'
+        templates = tpl_dir.glob('*')
+        for template in templates:
+            self._create_config(template, tpl_context)
+        folder_to_copy = str(pkg_folder)
+        self._copy_package(folder_to_copy, str(dst_folder))
 
-        self._installer_config['winlog_beat_dest_ip'] = self._installer_config['winlog_beat_dest_ip'].strip()
-        self._installer_config['winlog_beat_dest_port'] = self._installer_config['winlog_beat_dest_port'].strip()
-        self._create_config(AGENT_PKGS_DIR / "winlogbeat/templates/winlogbeat.yml", self._installer_config)
-        folder_to_copy = str(AGENT_PKGS_DIR / "winlogbeat/" )
-
-        shutil.copy2("/var/www/html/offlinerepo/winlogbeat-7.3.1-windows-x86_64.zip", folder_to_copy)
-        shutil.copy2("/var/www/html/offlinerepo/winlogbeat-7.3.1-windows-x86.zip", folder_to_copy)
-        self._copy_package(folder_to_copy, dst_folder)
-
-    def _package_sysmon(self, dst_folder: str):
-        if not self._install_sysmon:
-            return
-
-        folder_to_copy = str(AGENT_PKGS_DIR / "sysmon/" )
-        shutil.copy2("/var/www/html/offlinerepo/Sysmon.zip", folder_to_copy)
-        self._copy_package(folder_to_copy, dst_folder)
-
+    def _package_generic_all(self, dst_folder: Path):
+        customPackages = self._installer_config.get('customPackages', None)
+        if customPackages:
+            for name, tpl_context in customPackages.items():
+                package = self._packages.get(name, None)
+                if package:
+                    folder = package['folder']
+                    pkg_folder = AGENT_PKGS_DIR / folder
+                    self._package_generic(pkg_folder, dst_folder, tpl_context)
+  
     def _zip_package(self, package_dir: str):
         zipf = zipfile.ZipFile(self._zip_path, 'w', zipfile.ZIP_DEFLATED)
         try:
@@ -181,8 +188,7 @@ class AgentBuilder:
             shutil.copy2("/opt/tfplenum/agent_pkgs/install.ps1", agent_path)
             shutil.copy2("/opt/tfplenum/agent_pkgs/uninstall.ps1", agent_path)
             self._package_endgame(agent_path)
-            self._package_sysmon(agent_path)
-            self._package_winlogbeat(agent_path)
+            self._package_generic_all(Path(agent_path))
             self._zip_package(agent_path)
 
         return self._zip_path

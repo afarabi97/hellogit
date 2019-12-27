@@ -23,7 +23,7 @@
     <mat-card-header>
       <mat-card-title>
         Step 1: Create a Windows installer configuration.
-        <button mat-raised-button color="primary" (click)="addNewConfiguration()">Add Installer Config</button>
+        <button mat-raised-button color="primary" [disabled]="appConfigs ? false : true" (click)="addNewConfiguration()">Add Installer Config</button>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -41,30 +41,13 @@
           <td mat-cell *matCellDef="let config">{{ config.config_name }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="winlog_beat_dest_ip">
-          <th mat-header-cell *matHeaderCellDef>Winlogbeat traffic destination</th>
-          <td mat-cell *matCellDef="let config">{{ getTrafficDest(config) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="install_sysmon">
-          <th mat-header-cell *matHeaderCellDef>Sysmon</th>
+        <ng-container matColumnDef="install_custom">
+          <th mat-header-cell *matHeaderCellDef>Custom</th>
           <td mat-cell *matCellDef="let cfg">
-            <div *ngIf="cfg.install_sysmon; else sysNo">
+            <div *ngIf="cfg?.customPackages; else customNo">
               <i class="material-icons" style="color:lightgreen;">check_circle</i>
             </div>
-            <ng-template #sysNo>
-              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
-            </ng-template>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="install_winlogbeat">
-          <th mat-header-cell *matHeaderCellDef>Winlogbeat</th>
-          <td mat-cell *matCellDef="let cfg">
-            <div *ngIf="cfg.install_winlogbeat; else sysNo">
-              <i class="material-icons" style="color:lightgreen;">check_circle</i>
-            </div>
-            <ng-template #sysNo>
+            <ng-template #customNo>
               <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
             </ng-template>
           </td>
@@ -107,6 +90,7 @@
                 [disabled]="config_selection==null || is_downloading">
         <i class="material-icons">cloud_download</i> Download Installer
       </button>
+      <button mat-raised-button color="primary" [disabled]="config_selection==null" (click)="showConfig()">Details</button>
     </mat-card-actions>
   </mat-card>
   <br>

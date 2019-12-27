@@ -1,0 +1,18 @@
+<div mat-dialog-content>
+
+  <mat-tab-group dynamicHeight>
+    <mat-tab *ngFor="let appConfig of appConfigs" label="{{ appConfig.name }}">
+      <ng-container *ngIf="appConfig['form']">
+        <dl *ngFor="let element of appConfig['form']">
+          <dt [ngClass]="{ 'hint': element?.description }" matTooltip="{{ element?.description }}" >{{ element.name }}</dt>
+          <dd>{{ config['customPackages'][appConfig.name][element.name] }}</dd>
+        </dl>
+      </ng-container>
+    </mat-tab>
+  </mat-tab-group>
+
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onClose()">Close</button>
+</div>

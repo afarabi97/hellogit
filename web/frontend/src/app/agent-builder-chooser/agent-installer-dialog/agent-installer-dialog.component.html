@@ -9,45 +9,37 @@
     </mat-step>
     <mat-step label="Applications">
       <div fxLayout="column" fxLayoutAlign="start start">
-        <mat-checkbox formControlName="install_sysmon">Install Sysmon</mat-checkbox>
-        <mat-checkbox formControlName="install_winlogbeat" (change)="toggleWinlogBeatValidators($event)">Install Winlogbeat</mat-checkbox>
         <mat-checkbox formControlName="install_endgame" (change)="toggleEndgameValidators($event)">Install Endgame Agent</mat-checkbox>
+        <ng-container *ngIf="applications && appConfigs">
+          <ng-container *ngFor="let appConfig of appConfigs" [formGroup]="applications">
+            <mat-checkbox (change)="onApplicationChange($event, appConfig)" [formControlName]="appConfig['name']">
+              Install {{ appConfig['name'] }}
+            </mat-checkbox>
+          </ng-container>
+        </ng-container>
       </div>
     </mat-step>
-    <mat-step *ngIf="isWinlogBeat()" label="Configure Winlogbeat"
-              [stepControl]="createStepperValidation('winlog_beat_dest_ip', 'winlog_beat_dest_port')">
-      <mat-form-field>
-        <mat-label>Traffic Destination</mat-label>
-        <input matInput formControlName="winlog_beat_dest_ip" matTooltip="{{ externalIPToolTip }}">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("winlog_beat_dest_ip")) }}</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Traffic Desination Port</mat-label>
-        <input matInput formControlName="winlog_beat_dest_port">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("winlog_beat_dest_port")) }}</mat-error>
-      </mat-form-field>
-    </mat-step>
     <mat-step *ngIf="isEndgame()" label="Connect to Endgame Server"
-              [stepControl]="createStepperValidation('endgame_server_ip', 'endgame_user_name', 'endgame_password', 'endgame_port')">
+              formGroupName="endgame_options" [stepControl]="newHostAgentForm.get('endgame_options')">
       <mat-form-field>
         <mat-label>Endgame Server IP</mat-label>
         <input matInput formControlName="endgame_server_ip">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_server_ip")) }}</mat-error>
+        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_server_ip")) }}</mat-error>
       </mat-form-field>
       <mat-form-field>
         <mat-label>Endgame Server Username</mat-label>
         <input matInput formControlName="endgame_user_name">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_user_name")) }}</mat-error>
+        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_user_name")) }}</mat-error>
       </mat-form-field>
       <mat-form-field>
         <mat-label>Endgame Server Password</mat-label>
         <input matInput formControlName="endgame_password" type="password">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_password")) }}</mat-error>
+        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_password")) }}</mat-error>
       </mat-form-field>
       <mat-form-field>
         <mat-label>Endgame Server Port</mat-label>
         <input matInput formControlName="endgame_port">
-        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_port")) }}</mat-error>
+        <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_port")) }}</mat-error>
       </mat-form-field>
       <button mat-raised-button (click)="getEndgameSensorProfiles(stepper)">Connect</button>
     </mat-step>
@@ -60,6 +52,32 @@
         <mat-error>{{ getErrorMessage(newHostAgentForm.get("endgame_sensor_id")) }}</mat-error>
       </mat-form-field>
     </mat-step>
+
+    <ng-container *ngIf="options">
+      <ng-container *ngFor="let config of applicableConfigs">
+        <mat-step *ngIf="config?.form" label="Options for {{ config['name'] }}">
+          <form [formGroup]="options.controls[config['name']]">
+            <div *ngFor="let control of config['form']" [ngSwitch]="control?.type">
+              <!-- Text Input -->
+              <div *ngSwitchCase="'textinput'">
+                  <mat-form-field>
+                    <mat-label>{{ control?.label ? control.label : control.name }}</mat-label>
+                    <input matInput matTooltip="{{control?.description}}" formControlName="{{ control.name }}" placeholder="{{ control?.placeholder ? control.placeholder : control?.label ? control.name : null }}">
+                  </mat-form-field>
+                  <mat-error *ngIf="options.controls[config['name']].controls[control.name].invalid">
+                    <div>{{ control?.error_message }}</div>
+                  </mat-error>
+              </div>
+              <!-- checkbox -->
+              <div *ngSwitchCase="'checkbox'">
+                <mat-checkbox formControlName="{{control.name}}" matTooltip="{{control?.description}}">{{ control?.label }}</mat-checkbox>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+      </ng-container>
+    </ng-container>
+
   </mat-vertical-stepper>
 </div>
 <div mat-dialog-actions>

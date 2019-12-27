@@ -140,12 +140,8 @@ export class IpTargetList {
 export class AgentInstallerConfig {
   _id: string;
   config_name: string;  //Name of this configuration
-  install_sysmon: boolean;
-  install_winlogbeat: boolean;
-  install_endgame: boolean;
 
-  winlog_beat_dest_ip: string;
-  winlog_beat_dest_port: number;
+  install_endgame: boolean;
 
   endgame_port: number;
   endgame_sensor_name: string;
@@ -155,14 +151,13 @@ export class AgentInstallerConfig {
   endgame_server_ip: string;
   endgame_user_name: string;
 
+  customPackages: Array<{
+    name: {[key: string]: any}
+  }>;
 
   constructor(obj: AgentInstallerConfig){
     this._id = obj._id;
     this.config_name = obj.config_name;
-    this.winlog_beat_dest_ip = obj.winlog_beat_dest_ip;
-    this.install_sysmon = obj.install_sysmon;
-    this.install_winlogbeat = obj.install_winlogbeat;
-    this.winlog_beat_dest_port = obj.winlog_beat_dest_port;
     this.install_endgame = obj.install_endgame;
     this.endgame_port = obj.endgame_port;
     this.endgame_sensor_name = obj.endgame_sensor_name;
@@ -170,9 +165,28 @@ export class AgentInstallerConfig {
     this.endgame_user_name = obj.endgame_user_name;
     this.endgame_server_ip = obj.endgame_server_ip;
     this.endgame_sensor_id = obj.endgame_sensor_id;
+    this.customPackages = obj.customPackages;
   }
 }
 
+export interface AppConfig {
+  name: string;
+  form: FormSpec;
+}
+
+export type FormSpec = Array<ElementSpec>;
+
+export interface ElementSpec {
+  name: string;
+  type: string;
+  description?: string;
+  default_value?: string;
+  required?: boolean;
+  regexp?: string;
+  error_message?: string;
+  label?: string;
+  placeholder?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -316,6 +330,11 @@ export class AgentBuilderService {
   checkLogStashInstalled(): Observable<Object> {
     const url = "/api/catalog/chart/logstash/status";
     return this.http.get(url);
+  }
+
+  getAppConfigs(): Observable<Array<AppConfig>> {
+    const url = `/api/custom_windows_installer_packages`;
+    return this.http.get<Array<AppConfig>>(url);
   }
 
 }

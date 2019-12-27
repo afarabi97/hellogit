@@ -54,6 +54,7 @@ import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy
 //Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
+import { AgentDetailsDialogComponent } from './agent-builder-chooser/agent-details-dialog/agent-details-dialog.component';
 import { AgentTargetDialogComponent } from './agent-builder-chooser/agent-target-dialog/agent-target-dialog.component';
 
 // Catalog
@@ -129,6 +130,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     PolicyManagementAddDialog,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
+    AgentDetailsDialogComponent,
     AgentTargetDialogComponent,
     SnapShotSetupComponent,
     ModalDialogMatComponent,
@@ -179,6 +181,7 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ArchiveRestoreDialogComponent,
     ArchiveSaveDialogComponent,
     AgentInstallerDialogComponent,
+    AgentDetailsDialogComponent,
     AgentTargetDialogComponent,
     SnapShotSetupComponent,
     ModalDialogMatComponent,
