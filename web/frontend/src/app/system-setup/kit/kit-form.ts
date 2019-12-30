@@ -1,4 +1,5 @@
-import { FormArray, FormControl } from "@angular/forms";
+import { FormArray, AbstractControl, FormGroup, ValidationErrors } from "@angular/forms";
+import { errorObject } from "src/app/validators/generic-validators.validator";
 
 /**
  * How to use form validation:
@@ -70,14 +71,49 @@ import { FormArray, FormControl } from "@angular/forms";
  *               ]
  */
 
+
+export function ValidateServerCpuMem(control: AbstractControl): ValidationErrors | null {
+    let nodes = control.get('nodes') as FormArray;
+
+    const msg = 'One or more servers have differing amounts of CPU cores or memory. Each server is required to have the same hardware!';
+    if (nodes != null && nodes.length > 1) {
+        outer:
+        for (let i = 0; i < nodes.length; i++) {
+            let server_i = nodes.at(i) as FormGroup;
+            if (server_i.get('node_type').value.toLowerCase() !== "server"){
+                continue;
+            }
+
+            if (server_i.get('deviceFacts').value === null){
+                break;
+            }
+
+            for (let x = 0; x < nodes.length; x++) {
+                let server_x = nodes.at(x) as FormGroup;
+                if (server_x.get('node_type').value.toLowerCase() !== "server"){
+                    continue;
+                }
+                if (server_i.get('deviceFacts').value['cpus_available'] !== server_x.get('deviceFacts').value['cpus_available']){
+                    return new errorObject({ control: server_i, error_message: msg});
+                }
+
+                if (Math.ceil(server_i.get('deviceFacts').value['memory_available']) !== Math.ceil(server_x.get('deviceFacts').value['memory_available'])){
+                    return new errorObject({ control: server_i, error_message: msg});
+                }
+            }
+        }
+    }
+    return null;
+}
+
 export const kit_validator_error_messages = {
-    at_least_one_server: 'Invalid server count. You should have at least one server defined.',
+    at_least_two_server: 'Invalid server count. You should have at least two servers defined.',
     at_least_one_sensor: 'Invalid sensor count. You should have at least one sensor defined.',
     at_least_one_master_server: 'Master server failed to validate. Select a master server.',
 }
 export const kit_validators = {
     kit_form_one_server: [
-        { error_message: kit_validator_error_messages.at_least_one_server, validatorFn: 'minInArray' }
+        { error_message: kit_validator_error_messages.at_least_two_server, validatorFn: 'minInArray' }
     ],
     kit_form_one_sensor: [
         { error_message: kit_validator_error_messages.at_least_one_sensor, validatorFn: 'minInArray' }

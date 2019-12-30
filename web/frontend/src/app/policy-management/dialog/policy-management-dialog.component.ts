@@ -27,7 +27,7 @@ export class PolicyManagementDialog implements OnInit {
   @ViewChild('editorCard', {static: false})
   private editorCard: ElementRef;
 
-  @ViewChild('outerCard', {static: false})
+  @ViewChild('outerCard', {static: true})
   private outerCard: ElementRef;
 
   @Output()
@@ -103,14 +103,16 @@ export class PolicyManagementDialog implements OnInit {
   }
 
   private resizeEditor(element: ElementRef) {
-    let height: string = "";
-    if (window.innerHeight > 400) {
-      height = (window.innerHeight - 250) + "px";
-    } else {
-      height = "100px";
+    if (element){
+      let height: string = "";
+      if (window.innerHeight > 400) {
+        height = (window.innerHeight - 250) + "px";
+      } else {
+        height = "100px";
+      }
+      element.nativeElement.style.maxHeight = height;
+      element.nativeElement.style.height = height;
     }
-    element.nativeElement.style.maxHeight = height;
-    element.nativeElement.style.height = height;
   }
 
   openCloseDialog() {

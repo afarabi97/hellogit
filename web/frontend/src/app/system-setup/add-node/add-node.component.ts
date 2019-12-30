@@ -1,16 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { validateFromArray, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
+import { FormGroup, FormBuilder, FormControl, Validators, FormArray } from '@angular/forms';
+import { validateFromArray, FormGroupControls, AllValidationErrors, getFormValidationErrors, errorObject } from '../../validators/generic-validators.validator';
 import { IP_CONSTRAINT } from '../../frontend-constants';
 import { KickstartService } from '../services/kickstart.service';
 import { KitService } from '../services/kit.service';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSelectChange } from '@angular/material';
 import { Router } from '@angular/router';
 import { AddNodeSrvService } from '../services/add-node.service';
 import { MatStepper } from '@angular/material';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { SystemSetupService } from '../services/system-setup.service';
+import { Title } from '@angular/platform-browser';
+import { ValidateServerCpuMem } from '../kit/kit-form';
 
 
 const add_node_validators = {
@@ -40,13 +42,16 @@ export class AddNodeComponent implements OnInit {
   node: FormGroup;
   kitNode: FormGroup;
   availableIPs: string[] = [];
+  hostname: string;
   documentation_link: string = `http://${window.location.hostname}/THISISCVAH`;
   chooseNodeTypeLabel = "Choose the node type and execute Add Node";
   error_text: string;
   isKitNodeLoading: boolean;
   kickstartForm: Object;
   hasWizardState: boolean;
-
+  kitData: Object;
+  serverMemCpuError: string;
+  cpuMemMisMatch: boolean;
 
   @ViewChild('stepper', {static: false})
   stepper: MatStepper;
@@ -57,13 +62,19 @@ export class AddNodeComponent implements OnInit {
               private matDialog: MatDialog,
               private kitSrv: KitService,
               private router: Router,
-              private systemSetupSrv: SystemSetupService) {
+              private systemSetupSrv: SystemSetupService,
+              private title: Title) {
     this.error_text = null;
     this.isKitNodeLoading = true;
     this.hasWizardState = false;
+    this.hostname = "";
+    this.kitData = null;
+    this.serverMemCpuError = "";
+    this.cpuMemMisMatch = false;
   }
 
   ngOnInit() {
+    this.title.setTitle("Add Node Wizard");
     this.node = this.fb.group({
       hostname: new FormControl('', Validators.compose([validateFromArray(add_node_validators.hostname)])),
       ip_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.ip_address)])),
@@ -113,6 +124,7 @@ export class AddNodeComponent implements OnInit {
     });
 
     this.kitSrv.getKitForm().subscribe(data => {
+      this.kitData = data;
       if (!data){
         this.systemSetupSrv.displaySnackBar("The Kit has not been setup yet.  The add node process wizard \
                                              should only be done after a full Kit has been provisioned. \
@@ -177,9 +189,24 @@ export class AddNodeComponent implements OnInit {
           this.addNodeSrv.displaySnackBar(data['error_message']);
         } else {
           this.error_text = null;
+          this.hostname = data["hostname"];
           this.kitNode = this.systemSetupSrv.kitSrv.newKitNodeForm(data);
         }
       });
+    }
+  }
+
+  public onNodeTypeChange(event: MatSelectChange){
+    this.cpuMemMisMatch = false;
+    if (event.value === "Server"){
+      let kitFormGroup = this.systemSetupSrv.kitSrv.newKitFormGroup(this.kitData as any, false);
+      let nodes = kitFormGroup.get("nodes") as FormArray;
+      nodes.push(this.kitNode);
+      let error = ValidateServerCpuMem(kitFormGroup) as errorObject;
+      if (error){
+        this.serverMemCpuError = error.error_message;
+        this.cpuMemMisMatch = true;
+      }
     }
   }
 

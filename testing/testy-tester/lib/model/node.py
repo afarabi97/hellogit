@@ -993,7 +993,6 @@ class VirtualMachine:
         remote_shell.sudo('cat /dev/null > /home/assessor/.bash_history', warn=True)
 
     def _remove_extra_files(self, remote_shell: Connection):
-        remote_shell.sudo('rm -rf /opt/tfplenum/.git*')
         remote_shell.sudo('rm -rf /root/.ssh/*')
         remote_shell.sudo('rm -f /opt/tfplenum/.editorconfig')
 

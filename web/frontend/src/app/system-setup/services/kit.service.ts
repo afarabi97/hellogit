@@ -4,9 +4,9 @@ import { Observable, of } from 'rxjs';
 import { HTTP_OPTIONS } from '../../globals';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { catchError } from 'rxjs/operators';
-import { FormControl, Validators, FormGroup, FormBuilder } from '@angular/forms';
+import { FormControl, Validators, FormGroup, FormBuilder, FormArray } from '@angular/forms';
 import { validateFromArray } from '../../validators/generic-validators.validator';
-import { KitFormNode, kit_validators } from '../kit/kit-form';
+import { KitFormNode, kit_validators, KitForm, ValidateServerCpuMem } from '../kit/kit-form';
 
 
 @Injectable({
@@ -140,6 +140,39 @@ export class KitService {
     });
     genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
     return genericNode;
+  }
+
+
+  /**
+   * returns a new KitFormGroup
+   *
+   * @private
+   * @param {*} [kitForm]
+   * @returns {FormGroup}
+   * @memberof KitFormComponent
+   */
+  public newKitFormGroup(kitForm?: KitForm, isDisabled=true): FormGroup {
+    const kitFormGroup = this.formBuilder.group({
+      nodes: this.formBuilder.array([]),
+      kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
+      dns_ip: new FormControl(''),
+      remove_node: new FormControl('')      
+    });
+    kitFormGroup.setValidators(Validators.compose([      
+      validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
+      validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+      validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+      ValidateServerCpuMem
+    ]));
+    if (kitForm) {
+      const nodes = kitFormGroup.get('nodes') as FormArray;
+      kitForm.nodes.map(node => nodes.push(this.newKitNodeForm(node)));
+      if (isDisabled){
+        nodes.disable();
+        kitFormGroup.disable();
+      }
+    }
+    return kitFormGroup;
   }
 
 }

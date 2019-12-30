@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
 import { MatSelectChange } from '@angular/material';
@@ -20,6 +20,9 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   @Input()
   formArray: Array<FormGroup>;
+
+  @Output() 
+  nodeTypeChange: EventEmitter<any> = new EventEmitter();
 
   constructor() {
     this.disableMasterSelection = false;
@@ -66,7 +69,6 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
         this.node.get('is_master_server').disable();
       }
     }
+    this.nodeTypeChange.emit(event);
   }
-
-
 }

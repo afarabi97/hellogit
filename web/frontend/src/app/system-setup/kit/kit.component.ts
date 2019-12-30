@@ -1,8 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormArray, FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { getFormValidationErrors, FormGroupControls, AllValidationErrors, validateFromArray } from '../../validators/generic-validators.validator';
+import { FormArray, FormGroup, FormControl, FormBuilder, AbstractControl } from '@angular/forms';
+import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
-import { KitFormTime, kit_validators, KitForm, kitTooltips } from './kit-form';
+import { KitFormTime, kitTooltips } from './kit-form';
 import { KitService } from '../services/kit.service';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
@@ -37,7 +37,7 @@ export class KitComponent implements OnInit, AfterViewInit {
               private matDialog: MatDialog,
               private _CatalogService: CatalogService) {
     this.isGettingDeviceFacts = false;
-    this.kitFormGroup = this.newKitFormGroup();
+    this.kitFormGroup = this.kitSrv.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
   }
 
@@ -155,7 +155,7 @@ export class KitComponent implements OnInit, AfterViewInit {
       this.getNodeDeviceFacts(this.kickstartForm['nodes']);
       this.setKubernetesCIDRRange();
     } else {
-      this.kitFormGroup = this.newKitFormGroup(kitData);
+      this.kitFormGroup = this.kitSrv.newKitFormGroup(kitData);
       // this.getNodeDeviceFacts(this.kickstartForm['nodes']);
       this.setKubernetesCIDRRange();
     }
@@ -232,42 +232,12 @@ export class KitComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * returns a new KitFormGroup
-   *
-   * @private
-   * @param {*} [kitForm]
-   * @returns {FormGroup}
-   * @memberof KitFormComponent
-   */
-  private newKitFormGroup(kitForm?: KitForm): FormGroup {
-    const kitFormGroup = this.formBuilder.group({
-      nodes: this.formBuilder.array([]),
-      kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
-      dns_ip: new FormControl(''),
-      remove_node: new FormControl(''),
-      nodesToAdd: this.formBuilder.array([]),
-    });
-    kitFormGroup.setValidators(Validators.compose([
-      validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
-      validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-      validateFromArray(kit_validators.kit_form_one_server, { minRequired: 1, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-    ]));
-    if (kitForm) {
-      const nodes = kitFormGroup.get('nodes') as FormArray;
-      kitForm.nodes.map(node => nodes.push(this.kitSrv.newKitNodeForm(node)));
-      nodes.disable();
-      kitFormGroup.disable();
-    }
-    return kitFormGroup;
-  }
-
-  /**
    * clears and resets the KitFormGroup
    *
    * @memberof KitFormComponent
    */
   public clearkitFormGroup(): void {
-    this.kitFormGroup = this.newKitFormGroup();
+    this.kitFormGroup = this.kitSrv.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
     this.getNodeDeviceFacts(this.kickstartForm.nodes);
   }
@@ -317,18 +287,6 @@ export class KitComponent implements OnInit, AfterViewInit {
    */
   get kitNodes(): FormArray {
     return this.kitFormGroup.get('nodes') as FormArray;
-  }
-
-
-  /**
-   * returns the KitFormGroup nodes as FormArray
-   *
-   * @readonly
-   * @type {FormArray}
-   * @memberof KitFormComponent
-   */
-  get addedKitNodes(): FormArray {
-    return this.kitFormGroup.get('nodesToAdd') as FormArray;
   }
 
   /**

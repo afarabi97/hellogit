@@ -52,9 +52,4 @@
     name: bootstrap
     tasks_from: update_etc_hosts
 
-- name: Update interface dns
-  import_role:
-    name: bootstrap
-    tasks_from: update_controller_dns
-
 ...

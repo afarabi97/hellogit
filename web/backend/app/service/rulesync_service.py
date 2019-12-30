@@ -141,16 +141,15 @@ class RuleSynchronization():
             return
 
         rules_file = self._build_suricata_rule_file(ip_address)
-        reload_cmd = 'kubectl exec -t {} -- /suricata/bin/suricatasc -c reload-rules'.format(suricata_pod_name)
         fabric.put(rules_file, SURICATA_RULESET_LOC)
-        ret_val = fabric.run(reload_cmd) # type: Result
-        message = json.loads(ret_val.stdout)
-        if (ret_val.return_code == 0 and message['message'] == 'done' and message['return'] == 'OK'):
+        try:
+            self._run_cmd_or_raise(fabric, "kubectl delete pod %s" % suricata_pod_name)
             self._set_suricata_states(hostname, ip_address, RULESET_STATES[2])
             self._send_notification("Successfully synchronized Suricata signatures for {}.".format(hostname), NotificationCode.DEPLOYED.name)
-        else:
+        except RuleSyncError as e:
             self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
             self._send_notification("Failed to synchronize Suricata signatures on pod {} on node {}".format(suricata_pod_name, ip_address))
+            raise e
 
     def _run_cmd_or_raise(self, fabric: Connection, cmd: str):
         ret_val = fabric.run(cmd)
