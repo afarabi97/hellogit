@@ -17,6 +17,7 @@ from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
 from app.service.add_node_service import perform_add_node
 from typing import Dict, Tuple, Union
+from celery import chain
 
 def _delete_kubernetes_conf():
     """
@@ -127,23 +128,23 @@ def execute_add_node() -> Response:
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
     isSucessful, root_password = _replace_kit_inventory(current_kit_configuration["form"])
     if isSucessful:
-        cmd_to_executeOne = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml -t preflight-add-node,setup-firewall,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,yum-update,genkeys,preflight,common,vars-configmap"
+        cmd_to_executeOne = ("ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common"
                         ).format(playbook_pass=root_password)
 
-        cmd_to_executeTwo = ("ansible-playbook -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' site.yml --skip-tags genkeys --extra-vars \"add_node=true\" --limit {node}"
+        cmd_to_executeTwo = ("ansible-playbook site.yml -i inventory.yml -t crio,kube-node,logs,frontend-health-metrics --limit {node}"
                         ).format(playbook_pass=root_password, node=add_node_payload['hostname'])
 
-        task_idOne = perform_kit.delay(cmd_to_executeOne)
+        results = chain(perform_kit.si(cmd_to_executeOne),
+        perform_add_node.si(cmd_to_executeTwo))()
+        
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                        {"_id": "Kit", "task_id": str(task_idOne), "pid": ""},
+                                                        {"_id": "Kit", "task_id": str(results), "pid": ""},
                                                         upsert=True)
 
-        task_idTwo = perform_add_node.delay(cmd_to_executeTwo)
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
-                                                        {"_id": "Addnode", "task_id": str(task_idTwo), "pid": ""},
+                                                        {"_id": "Addnode", "task_id": str(results), "pid": ""},
                                                         upsert=True)
-
-        return (jsonify(str(task_idOne)), 200)
+        return OK_RESPONSE
 
     logger.error("Executing add node configuration has failed.")
     return ERROR_RESPONSE
@@ -163,6 +164,7 @@ def execute_remove_node() -> Response:
                         ).format(playbook_pass=root_password)
         task_id = perform_kit.delay(cmd_to_execute)
         mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+        kit_mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})        
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(task_id), "pid": ""},
                                                         upsert=True)
@@ -184,6 +186,19 @@ def execute_remove_node() -> Response:
                                             {"_id": KICKSTART_ID, "form": kickstart_form},
                                             upsert=True,
                                             return_document=ReturnDocument.AFTER)  # type: InsertOneResult
+        kit_form = kit_mongo_document["form"]
+        kit_nodes = list(kit_form["nodes"])
+        for node in kit_nodes:
+            if str(node["hostname"]) == str(node_to_remove):
+                kit_nodes.remove(node)
+
+        kit_form["nodes"] = kit_nodes
+
+        current_kit_configuration = conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
+                                            {"_id": KIT_ID, "form": kit_form},
+                                            upsert=True,
+                                            return_document=ReturnDocument.AFTER)  # type: InsertOneResult
+        
         return (jsonify(str(task_id)), 200)
 
     logger.error("Executing remove node configuration has failed.")

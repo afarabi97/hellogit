@@ -103,27 +103,26 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    payload = request.get_json()
+    payload = request.get_json()    
 
     if 'nodes' in payload:
         kickstart_form = payload
+        if not kickstart_form['continue']:
+            invalid_ips = []
+            for node in kickstart_form["nodes"]:
+                if not _is_valid_ip(node["ip_address"]):
+                    invalid_ips.append(node["ip_address"])
+
+            invalid_ips_len = len(invalid_ips)
+            if invalid_ips_len > 0:
+                if invalid_ips_len == 1:
+                    return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
+                                                .format(', '.join(invalid_ips)))
+                else:
+                    return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
+                                                .format(', '.join(invalid_ips)))
     else:
         kickstart_form = _handle_add_node(payload)
-
-    if not kickstart_form['continue']:
-        invalid_ips = []
-        for node in kickstart_form["nodes"]:
-            if not _is_valid_ip(node["ip_address"]):
-                invalid_ips.append(node["ip_address"])
-
-        invalid_ips_len = len(invalid_ips)
-        if invalid_ips_len > 0:
-            if invalid_ips_len == 1:
-                return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
-                                            .format(', '.join(invalid_ips)))
-            else:
-                return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
-                                            .format(', '.join(invalid_ips)))
 
     #logger.debug(json.dumps(kickstart_form, indent=4, sort_keys=True))
     save_kickstart_to_mongo(kickstart_form)
@@ -163,7 +162,7 @@ def get_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    print(mongo_document)
+    
     if mongo_document is None:
         return OK_RESPONSE
 

@@ -16,8 +16,6 @@
 
 - import_tasks: 05_configure_dnsmasq.yml
   when: inventory_hostname in groups['master_server']
-  tags:
-    - update-dnsmasq-hosts
 
 - import_tasks: 10_update_dns.yml
   when: inventory_hostname not in groups['master_server']

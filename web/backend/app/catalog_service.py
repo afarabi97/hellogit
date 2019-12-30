@@ -56,6 +56,20 @@ def get_nodes(details: bool=False) -> list:
             nodes.append(host_simple)
     return nodes
 
+def get_node_apps(node_hostname: str) -> list:
+    deployed_apps = []
+    saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
+    for v in saved_values:
+        if "values" in v:
+            if "node_hostname" in v["values"]:
+                node_type = get_node_type(v["values"]["node_hostname"])
+                if node_type:
+                    hostname = v["values"]["node_hostname"]
+                    if hostname == node_hostname:
+                        deployed_apps.append(v["application"])
+
+    return deployed_apps
+
 def execute_kubelet_cmd(cmd: str) -> bool:
     """
     Gets tiller service ip address from kubernetes

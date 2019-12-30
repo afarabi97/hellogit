@@ -125,6 +125,8 @@ spec:
           - --extra-memory=2Mi
           - --threshold=5
           - --deployment=kube-state-metrics
+      nodeSelector:
+        role: server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 # kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1

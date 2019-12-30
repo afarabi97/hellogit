@@ -346,6 +346,8 @@ spec:
           defaultMode: 420
           optional: false
           secretName: tfplenum-kb-http-certs-public
+      nodeSelector:
+        role: server
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
