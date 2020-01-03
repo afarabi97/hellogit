@@ -5,8 +5,6 @@ import subprocess
 import requests
 
 charts = [
-        { "name": "endgame2elastic",
-                "version": "1.0.0"},
         { "name": "logstash",
                 "version": "1.0.0"},
         { "name": "moloch",

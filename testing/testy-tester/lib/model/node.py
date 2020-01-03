@@ -305,39 +305,6 @@ class CatalogMolochCapture(object):
     def __str__(self) -> str:
         return "cpu_request: %s pcapWriteMethod: %s affinity_hostname: %s node_hostname: %s bpf: %s dontSaveBPFs: %s freespaceG: %s maxFileSizeG: %s magicMode: %s interfaces: %s deployment_name: %s" % (self.cpu_request, self.pcapWriteMethod, self.affinity_hostname, self.node_hostname, self.bpf, self.dontSaveBPFs, self.freespaceG, self.maxFileSizeG, self.magicMode, self.interfaces, self.deployment_name )
 
-class CatalogEndgame2Elastic(object):
-    """
-    Represents a endgame2elastic catalog object and all the variables inside it
-
-    Attributes:
-        endgame_host: IP or hostname of Endgame server
-        endgame_username: Username for Endgame
-        endgame_password: Password for Endgame
-        run_every: How often to pull updates from Endgame (in minutes)
-        node_hostname: Name of sensor
-        deployment_name: Name of the deployment set sent to Kubernetes
-    """
-
-    def __init__(self, yml_dict: Dict) -> None:
-        self.endgame_host = yml_dict['endgame_host']
-        self.engame_username = yml_dict['endgame_username']
-        self.endgame_password = yml_dict['endgame_password']
-        self.run_every = yml_dict['run_every']
-        self.node_hostname = yml_dict['node_hostname']
-        self.deployment_name = yml_dict['deployment_name']
-
-    def to_dict(self):
-        return {
-            'endgame_host': self.endgame_host,
-            'endgame_username': self.endgame_username,
-            'endgame_password': self.endgame_password,
-            'run_every': self.run_every,
-            'node_hostname': self.node_hostname,
-            'deployment_name': self.deployment_name
-        }
-
-    def __str__(self) -> str:
-        return "endgame_host: %s endgame_username: %s endgame_password: %s run_every: %s node_hostname: %s deployment_name: %s" % (self.endgame_host, self.endgame_username, self.endgame_password, self.run_every, self.node_hostname, self.deployment_name )
 
 class CatalogZeek(object):
     """
@@ -674,16 +641,7 @@ class Node(object):
         :param suricata_catalog:
         :return:
         """
-        self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)
-
-    def set_endgame2elastic_catalog(self, endgame2elastic_catalog: Dict) -> None:
-        """
-        Configures the endgame2elastic catalog configuration for the node object.
-
-        :param endgame2elastic:
-        :return:
-        """
-        self.endgame2elastic_catalog = CatalogEndgame2Elastic(endgame2elastic_catalog)
+        self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)    
 
     def set_zeek_catalog(self, zeek_catalog: Dict) -> None:
         """

@@ -1,9 +1,0 @@
-elastic_fqdn: elasticsearch.default.svc.cluster.local
-elastic_port: 9200
-endgame_host: endgame.lan
-endgame_username: admin
-endgame_password: password
-image_name: tfplenum/endgame2elastic
-image_tag: 1.0.0
-run_every: 10 # Run every X minutes
-affinity_hostname: {}

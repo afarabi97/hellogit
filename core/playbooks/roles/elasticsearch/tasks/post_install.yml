@@ -95,7 +95,6 @@
     body: "{{ lookup('template', 'files/policies/{{item}}.json.j2') }}"
     status_code: 200, 201
   with_items:
-    - endgame-custom
     - filebeat-suricata
     - logstash-zeek
     - winlogbeat-custom

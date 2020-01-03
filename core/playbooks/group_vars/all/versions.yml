@@ -43,8 +43,7 @@ kube_images:
   - docker.io/bitnami/zookeeper:{{zookeeper_image_version}}
   - docker.io/chartmuseum/chartmuseum:{{chartmuseum_image_version}}
   - docker.io/metallb/controller:{{metallb_version}}
-  - docker.io/metallb/speaker:{{metallb_version}}
-  - docker.io/tfplenum/endgame2elastic:1.0.0
+  - docker.io/metallb/speaker:{{metallb_version}}  
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
   - docker.io/tfplenum/zeek:{{zeek_version}}
