@@ -46,6 +46,10 @@
   retries: 35
   delay: 5
 
+- name: Get Kibana Service IP
+  shell: "kubectl get svc -n default | grep 'kibana' | awk '{print $4'}"
+  register: kibana_svc_ip
+  
 - name: Create Index Pattern
   template:
     src: "templates/{{ item }}.json.j2"
