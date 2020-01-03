@@ -7,6 +7,7 @@ import tempfile
 import traceback
 import os
 import zipfile
+import cgi
 
 from app import celery, conn_mng, AGENT_PKGS_DIR
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
@@ -73,8 +74,9 @@ class EndgameAgentPuller:
         return self._checkResponse(resp, lambda r: r.json()['metadata']['token'])
 
     def _saveInstaller(self, resp, sensor_data, dst_folder: str):
+
         cd = resp.headers.get('Content-Disposition')
-        installer_name = re.search('"(.*)"', cd).group(1)
+        installer_name = cgi.parse_header(cd)[1]['filename']
         installer_path = dst_folder + '/' + installer_name
         with open(installer_path, 'wb') as f:
             f.write(resp.content)

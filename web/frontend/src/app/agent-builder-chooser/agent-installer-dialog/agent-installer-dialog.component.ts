@@ -159,12 +159,26 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   getEndgameSensorProfiles(stepper: MatStepper) {
     this.endgame_server_reachable = false;
-    if(this.newHostAgentForm.get('endgame_options.endgame_password').valid &&
-       this.newHostAgentForm.get('endgame_options.endgame_server_ip').valid &&
-       this.newHostAgentForm.get('endgame_options.endgame_user_name').valid &&
-       this.newHostAgentForm.get('endgame_options.endgame_port').valid)
+
+    let password = this.newHostAgentForm.get('endgame_options.endgame_password');
+    let server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
+    let user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
+    let port = this.newHostAgentForm.get('endgame_options.endgame_port');
+
+    if(password.valid &&
+       server_ip.valid &&
+       user_name.valid &&
+       port.valid)
     {
-      this.endgameSrv.getEndgameSensorProfiles(this.newHostAgentForm.getRawValue()).subscribe(
+
+      let endgame_options = {
+        'endgame_password': password.value,
+        'endgame_server_ip': server_ip.value,
+        'endgame_user_name': user_name.value,
+        'endgame_port': port.value
+      };
+
+      this.endgameSrv.getEndgameSensorProfiles(endgame_options).subscribe(
         profile_data => {
           this.endgame_server_reachable = true;
           this.sensor_profiles = new Array();
