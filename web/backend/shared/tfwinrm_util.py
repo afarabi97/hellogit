@@ -167,11 +167,11 @@ class WindowsConnectionManager:
 
     def run_powershell_cmd(self, cmd: str) -> Tuple[str, str, bool]:
         encoded_cmd = b64encode(cmd.encode('UTF-16LE'))
-        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -EncodedCommand {}".format(encoded_cmd.decode("UTF-8")))
+        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -EncodedCommand {} < nul".format(encoded_cmd.decode("UTF-8")))
         return stdout, stderr, rc
 
     def run_powershell_file(self, file_path: str) -> Tuple[str, str, bool]:
-        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -file {}".format(file_path))
+        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -file {} < nul".format(file_path))
         return stdout, stderr, rc
 
     def _send_over_smb(self, source_path: str, dest_path: str):
