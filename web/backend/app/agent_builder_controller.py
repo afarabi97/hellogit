@@ -30,6 +30,7 @@ from typing import Dict, List, Union
 from werkzeug.utils import secure_filename
 
 from contextlib import ExitStack
+from json.decoder import JSONDecodeError
 
 win_install_cnxn = conn_mng.mongo_windows_installer_configs
 win_targets_cnxn = conn_mng.mongo_windows_target_lists
@@ -49,7 +50,11 @@ def getAppConfigs():
     with ExitStack() as stack:
         files = [stack.enter_context(open(fname)) for fname in filenames]
         for sfile in files:
-            configs.append(json.load(sfile))
+            try:
+                data = json.load(sfile)
+                configs.append(data)
+            except JSONDecodeError:
+                pass
     
     return jsonify(configs)
 
