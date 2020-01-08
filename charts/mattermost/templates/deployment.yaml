@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: mattermost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: mattermost
+  template:
+    metadata:
+      labels:
+        component: mattermost
+    spec:
+      initContainers:
+      - name: mattermost-init
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "chown -R 2000:2000 /mattermost-data"
+        volumeMounts:
+        - name: mattermost-db
+          mountPath: /mattermost-data
+          subPath: appData
+      containers:
+      - name: mariadb
+        image: {{ .Values.mariadbImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.sqlRootPassword }}
+        - name: MYSQL_DATABASE
+          value: {{ .Values.sqlDatabase }}
+        - name: MYSQL_USER
+          value: {{ .Values.sqlUsername }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.sqlPassword }}
+        volumeMounts:
+        - name: mattermost-db
+          mountPath: /var/lib/mysql
+          subPath: mariaDB
+      - name: mattermost
+        image: {{ .Values.mattermostImage }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "cp /config.json.save /mattermost/config/config.json; sed -i 's@\"SiteURL\": \"\"@\"SiteURL\": \"http://mattermost.lan\"@g' /mattermost/config/config.json; /entrypoint.sh mattermost"
+        ports:
+        - containerPort: 8065
+        env:
+        - name: DB_HOST
+          value: localhost
+        - name: DB_PORT_NUMBER
+          value: "3306"
+        - name: MM_DBNAME
+          value: {{ .Values.sqlDatabase }}
+        - name: MM_USERNAME
+          value: {{ .Values.sqlUsername }}
+        - name: MM_PASSWORD
+          value: {{ .Values.sqlPassword }}
+        - name: MM_SQLSETTINGS_DRIVERNAME
+          value: "mysql"
+        - name: MM_SQLSETTINGS_DATASOURCE
+          value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:3306)/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
+#          value: $(MM_USERNAME):$(MM_PASSWORD)@tcp($(DB_HOST):$(DB_PORT_NUMBER))/$(MM_DBNAME)?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
+#          value: (print .Values.sqlUsername ":" .Values.sqlPassword "@tcp(" .Values.sqlHost ":" .Values.sqlPort ")/" .Values.sqlDatabase "?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s" )
+#          value: (print .Values.sqlUsername ":" .Values.sqlPassword "@tcp(" .Values.sqlHost ":" .Values.sqlPort ")/" .Values.sqlDatabase "?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s" )
+#          value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:{{ .Values.sqlPort }})/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
+        volumeMounts:
+        - name: mattermost-db
+          mountPath: /mattermost/data
+          subPath: appData
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: mattermost-db
+        hostPath:
+          path: /data/mattermost
+          type: DirectoryOrCreate

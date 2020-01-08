@@ -33,6 +33,9 @@ elastic_operator: 1.0.0-beta1
 redmine_version: "4.0.5"
 postgres_version: "12.1"
 nifi_version: 1.10.0
+mariadb_version: 10.4.11
+mattermost_version: 5.18.0
+
 
 # Docker Image List
 kube_images:
@@ -71,6 +74,8 @@ kube_images:
   - docker.io/redmine:{{ redmine_version }}
   - docker.io/postgres:{{ postgres_version }}
   - docker.io/apache/nifi:{{ nifi_version }}
+  - docker.io/mariadb:{{ mariadb_version }}
+  - docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}
 
 helm_charts:
   - stable/chartmuseum {{ chartmuseum_version }}
