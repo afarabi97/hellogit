@@ -223,8 +223,7 @@
       <td mat-cell *matCellDef="let pod">
         <div *ngFor="let container of getPodStatus(pod.status)">
           <span *ngIf="container.name">{{ container.name }}: </span>
-          <span *ngIf="container.status === 'running'" style="color: #28a745; font-weight: bold;">{{ container.status }}</span>
-          <span *ngIf="container.status !== 'running'" style="color: #E74C3C; font-weight: bold;">{{ container.status }}</span>
+          <span class="containerStatus" style="font-weight: bold;">{{ container.status }}</span>
         </div>
       </td>
     </ng-container>
@@ -243,6 +242,6 @@
       </td>
     </ng-container>    
     <tr mat-header-row *matHeaderRowDef="columnsForPodStatues"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsForPodStatues;"></tr>
+    <tr mat-row [ngClass]="{'podErrors': podHasErrors(row)}" *matRowDef="let row; columns: columnsForPodStatues;"></tr>
   </table>
 </ng-template>

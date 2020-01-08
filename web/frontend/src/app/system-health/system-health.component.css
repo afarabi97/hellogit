@@ -10,3 +10,22 @@ a {
 dd {
     margin: 0px 0px 0px 5px;
 }
+
+.containerStatus {
+    color: #4caf50;
+}
+
+.podErrors .containerStatus {
+    color: #f44336;
+}
+
+.podErrors i {
+    color: #f44336;
+    font-weight: bold;
+
+}
+
+.podErrors a {
+    color: #f44336;
+    font-weight: bold;
+}

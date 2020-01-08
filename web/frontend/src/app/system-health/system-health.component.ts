@@ -63,6 +63,15 @@ export class SystemHealthComponent implements OnInit {
     this.updateSubscription.unsubscribe();
   }
 
+  podHasErrors(pod) {
+    let status = pod['status'];
+    let containers = this.getPodStatus(status);
+    let hasError = containers.some(container => {
+      return container['status'] !== 'running';
+    });
+    return hasError;
+  }
+
   private _reloadPodErrors(pods){
     let podErrors = pods.filter(pod => {
       let podStatus = pod['status'];
@@ -125,13 +134,43 @@ export class SystemHealthComponent implements OnInit {
     return result;
   }
 
+  private keepNodeExpansions(nodesTable, state, newNodes) {
+    let arrayExpanded;
+
+    if (state === undefined || nodesTable === undefined) {
+      arrayExpanded = new Array(newNodes.length).fill(false);
+    } else {
+      let nodes = nodesTable.data;
+      let indexedState = {};
+      for (let i in nodes) {
+        let node = nodes[i];
+        let name = node['metadata']['name'];
+        indexedState[name] = state[i];
+      }
+
+      arrayExpanded = [];
+      for (let node of nodes) {
+        let name = node['metadata']['name'];
+        if (indexedState.hasOwnProperty(name)) {
+          arrayExpanded.push(indexedState[name])
+        } else {
+          arrayExpanded.push(false);
+        }
+      }
+    }
+
+    return arrayExpanded;
+  }
 
   private _reloadHealthPage() {
     this.healthSrv.getHealthStatus().subscribe(data => {
       let nodes = data['node_info'];
+
+      let expansionState = this.keepNodeExpansions(this.nodeStatuses, this.isNodeResourcesVisible, nodes);
+      this.isNodeResourcesVisible = expansionState;
+
       this.nodeStatuses = new MatTableDataSource<Array<Object>>(nodes);
 
-      this.isNodeResourcesVisible = new Array(this.nodeStatuses.data.length).fill(false);
       this.totals = data['totals'] as Object;
 
       let pods = data['pod_info'];
