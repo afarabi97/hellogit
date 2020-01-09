@@ -7,8 +7,12 @@
           </h1>
         </div>
       </header>
+      <div fxLayout="column" fxLayoutAlign="space-between center">
+        <mat-slide-toggle #pmoElement (change)="pmoToggle($event)" [checked]="true" style="margin-right:43px; margin-bottom: 15px;">PMO Applications</mat-slide-toggle>
+        <mat-slide-toggle #commElement (change)="communityToggle($event)">Community Applications</mat-slide-toggle>
+      </div>
       <div *ngIf="_CatalogService.isLoading">
-          <app-chart-list class="charts__gallery__content" [charts]="charts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
+          <app-chart-list class="charts__gallery__content" [charts]="filteredCharts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
       </div>
       <div *ngIf="!_CatalogService.isLoading">
           <mat-progress-bar mode="indeterminate" style="margin-top: 80px"></mat-progress-bar>

@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { CatalogService } from '../services/catalog.service';
 
@@ -9,7 +9,8 @@ import { CatalogService } from '../services/catalog.service';
   templateUrl: './chart-list.component.html',
   styleUrls: ['./chart-list.component.scss']
 })
-export class ChartListComponent {
+export class ChartListComponent{
+
   @Input() charts: Chart[];
 
   /**
@@ -35,5 +36,6 @@ export class ChartListComponent {
 
 
   }
+
 
 }

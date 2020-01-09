@@ -1,6 +1,15 @@
 // Import your custom theme
 @import '../../../theme.scss';
 
+.supportedLabel{
+  color: lightgreen;
+  font-weight: bold;
+}
+
+.supportedLabel2{
+  color: lightblue;
+  font-weight: bold;
+}
 
 .project-card {
   // background:#fff;

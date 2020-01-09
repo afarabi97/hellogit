@@ -10,6 +10,7 @@ export class Chart {
   appVersion: string;
   application: string;
   description: string;
+  pmoSupported: boolean;
   nodes?: INodeInfo[];
 }
 

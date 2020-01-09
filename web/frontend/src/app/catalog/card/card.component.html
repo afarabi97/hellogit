@@ -16,7 +16,9 @@
     <div class="card-body" >
       <div class="body" *ngIf="hovered" >{{chart.description}}</div>
       <div class="body" *ngIf="!hovered">
-        <div *ngIf="chart?.nodes?.length !== 0">
+        <div class="supportedLabel" *ngIf="chart.pmoSupported">PMO Supported Application</div>
+        <div class="supportedLabel2" *ngIf="!chart.pmoSupported">Community Application</div>
+        <div *ngIf="chart?.nodes?.length !== 0" style="margin-top:10px;">
           <div *ngFor="let node of chart.nodes" style="color:lightgreen">{{node.hostname ? node.hostname : node.deployment_name}}: &nbsp; {{node.status}}</div>
         </div>
         <div *ngIf="chart?.nodes?.length === 0">
