@@ -24,7 +24,7 @@ packages:
   - cockpit
   - containernetworking-plugins
   - createrepo
-  - cri-o-1.13.9
+  - cri-o-1.13.11
   - cri-tools
   - dhcp
   - dnsmasq
