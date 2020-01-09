@@ -940,7 +940,7 @@ class VirtualMachine:
                  "ONBOOT=yes".format(iface_name))
 
         new_iface_file = StringIO(iface)
-        remote_shell.sudo('find . -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
+        remote_shell.sudo('find /etc/syconfig -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
         remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
