@@ -1,7 +1,7 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
       <h3 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md style="padding-left: 20px;">TFPlenum Controller</h3>
-      <span class="version" *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>v3.3</span>
+      <span class="version" *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>v{{ version }}</span>
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>

@@ -126,8 +126,11 @@ class Runner:
                             help="Sets unrestricted permissions on all pages recursively. You must pass in the parent page title.")
 
         parser.add_argument('--export-controller', dest='export_controller', action='store_true')
-        parser.add_argument('--export-offline-docs', dest='export_offline_docs', metavar="<confluence page title>",
-                            help="Exported offline documents to the --export-location or /root if not specified. \
+        parser.add_argument('--export-html-docs', dest='export_html_docs', metavar="<confluence page title>",
+                            help="Exports offline html documents with child pages included to the --export-location or /root if not specified. \
+                                  You must pass in a conflunence page title with this argument.")
+        parser.add_argument('--export-single-page-pdf', dest='export_single_page_pdf', metavar="<confluence page title>,<confluence page title>",
+                            help="Exports a single page offline PDF document to the --export-location or /root if not specified. \
                                   You must pass in a conflunence page title with this argument.")
         parser.add_argument('--export-location', dest='export_location', metavar="<path>", default="/root",
                             help="A relative or absolute path to a folder.")
@@ -441,17 +444,29 @@ class Runner:
         ctrl_vm.setNICsToInternal()
         ctrl_vm.export(destination_path)
 
-    def _export_offline_docs(self):
-        if not self.args.export_offline_docs:
+    def _export_html_docs(self):
+        if not self.args.export_html_docs:
             return
 
-        page_title = self.args.export_offline_docs
+        page_title = self.args.export_html_docs
         self._validate_export_location()
         path_to_export = self._create_export_path()
         confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
                                           username=self.di2e_username,
                                           password=self.di2e_password)
-        confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["PDF", "HTML"], page_title)
+        confluence.export_page_w_children(str(path_to_export), self.args.export_version, ["HTML"], page_title)
+
+    def _export_single_page_pdf(self):
+        if not self.args.export_single_page_pdf:
+            return
+
+        self._validate_export_location()
+        path_to_export = self._create_export_path()
+        confluence = MyConfluenceExporter(url=CONFLUENCE_URL,
+                                          username=self.di2e_username,
+                                          password=self.di2e_password)
+        for page_title in self.args.export_single_page_pdf.split(','):
+            confluence.export_single_page_pdf(str(path_to_export), self.args.export_version, page_title.strip())
 
     def _publish_to_labrepo(self):
         if not self.args.publish_to_labrepo:
@@ -855,7 +870,8 @@ class Runner:
         self._set_perms_unrestricted_on_page()
         self._add_docs_to_controller()
         self._export_controller()
-        self._export_offline_docs()
+        self._export_html_docs()
+        self._export_single_page_pdf()
         self._publish_to_labrepo()
         self._generate_hash_file_for_export()
         run_kickstart()

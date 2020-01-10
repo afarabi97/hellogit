@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
-import { DIPClockService } from '../services/dipclock.service';
+import { NavBarService } from './navbar.service';
 import { interval } from "rxjs";
 import { WebsocketService } from '../services/websocket.service';
 
@@ -14,6 +14,7 @@ export class TopNavbarComponent implements OnInit {
   showLinkNames = true;
   time: Date;
   timezone: string;
+  version: string;
 
   sideNavigationButtons = [
     {
@@ -49,18 +50,22 @@ export class TopNavbarComponent implements OnInit {
   @ViewChild('notifications', {static: false}) notifications: NotificationsComponent;
 
   constructor(private cookieService: CookieService,
-              private clockService: DIPClockService,
+              private navService: NavBarService,
               private socketSrv: WebsocketService) { }
 
   ngOnInit() {
     this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
     const clockCounter = interval(1000);
 
-    this.clockService.getCurrentDIPTime().subscribe(data => {
+    this.navService.getCurrentDIPTime().subscribe(data => {
       this.setClock(data);
       clockCounter.subscribe(n => {
         this.time = new Date(this.time.getTime() + 1000);
       });
+    });
+
+    this.navService.getVersion().subscribe(versionObj => {
+      this.version = versionObj.version;
     });
 
     this.socketRefresh();
@@ -83,7 +88,7 @@ export class TopNavbarComponent implements OnInit {
   }
 
   private restartClock(){
-    this.clockService.getCurrentDIPTime().subscribe(data => {
+    this.navService.getCurrentDIPTime().subscribe(data => {
       this.setClock(data);
     });
   }

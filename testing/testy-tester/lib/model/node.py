@@ -3,6 +3,7 @@
 __vcenter_version__ = '6.7c'
 
 import logging
+import os
 import shlex
 import subprocess
 
@@ -641,7 +642,7 @@ class Node(object):
         :param suricata_catalog:
         :return:
         """
-        self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)    
+        self.moloch_capture_catalog = CatalogMolochCapture(moloch_capture_catalog)
 
     def set_zeek_catalog(self, zeek_catalog: Dict) -> None:
         """
@@ -940,7 +941,7 @@ class VirtualMachine:
                  "ONBOOT=yes".format(iface_name))
 
         new_iface_file = StringIO(iface)
-        remote_shell.sudo('find /etc/syconfig -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
+        remote_shell.sudo('find /etc/sysconfig -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
         remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
@@ -994,6 +995,7 @@ class VirtualMachine:
         proc = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         sout, serr = proc.communicate()
         logging.info(sout)
+        os.chmod(str(dest), 0o644)
         if serr:
             logging.error(serr)
 

@@ -4,7 +4,7 @@ import time
 from atlassian import Confluence
 from datetime import datetime, timedelta
 from time import sleep
-from typing import List, Union
+from typing import List, Union, Dict
 
 
 class PageNotFound(Exception):
@@ -45,6 +45,34 @@ class MyConfluenceExporter(Confluence):
             print(response.status_code)
         return False
 
+    def _check_if_pdf_ready2(self,
+                             export_job_id: str) -> str:
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Connection': 'keep-alive',
+            'Host': 'confluence.di2e.net',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+        }
+
+        poll_url = self.url + ("/plugins/servlet/scroll-pdf/api/exports/"
+                               "{exportPageId}/status"
+                                .format(exportPageId=export_job_id))
+        response = self._session.request(
+            method='GET',
+            url=poll_url,
+            headers=headers,
+            timeout=self.timeout,
+            verify=self.verify_ssl
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            return result['downloadUrl']
+        else:
+            print("Failed to check PDF status with url: {} status_cod: {}".format(poll_url, response.status_code))
+
     def _wait_for_pdf(self,
                      page_id: int,
                      export_hash: str,
@@ -58,10 +86,28 @@ class MyConfluenceExporter(Confluence):
                 return True
 
             current_time = datetime.utcnow()
-            if current_time > (start_time + timedelta(minutes=5)):
+            if current_time > (start_time + timedelta(minutes=timeout_min)):
                 print("Waiting for PDF timed out after %d." % timeout_min)
                 break
         return False
+
+    def _wait_for_pdf2(self,
+                       export_job_id: int,
+                       timeout_min: int) -> Union[None, str]:
+        start_time = datetime.utcnow()
+        while True:
+            result = self._check_if_pdf_ready2(export_job_id)
+            if not result:
+                print("Documentation not ready. Sleeping 5 seconds.")
+                sleep(5)
+            else:
+                return result
+
+            current_time = datetime.utcnow()
+            if current_time > (start_time + timedelta(minutes=timeout_min)):
+                print("Waiting for PDF timed out after %d." % timeout_min)
+                break
+        return None
 
     def _download_pdf(self, pageId: int, export_hash: str, export_path: str, export_version: str, export_format: str):
         headers = {
@@ -97,6 +143,142 @@ class MyConfluenceExporter(Confluence):
                         f.write(chunk)
 
             print("Successfully exported documentation to {}".format(file_to_save))
+
+    def _download_pdf2(self, pageId: int, export_path: str, export_version: str, timeout_min: int, title: str):
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Host': 'confluence.di2e.net',
+            'Origin': 'https://confluence.di2e.net',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+        }
+
+        payload = {
+            "pageId": str(pageId),
+            "pageSet":"current",
+            "pageOptions":{
+
+            },
+            "templateId":"com.k15t.scroll.pdf.default-template-documentation",
+            "locale":"en-US",
+            "debugMode": False,
+            "properties":{
+                "labels":{
+                    "includeContentWithLabels":[
+
+                    ],
+                    "excludeContentWithLabels":[
+
+                    ],
+                    "indexTerms":[
+
+                    ]
+                },
+                "content":{
+                    "headings":[
+                        "enableNumberedHeadings"
+                    ],
+                    "layout":[
+
+                    ],
+                    "links":[
+                        "enableExternalLinks",
+                        "enableConfluenceLinks"
+                    ],
+                    "tables":[
+                        "repeatTableHeaders"
+                    ],
+                    "pagebreak":[
+
+                    ],
+                    "comalaWorkflows":[
+
+                    ],
+                    "attachments":"notEmbedAttachments"
+                },
+                "macros":{
+                    "macros":[
+
+                    ]
+                },
+                "title":{
+                    "figure":"after",
+                    "table":"after"
+                },
+                "printOptions":{
+                    "artifactFileName":"<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"document-title\" data-placeholder-velocity=\"${document.title}\" data-placeholder-name=\"Document Title\" data-placeholder-properties=\"{}\">Document Title</span>-v<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"document-revision\" data-placeholder-velocity=\"${document.rootPage.revision}\" data-placeholder-name=\"Document Revision\" data-placeholder-properties=\"{}\">Document Revision</span>-<span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-key=\"export-date\" data-placeholder-velocity=\"${export.date(&amp;#x22;YYYMMdd_HHmmss&amp;#x22;)}\" data-placeholder-name=\"Export Date (YYYMMdd_HHmmss)\" data-placeholder-properties=\"{&amp;#x22;pattern&amp;#x22;:&amp;#x22;YYYMMdd_HHmmss&amp;#x22;}\">Export Date (YYYMMdd_HHmmss)</span>",
+                    "optimization":[
+                        "optimizePrint"
+                    ],
+                    "documentLinkSuffix":" (see page <span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-velocity=\"${targetNumber}\"  data-placeholder-name=\"Target Number\">Target Number</span>)",
+                    "figureLinkSuffix":" (see figure <span contenteditable=\"false\" draggable=\"false\" class=\"template-placeholder\" data-placeholder-app-key=\"com.k15t.scroll.pdf\" data-placeholder-velocity=\"${targetNumber}\"  data-placeholder-name=\"Target Number\">Target Number</span>)",
+                    "tableLinkSuffix":" (see table ${targetNumber})",
+                    "pdfCompliance":[
+
+                    ],
+                    "imageCompression":"none"
+                },
+                "metadata":{
+                    "title":"",
+                    "author":"",
+                    "subject":"",
+                    "keywords":""
+                },
+                "locale":{
+                    "defaultLocale":"en"
+                },
+                "bookmarks":{
+                    "level":"3",
+                    "expandedLevel":"3",
+                    "bookmarksPanel":[
+
+                    ]
+                }
+            }
+        }
+        url = self.url + "/plugins/servlet/scroll-pdf/api/exports"
+        response = self._session.request(
+            method='POST',
+            url=url,
+            headers=headers,
+            timeout=self.timeout,
+            verify=self.verify_ssl,
+            json=payload
+        )
+        if response.status_code == 200:
+            payload = response.json()
+            download_url = self._wait_for_pdf2(payload["exportJobId"], timeout_min)
+            headers = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Connection': 'keep-alive',
+                'Host': 'confluence.di2e.net',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+            }
+
+            with self._session.request(
+                method='GET',
+                url=download_url,
+                headers=headers,
+                timeout=self.timeout,
+                verify=self.verify_ssl,
+                stream=True
+            ) as response:
+                response.raise_for_status()
+                file_to_save = "{}/{}_{}_Manual.pdf".format(export_path, title.replace(' ', '_'), export_version)
+                with open(file_to_save, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+
+                print("Successfully exported documentation to {}".format(file_to_save))
+        else:
+            print("Failed to initiate download with url: {} status_code: {}".format(url, response.status_code))
 
     def _get_content_array(self, space: str, page_id: str, out_content: List[int]):
         pages = self.get_child_pages(page_id)
@@ -162,13 +344,24 @@ class MyConfluenceExporter(Confluence):
         else:
             print("Page Export failed with status {}.".format(response.status_code))
 
+    def export_single_page_pdf(self,
+                               export_path: str,
+                               export_version: str,
+                               title: str,
+                               space: str='THISISCVAH',
+                               timeout_min: int=5):
+
+        page = self.get_page_by_title(space, title)
+        page_id = str(page['id'])
+        self._download_pdf2(page_id, export_path, export_version, timeout_min, title)
+
     def export_page_w_children(self,
                                export_path: str,
                                export_version: str,
                                export_format: Union[str, List[str]],
                                title: str,
                                space: str='THISISCVAH',
-                               timeout_min: int=20):
+                               timeout_min: int=5):
 
         """
         Exports Page as a PDF with all of its nested children.

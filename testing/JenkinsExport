@@ -49,10 +49,15 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'di2e-user-password', passwordVariable: 'di2e_password', usernameVariable: 'di2e_username'),
                         usernamePassword(credentialsId: 'vcenter-user-password', passwordVariable: 'vcenter_password', usernameVariable: 'vcenter_username')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --export-offline-docs \"${tfplenum_confluence_page}\" --export-location \"${tfplenum_export_loc}\" \
+                        def command = "sudo python3.6 testing/testy-tester/main.py --export-html-docs \"${tfplenum_confluence_page}\" --export-location \"${tfplenum_export_loc}\" \
                         --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
                         println command
                         sh(command)
+
+                        def command2 = "sudo python3.6 testing/testy-tester/main.py --export-single-page-pdf \"${pdf_single_page}\" --export-location \"${tfplenum_export_loc}\" \
+                        --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit} -du '${di2e_username}' -dp '${di2e_password}' -vu '${vcenter_username}' -vp '${vcenter_password}'"
+                        println command2
+                        sh(command2)
                     }
                 }
             }
