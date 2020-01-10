@@ -97,15 +97,26 @@ def change_kit_password():
                 amended_password = _get_ammended_password(ip, ammendedPasswords)
                 correct_password = amended_password
             except AmmendedPasswordNotFound:
-                correct_password = old_password
+                correct_password = None
 
             try:
-                with FabricConnectionManager("root", correct_password, ip) as shell:
+                with FabricConnectionManager("root", old_password, ip) as shell:
                     ret = shell.run(change_root_pwd) # type: Result
                     if ret.return_code != 0:
                         return ERROR_RESPONSE
+
             except AuthenticationException:
-                return jsonify(node)
+                if correct_password is not None:
+                    try:
+                        with FabricConnectionManager("root", correct_password, ip) as shell:
+                            ret = shell.run(change_root_pwd) # type: Result
+                            if ret.return_code != 0:
+                                return ERROR_RESPONSE
+                    except AuthenticationException:                    
+                        return jsonify(node)
+                else:
+                    return jsonify(node)
+
 
         current_config["form"]["root_password"] = encode_password(passwordForm["root_password"])
         current_config["form"]["re_password"] = encode_password(passwordForm["root_password"])
