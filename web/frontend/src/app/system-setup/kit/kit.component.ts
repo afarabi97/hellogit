@@ -351,16 +351,15 @@ export class KitComponent implements OnInit, AfterViewInit {
    * @memberof KitFormComponent
    */
   public canRemove(index: number): void {
-
     const nodeArray:FormArray = this.kitFormGroup.get('nodes') as FormArray;
     const removeNode = nodeArray.at(index);
     const hostname = removeNode.get('hostname').value;
-
+    
     this._CatalogService.getinstalledapps(hostname).subscribe( result => {
+      let result_casted = result as [];
+      if( result_casted !== null && result_casted.length > 0 ) {
 
-      if( result !== null && result === [] ) {
-
-        let message = " Uninstall the following applications: " + result;
+        let message = " Uninstall the following applications: " + result_casted;
         const title = "Installed applications on " + hostname;
         const option2 = "Take me to catalog";
         const option1 = "Return to page";
@@ -370,7 +369,7 @@ export class KitComponent implements OnInit, AfterViewInit {
           data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
         });
         dialogRef.afterClosed().subscribe(result => {
-          if( result === option1) {
+          if( result === option2) {
             this.router.navigate(['/catalog']);
           }
         });
