@@ -179,7 +179,8 @@ def add_host_to_target_config(target_config_id: str) -> Response:
     hosts_to_add = request.get_json()
     if hosts_to_add['hostnames'] and len(hosts_to_add['hostnames']) > 0:
         to_insert = []
-        for hostname in hosts_to_add['hostnames'].split('\n'):
+        unique_hostnames = set(hosts_to_add['hostnames'].lower().split('\n'))
+        for hostname in unique_hostnames:
             if hostname == "":
                 continue
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 import { AgentBuilderService, AgentInstallerConfig,
          IpTargetList, Host, ErrorMessage,
          WindowsCreds, AppConfig } from './agent-builder.service';
@@ -17,7 +17,8 @@ import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal
 import { validateFromArray } from '../validators/generic-validators.validator';
 
 import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
+import {MatRadioButton} from '@angular/material/radio'
+import {MatTableDataSource, MatTable} from '@angular/material/table';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 
 import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
@@ -32,23 +33,11 @@ const DIALOG_MAX_HEIGHT = "800px";
   styleUrls: ['./agent-builder-chooser.component.css']
 })
 export class AgentBuilderChooserComponent implements OnInit {
-  columnsForInstallerConfigs: string[] = ['select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions'];
 
+  // Columns for material tables.
+  columnsForInstallerConfigs: string[] = ['select', 'config_name', 'install_custom', 'install_endgame', 'endgame_sensor_name', 'actions'];
   columnsForTargetConfigs: string[] = ['select', 'name', 'protocol', 'port', 'domain_name', 'actions'];
   columnsForHosts: string[] = ['hostname', 'state', 'last_state_change', 'actions'];
-
-  appConfigs: Array<AppConfig>;
-  savedConfigs: MatTableDataSource<AgentInstallerConfig>;
-  savedTargetConfigs: MatTableDataSource<IpTargetList>;
-  hostsToShow: MatTableDataSource<Host>;
-  isTargetsVisible: Array<boolean>;
-
-  config_selection: AgentInstallerConfig;
-  target_selection: IpTargetList;
-  host_to_remove: Host;
-  selectedHostIndex: number;
-  is_downloading: boolean;
-  selectedIndexValue: boolean;
 
   @ViewChild('installerConfigPaginator', {static: false})
   installerConfigPaginator: MatPaginator;
@@ -56,37 +45,40 @@ export class AgentBuilderChooserComponent implements OnInit {
   @ViewChild('targetConfigPaginator', {static: false})
   targetConfigPaginator: MatPaginator;
 
-  @ViewChild('hostConfigPaginator', {static: false})
-  hostConfigPaginator: MatPaginator;
+  @ViewChild('targetTable', {static: false})
+  targetTable: MatTable<MatTableDataSource<IpTargetList>>;
+
+  @ViewChildren('deploymentTarget')
+  deploymentTargets: QueryList<MatRadioButton>;
+
+  @ViewChildren('deploymentConfig')
+  deploymentConfigs: QueryList<MatRadioButton>;
+
+  @ViewChildren('hostTable')
+  hostTables: QueryList<MatTable<Host>>;
+
+  @ViewChildren('hostListPaginator')
+  hostListPaginators: QueryList<MatPaginator>;
+
+  appConfigs: Array<AppConfig>;
+  
+  // Interface
+  configs: MatTableDataSource<any>;
+  targetConfigs: MatTableDataSource<any>;
+
+  is_downloading: boolean = false;
 
   constructor(private agentBuilderSvc: AgentBuilderService,
               private titleSvc: Title,
               private socketSrv: WebsocketService,
               private snackBar: MatSnackBar,
               private dialog: MatDialog,
-              private fb: FormBuilder) {
-
+              private fb: FormBuilder,
+              private ref: ChangeDetectorRef) {
     this.titleSvc.setTitle('Windows Agent Deployer');
-    this.savedConfigs = new MatTableDataSource<AgentInstallerConfig>();
-    this.savedTargetConfigs = new MatTableDataSource<IpTargetList>();
-    this.hostsToShow = new MatTableDataSource<Host>();
-    this.isTargetsVisible = new Array();
-    this.config_selection = null;
-    this.target_selection = null;
-    this.host_to_remove = null;
-    this.selectedHostIndex = 0;
-    this.selectedIndexValue = false;
   }
 
   ngOnInit() {
-    this.agentBuilderSvc.getAppConfigs().subscribe(appConfigs => {
-      this.appConfigs = appConfigs;
-    });
-
-    this.getSavedConfigs();
-    this.getSavedTargetConfigs();
-    this.socketRefresh();
-
     this.agentBuilderSvc.checkLogStashInstalled().subscribe(data =>{
       let status = data as Array<Object>;
       if (status && status.length > 0){
@@ -98,19 +90,73 @@ export class AgentBuilderChooserComponent implements OnInit {
           Please go to the Catalog page and install it.  Failing to install it will cause Winlogbeats and Endgame agent data capture to Elasticsearch to fail.")
       }
     });
+
+    this.agentBuilderSvc.getAppConfigs().subscribe(appConfigs => {
+      this.appConfigs = appConfigs;
+    });
+
+    this.getSavedConfigs();
+    this.getSavedTargetConfigs();
+    this.socketRefresh();
   }
 
-  showConfig() {
+  ngAfterViewInit() {
+  }
+
+  get_config_selection(): AgentInstallerConfig {
+    if (this.deploymentConfigs) {
+      let button = this.deploymentConfigs.find(button => {
+        return button.checked;
+      });
+  
+      if (button) {
+        let i = button.value;
+        return this.configs.data[i];
+      }
+    }
+  };
+
+  get_target_selection(): IpTargetList {
+    if (this.deploymentTargets) {
+      let button = this.deploymentTargets.find(button => {
+        return button.checked;
+      });
+  
+      if(button) {
+        let i = button.value;
+        return this.targetConfigs.data[i]['config'];
+      }
+    }
+  };
+
+  updateHostList(targets, index) {
+    this.targetConfigs.data[index]['state']['hostList'].data = targets;
+  }
+
+  toggleHostListExpansion(row, dataIndex) {
+    let expanded = row['state']['expanded'];
+    row['state']['expanded'] = !expanded;
+  }
+
+  isHostListExpanded(row, index) {
+    let expanded = row['state']['expanded'];
+    return expanded;
+  }
+
+  getHostList(hostList, paginator) {
+    if (hostList.paginator) {
+      return hostList
+    } else {
+      hostList.paginator = paginator
+      return hostList;
+    }
+  }
+
+  showConfig(config) {
     const dialogRef = this.dialog.open(AgentDetailsDialogComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: { appConfigs: this.appConfigs, config: this.config_selection }
-    });
-  }
-
-  private socketRefresh(){
-    this.socketSrv.getSocket().on('refresh', (data: any) => {
-      this.refreshStateChanges();
+      data: { appConfigs: this.appConfigs, config: config }
     });
   }
 
@@ -119,22 +165,67 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
-    this.savedConfigs = new MatTableDataSource<AgentInstallerConfig>(configs);
-    this.savedConfigs.paginator = this.installerConfigPaginator;
+      this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
+      this.configs.paginator = this.installerConfigPaginator;
+      this.ref.detectChanges();
   }
 
-  private setTargetConfigs(configs: Array<IpTargetList>){
-    this.savedTargetConfigs = new MatTableDataSource<IpTargetList>(configs);
-    this.savedTargetConfigs.paginator = this.targetConfigPaginator;
 
-    if (this.isTargetsVisible.length !== configs.length){
-      this.isTargetsVisible = new Array(configs.length).fill(false);
+  private setTargetConfigs(configs: Array<IpTargetList>){
+    let rows = [];
+    for (let config of configs) {
+      let targets = config['targets'];
+      let hostList = new MatTableDataSource(targets);
+      let expanded = false;
+
+      let row = {};
+      row['state'] = {};
+      row['config'] = config;
+      row['state']['hostList'] = hostList;
+      row['state']['expanded'] = expanded;
+
+      rows.push(row);
+    }
+    
+    let targetConfigs = new MatTableDataSource<any>(rows);
+    targetConfigs.paginator = this.targetConfigPaginator;
+
+    this.targetConfigs = targetConfigs;
+  }
+
+  private socketRefresh(){
+    this.socketSrv.getSocket().on('refresh', (data: any) => {
+      this.refreshStateChanges();
+    });
+  }
+
+  private _update_targets(target_config: IpTargetList, index: string, update_config: IpTargetList){
+    for (let target of target_config.targets){
+      for (let update of update_config.targets){
+        if (target.hostname === update.hostname){
+          target.state = update.state;
+          target.last_state_change = update.last_state_change;
+          break;
+        }
+      }
     }
   }
 
-  private setHostsToShow(targets: Array<Host>){
-    this.hostsToShow = new MatTableDataSource<Host>(targets);
-    this.hostsToShow.paginator = this.hostConfigPaginator;
+  private refreshStateChanges(){
+    this.agentBuilderSvc.getIpTargetList().subscribe(data => {
+      let configs = data as IpTargetList[];
+      for (let i in this.targetConfigs['data']){
+        let target_config = this.targetConfigs['data'][i]['config'];
+        for (let updated_config of configs){
+          if (target_config._id === updated_config._id){
+            this._update_targets(target_config, i, updated_config);
+            break;
+          }
+        }
+      }
+
+      this.hostTables.forEach(table => table.renderRows());
+    });
   }
 
   getSavedConfigs() {
@@ -150,52 +241,17 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  private _update_targets(target_config: IpTargetList, update_config: IpTargetList){
-    for (let target of target_config.targets){
-      for (let update of update_config.targets){
-        if (target.hostname === update.hostname){
-          target.state = update.state;
-          target.last_state_change = update.last_state_change;
-          break;
-        }
-      }
-    }
-  }
-
-  private refreshStateChanges(){
-    this.agentBuilderSvc.getIpTargetList().subscribe(data => {
-      let configs = data as IpTargetList[];
-      for (let target_config of this.savedTargetConfigs.data){
-        for (let updated_config of configs){
-          if (target_config._id === updated_config._id){
-            this._update_targets(target_config, updated_config);
-            break;
-          }
-        }
-      }
-    });
-  }
-
-  onSelectionChange(value: AgentInstallerConfig) {
-    this.config_selection = value as AgentInstallerConfig;
-  }
-
-  onTargetSelectionChange(value: IpTargetList){
-    this.target_selection = value as IpTargetList;
-  }
-
-  preparePayload(creds: WindowsCreds=null): {'installer_config': AgentInstallerConfig,
-                                             'target_config': IpTargetList,
-                                             'windows_domain_creds': WindowsCreds }
-  {
-    return {'installer_config': this.config_selection, 'target_config': this.target_selection, 'windows_domain_creds': creds};
-  }
-
-  downloadInstaller() {
+  downloadInstaller(config) {
     this.is_downloading = true;
     this.displaySnackBar("Initiated executable download for " +
-                         this.config_selection.config_name + ". Please wait until it is completed.")
-    let payload = this.preparePayload();
+                         config.config_name + ". Please wait until it is completed.")
+
+    let payload = {
+      'installer_config': config,
+      'target_config': null,
+      'windows_domain_creds': null
+    }
+
     this.agentBuilderSvc.getAgentInstaller(payload).subscribe(
       installer_response => {
         try {
@@ -220,45 +276,21 @@ export class AgentBuilderChooserComponent implements OnInit {
       });
   }
 
-  openDeployInstallerModal(action: string, target: Host=null){
-    if (target){
-      this.host_to_remove = target;
-      for (let target_config of this.savedTargetConfigs.data){
-        if(target_config._id === target.target_config_id){
-          this.target_selection = target_config;
-          break;
-        }
-      }
-    } else {
-      this.host_to_remove = target;
+  execute(title, instructions, callback) {
+    let username = new DialogFormControl("Domain username", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
+    let password = new DialogFormControl("Domain Password", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]), undefined, undefined, DialogControlTypes.password);
+    
+    let controlsConfig = {
+      user_name: username,
+      password: password
     }
 
-    let dialogForm = this.fb.group({
-      user_name: new DialogFormControl("Domain username", '',
-            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
-      password: new DialogFormControl("Domain Password", '',
-            Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
-            undefined, undefined, DialogControlTypes.password)
-    });
+    let dialogForm = this.fb.group(controlsConfig);
 
-    let dialogData = { title: action + " Windows hosts",
-                       instructions: "Executing this form will attempt to " + action + " the selected executable \
-                                      configuration on all Windows hosts within your target configuration. \
-                                      Are you sure you want to do this?",
+    let dialogData = { title: title,
+                       instructions: instructions,
                        dialogForm: dialogForm,
                        confirmBtnText: "Execute" }
-
-    if (action === 'uninstall' && this.host_to_remove !== null){
-      dialogData.title = "Uninstall Windows host " + this.host_to_remove.hostname;
-      dialogData.instructions = "Executing this form will attempt to uninstall the selected executable \
-                                 on " + this.host_to_remove.hostname + ". \
-                                 Are you sure you want to do this?"
-    } else if (action === 'reinstall' && this.host_to_remove !== null) {
-      dialogData.title = "Reinstall Windows host " + this.host_to_remove.hostname;
-      dialogData.instructions = "Executing this form will attempt to reinstall the selected executable \
-                                 on " + this.host_to_remove.hostname + ". \
-                                 Are you sure you want to do this?"
-    }
 
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH,
@@ -266,44 +298,128 @@ export class AgentBuilderChooserComponent implements OnInit {
       data: dialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    let closed = dialogRef.afterClosed();
+    
+    closed.subscribe(result => {
       let form = result as FormGroup;
-      if (form && form.valid){
-        this.deployInstaller(form.getRawValue(), action);
+
+      if (form && form.valid) {
+        let rawValue = form.getRawValue();
+        let credentials = new WindowsCreds(rawValue)
+        return callback(credentials);
+      } {
+        return callback(null);
       }
+    });
+
+  }
+
+  installAgents(config, target) {   
+    let title = "Install Windows hosts";
+    let instructions = "Executing this form will attempt to install the selected executable \
+                        configuration on all Windows hosts within your target configuration. \
+                        Are you sure you want to do this?";
+
+    
+    this.execute(title, instructions, credentials => {
+      let payload = {
+        'installer_config': config,
+        'target_config': target,
+        'windows_domain_creds': credentials
+      }
+
+      let response = this.agentBuilderSvc.installAgents(payload)
+
+      response.subscribe(
+        data => {
+          this.displaySnackBar(data['message']);
+        },
+        error => {
+          this.displaySnackBar("Failed initiate install task for an unknown reason.");
+        }
+      );
     });
   }
 
-  private deployInstaller(credsObj: Object, action: string) {
-    let creds = new WindowsCreds(credsObj);
-    let payload = this.preparePayload(creds);
+  uninstallAgents(config, target) {
+    let title = "Uninstall Windows hosts";
+    let instructions = "Executing this form will attempt to uninstall the selected executable \
+                        configuration on all Windows hosts within your target configuration. \
+                        Are you sure you want to do this?";
 
-    this.displaySnackBar("Please wait for the server to initiate your request.");
-    if (action === 'uninstall' && this.host_to_remove !== null){
-      this.agentBuilderSvc.uninstallAgent(payload, this.host_to_remove).subscribe(data => {
-        this.displaySnackBar(data['message']);
-      }, err => {
-        this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.")
-      });
-    } else if (action === 'uninstall'){
-      this.agentBuilderSvc.uninstallAgents(payload).subscribe(data => {
-        this.displaySnackBar(data['message']);
-      }, err => {
-        this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
-      });
-    } else if (action === 'reinstall'){
-      this.agentBuilderSvc.reinstallAgent(payload, this.host_to_remove).subscribe(data => {
-        this.displaySnackBar(data['message']);
-      }, error => {
-        this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
-      });
-    } else {
-      this.agentBuilderSvc.installAgents(payload).subscribe(data => {
-        this.displaySnackBar(data['message']);
-      }, error => {
-        this.displaySnackBar("Failed initiate install task for an unknown reason.");
-      });
-    }
+
+    this.execute(title, instructions, credentials => {
+      let payload = {
+        'installer_config': config,
+        'target_config': target,
+        'windows_domain_creds': credentials
+      }
+
+      console.log(payload);
+
+      let response = this.agentBuilderSvc.uninstallAgents(payload);
+
+      response.subscribe(
+        data => {
+          this.displaySnackBar(data['message']);
+        },
+        err => {
+          this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
+        }
+      );
+    });
+  }
+
+  reinstallAgent(config, target, host) {
+    let title = "Reinstall Windows host " + host.hostname;
+    let instructions = "Executing this form will attempt to reinstall the selected executable \
+                        on " + host.hostname + ". \
+                        Are you sure you want to do this?";
+
+    this.execute(title, instructions, credentials => {
+      let payload = {
+        'installer_config': config,
+        'target_config': target,
+        'windows_domain_creds': credentials
+      }
+
+      let response = this.agentBuilderSvc.reinstallAgent(payload, host)
+
+      response.subscribe(
+        data => {
+          this.displaySnackBar(data['message']);
+        },
+        error => {
+          this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
+        }
+      );
+    });
+  }
+
+  uninstallAgent(config, target, host) {
+    let title = "Uninstall Windows host " + host.hostname;
+    let instructions = "Executing this form will attempt to uninstall the selected executable \
+                    on " + host.hostname + ". \
+                    Are you sure you want to do this?"
+
+    this.execute(title, instructions, credentials => {
+      let payload = {
+        'installer_config': config,
+        'target_config': target,
+        'windows_domain_creds': credentials
+      }
+
+      let response = this.agentBuilderSvc.uninstallAgent(payload, host);
+
+      response.subscribe(
+        data => {
+          this.displaySnackBar(data['message']);
+        },
+        err => {
+          this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.")
+        }
+      );
+    });
   }
 
   openConfirmDeleteConfig(config: any) {
@@ -422,31 +538,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     return config.ntlm.domain_name;
   }
 
-  isHostVisible(config: IpTargetList): boolean {
-    const index = this.savedTargetConfigs.data.findIndex( i => i._id === config._id);
-    return this.isTargetsVisible[index];
-  }
-
-  toggleTargetDropDown(config: IpTargetList) {
-    const index = this.savedTargetConfigs.data.findIndex( i => i._id === config._id);
-    if (index === this.selectedHostIndex){
-
-      if (this.selectedIndexValue){
-        //If visible close it.
-        this.isTargetsVisible[index] = !this.isTargetsVisible[index];
-        return;
-      }
-    }
-
-    this.selectedHostIndex = index;
-    this.isTargetsVisible = new Array(this.savedTargetConfigs.data.length).fill(false);
-    this.isTargetsVisible[index] = !this.isTargetsVisible[index];
-
-    this.selectedIndexValue = this.isTargetsVisible[index];
-    this.setHostsToShow(config.targets);
-  }
-
-  openAddWindowsHostModal(targetConfig: IpTargetList) {
+  openAddWindowsHostModal(targetConfig: IpTargetList, hostList: MatTableDataSource<Host>) {
     let dialogForm = this.fb.group({
       hostnames: new DialogFormControl("Windows Hostname", '',
                                        Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
@@ -466,22 +558,27 @@ export class AgentBuilderChooserComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       let form = result as FormGroup;
-      if (form && form.valid){
-        this.agentBuilderSvc.addHostToIPTargetList(targetConfig._id, form.getRawValue() as Host).subscribe(data => {
+      if (form && form.valid) {
+        let host = form.getRawValue() as Host;
+        this.agentBuilderSvc.addHostToIPTargetList(targetConfig._id, host).subscribe(data => {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);
           } else {
-            if (!targetConfig.targets){
-              targetConfig.targets = new Array<Host>();
-            }
-            let hosts = data as IpTargetList;
-            for (let host of hosts.targets){
-              if (!this.isHostInArrayAlready(host, targetConfig)){
-                targetConfig.targets.push(host);
-              }
+            let targets: Array<Host>;
+            let additionalTargets = data.targets as Array<Host>;
+            let distinct: Array<Host>;
+
+            if (targetConfig.targets) {
+              targets = targetConfig.targets;
+            } else {
+              targets = new Array<Host>();
             }
 
-            this.setHostsToShow(targetConfig.targets);
+            distinct = targets.concat(additionalTargets).filter(this.isFirstHost);
+
+            hostList.data = distinct;
+            targetConfig.targets = distinct;
+
             this.displaySnackBar("Windows hosts saved successfully.");
           }
         });
@@ -489,41 +586,35 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  private isHostInArrayAlready(host: Host, targetConfig: IpTargetList): boolean{
-    for (let old_host of targetConfig.targets){
-      if (host.hostname.toLowerCase() === old_host.hostname.toLowerCase()){
-        return true;
-      }
-    }
-    return false;
+  isFirstHost(host: Host, host_index: number, hosts: Array<Host>) {
+    let _host_index = hosts.findIndex(_host => {
+      return _host.hostname.toLowerCase() === host.hostname.toLowerCase();
+    });
+    return _host_index === host_index;
   }
 
-  openRemoveHostModal(target_config: IpTargetList, target: Host) {
+  openRemoveHostModal(target_config: IpTargetList, host_table: MatTable<MatTableDataSource<Host>>, host_list: MatTableDataSource<Host>, host: Host, host_index: number) {
     const option2 = "Confirm";
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": 'Before deleting this ' + target.hostname + ', it is strongly advised to uninstall first. This action cannot be undone.',
-              "paneTitle": 'Remove configuration ' + target.hostname + '?', "option1": "Cancel", "option2": option2 },
+      data: { "paneString": 'Before deleting this ' + host.hostname + ', it is strongly advised to uninstall first. This action cannot be undone.',
+              "paneTitle": 'Remove configuration ' + host.hostname + '?', "option1": "Cancel", "option2": option2 },
     });
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
-        this.agentBuilderSvc.removeHostFromIpTargetList(target_config._id, target).subscribe(data => {
+        this.agentBuilderSvc.removeHostFromIpTargetList(target_config._id, host).subscribe(data => {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);
           } else {
             this.displaySnackBar(data.success_message);
-            if (target_config.targets){
-              let true_index = 0;
-              for (let cache of target_config.targets){
-                if (cache.hostname === target.hostname){
-                  break;
-                }
-                true_index++;
-              }
-              target_config.targets.splice(true_index, 1);
-              this.setHostsToShow(target_config.targets);
-            }
+
+            let newHostList = host_list.data.filter((host, index) => {
+              return index !== host_index;
+            });
+
+            host_list.data = newHostList;
+            target_config['targets'] = newHostList;
           }
         },
         err => {
