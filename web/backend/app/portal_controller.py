@@ -21,6 +21,12 @@ DISCLUDES = ("elasticsearch.lan",
         "elasticsearch-data.lan",
         "tiller-deploy.lan")
 
+def get_moloch_credentials():
+    collection = conn_mng.mongo_catalog_saved_values
+    application = collection.find_one({'application': 'moloch-viewer'})
+    password = application['values']['password']
+    username = application['values']['username']
+    return "{}/{}".format(username, password)
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     if dns == "grr-frontend.lan":
@@ -29,10 +35,11 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
     elif dns == "moloch.lan":
+        credentials = get_moloch_credentials()
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': 'assessor/password'})
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': credentials})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': 'assessor/password'})
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': credentials})
     elif dns == "kubernetes-dashboard.lan":
         if ip:
             portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
