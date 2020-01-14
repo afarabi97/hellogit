@@ -136,7 +136,7 @@ def execute_add_node() -> Response:
 
         results = chain(perform_kit.si(cmd_to_executeOne),
         perform_add_node.si(cmd_to_executeTwo))()
-        
+
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(results), "pid": ""},
                                                         upsert=True)
@@ -162,9 +162,9 @@ def execute_remove_node() -> Response:
     if isSucessful:
         cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}'"
                         ).format(playbook_pass=root_password)
-        task_id = perform_kit.delay(cmd_to_execute)
+        task_id = perform_kit.delay(cmd_to_execute, True)
         mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-        kit_mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})        
+        kit_mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(task_id), "pid": ""},
                                                         upsert=True)
@@ -198,7 +198,7 @@ def execute_remove_node() -> Response:
                                             {"_id": KIT_ID, "form": kit_form},
                                             upsert=True,
                                             return_document=ReturnDocument.AFTER)  # type: InsertOneResult
-        
+
         return (jsonify(str(task_id)), 200)
 
     logger.error("Executing remove node configuration has failed.")
