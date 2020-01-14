@@ -86,6 +86,7 @@ pip_downloads:
   - psutil==5.6.7
 
 pip_installs:
+  - "setuptools==44"
   - "junit-xml==1.8"
   - "netaddr"
   - "docker"
