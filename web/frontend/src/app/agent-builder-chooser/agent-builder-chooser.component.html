@@ -202,12 +202,12 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="installAgents(get_config_selection(), target_selection)"
-                         [disabled]="!(get_config_selection() && target_selection)">
+      <button mat-raised-button color="primary" (click)="installAgents(get_config_selection(), get_target_selection())"
+                         [disabled]="!(get_config_selection() && get_target_selection())">
         <i class="material-icons">cloud_upload</i> Deploy Installer
       </button>
       <button mat-raised-button color="warn" style="float: right;"
-        [disabled]="!(get_config_selection() && target_selection)" (click)="uninstallAgents(get_config_selection(), target_selection)">
+        [disabled]="!(get_config_selection() && get_target_selection())" (click)="uninstallAgents(get_config_selection(), get_target_selection())">
         <i class="material-icons">delete_sweep</i> Batch Uninstall
       </button>
     </mat-card-actions>
