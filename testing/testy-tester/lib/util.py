@@ -178,7 +178,7 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
             export GIT_PASSWORD='" + di2e_password + "' && \
             export TFPLENUM_BRANCH_NAME='" + kit.branch_name + "' && \
             export USE_FORK='no' && \
-            bash /root/bootstrap.sh 2>&1 | tee bootstrap.log")
+            bash /root/bootstrap.sh")
         ret_val = client.run(cmd_to_execute, shell=True)
         if ret_val.return_code != 0:
             exit(ret_val.return_code)
