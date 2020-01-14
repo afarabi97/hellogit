@@ -329,7 +329,7 @@ def example():
     parser.add_argument("-p", "--pxe", dest="pxe", action='store_true', default=False)
     args = parser.parse_args()
     pxe = args.pxe
-    
+
     USER_NAME = "root"
     PASSWORD = os.getenv('REDFISH_PWD')
     ips = [
@@ -348,12 +348,12 @@ def example():
         token = get_token(ip, USER_NAME, PASSWORD)
         print("Getting MAC")
         mac = get_pxe_mac(ip, token)
-	print("{} - {}".format(ip, mac))
+        print("{} - {}".format(ip, mac))
         if pxe:
-	    print("Setting boot order")
-	    result = set_pxe_boot(ip, token)
-	    print("Restarting server")
-	    result = restart_server(ip, token)
+            print("Setting boot order")
+            result = set_pxe_boot(ip, token)
+            print("Restarting server")
+            result = restart_server(ip, token)
         logout(token)
     sys.exit(0)
 
