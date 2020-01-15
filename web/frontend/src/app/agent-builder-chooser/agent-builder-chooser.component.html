@@ -32,7 +32,7 @@
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let config; index as i">
-              <mat-radio-button #deploymentConfig [value]="i" name="configGroup"></mat-radio-button>
+              <mat-radio-button (change)="updateSelectedConfig(config)" [value]="i" name="configGroup"></mat-radio-button>
           </td>
         </ng-container>
 
@@ -86,11 +86,11 @@
                       [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
     </mat-card-content>
     <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="downloadInstaller(get_config_selection())"
-                [disabled]="get_config_selection() ? is_downloading : true">
+        <button mat-raised-button color="primary" (click)="downloadInstaller(config_selection)"
+                [disabled]="config_selection ? is_downloading : true">
         <i class="material-icons">cloud_download</i> Download Installer
       </button>
-      <button mat-raised-button color="primary" [disabled]="get_config_selection() ? false : true" (click)="showConfig(get_config_selection())">Details</button>
+      <button mat-raised-button color="primary" [disabled]="config_selection ? false : true" (click)="showConfig(config_selection)">Details</button>
     </mat-card-actions>
   </mat-card>
   <br>
@@ -106,7 +106,7 @@
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let target; dataIndex as i">
-            <mat-radio-button #deploymentTarget [value]="i" name="targetGroup"></mat-radio-button>
+            <mat-radio-button (change)="updateSelectedTarget(target)" [value]="i" name="targetGroup"></mat-radio-button>
           </td>
         </ng-container>
 
@@ -174,7 +174,7 @@
                       <button mat-icon-button
                         (click)="$event.stopPropagation()"
                         [matMenuTriggerFor]="menu"
-                        [matMenuTriggerData]="{ config: get_config_selection(), target_config: target['config'], host_table: hostTable, host_list: target['state']['hostList'], host: host, host_index: host_index }">
+                        [matMenuTriggerData]="{ config: config_selection, target_config: target['config'], host_table: hostTable, host_list: target['state']['hostList'], host: host, host_index: host_index }">
                       <mat-icon>more_vert</mat-icon>
                     </button>
                   </td>
@@ -202,12 +202,12 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="installAgents(get_config_selection(), get_target_selection())"
-                         [disabled]="!(get_config_selection() && get_target_selection())">
+      <button mat-raised-button color="primary" (click)="installAgents(config_selection, target_selection)"
+                         [disabled]="!(config_selection && target_selection)">
         <i class="material-icons">cloud_upload</i> Deploy Installer
       </button>
       <button mat-raised-button color="warn" style="float: right;"
-        [disabled]="!(get_config_selection() && get_target_selection())" (click)="uninstallAgents(get_config_selection(), get_target_selection())">
+        [disabled]="!(config_selection && target_selection)" (click)="uninstallAgents(config_selection, target_selection)">
         <i class="material-icons">delete_sweep</i> Batch Uninstall
       </button>
     </mat-card-actions>

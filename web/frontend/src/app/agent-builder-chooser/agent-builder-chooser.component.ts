@@ -48,19 +48,13 @@ export class AgentBuilderChooserComponent implements OnInit {
   @ViewChild('targetTable', {static: false})
   targetTable: MatTable<MatTableDataSource<IpTargetList>>;
 
-  @ViewChildren('deploymentTarget')
-  deploymentTargets: QueryList<MatRadioButton>;
-
-  @ViewChildren('deploymentConfig')
-  deploymentConfigs: QueryList<MatRadioButton>;
-
   @ViewChildren('hostTable')
   hostTables: QueryList<MatTable<Host>>;
 
-  @ViewChildren('hostListPaginator')
-  hostListPaginators: QueryList<MatPaginator>;
-
   appConfigs: Array<AppConfig>;
+
+  config_selection: AgentInstallerConfig = null;
+  target_selection: IpTargetList = null;
   
   // Interface
   configs: MatTableDataSource<any>;
@@ -103,31 +97,13 @@ export class AgentBuilderChooserComponent implements OnInit {
   ngAfterViewInit() {
   }
 
-  get_config_selection(): AgentInstallerConfig {
-    if (this.deploymentConfigs) {
-      let button = this.deploymentConfigs.find(button => {
-        return button.checked;
-      });
-  
-      if (button) {
-        let i = button.value;
-        return this.configs.data[i];
-      }
-    }
-  };
+  updateSelectedConfig(config) {
+    this.config_selection = config;
+  }
 
-  get_target_selection(): IpTargetList {
-    if (this.deploymentTargets) {
-      let button = this.deploymentTargets.find(button => {
-        return button.checked;
-      });
-  
-      if(button) {
-        let i = button.value;
-        return this.targetConfigs.data[i]['config'];
-      }
-    }
-  };
+  updateSelectedTarget(target) {
+    this.target_selection = target;
+  }
 
   updateHostList(targets, index) {
     this.targetConfigs.data[index]['state']['hostList'].data = targets;
@@ -167,6 +143,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
       this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
       this.configs.paginator = this.installerConfigPaginator;
+      this.config_selection = null;
       this.ref.detectChanges();
   }
 
@@ -191,6 +168,8 @@ export class AgentBuilderChooserComponent implements OnInit {
     targetConfigs.paginator = this.targetConfigPaginator;
 
     this.targetConfigs = targetConfigs;
+    this.target_selection = null;
+    this.ref.detectChanges();
   }
 
   private socketRefresh(){
