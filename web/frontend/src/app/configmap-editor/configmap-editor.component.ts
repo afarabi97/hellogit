@@ -49,6 +49,9 @@ export class ConfigmapEditorComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit() {
     this.resizeEditor();
   }
 
