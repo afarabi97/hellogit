@@ -1,47 +1,54 @@
 <div class="main-content2">
-  <mat-vertical-stepper #stepper div [linear]=true>
-    <mat-step [stepControl]="upgradeFormGroup" label="Controller IP Selection and Configuration">
-      <form [formGroup]="upgradeFormGroup">
-        <div fxLayout="column" fxLayoutAlign="space-between stretch">
-          <mat-form-field>
-            <mat-label>Select this controllers management interface IP Address</mat-label>
-            <mat-select disableRipple formControlName="new_ctrl_ip" [required]=true>
-              <mat-option *ngFor="let interface of ctrlDeviceFacts['interfaces']" [value]="interface.ip_address">
-                {{ interface.name }} - {{ interface.ip_address }}</mat-option>
-            </mat-select>
-            <mat-error>{{ getErrorMessage(upgradeFormGroup.get("new_ctrl_ip")) }}</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput formControlName="original_controller_ip" placeholder="Old Controller IP Address">
-            <mat-error>{{ getErrorMessage(upgradeFormGroup.get("original_controller_ip")) }}</mat-error>
-          </mat-form-field>
-        </div>
-        <button mat-raised-button color="primary" matStepperNext (click)="upgradePaths(stepper)">Get Upgrade
-          Paths</button>
-      </form>
-    </mat-step>
-    <mat-step [stepControl]="upgradePathFormGroup" label="Upgrade path configuration">
-      <form [formGroup]="upgradePathFormGroup">
-        <h5>Upgrade Path Selection</h5>
-        <div fxLayout="column" fxLayoutAlign="space-between stretch">
-          <mat-form-field>
-            <mat-label>Select An Upgrade Path</mat-label>
-            <mat-select formControlName="selectedPath">
-              <mat-option *ngFor="let path of paths" [value]="path">{{path}}</mat-option>
-            </mat-select>
-            <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("selectedPath")) }}</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput formControlName="username" placeholder="Old Controller Username" [required]=true>
-            <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("username")) }}</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <input matInput type="password" formControlName="password" placeholder="Old Controller Password" [required]=true>
-            <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("password")) }}</mat-error>
-          </mat-form-field>
-        </div>
-        <button mat-raised-button color="primary" (click)="performUpgrade()" [disabled]="upgradePathFormGroup.invalid">Execute Upgrade</button>
-      </form>
-    </mat-step>
-  </mat-vertical-stepper>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Upgrade</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-vertical-stepper class="inMatCard" #stepper div [linear]=true>
+        <mat-step [stepControl]="upgradeFormGroup" label="Controller IP Selection and Configuration">
+          <form [formGroup]="upgradeFormGroup">
+            <div fxLayout="column" fxLayoutAlign="space-between stretch">
+              <mat-form-field>
+                <mat-label>Select this controllers management interface IP Address</mat-label>
+                <mat-select disableRipple formControlName="new_ctrl_ip" [required]=true>
+                  <mat-option *ngFor="let interface of ctrlDeviceFacts['interfaces']" [value]="interface.ip_address">
+                    {{ interface.name }} - {{ interface.ip_address }}</mat-option>
+                </mat-select>
+                <mat-error>{{ getErrorMessage(upgradeFormGroup.get("new_ctrl_ip")) }}</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput formControlName="original_controller_ip" placeholder="Old Controller IP Address">
+                <mat-error>{{ getErrorMessage(upgradeFormGroup.get("original_controller_ip")) }}</mat-error>
+              </mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" matStepperNext (click)="upgradePaths(stepper)">Get Upgrade
+              Paths</button>
+          </form>
+        </mat-step>
+        <mat-step [stepControl]="upgradePathFormGroup" label="Upgrade path configuration">
+          <form [formGroup]="upgradePathFormGroup">
+            <h5>Upgrade Path Selection</h5>
+            <div fxLayout="column" fxLayoutAlign="space-between stretch">
+              <mat-form-field>
+                <mat-label>Select An Upgrade Path</mat-label>
+                <mat-select formControlName="selectedPath">
+                  <mat-option *ngFor="let path of paths" [value]="path">{{path}}</mat-option>
+                </mat-select>
+                <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("selectedPath")) }}</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput formControlName="username" placeholder="Old Controller Username" [required]=true>
+                <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("username")) }}</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput type="password" formControlName="password" placeholder="Old Controller Password" [required]=true>
+                <mat-error>{{ getErrorMessage(upgradePathFormGroup.get("password")) }}</mat-error>
+              </mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" (click)="performUpgrade()" [disabled]="upgradePathFormGroup.invalid">Execute Upgrade</button>
+          </form>
+        </mat-step>
+      </mat-vertical-stepper>
+    </mat-card-content>
+  </mat-card>
 </div>

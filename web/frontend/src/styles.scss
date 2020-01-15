@@ -65,6 +65,11 @@ mat-dialog-container, .main-content2, .container-fluid {
   font-family: sans-serif, serif, 'Times New Roman', Times;
 }
 
+.main-content2::before {
+  display: block;
+  content: "\00a0";
+}
+
 .main-content2 {
   margin-top: 1.5em;
   width: fit-content;
@@ -179,6 +184,15 @@ mat-dialog-container, .main-content2, .container-fluid {
       }
     }
   }
+
+  mat-card {
+    mat-vertical-stepper.inMatCard {
+      width: 100%;
+      margin-top: 0px;
+    }
+
+  }
+
 }
 
 .container-fluid {

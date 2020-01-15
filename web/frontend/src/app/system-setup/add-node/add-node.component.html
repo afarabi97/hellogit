@@ -1,25 +1,32 @@
 <div class="main-content2">
-  <mat-vertical-stepper [linear]=true #stepper (selectionChange)="stepChanged($event)">
-    <mat-step label="Phyiscally connect and configure the RAID of the new node">
-      <p>See <a href="{{ documentation_link }}" target="_blank">Documentation</a> for more details</p>
-      <button mat-button matStepperNext>Next</button>
-    </mat-step>
-    <mat-step label="Fill out Kickstart Node information" [stepControl]="node">
-      <app-kickstart-node-form [node]="node" [availableIPs]="availableIPs"></app-kickstart-node-form>
-      <button mat-raised-button [disabled]="node.invalid" color="primary" (click)="executeKickstart()">Execute Kickstart</button>
-    </mat-step>
-    <mat-step label="Network boot the node and wait for Red Hat to install.">
-      <p>See <a href="{{ documentation_link }}" target="_blank">Documentation</a> for more details</p>
-      <button mat-button matStepperPrevious>Back</button>
-      <button mat-button matStepperNext>Next</button>
-    </mat-step>
-    <mat-step label="{{ chooseNodeTypeLabel }}" [stepControl]="kitNode">
-      <p *ngIf="error_text" style="color:red;">{{ error_text }}</p>
-      <mat-progress-bar *ngIf="isKitNodeLoading" mode="indeterminate"></mat-progress-bar>
-      <h2 *ngIf="!isKitNodeLoading" style="margin-bottom: 0px;">{{ hostname }}</h2>
-      <app-kit-node-form *ngIf="!isKitNodeLoading" [node]="kitNode" [disableMasterSelection]="true" (nodeTypeChange)="onNodeTypeChange($event)" ></app-kit-node-form>
-      <p *ngIf="cpuMemMisMatch" style="color:red;">{{ serverMemCpuError }}</p>
-      <button mat-raised-button *ngIf="!isKitNodeLoading"  color="primary" [disabled]="kitNode.invalid || cpuMemMisMatch" (click)="executeAddNode()">Execute Add Node</button>
-    </mat-step>
-  </mat-vertical-stepper>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Add Node</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-vertical-stepper class="inMatCard" [linear]=true #stepper (selectionChange)="stepChanged($event)">
+        <mat-step label="Phyiscally connect and configure the RAID of the new node">
+          <p>See <a href="{{ documentation_link }}" target="_blank">Documentation</a> for more details</p>
+          <button mat-button matStepperNext>Next</button>
+        </mat-step>
+        <mat-step label="Fill out Kickstart Node information" [stepControl]="node">
+          <app-kickstart-node-form [node]="node" [availableIPs]="availableIPs"></app-kickstart-node-form>
+          <button mat-raised-button [disabled]="node.invalid" color="primary" (click)="executeKickstart()">Execute Kickstart</button>
+        </mat-step>
+        <mat-step label="Network boot the node and wait for Red Hat to install.">
+          <p>See <a href="{{ documentation_link }}" target="_blank">Documentation</a> for more details</p>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </mat-step>
+        <mat-step label="{{ chooseNodeTypeLabel }}" [stepControl]="kitNode">
+          <p *ngIf="error_text" style="color:red;">{{ error_text }}</p>
+          <mat-progress-bar *ngIf="isKitNodeLoading" mode="indeterminate"></mat-progress-bar>
+          <h2 *ngIf="!isKitNodeLoading" style="margin-bottom: 0px;">{{ hostname }}</h2>
+          <app-kit-node-form *ngIf="!isKitNodeLoading" [node]="kitNode" [disableMasterSelection]="true" (nodeTypeChange)="onNodeTypeChange($event)" ></app-kit-node-form>
+          <p *ngIf="cpuMemMisMatch" style="color:red;">{{ serverMemCpuError }}</p>
+          <button mat-raised-button *ngIf="!isKitNodeLoading"  color="primary" [disabled]="kitNode.invalid || cpuMemMisMatch" (click)="executeAddNode()">Execute Add Node</button>
+        </mat-step>
+      </mat-vertical-stepper>
+    </mat-card-content>
+  </mat-card>
 </div>
