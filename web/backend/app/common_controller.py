@@ -22,16 +22,18 @@ from typing import List, Dict, Tuple, Set
 
 @app.route('/api/metrics', methods=['POST'])
 def replace_metrics():
-    try:
-        data = request.get_json()
-        for document in data:
+    data = request.get_json()
+    status = 200
+    replaced = []
+    for document in data:
+        try:
             conn_mng.mongo_metrics.find_one_and_replace({"node": document['node'], "name": document["name"], "type": document["type"]}, document, upsert=True)
-        return jsonify(data)
-    except Exception as e:
-        logger.exception(e)
+            replaced.append(document)
+        except Exception as e:
+            logger.exception(e)
+            status = 500
 
-    return ERROR_RESPONSE
-
+    return jsonify(replaced), status
 
 MIN_MBPS = 1000
 

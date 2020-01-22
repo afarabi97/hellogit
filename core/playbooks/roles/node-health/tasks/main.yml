@@ -1,0 +1,48 @@
+---
+- name: Install necessary packages.
+  yum:
+    name: "{{ item }}"
+  loop:
+    - gcc
+    - python36
+    - python36-devel
+
+- name: Create the metrics directory.
+  file:
+    path: "/opt/metrics"
+    state: directory
+  
+- name: Create a virtual environment.
+  command: /usr/bin/python3 -m venv /opt/metrics-env
+  args:
+    creates: /opt/metrics-env
+
+- name: Install necessary packages into the virtual environment.
+  pip:
+    name:
+      - aniso8601
+      - elasticsearch
+      - kubernetes
+      - psutil
+      - requests
+    virtualenv: /opt/metrics-env
+
+- name: Copy python files.
+  copy:
+    src: "{{ item }}"
+    dest: /opt/metrics/{{ item }}
+  loop:
+    - "updateMetrics.py"
+    - "tfplenum.py"
+    - "elasticsearchMetrics.py"
+    - "psutilMetrics.py"
+
+- name: Create a config file.
+  template:
+    src: metrics.ini.j2
+    dest: /opt/metrics/metrics.ini
+
+- name: Create a cronjob.
+  cron:
+    name: node-health
+    job: cd /opt/metrics && /opt/metrics-env/bin/python /opt/metrics/updateMetrics.py

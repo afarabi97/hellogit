@@ -172,31 +172,31 @@
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last Suricata event that occurred on this sensor's disk drive.">Last Suricata Log Event</dt>
-        <dd>{{ displayedPipeline.last_suricata_log_event }}</dd>
+        <dd>{{ displayedPipeline?.last_suricata_log_event ? displayedPipeline?.last_suricata_log_event : 'No events'  }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Suricata event that was received by Elasticsearch on the server cluster.">Last Suricata Elastic Event</dt>
-        <dd>{{ displayedPipeline.last_suricata_elastic_events }}</dd>
+        <dd>{{ displayedPipeline?.last_suricata_elastic_events ? displayedPipeline?.last_suricata_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last Zeek event that occurred on this sensor's disk drive.">Last Zeek Log Event</dt>
-        <dd>{{ displayedPipeline.last_zeek_log_event }}</dd>
+        <dd>{{ displayedPipeline?.last_zeek_log_event ? displayedPipeline?.last_zeek_log_event : 'No events' }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Zeek event that was received by Elasticsearch on the server cluster.">Last Zeek Elastic Event</dt>
-        <dd>{{ displayedPipeline.last_zeek_elastic_events }}</dd>
+        <dd>{{ displayedPipeline.last_zeek_elastic_events ? displayedPipeline.last_zeek_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last PCAP capture event that occurred on this sensor's disk drive.">Last PCAP Log Event</dt>
-        <dd>{{ displayedPipeline.last_pcap_log_event }}</dd>
+        <dd>{{ displayedPipeline.last_pcap_log_event ? displayedPipeline.last_pcap_log_event : 'No events' }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Moloch event that was received by Elasticsearch on the server cluster.">Last Moloch Elastic Event</dt>
-        <dd>{{ displayedPipeline.last_moloch_elastic_events }}</dd>
+        <dd>{{ displayedPipeline.last_moloch_elastic_events ? displayedPipeline.last_moloch_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
   </ng-container>

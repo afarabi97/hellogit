@@ -318,6 +318,6 @@
   gather_facts: no
   any_errors_fatal: true
   roles:
-    - frontend_health_metrics
+    - node-health
   tags:
-    - frontend-health-metrics
+    - node-health

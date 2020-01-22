@@ -67,8 +67,8 @@ moloch:
 logs:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t logs
 
-health-metrics:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t frontend-health-metrics
+node-health:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
 
 dnsmasq-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics
