@@ -238,11 +238,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @param {MatStepper} stepper
    * @memberof CatalogPageComponent
    */
-  getConfig(stepper: MatStepper) {
+  getConfig(stepper: MatStepper, next: boolean = true) {
     this.serverAny();
     this.configReady();
     if (this.isReady === true ) {
-      this.makeFormgroup(stepper);
+      this.makeFormgroup(stepper, next);
     }
 
   }
@@ -399,7 +399,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    *
    * @memberof CatalogPageComponent
    */
-  makeFormgroup(stepper: MatStepper) {
+  makeFormgroup(stepper: MatStepper, next: boolean = true) {
     this.configFormGroup.controls = {};
     this.processFormGroup.value.selectedNodes.map(nodes => {
       let nodeControls;
@@ -418,7 +418,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this.configFormGroup.addControl(nodes.hostname, nodeControls);
     });
     this.cdRef.detectChanges();
-    stepper.next();
+    if(next) {
+      stepper.next();
+    }
   }
 
   /**

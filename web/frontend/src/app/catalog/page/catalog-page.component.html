@@ -4,7 +4,7 @@
         <div fxLayout="column" fxLayoutAlign="center center">
           <h2>{{chart?.id | capitalizeFirst}}</h2>
         </div>
-          <mat-vertical-stepper  #stepper div>
+          <mat-vertical-stepper #stepper>
               <mat-step>
                 <form>
                   <ng-template matStepLabel>Information</ng-template>
@@ -28,7 +28,7 @@
                     <h5>Node Selection</h5>
                       <mat-form-field>
                         <mat-label>Select A Node</mat-label>
-                        <mat-select formControlName="selectedNodes" multiple required>
+                        <mat-select (selectionChange)="getConfig(stepper, false)" formControlName="selectedNodes" multiple required>
                           <mat-option *ngFor="let node of filterByInput(processFormGroup.value.selectedProcess)" [value]="node">{{node.hostname}}</mat-option>
                         </mat-select>
                       </mat-form-field>
