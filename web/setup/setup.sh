@@ -45,12 +45,6 @@ function _open_firewall_ports(){
     firewall-cmd --reload
 }
 
-function _install_python36(){
-	run_cmd yum install -y gcc
-	run_cmd yum install -y python36 python36-devel
-	mkdir -p /root/.pip/
-}
-
 function _setup_pythonenv {
 	pushd $FRONTEND_DIR/ > /dev/null
 	systemctl is-active tfplenum-frontend && systemctl stop tfplenum-frontend # If it's running, it needs to be stopped
@@ -156,7 +150,6 @@ mkdir -p /var/log/tfplenum/
 _install_deps
 _install_nodejs
 _install_angular
-_install_python36
 _setup_pythonenv
 _configure_httpd
 _deploy_angular_application

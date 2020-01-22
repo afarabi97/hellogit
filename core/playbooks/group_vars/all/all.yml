@@ -50,6 +50,7 @@ ids_log_rotate_interval: 300
 # Common
 package_list:
   - python-gobject
+  - python2-pip
   - nload
   - iperf
   - openvpn
@@ -67,7 +68,6 @@ pip_installs:
   - grpcio-tools==1.24.1
   - grpcio==1.24.1
   - pyhelm
-  - openshift
 
 ansible_controller_hostname: "controller.lan"
 ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"

@@ -21,19 +21,6 @@
     name: "{{ package_list }}"
     state: latest
 
-- name: upgrade packages
-  pip:
-    name:
-    - pip
-    - setuptools
-    - jinja2
-    state: latest
-
-- name: install pip modules
-  pip:
-    name: "{{ pip_installs }}"
-    state: present
-
 - name: Execute clone repo role.
   include_role:
     name: clonerepo

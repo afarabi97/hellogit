@@ -5,7 +5,6 @@ boostrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PACKAGES="vim net-tools wget"
 EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-ANSIBLE_VERSION="2.8.0"
 RHEL_VERSION="7.7"
 RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
@@ -29,6 +28,12 @@ function run_cmd {
         echo "$command returned error code $ret_val"
         exit 1
     fi
+}
+
+function install_python36(){
+	run_cmd yum install -y gcc
+	run_cmd yum install -y python36 python36-devel
+	mkdir -p /root/.pip/
 }
 
 function labrepo_available() {
@@ -193,19 +198,25 @@ function subscription_prompts(){
 
 }
 
-
 function setup_ansible(){
-cat <<EOF > /etc/yum.repos.d/ansible.repo
-[ansible]
-baseurl=https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/
-enable=1
-gpgcheck=1
-gpgkey=https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub
-name=ansible
-EOF
-
-yum install --enablerepo=ansible ansible-$ANSIBLE_VERSION -y
-
+    local core_dir="/opt/tfplenum/core"
+    pushd $core_dir > /dev/null
+    run_cmd yum install -y policycoreutils-python python-pip python-gobject sshpass
+    run_cmd pip2 install virtualenv
+    run_cmd virtualenv --python=python2 --system-site-packages tfp-env
+    run_cmd $core_dir/tfp-env/bin/pip2 install -r $core_dir/requirements-py2.txt
+    rm -f /usr/bin/ansible*
+    rm -f /usr/bin/dir2pi
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-playbook /usr/bin/ansible-playbook
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-console /usr/bin/ansible-console
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-config /usr/bin/ansible-config
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-galaxy /usr/bin/ansible-galaxy
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-doc /usr/bin/ansible-doc
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-inventory /usr/bin/ansible-inventory
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-pull /usr/bin/ansible-pull
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible /usr/bin/ansible
+    run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/dir2pi /usr/bin/dir2pi
+    popd > /dev/null
 }
 
 
@@ -450,6 +461,7 @@ if [ "$RUN_TYPE" == "full" ]; then
     git config --global --unset credential.helper
     execute_pre
     remove_npmrc
+    install_python36
     setup_frontend
 fi
 

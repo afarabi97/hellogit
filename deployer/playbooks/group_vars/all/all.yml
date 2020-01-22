@@ -31,14 +31,6 @@ additional_repo_info:
     gpgcheck: true
     description: "MongoDB Repository"
     download_path: "{{ tfplenumoffline_dir }}"
-  ansible:
-    name: "ansible"
-    baseurl: "https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/"
-    gpgkeyurl: "https://releases.ansible.com/keys/RPM-GPG-KEY-ansible-release.pub"
-    gpgkeyname: "RPM-GPG-KEY-ansible-release.pub"
-    gpgcheck: true
-    description: "Ansible Repo"
-    download_path: "{{ tfplenumoffline_dir }}"
   docker_ce:
     name: "docker-ce"
     baseurl: "https://download.docker.com/linux/centos/7/$basearch/stable"
@@ -66,33 +58,25 @@ epel_repo:
     failovermethod: "priority"
     download_path: "{{ tfplenumoffline_dir }}"
 
+
 pip_downloads:
-  - docker
+  - docker==4.1.0
   - elasticsearch==7.1.0
-  - flask
-  - ipaddress
-  - junit-xml
-  - netaddr
+  - flask==1.1.1
+  - ipaddress==1.0.23
+  - junit-xml==1.8
+  - netaddr==0.7.19
   - requests==2.22.0
   - "restresponse==2.0.0"
-  - urllib3
+  - urllib3==1.25.7
   - pyhelm==2.14.4
   - grpcio==1.24.1
   - grpcio-tools==1.24.1
-  - pbr
-  - openshift
+  - pbr==5.4.4
   - aniso8601==8.0.0
   - kubernetes==10.0.1
   - psutil==5.6.7
 
-pip_installs:
-  - "setuptools==44"
-  - "junit-xml==1.8"
-  - "netaddr"
-  - "docker"
-  - "pyyaml"
-  - "pyhelm"
-  - "openshift"
 
 iso_rhel_version: "7.7"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"

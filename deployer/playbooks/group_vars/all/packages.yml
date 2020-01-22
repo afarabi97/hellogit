@@ -1,6 +1,5 @@
 ---
 
-ansible_ver: "2.8.0"
 
 group_packages:
   - base
@@ -14,7 +13,6 @@ direct_download_package_names:
   - { url: "https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}" }
 
 packages:
-  - "ansible-{{ ansible_ver }}"
   - audit
   - bash-completion
   - bind-utils

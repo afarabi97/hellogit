@@ -266,16 +266,6 @@
   tags:
     - kibana
 
-# Only used when adding servers dynamically
-- name: Scale Elasticsearch
-  hosts: all
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - elasticsearch/scale
-
 - name: Deploy metric services
   hosts: master_server
   gather_facts: no

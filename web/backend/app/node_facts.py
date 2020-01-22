@@ -259,7 +259,7 @@ class Node(object):
         self.set_memory(memory)
         self.set_interfaces(interfaces)
         self.set_cpu_cores(cores)
-        self.set_disks(disks)        
+        self.set_disks(disks)
 
 
 def ansible_setup(server_ip: str, password: str) -> Dict:

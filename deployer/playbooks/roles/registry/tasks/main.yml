@@ -46,19 +46,9 @@
 - name: Install Docker
   yum:
     name:
-      - python-pip
       - docker-ce
     state: installed
 
-- name: upgrade pip
-  pip:
-    name: pip
-    state: latest
-
-- name: install pip modules
-  pip:
-    name: "{{ pip_installs }}"
-    state: present
 
 - name: Create directory docker directory
   file:

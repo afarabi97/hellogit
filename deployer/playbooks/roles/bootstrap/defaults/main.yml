@@ -4,8 +4,6 @@ package_list:
   - bash-completion
   - git
   - "kubectl-{{ k8s_version }}"
-  - policycoreutils-python
-  - python-pip
   - rsync
   - tcpdump
   - tcpreplay
