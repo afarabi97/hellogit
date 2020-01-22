@@ -945,7 +945,7 @@ class VirtualMachine:
         remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
-        remote_shell.sudo('cd /; dd if=/dev/zero of=zerofillfile bs=1M; rm -rf zerofillfile;')
+        remote_shell.sudo('dd if=/dev/zero of=/root/zerofillfile bs=1M; rm -rf /root/zerofillfile;')
 
     def _clear_history(self, remote_shell: Connection):
         remote_shell.sudo('cat /dev/null > /root/.bash_history')
