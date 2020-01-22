@@ -65,7 +65,7 @@
 {% endif %}
 
 ---
-apiVersion: elasticsearch.k8s.elastic.co/v1beta1
+apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
   name: tfplenum
@@ -91,9 +91,8 @@ spec:
       node.data: false
       node.ingest: false
 {% endif %}
-      node.max_local_storage_nodes: "3"
+      node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
-      xpack.security.authc.realms.native.realm1.order: 0
     podTemplate:
       metadata:
         labels:
@@ -143,9 +142,8 @@ spec:
       node.master: false
       node.data: true
       node.ingest: false
-      node.max_local_storage_nodes: "3"
+      node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
-      xpack.security.authc.realms.native.realm1.order: 0
     podTemplate:
       metadata:
         labels:
@@ -188,9 +186,8 @@ spec:
       node.master: false
       node.data: false
       node.ingest: true
-      node.max_local_storage_nodes: "3"
+      node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
-      xpack.security.authc.realms.native.realm1.order: 0
     podTemplate:
       metadata:
         labels:

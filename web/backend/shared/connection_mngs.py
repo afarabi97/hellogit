@@ -125,6 +125,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.catalog_saved_values
 
     @property
+    def mongo_elastic_deploy(self) -> Collection:
+        return self._tfplenum_database.elastic_deploy
+
+    @property
     def mongo_celery_tasks(self) -> Collection:
         return self._tfplenum_database.celery_tasks
 

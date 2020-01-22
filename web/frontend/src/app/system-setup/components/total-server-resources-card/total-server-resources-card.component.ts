@@ -8,6 +8,7 @@ import { FormArray } from '@angular/forms';
 })
 export class TotalServerResourcesCardComponent implements OnChanges {
   @Input() nodes: FormArray;
+  @Input() isScale: boolean = false;
   serverResource: ServerResource = new ServerResource();
   constructor() { }
 
@@ -17,18 +18,25 @@ export class TotalServerResourcesCardComponent implements OnChanges {
       this.serverResource.memoryAvailable = 0;
       this.setValues(nodes);
     });
-    if (this.nodes) {
+    if (this.nodes && this.isScale === false) {
       this.setValues(this.nodes.value);
+    } else {
+      this.setValuesScale(this.nodes);
     }
   }
 
   setValues(nodes) {
+    console.log(nodes);
     nodes.map(node => {
       if (node.node_type == 'Server' && node.deviceFacts) {
         this.serverResource.cpuCoresAvailable += node.deviceFacts['cpus_available'];
         this.serverResource.memoryAvailable += node.deviceFacts['memory_available'];
       }
     });
+  }
+
+  setValuesScale(nodes) {
+    console.log(nodes);
   }
 
 }

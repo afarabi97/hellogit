@@ -29,7 +29,7 @@ hive_cortex_version: "3.0.0"
 hive_version: "3.4.0"
 zookeeper_image_version: 3.5.5-r96
 kafka_image_version: 2.3.0-r59
-elastic_operator: 1.0.0-beta1
+elastic_operator: 1.0.0
 redmine_version: "4.0.5"
 postgres_version: "12.1"
 nifi_version: 1.10.0
@@ -46,7 +46,7 @@ kube_images:
   - docker.io/bitnami/zookeeper:{{zookeeper_image_version}}
   - docker.io/chartmuseum/chartmuseum:{{chartmuseum_image_version}}
   - docker.io/metallb/controller:{{metallb_version}}
-  - docker.io/metallb/speaker:{{metallb_version}}  
+  - docker.io/metallb/speaker:{{metallb_version}}
   - docker.io/tfplenum/moloch:{{moloch_version}}
   - docker.io/tfplenum/suricata:{{suricata_version}}
   - docker.io/tfplenum/zeek:{{zeek_version}}

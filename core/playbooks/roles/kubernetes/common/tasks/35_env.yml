@@ -3,7 +3,7 @@
   lineinfile:
     path: /etc/sysconfig/kubelet
     regexp: "^KUBELET_EXTRA_ARGS="
-    line: "KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs --read-only-port 10255 --system-reserved cpu={{ hostvars[inventory_hostname].sys_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].sys_mem_reserve }}Ki --kube-reserved cpu={{ hostvars[inventory_hostname].kube_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].kube_mem_reserve }}Ki --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"
+    line: "KUBELET_EXTRA_ARGS=--cni-bin-dir=/usr/libexec/cni --cgroup-driver=cgroupfs --read-only-port 10255 --system-reserved cpu={{ hostvars[inventory_hostname].sys_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].sys_mem_reserve }}Ki --kube-reserved cpu={{ hostvars[inventory_hostname].kube_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].kube_mem_reserve }}Ki --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"
   notify: restart kubelet
 
 - name: Create net.d directory

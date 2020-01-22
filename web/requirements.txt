@@ -46,6 +46,7 @@ ntlm-auth==1.3.0
 oauthlib==3.0.1
 paramiko==2.6.0
 pbr==5.4.2
+Pint==0.10
 protobuf==3.8.0
 psutil==5.4.7
 pyasn1==0.4.5

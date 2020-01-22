@@ -63,4 +63,8 @@ mat-drawer-container {
   .confluence-link{
     text-decoration: none;
   }
+
+  .mat-list-base .mat-list-item.mat-list-item-with-avatar, .mat-list-base .mat-list-option.mat-list-item-with-avatar {
+    height: 36px;
+  }
 }

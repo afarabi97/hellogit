@@ -84,7 +84,7 @@ def describe_node(node_name: str) -> Response:
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 
-def _get_node_type(hostname: str, nodes: List) -> str:
+def _get_node_type(hostname: str, nodes: List) -> str:    
     if nodes:
         for node in nodes:
             if hostname == node['hostname']:
@@ -128,6 +128,7 @@ def _get_pod_info(pods: V1PodList) -> List:
 
 
 def _get_totals(pods: V1PodList, nodes: V1NodeList) -> Dict:
+    mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     cpu_total = 0
     mem_total = 0
     node_names = {}
@@ -167,6 +168,9 @@ def _get_totals(pods: V1PodList, nodes: V1NodeList) -> Dict:
     for key in node_names:
         for node in nodes.items:
             if key == node.metadata.name:
+                node_names[key]['name'] = node.metadata.name
+                node_names[key]['node_type'] = _get_node_type(node.metadata.name, mongo_document['form']['nodes'])
+
                 try:
                     cpu_milli = _get_cpu_total(node.status.allocatable['cpu'])
                 except KeyError:

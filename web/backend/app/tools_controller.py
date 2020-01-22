@@ -5,7 +5,7 @@ import zipfile
 from app import app, logger, conn_mng, CORE_DIR
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.configmap_service import bounce_pods
-from app.service.elastic_service import finish_repository_registration
+from app.service.elastic_service import finish_repository_registration, apply_es_deploy
 from app.service.job_service import run_command, run_command2
 from app.service.snapshot_service import check_snapshot_status
 from app.service.time_service import change_time_on_kit, TimeChangeFailure
@@ -21,13 +21,20 @@ from pathlib import Path
 from pymongo import ReturnDocument
 from shared.constants import KICKSTART_ID, ELK_SNAPSHOT_STATE, KIT_ID
 from shared.utils import decode_password, encode_password
-from shared.connection_mngs import FabricConnectionManager, ElasticsearchManager, KubernetesWrapper, FabricConnection
+from shared.connection_mngs import FabricConnectionManager, ElasticsearchManager, KubernetesWrapper, FabricConnection, FabricConnectionWrapper
 from socket import gethostbyname
 from typing import List, Dict, Tuple, Set
 from werkzeug.utils import secure_filename
+import traceback
+from app.service.socket_service import NotificationMessage, NotificationCode
+import io
+import yaml, json
+from app.service.scale_service import es_cluster_status
+from app.dao import elastic_deploy
 
 
 REGISTRATION_JOB = None # type: AsyncResult
+_JOB_NAME = "tools"
 
 
 class AmmendedPasswordNotFound(Exception):
@@ -112,7 +119,7 @@ def change_kit_password():
                             ret = shell.run(change_root_pwd) # type: Result
                             if ret.return_code != 0:
                                 return ERROR_RESPONSE
-                    except AuthenticationException:                    
+                    except AuthenticationException:
                         return jsonify(node)
                 else:
                     return jsonify(node)
@@ -185,11 +192,12 @@ def retrieve_service_ip_address(service_name: str) -> str:
 
 @app.route('/api/restart_elastic_search_and_complete_registration', methods=['POST'])
 def restart_elastic_search() -> Response:
-    global REGISTRATION_JOB
-    service_ip = retrieve_service_ip_address("elasticsearch")
-    REGISTRATION_JOB = finish_repository_registration.delay(service_ip)
-    return OK_RESPONSE
-
+    if es_cluster_status() == "Ready":
+        global REGISTRATION_JOB
+        service_ip = retrieve_service_ip_address("elasticsearch")
+        REGISTRATION_JOB = finish_repository_registration.delay(service_ip)
+        return OK_RESPONSE
+    return (jsonify("Elastic cluster is not in a ready state. Please wait and try again..."), 500)
 
 @app.route('/api/elk_snapshot_state', methods=['GET'])
 def is_elk_snapshot_repo_setup():
@@ -331,3 +339,43 @@ def get_monitoring_interfaces():
         result.append(node)
 
     return jsonify(result)
+
+
+@app.route('/api/load_elastic_deploy', methods=['GET'])
+def load_es_deploy():
+    notification = NotificationMessage(role=_JOB_NAME)
+    remote_deploy_path = "/opt/tfplenum/elasticsearch/deploy.yml"
+    override = request.args.get('override', default = False, type = bool)
+
+    try:
+        if override:
+            elastic_deploy.delete_many()
+        deploy_config = elastic_deploy.read_many()
+        if (override == False and len(deploy_config) > 0):
+            return (jsonify("Deploy config already exists use ?override=1 to reload it"), 200)
+        if override or (override == False and len(deploy_config) == 0):
+            original_config = io.BytesIO()
+            with FabricConnectionWrapper(conn_mng) as master_shell: # type: Connection
+                master_shell.get(remote_deploy_path, original_config)
+                config = original_config.getvalue().decode('utf-8')
+                config_yaml = yaml.load_all(config, Loader=yaml.FullLoader)
+
+                for d in config_yaml:
+                    elastic_deploy.create(d)
+        return (jsonify("Deploy config successfully loaded."), 200)
+    except Exception as e:
+        traceback.print_exc()
+        notification.setStatus(status=NotificationCode.ERROR.name)
+        notification.setMessage(str(e))
+        notification.post_to_websocket_api()
+        return ERROR_RESPONSE
+    return ERROR_RESPONSE
+
+
+@app.route('/api/apply_elastic_deploy', methods=['GET'])
+def apply_es_deploy_rest():
+
+    if apply_es_deploy():
+        return OK_RESPONSE
+
+    return ERROR_RESPONSE

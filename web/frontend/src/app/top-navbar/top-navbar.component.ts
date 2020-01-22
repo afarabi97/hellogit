@@ -26,7 +26,8 @@ export class TopNavbarComponent implements OnInit {
                  { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false },
                  { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false },
                  { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false },
-                 { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false }]
+                 { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false },
+                 { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false }]
     }, {
       label: 'Kubernetes',
       children: [{ label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false },

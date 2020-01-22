@@ -98,6 +98,8 @@ import { DateTimeModule } from './date-time-picker/date-time.module';
 import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 
+// ES Scale
+import { ESScaleComponent } from './es-scale/es-scale.component';
 
 @NgModule({
   declarations: [
@@ -149,7 +151,8 @@ import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal
     ModalTableComponent,
     AddNodeComponent,
     KickstartNodeFormComponent,
-    KitNodeFormComponent
+    KitNodeFormComponent,
+    ESScaleComponent
   ],
   imports: [
     BrowserModule,
