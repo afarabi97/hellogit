@@ -74,9 +74,9 @@ export class KitComponent implements OnInit, AfterViewInit {
     });
 
     let dialogData = { title: "Execute Kit?",
-                       instructions: 'Are you sure you want to generate the Kit inventory?  \
-                                      Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
-                                      To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.',
+                       instructions: 'Do you want to execute the kit? \
+                                      Executing the Kit will generate a new Kit inventory in /opt/tfplenum/core/playbook/inventory.yml. \
+                                      Once installation begins you will be taken to a page where you can view the progress of the tasks that are executing.',
                        dialogForm: dialogForm,
                        confirmBtnText: "Execute" };
     this.openDateTimeDialog(dialogData, false);
