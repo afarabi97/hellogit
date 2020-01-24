@@ -76,6 +76,8 @@ spec:
             port: http
           initialDelaySeconds: 10
           timeoutSeconds: 5
+        nodeSelector:
+          role: server
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         volumeMounts:
