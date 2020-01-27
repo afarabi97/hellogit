@@ -1,7 +1,7 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
-      <h3 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md style="padding-left: 20px;">TFPlenum Controller</h3>
-      <span class="version" *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>v{{ version }}</span>
+      <h3 *ngIf="showLinkNames" style="padding-left: 20px;">TFPlenum Controller</h3>
+      <span class="version" *ngIf="showLinkNames">v{{ version }}</span>
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
@@ -12,11 +12,11 @@
         </mat-list-item>
         <mat-list-item (click)="openNotifications()">
               <mat-icon class="notification-icon" mat-list-icon><app-notifications #notifications></app-notifications></mat-icon>
-              <h4 *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md mat-line>Notifications</h4>
+              <h4 *ngIf="showLinkNames" mat-line>Notifications</h4>
         </mat-list-item>
         <mat-divider></mat-divider>
         <div *ngFor="let group of sideNavigationButtons">
-          <h3 mat-subheader *ngIf="group.label && showLinkNames" fxHide.sm fxHide.xs fxHide.md>
+          <h3 mat-subheader *ngIf="group.label && showLinkNames">
             {{ group.label }}
           </h3>
           <ng-container *ngFor="let child of group.children">
@@ -43,8 +43,8 @@
       <mat-divider></mat-divider>
         <div #trigger class="main-sidenav-button-trigger" matTooltip="Toggle">
           <mat-icon *ngIf="!showLinkNames">arrow_forward</mat-icon>
-          <mat-icon *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>arrow_back</mat-icon>
-          <span *ngIf="showLinkNames" fxHide.sm fxHide.xs fxHide.md>Collapse</span>
+          <mat-icon *ngIf="showLinkNames">arrow_back</mat-icon>
+          <span *ngIf="showLinkNames">Collapse</span>
         </div>
       </div>
     </mat-drawer>
