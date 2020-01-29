@@ -1,0 +1,12 @@
+# Default values for mattermost
+wikijsImage: requarks/wiki:2.0.12
+
+# database variables
+mariadbImage: mariadb:10.4.11
+sqlDatabase: wikijs-db
+sqlUsername: wikijs
+sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0
+sqlUserPassword: -sMoJDGYkTm-f8kKD9(w%HbKf
+url: http://wikijs.lan
+adminEmail: admin@dip.local
+adminPassword: password!

@@ -24,6 +24,10 @@ charts = [
         { "name": "niagra-files",
                 "version": "1.0.0"},
         { "name": "redmine",
+                "version": "1.0.0"},
+        { "name": "mattermost",
+                "version": "1.0.0"},
+        { "name": "wikijs",
                 "version": "1.0.0"}
     ]
 

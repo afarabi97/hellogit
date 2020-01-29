@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: wikijs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: wikijs
+  template:
+    metadata:
+      labels:
+        component: wikijs
+    spec:
+      initContainers:
+      - name: wikijs-init
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "chown -R 1000 /wikijs-data"
+        volumeMounts:
+        - name: wikijs
+          mountPath: /wikijs-data
+          subPath: wiki-content
+      containers:
+      - name: mariadb
+        image: {{ .Values.mariadbImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.sqlRootPassword }}
+        - name: MYSQL_DATABASE
+          value: {{ .Values.sqlDatabase }}
+        - name: MYSQL_USER
+          value: {{ .Values.sqlUsername }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.sqlUserPassword }}
+        volumeMounts:
+        - name: wikijs
+          mountPath: /var/lib/mysql
+          subPath: mariaDB
+      - name: wikijs
+        image: {{ .Values.wikijsImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "node ./server/init.js & node server"
+        env:
+        - name: DB_HOST
+          value: localhost
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: {{ .Values.sqlDatabase }}
+        - name: DB_USER
+          value: {{ .Values.sqlUsername }}
+        - name: DB_PASS
+          value: {{ .Values.sqlUserPassword }}
+        - name: DB_TYPE
+          value: "mariadb"
+        volumeMounts:
+        - name: wikijs-configmap
+          mountPath: "/wiki/data/sideload/en.json"
+          subPath: en.json
+        - name: wikijs-configmap
+          mountPath: "/wiki/data/sideload/locales.json"
+          subPath: locales.json
+        - name: wikijs-configmap
+          mountPath: "/wiki/config.yml"
+          subPath: config.yml
+        - name: wikijs-configmap
+          mountPath: "/wiki/server/init.js"
+          subPath: init.js
+        - name: wikijs
+          mountPath: /wiki/data
+          subPath: wiki-content
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: wikijs-configmap
+        configMap:
+          name: {{ .Release.Name }}
+          defaultMode: 0444
+      - name: wikijs
+        hostPath:
+          path: /data/wikijs
+          type: DirectoryOrCreate
