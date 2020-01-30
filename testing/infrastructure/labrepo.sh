@@ -128,7 +128,7 @@ function gen_certs_for_labrepo(){
 
     # Set the wildcarded domain
     # we want to use
-    DOMAIN="*.labrepo.lan"
+    DOMAIN="*.labrepo.sil.lab"
 
     # A blank passphrase
     PASSPHRASE=""

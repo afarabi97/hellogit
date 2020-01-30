@@ -80,7 +80,7 @@ pip_downloads:
 
 iso_rhel_version: "7.7"
 iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_url_labrepo: "http://isos.labrepo.lan/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_url_labrepo: "http://isos.labrepo.sil.lab/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_checksum: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
 
 BOOTSTRAP: false

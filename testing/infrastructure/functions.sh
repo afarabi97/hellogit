@@ -64,7 +64,7 @@ function install_requirements(){
 
 function install_ovftool(){
     pushd /root > /dev/null
-    run_cmd curl -s -o VMware-ovftool-4.3.0-12320924-lin.x86_64.bundle http://misc.labrepo.lan/VMware-ovftool-4.3.0-12320924-lin.x86_64.bundle
+    run_cmd curl -s -o VMware-ovftool-4.3.0-12320924-lin.x86_64.bundle http://misc.labrepo.sil.lab/VMware-ovftool-4.3.0-12320924-lin.x86_64.bundle
     run_cmd bash VMware-ovftool-4.3.0-12320924-lin.x86_64.bundle
     popd > /dev/null
 }

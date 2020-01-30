@@ -130,7 +130,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: '5c726aaa-66b1-430e-b595-8fc56a3f2350', passwordVariable: 'labrepo_pass', usernameVariable: 'labrepo_user')]) {
-                        def command = "sudo python3.6 testing/testy-tester/main.py --publish-to-labrepo labrepo.lan \"${labrepo_user}\" \"${labrepo_pass}\" --export-location \"${tfplenum_export_loc}\" \
+                        def command = "sudo python3.6 testing/testy-tester/main.py --publish-to-labrepo labrepo.sil.lab \"${labrepo_user}\" \"${labrepo_pass}\" --export-location \"${tfplenum_export_loc}\" \
                         --export-version \"${tfplenum_export_version}\" --path testing/testy-tester/testcases/${kit}"
                         println command
                         sh(command)

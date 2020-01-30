@@ -20,8 +20,8 @@ rm -rf ~/.pip
 mkdir ~/.pip
 cat <<EOF > ~/.pip/pip.conf
 [global]
-index-url = http://nexus.labrepo.lan/repository/pypi/simple
-trusted-host = nexus.labrepo.lan
+index-url = http://nexus.labrepo.sil.lab/repository/pypi/simple
+trusted-host = nexus.labrepo.sil.lab
 EOF
 }
 

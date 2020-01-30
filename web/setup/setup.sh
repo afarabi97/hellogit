@@ -135,13 +135,13 @@ function _preload_ids_rules {
 function _preload_pcap_files {
     mkdir -p /var/www/html/pcaps
     pushd /var/www/html/pcaps > /dev/null
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2019-03-06-Flawed-Ammyy-traffic.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2019-05-01-password-protected-doc-infection-traffic.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap
-    curl -L -O http://misc.labrepo.lan/malware-pcaps/wannacry.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-03-06-Flawed-Ammyy-traffic.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-05-01-password-protected-doc-infection-traffic.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/wannacry.pcap
     popd > /dev/null
 }
 

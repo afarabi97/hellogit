@@ -39,7 +39,7 @@ function install_python36(){
 function labrepo_available() {
     echo "-------"
     echo "Checking if labrepo is available..."
-    labrepo_check=`curl -m 10 -s http://labrepo.lan/check.html`
+    labrepo_check=`curl -m 10 -s http://labrepo.sil.lab/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
       echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
@@ -227,21 +227,21 @@ function generate_repo_file() {
 cat <<EOF > /etc/yum.repos.d/labrepo-rhel.repo
 [rhel-7-server-extras-rpms]
 name=labrepos rhel-7-server-extras-rpms
-baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-extras-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-extras-rpms
 enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-optional-rpms]
 name=labrepos rhel-7-server-extras-rpms
-baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-optional-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-optional-rpms
 enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-rpms]
 name=labrepos rhel-7-server-extras-rpms
-baseurl=http://yum.labrepo.lan/rhel/rhel-7-server-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-rpms
 enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
