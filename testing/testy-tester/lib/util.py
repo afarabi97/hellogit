@@ -10,6 +10,7 @@ from invoke.exceptions import UnexpectedExit
 from jinja2 import Environment, FileSystemLoader
 
 from lib.connection_mngs import FabricConnectionWrapper, MongoConnectionManager
+from lib.model.host_configuration import HostConfiguration
 import pymongo
 
 from lib.model.kit import Kit
@@ -304,14 +305,19 @@ def change_remote_sensor_ip(kit: Kit, node: Node) -> None:
         if interface.management_interface:
             interface.ip_address = new_management_ip
 
-def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
+def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str, host_configuration: HostConfiguration = None) -> List[Node]:
     nodes = []  # type: List[Node]
     for v in vms:
-        node = Node(v, vms[v]['type'])  # type: Node
+        if host_configuration.storage_folder and host_configuration.storage_folder.lower() != "testing":
+            hostname = host_configuration.storage_folder.lower() + v
+        else:
+            hostname = v
+
+        node = Node(hostname, vms[v]['type'])  # type: Node
         if node.type == "controller":
             node.set_vm_to_clone(vm_to_clone)
-            node.set_dns_list(vms[v]['dns'])
-            node.set_gateway(vms[v]['gateway'])
+            node.set_dns_list(vms[v]['dns'], host_configuration.network_id)
+            node.set_gateway(host_configuration.network_id + vms[v]['gateway'])
             node.set_domain(vms[v]['domain'])
 
         node.set_username(kit.username)
@@ -325,7 +331,12 @@ def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
         nics = vms[v]['networking']['nics']  # type: dict
         interfaces = []  # type: List[Interface]
         for nic in nics:
-            interface = Interface(nic, nics[nic]['type'], nics[nic]['ip_address'], nics[nic]['start_connected'],
+            if nics[nic]['ip_address'] == None or "169" in nics[nic]['ip_address']:
+                ip_address = nics[nic]['ip_address']
+            else:
+                ip_address = host_configuration.network_id + nics[nic]['ip_address']
+
+            interface = Interface(nic, nics[nic]['type'], ip_address, nics[nic]['start_connected'],
                                   nics[nic]['management_interface'], nics[nic]['monitoring_interface'])  # type: Interface
             interface.set_mac_auto_generated(nics[nic]['mac_auto_generated'])
             interface.set_mac_address(nics[nic]['mac_address'])
@@ -333,7 +344,9 @@ def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
                 interface.set_subnet_mask(nics[nic]['subnet_mask'])
             except KeyError:
                 pass
-            interface.set_dv_portgroup_name(nics[nic].get('dv_portgroup_name'))
+
+            port_group = nics[nic].get('dv_portgroup_name') if nics[nic].get('dv_portgroup_name') else host_configuration.port_group
+            interface.set_dv_portgroup_name(port_group)
             interface.set_std_portgroup_name(nics[nic].get('std_portgroup_name'))
 
             if interface.management_interface:
@@ -408,7 +421,7 @@ def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str) -> List[Node]:
     return nodes
 
 
-def transform(configuration: OrderedDict, vm_to_clone: str) -> List[Kit]:
+def transform(configuration: OrderedDict, vm_to_clone: str, host_configuration: HostConfiguration=None) -> List[Kit]:
     """
     Transform the yaml configuration into a list of Kit objects
 
@@ -419,14 +432,14 @@ def transform(configuration: OrderedDict, vm_to_clone: str) -> List[Kit]:
     kit = Kit(configuration)  # type: Kit
 
     kickstart_configuration = KickstartConfiguration()
-    kickstart_configuration.set_gateway(configuration["kickstart_configuration"]['gateway'])
+    kickstart_configuration.set_gateway(host_configuration.network_id + configuration["kickstart_configuration"]['gateway'])
     kickstart_configuration.set_netmask(configuration["kickstart_configuration"]['netmask'])
-    kickstart_configuration.set_dhcp_range(configuration["kickstart_configuration"]['dhcp_range'])
+    kickstart_configuration.set_dhcp_range(host_configuration.network_id + configuration["kickstart_configuration"]['dhcp_range'])
     kit.set_kickstart_configuration(kickstart_configuration)
 
     kit.set_username("root")
     kit.set_password("we.are.tfplenum")
-    kit.set_kubernetes_cidr(configuration['kit_configuration']['kubernetes_cidr'])
+    kit.set_kubernetes_cidr(host_configuration.network_id + configuration['kit_configuration']['kubernetes_cidr'])
     kit.set_branch_name(configuration["kit_configuration"]['branch_name'])
 
     if 'source_repo' not in configuration["kit_configuration"]:
@@ -444,23 +457,23 @@ def transform(configuration: OrderedDict, vm_to_clone: str) -> List[Kit]:
     else:
         kit.set_remote_sensor_network(configuration["remote_sensor_network"])
 
-    kit.set_home_nets(configuration["kit_configuration"]['home_nets'])
+    kit.set_home_nets(configuration["kit_configuration"]['home_nets'], host_configuration.network_id)
 
     if 'external_nets' not in configuration["kit_configuration"]:
-        kit.set_external_nets(None)
+        kit.set_external_nets(None, host_configuration.network_id)
     else:
-        kit.set_external_nets(configuration["kit_configuration"]['external_nets'])
+        kit.set_external_nets(configuration["kit_configuration"]['external_nets'], host_configuration.network_id)
 
     machines = configuration["VMs"]  # type: dict
     metal = configuration.get('metal') or {}
     machines.update(metal)
 
     # Add list of nodes to kit
-    kit.set_nodes(_transform_nodes(machines, kit, vm_to_clone))
+    kit.set_nodes(_transform_nodes(machines, kit, vm_to_clone, host_configuration))
 
     try:
         vms = configuration["VMs"]["ADD_NODE_VMs"]  # type: dict
-        kit.set_add_nodes(_transform_nodes(vms, kit, vm_to_clone))
+        kit.set_add_nodes(_transform_nodes(vms, kit, vm_to_clone, host_configuration))
     except KeyError as e:
         logging.warning("Add node functionality will be skipped since there "
                         "is nothing under the ADD_NODE_VMs section")

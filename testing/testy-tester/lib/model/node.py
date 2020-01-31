@@ -39,7 +39,6 @@ class Interface(object):
             management_interface: Is this a management interface
             mac_auto_generated: Automatically generate mac address in VMWare
             mac_address: Interface mac address
-            dv_portgroup_name: Distributed port group name
             std_portgroup_name: Standard port group name
             interface_name (str): Name of the interface from the virtual machine
         """
@@ -473,13 +472,16 @@ class Node(object):
         """
         self.gateway = gateway
 
-    def set_dns_list(self, dns: List):
+    def set_dns_list(self, dns_list: List, network_id: str):
         """
         Set the dns list to the appropriate values.
         :param dns:
         :return:
         """
-        self.dns_list = dns
+        new_dns = []
+        for dns in dns_list:
+            new_dns.append(network_id + dns)
+        self.dns_list = new_dns
 
     def set_domain(self, domain: str) -> None:
         """

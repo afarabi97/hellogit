@@ -7,6 +7,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 import logging
 import os
+import pickle
 import subprocess
 import sys
 import tempfile
@@ -42,7 +43,6 @@ from lib.util import (get_node, get_nodes, test_vms_up_and_alive,
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
 from lib.model.node import Interface
-
 from lib.model.host_configuration import HostConfiguration
 from lib.frontend_tester import KickstartSeleniumRunner, KitSeleniumRunner
 from lib.api_tester import APITester
@@ -85,6 +85,25 @@ class Runner:
         self.host_configuration = None  # type: HostConfiguration
         self.baremetal = False
         self._vm_to_clone = "Test Template"
+        creds_cache = "/opt/tfplenum/testing/infrastructure/creds.pickle"
+        if is_valid_file(creds_cache):
+            cred_dict = {}
+            with open(creds_cache, 'rb') as infile:
+                cred_dict = pickle.load(infile)
+
+            self.di2e_password = cred_dict["di2e_password"]
+            self.di2e_username = cred_dict["di2e_username"]
+            self.vcenter_username = cred_dict["vcenter_username"]
+            self.vcenter_password = cred_dict["vcenter_password"]
+            self.esxi_username = cred_dict["esxi_username"]
+            self.esxi_password = cred_dict["esxi_password"]
+        else:
+            self.di2e_password = None
+            self.di2e_username = None
+            self.vcenter_username = None
+            self.vcenter_password = None
+            self.esxi_username = None
+            self.esxi_password = None
 
     def _validate_export_location(self):
         if os.path.exists(self.args.export_location) and os.path.isdir(self.args.export_location):
@@ -157,7 +176,11 @@ class Runner:
         parser.add_argument("-dp", "--di2e-password", dest="di2e_password",
                             help="A password to the DI2E git repo.")
         parser.add_argument("--publish-to-labrepo", dest='publish_to_labrepo', nargs=3, metavar="<ip or hostnam> <username> <password>")
-        parser.add_argument('--vmware-datastore', dest='vmware_datastore')
+
+        parser.add_argument('--vmware-datastore', dest='vmware_datastore', help="The data store all vms will be stored on.")
+        parser.add_argument('--vmware-folder', dest='vmware_folder', help="The folder in vcenter the VM will be cloned to.")
+        parser.add_argument('--port-group', dest='port_group', help="The port group override for vcenter.")
+        parser.add_argument('--network-id', dest='network_id', help="The network ID all none remote servers and sensors will be placed on. It must be a /24 network ID.")
 
         args = parser.parse_args()
         if not args.filename and args.testcase:
@@ -165,9 +188,13 @@ class Runner:
         if not is_valid_file(args.filename):
             parser.error("The file %s does not exist!" % args.filename)
         self.args = args
-        self.di2e_username = self.args.di2e_username
-        self.di2e_password = self.args.di2e_password or os.getenv('DI2E_PWD')
 
+        self.di2e_password = self.args.di2e_password if self.args.di2e_password else self.di2e_password
+        self.di2e_username = self.args.di2e_username if self.args.di2e_username else self.di2e_username
+        self.vcenter_username = self.args.vcenter_username if self.args.vcenter_username else self.vcenter_username
+        self.vcenter_password = self.args.vcenter_password if self.args.vcenter_password else self.vcenter_password
+        self.esxi_username = self.args.esxi_username if self.args.esxi_username else self.esxi_username
+        self.esxi_password = self.args.esxi_password if self.args.esxi_password else self.esxi_password
 
     def _setup_logging(self):
         """
@@ -205,6 +232,7 @@ class Runner:
 
                 host_config = self.configuration["host_configuration"]
                 storage = host_config.get("storage") or {}
+                vmware_folder = self.args.vmware_folder if self.args.vmware_folder else storage.get("folder")
                 iso_folder_path = host_config.get("iso_folder_path")
                 image_folder_path = os.getenv('IMAGE_PATH') or host_config.get("image_folder_path")
 
@@ -212,15 +240,18 @@ class Runner:
                 esxi = host_config.get("esxi")
                 if vcenter:
                     host = vcenter
-                    username = self.args.vcenter_username
-                    password = self.args.vcenter_password
+                    username = self.vcenter_username
+                    password = self.vcenter_password
                 elif esxi:
                     host = esxi
-                    username = self.args.esxi_username or os.getenv('ESXI_USER', 'root')
-                    password = self.args.esxi_password or os.getenv('ESXI_PWD')
+                    username = self.esxi_username or os.getenv('ESXI_USER', 'root')
+                    password = self.esxi_password or os.getenv('ESXI_PWD')
                 else:
                     raise Exception("Need either a vcenter or ESXi host in config.")
 
+                port_group = self.args.port_group if self.args.port_group else vcenter.get("port_group")
+                network_id = self.args.network_id if self.args.network_id else vcenter.get("network_id")
+                vmware_datastore = self.args.vmware_datastore if self.args.vmware_datastore else storage.get("datastore")
                 self.host_configuration = HostConfiguration(
                     host.get("ip_address"),
                     vcenter.get("cluster_name"),
@@ -231,22 +262,18 @@ class Runner:
                     vcenter=(True if vcenter else False),
                     install_type=host_config.get("install_type"),
                     image_folder_path=image_folder_path,
-                    resource_pool=vcenter.get("resource_pool")
+                    resource_pool=vcenter.get("resource_pool"),
+                    port_group=port_group,
+                    network_id=network_id
                 )
-                if self.args.vmware_datastore is not None:
-                    self.host_configuration.set_storage_options(
-                        self.args.vmware_datastore,
-                        storage.get("folder")
-                    )
-                else:
-                    self.host_configuration.set_storage_options(
-                        storage.get("datastore"),
-                        storage.get("folder")
-                    )
 
+                self.host_configuration.set_storage_options(
+                    vmware_datastore,
+                    vmware_folder
+                )
                 self._set_vm_to_clone()
                 # Returns a list of kit objects
-                self.kit = transform(self.configuration["kit"], self._vm_to_clone)  # type: Kit
+                self.kit = transform(self.configuration["kit"], self._vm_to_clone, self.host_configuration)  # type: Kit
                 for node in self.kit.nodes:
                     if node.suricata_catalog:
                         print(str(node.suricata_catalog))

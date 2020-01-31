@@ -50,11 +50,19 @@ class Kit(object):
     def set_source_repo(self, source_repo: str) -> None:
         self.source_repo = source_repo
 
-    def set_home_nets(self, home_nets: List[str]) -> None:
-        self.home_nets = home_nets
+    def set_home_nets(self, home_nets: List[str], network_id: str) -> None:
+        new_home_nets = []
+        if home_nets:
+            for home_net in home_nets:
+                new_home_nets.append(network_id + home_net)
+        self.home_nets = new_home_nets
 
-    def set_external_nets(self, external_nets: List[str]) -> None:
-        self.external_nets = external_nets
+    def set_external_nets(self, external_nets: List[str], network_id: str) -> None:
+        new_ext_nets = []
+        if external_nets:
+            for ext_net in external_nets:
+                new_ext_nets.append(network_id + ext_net)
+        self.external_nets = new_ext_nets
 
     def set_remote_sensor_portgroup(self, remote_sensor_portgroup: str) -> None:
         self.remote_sensor_portgroup = remote_sensor_portgroup

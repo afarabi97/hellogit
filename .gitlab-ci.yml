@@ -1,0 +1,283 @@
+variables:
+  LABREPO_USER: root
+  LABREPO_PASS: "we.are.tfplenum"
+  TFPLENUM_EXPORT_LOC: "/home/gitlab-runner"
+  TFPLENUM_EXPORT_VERSION: RC
+  PDF_SINGLE_PAGES: "6.8.1.2 DIP System Setup,6.8.1.1 MIP System Setup,6.8.2.1 DIP System Operation,6.8.2.2 MIP System Operation,6.8.9.4 Windows Agent Plugin Guide,6.8.9.5 Helm Integration,6.8.9.2 Setup Controller"
+  TFPLENUM_CONFLUENCE_PAGE: "CVAH 3.3 DRAFT2"
+  TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
+  PIPELINE: "virtual_build_and_test"
+  KIT: "test3.yml"
+  BUILD_TYPE: "clone_from_nightly"
+  IS_CLEANUP: "false"
+  VMWARE_FOLDER: "Testing"
+  PORT_GROUP: "82 Portgroup"
+  NETWORK_ID: "172.16.82."
+  VMWARE_DATASTORE: "NVMe Storage 2"
+
+stages:
+  - build
+  - docs
+  - kickstart
+  - kit
+  - catalog
+  - test
+  - test-powerfailure
+  - re-test
+  - cleanup
+  - export
+  - hashfiles
+  - publish
+
+Setup Nightly Controller:
+  stage: build
+  tags:
+    - tfplenum-build
+  script: |
+    pwd
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/nightly-controller.yml \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --setup-controller build_from_scratch
+  only:
+    variables:
+      - $PIPELINE == "daily_build"
+
+Build Offline Documentation:
+  stage: build
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py --export-html-docs "$TFPLENUM_CONFLUENCE_PAGE" \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --path testing/testy-tester/testcases/$KIT \
+    --export-version $TFPLENUM_EXPORT_VERSION
+
+    python3 testing/testy-tester/main.py --export-single-page-pdf "$PDF_SINGLE_PAGES" \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --export-version $TFPLENUM_EXPORT_VERSION \
+    --path testing/testy-tester/testcases/$KIT
+  only:
+    variables:
+      - $PIPELINE == "export"
+
+Ship Phyical Stack Build:
+  stage: build
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip infrastucture/
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+  only:
+    variables:
+      - $PIPELINE == "export"
+
+Setup Controller:
+  stage: build
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
+    --vmware-datastore "$VMWARE_DATASTORE" \
+    --setup-controller $BUILD_TYPE
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+      - $PIPELINE == "export"
+      - $PIPELINE == "developer"
+
+Add Docs to Controller:
+  stage: docs
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --add-docs-to-controller "$TFPLENUM_CONFLUENCE_PAGE" \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --export-version $TFPLENUM_EXPORT_VERSION \
+    --path testing/testy-tester/testcases/$KIT
+  only:
+    variables:
+      - $PIPELINE == "export"
+
+Kickstart:
+  stage: kickstart
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
+    --vmware-datastore "$VMWARE_DATASTORE" \
+    --run-kickstart
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+      - $PIPELINE == "developer"
+
+Deploy Kit:
+  stage: kit
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
+    --vmware-datastore "$VMWARE_DATASTORE" \
+    --run-kit
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+      - $PIPELINE == "developer"
+
+CVAH Catalog:
+  stage: catalog
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --run-catalog
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+
+System Function Testing:
+  stage: test
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --run-integration-tests
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+  artifacts:
+    reports:
+      junit: testing/playbooks/reports/*.xml
+
+Simulate Power Failure:
+  stage: test-powerfailure
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --simulate-powerfailure
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+
+System Function Testing2:
+  stage: re-test
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --run-integration-tests
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+  artifacts:
+    reports:
+      junit: testing/playbooks/reports/*.xml
+
+Cleanup Job:
+  stage: cleanup
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --run-integration-tests
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test" && $IS_CLEANUP == "true"
+
+Export Controller:
+  stage: export
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --export-controller \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --export-version $TFPLENUM_EXPORT_VERSION \
+    --path testing/testy-tester/testcases/$KIT
+  only:
+    variables:
+      - $PIPELINE == "export"
+
+Generate Versions File:
+  stage: hashfiles
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --generate-hash-file-for-exports \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --export-version $TFPLENUM_EXPORT_VERSION \
+    --path testing/testy-tester/testcases/$KIT
+  only:
+    variables:
+      - $PIPELINE == "export"
+
+Publish to Labrepo:
+  stage: publish
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --publish-to-labrepo labrepo.sil.lab $LABREPO_USER $LABREPO_PASS \
+    --export-location $TFPLENUM_EXPORT_LOC \
+    --export-version $TFPLENUM_EXPORT_VERSION \
+    --path testing/testy-tester/testcases/$KIT
+  only:
+    variables:
+      - $PIPELINE == "export"

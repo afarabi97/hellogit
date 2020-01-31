@@ -20,7 +20,9 @@ class HostConfiguration(object):
                  install_type: str = None,
                  rhel_base_image_dir: str = None,
                  image_folder_path: str = None,
-                 resource_pool: str = None) -> None:
+                 resource_pool: str = None,
+                 port_group: str = None,
+                 network_id: str = None) -> None:
 
         self.ip_address = ip_address
         self.cluster_name = cluster_name
@@ -35,7 +37,8 @@ class HostConfiguration(object):
         self.rhel_base_image_dir = rhel_base_image_dir or 'rhel_base'
         self.image_folder_path = image_folder_path
         self.resource_pool = resource_pool
-
+        self.port_group = port_group
+        self.network_id = network_id
 
     def set_storage_options(self, datastore: str, folder: str) -> None:
         """

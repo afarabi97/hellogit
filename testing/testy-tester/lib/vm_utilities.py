@@ -347,7 +347,7 @@ def change_network_port_group(host_configuration: HostConfiguration, node: Node,
     if remote_sensor_portgroup is not None:
         network_name = remote_sensor_portgroup
     else:
-        network_name = node.management_interface.dv_portgroup_name
+        network_name = host_configuration.port_group
     for device in vm.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             # device.macAddress
@@ -451,7 +451,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node, use_baseli
                 spec=clone_spec))
     Disconnect(s)
 
-def take_snapshot(vm_name: str, host_configuration: HostConfiguration):    
+def take_snapshot(vm_name: str, host_configuration: HostConfiguration):
     s = create_smart_connect_client(host_configuration)  # type: vim.ServiceInstance
     content = s.RetrieveContent()
     vm = _get_obj(content, [vim.VirtualMachine], vm_name)

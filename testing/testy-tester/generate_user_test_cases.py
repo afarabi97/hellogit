@@ -49,7 +49,6 @@ def main():
                 # Update port group and IP Address
                 for nic in list(yml_content["kit"]["VMs"][vm]["networking"]["nics"]):
                     if yml_content["kit"]["VMs"][vm]["networking"]["nics"][nic]["dv_portgroup_name"] != "Monitoring Portgroup":
-                        yml_content["kit"]["VMs"][vm]["networking"]["nics"][nic]["dv_portgroup_name"] = port_group
                         yml_content["kit"]["VMs"][vm]["networking"]["nics"][nic]["ip_address"] = _change_ip(yml_content["kit"]["VMs"][vm]["networking"]["nics"][nic]["ip_address"], port)
 
                 try:

@@ -49,7 +49,7 @@ function _setup_pythonenv {
 	pushd $FRONTEND_DIR/ > /dev/null
 	systemctl is-active tfplenum-frontend && systemctl stop tfplenum-frontend # If it's running, it needs to be stopped
 	run_cmd rm -rf $FRONTEND_DIR/tfp-env
-	run_cmd python3.6 -m venv tfp-env
+	run_cmd python3 -m venv tfp-env
 	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install --upgrade pip
 	run_cmd $FRONTEND_DIR/tfp-env/bin/pip install -r requirements.txt
 	popd > /dev/null

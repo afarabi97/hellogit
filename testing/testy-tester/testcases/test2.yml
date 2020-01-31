@@ -5,6 +5,8 @@ host_configuration:
     cluster_name: "Development_Cluster"
     datacenter: "DEV_Datacenter"
     resource_pool:
+    port_group: "82 Portgroup"
+    network_id: "172.16.82."
   storage:
     datastore: "NVMe Storage"
     folder: "Testing"
@@ -15,8 +17,8 @@ kit:
       netmask: "255.255.255.0"
 
       # Gateway will probably be different on a per kit basis (depends on the vlan)
-      gateway: "172.16.82.1"
-      dhcp_range: "172.16.82.208"
+      gateway: "1"
+      dhcp_range: "208"
       # Note root_password is specified under VM_settings.
 
   kit_configuration:
@@ -25,10 +27,10 @@ kit:
       source_repo: labrepo
 
       # Kubernetes cidr will probably be different on a per kit basis
-      kubernetes_cidr: "172.16.82.48"
+      kubernetes_cidr: "48"
 
       home_nets:
-          - "172.16.82.0/24"
+          - "0/24"
 
       # This is optional - you can fill it in if you need to
       external_nets:
@@ -42,23 +44,21 @@ kit:
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       vm_guestos: RHEL_7_64
       domain: 'lan'
-      gateway: "172.16.82.1"
+      gateway: "1"
       dns:
-          - "172.16.82.1"
+          - "1"
       networking:
         std_portgroup_name: "VM Network"
         nics:
           ens192:
             type: "manual" # This can be auto, manual, or link-local
-            ip_address: "172.16.82.33"
+            ip_address: "33"
             subnet_mask: "255.255.255.0"
             start_connected: True
             management_interface: True
             monitoring_interface: False
             mac_auto_generated: True
             mac_address: "" # This is ignored if mac_auto_generated is true
-            dv_portgroup_name: "82 Portgroup"
-            std_portgroup_name:
           ens224:
             type: "link-local" # This can be auto, manual, or link-local
             ip_address: "169.254.251.118"
@@ -69,7 +69,6 @@ kit:
             mac_auto_generated: True
             mac_address: "" # This is ignored if mac_auto_generated is true
             dv_portgroup_name: "Monitoring Portgroup"
-            std_portgroup_name:
       cpu_spec:
         sockets: 4
         cores_per_socket: 1
@@ -92,14 +91,12 @@ kit:
         nics:
           ens192:
             type: "manual"
-            ip_address: "172.16.82.34"
+            ip_address: "34"
             start_connected: True
             management_interface: True
             monitoring_interface: False
             mac_auto_generated: True
             mac_address: ""
-            dv_portgroup_name: "82 Portgroup"
-            std_portgroup_name:
       cpu_spec:
         sockets: 32
         cores_per_socket: 1
@@ -140,14 +137,12 @@ kit:
         nics:
           ens192:
             type: "manual"
-            ip_address: "172.16.82.35"
+            ip_address: "35"
             start_connected: True
             management_interface: True
             monitoring_interface: False
             mac_auto_generated: True
             mac_address: ""
-            dv_portgroup_name: "82 Portgroup"
-            std_portgroup_name:
           ens224:
             type: "manual"
             ip_address:
@@ -157,7 +152,6 @@ kit:
             mac_auto_generated: True
             mac_address: ""
             dv_portgroup_name: "Monitoring Portgroup"
-            std_portgroup_name:
       cpu_spec:
         sockets: 14
         cores_per_socket: 1
