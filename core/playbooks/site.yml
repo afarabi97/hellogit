@@ -11,11 +11,29 @@
     - all
     - localhost
   gather_facts: no
+  pre_tasks:
+    - name: Run gather facts
+      setup:
   roles:
     - system_info
   tags:
     - always
     - system-info
+
+- name: Setup Disks
+  hosts:
+    - servers
+    - sensors
+  gather_facts: yes
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  tasks:
+    - import_role:
+        name: storage
+        tasks_from: create
+  tags: disks
 
 - name: Set controller domain
   hosts: localhost
@@ -245,6 +263,22 @@
   tags:
     - openvpn
 
+- name: API Mesh
+  hosts:
+    - servers
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Run gather facts
+      setup:
+  tasks:
+    - import_role:
+        name: api_mesh
+      when: enable_kube_ha
+  tags:
+    - api-mesh
+    - kubernetes
+
 - name: Setup CRI-O
   hosts:
     - servers
@@ -258,6 +292,7 @@
     - crio
   tags:
     - crio
+    - kubernetes
 
 - name: Configure kube master
   hosts: master_server
@@ -270,6 +305,7 @@
     - kubernetes/master
   tags:
     - kube-master
+    - kubernetes
 
 - name: Configure kube nodes
   hosts:
@@ -286,6 +322,7 @@
     - kubernetes/node
   tags:
     - kube-node
+    - kubernetes
 
 - name: Install Cert Manager
   hosts: localhost
@@ -314,7 +351,7 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - name: Setup Storage pre_tasks
+    - name: Run gather facts
       setup:
   roles:
     - storage
@@ -350,8 +387,14 @@
         metrics_api_key: "{{ metrics_api_key.stdout | replace('\n', '') }}"
     # - debug:
     #     msg: "{{ admin_api_key }}"
+    - name: Remove API Key Secret
+      shell: |
+        kubectl delete secret metrics-api-key --ignore-not-found=true
+      register: api_key_sec
+      changed_when: api_key_sec.rc == 0
     - name: Create API Key Secret
-      command: "kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}"
+      shell: |
+        kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}
       register: api_key_sec
       changed_when: api_key_sec.rc == 0
   tags:
@@ -417,8 +460,10 @@
   pre_tasks:
     - name: Deploy Moloch pre_tasks
       setup:
-  roles:
-    - moloch
+  tasks:
+    - import_role:
+        name: moloch
+      when: system_name == "DIP"
   tags:
     - moloch
 

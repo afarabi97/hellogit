@@ -27,7 +27,7 @@
   systemd:
     name: "crio"
     state: stopped
-  ignore_errors: yes
+  failed_when: false
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
@@ -36,7 +36,7 @@
       - kubelet
       - kubectl
     state: absent
-  ignore_errors: yes
+  failed_when: false
 
 - name: Remove Artifacts
   file:
@@ -62,5 +62,5 @@
   with_items:
     - cni0
   register: results
-  ignore_errors: yes
   changed_when: results.rc == 0
+  failed_when: false

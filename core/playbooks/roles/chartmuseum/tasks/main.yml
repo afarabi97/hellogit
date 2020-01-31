@@ -1,26 +1,10 @@
 ---
 
 - import_tasks: uninstall.yml
-  when:
-    - inventory_hostname in groups['master_server']
+  when: inventory_hostname in groups['master_server']
 
 - import_tasks: install.yml
   when: inventory_hostname in groups['master_server']
-
-- name: remove public repos
-  shell: |
-    helm repo list -o json
-  ignore_errors: yes
-  register: repolist
-  changed_when: false
-
-- name: remove all helm repos
-  command: "helm repo remove {{ item.name }}"
-  with_items:
-    - "{{ repolist.stdout | from_json }}"
-  ignore_errors: yes
-  register: results
-  changed_when: results.rc == 0
 
 - name: Create directory
   file:
@@ -38,25 +22,29 @@
     owner: root
     group: root
 
-- name: Get list of charts
-  find:
-    paths: /var/www/html/offlinerepo/charts
-  register: charts
-  when: "'localhost' in inventory_hostname"
-
-- name: load charts
-  uri:
-    url: https://chartmuseum.{{ domain }}/api/charts
-    src: "{{ item.path }}"
-    method: POST
-    status_code: 201
-    return_content: true
-  with_items: "{{ charts.files }}"
-  register: results
-  until: results.status == 201 and results.json.saved
-  retries: 10
-  delay: 5
-  when: "'localhost' in inventory_hostname"
+- block:
+  - name: Copy Charts to master server
+    copy:
+      src: /var/www/html/offlinerepo/charts/
+      dest: "{{ chartmuseum_install_dir }}/charts"
+  - name: Get list of charts
+    find:
+      paths: "{{ chartmuseum_install_dir }}/charts"
+    register: charts
+  - name: Upload charts into Chartmuseum
+    uri:
+      url: "https://chartmuseum.{{ domain }}/api/charts"
+      src: "{{ item.path }}"
+      method: POST
+      status_code: 201, 200
+      return_content: yes
+      remote_src: 'yes'
+    with_items: "{{ charts.files }}"
+    register: results
+    until: results.status == 201 and results.json.saved
+    retries: 10
+    delay: 5
+  when: inventory_hostname in groups['master_server']
 
 - name: update helm repo
   shell: |

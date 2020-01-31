@@ -1,9 +1,9 @@
 ---
 
-- name: Checking if kubeadm is Installed
-  stat:
-    path: /usr/bin/kubeadm
-  register: kubeadm_installed
+- name: install kubeadm
+  yum:
+    name: kubeadm
+    state: present
 
 - name: Reset Kubernetes Node
   shell: |
@@ -15,25 +15,27 @@
   until: kube_reset_result.rc == 0
   retries: 15
   delay: 5
-  when: kubeadm_installed.stat.exists
+
+- name: Stop Crio Service
+  systemd:
+    name: crio
+    state: stopped
+  ignore_errors: yes
 
 - name: reload iptables
   import_role:
     name: common
     tasks_from: 50_setup_firewall
 
-- name: Uninstall CRI-O
+- name: Uninstall CRI-O Deps
   yum:
     name: [ buildah, cri-tools, runc, container-selinux, criu ]
     state: absent
 
-- name: Install crio
-  shell: |
-    make uninstall
-  register: result
-  changed_when: result.rc == 0
-  args:
+- name: Uninstall crio
+  make:
     chdir: "{{ crio_dir }}"
+    target: uninstall
 
 - name: Clean up directories
   file:
@@ -42,7 +44,16 @@
   with_items:
     - "/etc/cni/net.d"
     - "/usr/bin/crictl"
+    - "{{ crio_dir }}"
+    - "{{ crio_dir_version }}"
 
 - name: reload systemd
   systemd:
     daemon_reload: yes
+
+# - name: Try to /var/lib/containers
+#   shell: |
+#     find /var/lib/containers -type d -exec rm -rf {} \;
+#   register: results
+#   changed_when: results.rc == 0
+#   failed_when: false

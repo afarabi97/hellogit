@@ -5,6 +5,30 @@
 # We follow the guidance to include naming conventions there.
 
 ---
+- name: Set Variables
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - block:
+      - name: Set RHEL ISO To server for DIP bootstrap
+        set_fact:
+          iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+          iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+          iso_rhel_path: "{{ iso_rhel_server_path }}"
+    - name: Import DIP/GIP variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
+      when:
+        - "system_name == 'DIP' or system_name == 'GIP'"
+    - name: Set RHEL ISO To workstation for MIP bootstrap
+      set_fact:
+        iso_rhel_checksum: "{{ iso_rhel_worstation_checksum }}"
+        iso_rhel_url_labrepo: "{{ iso_rhel_workstation_url_labrepo }}"
+        iso_rhel_path: "{{ iso_rhel_worstation_path }}"
+      when:
+        - "system_name == 'MIP'"
+  tags: always
+
 - name: Execute Pre
   hosts: localhost
   any_errors_fatal: true

@@ -24,6 +24,8 @@
   command: /usr/bin/yum clean all # noqa 303
   register: result
   changed_when: result.rc == 0
+  args:
+    warn: no
 
 - name: create pip dir
   file:

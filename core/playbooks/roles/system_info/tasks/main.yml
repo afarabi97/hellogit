@@ -1,5 +1,4 @@
 ---
-
 - name: Set System Name from tfplenum ini
   set_fact:
     system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
@@ -32,3 +31,10 @@
       kube_virtual_ip: "{{ kubernetes_services_cidr | ipaddr('1') | ipaddr('address') }}"
       cacheable: yes
   when: groups['servers'] | length | int > 2
+
+- name: Clear Arp Cache
+  shell: |
+    ip -s -s neih flush all
+  register: results
+  changed_when: results.rc == 0
+  failed_when: false

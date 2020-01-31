@@ -36,9 +36,6 @@
 
 - name: DIP/GIP tasks
   block:
-    - name: Import DIP/GIP variables
-      include_vars:
-        file: "{{ dip_core_vars }}"
     - import_tasks: 10_pip.yml
       tags: pip
     - import_tasks: 11_elasticdump.yml

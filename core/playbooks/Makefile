@@ -43,9 +43,6 @@ genkeys:
 openvpn:
 		ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t openvpn
 
-kubernetes:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
-
 certificate_authority:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority
 
@@ -57,6 +54,9 @@ chartmuseum:
 
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
+
+kubernetes:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kubernetes
 
 storage:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage
@@ -89,10 +89,10 @@ common-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,crio,kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 crio-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t crio,kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kubernetes,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kubernetes,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 certificate_authority-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup

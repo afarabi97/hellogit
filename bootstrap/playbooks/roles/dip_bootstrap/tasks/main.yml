@@ -1,14 +1,5 @@
 ---
 
-- name: Import tfplenum variables
-  include_vars:
-    file: "{{ dip_core_vars }}"
-  tags:
-    - pull-helm-images
-    - helm
-    - conmon
-    - sso
-
 - import_role:
     name: cleanup
     tasks_from: cleanup

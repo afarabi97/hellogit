@@ -1,0 +1,4 @@
+---
+
+- import_tasks: install.yml
+  when: inventory_hostname in groups['master_server'] or (inventory_hostname in groups['servers'] and is_control_plane_node)

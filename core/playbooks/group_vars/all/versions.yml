@@ -36,7 +36,7 @@ mariadb_version: 10.5.2
 mattermost_version: 5.21.0
 wikijs_version: 2.2.51
 misp_version: 2.4.120
-crio_version: "v1.17.1"
+crio_version: "v1.17.4"
 conmon_version: 2.0.12
 calico_version: "v3.13.1"
 nginx_version: "1.17.9"

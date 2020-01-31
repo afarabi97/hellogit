@@ -4,8 +4,9 @@
     name: [keepalived, haproxy]
     state: installed
 
-- set_fact:
-     management_interface: "{{ ansible_default_ipv4.interface }}"
+- name: Set_fact management_interface ipv4
+  set_fact:
+    management_interface: "{{ ansible_default_ipv4.interface }}"
 
 - name: Copy KeepAlived Template
   template:
@@ -50,11 +51,10 @@
     - keepalived
     - haproxy
 
-- name: Enable and Start KeepAlived
+- name: Restart KeepAlived and HaProxy
   systemd:
     name: "{{ item }}"
     state: restarted
   with_items:
     - keepalived
     - haproxy
-  when: keepalive_conf.changed or haproxy_conf.changed

@@ -1,6 +1,17 @@
 # Determine what drives to use based on inventory file
-{% if item is defined %}{% set boot_drive = hostvars[item].boot_drive %}{% else %}{% set boot_drive = default_boot_drive %}{% endif %}
-{% if item is defined %}{% set data_drive = hostvars[item].data_drive %}{% else %}{% set data_drive = default_data_drive %}{% endif %}
+{% if item is defined %}
+{% set boot_drive = hostvars[item].boot_drive %}
+{% else %}
+{% set boot_drive = default_boot_drive %}
+{% endif %}
+
+{% if item is defined %}
+{% set data_drive = hostvars[item].data_drive %}
+{% else %}
+{% set data_drive = default_data_drive %}
+{% endif %}
+
+
 
 #version=DEVEL
 # System authorization information
@@ -38,9 +49,20 @@ rootpw --iscrypted {{ rootpw.stdout }}
 services --disabled="chronyd"
 # System timezone
 timezone {{ timezone }} --isUtc --nontp
-# System bootloader configuration
-bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive }}
 
+
+%pre
+
+is_physical=true
+system_name="{{ system_name }}"
+manufacturer=$(dmidecode --string system-manufacturer)
+if [ "$manufacturer" == "VMware, Inc." ]; then
+is_physical=false
+fi
+
+cat <<EOF > /tmp/partition_layout
+# Partitioning scheme
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive }}
 # Partition clearing information
 zerombr
 clearpart --all
@@ -48,19 +70,26 @@ clearpart --all
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
 {% endif %}
 part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive }}
-part pv.01 --size=1 --grow --ondrive={{ boot_drive }}
+part pv.01 --fstype="lvmpv" --size=1 --grow --ondisk={{ boot_drive }}
 volgroup vg_root pv.01
-part pv.02 --size=1 --grow --ondrive={{ data_drive }}
-volgroup vg_data pv.02
 logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
 logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
 logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
 logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
 logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
 logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
+{% if system_name == "DIP" %}
+part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive }}
+volgroup vg_data pv.02
 logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
+{% endif %}
+EOF
 
-%pre
+if [ "$system_name" == "GIP" ] && [ "$is_physical" == false ]; then
+echo "part pv.02 --fstype=lvmpv --size=1 --grow --ondisk={{ data_drive }}" >> /tmp/partition_layout
+echo "volgroup vg_data pv.02" >> /tmp/partition_layout
+echo "logvol /data --fstype=xfs --size=1 --name=data --vgname=vg_data --grow" >> /tmp/partition_layout
+fi
 
 # Add DNS search domain
 {% if item is defined -%}
@@ -68,6 +97,8 @@ echo "DOMAIN={{domain}}" >> `grep -r '{{ hostvars[item].ip }}' /etc/sysconfig/ -
 {%- endif %}
 
 %end
+
+%include /tmp/partition_layout
 
 %packages
 @^minimal

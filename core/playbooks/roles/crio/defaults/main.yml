@@ -1,3 +1,4 @@
 ---
 
-crio_dir: "{{ install_dir  }}/crio-{{crio_version}}"
+crio_dir_version: "{{ install_dir  }}/crio-{{crio_version}}"
+crio_dir: "{{ install_dir  }}/crio"

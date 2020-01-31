@@ -12,8 +12,14 @@
   unarchive:
     src: "{{ offline_repo_base }}/crio-{{ crio_version }}.tar.gz"
     dest: "{{ install_dir  }}"
-    creates: "{{ crio_dir }}"
+    creates: "{{ crio_dir_version }}"
     remote_src: yes
+
+- name: Create Crio Symlink
+  file:
+    src: "{{ crio_dir_version }}"
+    dest: "{{ crio_dir }}"
+    state: link
 
 - name: main.yml | Building calico's directory scrucuture
   file:
@@ -38,12 +44,9 @@
     mode: 0644
 
 - name: Install crio
-  shell: |
-    make
-  register: results
-  changed_when: results.rc == 0
-  args:
+  make:
     chdir: "{{ crio_dir }}"
+    target: install
 
 - name: Remove Default CNIs
   file:

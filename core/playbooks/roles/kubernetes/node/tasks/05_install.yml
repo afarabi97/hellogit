@@ -2,14 +2,6 @@
 ###################  Kubernetes Setup Nodes ###############
 #######################################################
 ---
-- block:
-  - name: Install Api Mesh
-    import_role:
-      name: kubernetes/api-mesh
-  when:
-    - enable_kube_ha
-    - inventory_hostname in groups['servers']
-    - is_control_plane_node
 
 - name: Kube | Retrieve generated credentials
   import_role:

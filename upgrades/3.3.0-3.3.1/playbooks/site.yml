@@ -32,7 +32,8 @@
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Run gather facts
+      setup:
     - name: Disable possible existing OpenVPN
       systemd:
         name: openvpn-client.service
@@ -51,7 +52,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Run gather facts
+      setup:
   roles:
     - repos
   tags:

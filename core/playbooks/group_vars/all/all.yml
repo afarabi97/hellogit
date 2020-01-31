@@ -63,6 +63,7 @@ package_list:
   - tcpreplay
   - nfs-utils
   - ipvsadm
+  - libsemanage-python
 
 
 pip_installs:

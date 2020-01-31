@@ -1,9 +1,6 @@
 ---
 
 - block:
-  - name: Install Api Mesh
-    import_role:
-      name: kubernetes/api-mesh
   - name: kube_init_command
     set_fact:
       kube_init_cmd: "{{ kube_init_cmd }} --upload-certs"

@@ -34,8 +34,6 @@ Setup GIP Services VM:
     variables:
       - $PIPELINE == "developer-gip-service"
       - $PIPELINE == "export-gip-service"
-      - $PIPELINE == "developer-gip"
-      - $PIPELINE == "developer-all"
 
 GIP Cleanup:
   stage: cleanup
@@ -128,7 +126,6 @@ Setup GIP Controller:
   only:
     variables:
       - $PIPELINE == "developer-gip"
-      - $PIPELINE == "developer-all"
 
 GIP Kickstart:
   stage: kickstart
@@ -166,7 +163,6 @@ GIP Kickstart:
   only:
     variables:
       - $PIPELINE == "developer-gip"
-      - $PIPELINE == "developer-all"
 
 GIP Kit:
   stage: kit
@@ -186,4 +182,3 @@ GIP Kit:
   only:
     variables:
       - $PIPELINE == "developer-gip"
-      - $PIPELINE == "developer-all"

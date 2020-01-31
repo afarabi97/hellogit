@@ -10,15 +10,18 @@
 - name: Download chartmuseum chart
   get_url:
     url: "{{ offline_repo_base }}/charts/chartmuseum-{{ chartmuseum_version }}.tgz"
-    dest: "{{ install_dir }}/chartmuseum/chartmuseum-{{ chartmuseum_version }}.tgz"
+    dest: "{{ chartmuseum_install_dir }}/chartmuseum-{{ chartmuseum_version }}.tgz"
 
 - name: Install Chartmuseum
   shell: |
     helm install chartmuseum chartmuseum-{{ chartmuseum_version }}.tgz --set domain={{ domain }}
   args:
-    chdir: "{{ install_dir }}/chartmuseum"
-  register: results
+    chdir: "{{ chartmuseum_install_dir }}"
   changed_when: results.rc == 0
+  register: results
+  until: results.rc == 0
+  retries: 10
+  delay: 5
 
 - name: Wait for chartmuseum to be ready
   wait_for:
