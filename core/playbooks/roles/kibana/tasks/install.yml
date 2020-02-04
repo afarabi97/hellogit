@@ -49,7 +49,8 @@
 - name: Get Kibana Service IP
   shell: "kubectl get svc -n default | grep 'kibana' | awk '{print $4'}"
   register: kibana_svc_ip
-  
+  changed_when: false
+
 - name: Create Index Pattern
   template:
     src: "templates/{{ item }}.json.j2"
@@ -79,6 +80,8 @@
     force_basic_auth: yes
   retries: 3
   delay: 10
+  register: index_results
+  until: index_results.status == 200
 
 - name: Load Dashboards
   uri:
@@ -95,6 +98,8 @@
     force_basic_auth: yes
   retries: 3
   delay: 10
+  register: dashboard_results
+  until: dashboard_results.status == 200
   with_fileglob:
     - "files/dashboards/*.json"
 

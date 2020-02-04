@@ -189,9 +189,9 @@ function subscription_prompts(){
     fi
 
     if [ "$subscription_status" == "Current" ]; then
-        subscription-manager repos --enable rhel-7-server-rpms
-        subscription-manager repos --enable rhel-7-server-extras-rpms
-        subscription-manager repos --enable rhel-7-server-optional-rpms
+        run_cmd subscription-manager repos --enable rhel-7-server-rpms
+        run_cmd subscription-manager repos --enable rhel-7-server-extras-rpms
+        run_cmd subscription-manager repos --enable rhel-7-server-optional-rpms
         prompt_rhel_iso_download
     fi
 
@@ -335,17 +335,17 @@ function clone_repos(){
             rm -rf $directory
         fi
         if [[ ! -d "$directory" && ("$USE_FORK" == "no") ]]; then
-            git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
+            run_cmd git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
-            git checkout $BRANCH_NAME
+            run_cmd git checkout $BRANCH_NAME
             popd > /dev/null
         fi
         if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
-            git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
+            run_cmd git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
             pushd $directory > /dev/null
             case "$i" in
             "tfplenum" )
-                git checkout "$TFPLENUM_BRANCH_NAME";;
+                run_cmd git checkout "$TFPLENUM_BRANCH_NAME";;
             esac
             popd > /dev/null
         fi

@@ -311,3 +311,14 @@
     - node-health
   tags:
     - node-health
+
+- name: Apply Elastic License
+  hosts: master_server
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: elasticsearch
+        tasks_from: license
+  tags:
+    - es-license

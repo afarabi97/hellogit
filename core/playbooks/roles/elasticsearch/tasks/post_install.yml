@@ -12,6 +12,7 @@
   shell: |
     kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
+  changed_when: false
 
 - name: Check Elasticsearch endpoint is ready
   uri:
@@ -72,17 +73,6 @@
     status_code: 200, 201
   with_items:
     - moloch
-
-- name: Apply ES License
-  uri:
-    method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_license"
-    validate_certs: no
-    user: elastic
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/license.json')}}"
-    status_code: 200, 201
 
 - name: Load Index Policies
   uri:

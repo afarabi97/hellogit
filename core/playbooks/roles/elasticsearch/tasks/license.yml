@@ -1,0 +1,22 @@
+---
+
+- name: Get ES Password
+  shell: |
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: false
+
+- name: Apply ES License
+  uri:
+    method: PUT
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_license?acknowledge=true"
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/license.json')}}"
+    status_code: 200, 201
+  register: license_results
+  until: license_results.status == 200 and license_results.json.acknowledged == true and license_results.json.license_status == "valid"
+  retries: 10
+  delay: 5

@@ -51,3 +51,4 @@ infrastucture/Software/
 *.tar
 *.old
 infrastucture/Kit_*/
+*.rpm
