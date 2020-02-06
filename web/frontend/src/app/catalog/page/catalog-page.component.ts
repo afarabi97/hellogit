@@ -11,7 +11,10 @@ import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.comp
 @Component({
   selector: 'app-catalog-page',
   templateUrl: './catalog-page.component.html',
-  styleUrls: ['./catalog-page.component.scss']
+  styleUrls: ['./catalog-page.component.scss'],
+  host: {
+    'class': 'app-catalog-page'
+  }
 })
 export class CatalogPageComponent implements OnInit, AfterViewInit {
   public processFormGroup: FormGroup;

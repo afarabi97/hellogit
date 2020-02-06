@@ -1,19 +1,9 @@
-@import '../../../theme.scss';
-
 .stepper {
   height: 620px;
-
-  &__body {
-
-    &__selection {
-      // border-bottom: 1px solid #D7D9DD;
-    }
-  }
 
   &__footer {
     display: flex;
     height: 50px;
-    border-top: 1px solid #D7D9DD;
     align-items: center;
     padding-left: 10px;
     padding-top: 10px;
@@ -22,7 +12,6 @@
   &__header {
     display: flex;
     height: 50px;
-    border-bottom: 1px solid #D7D9DD;
     align-items: center;
     padding-left: 10px;
   }
@@ -40,19 +29,9 @@
   margin-bottom: 10px;
 }
 
-/* body {
-  background-color: #eee;
-  color: #555;
-} */
-
-
 .line-numbers {
   display: inline-block;
   margin: 0px 5px 0px 0px;
-}
-
-.line-numbers div {
-  font-size: $primary-font-size;
 }
 
 .text-area-wrapper {
@@ -66,30 +45,12 @@
   padding: 0px;
   overflow-x: auto;
   overflow-y: hidden;
-  font-size: $primary-font-size;
   width: 100%;
-  background-color: $first-elevation-dark-background;
-  color: $primary-text-color;
 }
 
 .catalog-page {
   margin-top: 40px;
   mat-card {
     width: 80rem;
-    background-color: $first-elevation-dark-background;
-  }
-
-  mat-vertical-stepper {
-    background-color: inherit;
-  }
-
-  .mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary{
-    background-color: $primary-btn-color;
-    color: $primary-btn-text-color;
-  }
-
-  .mat-flat-button.mat-warn, .mat-raised-button.mat-warn, .mat-fab.mat-warn, .mat-mini-fab.mat-warn {
-    background-color: $danger-btn-color;
-    color: $primary-btn-text-color;
   }
 }

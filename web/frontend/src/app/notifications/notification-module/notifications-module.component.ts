@@ -8,7 +8,10 @@ import {MatSnackBar} from '@angular/material';
 @Component({
   selector: 'app-notifications-module',
   templateUrl: './notifications-module.component.html',
-  styleUrls: ['./notifications-module.component.scss']
+  styleUrls: ['./notifications-module.component.scss'],
+  host: {
+    'class': 'app-notifications-module'
+  }
 })
 export class NotificationsModuleComponent {
   public selectedButton: any = {"name": "All", "selected": true, "title": "All Messages","role": "all"};

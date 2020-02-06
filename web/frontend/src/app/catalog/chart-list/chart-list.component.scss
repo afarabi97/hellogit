@@ -1,14 +1,8 @@
-// Import your custom theme
-@import '../../../theme.scss';
-
-// Vars
 $list-item-content-height: 200px;
 
 .list-item {
-  border-radius: $border-radius;
   overflow: hidden;
   transition: transform 0.2s ease;
-  background-color: $background-light;
   flex-flow: row-reverse wrap;
   flex-wrap: wrap;
   margin-top: 80px;
@@ -28,7 +22,7 @@ $list-item-content-height: 200px;
     height: $list-item-content-height;
     display: flex;
     flex-direction: column;
-    color: $layout-text;
+
   }
 
 }

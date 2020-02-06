@@ -7,7 +7,10 @@ import { CatalogService } from '../services/catalog.service';
 @Component({
   selector: 'app-chart-list',
   templateUrl: './chart-list.component.html',
-  styleUrls: ['./chart-list.component.scss']
+  styleUrls: ['./chart-list.component.scss'],
+  host: {
+    'class': 'app-chart-list'
+  }
 })
 export class ChartListComponent{
 

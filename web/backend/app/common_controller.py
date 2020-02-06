@@ -20,6 +20,21 @@ from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from typing import List, Dict, Tuple, Set
 
 
+@app.route('/api/get_system_name', methods=['GET'])
+def get_system_name():
+    system_name = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})['system_name']
+    if (system_name):
+      return jsonify({'system_name': system_name})
+    else:
+      return ERROR_RESPONSE
+
+@app.route('/api/save_system_name', methods=['POST'])
+def save_system_name():
+    data = request.get_json()
+    conn_mng.mongo_system_name.find_one_and_replace({'system_name': {'$exists': True}}, {'system_name': data['system_name']}, upsert=True)
+    system_name = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})['system_name']
+    return jsonify({'system_name': system_name})
+
 @app.route('/api/metrics', methods=['POST'])
 def replace_metrics():
     data = request.get_json()

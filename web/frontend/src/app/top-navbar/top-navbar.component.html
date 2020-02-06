@@ -1,6 +1,15 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
-      <h3 *ngIf="showLinkNames" style="padding-left: 20px;">TFPlenum Controller</h3>
+      <h3 *ngIf="showLinkNames">
+        <div>TFPlenum Controller</div>
+        <mat-list>
+          <mat-list-item (click)="selectSystemName()">
+            <mat-icon mat-list-icon>laptop</mat-icon>
+            <h4 mat-line>{{ system_name }}</h4>
+          </mat-list-item>
+        </mat-list>
+        <mat-divider></mat-divider>
+      </h3>
       <span class="version" *ngIf="showLinkNames">v{{ version }}</span>
       <mat-list>
         <mat-list-item>
@@ -20,7 +29,7 @@
             {{ group.label }}
           </h3>
           <ng-container *ngFor="let child of group.children">
-            <mat-list-item *ngIf="!child.isExternalLink" routerLink="{{ child.url }}" matTooltip="{{child.label}}"  routerLinkActive="active">
+            <mat-list-item *ngIf="!child.isExternalLink" routerLink="{{ child.url }}" matTooltip="{{child.label}}" routerLinkActive="active">
               <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
               <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
             </mat-list-item>

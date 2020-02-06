@@ -1,0 +1,32 @@
+@mixin notifications-theme($theme) {
+    .app-notifications-module {
+      .messageCenter__center__outerCard__innerCard {
+        border: 1px solid map-get($theme, primary-border-color);
+      }
+
+      .messageList {
+        background-color: inherit;
+      }
+
+      .messageAll {
+        background-color: inherit;
+      }
+
+      .messageList__clear {
+        background-color: red;
+      }
+
+      .messageList_buttonGroup_card {
+        background-color: inherit;
+      }
+
+      // Since this isn't defined in the components style it will be overriden by the accent color.
+      .messageList__buttonGroup__button {
+        color: white;
+      }
+
+      .messageList__buttonGroup__button.mat-accent {
+        color: white;
+      }
+    }
+}
