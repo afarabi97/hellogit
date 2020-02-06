@@ -71,16 +71,10 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
-
-    // you can define custom flags
-    customLaunchers: {
-      Chrome_without_security: {
-        base: 'Chrome',
-        flags: [
-          '--disable-web-security']
-      }
-    },
-    singleRun: false,
+    browsers: [],
+    singleRun: true,
+    browserNoActivityTimeout: 60000,
+    processKillTimeout: 60000,
+    browserDisconnectTimeout: 60000
   });
 };
