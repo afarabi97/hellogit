@@ -421,7 +421,7 @@ def clone_vm(host_configuration: HostConfiguration, controller: Node, use_baseli
                                         datastore=datastore)  # type: pyVmomi.VmomiSupport.vim.vm.RelocateSpec
 
     # This constructs the clone specification and adds the customization spec and location spec to it
-    if use_baseline_snapshot:
+    if use_baseline_snapshot and template_vm and template_vm.snapshot and template_vm.snapshot.rootSnapshotList[0].snapshot:
         clone_spec = vim.vm.CloneSpec(powerOn=False,
                                       template=False,
                                       location=relocate_spec,

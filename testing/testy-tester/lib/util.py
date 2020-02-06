@@ -316,7 +316,7 @@ def _transform_nodes(vms: Dict, kit: Kit, vm_to_clone: str, host_configuration: 
         node = Node(hostname, vms[v]['type'])  # type: Node
         if node.type == "controller":
             node.set_vm_to_clone(vm_to_clone)
-            node.set_dns_list(vms[v]['dns'], host_configuration.network_id)
+            node.set_dns_list(vms[v]['dns'], host_configuration)
             node.set_gateway(host_configuration.network_id + vms[v]['gateway'])
             node.set_domain(vms[v]['domain'])
 

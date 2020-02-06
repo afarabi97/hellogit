@@ -181,6 +181,7 @@ class Runner:
         parser.add_argument('--vmware-folder', dest='vmware_folder', help="The folder in vcenter the VM will be cloned to.")
         parser.add_argument('--port-group', dest='port_group', help="The port group override for vcenter.")
         parser.add_argument('--network-id', dest='network_id', help="The network ID all none remote servers and sensors will be placed on. It must be a /24 network ID.")
+        parser.add_argument('--dns-servers', dest='dns_servers', help="A comma separated DNS server list for the project.")
 
         args = parser.parse_args()
         if not args.filename and args.testcase:
@@ -251,6 +252,7 @@ class Runner:
 
                 port_group = self.args.port_group if self.args.port_group else vcenter.get("port_group")
                 network_id = self.args.network_id if self.args.network_id else vcenter.get("network_id")
+                dns_servers = self.args.dns_servers if self.args.dns_servers else None
                 vmware_datastore = self.args.vmware_datastore if self.args.vmware_datastore else storage.get("datastore")
                 self.host_configuration = HostConfiguration(
                     host.get("ip_address"),
@@ -264,7 +266,8 @@ class Runner:
                     image_folder_path=image_folder_path,
                     resource_pool=vcenter.get("resource_pool"),
                     port_group=port_group,
-                    network_id=network_id
+                    network_id=network_id,
+                    dns_servers=dns_servers
                 )
 
                 self.host_configuration.set_storage_options(

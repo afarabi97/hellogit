@@ -39,7 +39,10 @@ function install_gitlab_runner {
     #Download the certifcate manually from your webbrowser from
     #https://gitlab.sil.lab/api/v4/runners
     #put this file in /etc/gitlab-runner/certs/ and name it gitlab.sil.lab.crt
-    #gitlab-ci-multi-runner register
+
+    mkdir -p /etc/gitlab-runner/certs/
+    run_cmd openssl s_client -showcerts -connect gitlab.sil.lab:443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /etc/gitlab-runner/certs/gitlab.sil.lab.crt
+    run_cmd gitlab-ci-multi-runner register
 }
 
 function install_worker_deps {

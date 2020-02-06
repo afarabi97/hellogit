@@ -472,15 +472,20 @@ class Node(object):
         """
         self.gateway = gateway
 
-    def set_dns_list(self, dns_list: List, network_id: str):
+    def set_dns_list(self, dns_list: List, host_configuration: HostConfiguration):
         """
         Set the dns list to the appropriate values.
         :param dns:
         :return:
         """
         new_dns = []
-        for dns in dns_list:
-            new_dns.append(network_id + dns)
+        if host_configuration.dns_servers:
+            for dns in host_configuration.dns_servers.split(','):
+                new_dns.append(dns.strip())
+        else:
+            network_id = host_configuration.network_id
+            for dns in dns_list:
+                new_dns.append(network_id + dns)
         self.dns_list = new_dns
 
     def set_domain(self, domain: str) -> None:

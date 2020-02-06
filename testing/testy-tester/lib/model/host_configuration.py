@@ -22,7 +22,8 @@ class HostConfiguration(object):
                  image_folder_path: str = None,
                  resource_pool: str = None,
                  port_group: str = None,
-                 network_id: str = None) -> None:
+                 network_id: str = None,
+                 dns_servers: str = None) -> None:
 
         self.ip_address = ip_address
         self.cluster_name = cluster_name
@@ -39,6 +40,7 @@ class HostConfiguration(object):
         self.resource_pool = resource_pool
         self.port_group = port_group
         self.network_id = network_id
+        self.dns_servers = dns_servers
 
     def set_storage_options(self, datastore: str, folder: str) -> None:
         """

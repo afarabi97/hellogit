@@ -1,3 +1,7 @@
+# include:
+  # - template: Code-Quality.gitlab-ci.yml
+  # - template: Container-Scanning.gitlab-ci.yml
+
 variables:
   LABREPO_USER: root
   LABREPO_PASS: "we.are.tfplenum"
@@ -6,7 +10,7 @@ variables:
   PDF_SINGLE_PAGES: "6.8.1.2 DIP System Setup,6.8.1.1 MIP System Setup,6.8.2.1 DIP System Operation,6.8.2.2 MIP System Operation,6.8.9.4 Windows Agent Plugin Guide,6.8.9.5 Helm Integration,6.8.9.2 Setup Controller"
   TFPLENUM_CONFLUENCE_PAGE: "CVAH 3.3 DRAFT2"
   TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
-  PIPELINE: "virtual_build_and_test"
+  PIPELINE: "code_quality"
   KIT: "test3.yml"
   BUILD_TYPE: "clone_from_nightly"
   IS_CLEANUP: "false"
@@ -14,6 +18,11 @@ variables:
   PORT_GROUP: "82 Portgroup"
   NETWORK_ID: "172.16.82."
   VMWARE_DATASTORE: "NVMe Storage 2"
+  DNS_SERVERS: ""
+  # Commercial version SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
+  SONAR_TOKEN: "d188aacd2a807af75d9fec7cdda7921247fd3d84"
+  SONAR_HOST_URL: "http://10.10.103.99:9000/"
+  GIT_DEPTH: 0
 
 stages:
   - build
@@ -29,12 +38,76 @@ stages:
   - hashfiles
   - publish
 
+# code_quality:
+#   image: docker:stable
+#   tags:
+#     - tfplenum-docker
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#     SP_VERSION: 0.85.6
+#   allow_failure: true
+#   services:
+#     - docker:stable-dind
+#   script: |
+#     echo "IP of runner is $(hostname -i | awk '{print $2}')"
+#     echo "Current working directory is $(pwd)"
+#     docker run \
+#         --env SOURCE_CODE="$PWD" \
+#         --volume "$PWD/web/backend/":/code \
+#         --volume /var/run/docker.sock:/var/run/docker.sock \
+#         "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
+#   artifacts:
+#     paths:
+#       - web/backend/gl-code-quality-report.json
+#     reports:
+#       codequality: web/backend/gl-code-quality-report.json
+#     expire_in: 3 days
+#   only:
+#     variables:
+#       - $PIPELINE == "code_quality"
+
+sonarqube-check:
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  tags:
+    - tfplenum-docker
+  stage: test
+  script: |
+    sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
+  allow_failure: true
+  only:
+    refs:
+      - bugfixes/pipeline-dns-fix
+    variables:
+      - $PIPELINE == "code_quality"
+
+# container_scanning:
+#   image:
+#     name: gitlab.sil.lab:5050/tfplenum/tfplenum/klair:2
+#     entrypoint: []
+#   variables:
+#     GIT_STRATEGY: clone
+#     CI_APPLICATION_REPOSITORY: gitlab.sil.lab:5050/tfplenum/tfplenum/zeek
+#     CI_APPLICATION_TAG: 3.0.0
+#   artifacts:
+#     paths:
+#       - gl-container-scanning-report.json
+#     reports:
+#       container_scanning: gl-container-scanning-report.json
+#   tags:
+#     - tfplenum-docker
+#   only:
+#     variables:
+#       - $PIPELINE == "code_quality"
+
 Setup Nightly Controller:
   stage: build
   tags:
     - tfplenum-build
   script: |
-    pwd
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/nightly-controller.yml \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
@@ -90,6 +163,7 @@ Setup Controller:
     --port-group "$PORT_GROUP" \
     --network-id "$NETWORK_ID" \
     --vmware-datastore "$VMWARE_DATASTORE" \
+    --dns-servers "$DNS_SERVERS" \
     --setup-controller $BUILD_TYPE
   only:
     variables:
@@ -127,6 +201,7 @@ Kickstart:
     --port-group "$PORT_GROUP" \
     --network-id "$NETWORK_ID" \
     --vmware-datastore "$VMWARE_DATASTORE" \
+    --dns-servers "$DNS_SERVERS" \
     --run-kickstart
   only:
     variables:
@@ -183,8 +258,10 @@ System Function Testing:
     variables:
       - $PIPELINE == "virtual_build_and_test"
   artifacts:
+    paths:
+      - "./*.xml"
     reports:
-      junit: testing/playbooks/reports/*.xml
+      junit: "./*.xml"
 
 Simulate Power Failure:
   stage: test-powerfailure
@@ -216,8 +293,10 @@ System Function Testing2:
     variables:
       - $PIPELINE == "virtual_build_and_test"
   artifacts:
+    paths:
+      - "./*.xml"
     reports:
-      junit: testing/playbooks/reports/*.xml
+      junit: "./*.xml"
 
 Cleanup Job:
   stage: cleanup
