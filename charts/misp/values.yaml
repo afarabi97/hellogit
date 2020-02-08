@@ -1,0 +1,10 @@
+# Default values for misp
+mispImage: tfplenum/misp:2.4.120
+mispModulesImage: tfplenum/misp-modules:2.4.120
+
+# Database values
+mariadbImage: mariadb:10.4.11
+sqlDatabase: misp-db
+sqlUsername: misp
+sqlRootPassword: A0@QlrLZPEDB3*aLcgPsMm805
+sqlUserPassword: SKhLFlu@SxyWUaQrpHZlJlxZ4

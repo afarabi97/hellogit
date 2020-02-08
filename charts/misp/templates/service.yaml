@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: misp
+  labels:
+    component: misp
+spec:
+  selector:
+    component: {{ .Release.Name }}
+  ports:
+  - name: misp-https
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: misp-modules
+    port: 6666
+    targetPort: 6666
+    protocol: TCP
+  type: LoadBalancer

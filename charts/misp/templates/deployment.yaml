@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: misp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: misp
+  template:
+    metadata:
+      labels:
+        component: misp
+    spec:
+      containers:
+      - name: mariadb
+        image: {{ .Values.mariadbImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: {{ .Values.sqlDatabase }}
+        - name: MYSQL_USER
+          value: {{ .Values.sqlUsername }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.sqlUserPassword }}
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.sqlRootPassword }}
+        volumeMounts:
+        - name: misp-vol
+          mountPath: /var/lib/mysql
+          subPath: database
+      - name: misp
+        image: {{ .Values.mispImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: MYSQL_HOST
+          value: 127.0.0.1
+        - name: MYSQL_DATABASE
+          value: {{ .Values.sqlDatabase }}
+        - name: MYSQL_USER
+          value: {{ .Values.sqlUsername }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.sqlUserPassword }}
+        - name: MISP_EXTERNAL_CONFIG
+          value: 'true'
+        volumeMounts:
+        - name: misp-vol
+          mountPath: /var/www/MISP/app/Config
+          subPath: appConfig
+        - name: misp-config
+          mountPath: /var/www/MISP/app/Config/config.external.php
+          subPath: config.external.php
+      - name: misp-modules
+        image: {{ .Values.mispModulesImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6666
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: misp-vol
+        hostPath:
+          path: /data/misp/
+          type: DirectoryOrCreate
+      - name: misp-config
+        configMap:
+          name: {{ .Release.Name }}-configmap

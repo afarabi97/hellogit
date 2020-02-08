@@ -66,6 +66,12 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
+    elif dns == "misp.lan":
+        logins = 'admin@admin.test/admin'
+        if ip:
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})

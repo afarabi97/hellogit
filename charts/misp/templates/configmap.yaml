@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  config.external.php: |-
+{{ .Files.Get "files/config.external.php" | indent 4 }}
