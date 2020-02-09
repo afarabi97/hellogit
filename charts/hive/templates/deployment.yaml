@@ -15,6 +15,52 @@ spec:
         component: {{ .Release.Name }}
     spec:
       initContainers:
+      {{- if .Values.cortexIntegration }}
+      - name: hive-init
+        image: "{{ .Values.hive_image }}"
+        securityContext:
+          runAsUser: 0
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "curl -o /tmp/api/cortex_api.txt -XGET -u ${CORTEX_SUPERADMIN_USERNAME}:${CORTEX_SUPERADMIN_PASSWORD} http://cortex.default.svc.cluster.local:{{ .Values.corex_port }}/api/user/${CORTEX_USER_USERNAME}/key"
+        env:
+          - name: CORTEX_SUPERADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: superadmin_username
+          - name: CORTEX_SUPERADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: superadmin_password
+          - name: CORTEX_USER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_user_username
+        volumeMounts:
+        - name: api-cache
+          mountPath: /tmp/api
+          subPath: hive-data
+      - name: hive-init2
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "api_key=$(cat /tmp/hive/cortex_api.txt) && cp /data/config.conf /tmp/hive/application.conf && sed -i 's|#key = \"CORTEX_API_KEY\"|key = \"'${api_key}'\"|g' /tmp/hive/application.conf && chown -R 1 /tmp/hive"
+        volumeMounts:
+        - name: api-cache
+          mountPath: /tmp/hive
+          subPath: hive-data
+        - name: hiveconfig
+          mountPath: /data/config.conf
+          subPath: hive.conf
+      {{ else }}
       - name: elastic-init
         image: "busybox:1.29.3"
         securityContext:
@@ -26,7 +72,9 @@ spec:
         volumeMounts:
         - name: elasticdb
           mountPath: /elastic-data
+      {{- end }}
       containers:
+      {{- if not .Values.cortexIntegration }}
       - name: elastic
         image: "{{ .Values.elastic_image }}"
         imagePullPolicy: IfNotPresent
@@ -48,39 +96,78 @@ spec:
         volumeMounts:
         - name: elasticdb
           mountPath: /usr/share/elasticsearch/data
-      - name: cortex
-        image: "{{ .Values.cortex_image }}"
-        imagePullPolicy: IfNotPresent
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/opt/cortex/entrypoint --es-uri http://localhost:9200"
-        ports:
-        - containerPort: {{ .Values.corex_port }}
-        volumeMounts:
-        - name: hiveconfig
-          mountPath: /etc/cortex/application.conf
-          subPath: cortex.conf
+          subPath: elastic
+      {{- end }}
       - name: hive
         image: "{{ .Values.hive_image }}"
         imagePullPolicy: IfNotPresent
+        {{- if .Values.cortexIntegration }}
         command:
         - "/bin/sh"
         - "-c"
-        - "/opt/thehive/entrypoint --es-uri http://localhost:9200"
+        - "/etc/thehive/setup.py & /opt/thehive/entrypoint --no-config"
+        {{- end }}
         ports:
         - containerPort: {{ .Values.hive_port }}
+        env:
+          - name: THEHIVE_SUPERADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_username
+          - name: THEHIVE_SUPERADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_password
+          - name: THEHIVE_ALERT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: alert_username
+          - name: THEHIVE_ALERT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: alert_user_password
+          - name: THEHIVE_USER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: read_write_user_username
+          - name: THEHIVE_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: read_write_user_password
         volumeMounts:
-        - name: hiveconfig
+        - name: api-cache
           mountPath: /etc/thehive/application.conf
-          subPath: hive.conf
+          subPath: hive-data/application.conf
+        - name: setup
+          mountPath: /etc/thehive/setup.py
+          subPath: setup.py
       nodeSelector:
         role: "server"
       volumes:
       - name: hiveconfig
         configMap:
-          name: hiveconfig
+          name: {{ .Release.Name }}-config
+      - name: {{ .Release.Name }}-secret
+        secret:
+          secretName: {{ .Release.Name }}-secret
+      {{- if .Values.cortexIntegration }}
+      - name: cortex-secret
+        secret:
+          secretName: cortex-secret
+      {{- end }}
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+          defaultMode: 0777
       - name: elasticdb
         hostPath:
           path: /data/hive
           type: DirectoryOrCreate
+      - name: api-cache
+        emptyDir: {}

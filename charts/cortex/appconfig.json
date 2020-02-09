@@ -1,16 +1,8 @@
 {
-  "id": "HIVE",
+  "id": "Cortex",
   "type": "chart",
   "node_affinity": "Server - Any",
   "formControls": [
-    {
-      "type": "checkbox",
-      "default_value": true,
-      "description": "Integrate with Cortex (Requires Cortex to be installed first, verify Cortex is up and running before continuing)",
-      "trueValue": true,
-      "falseValue": false,
-      "name": "cortexIntegration"
-    },
     {
       "type": "textinput",
       "default_value": "admin",
@@ -31,29 +23,38 @@
     },
     {
       "type": "textinput",
-      "default_value": "alert_user",
-      "description": "Enter Alert Username",
+      "default_value": "thehive",
+      "description": "Enter an Organization Name",
       "required": true,
       "regexp": "",
-      "name": "alert_username",
+      "name": "org_name",
+      "error_message": "Enter a value"
+    },
+    {
+      "type": "textinput",
+      "default_value": "admin_thehive",
+      "description": "Enter Org Admin Username",
+      "required": true,
+      "regexp": "",
+      "name": "org_admin_username",
       "error_message": "Enter a value"
     },
     {
       "type": "textinput",
       "default_value": "password!",
-      "description": "Enter Alert User Password",
+      "description": "Enter Admin Password",
       "required": true,
       "regexp": "",
-      "name": "alert_user_password",
+      "name": "org_admin_password",
       "error_message": "Enter a value"
     },
     {
       "type": "textinput",
-      "default_value": "user",
-      "description": "Enter Username",
+      "default_value": "user_thehive",
+      "description": "Enter Org User Username",
       "required": true,
       "regexp": "",
-      "name": "read_write_user_username",
+      "name": "org_user_username",
       "error_message": "Enter a value"
     },
     {
@@ -62,7 +63,7 @@
       "description": "Enter User Password",
       "required": true,
       "regexp": "",
-      "name": "read_write_user_password",
+      "name": "org_user_password",
       "error_message": "Enter a value"
     },
     {

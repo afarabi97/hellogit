@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      component: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}
+    spec:
+      initContainers:
+      - name: elastic-init
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "chown -R 1000 /elastic-data"
+        volumeMounts:
+        - name: elasticdb
+          mountPath: /elastic-data
+      containers:
+      - name: elastic
+        image: "{{ .Values.elastic_image }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9200
+        env:
+          - name: http.host
+            value: 0.0.0.0
+          - name: cluster.name
+            value: hive
+          - name: thread_pool.index.queue_size
+            value: "100000"
+          - name: thread_pool.search.queue_size
+            value: "100000"
+          - name: thread_pool.bulk.queue_size
+            value: "100000"
+          - name: discovery.type
+            value: single-node
+        volumeMounts:
+        - name: elasticdb
+          mountPath: /usr/share/elasticsearch/data
+      - name: cortex
+        image: "{{ .Values.cortex_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/etc/cortex/setup.py & /opt/cortex/entrypoint"
+        ports:
+        - containerPort: {{ .Values.corex_port }}
+        env:
+          - name: CORTEX_SUPERADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: superadmin_username
+          - name: CORTEX_SUPERADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: superadmin_password
+          - name: CORTEX_ORGANIZATION
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_name
+          - name: CORTEX_ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_admin_username
+          - name: CORTEX_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_admin_password
+          - name: CORTEX_USER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_user_username
+          - name: CORTEX_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cortex-secret
+                key: org_user_password
+        volumeMounts:
+        - name: cortexconfig
+          mountPath: /etc/cortex/application.conf
+          subPath: cortex.conf
+        - name: setup
+          mountPath: /etc/cortex/setup.py
+          subPath: setup.py
+        - name: cortex-analyzers
+          mountPath: /opt/cortex/analyzers          
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: cortexconfig
+        configMap:
+          name: {{ .Release.Name }}-config
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+          defaultMode: 0777
+      - name: cortex-secret
+        secret:
+          secretName: {{ .Release.Name }}-secret
+      - name: elasticdb
+        hostPath:
+          path: /data/cortex
+          type: DirectoryOrCreate
+      - name: cortex-analyzers
+        hostPath:
+          path: /data/cortex/analyzers
+          type: DirectoryOrCreate

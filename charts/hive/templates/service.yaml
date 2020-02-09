@@ -13,7 +13,4 @@ spec:
     port: 80
     targetPort: {{ .Values.hive_port }}
     protocol: TCP
-  - name: cortex
-    port: {{ .Values.corex_port }}
-    protocol: TCP
   type: LoadBalancer

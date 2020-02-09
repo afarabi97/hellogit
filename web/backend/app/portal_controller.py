@@ -46,13 +46,15 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         else:
             portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': ''})
     elif dns == "hive.lan":
-        cortex_port = "9001"
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
-            portal_links.append({'ip': 'http://' + ip + ":" + cortex_port, 'dns': 'http://' + dns + ":" + cortex_port, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
-            portal_links.append({'ip': '', 'dns': 'http://' + dns + ":" + cortex_port, 'logins': ''})
+    elif dns == "cortex.lan":
+        if ip:
+            portal_links.append({'ip': 'http://' + ip + ":9001", 'dns': 'http://' + dns + ":9001", 'logins': ''})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
     elif dns == "kibana.lan":
         password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)

@@ -30,6 +30,8 @@ charts = [
         { "name": "wikijs",
                 "version": "1.0.0"},
         { "name": "misp",
+                "version": "1.0.0"},
+        { "name": "cortex",
                 "version": "1.0.0"}
     ]
 

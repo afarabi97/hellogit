@@ -3,5 +3,13 @@ replicas: 1
 elastic_image: elasticsearch:6.8.0
 cortex_image: thehiveproject/cortex:3.0.0
 corex_port: 9001
-hive_image: thehiveproject/thehive:3.4.0
+hive_image: tfplenum/thehive:3.4.0
 hive_port: 9000
+cortexIntegration: true
+esUri: http://cortex.default.svc.cluster.local:9200
+superadmin_username: admin
+superadmin_password: password!
+alert_username: alert_user
+alert_user_password: password!
+read_write_user_username: user
+read_write_user_password: password!

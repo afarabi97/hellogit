@@ -60,7 +60,7 @@ kube_images:
   - docker.io/tfplenum/windows_remote_installer:{{window_remote_installer_version}}
   - docker.io/elasticsearch:{{hive_elastic_version}}
   - docker.io/thehiveproject/cortex:{{hive_cortex_version}}
-  - docker.io/thehiveproject/thehive:{{hive_version}}
+  - docker.io/tfplenum/thehive:{{hive_version}}
   - k8s.gcr.io/kube-apiserver:v{{k8s_version}}
   - k8s.gcr.io/kube-controller-manager:v{{k8s_version}}
   - k8s.gcr.io/kube-scheduler:v{{k8s_version}}
