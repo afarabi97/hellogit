@@ -202,6 +202,7 @@ function setup_ansible(){
     local core_dir="/opt/tfplenum/core"
     pushd $core_dir > /dev/null
     run_cmd yum install -y policycoreutils-python python-pip python-gobject sshpass
+    run_cmd pip2 install --upgrade pip
     run_cmd pip2 install virtualenv
     run_cmd virtualenv --python=python2 --system-site-packages tfp-env
     run_cmd $core_dir/tfp-env/bin/pip2 install -r $core_dir/requirements-py2.txt
