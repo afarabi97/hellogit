@@ -126,17 +126,17 @@ data:
     # Cortex instance a name and specify the associated URL.
     #
     # In order to use Cortex, first you need to enable the Cortex module by uncommenting the next line
-
+{{- if .Values.cortexIntegration }}
     play.modules.enabled += connectors.cortex.CortexConnector
     cortex {
-      "CORTEX-SERVER-ID" {
+      "cortex-local" {
        url = "http://cortex.default.svc.cluster.local:{{ .Values.corex_port }}"
        #key = "CORTEX_API_KEY"
        # HTTP client configuration (SSL and proxy)
        ws {}
       }
     }
-
+{{ end }}
     # MISP
     # TheHive can connect to one or multiple MISP instances. Give each MISP
     # instance a name and specify the associated Authkey that must  be used
@@ -148,58 +148,60 @@ data:
     # enable the MISP connector. This will allow you to import events to
     # and/or export cases to the MISP instance(s).
 
-    #play.modules.enabled += connectors.misp.MispConnector
-
+{{- if .Values.mispIntegration }}
+    play.modules.enabled += connectors.misp.MispConnector
     misp {
       # Interval between consecutive MISP event imports in hours (h) or
       # minutes (m).
       interval = 1h
 
-      #"MISP-SERVER-ID" {
-      #  # MISP connection configuration requires at least an url and a key. The key must
-      #  # be linked with a sync account on MISP.
-      #  url = ""
-      #  key = ""
-      #
-      #  # Name of the case template in TheHive that shall be used to import
-      #  # MISP events as cases by default.
-      #  caseTemplate = "<Template_Name_goes_here>"
-      #
-      #  # Optional tags to add to each observable  imported  from  an  event
-      #  # available on this instance.
-      #  tags = ["misp-server-id"]
-      #
-      #  ## MISP event filters
-      #  # MISP filters is used to exclude events from the import.
-      #  # Filter criteria are:
-      #  # The number of attribute
-      #  max-attributes = 1000
-      #  # The size of its JSON representation
-      #  max-size = 1 MiB
-      #  # The age of the last publish date
-      #  max-age = 7 days
-      #  # Organization and tags
-      #  exclusion {
-      #    organisation = ["bad organisation", "other organisations"]
-      #    tags = ["tag1", "tag2"]
-      #  }
-      #
-      #  ## HTTP client configuration (SSL and proxy)
-      #  # Truststore to use to validate the X.509 certificate of the MISP
-      #  # instance if the default truststore is not sufficient.
-      #  # Proxy can also be used
-      #  ws {
-      #    ssl.trustManager.stores = [ {
-      #      path = /path/to/truststore.jks
-      #    } ]
-      #    proxy {
-      #      host = proxy.mydomain.org
-      #      port = 3128
-      #    }
-      #  }
-      #
-      #  # MISP purpose defines if this instance can be used to import events (ImportOnly), export cases (ExportOnly) or both (ImportAndExport)
-      #  # Default is ImportAndExport
-      #  purpose = ImportAndExport
-      #} ## <-- Uncomment to complete the configuration
+      "misp-local" {
+        # MISP connection configuration requires at least an url and a key. The key must
+        # be linked with a sync account on MISP.
+      url = "http://misp.default.svc.cluster.local"
+      #key = "MISP_API_KEY"
+
+       # Name of the case template in TheHive that shall be used to import
+       # MISP events as cases by default.
+       caseTemplate = "{{ .Values.case_template }}"
+
+       # Optional tags to add to each observable  imported  from  an  event
+       # available on this instance.
+       tags = ["misp-server-id"]
+
+       ## MISP event filters
+       # MISP filters is used to exclude events from the import.
+       # Filter criteria are:
+       # The number of attribute
+       max-attributes = 1000
+       # The size of its JSON representation
+       max-size = 1 MiB
+       # The age of the last publish date
+       max-age = 7 days
+       # Organization and tags
+       exclusion {
+         organisation = ["bad organisation", "other organisations"]
+         tags = ["tag1", "tag2"]
+       }
+
+       ## HTTP client configuration (SSL and proxy)
+       # Truststore to use to validate the X.509 certificate of the MISP
+       # instance if the default truststore is not sufficient.
+       # Proxy can also be used
+       ws {
+         ssl.trustManager.stores = [ {
+           path = /path/to/truststore.jks
+         } ]
+         proxy {
+           host = proxy.mydomain.org
+           port = 3128
+         }
+       }
+
+       # MISP purpose defines if this instance can be used to import events (ImportOnly), export cases (ExportOnly) or both (ImportAndExport)
+       # Default is ImportAndExport
+       purpose = ImportAndExport
+      } ## <-- Uncomment to complete the configuration
     }
+
+{{- end }}

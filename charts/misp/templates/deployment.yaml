@@ -36,6 +36,10 @@ spec:
       - name: misp
         image: {{ .Values.mispImage }}
         imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 /setup.py & /run.sh"
         ports:
         - containerPort: 80
         env:
@@ -49,7 +53,17 @@ spec:
           value: {{ .Values.sqlUserPassword }}
         - name: MISP_EXTERNAL_CONFIG
           value: 'true'
+        - name: HIVE_USER_EMAIL
+          value: {{ .Values.hive_user_email }}
+        - name: HIVE_USER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: misp-secret
+              key: hive_user_api_key
         volumeMounts:
+        - name: misp-setup
+          mountPath: /setup.py
+          subPath: setup.py
         - name: misp-vol
           mountPath: /var/www/MISP/app/Config
           subPath: appConfig
@@ -71,3 +85,9 @@ spec:
       - name: misp-config
         configMap:
           name: {{ .Release.Name }}-configmap
+      - name: misp-setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+      - name: misp-secret
+        secret:
+          secretName: {{ .Release.Name }}-secret

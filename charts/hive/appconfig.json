@@ -66,6 +66,23 @@
       "error_message": "Enter a value"
     },
     {
+      "type": "checkbox",
+      "default_value": true,
+      "description": "Integrate with MISP (Requires MISP to be installed first, verify MISP is up and running before continuing)",
+      "trueValue": true,
+      "falseValue": false,
+      "name": "mispIntegration"
+    },
+    {
+      "type": "textinput",
+      "default_value": "<Template_Name_goes_here>",
+      "description": "Enter MISP Case Template Name",
+      "required": true,
+      "regexp": "",
+      "name": "case_template",
+      "error_message": "Enter a value"
+    },
+    {
       "type": "invisible",
       "name": "affinity_hostname"
     },

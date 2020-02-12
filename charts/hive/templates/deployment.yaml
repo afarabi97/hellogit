@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       {{- if .Values.cortexIntegration }}
-      - name: hive-init
+      - name: hive-init-cortex
         image: "{{ .Values.hive_image }}"
         securityContext:
           runAsUser: 0
@@ -45,7 +45,7 @@ spec:
         - name: api-cache
           mountPath: /tmp/api
           subPath: hive-data
-      - name: hive-init2
+      - name: hive-init-cortex2
         image: "busybox:1.29.3"
         securityContext:
           runAsUser: 0
@@ -61,7 +61,7 @@ spec:
           mountPath: /data/config.conf
           subPath: hive.conf
       {{ else }}
-      - name: elastic-init
+      - name: hive-init-elastic
         image: "busybox:1.29.3"
         securityContext:
           runAsUser: 0
@@ -73,6 +73,29 @@ spec:
         - name: elasticdb
           mountPath: /elastic-data
       {{- end }}
+      {{- if .Values.mispIntegration }}
+      - name: hive-init-misp
+        image: "busybox:1.29.3"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "if [ ! -f /tmp/hive/application.conf ]; then cp /data/config.conf /tmp/hive/application.conf; fi && sed -i 's|#key = \"MISP_API_KEY\"|key = \"'${MISP_API_KEY}'\"|g' /tmp/hive/application.conf && chown -R 1 /tmp/hive"
+        env:
+        - name: MISP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: misp-secret
+              key: hive_user_api_key
+        volumeMounts:
+        - name: api-cache
+          mountPath: /tmp/hive
+          subPath: hive-data
+        - name: hiveconfig
+          mountPath: /data/config.conf
+          subPath: hive.conf
+      {{ end }}
       containers:
       {{- if not .Values.cortexIntegration }}
       - name: elastic
@@ -160,6 +183,11 @@ spec:
       - name: cortex-secret
         secret:
           secretName: cortex-secret
+      {{- end }}
+      {{- if .Values.mispIntegration }}
+      - name: misp-secret
+        secret:
+          secretName: misp-secret
       {{- end }}
       - name: setup
         configMap:
