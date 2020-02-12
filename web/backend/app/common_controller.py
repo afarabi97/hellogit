@@ -22,11 +22,12 @@ from typing import List, Dict, Tuple, Set
 
 @app.route('/api/get_system_name', methods=['GET'])
 def get_system_name():
-    system_name = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})['system_name']
-    if (system_name):
+    document = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})
+    if (document):
+      system_name = document['system_name']
       return jsonify({'system_name': system_name})
     else:
-      return ERROR_RESPONSE
+      return jsonify({'message': 'The system name has not been set.'}), 404
 
 @app.route('/api/save_system_name', methods=['POST'])
 def save_system_name():
