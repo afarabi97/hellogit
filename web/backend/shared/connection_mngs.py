@@ -149,10 +149,6 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.metrics
 
     @property
-    def mongo_system_name(self) -> Collection:
-        return self._tfplenum_database.system_name
-
-    @property
     def mongo_last_jobs(self) -> Collection:
         """
         Returns a mongo object that can do manipulate the last jobs completed by the system.

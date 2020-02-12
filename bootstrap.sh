@@ -10,7 +10,6 @@ RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
-
 pushd "/opt" > /dev/null
 
 if [ "$EUID" -ne 0 ]
@@ -434,6 +433,8 @@ function prompts(){
     echo "---------------------------------"
     echo "TFPLENUM DEPLOYER BOOTSTRAP ${boostrap_version}"
     echo "---------------------------------"
+    prompt_for_system
+
     export TFPLENUM_OS_TYPE=rhel
     prompt_runtype
     get_controller_ip
@@ -452,6 +453,24 @@ function prompts(){
         set_git_variables
     fi
 }
+
+function prompt_for_system() {
+    if [[ -z "${SYSTEM_NAME}" ]]; then
+        choices=( DIP MIP GIP )
+        echo "Select the platform this controller will manage:"
+        select system in "${choices[@]}"; do
+            case $system in
+                DIP ) SYSTEM_NAME="DIP"; break;;
+                MIP ) SYSTEM_NAME="MIP"; break;;
+                GIP ) SYSTEM_NAME="GIP"; break;;
+            esac
+        done
+    fi
+
+    echo "[tfplenum]" > /etc/tfplenum.ini
+    echo "system_name = ${SYSTEM_NAME}" >> /etc/tfplenum.ini
+}
+
 
 export BOOTSTRAP=true
 prompts

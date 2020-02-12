@@ -5,6 +5,11 @@ import { NavBarService } from './navbar.service';
 import { interval } from "rxjs";
 import { WebsocketService } from '../services/websocket.service';
 import { WeaponSystemNameService} from '../services/weapon-system-name.service';
+import { getSideNavigationButtons, NavGroup, NavLink } from './navigation';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-top-navbar',
@@ -20,84 +25,7 @@ export class TopNavbarComponent implements OnInit {
   public timezone: string;
   public version: string;
   public system_name: string;
-
-  private portal = { label: 'Portal', url: '/portal', icon: 'dashboard', isExternalLink: false };
-  private kickstart = { label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers', isExternalLink: false };
-  private kit = { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false }
-  private windowsAgents = { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false };
-  private catalog = { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false };
-  private addNode = { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false };
-  private upgrade = { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false };
-  private esScale = { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false };
-  private health = { label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false };
-  private configurationMaps = { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false };
-  private dockerRegistry = { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false };
-  private rulesets = { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false };
-  private pcaps = { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false };
-  private tools = { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false };
-  private thisiscvah = { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true };
-
-  public sideNavigationButtons: any;
-
-  private dipNavigation = [
-    {
-      children: [this.portal]
-    },
-    {
-      label: 'System Setup',
-      children: [this.kickstart,
-                 this.kit,
-                 this.windowsAgents,
-                 this.catalog,
-                 this.addNode,
-                 this.upgrade,
-                 this.esScale
-                 ]
-    },
-    {
-      label: 'Kubernetes',
-      children: [this.health,
-                 this.configurationMaps,
-                 this.dockerRegistry]
-    },
-    {
-      label: 'Policy Management',
-      children: [this.rulesets,
-                 this.pcaps]
-    },
-    {
-      label: 'Tools',
-      children: [this.tools]
-    },
-    {
-      label: 'Confluence',
-      children: [this.thisiscvah]
-    },
-  ];
-
-  private mipNavigation = [
-    {
-      label: 'System Setup',
-      children: [this.kickstart,
-                 this.kit
-                 ]
-    },
-  ];
-
-  private gipNavigation = [
-    {
-      label: 'System Setup',
-      children: [this.kickstart,
-                 this.kit
-                 ]
-    },
-  ];
-
-  private navigation: any = {
-    'DIP': this.dipNavigation,
-    'MIP': this.mipNavigation,
-    'GIP': this.gipNavigation
-  }
+  public sideNavigationButtons: Array<NavGroup>;
 
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
 
@@ -111,7 +39,8 @@ export class TopNavbarComponent implements OnInit {
               private navService: NavBarService,
               private socketSrv: WebsocketService,
               private sysNameSrv: WeaponSystemNameService,
-              private ref: ChangeDetectorRef) { }
+              private ref: ChangeDetectorRef,
+              private dialog: MatDialog) { }
 
   ngOnInit() {
     this.setSystemName();
@@ -133,34 +62,44 @@ export class TopNavbarComponent implements OnInit {
     this.socketRefresh();
   }
 
-  selectSystemName() {
-    let dialogRef = this.sysNameSrv.selectSystemName();
-
-    dialogRef.afterClosed().subscribe(response => {
-      let system_name = response.controls['dropdown'].value;
-      const url = '/api/save_system_name';
-       this.sysNameSrv.saveSystemName(system_name).subscribe(response => {
-         this.setSystemName();
-      });
-    });
-
-  }
-
   private setSystemName() {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];
-        this.sideNavigationButtons = this.navigation[this.system_name];
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
         this.emitTheme();
         this.ref.detectChanges();
       },
       err => {
         this.system_name = 'DIP';
-        this.sideNavigationButtons = this.navigation[this.system_name];
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
         this.emitTheme();
         this.ref.detectChanges();
       }
     );
+  }
+
+  selectSystem() {
+    let control = new DialogFormControl('Pick your system', null, Validators.required);
+    control.options = ['DIP', 'MIP', 'GIP'];
+
+    control.controlType = DialogControlTypes.dropdown;
+
+    let group = new FormGroup({'dropdown': control});
+
+    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
+      width: '400px',
+      maxHeight: '400px',
+      data: { title: "Select the system type.",
+              instructions: "",
+              dialogForm: group,
+              confirmBtnText: "OK" }
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      let system_name = response.controls['dropdown'].value;
+    });
+
   }
 
   private setClock(data: Object){

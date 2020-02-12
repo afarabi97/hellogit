@@ -19,22 +19,17 @@ from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password
 from typing import List, Dict, Tuple, Set
 
+import configparser
 
 @app.route('/api/get_system_name', methods=['GET'])
 def get_system_name():
-    document = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})
-    if (document):
-      system_name = document['system_name']
-      return jsonify({'system_name': system_name})
-    else:
-      return jsonify({'message': 'The system name has not been set.'}), 404
-
-@app.route('/api/save_system_name', methods=['POST'])
-def save_system_name():
-    data = request.get_json()
-    conn_mng.mongo_system_name.find_one_and_replace({'system_name': {'$exists': True}}, {'system_name': data['system_name']}, upsert=True)
-    system_name = conn_mng.mongo_system_name.find_one({'system_name': {'$exists': True}})['system_name']
-    return jsonify({'system_name': system_name})
+    config = configparser.ConfigParser()
+    config.read('/etc/tfplenum.ini')
+    try:
+        system_name = config['tfplenum']['system_name']
+        return jsonify({'system_name': system_name})
+    except KeyError:
+        return jsonify({'message': 'Could not get the system_name.'}), 404
 
 @app.route('/api/metrics', methods=['POST'])
 def replace_metrics():
