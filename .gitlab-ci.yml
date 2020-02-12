@@ -10,7 +10,7 @@ variables:
   PDF_SINGLE_PAGES: "6.8.1.2 DIP System Setup,6.8.1.1 MIP System Setup,6.8.2.1 DIP System Operation,6.8.2.2 MIP System Operation,6.8.9.4 Windows Agent Plugin Guide,6.8.9.5 Helm Integration,6.8.9.2 Setup Controller"
   TFPLENUM_CONFLUENCE_PAGE: "CVAH 3.3 DRAFT2"
   TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
-  PIPELINE: "code_quality"
+  PIPELINE: "developer"
   KIT: "test3.yml"
   BUILD_TYPE: "clone_from_nightly"
   IS_CLEANUP: "false"
@@ -77,10 +77,8 @@ sonarqube-check:
     sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
   allow_failure: true
   only:
-    refs:
-      - bugfixes/pipeline-dns-fix
     variables:
-      - $PIPELINE == "code_quality"
+      - $PIPELINE == "developer"
 
 # container_scanning:
 #   image:
@@ -169,6 +167,24 @@ Setup Controller:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "export"
+      - $PIPELINE == "developer"
+
+Run Python Unit Tests:
+  tags:
+    - tfplenum-build
+  stage: test
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/main.py \
+    --path testing/testy-tester/testcases/$KIT \
+    --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
+    --run-unit-tests
+  allow_failure: true
+  only:
+    variables:
       - $PIPELINE == "developer"
 
 Add Docs to Controller:

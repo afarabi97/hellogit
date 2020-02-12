@@ -1,6 +1,6 @@
+import coverage
 import json
 import os
-os.environ["DEBUG_SRV"] = 'yes'
 import requests
 import sys
 import unittest
@@ -17,14 +17,13 @@ sys.path.append(SCRIPT_DIR + '/../')
 from app.kickstart_controller import save_kickstart_to_mongo
 from app.kit_controller import _replace_kit_inventory
 from pathlib import Path
+from app.service.job_service import run_command2
 from app import conn_mng, socketio, app
 from flask_socketio import SocketIO
 from tests.integration.base_test_setup import BaseTestCase
 from tests.integration.ruleset_tests import TestRulesetController
 from tests.integration.pcap_tests import TestPcapController
 from typing import Dict, List
-
-
 
 class TestKickstartController(BaseTestCase):
 
@@ -62,9 +61,9 @@ class TestAgentBuilder(BaseTestCase):
     def test_api(self):
         # Exercise logic for building a windows installer
         response = self.session.post(
-            self.base_url + '/api/generate_windows_installer', 
+            self.base_url + '/api/generate_windows_installer',
             json = {
-                'winlog_beat_dest_ip': '172.16.72.2', 
+                'winlog_beat_dest_ip': '172.16.72.2',
                 'winlogbeat_port': '123',
                 'install_winlogbeat': False,
                 'install_sysmon': True })
@@ -83,7 +82,13 @@ class TestAgentBuilder(BaseTestCase):
 
 
 def start_debug_api_srv():
+    cov = coverage.Coverage(source=["/opt/tfplenum/web/backend/app"], concurrency="eventlet")
+    cov.start()
     socketio.run(app, host='0.0.0.0', port=5002, debug=False) # type: SocketIO
+    cov.stop()
+    cov.save()
+    cov.report()
+    cov.html_report()
 
 
 def run_integration_tests() -> bool:
@@ -91,8 +96,8 @@ def run_integration_tests() -> bool:
     Runs controller integration tests and returns true on success.
 
     :return:
-    """    
-    test_classes_to_run = [TestRulesetController, TestPcapController, TestCommonController, TestKickstartController]    
+    """
+    test_classes_to_run = [TestPcapController, TestCommonController, TestKickstartController, TestRulesetController]
     loader = unittest.TestLoader()
     suites_list = []
     for test_class in test_classes_to_run:
@@ -109,15 +114,33 @@ def run_integration_tests() -> bool:
 
 
 def main():
-    p = multiprocessing.Process(target=start_debug_api_srv)
-    p.start()
-    sleep(5)
-    if run_integration_tests():
-        p.terminate()
-        exit(0)
-    else:
-        p.terminate()
+    backup_file_name = "unittest_backup.tar.gz"
+    _, ret_val = run_command2("/opt/tfplenum/web/setup/backup_tfplenum.sh {}".format(backup_file_name))
+    if ret_val != 0:
+        print("Failed to backup the database. Exiting")
         exit(1)
-    
-if __name__ == '__main__':    
+
+    try:
+        p = multiprocessing.Process(target=start_debug_api_srv)
+        p.start()
+        sleep(5)
+        if run_integration_tests():
+            p.terminate()
+            exit(0)
+        else:
+            p.terminate()
+            exit(1)
+    finally:
+        _, ret_val = run_command2("/opt/tfplenum/web/setup/restore_tfplenum.sh {}".format(backup_file_name))
+        if ret_val != 0:
+            print("Failed to restore the database. Exiting.")
+            exit(1)
+
+        run_command2("rm -rf /var/www/html/htmlcov/")
+        _, ret_val = run_command2("mv /opt/tfplenum/web/backend/tests/htmlcov/ /var/www/html/")
+        if ret_val != 0:
+            print("Failed to move the thml unit test report to /var/www/html/htmlcov/. Exiting.")
+            exit(1)
+
+if __name__ == '__main__':
     main()

@@ -38,7 +38,7 @@ from lib.util import (get_node, get_nodes, test_vms_up_and_alive,
                       transform, get_bootstrap,
                       run_bootstrap, perform_integration_tests,
                       get_interface_name, change_remote_sensor_ip,
-                      hash_file)
+                      hash_file, perform_unit_tests)
 
 from lib.model.kit import Kit
 from lib.model.node import Node, VirtualMachine
@@ -136,6 +136,7 @@ class Runner:
         parser.add_argument('--run-catalog', dest='run_catalog', action='store_true')
         parser.add_argument('--run-add-node', dest='run_add_node', action='store_true')
         parser.add_argument('--run-integration-tests', dest='run_integration_tests', action='store_true')
+        parser.add_argument('--run-unit-tests', dest='run_unit_tests', action='store_true')
         parser.add_argument('--simulate-powerfailure', dest='simulate_powerfailure', action='store_true')
 
         parser.add_argument('--add-docs-to-controller', dest='add_docs_to_controller', metavar="<confluence page title>")
@@ -780,6 +781,17 @@ class Runner:
         wait_for_pods_to_be_alive(master_node, 30)
         perform_integration_tests(self.controller_node, self.kit.password)
 
+    def _run_unittests(self):
+        """
+        Runs the integration tests.
+
+        :return:
+        """
+        if not self.args.run_unit_tests:
+            return
+
+        perform_unit_tests(self.controller_node, self.kit.password)
+
     def _simulate_virtual_powerfailure(self):
         """
         Simulates a power failure on a given cluster.
@@ -896,6 +908,7 @@ class Runner:
             simulate_powerfailure = self._simulate_virtual_powerfailure
 
         setup_controller()
+        self._run_unittests()
         self._set_perms_restricted_on_page()
         self._set_perms_unrestricted_on_page()
         self._add_docs_to_controller()

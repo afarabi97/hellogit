@@ -223,6 +223,16 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
 
     return True
 
+def perform_unit_tests(ctrl_node: Node, root_password: str):
+    with FabricConnectionWrapper(ctrl_node.username,
+                                 ctrl_node.password,
+                                 ctrl_node.management_interface.ip_address) as ctrl_cmd:
+        with ctrl_cmd.cd("/opt/tfplenum/web/backend/tests"):
+            ctrl_cmd.run("/opt/tfplenum/web/tfp-env/bin/python controller_test.py")
+            ctrl_cmd.run("/opt/tfplenum/web/tfp-env/bin/coverage report -m")
+            ctrl_cmd.run("mv htmlcov/ /var/www/html/")
+
+    print("Navigate to http://{}/htmlcov/ to see full unit test coverage report.".format(ctrl_node.management_interface.ip_address))
 
 def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: int) -> None:
     """

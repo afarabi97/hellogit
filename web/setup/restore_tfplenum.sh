@@ -2,13 +2,14 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 FRONTEND_DIR="$SCRIPT_DIR/../"
+PARAM_BACKUP_NAME=$1
 
-function selectBackupFile {    
-    options=($(ls $FRONTEND_DIR/backups))    
+function selectBackupFile {
+    options=($(ls $FRONTEND_DIR/backups))
     prompt="Please select a file:"
 
     PS3="$prompt "
-    select opt in "${options[@]}" "Quit" ; do 
+    select opt in "${options[@]}" "Quit" ; do
         if (( REPLY == 1 + ${#options[@]} )) ; then
             exit
 
@@ -19,7 +20,7 @@ function selectBackupFile {
         else
             echo "Invalid option. Try another one."
         fi
-    done    
+    done
 
     BACKUP_FILE=$FRONTEND_DIR/backups/$opt
 }
@@ -30,10 +31,16 @@ function restoreMCPServer {
     tar -xzvf $BACKUP_FILE
     cp -r backup/confluence/THISISCVAH/ /var/www/html/.
     cp -r backup/confluence/OJCCTM/ /var/www/html/.
+    cp -r backup/confluence/pcaps/ /var/www/html/.
     mongorestore --gzip --archive=backup/tfplenum_database.gz --db tfplenum_database
     rm -rf backup/
     popd > /dev/null
 }
 
-selectBackupFile
+if [ $PARAM_BACKUP_NAME ]; then
+    BACKUP_FILE=$FRONTEND_DIR/backups/$PARAM_BACKUP_NAME
+else
+    selectBackupFile
+fi
+
 restoreMCPServer

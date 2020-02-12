@@ -47,27 +47,27 @@ class TestRulesetController(BaseTestCase):
         self.assertEqual(expected_state, actual["state"])
         self.assertEqual(expected["isEnabled"], actual["isEnabled"])
         self.assertIsNotNone(actual["_id"])
-        
-    def test_get_sensor_hostinfo(self):        
+
+    def test_get_sensor_hostinfo(self):
         response = self.session.get(self.base_url + "/api/get_sensor_hostinfo")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [])
 
         # Add in a valid kickstart and kit configuration.
         save_kickstart_to_mongo(self.kickstart_form1)
-        is_successful, _ = _replace_kit_inventory(self.kit_form3['kitForm'])
+        is_successful, _ = _replace_kit_inventory(self.kit_form3)
         self.assertTrue(is_successful)
 
         response = self.session.get(self.base_url + "/api/get_sensor_hostinfo")
         self.assertEqual(response.status_code, 200)
-        
+
         host_info = response.json() # type: List
         self.assertEqual(2, len(host_info))
 
 
     def test_crud_operations_for_rulesets_and_rules(self):
-        ruleset = {            
-            "appType": "suricata",
+        ruleset = {
+            "appType": "Suricata",
             "clearance": "TS",
             "name": "ruleSetOne",
             "sensors": [{"hostname": "dnavtest2-sensor1.lan", "ip": "172.16.77.35"}],
@@ -126,13 +126,13 @@ class TestRulesetController(BaseTestCase):
         response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 1)
-        actual_result = response.json() # type: Dict        
-        self._verify_rule(single_rule, actual_result)        
-        self._verify_ruleset_count(1)        
+        actual_result = response.json() # type: Dict
+        self._verify_rule(single_rule, actual_result)
+        self._verify_ruleset_count(1)
         response = self.session.get(self.base_url + "/api/get_ruleset/" + str(ruleset_id))
         ruleset = response.json()
         self.assertEqual(ruleset['state'], RULESET_STATES[1])
-        
+
         # Test save same rule and make sure only one rule is saved as this is suppose to be a set.
         # Verify that the states is still dirty
         add_rule['rulesetID'] = ruleset_id
@@ -143,7 +143,7 @@ class TestRulesetController(BaseTestCase):
 
         # Test save different rule
         add_rule['rulesetID'] = ruleset_id
-        add_rule['ruleToAdd'] = single_rule2        
+        add_rule['ruleToAdd'] = single_rule2
         response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 2)
@@ -159,7 +159,7 @@ class TestRulesetController(BaseTestCase):
         self._verify_rule(single_rule2_w_id, response.json())
         self._verify_rule_count(ruleset_id, 2)
 
-        # Test update ruleset     
+        # Test update ruleset
         response = self.session.get(self.base_url + '/api/get_ruleset/' + str(ruleset_id))
         test_rule_set = response.json()
         test_rule_set["state"] = "dirty"
@@ -179,9 +179,9 @@ class TestRulesetController(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self._verify_ruleset_count(0)
 
-    @unittest.skip('')    
+    @unittest.skip('')
     def test_modifyruleset(self):
-        ruleset = {            
+        ruleset = {
             "appType": "suricata",
             "clearance": "TS",
             "name": "ruleSetOne",
@@ -211,6 +211,6 @@ class TestRulesetController(BaseTestCase):
                 single_rule["ruleName"] = "rule" + str(x)
                 single_rule["rule"] = "ruleContent" + str(x)
                 add_rule['rulesetID'] = rule_set_id
-                add_rule['ruleToAdd'] = single_rule        
+                add_rule['ruleToAdd'] = single_rule
                 response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
                 self.assertEqual(response.status_code, 200)

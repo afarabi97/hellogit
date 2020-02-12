@@ -9,6 +9,7 @@ import eventlet
 eventlet.monkey_patch(all=False, os=True, select=False, socket=True, thread=False, time=True)
 import logging
 import os
+import signal
 
 from shared.connection_mngs import MongoConnectionManager
 from shared.constants import CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR, AGENT_PKGS_DIR
@@ -55,7 +56,6 @@ def _initalize_counters():
             dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
             if dbrecord == None:
                 data = {"_id": counter, "seq": randint(100, 100000)}
-                print(data)
                 ret_val  = conn_mng.mongo_counters.insert_one(data)
     except pymongo.errors.DuplicateKeyError as e:
         # race condition of multiple api workers coming online will produce
@@ -114,3 +114,11 @@ from app import version_controller
 from app import upgrade_controller
 from app import tools_controller
 from app import scale_controller
+
+
+#This is a hack needed to get coverage to work correctly within the python unittest framework.
+def receiveSignal(signalNumber, frame):
+    exit(1)
+    return
+
+signal.signal(signal.SIGTERM, receiveSignal)

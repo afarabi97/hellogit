@@ -198,6 +198,7 @@ def create_rule() -> Response:
     rule = rule_add['ruleToAdd']
     rule["_id"] = get_next_sequence("ruleid")
     rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+    error_output = None
     if rule_set:
         rule_type = rule_set['appType']
         is_valid = False
@@ -221,7 +222,7 @@ def create_rule() -> Response:
                                                                 projection={"rules": False})
             if ret_val:
                 return jsonify(rule)
-        else:
+        elif error_output:
             return jsonify({"error_message": error_output.split('\n')})
     return jsonify({"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)})
 
