@@ -56,9 +56,11 @@ def get_es_node_count() -> Response:
     :return (Response): Returns a Reponse object
     """
 
-    nodes = parse_nodes(get_es_nodes())
-    max_node_count = get_allowable_scale_count()
-    nodes.update(max_node_count)
+    nodeList = get_es_nodes()
+    nodes = parse_nodes(nodeList)
+    if nodeList:
+        max_node_count = get_allowable_scale_count()
+        nodes.update(max_node_count)
     if nodes:
         return (jsonify({ "elastic": nodes }), 200)
 
@@ -69,4 +71,3 @@ def get_es_node_count() -> Response:
 def check_scale_progress() -> Response:
     status = es_cluster_status()
     return (jsonify({ "status": status }), 200)
-

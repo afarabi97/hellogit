@@ -5,7 +5,7 @@ from enum import Enum
 import traceback
 from elasticsearch import Elasticsearch
 from kubernetes import client, config
-import yaml, json
+import yaml, json, os
 from base64 import b64decode
 from time import sleep
 from collections import defaultdict
@@ -19,10 +19,11 @@ ELASTIC_OP_VERSION = "v1"
 ELASTIC_OP_NAMESPACE = "default"
 ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
+KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
 def get_elastic_password(name='tfplenum-es-elastic-user', namespace='default'):
-    if not config.load_kube_config():
-        config.load_kube_config()
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     v1 = client.CoreV1Api()
     response = v1.read_namespaced_secret(name, namespace)
     password = b64decode(response.data['elastic']).decode('utf-8')
@@ -31,8 +32,8 @@ def get_elastic_password(name='tfplenum-es-elastic-user', namespace='default'):
 def get_elastic_service_ip(name='elasticsearch', namespace='default'):
     ip = None
     port= None
-    if not config.load_kube_config():
-        config.load_kube_config()
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     v1 = client.CoreV1Api()
     response = v1.read_namespaced_service(name, namespace)
 
@@ -50,9 +51,11 @@ def get_elastic_service_ip(name='elasticsearch', namespace='default'):
 
 def get_es_nodes():
     nodes = None
+    if not os.path.exists(KUBE_CONFIG_LOCATION):
+        return []
     try:
-        if not config.load_kube_config():
-            config.load_kube_config()
+        if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+            config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         password = get_elastic_password()
         service_ip, port = get_elastic_service_ip()
         es = Elasticsearch(service_ip, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=False)
@@ -86,9 +89,11 @@ def parse_nodes(nodes):
 
 def get_namespaced_custom_object_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
+    if not os.path.exists(KUBE_CONFIG_LOCATION):
+        return None
     try:
-        if not config.load_kube_config():
-            config.load_kube_config()
+        if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+            config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         api = client.CustomObjectsApi()
         resp = api.get_namespaced_custom_object_status(group=ELASTIC_OP_GROUP,
             version=ELASTIC_OP_VERSION,
@@ -137,6 +142,8 @@ def es_cluster_status() -> str:
             and es_node_count["coordinating"] == deploy_coordinating_count \
             and resp["status"]["phase"] == "Ready":
                 return resp["status"]["phase"]
+        if resp == None:
+            return "None"
 
         if resp["status"]["phase"] != "Ready":
             return resp["status"]["phase"]
@@ -218,8 +225,8 @@ def get_allowable_scale_count():
                         data_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         data_count = n["count"]
 
-    if not config.load_kube_config():
-        config.load_kube_config()
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     v1 = client.CoreV1Api()
 
     for node in v1.list_node().items:

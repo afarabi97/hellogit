@@ -4,6 +4,8 @@ import { ESScaleServiceService } from './es-scale-service.service';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { MatDialog } from '@angular/material';
 import { WebsocketService } from '../services/websocket.service';
+import { SnackbarWrapper } from '../classes/snackbar-wrapper';
+import { Router } from '@angular/router';
 
 
 class SliderControl {
@@ -67,15 +69,24 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   constructor(private EsScaleSrv: ESScaleServiceService,
               private formBuilder: FormBuilder,
               public dialog: MatDialog,
-              public _WebsocketService: WebsocketService) {
+              public _WebsocketService: WebsocketService,
+              private snackbar: SnackbarWrapper,
+              private router: Router) {
     this.elasticPodTypes = new Array<SliderControl>();
   }
 
   ngOnInit() {
     this.EsScaleSrv.checkElastic().subscribe(response => {
-      if(response["status"] !== "Ready") {
+      if(response["status"] !== "Ready" && response["status"] !== "Unknown" && response["status"] !== "None") {
         this.scaleInProgressDialog();
         this.status = true;
+      }
+      if(response["status"] == "None") {
+        let reroute = () => this.router.navigate(['/kit_configuration'])
+        this.snackbar.showSnackBar('Error - You cannot scale Elastic until you have a Kit deployed and Elastic is installed', -1, 'Kit Config', reroute);
+      }
+      if(response["status"] == "Unknown") {
+        this.snackbar.showSnackBar('Error - Unknown Elastic Status', -1, 'Dismiss');
       }
     });
 
