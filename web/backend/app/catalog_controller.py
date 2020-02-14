@@ -79,9 +79,9 @@ def install () -> Response:
 
         results = dict()
         error_message = []
-        if not tiller_ip:
+        if not catalog.tiller_service_ip:
             error_message.append("Unable to find tiller service ip")
-        if not helm_repo_uri:
+        if not catalog.helm_repo_uri:
            error_message.append("Unable to find chartmuseum service ip")
 
         results["error_message"] = error_message
@@ -142,9 +142,9 @@ def reinstall() -> Response:
 
         results = dict()
         error_message = []
-        if not tiller_ip:
+        if not catalog.tiller_service_ip :
             error_message.append("Unable to find tiller service ip")
-        if not helm_repo_uri:
+        if not catalog.helm_repo_uri:
            error_message.append("Unable to find chartmuseum service ip")
 
         results["error_message"] = error_message
@@ -179,11 +179,12 @@ def generate_values_file () -> Response:
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
     check_catalog()
+    charts = []
     catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
     if catalog.helm_repo_uri:
         charts = get_repo_charts(catalog.helm_repo_uri)  #type: list
-        return jsonify(charts)
-    return ERROR_RESPONSE
+    return jsonify(charts)
+    #return ERROR_RESPONSE
 
 @app.route('/api/catalog/chart/<application>/status', methods=['GET'])
 def get_app_status(application: str) -> Response:

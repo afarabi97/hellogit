@@ -6,6 +6,7 @@ import { Notification } from '../../notifications/interface/notifications.interf
 import { WebsocketService } from '../../services/websocket.service';
 import { take, first, filter } from 'rxjs/operators';
 import { MatSlideToggle } from '@angular/material';
+import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 
 @Component({
   selector: 'app-catalog',
@@ -32,7 +33,8 @@ export class CatalogComponent implements OnInit {
   constructor(
     public _CatalogService: CatalogService,
     private titleSvc: Title,
-    public _WebsocketService:WebsocketService
+    public _WebsocketService:WebsocketService,
+    private snackbar: SnackbarWrapper,
   ) { }
 
   /**
@@ -43,19 +45,24 @@ export class CatalogComponent implements OnInit {
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
     this._CatalogService.getByString("charts").subscribe(data => {
-      data.map( node => {
-        this._CatalogService.getByString("chart/" + node.application + "/status").subscribe(statusGroup => {
-          node.nodes = [];
-          const request = statusGroup.map(status => {
-            if( node.application === status.application) {
-              node.nodes.push(status);
-            }
-          });
-          Promise.all(request).then(() => {
-            this._CatalogService.isLoading = true;
+      if(data.length > 0) {
+        data.map( node => {
+          this._CatalogService.getByString("chart/" + node.application + "/status").subscribe(statusGroup => {
+            node.nodes = [];
+            const request = statusGroup.map(status => {
+              if( node.application === status.application) {
+                node.nodes.push(status);
+              }
+            });
+            Promise.all(request).then(() => {
+              this._CatalogService.isLoading = true;
+            });
           });
         });
-      });
+      } else {
+        this._CatalogService.isLoading = true;
+        //this.snackbar.showSnackBar('No Charts available. If Kit is deployed, check the Chart Museum and Tiller services', 5000, 'Dismiss');
+      }
       this.charts = data;
       this.setPMOSupported(this.charts);
       this.filteredCharts = this.filterPMOApplications(true).concat(

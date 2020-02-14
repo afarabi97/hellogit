@@ -11,8 +11,7 @@ class Catalog(object):
         self.tiller_service_ip = self.get_tiller_service()
         print(self.tiller_service_ip)
         self.chart_repo_service_ip = self.get_helm_repo_service()
-        if self.chart_repo_service_ip is not None:
-            self.helm_repo_uri = self.get_helm_repo()
+        self.helm_repo_uri = self.get_helm_repo()
         self.chart_releases = None
 
     def set_chart_releases(self, charts: dict) -> None:
@@ -47,7 +46,7 @@ class Catalog(object):
             execute_cmd_get_ip = ("kubectl get service tiller-deploy -n kube-system --no-headers | awk '{ print $4 }'")
             ip_ret_val = ssh_conn.run(execute_cmd_get_ip, hide=True)  # type: Result
             ip_ret_val = ip_ret_val.stdout.strip() # type: str
-            if ip_ret_val == '<none>':
+            if ip_ret_val == '<none>' or ip_ret_val == '':
                 ip_ret_val = None
             return ip_ret_val
         return None
@@ -64,7 +63,7 @@ class Catalog(object):
             execute_cmd_get_ip = ("kubectl get service chartmuseum --no-headers | awk '{ print $4 }'")
             ip_ret_val = ssh_conn.run(execute_cmd_get_ip, hide=True)  # type: Result
             ip_ret_val= ip_ret_val.stdout.strip()  # type: str
-            if ip_ret_val == '<none>':
+            if ip_ret_val == '<none>' or ip_ret_val == '':
                 ip_ret_val = None
 
         return ip_ret_val
@@ -75,10 +74,9 @@ class Catalog(object):
 
         """
         healthy = False
-
-        healthy = self.get_helm_repo_health()
-
+        if self.chart_repo_service_ip is not None:
+            healthy = self.get_helm_repo_health()
         if healthy:
             return "http://" + self.chart_repo_service_ip + ":" + CHART_REPO_PORT
 
-        return ""
+        return None

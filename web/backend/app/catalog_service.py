@@ -119,7 +119,7 @@ def get_repo_charts(helm_repo_uri: str) -> list:
                     results.append(tChart)
     except Exception as exc:
        logger.error(exc)
-       return exc
+       #return exc
     return results
 
 def chart_info(chart_repo_uri: str, application: str) -> dict:
@@ -153,13 +153,14 @@ def get_chart_release_lists(tiller_server_ip: str):
     chart_releases = None
     try:
         global TILLER_SERVER
-        if TILLER_SERVER is None:
+        if TILLER_SERVER is None and tiller_server_ip != None:
             TILLER_SERVER = Tiller(tiller_server_ip)
-        chart_releases = TILLER_SERVER.list_releases()
+        if TILLER_SERVER is not None:
+            chart_releases = TILLER_SERVER.list_releases()
     except Exception as exc:
         logger.error(exc)
         print("ERROR: " + str(exc))
-        return exc
+        #return exc
     return chart_releases
 
 
@@ -193,7 +194,7 @@ def get_app_state(chart_releases: dict, application: str, namespace: str) -> lis
     except Exception as exc:
         logger.error(exc)
         print("ERROR: " + str(exc))
-        return exc
+        #return exc
     return deployed_apps
 
 def get_values(chartb) -> dict:
@@ -291,7 +292,6 @@ def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: 
                 result = TILLER_SERVER.install_release(chartb.get_helm_chart(), namespace,
                                         dry_run=False, name=deployment_name,
                                         values=value_items)
-
                 conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
                 conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
                 saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
