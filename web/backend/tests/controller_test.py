@@ -136,11 +136,5 @@ def main():
             print("Failed to restore the database. Exiting.")
             exit(1)
 
-        run_command2("rm -rf /var/www/html/htmlcov/")
-        _, ret_val = run_command2("mv /opt/tfplenum/web/backend/tests/htmlcov/ /var/www/html/")
-        if ret_val != 0:
-            print("Failed to move the thml unit test report to /var/www/html/htmlcov/. Exiting.")
-            exit(1)
-
 if __name__ == '__main__':
     main()

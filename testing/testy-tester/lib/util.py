@@ -229,8 +229,9 @@ def perform_unit_tests(ctrl_node: Node, root_password: str):
                                  ctrl_node.management_interface.ip_address) as ctrl_cmd:
         with ctrl_cmd.cd("/opt/tfplenum/web/backend/tests"):
             ctrl_cmd.run("/opt/tfplenum/web/tfp-env/bin/python controller_test.py")
-            ctrl_cmd.run("/opt/tfplenum/web/tfp-env/bin/coverage report -m")
+            ctrl_cmd.run("zip -r htmlcov.zip htmlcov/")
             ctrl_cmd.run("mv htmlcov/ /var/www/html/")
+        ctrl_cmd.get("/opt/tfplenum/web/backend/tests/htmlcov.zip", "./htmlcov.zip")
 
     print("Navigate to http://{}/htmlcov/ to see full unit test coverage report.".format(ctrl_node.management_interface.ip_address))
 

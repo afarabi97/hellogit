@@ -1,5 +1,4 @@
 # include:
-  # - template: Code-Quality.gitlab-ci.yml
   # - template: Container-Scanning.gitlab-ci.yml
 
 variables:
@@ -8,7 +7,7 @@ variables:
   TFPLENUM_EXPORT_LOC: "/home/gitlab-runner"
   TFPLENUM_EXPORT_VERSION: RC
   PDF_SINGLE_PAGES: "6.8.1.2 DIP System Setup,6.8.1.1 MIP System Setup,6.8.2.1 DIP System Operation,6.8.2.2 MIP System Operation,6.8.9.4 Windows Agent Plugin Guide,6.8.9.5 Helm Integration,6.8.9.2 Setup Controller"
-  TFPLENUM_CONFLUENCE_PAGE: "CVAH 3.3 DRAFT2"
+  TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
   TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
   PIPELINE: "developer"
   KIT: "test3.yml"
@@ -21,14 +20,20 @@ variables:
   DNS_SERVERS: ""
   # Commercial version SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_TOKEN: "d188aacd2a807af75d9fec7cdda7921247fd3d84"
-  SONAR_HOST_URL: "http://10.10.103.99:9000/"
+  SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   GIT_DEPTH: 0
+  ACAS_IPADDRESS: "172.16.82.15"
+  ACAS_USERNAME: "acas"
+  ACAS_PASSWORD: "we.are.tfplenum"
+  ACAS_SCAN_TO_RUN: "Scan test Kit1"
+  RUN_ACAS: "false"
 
 stages:
   - build
   - docs
   - kickstart
   - kit
+  - security_scans
   - catalog
   - test
   - test-powerfailure
@@ -37,34 +42,6 @@ stages:
   - export
   - hashfiles
   - publish
-
-# code_quality:
-#   image: docker:stable
-#   tags:
-#     - tfplenum-docker
-#   variables:
-#     DOCKER_DRIVER: overlay2
-#     SP_VERSION: 0.85.6
-#   allow_failure: true
-#   services:
-#     - docker:stable-dind
-#   script: |
-#     echo "IP of runner is $(hostname -i | awk '{print $2}')"
-#     echo "Current working directory is $(pwd)"
-#     docker run \
-#         --env SOURCE_CODE="$PWD" \
-#         --volume "$PWD/web/backend/":/code \
-#         --volume /var/run/docker.sock:/var/run/docker.sock \
-#         "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
-#   artifacts:
-#     paths:
-#       - web/backend/gl-code-quality-report.json
-#     reports:
-#       codequality: web/backend/gl-code-quality-report.json
-#     expire_in: 3 days
-#   only:
-#     variables:
-#       - $PIPELINE == "code_quality"
 
 sonarqube-check:
   image:
@@ -202,6 +179,9 @@ Add Docs to Controller:
   only:
     variables:
       - $PIPELINE == "export"
+  artifacts:
+    paths:
+      - "htmlcov.zip"
 
 Kickstart:
   stage: kickstart
@@ -243,6 +223,25 @@ Deploy Kit:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
+
+Perform Security Scans:
+  stage: security_scans
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/run_acas.py \
+    --ipaddress "$ACAS_IPADDRESS" \
+    --username "$ACAS_USERNAME" \
+    --password "$ACAS_PASSWORD" \
+    --scan_name "$ACAS_SCAN_TO_RUN"
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test" && $RUN_ACAS == "true"
+  artifacts:
+    paths:
+      - "TFPlenum_ACAS_Report.pdf"
 
 CVAH Catalog:
   stage: catalog
@@ -324,7 +323,7 @@ Cleanup Job:
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/$KIT \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
-    --run-integration-tests
+    --cleanup
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test" && $IS_CLEANUP == "true"
