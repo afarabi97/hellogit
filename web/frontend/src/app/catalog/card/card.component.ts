@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { Chart } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-card',
@@ -17,7 +16,7 @@ export class CardComponent {
    *Creates an instance of CardComponent.
    * @memberof CardComponent
    */
-  constructor( private _CatalogService: CatalogService) {
+  constructor() {
 
   }
 
