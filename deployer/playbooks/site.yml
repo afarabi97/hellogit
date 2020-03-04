@@ -5,7 +5,6 @@
 # We follow the guidance to include naming conventions there.
 
 ---
-
 - name: Bootstrap Controller
   hosts: localhost
   any_errors_fatal: true
@@ -66,4 +65,9 @@
     - registry
   tags: registry
 
-...
+- name: Deploy STIGs
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - stigs
+  tags: stigs

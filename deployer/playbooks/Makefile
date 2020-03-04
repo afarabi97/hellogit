@@ -35,6 +35,9 @@ generate-profiles:
 pull-docker-images:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t pull-helm-images,pull-docker-images
 
+stigs:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t stigs
+
 bootstrap:
 	@echo $(TFPLENUM_OS_TYPE)
 	@echo $(TFPLENUM_SERVER_IP)
