@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../../services/websocket.service';
 
+
 @Component({
   selector: 'policy-management-table',
   styleUrls: ['policy-management-table.component.css'],
@@ -36,7 +37,6 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   constructor( public policySrv: PolicyManagementService,
-               private cdr: ChangeDetectorRef,
                public dialog: MatDialog,
                private snackBar: MatSnackBar,
                private socketSrv: WebsocketService) {
@@ -242,7 +242,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     });
   }
 
-  private removeRuleSet(ruleSetID: number) {
+  public removeRuleSet(ruleSetID: number) {
     this.policySrv.deleteRuleSet(ruleSetID).subscribe(data => {
       if (data instanceof ErrorMessage){
         this.displaySnackBar(data.error_message);

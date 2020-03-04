@@ -20,6 +20,4 @@
   <br>
   <policy-management-table></policy-management-table>
 </div>
-<policy-management-dialog *ngIf="policySrv.isUserEditing"
-                      (closeNoSaveEvent)="closeEditor($event)"
-                      (closeSaveEvent)="saveAndCloseEditor($event)"></policy-management-dialog>
+<policy-management-dialog *ngIf="policySrv.isUserEditing"></policy-management-dialog>
