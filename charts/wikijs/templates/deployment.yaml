@@ -95,3 +95,7 @@ spec:
         hostPath:
           path: /data/wikijs
           type: DirectoryOrCreate
+      - name: wikijs-backups
+        hostPath:
+          path: "/home/backup:/backups"
+          type: DirectoryOrCreate
