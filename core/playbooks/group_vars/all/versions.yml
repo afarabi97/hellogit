@@ -22,14 +22,14 @@ helm_version: "v2.14.3"
 chartmuseum_version: "2.3.2"
 chartmuseum_image_version: "v0.8.2"
 elastic_7_version: "7.5.0"
-elastic_7_chart_version: "7.4.0"
+elastic_7_chart_version: "7.5.0"
 window_remote_installer_version: "1.2"
 hive_elastic_version: "6.8.0"
 hive_cortex_version: "3.0.0"
 hive_version: "3.4.0"
 zookeeper_image_version: 3.5.5-r96
 kafka_image_version: 2.3.0-r59
-elastic_operator: 1.0.0
+elastic_operator: 1.0.1
 redmine_version: "4.0.5"
 postgres_version: "12.1"
 nifi_version: 1.10.0

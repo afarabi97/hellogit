@@ -60,6 +60,8 @@ data:
     @load protocols/conn/known-services
     @load protocols/ssl/known-certs
     @load protocols/ssl/validate-certs
+    @load protocols/ssl/validate-ocsp
+    @load protocols/ssl/notary
     @load protocols/ssl/log-hostcerts-only
     @load protocols/ssh/geo-data
     @load protocols/ssh/detect-bruteforcing
@@ -69,6 +71,12 @@ data:
     @load frameworks/files/detect-MHR
     @load policy/frameworks/notice/extend-email/hostnames
     @load base/protocols/smb
+    @load policy/frameworks/intel/seen
+    @load frameworks/intel/do_notice
+    @load frameworks/files/hash-all-files
+
+    # Load tfplenum scripts
+    @load ./tfplenum
 
     # TFPlenum-specific things
     @load custom # Rules provided by operator
@@ -93,35 +101,89 @@ data:
     redef LogAscii::use_json = T;
 
     # Add some basic info to all the connection records.
-    global sensorname = ""; # Hostname for this box.
-    global interface = ""; # Interface we are listening on
-
-    redef record Conn::Info += {
-        sensorname: string &log &optional;
-        interface: string &log &optional;
-    };
+    global sensor_name = ""; # Hostname for this box.
+    global interface_full = ""; # Interface we are listening on
+    global interface_name = "";
 
     event zeek_init()
         {
         if ( Cluster::local_node_type() == Cluster::WORKER )
             {
-            sensorname = gethostname();
-            interface = Cluster::nodes[Cluster::node]$interface;
+            sensor_name = gethostname();
+            interface_full = Cluster::nodes[Cluster::node]$interface;
+            interface_name = subst_string(interface_full, "af_packet::", "");
             }
         }
 
-    event connection_state_remove(c: connection)
-        {
-        c$conn$sensorname = sensorname;
-        c$conn$interface = interface;
-        }
+    type Extension: record {
+        stream:   string &log;
+        ## The name of the system that wrote this log. This
+        ## is defined in the  const so that
+        ## a system running lots of processes can give the
+        ## same value for any process that writes a log.
+        system:   string &log;
+        interface:   string &log;
+        ## The name of the process that wrote the log. In
+        ## clusters, this will typically be the name of the
+        ## worker that wrote the log.
+        proc:     string &log;
+    };
+    function add_log_extension(path: string): Extension
+    {
+        return Extension($stream = path,
+                        $system = sensor_name,
+                        $interface = interface_name,
+                        $proc   = peer_description);
+    }
+    redef Log::default_ext_func   = add_log_extension;
+    redef Log::default_ext_prefix = "@";
+    redef Log::default_scope_sep  = "_";
 
-    ## Setup Kafka output
-    @load Apache/Kafka/logs-to-kafka
-    redef Kafka::tag_json = T;
-    redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, DCE_RPC::LOG, DHCP::LOG, DNP3::LOG, DPD::LOG, Files::LOG, FTP::LOG, Intel::LOG, IRC::LOG, KRB::LOG, Modbus::LOG, mysql::LOG, Notice::LOG, NTLM::LOG, PE::LOG, RADIUS::LOG, RDP::LOG, RFB::LOG, Signatures::LOG, SIP::LOG, SMB::FILES_LOG, SMB::MAPPING_LOG, SMTP::LOG, SNMP::LOG, SOCKS::LOG, Software::LOG, SSH::LOG, SSL::LOG, Syslog::LOG, Tunnel::LOG, Weird::LOG, X509::LOG);
     redef Kafka::topic_name = "zeek-raw";
-    redef Kafka::kafka_conf = table(["metadata.broker.list"] = "localhost:9092", ["compression.codec"] = "gzip");
+    redef Kafka::json_timestamps = JSON::TS_ISO8601;
+    redef Kafka::tag_json = F;
+
+    # Enable bro logging to kafka for all logs
+    event zeek_init() &priority=-5
+    {
+        for (stream_id in Log::active_streams)
+        {
+            if (|Kafka::logs_to_send| == 0 || stream_id in Kafka::logs_to_send)
+            {
+                local filter: Log::Filter = [
+                    $name = fmt("kafka-%s", stream_id),
+                    $writer = Log::WRITER_KAFKAWRITER,
+                    $config = table(["stream_id"] = fmt("%s", stream_id))
+                ];
+
+                Log::add_filter(stream_id, filter);
+            }
+        }
+    }
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-scripts
+  labels:
+    component: zeek
+data:
+  __load__.zeek: |
+    # Custom Scripts
+    @load ./ja3.zeek
+    @load ./intel_ja3.zeek
+    @load ./ja3s.zeek
+    @load ./hassh.zeek
+    @load ./new-certs.zeek
+    @load ./ssl-add-cert-hash.zeek
+
+{{ range $path, $_ :=  .Files.Glob  "files/*" }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{ end }}
 
 ---
 
@@ -155,7 +217,7 @@ data:
       enabled: true
       elasticsearch:
         username: ${ELASTICSEARCH_USERNAME}
-        password: ${ELASTICSEARCH_PASSWORD}    
+        password: ${ELASTICSEARCH_PASSWORD}
 
 ---
 

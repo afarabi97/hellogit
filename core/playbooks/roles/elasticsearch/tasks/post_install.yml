@@ -13,13 +13,15 @@
     kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
   changed_when: false
+  tags:
+    - zeek-pipeline
 
 - name: Check Elasticsearch endpoint is ready
   uri:
     url: "https://{{elastic_fqdn}}:{{elastic_port}}"
     return_content: yes
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
   register: results_elastic
@@ -32,7 +34,7 @@
     method: POST
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
@@ -53,7 +55,7 @@
     method: POST
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{{ lookup('template', 'files/users/{{item}}.json.j2')}}"
@@ -66,7 +68,7 @@
     method: POST
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
@@ -79,14 +81,14 @@
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/_ilm/policy/{{ item }}"
     method: PUT
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{{ lookup('template', 'files/policies/{{item}}.json.j2') }}"
     status_code: 200, 201
   with_items:
     - filebeat-suricata
-    - logstash-zeek
+    - ecs-zeek
     - winlogbeat-custom
     - moloch-custom
   register: policy_results
@@ -99,7 +101,7 @@
     method: POST
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{{ lookup('file', 'files/users/{{item}}.json')}}"

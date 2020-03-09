@@ -1,0 +1,24 @@
+---
+
+- name: Copy Filebeat Job Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ elastic_dir }}/{{ item }}"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+    mode: u+rw,g+rw
+  with_items:
+    - filebeat.yml
+
+- name: Delete filebeat if it exists
+  command: kubectl delete -f {{ elastic_dir }}/filebeat.yml --ignore-not-found=true
+
+- name: Run Filebeat Job
+  shell: |
+    kubectl create -f {{ elastic_dir }}/filebeat.yml
+
+- name: Wait for filebeat setup to end
+  shell: "kubectl wait job/filebeat-setup --for=condition=complete --timeout=-1s"
+
+- name: Remove Filebeat setup
+  command: kubectl delete -f {{ elastic_dir }}/filebeat.yml --ignore-not-found=true

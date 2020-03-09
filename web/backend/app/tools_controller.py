@@ -221,10 +221,10 @@ def is_elk_snapshot_repo_setup():
 def get_elasticsearch_snapshots():
     """
     [{'snapshot': 'snapshot_1', 'uuid': 'ml0vWrkmRymKZbFI1EDeHQ', 'version_id': 7030199, 'version': '7.3.1',
-    'indices': ['logstash-zeek-2019.11.18-000001', 'logstash-zeek-2019.11.21-000004', 'filebeat-suricata-2019.11.18-000001',
-    'logstash-zeek-2019.11.19-000002', 'logstash-zeek-2019.11.20-000003'], 'include_global_state': False,
+    'indices': ['ecs-zeek-2019.11.18-000001', 'ecs-zeek-2019.11.21-000004', 'filebeat-suricata-2019.11.18-000001',
+    'ecs-zeek-2019.11.19-000002', 'ecs-zeek-2019.11.20-000003'], 'include_global_state': False,
     'metadata': {'taken_by': 'tfplenum_ctrl',
-    'taken_because': 'Backup of all related tfplenum indices which includes logstash-*,endgame-*,filebeat-*, and winlogbeat-*.'},
+    'taken_because': 'Backup of all related tfplenum indices which includes ecs-*,endgame-*,filebeat-*, and winlogbeat-*.'},
     'state': 'SUCCESS', 'start_time': '2019-11-22T21:12:17.561Z', 'start_time_in_millis': 1574457137561, 'end_time': '2019-11-22T21:12:28.532Z',
     'end_time_in_millis': 1574457148532, 'duration_in_millis': 10971, 'failures': [], 'shards': {'total': 21, 'failed': 0, 'successful': 21}}]
     """

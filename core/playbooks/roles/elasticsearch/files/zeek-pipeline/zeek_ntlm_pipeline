@@ -1,0 +1,124 @@
+{
+    "description": "Zeek NTLM pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "ntml"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "domainname",
+                "target_field": "ntlm.domain",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{ntlm.domain}}",
+                "field": "source.domain"
+            }
+        },
+        {
+            "rename": {
+                "field": "hostname",
+                "target_field": "source.hostname",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "username",
+                "target_field": "ntlm.username",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{ntlm.username}}",
+                "field": "source.user.name",
+                "if": "ctx.ntlm.username != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "server_nb_computer_name",
+                "target_field": "ntlm.server.name.netbios",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "server_tree_name",
+                "target_field": "ntlm.server.name.tree",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "server_dns_computer_name",
+                "target_field": "ntlm.server.name.dns",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "destination.domain",
+                "value": "{{ntlm.server.name.dns}}"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "unknown"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "success",
+                "if": "(ctx.success == true)"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "failure",
+                "if": "(ctx.success == false)"
+            }
+        },
+        {
+            "rename": {
+                "field": "success",
+                "target_field": "ntlm.successful",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

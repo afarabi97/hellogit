@@ -48,12 +48,12 @@
       tasks_from: check_indices
     vars:
       app_name: "zeek"
-      index_regex: "^logstash-zeek.*"
+      index_regex: "^ecs-zeek.*"
 
   - name: Check Zeek HTTP Result
     uri:
-      url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"
@@ -71,7 +71,7 @@
 
   - name: Check Zeek DNS Result
     uri:
-      url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=event_type:bro_dns+AND+@timestamp:[now-15m+TO+now]"
+      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=event.dataset:dns+AND+@timestamp:[now-15m+TO+now]"
       return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
@@ -90,8 +90,8 @@
 
   - name: Check Zeek SMB Result
     uri:
-      url: "{{ elastic_uri }}/logstash-zeek-*/_search?q=event_type:bro_smb_mapping+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=event.dataset:smb_mapping+AND+@timestamp:[now-15m+TO+now]"
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"

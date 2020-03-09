@@ -7,3 +7,4 @@ image_tag: 7.5.0
 replicas: 4
 heap_size: 12 # Heap size in GB
 cpu_request: 5000
+number_of_kafka_partitions: 20

@@ -1,0 +1,77 @@
+{
+    "description": "Zeek SMB-Mapping pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "rename": {
+                "field": "id",
+                "target_field": "log.id.id",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "set": {
+                "field": "file.system",
+                "value": "{{native_file_system}}"
+            }
+        },
+        {
+            "rename": {
+                "field": "native_file_system",
+                "target_field": "smb.native_file_system",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "file.path",
+                "value": "{{path}}"
+            }
+        },
+        {
+            "rename": {
+                "field": "path",
+                "target_field": "smb.path",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "share_type",
+                "target_field": "smb.share_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "service",
+                "target_field": "smb.service",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

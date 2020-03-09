@@ -86,6 +86,9 @@ tries to restart.
           subPath: local.zeek
           mountPath: /zeek/share/zeek/site/local.zeek
           readOnly: true
+        - name: scripts
+          mountPath: /zeek/share/zeek/site/tfplenum
+          readOnly: true
 {{- if eq $config.type "logger" }}
         - name: logs
           mountPath: {{ $.Values.zeek_log_path }}
@@ -232,6 +235,9 @@ tries to restart.
       - name: default-scripts
         configMap:
           name: {{ .Release.Name }}
+      - name: scripts
+        configMap:
+          name: {{ .Release.Name }}-scripts
       - name: zk-data
         hostPath:
           path: {{ .Values.zookeeper_path }}

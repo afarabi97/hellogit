@@ -16,6 +16,17 @@
     group: root
     mode: u+rw,g+rw
 
+- name: Copy files
+  copy:
+    src: "files/saved_objects/{{item}}"
+    dest: "{{ kibana_dir }}/{{item}}"
+  with_items:
+    - "config.ndjson"
+    - "winlogbeat.ndjson"
+  tags:
+    - kibana-saved-objects
+
+
 # - set_fact:
 #     kibana_secret: "{{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}"
 
@@ -32,13 +43,16 @@
   shell: |
     kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
+  tags:
+    - kibana-saved-objects
+    - load-dashboards
 
 - name: Wait for Kibana to become healthy
   uri:
     url: "https://{{ kibana_fqdn }}/api/status"
     return_content: yes
     validate_certs: no
-    user: elastic
+    user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
   register: results_kibana
@@ -46,74 +60,39 @@
   retries: 35
   delay: 5
 
-- name: Get Kibana Service IP
-  shell: "kubectl get svc -n default | grep 'kibana' | awk '{print $4'}"
-  register: kibana_svc_ip
-  changed_when: false
+# - name: Load Dashboards
+#   uri:
+#     url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
+#     method: POST
+#     validate_certs: no
+#     user: elastic
+#     password: "{{ es_password.stdout }}"
+#     body_format: json
+#     headers:
+#       kbn-xsrf: y
+#     body: "{{ lookup('file', '{{ item }}')}}"
+#     status_code: 200, 201
+#     force_basic_auth: yes
+#   retries: 3
+#   delay: 10
+#   register: dashboard_results
+#   until: dashboard_results.status == 200
+#   with_fileglob:
+#     - "files/dashboards/*.json"
+#   tags:
+#     - load-dashboards
 
-- name: Create Index Pattern
-  template:
-    src: "templates/{{ item }}.json.j2"
-    dest: "/tmp/{{ item }}.json"
-    group: root
-    owner: root
-    mode: 0644
+- name: Load Saved Objects
+  shell:  |
+    curl -k -X POST -u {{default_elastic_user}}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{item}}
+  args:
+    warn: false
+  retries: 3
+  delay: 10
+  register: saved_objects_results
+  until: saved_objects_results.rc == 0
   with_items:
-    - pattern
-  vars:
-    value: !unsafe '{{value}}'
-    rawValue: !unsafe '{{rawValue}}'
-  delegate_to: localhost
-
-- name: Load Index Pattern
-  uri:
-    url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
-    method: POST
-    validate_certs: no
-    user: elastic
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    headers:
-      kbn-xsrf: y
-    body: "{{ lookup('file', '/tmp/pattern.json')}}"
-    status_code: 200, 201
-    force_basic_auth: yes
-  retries: 3
-  delay: 10
-  register: index_results
-  until: index_results.status == 200
-
-- name: Load Dashboards
-  uri:
-    url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
-    method: POST
-    validate_certs: no
-    user: elastic
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    headers:
-      kbn-xsrf: y
-    body: "{{ lookup('file', '{{ item }}')}}"
-    status_code: 200, 201
-    force_basic_auth: yes
-  retries: 3
-  delay: 10
-  register: dashboard_results
-  until: dashboard_results.status == 200
-  with_fileglob:
-    - "files/dashboards/*.json"
-
-- name: Set Default Kibana Pattern
-  uri:
-    url: "https://{{ kibana_fqdn }}/api/kibana/settings/defaultIndex"
-    method: POST
-    validate_certs: no
-    user: elastic
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    headers:
-      kbn-xsrf: y
-    body:
-      value: "logstash-zeek-*"
-    status_code: 200, 201
-    force_basic_auth: yes
+    - "{{ kibana_dir }}/config.ndjson"
+    #- "{{ kibana_dir }}/winlogbeat.ndjson"
+  tags:
+    - kibana-saved-objects

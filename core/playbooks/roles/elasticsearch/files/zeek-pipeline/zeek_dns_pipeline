@@ -1,0 +1,295 @@
+{
+    "description": "Zeek DNS pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "geoip": {
+                "field": "source.ip",
+                "target_field": "source.geo",
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "field": "destination.ip",
+                "target_field": "destination.geo",
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "source.ip",
+                "target_field": "source.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "destination.ip",
+                "target_field": "destination.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.asn",
+                "target_field": "source.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.organization_name",
+                "target_field": "source.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.asn",
+                "target_field": "destination.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.organization_name",
+                "target_field": "destination.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "rename": {
+                "field": "proto",
+                "target_field": "network.transport",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "addl",
+                "target_field": "dns.additionals.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "auth",
+                "target_field": "dns.additionals.authoritative.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "answers",
+                "target_field": "dns.answers.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "TTLs",
+                "target_field": "dns.answers.ttl",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "dns.answers.ttl",
+                "type": "float",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "AA",
+                "target_field": "dns.flags.authoritative",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "RA",
+                "target_field": "dns.flags.recursion.available",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "RD",
+                "target_field": "dns.flags.recursion.desired",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "failure",
+                "if": "(ctx.rejected == true)"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "success",
+                "if": "(ctx.rejected == false)"
+            }
+        },
+        {
+            "rename": {
+                "field": "rejected",
+                "target_field": "dns.flags.rejected",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "TC",
+                "target_field": "dns.flags.truncated.response",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "Z",
+                "target_field": "dns.flags.z_bit",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "qclass",
+                "target_field": "dns.question.class_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "qclass_name",
+                "target_field": "dns.question.class",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "qtype",
+                "target_field": "dns.question.type_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "qtype_name",
+                "target_field": "dns.question.type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "script": {
+                "lang": "painless",
+                "source": "ctx.dns.question.registered_domain = ctx.query.substring(ctx.query.indexOf('.')+1)",
+                "if": "ctx.query != null",
+                "on_failure": [
+                    {
+                        "set": {
+                            "field": "dns.question.registered_domain",
+                            "value": "{{ctx.query}}",
+                            "if": "ctx.query != null"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "script": {
+                "lang": "painless",
+                "source": "ctx.dns.question.length = ctx.query.length()",
+                "if": "ctx.query != null",
+                "on_failure": [
+                    {
+                        "set": {
+                            "field": "dns.question.length",
+                            "value": "0"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "rename": {
+                "field": "query",
+                "target_field": "dns.question.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "rcode_name",
+                "target_field": "dns.response_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "rtt",
+                "type": "float",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "rtt",
+                "target_field": "event.duration",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": "rtt",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "rcode",
+                "target_field": "dns.status_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "trans_id",
+                "target_field": "dns.id",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

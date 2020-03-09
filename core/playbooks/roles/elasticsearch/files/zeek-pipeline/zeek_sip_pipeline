@@ -1,0 +1,183 @@
+{
+    "description": "Zeek SIP pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "sip"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "udp"
+            }
+        },
+        {
+            "rename": {
+                "field": "call_id",
+                "target_field": "sip.call_id",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "content_type",
+                "target_field": "sip.content_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "date",
+                "target_field": "sip.date",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "method",
+                "target_field": "sip.method",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "reply_to",
+                "target_field": "sip.reply.to",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_body_len",
+                "target_field": "sip.request.body_length",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_from",
+                "target_field": "sip.request.from",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_path",
+                "target_field": "sip.request.path",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_to",
+                "target_field": "sip.request.to",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response_body_len",
+                "target_field": "sip.response.body_length",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response_from",
+                "target_field": "sip.response.from",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response_path",
+                "target_field": "sip.response.path",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response_to",
+                "target_field": "sip.response.to",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "seq",
+                "target_field": "sip.sequence",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "status_code",
+                "target_field": "sip.status.code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "status_msg",
+                "target_field": "sip.status.message",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "subject",
+                "target_field": "sip.subject",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "trans_depth",
+                "target_field": "sip.transaction_depth",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uri",
+                "target_field": "sip.uri",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "warning",
+                "target_field": "sip.warning",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "user_agent",
+                "target_field": "sip.user_agent",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

@@ -1,0 +1,172 @@
+{
+    "description": "Zeek PE pipeline",
+    "processors": [
+        {
+            "set": {
+                "field": "event.category",
+                "value": "file"
+            }
+        },
+        {
+            "rename": {
+                "field": "id",
+                "target_field": "event.id",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.id",
+                "value": "{{fuid}}",
+                "if": "ctx.fuid != null"
+            }
+        },
+        {
+            "set": {
+                "field": "log.id.fuid",
+                "value": "{{fuid}}",
+                "if": "ctx.fuid != null"
+            }
+        },
+        {
+            "remove": {
+                "field": "fuid",
+                "ignore_missing": true
+            }
+        },
+        {
+            "date": {
+                "field": "compile_ts",
+                "target_field": "pe.compile_ts",
+                "formats": [
+                    "ISO8601"
+                ]
+            }
+        },
+        {
+            "set": {
+                "field": "file.created",
+                "value": "{{pe.compile_ts}}",
+                "if": "(ctx.containsKey('compile_ts'))"
+            }
+        },
+        {
+            "remove": {
+                "field": "compile_ts",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "file.type",
+                "value": "pe"
+            }
+        },
+        {
+            "rename": {
+                "field": "has_cert_table",
+                "target_field": "pe.has_cert_table",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "has_debug_data",
+                "target_field": "pe.has_debug_data",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "has_import_table",
+                "target_field": "pe.has_import_table",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "has_export_table",
+                "target_field": "pe.has_export_table",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "is_64bit",
+                "target_field": "pe.is_64bit",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "is_exe",
+                "target_field": "pe.is_exe",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "machine",
+                "target_field": "pe.machine",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "os",
+                "target_field": "pe.os",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "section_names",
+                "target_field": "pe.section_names",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "subsystem",
+                "target_field": "pe.subsystem",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uses_aslr",
+                "target_field": "pe.uses_aslr",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uses_code_integrity",
+                "target_field": "pe.uses_code_integrity",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uses_dep",
+                "target_field": "pe.uses_dep",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uses_seh",
+                "target_field": "pe.uses_seh",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

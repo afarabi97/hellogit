@@ -1,0 +1,55 @@
+{
+    "description": "Zeek General Network pipeline",
+    "processors": [
+        {
+            "rename": {
+                "field": "id_orig_p",
+                "target_field": "source.port",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "id_orig_h",
+                "target_field": "source.address",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "source.ip",
+                "value": "{{source.address}}",
+                "if": "ctx.source.address != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "id_resp_p",
+                "target_field": "destination.port",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "id_resp_h",
+                "target_field": "destination.address",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "destination.ip",
+                "value": "{{destination.address}}",
+                "if": "ctx.destination.address != null"
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

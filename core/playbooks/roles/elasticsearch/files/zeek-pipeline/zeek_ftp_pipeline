@@ -1,0 +1,155 @@
+{
+    "description": "Zeek FTP pipeline",
+    "processors": [
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "ftp"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "rename": {
+                "field": "user",
+                "target_field": "source.user.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "password",
+                "target_field": "source.user.password",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "arg",
+                "target_field": "ftp.argument",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "fuid",
+                "target_field": "ftp.fuid",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "command",
+                "target_field": "ftp.command",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "mime_type",
+                "target_field": "ftp.file.mime_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cwd",
+                "target_field": "file.path",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "reply_msg",
+                "target_field": "ftp.reply.message",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "passive",
+                "target_field": "ftp.passive",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "file_size",
+                "target_field": "file.size",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "file.size",
+                "type": "integer",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "reply_code",
+                "target_field": "ftp.reply.code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "ftp.reply.code",
+                "type": "integer",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "data_channel_passive",
+                "target_field": "ftp.data_channel.passive",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "data_channel_orig_h",
+                "target_field": "ftp.data_channel.originating_host",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "data_channel_resp_h",
+                "target_field": "ftp.data_channel.response_host",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "data_channel_resp_p",
+                "target_field": "ftp.data_channel.response_port",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

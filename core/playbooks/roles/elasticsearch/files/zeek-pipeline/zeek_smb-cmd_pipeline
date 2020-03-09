@@ -1,0 +1,126 @@
+{
+    "description": "Zeek SMB-CMD pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "rename": {
+                "field": "id",
+                "target_field": "log.id.id"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "smb"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "rtt",
+                "target_field": "event.duration",
+                "ignore_failure": true
+            }
+        },
+        {
+            "remove": {
+                "field": "rtt"
+            }
+        },
+        {
+            "rename": {
+                "field": "argument",
+                "target_field": "smb.argument"
+            }
+        },
+        {
+            "rename": {
+                "field": "command",
+                "target_field": "smb.command"
+            }
+        },
+        {
+            "rename": {
+                "field": "referenced_file",
+                "target_field": "smb.referenced_file"
+            }
+        },
+        {
+            "rename": {
+                "field": "referenced_tree",
+                "target_field": "smb.referenced_tree"
+            }
+        },
+        {
+            "rename": {
+                "field": "smb1_offered_dialects",
+                "target_field": "smb.smb1_offered_dialects"
+            }
+        },
+        {
+            "rename": {
+                "field": "smb2_offered_dialects",
+                "target_field": "smb.smb2_offered_dialects"
+            }
+        },
+        {
+            "rename": {
+                "field": "status",
+                "target_field": "event.name"
+            }
+        },
+        {
+            "rename": {
+                "field": "sub_command",
+                "target_field": "smb.sub_command"
+            }
+        },
+        {
+            "rename": {
+                "field": "tree",
+                "target_field": "smb.tree"
+            }
+        },
+        {
+            "rename": {
+                "field": "tree_service",
+                "target_field": "smb.tree_service"
+            }
+        },
+        {
+            "rename": {
+                "field": "username",
+                "target_field": "source.user.name"
+            }
+        },
+        {
+            "rename": {
+                "field": "version",
+                "target_field": "smb.version"
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

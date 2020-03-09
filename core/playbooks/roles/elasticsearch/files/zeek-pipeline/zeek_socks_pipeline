@@ -1,0 +1,100 @@
+{
+    "description": "Zeek Socks pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "user",
+                "target_field": "source.user.name",                
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "password",
+                "target_field": "source.user.password",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "bound_host",
+                "target_field": "socks.bound.ip",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "bound_name",
+                "target_field": "socks.bound.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "bound_p",
+                "target_field": "socks.bound.port",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_host",
+                "target_field": "socks.request.ip",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_name",
+                "target_field": "socks.request.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_p",
+                "target_field": "socks.request.port",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "status",
+                "target_field": "socks.status",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "version",
+                "target_field": "socks.version",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

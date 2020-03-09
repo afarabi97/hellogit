@@ -7,5 +7,8 @@
 
 - import_tasks: "install.yml"
 
-- import_tasks: post_install.yml
+- import_tasks: "post_install.yml"
   tags: es-post-install
+
+- import_tasks: "pipeline.yml"
+  tags: zeek-pipeline

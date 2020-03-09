@@ -8,10 +8,10 @@ class ElasticsearchMetrics():
     def __init__(self, node, hostname, shortHostname, suricataDeployment, elasticsearch):
         self._node = node
 
-        self._zeek_query = 'sensor_name:{}'.format(hostname)
+        self._zeek_query = 'observer.hostname:{}'.format(hostname)
         self._moloch_query = 'node:{}'.format(shortHostname)
         self._suricata_query = 'agent.name:"{}" AND tags:suricata'.format(suricataDeployment)
-        
+
         self._elasticsearch = elasticsearch
 
     def _createMetric(self, name, value):
@@ -60,7 +60,7 @@ class ElasticsearchMetrics():
         value = self._lastLogEvent(logs)
 
         return self._createMetric(name, value)
-    
+
     def _createQuery(self, query, field):
         return \
         {
@@ -75,7 +75,7 @@ class ElasticsearchMetrics():
         }
 
     def _lastZeekElasticEvents(self):
-        index = 'logstash-zeek-*'
+        index = 'ecs-zeek-*'
         query = self._zeek_query
 
         body = \
@@ -101,7 +101,7 @@ class ElasticsearchMetrics():
             return None
         else:
             return self._createMetric(name, value)
-    
+
     def _lastSuricataElasticEvents(self):
         index = 'filebeat-*'
         query = self._suricata_query
@@ -129,7 +129,7 @@ class ElasticsearchMetrics():
             return None
         else:
             return self._createMetric(name, value)
-    
+
     def _lastMolochElasticEvents(self):
         index = 'sessions2*'
         query = self._moloch_query

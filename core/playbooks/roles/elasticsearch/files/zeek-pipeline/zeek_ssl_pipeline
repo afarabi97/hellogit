@@ -1,0 +1,326 @@
+{
+    "description": "Zeek SSL pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "rename": {
+                "field": "cert_chain_fuids",
+                "target_field": "ssl.cert_chain_fuids",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "client_cert_chain_fuids",
+                "target_field": "ssl.client_cert_chain_fuids",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "server_name",
+                "target_field": "destination.domain",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cipher",
+                "target_field": "tls.cipher",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{client_issuer}}",
+                "field": "ssl.client.certificate.issuer",
+                "if": "ctx.client_issuer != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "orig_certificate_sha1",
+                "target_field": "tls.client.hash.sha1",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{client_subject}}",
+                "field": "ssl.client.certificate.subject",
+                "if": "ctx.client_subject != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "curve",
+                "target_field": "tls.curve",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "success",
+                "if": "(ctx.established == true)"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "failure",
+                "if": "(ctx.established == false)"
+            }
+        },
+        {
+            "rename": {
+                "field": "established",
+                "target_field": "tls.established"
+            }
+        },
+        {
+            "set": {
+                "field": "tls.fingerprints.ja3.hash",
+                "value": "{{ja3}}",
+                "if": "ctx.ja3 != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "ja3",
+                "target_field": "tls.client.ja3",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "ja3s",
+                "target_field": "tls.fingerprints.ja3s.hash",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "last_alert",
+                "target_field": "ssl.last_alert",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "next_protocol",
+                "target_field": "tls.next_protocol",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "notary_valid",
+                "target_field": "ssl.notary.valid",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "notary_times_seen",
+                "target_field": "ssl.notary.times_seen",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "notary_first_seen",
+                "target_field": "ssl.notary.first_seen",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "notary_last_seen",
+                "target_field": "ssl.notary.last_seen",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "ocsp_status",
+                "target_field": "ssl.oscp_status",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resumed",
+                "target_field": "tls.resumed"
+            }
+        },
+        {
+            "set": {
+                "value": "{{issuer}}",
+                "field": "ssl.server.certificate.issuer",
+                "if": "ctx.issuer != null"
+            }
+        },
+        {
+            "set": {
+                "value": "{{issuer}}",
+                "field": "server.issuer",
+                "if": "ctx.issuer != null"
+            }
+        },
+        {
+            "gsub": {
+                "field": "server.issuer",
+                "pattern": "\\\\,",
+                "replacement": "",
+                "ignore_missing": true,
+                "if": "ctx.issuer != null"
+            }
+        },
+        {
+            "kv": {
+                "field": "server.issuer",
+                "field_split": ",",
+                "value_split": "=",
+                "target_field": "server_certificate.issuer",
+                "ignore_missing": true,
+                "if": "ctx.issuer != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "server_certificate.issuer.CN",
+                "target_field": "tls.server_certificate.issuer.common_name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{subject}}",
+                "field": "server.subject",
+                "if": "ctx.subject != null"
+            }
+        },
+        {
+            "gsub": {
+                "field": "server.subject",
+                "pattern": "\\\\,",
+                "replacement": "",
+                "ignore_missing": true,
+                "if": "ctx.subject != null"
+            }
+        },
+        {
+            "kv": {
+                "field": "server.subject",
+                "field_split": ",",
+                "value_split": "=",
+                "target_field": "server_certificate.subject",
+                "ignore_missing": true,
+                "if": "ctx.subject != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "server_certificate.subject.CN",
+                "target_field": "tls.server_certificate.subject.common_name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resp_certificate_sha1",
+                "target_field": "tls.server_certificate.fingerprint.sha1",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "value": "{{subject}}",
+                "field": "ssl.server.certificate.subject",
+                "if": "ctx.subject != null"
+            }
+        },
+        {
+            "rename": {
+                "field": "valid_ct_logs",
+                "target_field": "ssl.valid_ct_logs",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "valid_ct_operators",
+                "target_field": "ssl.valid_ct_operators",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "valid_ct_operators_list",
+                "target_field": "ssl.valid_ct_operators_list",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "validation_status",
+                "target_field": "ssl.validation_status",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "version",
+                "target_field": "tls.version",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "version_num",
+                "target_field": "tls.version_protocol",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "remove": {
+                "ignore_missing": true,
+                "field": [
+                    "id",
+                    "client_subject",
+                    "client_issuer",
+                    "subject",
+                    "issuer",
+                    "server.issuer",
+                    "server.subject",
+                    "server_certificate"
+                ]
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

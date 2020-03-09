@@ -1,0 +1,209 @@
+{
+    "description": "Zeek Notice pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "geoip": {
+                "field": "destination.ip",
+                "target_field": "destination.geo",
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "field": "source.ip",
+                "target_field": "source.geo",
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "source.ip",
+                "target_field": "source.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "destination.ip",
+                "target_field": "destination.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.asn",
+                "target_field": "source.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.organization_name",
+                "target_field": "source.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.asn",
+                "target_field": "destination.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.organization_name",
+                "target_field": "destination.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "detection"
+            }
+        },
+        {
+            "rename": {
+                "field": "fuid",
+                "target_field": "log.id.fuid",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "file_desc",
+                "target_field": "file.description",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "file_mime_type",
+                "target_field": "file.mime_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": "src",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": "dst",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "proto",
+                "target_field": "network.transport",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "actions",
+                "target_field": "notice.actions"
+            }
+        },
+        {
+            "rename": {
+                "field": "email_body_sections",
+                "target_field": "notice.email_body_sections",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "msg",
+                "target_field": "notice.message"
+            }
+        },
+        {
+            "rename": {
+                "field": "note",
+                "target_field": "notice.note"
+            }
+        },
+        {
+            "rename": {
+                "field": "peer_descr",
+                "target_field": "notice.peer_description"
+            }
+        },
+        {
+            "rename": {
+                "field": "sub",
+                "target_field": "notice.sub_message",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "n",
+                "target_field": "notice.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "notice.number",
+                "type": "integer",
+                "ignore_failure": true
+            }
+        },
+        {
+            "rename": {
+                "field": "suppress_for",
+                "target_field": "notice.suppress_for",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "notice.subpress_duration",
+                "type": "integer",
+                "ignore_failure": true
+            }
+        },
+        {
+            "rename": {
+                "field": "dropped",
+                "target_field": "notice.dropped",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": "p",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

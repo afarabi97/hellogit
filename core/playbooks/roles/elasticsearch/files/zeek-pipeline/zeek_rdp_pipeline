@@ -1,0 +1,167 @@
+{
+    "description": "Zeek RDP pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "rdp"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "cert_count",
+                "target_field": "rdp.certificate.count",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cert_permanent",
+                "target_field": "rdp.certificate.permanent",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "client_channels",
+                "target_field": "rdp.client.channels",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cert_type",
+                "target_field": "rdp.certificate.type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "software.original",
+                "value": "{{client_build}}"
+            }
+        },
+        {
+            "rename": {
+                "field": "client_build",
+                "target_field": "rdp.version",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "client_dig_product_id",
+                "target_field": "rdp.client.product_id",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "source.hostname",
+                "value": "{{client_name}}"
+            }
+        },
+        {
+            "rename": {
+                "field": "client_name",
+                "target_field": "rdp.client.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cookie",
+                "target_field": "rdp.cookie",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "desktop_height",
+                "target_field": "rdp.desktop.height",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "desktop_width",
+                "target_field": "rdp.desktop.width",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "encryption_level",
+                "target_field": "rdp.encryption.level",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "encryption_method",
+                "target_field": "rdp.encryption.method",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "keyboard_layout",
+                "target_field": "rdp.keyboard_layout",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "requested_color_depth",
+                "target_field": "rdp.desktop.color_depth",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "result",
+                "target_field": "event.outcome",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "security_protocol",
+                "target_field": "rdp.security_protocol",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "ssl",
+                "target_field": "rdp.ssl",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

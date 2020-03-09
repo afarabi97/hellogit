@@ -1,3 +1,4 @@
 ---
 
 kibana_dir: "{{ install_dir  }}/kibana"
+default_elastic_user: elastic

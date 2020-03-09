@@ -1,0 +1,38 @@
+{
+    "description": "Zeek Tunnel pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "rename": {
+                "field": "action",
+                "target_field": "tunnel.action",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "tunnel_type",
+                "target_field": "tunnel.type",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

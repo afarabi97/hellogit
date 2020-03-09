@@ -1,0 +1,338 @@
+{
+    "description": "Zeek HTTP pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "geoip": {
+                "field": "destination.ip",
+                "target_field": "destination.geo"
+            }
+        },
+        {
+            "geoip": {
+                "field": "source.ip",
+                "target_field": "source.geo"
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "source.ip",
+                "target_field": "source.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "geoip": {
+                "database_file": "GeoLite2-ASN.mmdb",
+                "field": "destination.ip",
+                "target_field": "destination.as",
+                "properties": [
+                    "asn",
+                    "organization_name"
+                ],
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.asn",
+                "target_field": "source.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "source.as.organization_name",
+                "target_field": "source.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.asn",
+                "target_field": "destination.as.number",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "destination.as.organization_name",
+                "target_field": "destination.as.organization.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "orig_fuids",
+                "target_field": "log.id.orig_fuids",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "username",
+                "target_field": "source.user.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "password",
+                "target_field": "source.user.password",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resp_fuids",
+                "target_field": "log.id.resp_fuids",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "destination.domain",
+                "value": "{{host}}"
+            }
+        },
+        {
+            "rename": {
+                "field": "host",
+                "target_field": "url.domain",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cookie_vars",
+                "target_field": "http.cookie_variables",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "client_header_names",
+                "target_field": "http.request.header_names",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "info_msg",
+                "target_field": "http.response.informational_message",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "method",
+                "target_field": "http.request.method",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "orig_filenames",
+                "target_field": "source.file.mime_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "orig_mime_types",
+                "target_field": "http.request.mime_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "origin",
+                "target_field": "http.request.origin",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "proxied",
+                "target_field": "http.request.proxied",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "referrer",
+                "target_field": "http.request.referrer",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "server_header_names",
+                "target_field": "http.response.header_names",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resp_mime_types",
+                "target_field": "http.response.mime_type",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "status_msg",
+                "target_field": "http.response.status_name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "version",
+                "target_field": "http.version",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resp_filenames",
+                "target_field": "destination.file.name",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "flash_version",
+                "target_field": "software.flash_version",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uri",
+                "target_field": "url.original",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "uri_vars",
+                "target_field": "url.variables",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "user_agent",
+                "target_field": "user_agent.original",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "info_code",
+                "target_field": "http.response.informational_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "request_body_len",
+                "target_field": "http.request.body.bytes",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response_body_len",
+                "target_field": "http.response.body.bytes",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "status_code",
+                "target_field": "http.response.status_code",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "trans_depth",
+                "target_field": "http.transaction_depth",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "omniture",
+                "target_field": "http.response.omniture",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": "omniture",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "orig_filenames",
+                "target_field": "file.name_source",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "resp_filenames",
+                "target_field": "file.name_destination",
+                "ignore_missing": true
+            }
+        },
+        {
+            "remove": {
+                "field": [
+                    "id",
+                    "tags"
+                ],
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

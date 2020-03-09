@@ -253,6 +253,9 @@ CVAH Catalog:
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/$KIT \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
     --run-catalog
   only:
     variables:
@@ -268,6 +271,9 @@ System Function Testing:
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/$KIT \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
     --run-integration-tests
   only:
     variables:
@@ -288,6 +294,9 @@ Simulate Power Failure:
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/$KIT \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
     --simulate-powerfailure
   only:
     variables:
@@ -303,6 +312,9 @@ System Function Testing2:
     python3 testing/testy-tester/main.py \
     --path testing/testy-tester/testcases/$KIT \
     --tfplenum-commit-hash $TFPLENUM_COMMIT_HASH \
+    --vmware-folder "$VMWARE_FOLDER" \
+    --port-group "$PORT_GROUP" \
+    --network-id "$NETWORK_ID" \
     --run-integration-tests
   only:
     variables:

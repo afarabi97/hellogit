@@ -48,9 +48,6 @@ spec:
         - name: logstash
           mountPath: "/usr/share/logstash/config/pipelines.yml"
           subPath: pipelines.yml
-        - name: logstash
-          mountPath: "/usr/share/logstash/template.json"
-          subPath: template.json
         - name: pipeline
           mountPath: "/usr/share/logstash/pipeline"
         - mountPath: /etc/ssl/certs/elasticsearch-ca.crt

@@ -1,0 +1,114 @@
+{
+    "description": "Zeek Radius pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "radius"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "udp"
+            }
+        },
+        {
+            "rename": {
+                "field": "ttl",
+                "target_field": "event.duration"
+            }
+        },
+        {
+            "convert": {
+                "field": "event.duration",
+                "type": "float"
+            }
+        },
+        {
+            "rename": {
+                "field": "username",
+                "target_field": "source.user.name"
+            }
+        },
+        {
+            "rename": {
+                "field": "mac",
+                "target_field": "source.mac",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "connect_info",
+                "target_field": "radius.connect_info",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "framed_addr",
+                "target_field": "radius.framed_addr",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "reply_msg",
+                "target_field": "radius.reply_message",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "tunnel_client",
+                "target_field": "radius.tunnel_client",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "udp"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "success",
+                "if": "(ctx.result == true)"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "failure",
+                "if": "(ctx.result == false)"
+            }
+        },
+        {
+            "remove": {
+                "field": "result"
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

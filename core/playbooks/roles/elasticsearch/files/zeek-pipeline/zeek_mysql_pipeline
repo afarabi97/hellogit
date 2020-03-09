@@ -1,0 +1,85 @@
+{
+    "description": "Zeek MySQL pipeline",
+    "processors": [
+        {
+            "pipeline": {
+                "name": "zeek_general_network_pipeline"
+            }
+        },
+        {
+            "set": {
+                "field": "event.category",
+                "value": "network"
+            }
+        },
+        {
+            "set": {
+                "field": "network.protocol",
+                "value": "mysql"
+            }
+        },
+        {
+            "set": {
+                "field": "network.transport",
+                "value": "tcp"
+            }
+        },
+        {
+            "rename": {
+                "field": "arg",
+                "target_field": "mysql.argument",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "cmd",
+                "target_field": "mysql.command",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "response",
+                "target_field": "mysql.response",
+                "ignore_missing": true
+            }
+        },
+        {
+            "rename": {
+                "field": "rows",
+                "target_field": "mysql.rows",
+                "ignore_missing": true
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "success",
+                "if": "(ctx.success == true)"
+            }
+        },
+        {
+            "set": {
+                "field": "event.outcome",
+                "value": "failure",
+                "if": "(ctx.success == false)"
+            }
+        },
+        {
+            "rename": {
+                "field": "success",
+                "target_field": "mysql.successful",
+                "ignore_missing": true
+            }
+        }
+    ],
+    "on_failure": [
+        {
+            "set": {
+                "field": "error.message",
+                "value": "{{ _ingest.on_failure_message }}"
+            }
+        }
+    ]
+}

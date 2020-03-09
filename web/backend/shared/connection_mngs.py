@@ -393,7 +393,7 @@ def get_elastic_password(conn_mng: MongoConnectionManager):
 
 class ElasticsearchManager:
     default_repo = "tfplenum"
-    managed_indicies = "logstash-*,endgame-*,filebeat-*,winlogbeat-*,sessions2-*"
+    managed_indicies = "ecs-zeek-*,logstash-*,endgame-*,filebeat-*,winlogbeat-*,sessions2-*"
 
     def __init__(self, elastic_ip: str, conn_mng: MongoConnectionManager):
         self._elastic_ip = elastic_ip
@@ -445,7 +445,7 @@ class ElasticsearchManager:
             "include_global_state": False,
             "metadata": {
                 "taken_by": "tfplenum_ctrl",
-                "taken_because": "Backup of all related tfplenum indices which includes logstash-*,endgame-*,filebeat-*, and winlogbeat-*."
+                "taken_because": "Backup of all related tfplenum indices which includes ecs-zeek-*,logstash-*,endgame-*,filebeat-*, and winlogbeat-*."
             }
         }
         ret_val = self._snapper.create(repo_name,
