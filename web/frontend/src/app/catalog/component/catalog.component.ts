@@ -44,27 +44,12 @@ export class CatalogComponent implements OnInit {
    */
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
-    this._CatalogService.getByString("charts").subscribe(data => {
-      if(data.length > 0) {
-        data.map( node => {
-          this._CatalogService.getByString("chart/" + node.application + "/status").subscribe(statusGroup => {
-            node.nodes = [];
-            const request = statusGroup.map(status => {
-              if( node.application === status.application) {
-                node.nodes.push(status);
-              }
-            });
-            Promise.all(request).then(() => {
-              this._CatalogService.isLoading = true;
-            });
-          });
-        });
-      } else {
-        this._CatalogService.isLoading = true;
-        //this.snackbar.showSnackBar('No Charts available. If Kit is deployed, check the Chart Museum and Tiller services', 5000, 'Dismiss');
-      }
+
+    this._CatalogService.get_all_application_statuses().subscribe(data => {
+
       this.charts = data;
       this.setPMOSupported(this.charts);
+      this._CatalogService.isLoading = true;
       this.filteredCharts = this.filterPMOApplications(true).concat(
         this.filterCommunityApplications(this.commElement.checked)
       );

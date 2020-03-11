@@ -1,4 +1,5 @@
 ---
+
 - name: Install necessary packages.
   yum:
     name: "{{ item }}"
@@ -11,7 +12,7 @@
   file:
     path: "/opt/metrics"
     state: directory
-  
+
 - name: Create a virtual environment.
   command: /usr/bin/python3 -m venv /opt/metrics-env
   args:

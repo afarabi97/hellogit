@@ -5,7 +5,7 @@ class PsutilMetrics():
 
     def __init__(self, node):
         self._node = node
-    
+
     def _createMetric(self, name, value):
         data = {
           "node": self._node,
@@ -46,5 +46,5 @@ class PsutilMetrics():
         data.append(self._rootDiskUsage())
         data.append(self._dataDiskUsage())
         data.append(self._cpuPercent())
-        
+
         return data

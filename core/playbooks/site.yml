@@ -5,6 +5,29 @@
 # We follow the guidance to include naming conventions there.
 
 ---
+- name: Set controller variables
+  hosts: localhost
+  tags: always
+  gather_facts: yes
+  tasks:
+    - set_fact:
+        ansible_controller_hostname: "{{ hostvars.localhost.ansible_nodename }}"
+        ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
+    - debug:
+        msg: "{{ ansible_controller_ip }}"
+    - debug:
+        msg: "{{ ansible_controller_hostname }}"
+
+- name: Set controller variables on hosts
+  hosts:
+    - servers
+    - sensors
+  tags: always
+  tasks:
+    - set_fact:
+        host_list: "{{ groups['servers'] + groups['sensors'] }}"
+        ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
+        ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
 
 - name: Tag master server
   hosts: all
@@ -44,7 +67,7 @@
   hosts:
     - servers
     - sensors
-  gather_facts: no
+  gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
     - setup:
@@ -181,7 +204,7 @@
   hosts:
     - master_server
     - remote_sensors
-  gather_facts: no
+  gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
     - setup:

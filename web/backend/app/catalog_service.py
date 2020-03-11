@@ -158,7 +158,7 @@ def get_chart_release_lists(tiller_server_ip: str):
         if TILLER_SERVER is not None:
             chart_releases = TILLER_SERVER.list_releases()
     except Exception as exc:
-        logger.error(exc)
+        logger.exception(exc)
         print("ERROR: " + str(exc))
         #return exc
     return chart_releases

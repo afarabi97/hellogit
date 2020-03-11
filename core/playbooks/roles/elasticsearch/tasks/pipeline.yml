@@ -20,6 +20,7 @@
     user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
     status_code: 200, 201
+  ignore_errors: yes
 
 - name: Bootstrap Index
   uri:

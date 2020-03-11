@@ -71,40 +71,40 @@ node-health:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 chartmuseum-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,metrics,logs,moloch,node-health,es-license
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,metrics,logs,moloch,node-health,es-license
 
 metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,node-health,es-license
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,frontend-health-metrics --extra-vars,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,node-health --extra-vars,es-license
 
 health-metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t frontend-health-metrics,es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health,es-license
 
 es-license:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t es-license

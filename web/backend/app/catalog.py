@@ -9,7 +9,6 @@ CHART_REPO_PORT = "8080"
 class Catalog(object):
     def __init__(self):
         self.tiller_service_ip = self.get_tiller_service()
-        print(self.tiller_service_ip)
         self.chart_repo_service_ip = self.get_helm_repo_service()
         self.helm_repo_uri = self.get_helm_repo()
         self.chart_releases = None

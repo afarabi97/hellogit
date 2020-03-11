@@ -1,4 +1,11 @@
 ---
+
+- name: Check for server ca
+  stat:
+    path: /etc/openvpn/pki/ca.crt
+  register: existing_ca
+  when: inventory_hostname in groups['master_server']
+
 - name: Deploy easy vpn setup script
   template:
     src: templates/vpnsetup.sh
@@ -17,7 +24,9 @@
   shell: ./easyrsa --batch init-pki
   args:
     chdir: /etc/openvpn/
-  when: inventory_hostname in groups['master_server']
+  when:
+    - inventory_hostname in groups['master_server']
+    - existing_ca.stat.exists == False
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -25,7 +34,9 @@
   shell: ./easyrsa --batch build-ca nopass
   args:
     chdir: /etc/openvpn/
-  when: inventory_hostname in groups['master_server']
+  when:
+    - inventory_hostname in groups['master_server']
+    - existing_ca.stat.exists == False
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -36,11 +47,23 @@
     flat: yes
   when: inventory_hostname in groups['master_server']
 
+- name: Check for existing pki
+  stat:
+    path: /etc/openvpn/pki/private
+  register: existing_pki
+  when: inventory_hostname in groups['remote_sensors']
+
+- debug:
+    msg: "{{ existing_pki }}"
+  when: inventory_hostname in groups['remote_sensors']
+
 - name: Generate certs on all remote sensors
   shell: ./easyrsa --batch init-pki
   args:
     chdir: /etc/openvpn/
-  when: inventory_hostname in groups['remote_sensors']
+  when:
+    - inventory_hostname in groups['remote_sensors']
+    - existing_pki.stat.exists == False
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -54,7 +77,9 @@
   shell: "./easyrsa --batch gen-req {{ inventory_hostname }} nopass"
   args:
     chdir: /etc/openvpn/
-  when: inventory_hostname in groups['remote_sensors']
+  when:
+    - inventory_hostname in groups['remote_sensors']
+    - existing_pki.stat.exists == False
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -75,7 +100,7 @@
 
 #needs polish
 - name: Import pki requests from all remote sensors
-  shell: './easyrsa --batch import-req {{ item }} $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
+  shell: '[ -f /etc/openvpn/pki/reqs/{{item.split("/tmp/")[1] }}.req ] || ./easyrsa --batch import-req {{ item }} $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
   args:
     chdir: /etc/openvpn/
   with_fileglob:
@@ -85,7 +110,7 @@
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
 - name: Sign all pki requests from all remote sensors
-  shell: './easyrsa --batch sign-req client $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
+  shell: 'grep {{ item.split("/tmp/")[1].split(".req")[0] }} /etc/openvpn/pki/index.txt || ./easyrsa --batch sign-req client $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
   args:
     chdir: /etc/openvpn/
   with_fileglob:
@@ -118,11 +143,19 @@
     - "/tmp/*.crt"
   when: inventory_hostname in groups['remote_sensors']
 
+- name: Check for existing dh.pem
+  stat:
+    path: /etc/openvpn/pki/dh.pem
+  register: existing_dh
+  when: inventory_hostname in groups['master_server']
+
 - name: Generate Diffie Helman parameters on the server (this may take some time, give it up to 5 minutes)
   shell: "./easyrsa --batch gen-dh"
   args:
     chdir: /etc/openvpn
-  when: inventory_hostname in groups['master_server']
+  when:
+    - inventory_hostname in groups['master_server']
+    - existing_dh.stat.exists == False
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -152,18 +185,6 @@
     dest: /etc/openvpn/server/server.conf
   when: inventory_hostname in groups['master_server']
 
-- name: Disable existing OpenVPN service on server
-  systemd:
-    state: stopped
-    name: "openvpn-server@service"
-  when: inventory_hostname in groups['master_server']
-
-- name: Disable existing OpenVPN service on clients
-  systemd:
-    state: stopped
-    name: "openvpn-client@service"
-  when: inventory_hostname in groups['remote_sensors']
-
 #In this line I use a nifty hack, wrapping the o in [] ensures that the regular
 #expression used by grep finds o followed by openvpn but also ensures that the
 #regular expression does not match itself! Excluding the grep in the ps grepped search results!
@@ -177,49 +198,18 @@
   register: openvpn_client_processes
   when: inventory_hostname in groups['remote_sensors']
 
-- name: Delete all vestiges of the bridge in network scripts
-  file:
-    path: /etc/sysconfig/network-scripts/ifcfg-br0
-    state: absent
-
-- name: Restart networking on the master server before determining management interface
-  systemd:
-    name: network
-    state: restarted
-
-- name: Get management interface device id for remote sensors
-  set_fact:
-    management_interface: "{{ item }}"
-  with_items: "{{ ansible_interfaces }}"
-  when:
-    - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
-    - inventory_hostname in groups['remote_sensors']
-
-- name: Kill possible existing OpenVPN service on server
-  shell: "kill -9 {{ item }}"
-  with_items: "{{ openvpn_server_processes.stdout_lines }}"
-  when: inventory_hostname in groups['master_server']
-
-- name: Kill possible existing OpenVPN service on clients
-  shell: "kill -9 {{ item }}"
-  with_items: "{{ openvpn_client_processes.stdout_lines }}"
-  when: inventory_hostname in groups['remote_sensors']
-
-- name: Take down possible existing tunnel interface
-  shell: "ip link set tap0 down"
-  ignore_errors: yes
-
-- name: Delete possible existing tunnel interface
-  shell: "openvpn --rmtun --dev tap0"
-  ignore_errors: yes
-
 - name: Deploy OpenVPN server service to server
   template:
     src: "templates/server-service.j2"
     dest: "/usr/lib/systemd/system/openvpn-server.service"
   when: inventory_hostname in groups['master_server']
+
+- set_fact:
+     management_interface: "{{ ansible_default_ipv4.interface }}"
+
+- set_fact:
+     management_interface: "{{ ansible_br0.interfaces[0] }}"
+  when: management_interface == "br0"
 
 - name: Deploy companion script to server
   template:

@@ -99,4 +99,11 @@ export class CatalogService extends ApiService<any> {
       catchError(error => this.handleError(url, error))
     );
   }
+
+  get_all_application_statuses(): Observable<Object> {
+    const url = '/api/catalog/chart/status_all';
+    return this._http.get<Object>(url).pipe(
+      catchError(error => this.handleError(url, error))
+    );
+  }
 }

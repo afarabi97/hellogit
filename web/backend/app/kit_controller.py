@@ -128,11 +128,18 @@ def execute_add_node() -> Response:
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
     isSucessful, root_password = _replace_kit_inventory(current_kit_configuration["form"])
     if isSucessful:
-        cmd_to_executeOne = ("ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common"
-                        ).format(playbook_pass=root_password)
+        cmd_to_executeOne = ("ansible-playbook site.yml -i inventory.yml "
+            "-e ansible_ssh_pass='{playbook_pass}' "
+            "-t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common,openvpn"
+        ).format(playbook_pass=root_password)
 
-        cmd_to_executeTwo = ("ansible-playbook site.yml -i inventory.yml -t crio,kube-node,logs,frontend-health-metrics --limit {node}"
-                        ).format(playbook_pass=root_password, node=add_node_payload['hostname'])
+        cmd_to_executeTwo = ("ansible-playbook site.yml -i inventory.yml "
+            "-t crio,kube-node,logs,frontend-health-metrics,node-health "
+            "--limit localhost,{node}"
+        ).format(
+            playbook_pass=root_password,
+            node=add_node_payload['hostname']
+        )
 
         results = chain(perform_kit.si(cmd_to_executeOne),
         perform_add_node.si(cmd_to_executeTwo))()

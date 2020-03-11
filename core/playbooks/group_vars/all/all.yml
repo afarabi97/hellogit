@@ -69,9 +69,6 @@ pip_installs:
   - grpcio==1.24.1
   - pyhelm
 
-ansible_controller_hostname: "controller.lan"
-ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
-
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_port: 5000
 docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port }}"

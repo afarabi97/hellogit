@@ -175,6 +175,13 @@ def generate_values_file () -> Response:
 
     return ERROR_RESPONSE
 
+def _get_all_charts() -> List:
+    check_catalog()
+    catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
+    if catalog.helm_repo_uri:
+        charts = get_repo_charts(catalog.helm_repo_uri)  #type: list
+        return charts
+    return []
 
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
@@ -196,6 +203,19 @@ def get_app_status(application: str) -> Response:
         results = get_app_state(catalog.chart_releases, application, NAMESPACE)
         return jsonify(results)
     return ERROR_RESPONSE
+
+
+@app.route('/api/catalog/chart/status_all', methods=['GET'])
+def get_all_application_statuses() -> Response:
+    check_catalog()
+    ret_val = []
+    charts = _get_all_charts()
+    for chart in charts:
+        catalog.set_chart_releases(get_chart_release_lists(catalog.tiller_service_ip))
+        chart["nodes"] = get_app_state(catalog.chart_releases, chart['application'], NAMESPACE)
+        ret_val.append(chart)
+    return jsonify(ret_val)
+
 
 @app.route('/api/catalog/chart/<application>/status/force', methods=['GET'])
 def get_app_status_force(application: str) -> Response:

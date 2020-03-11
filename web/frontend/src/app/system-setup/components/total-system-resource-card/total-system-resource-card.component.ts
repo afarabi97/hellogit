@@ -16,6 +16,8 @@ export class TotalSystemResourceCardComponent implements OnChanges {
     this.nodes.valueChanges.subscribe(nodes => {
       this.systemResources.cpuCoresAvailable = 0;
       this.systemResources.memoryAvailable = 0;
+      this.systemResources.clusterStorageAvailable_gb = 0;
+      this.systemResources.clusterStorageAvailable_tb = 0;
       this.setValues(nodes);
     });
     if (this.nodes) {
@@ -28,6 +30,12 @@ export class TotalSystemResourceCardComponent implements OnChanges {
       if (node.deviceFacts) {
         this.systemResources.cpuCoresAvailable += node.deviceFacts['cpus_available'];
         this.systemResources.memoryAvailable += node.deviceFacts['memory_available'];
+        node.deviceFacts.disks.map(disk => {
+          if(!disk.hasRoot) {
+            this.systemResources.clusterStorageAvailable_gb += disk.size_gb;
+            this.systemResources.clusterStorageAvailable_tb += disk.size_tb;
+          }
+        });
       }
     });
   }
@@ -36,13 +44,15 @@ export class TotalSystemResourceCardComponent implements OnChanges {
 export class SystemResources {
   cpuCoresAvailable
   memoryAvailable
-  clusterStorageAvailable
+  clusterStorageAvailable_tb
+  clusterStorageAvailable_gb
   clusterStorageComitted
 
   constructor() {
     this.cpuCoresAvailable = 0;
     this.memoryAvailable = 0;
-    this.clusterStorageAvailable = 0;
+    this.clusterStorageAvailable_gb = 0;
+    this.clusterStorageAvailable_tb = 0;
     this.clusterStorageComitted = 0;
   }
 }

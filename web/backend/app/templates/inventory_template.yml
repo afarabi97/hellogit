@@ -50,6 +50,7 @@ all:
     #############################
 
     # Here you will define any variables specific to each sensor host.
+        remote_sensors:
 
         sensors:
           {% if template_ctx.sensor_count > 0 %}
@@ -94,15 +95,6 @@ all:
               is_remote: {{ node.is_remote }}
             {% endif %}
           {% endfor %}
-
-        # If you have a deployment where the majority of the kit is in one location,
-        # but some sensors remotely deployed away from the central servers put them
-        # in this group. This will remove any clustering dependencies among nodes.
-        # For example: Moloch will not try to cluster with other moloch instances
-        # nearby. If you have no remote sensors, leave the group defined, but
-        #everything after the group name empty. Ex: you could have an inventory
-        #with just "remote_sensors:", but no hosts defined.
-        remote_sensors:
 
     #############################
     # Server Settings           #

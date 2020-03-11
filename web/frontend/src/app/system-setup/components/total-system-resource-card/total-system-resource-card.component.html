@@ -12,7 +12,10 @@
 
     <mat-list-item>
       <mat-icon mat-list-icon>search</mat-icon>
-      <h4 mat-line>Elasticsearch Storage Total: {{systemResources?.clusterStorageAvailable | number: "1.0-2" }} GB</h4>
+      <h4 mat-line>Storage Available:
+        <span *ngIf="systemResources?.clusterStorageAvailable_tb < 1">{{systemResources?.clusterStorageAvailable_gb | number: "1.0-2" }} GB</span>
+        <span *ngIf="systemResources?.clusterStorageAvailable_tb > 1">{{systemResources?.clusterStorageAvailable_tb | number: "1.0-2" }} TB</span>
+      </h4>
     </mat-list-item>
   </mat-list>
 </div>

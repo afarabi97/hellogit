@@ -34,7 +34,7 @@ def main():
     tfplenum = TFPlenum(controllerHostname, elasticsearchHostname)
 
     data = []
-    
+
     if (nodeType in ['sensor', 'server']):
         node = socket.gethostname()
         psutilMetrics = PsutilMetrics(node)

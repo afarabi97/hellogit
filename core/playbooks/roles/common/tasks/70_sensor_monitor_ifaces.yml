@@ -35,6 +35,8 @@
       - "'flannel' not in item"
       - "'virbr0' not in item"
       - "'lo' not in item"
+      - "'br0' != item"
+      - "'tap0' != item"
       - "management_interface != item"
 
   - block:

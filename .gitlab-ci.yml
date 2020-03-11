@@ -4,7 +4,7 @@
 variables:
   LABREPO_USER: root
   LABREPO_PASS: "we.are.tfplenum"
-  TFPLENUM_EXPORT_LOC: "/home/gitlab-runner"
+  TFPLENUM_EXPORT_LOC: "./"
   TFPLENUM_EXPORT_VERSION: RC
   PDF_SINGLE_PAGES: "6.8.1.2 DIP System Setup,6.8.1.1 MIP System Setup,6.8.2.1 DIP System Operation,6.8.2.2 MIP System Operation,6.8.9.4 Windows Agent Plugin Guide,6.8.9.5 Helm Integration,6.8.9.2 Setup Controller"
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
@@ -29,6 +29,7 @@ variables:
   RUN_ACAS: "false"
 
 stages:
+  - pre-build
   - build
   - docs
   - kickstart
@@ -76,6 +77,22 @@ sonarqube-check:
 #     variables:
 #       - $PIPELINE == "code_quality"
 
+Create artifacts folder:
+  stage: pre-build
+  tags:
+    - tfplenum-build
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    rm -rf $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+    mkdir -p $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+  only:
+    variables:
+      - $PIPELINE == "export"
+
 Setup Nightly Controller:
   stage: build
   tags:
@@ -107,6 +124,9 @@ Build Offline Documentation:
     --export-location $TFPLENUM_EXPORT_LOC \
     --export-version $TFPLENUM_EXPORT_VERSION \
     --path testing/testy-tester/testcases/$KIT
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
@@ -120,6 +140,9 @@ Ship Phyical Stack Build:
     echo "Current working directory is $(pwd)"
     zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip infrastucture/
     cp physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
@@ -176,6 +199,9 @@ Add Docs to Controller:
     --export-location $TFPLENUM_EXPORT_LOC \
     --export-version $TFPLENUM_EXPORT_VERSION \
     --path testing/testy-tester/testcases/$KIT
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
@@ -352,6 +378,9 @@ Export Controller:
     --export-location $TFPLENUM_EXPORT_LOC \
     --export-version $TFPLENUM_EXPORT_VERSION \
     --path testing/testy-tester/testcases/$KIT
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
@@ -368,6 +397,9 @@ Generate Versions File:
     --export-location $TFPLENUM_EXPORT_LOC \
     --export-version $TFPLENUM_EXPORT_VERSION \
     --path testing/testy-tester/testcases/$KIT
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
@@ -384,6 +416,9 @@ Publish to Labrepo:
     --export-location $TFPLENUM_EXPORT_LOC \
     --export-version $TFPLENUM_EXPORT_VERSION \
     --path testing/testy-tester/testcases/$KIT
+  cache:
+    paths:
+      - $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
   only:
     variables:
       - $PIPELINE == "export"
