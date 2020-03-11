@@ -37,8 +37,6 @@ data:
       }
     }
 
-
-
     output {
       # stdout { codec => rubydebug }
       elasticsearch {
@@ -46,7 +44,10 @@ data:
         cacert => '/etc/ssl/certs/elasticsearch-ca.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
-        index => "ecs-zeek-%{+YYMMdd'h'HH}"
+        ilm_rollover_alias => "ecs-zeek"
+        ilm_policy => "ecs-zeek"
+        ilm_pattern => "000001"
+        manage_template => false
       }
     }
 
