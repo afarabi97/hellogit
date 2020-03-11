@@ -62,6 +62,9 @@
                             "not_after": {
                                 "type": "date"
                             },
+                            "not_before": {
+                                "type": "date"
+                            },
                             "subject": {
                                 "properties": {
                                     "common_name": {

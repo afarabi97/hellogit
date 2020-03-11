@@ -179,6 +179,7 @@ data:
     @load ./hassh.zeek
     @load ./new-certs.zeek
     @load ./ssl-add-cert-hash.zeek
+    @load ./ssl-add-cert-date.zeek
 
 {{ range $path, $_ :=  .Files.Glob  "files/*" }}
   {{ base $path }}: |

@@ -41,6 +41,26 @@
             }
         },
         {
+            "date": {
+                "field": "not_valid_after",
+                "target_field": "tls.server_certificate.not_after",
+                "formats": [
+                    "ISO8601"
+                ],
+                "if": "ctx.not_valid_after != null"
+            }
+        },
+        {
+            "date": {
+                "field": "not_valid_before",
+                "target_field": "tls.server_certificate.not_before",
+                "formats": [
+                    "ISO8601"
+                ],
+                "if": "ctx.not_valid_before != null"
+            }
+        },
+        {
             "set": {
                 "value": "{{client_issuer}}",
                 "field": "ssl.client.certificate.issuer",
@@ -310,7 +330,9 @@
                     "issuer",
                     "server.issuer",
                     "server.subject",
-                    "server_certificate"
+                    "server_certificate",
+                    "not_valid_after",
+                    "not_valid_before"
                 ]
             }
         }
