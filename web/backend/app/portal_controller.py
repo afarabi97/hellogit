@@ -74,6 +74,12 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
+    elif dns == "wikijs.lan":
+        logins = 'admin@dip.local/password!'
+        if ip:
+            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})        
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})

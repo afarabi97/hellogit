@@ -63,25 +63,25 @@ describe('ChartListComponent', () => {
           "appVersion": "2.1.0",
           "application": "moloch-viewer",
           "description": "Large scale, open source, indexed packet capture and search.",
-          "pmoSupported": true        
+          "pmoSupported": true
         },
         {
           "appVersion": "4.0.12",
           "application": "mongodb",
           "description": "NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications.",
-          "pmoSupported": true        
+          "pmoSupported": true
         },
         {
           "appVersion": "1.10.0",
           "application": "niagra-files",
           "description": "Easy to use, powerful, and reliable system to process and distribute data",
-          "pmoSupported": false       
+          "pmoSupported": false
         },
         {
           "appVersion": "4.0.5",
           "application": "redmine",
           "description": "Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.",
-          "pmoSupported": false        
+          "pmoSupported": false
         },
         {
           "appVersion": "1.3.1",
@@ -100,7 +100,13 @@ describe('ChartListComponent', () => {
           "application": "zeek",
           "description": "Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.",
           "pmoSupported": true
-        },        
+        },
+        {
+          "appVersion": "2.0.12",
+          "application": "wikijs",
+          "description": "Modern Wiki based on NodeJS.",
+          "pmoSupported": true
+        },
       ];
 
       component.charts = charts;
@@ -118,4 +124,3 @@ describe('ChartListComponent', () => {
   }));
 
 });
-
