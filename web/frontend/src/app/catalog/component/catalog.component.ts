@@ -16,6 +16,7 @@ import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 export class CatalogComponent implements OnInit {
   public charts: any;
   public filteredCharts: Chart[];
+  public ioConnection: any;
 
   @ViewChild('pmoElement', {static: false})
   public pmoElement: MatSlideToggle;
@@ -29,6 +30,7 @@ export class CatalogComponent implements OnInit {
    *Creates an instance of CatalogComponent.
    * @param {CatalogService} _CatalogService
    * @memberof CatalogComponent
+   * @param {WebsocketService} _WebsocketService
    */
   constructor(
     public _CatalogService: CatalogService,
@@ -55,10 +57,10 @@ export class CatalogComponent implements OnInit {
       );
     });
 
-    this._WebsocketService.onBroadcast().pipe(take(2))
+    this.ioConnection = this._WebsocketService.onBroadcast()
     .subscribe((message: Notification) => {
-      if(message.role === "catalog" && message.status === "DEPLOYED") {
-        this._CatalogService.getByString("chart/" + message.application.toLowerCase() + "/status/force").subscribe(statusGroup => {
+      if(message.role === "catalog" && message.status === "COMPLETED") {
+        this._CatalogService.getByString("chart/" + message.application.toLowerCase() + "/status").subscribe(statusGroup => {
           this.charts.map( chart => {
             if( chart.application === message.application.toLowerCase()) {
               chart.nodes = statusGroup;
@@ -66,15 +68,12 @@ export class CatalogComponent implements OnInit {
           });
           this._CatalogService.isLoading = true;
         });
-      } else if (message.role === "catalog" && message.action === "Deleting" && this.charts !== undefined) {
-        this.charts.map( chart => {
-          if( chart.application === message.application.toLowerCase()) {
-            chart.nodes = [];
-          }
-        });
-        this._CatalogService.isLoading = true;
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.ioConnection.unsubscribe();
   }
 
   private setPMOSupported(charts: Chart[]){

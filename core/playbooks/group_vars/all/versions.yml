@@ -18,7 +18,7 @@ kube_state_version: "v1.6.0"
 metallb_version: "v0.7.3"
 moloch_version: "2.1.0"
 suricata_version: "5.0.0"
-helm_version: "v2.14.3"
+helm_version: "v3.1.1"
 chartmuseum_version: "2.3.2"
 chartmuseum_image_version: "v0.8.2"
 elastic_7_version: "7.5.0"
@@ -71,7 +71,6 @@ kube_images:
   - k8s.gcr.io/addon-resizer:{{k8s_resizer_version}}
   - quay.io/coreos/flannel:{{flannel_version}}
   - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
-  - gcr.io/kubernetes-helm/tiller:{{ helm_version}}
   - docker.io/redmine:{{ redmine_version }}
   - docker.io/postgres:{{ postgres_version }}
   - docker.io/apache/nifi:{{ nifi_version }}

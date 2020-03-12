@@ -3,7 +3,9 @@
 - name: Import tfplenum variables
   include_vars:
     file: "{{ tfplenum_vars }}"
-  tags: pull-helm-images
+  tags:
+    - pull-helm-images
+    - helm
 
 - import_tasks: cleanup.yml
 
@@ -30,6 +32,7 @@
     name: registry
 
 - import_tasks: helm.yml
+  tags: helm
 
 - name: Copy dirs from rhel iso
   delegate_to: "{{ inventory_hostname }}"

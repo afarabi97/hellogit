@@ -1,8 +1,4 @@
-- name: Uninstalling Tiller
-  command: helm reset --force
-  ignore_errors: yes
-  when: inventory_hostname in groups['master_server']
-
+---
 - name: Deleting Helm Config Directory
   file:
     path: /root/.helm
@@ -12,11 +8,3 @@
   file:
     path: /usr/local/bin/helm
     state: absent
-
-- name: Deleting Kube Cluster Role Binding
-  command: kubectl delete clusterrolebinding tiller --ignore-not-found
-  when: inventory_hostname in groups['master_server']
-
-- name: Deleting Tiller Service Account
-  command: kubectl delete serviceaccount tiller -n kube-system --ignore-not-found
-  when: inventory_hostname in groups['master_server']

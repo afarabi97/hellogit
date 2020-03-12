@@ -18,8 +18,7 @@ DISCLUDES = ("elasticsearch.lan",
         "mysql.lan",
         "logstash.lan",
         "chartmuseum.lan",
-        "elasticsearch-data.lan",
-        "tiller-deploy.lan")
+        "elasticsearch-data.lan")
 
 def get_moloch_credentials():
     collection = conn_mng.mongo_catalog_saved_values
@@ -79,7 +78,7 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})        
+            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
     else:
         if ip:
             portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})

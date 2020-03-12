@@ -5,7 +5,7 @@
     releases: ""
 
 - name: Check if Suricata is installed
-  shell: helm list suricata --output json
+  shell: helm list --filter 'suricata$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
 
@@ -67,7 +67,7 @@
   - name: Check Suricata HTTP Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:80+OR+suricata.eve.dest_port:80)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"
@@ -86,7 +86,7 @@
   - name: Check Suricata DNS Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:53+OR+suricata.eve.dest_port:53)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"
@@ -105,7 +105,7 @@
   - name: Check Suricata SMB Data
     uri:
       url: "{{ elastic_uri }}/filebeat-*/_search?q=(suricata.eve.src_port:445+OR+suricata.eve.dest_port:445)+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes        
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"

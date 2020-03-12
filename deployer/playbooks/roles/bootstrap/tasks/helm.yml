@@ -1,3 +1,5 @@
+
+---
 - name: Downloading and Unpacking Helm
   unarchive:
     src: "{{ tfplenumoffline_dir }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
@@ -5,18 +7,6 @@
     creates: /usr/local/bin/helm
     remote_src: no
     extra_opts: [--strip-components=1]
-
-- name: Initializing Helm Client
-  command: helm init --client-only --skip-refresh
-
-- name: install helm plugins
-  shell: "helm plugin install {{ item }}"
-  with_items:
-    - https://github.com/chartmuseum/helm-push
-  register: command_result
-  failed_when:
-    - command_result.rc != 0
-    - "'plugin already exists' not in command_result.stderr"
 
 - name: install chart repos
   shell: helm repo add {{ item }}
@@ -49,3 +39,11 @@
   with_items:
     - "{{ helm_charts }}"
   tags: pull-helm-images
+
+- name: remove public repos
+  command: "helm repo remove {{ item }}"
+  with_items:
+    - bitnami
+    - elastic
+    - stable
+  ignore_errors: yes

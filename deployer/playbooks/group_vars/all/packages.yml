@@ -10,7 +10,7 @@ direct_download_package_names:
   - { url: "https://download.sysinternals.com/files/Sysmon.zip", dest: "/opt/tfplenum/agent_pkgs/sysmon" }
   - { url: "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86_64.zip", dest: "/opt/tfplenum/agent_pkgs/winlogbeat" }
   - { url: "https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-{{ elastic_7_version }}-windows-x86.zip", dest: "/opt/tfplenum/agent_pkgs/winlogbeat" }
-  - { url: "https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}" }
+  - { url: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}" }
 
 packages:
   - audit

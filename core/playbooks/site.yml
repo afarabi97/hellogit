@@ -263,6 +263,7 @@
   any_errors_fatal: true
   hosts:
     - master_server
+    - localhost
   roles:
     - chartmuseum
   tags: chartmuseum

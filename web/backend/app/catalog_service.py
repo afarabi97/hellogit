@@ -1,7 +1,4 @@
 from app import app, celery, logger, conn_mng
-from pyhelm.chartbuilder import ChartBuilder
-from pyhelm.tiller import Tiller
-from pyhelm.repo import SchemeError
 from typing import Dict, Tuple, List
 from enum import Enum
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
@@ -9,14 +6,33 @@ from shared.connection_mngs import FabricConnectionWrapper
 from app.node_facts import get_system_info
 from shared.utils import decode_password
 import re
-import grpc
 from app.service.socket_service import NotificationMessage, NotificationCode
 import requests, json, yaml
+from app.service.job_service import run_command2
+from time import sleep, strftime
+import os
 
 
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-TILLER_SERVER = None
+CHARTMUSEUM_PORT = "8080"
+HELM_BINARY_PATH = "/usr/local/bin/helm"
+WORKING_DIR = "/root"
+
+
+def _get_chartmuseum_uri() -> str:
+    svc_ip = None
+    kube_cmd = ("kubectl get svc chartmuseum -o json")
+    stdout, ret_code = run_command2(command=kube_cmd, working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0 and stdout != "":
+        try:
+            results = json.loads(stdout.strip())
+            svc_ip = results["status"]["loadBalancer"]["ingress"][0]["ip"]
+            if svc_ip and svc_ip != "":
+                return "http://" + svc_ip + ":" + CHARTMUSEUM_PORT
+        except Exception as exc:
+            logger.exception(exc)
+    return ""
 
 def get_node_type(hostname: str) -> str:
     """
@@ -72,9 +88,9 @@ def get_node_apps(node_hostname: str) -> list:
 
 def execute_kubelet_cmd(cmd: str) -> bool:
     """
-    Gets tiller service ip address from kubernetes
+    Gets execute kubelet commands
 
-    :return (str): Return tiller service ip address
+    :return (bool): Return if command was successful
     """
 
     try:
@@ -86,26 +102,21 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
-def chart(application: str, chart_repo_uri: str) -> ChartBuilder:
-    """
-    Returns an instance of chart builder
 
-    : return (ChartBuilder): Returns an instance of chart builder
-    """
-
-    chartb = ChartBuilder({"name": application, "source": {"type": "repo", "location": chart_repo_uri}})
-    return chartb
-
-
-def get_repo_charts(helm_repo_uri: str) -> list:
+def get_repo_charts() -> list:
     """
     Returns a list of charts from helm repo
 
     : return (list): Returns a list of charts
     """
+    stdout, ret_code = run_command2(command="helm repo update",
+            working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0:
+        print("helm repo cache updated.")
+        logger.info("helm repo cache updated.")
     results = []
-    response = requests.get(helm_repo_uri + "/api/charts")
     try:
+        response = requests.get(_get_chartmuseum_uri() + "/api/charts")
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key
@@ -118,67 +129,65 @@ def get_repo_charts(helm_repo_uri: str) -> list:
                     tChart["description"] = c["description"]
                     results.append(tChart)
     except Exception as exc:
-       logger.error(exc)
-       #return exc
+       logger.exception(exc)
     return results
 
-def chart_info(chart_repo_uri: str, application: str) -> dict:
+def chart_info(application: str) -> dict:
     info = {}
     info["id"] = application
-    chartb = chart(application, chart_repo_uri)
-    helm_chart = chartb.get_helm_chart()
-    info["version"] = helm_chart.metadata.version
-    info["description"] = helm_chart.metadata.description
-    info["appVersion"] = helm_chart.metadata.appVersion
-    info["formControls"] = None
-    info["type"] = "chart"
-    info["node_affinity"] = "Server - Any"
-    info["devDependent"] = None
-    appconfig = None
-
-    files = helm_chart.files
-    for f in files:
-        if "appconfig" in f.type_url:
-            appconfig = json.loads(f.value)
-    if appconfig:
-        info["formControls"] = appconfig["formControls"]
-        info["type"] = appconfig["type"]
-        info["node_affinity"] = appconfig["node_affinity"]
-        if "devDependent" in appconfig:
-            info["devDependent"] = appconfig["devDependent"]
-
-    return info
-
-def get_chart_release_lists(tiller_server_ip: str):
-    chart_releases = None
+    chart = None
+    appconfig= None
     try:
-        global TILLER_SERVER
-        if TILLER_SERVER is None and tiller_server_ip != None:
-            TILLER_SERVER = Tiller(tiller_server_ip)
-        if TILLER_SERVER is not None:
-            chart_releases = TILLER_SERVER.list_releases()
+        stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application,
+                working_dir=WORKING_DIR, use_shell=True)
+        if ret_code == 0 and stdout != '':
+            chart = yaml.full_load(stdout.strip())
+        if chart:
+            info["version"] = chart["version"]
+            info["description"] = chart["description"]
+            info["appVersion"] = chart["appVersion"]
+            info["formControls"] = None
+            info["type"] = "chart"
+            info["node_affinity"] = "Server - Any"
+            info["devDependent"] = None
+
+            stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application,
+                working_dir=WORKING_DIR, use_shell=True)
+            if ret_code == 0 and stdout != '':
+                appconfig = json.loads(stdout.strip())
+
+            if appconfig:
+                if "formControls" in appconfig:
+                    info["formControls"] = appconfig["formControls"]
+                if "type" in appconfig:
+                    info["type"] = appconfig["type"]
+                if "node_affinity" in appconfig:
+                    info["node_affinity"] = appconfig["node_affinity"]
+                if "devDependent" in appconfig:
+                    info["devDependent"] = appconfig["devDependent"]
     except Exception as exc:
         logger.exception(exc)
         print("ERROR: " + str(exc))
-        #return exc
-    return chart_releases
+    return info
 
 
-def get_app_state(chart_releases: dict, application: str, namespace: str) -> list:
+def get_app_state(application: str, namespace: str) -> list:
     deployed_apps = []
+    chart_releases = None
     try:
-        for c in chart_releases:
-            chart_name = c.chart.metadata.name
-            if chart_name not in _CHART_EXEMPTS and chart_name == application:
+        stdout, ret_code = run_command2(command="helm list --all -o json --filter='" + application + "$'",
+        working_dir=WORKING_DIR, use_shell=True)
 
+        if ret_code == 0 and stdout != '':
+            chart_releases = json.loads(stdout.strip())
+        if chart_releases:
+            for c in chart_releases:
                 node = {}
-                node["deployment_name"] = c.name
+                node["deployment_name"] = c["name"]
                 node["hostname"] = None
                 node["node_type"] = None
-                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": c.name})
+                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": c["name"]})
 
-                # when saved values is defined
-                # check to see if we can determine hostname
                 if saved_values:
                     if "values" in saved_values:
                         if "node_hostname" in saved_values["values"]:
@@ -187,37 +196,40 @@ def get_app_state(chart_releases: dict, application: str, namespace: str) -> lis
                                 node["hostname"] = saved_values["values"]["node_hostname"]
 
                 node["application"] = application
-                node["version"] = c.chart.metadata.version
-                node["appVersion"] = c.chart.metadata.appVersion
-                node["status"] = NotificationCode(c.info.status.code).name
+                #node["version"] = ""
+                node["appVersion"] = c["app_version"]
+                node["status"] = c["status"].upper()
                 deployed_apps.append(node)
+
     except Exception as exc:
         logger.error(exc)
         print("ERROR: " + str(exc))
-        #return exc
     return deployed_apps
 
-def get_values(chartb) -> dict:
+def get_values(application) -> dict:
     values = {}
-    raw_values = chartb.get_helm_chart().values.raw
-    try:
-        raw_values = yaml.full_load(raw_values)
-    except:
-        pass
+    raw_values = None
+    stdout, ret_code = run_command2(command="helm inspect values chartmuseum/" + application,
+            working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0 and stdout != '':
+        try:
+            raw_values = yaml.full_load(stdout.strip())
+        except:
+            pass
 
-    if isinstance(raw_values, str):
-        for line in raw_values.splitlines():
-            k, v = line.strip().split(':')
-            values[k.strip()] = v.strip()
-    elif isinstance(raw_values, dict):
-        values = raw_values
+    if raw_values:
+        if isinstance(raw_values, str):
+            for line in raw_values.splitlines():
+                k, v = line.strip().split(':')
+                values[k.strip()] = v.strip()
+        elif isinstance(raw_values, dict):
+            values = raw_values
 
     return values
 
-def generate_values(chart_repo_uri: str, application: str, namespace: str, configs: list=None) -> list:
+def generate_values(application: str, namespace: str, configs: list=None) -> list:
     try:
-        chartb = chart(application, chart_repo_uri)
-        values = get_values(chartb)
+        values = get_values(application)
     except SchemeError as e:
         response.append(str(e))
         logger.exception(e)
@@ -240,19 +252,10 @@ def generate_values(chart_repo_uri: str, application: str, namespace: str, confi
 
 
 @celery.task
-def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: str, namespace: str, node_affinity: str, values: list, task_id=None):
+def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
     response = []
-    global TILLER_SERVER
-    if TILLER_SERVER is None:
-        TILLER_SERVER = Tiller(tiller_server_ip)
 
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
-    try:
-        chartb = chart(application, chart_repo_uri)
-    except SchemeError as e:
-        response.append(str(e))
-        logger.exception(e)
-
     for value in values:
         deployment_name = None
         value_items = None
@@ -289,35 +292,38 @@ def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: 
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
 
-                result = TILLER_SERVER.install_release(chartb.get_helm_chart(), namespace,
-                                        dry_run=False, name=deployment_name,
-                                        values=value_items)
-                conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
-                conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
-                saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
+                timestr = strftime("%Y%m%d-%H%M%S")
+                tpath = "/tmp/" + deployment_name  + "_" + timestr + ".yaml"
+                with open(tpath , 'w') as values_file:
+                    values_file.write(yaml.dump(value_items))
 
-                response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
+                stdout, ret_code = run_command2(command="helm install " + deployment_name +
+                    " chartmuseum/" + application +
+                    " --namespace " + namespace +
+                    " --values " + tpath,
+                    working_dir=WORKING_DIR, use_shell=True)
 
-                # Send Update Notification to websocket
-                notification.setStatus(status=NotificationCode(result.release.info.status.code).name)
-                notification.post_to_websocket_api()
+                if ret_code == 0 and stdout != '':
+                    results = yaml.full_load(stdout.strip())
 
-            except grpc._channel._Rendezvous as exc:
-                err = ""
-                if exc._state and "Run:" in exc._state.details:
-                    err = (exc._state.details.split('Run:', 1)[0].strip())
-                elif exc._state.details:
-                    err = str(exc._state.details)
-                else:
-                    err = str(exc)
-                response.append(err)
-                logger.error(err)
+                    # Send Update Notification to websocket
+                    notification.setStatus(status=results["STATUS"].upper())
+                    notification.post_to_websocket_api()
+                    response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
+                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
+                    conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                    saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
 
-                # Send Update Notification to websocket
-                notification.setStatus(status=NotificationCode.ERROR.name)
-                notification.setException(exception=err)
-                notification.post_to_websocket_api()
-                pass
+                if ret_code != 0 and stdout != '':
+                    results = stdout.strip()
+                    logger.exception(results)
+                    # Send Update Notification to websocket
+                    notification.setStatus(status=NotificationCode.ERROR.name)
+                    notification.setException(exception=results)
+                    notification.post_to_websocket_api()
+                if os.path.exists(tpath):
+                    os.remove(tpath)
+                sleep(1)
             except Exception as exc:
                 logger.error(exc)
                 # Send Update Notification to websocket
@@ -327,31 +333,30 @@ def install_helm_apps (tiller_server_ip: str, chart_repo_uri: str, application: 
                 pass
         else:
             err = "Error unable to parse values from request"
-            logger.error(err)
+            logger.exception(err)
             # Send Update Notification to websocket
             notification.setStatus(status=NotificationCode.ERROR.name)
             notification.setException(exception=err)
             notification.post_to_websocket_api()
 
+    # Send Update Notification to websocket
+    notification.setMessage(message="Install completed.")
+    notification.setStatus(status=NotificationCode.COMPLETED.name)
+    notification.post_to_websocket_api()
     return response
 
 @celery.task
-def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, nodes: List):
+def delete_helm_apps (application: str, namespace: str, nodes: List):
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
-
     response = []
-    global TILLER_SERVER
-    if TILLER_SERVER is None:
-        TILLER_SERVER = Tiller(tiller_server_ip)
-
     new_values = []
-
     for node in nodes:
         node_hostname = None
         deployment_name = None
         old_deployment_name = None
         deployment_to_uninstall = None
+        results = None
 
         if "hostname" in node:
             node_hostname = node["hostname"]
@@ -365,36 +370,57 @@ def delete_helm_apps (tiller_server_ip: str, application: str, namespace: str, n
         if (deployment_name and old_deployment_name) and (deployment_name != old_deployment_name):
             deployment_to_uninstall = old_deployment_name
 
-        message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
-        notification.setMessage(message=message)
-        notification.setException(exception=None)
-        try:
-            # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-            notification.post_to_websocket_api()
 
-            # Remove kube node label
-            if node_hostname:
-                execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
+        if deployment_to_uninstall:
+            message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
+            notification.setMessage(message=message)
+            notification.setException(exception=None)
+            try:
+                # Send Update Notification to websocket
+                notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
+                notification.post_to_websocket_api()
 
-            result = TILLER_SERVER.uninstall_release(deployment_to_uninstall, True, True)
-            response.append("release: \"" + result.release.name + "\" "  + NotificationCode(result.release.info.status.code).name)
+                # Remove kube node label
+                if node_hostname:
+                    execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
 
-            # Remove old saved values
-            conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_to_uninstall})
+                stdout, ret_code = run_command2(command="helm delete " + deployment_to_uninstall,
+                        working_dir=WORKING_DIR, use_shell=True)
+                if ret_code == 0 and stdout != '':
+                    results = stdout.strip()
+                    # Remove old saved values
+                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_to_uninstall})
 
-            # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode.COMPLETED.name)
-            notification.post_to_websocket_api()
-
-        except grpc._channel._Rendezvous as exc:
-
+                    # Send Update Notification to websocket
+                    message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
+                    notification.setStatus(status=NotificationCode.DELETED.name)
+                    notification.post_to_websocket_api()
+                if ret_code != 0 and stdout != '':
+                    results = stdout.strip()
+                    logger.exception(exc)
+                    # Send Update Notification to websocket
+                    notification.setStatus(status=NotificationCode.ERROR.name)
+                    notification.setException(exception=exc)
+                    notification.post_to_websocket_api()
+                response.append(results)
+                sleep(1)
+            except Exception as exc:
+                logger.exception(exc)
+                # Send Update Notification to websocket
+                notification.setStatus(status=NotificationCode.ERROR.name)
+                notification.setException(exception=exc)
+                notification.post_to_websocket_api()
+                pass
+        else:
+            err = "Error unable to determine deployment name please try again"
+            logger.exception(err)
             # Send Update Notification to websocket
             notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setException(exception=exc._state.details)
+            notification.setException(exception=err)
             notification.post_to_websocket_api()
 
-            logger.error(exc._state.details)
-            response.append(exc._state.details)
-
+    # Send Update Notification to websocket
+    notification.setMessage(message="Delete completed.")
+    notification.setStatus(status=NotificationCode.COMPLETED.name)
+    notification.post_to_websocket_api()
     return response

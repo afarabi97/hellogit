@@ -5,7 +5,7 @@
     releases: ""
 
 - name: check if moloch is installed
-  shell: helm list moloch --output json
+  shell: helm list --filter 'moloch$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
 
@@ -67,7 +67,7 @@
   - name: Check HTTP Moloch Data
     uri:
       url: "{{ elastic_uri }}/sessions*/_search?q=http.method:GET+AND+timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"
@@ -86,7 +86,7 @@
   - name: Check DNS Moloch Data
     uri:
       url: "{{ elastic_uri }}/sessions*/_search?q=protocol:dns+AND+timestamp:[now-15m+TO+now]"
-      return_content: yes      
+      return_content: yes
       validate_certs: no
       user: "{{ elastic_username }}"
       password: "{{ elastic_password }}"

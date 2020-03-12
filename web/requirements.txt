@@ -26,8 +26,6 @@ gitdb2==2.0.5
 GitPython==2.1.11
 google-auth==1.6.3
 greenlet==0.4.14
-grpcio==1.21.1
-grpcio-tools==1.21.1
 gssapi==1.6.0
 gunicorn==19.9.0
 idna==2.8
@@ -53,7 +51,6 @@ pyasn1==0.4.5
 pyasn1-modules==0.2.5
 pycparser==2.19
 pycryptodomex==3.8.2
-pyhelm==0.1.4
 PyJWT==1.6.4
 pymongo==3.7.1
 PyNaCl==1.2.1

@@ -1,13 +1,5 @@
 ---
 
-- name: Deleting Kube Cluster Role Binding
-  command: kubectl delete clusterrolebinding tiller --ignore-not-found
-  when: inventory_hostname in groups['master_server']
-
-- name: Deleting Tiller Service Account
-  command: kubectl delete serviceaccount tiller -n kube-system --ignore-not-found
-  when: inventory_hostname in groups['master_server']
-
 - name: Downloading and Unpacking Helm
   unarchive:
     src: "{{ offline_repo_base }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
@@ -15,42 +7,3 @@
     creates: /usr/local/bin/helm
     remote_src: yes
     extra_opts: [--strip-components=1]
-
-- name: Initializing Helm Client
-  command: helm init --client-only --skip-refresh
-
-- name: Creating Tiller Service Account
-  command: kubectl -n kube-system create serviceaccount tiller
-  when: inventory_hostname in groups['master_server']
-
-- name: Creating Kube Cluster Role Binding
-  command: kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-  when: inventory_hostname in groups['master_server']
-
-- name: Initializing Tiller
-  command: helm init --service-account tiller --tiller-image kubernetes-helm/tiller:{{ helm_version }} --upgrade --node-selectors "role"="server" --history-max 200 --replicas 2 --wait
-  when: inventory_hostname in groups['master_server']
-
-- name: Patching Tiller
-  command: kubectl patch svc tiller-deploy -n kube-system -p '{"spec":{"type":"LoadBalancer"}}'
-  when: inventory_hostname in groups['master_server']
-
-- name: Wait for tiller to be ready
-  shell: |
-    kubectl wait --for=condition=available deployment/tiller-deploy -n kube-system
-  when: inventory_hostname in groups['master_server']
-
-- name: Removing Default Helm Repo
-  shell: helm repo remove stable
-
-- name: Copy Helm Plugins
-  synchronize:
-    src: /root/.helm/plugins
-    dest: /root/.helm/
-  ignore_errors: true
-
-- name: Copy Helm Plugin Cache
-  synchronize:
-    src: /root/.helm/cache/plugins
-    dest: /root/.helm/cache/
-  ignore_errors: true

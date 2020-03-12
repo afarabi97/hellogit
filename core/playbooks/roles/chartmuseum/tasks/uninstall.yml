@@ -2,7 +2,7 @@
 
 - name: Remove Chartmuseum
   shell: |
-    helm delete chartmuseum --purge
+    helm delete chartmuseum
 
 - name: Wait for chartmuseum to be removed
   shell: |

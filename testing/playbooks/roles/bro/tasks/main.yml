@@ -5,7 +5,7 @@
     releases: ""
 
 - name: check if Zeek is installed
-  shell: helm list zeek --output json
+  shell: helm list --filter 'zeek$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
 

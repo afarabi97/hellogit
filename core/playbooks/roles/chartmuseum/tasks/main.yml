@@ -1,7 +1,59 @@
 ---
+
 - import_tasks: preflight.yml
+  when: inventory_hostname in groups['master_server']
 
 - import_tasks: uninstall.yml
-  when: chartmuseum_deployed
+  when:
+    - inventory_hostname in groups['master_server']
+    - chartmuseum_deployed
 
 - import_tasks: install.yml
+  when: inventory_hostname in groups['master_server']
+
+- name: remove public repos
+  command: "helm repo remove {{ item }}"
+  with_items:
+    - bitnami
+    - elastic
+    - stable
+  ignore_errors: yes
+
+- name: Create directory
+  file:
+    path: "/root/.config/helm/"
+    owner: "root"
+    group: "root"
+    mode: 0755
+    state: directory
+
+- name: Copy Repo Config
+  copy:
+    src: files/repositories.yaml
+    dest: /root/.config/helm/repositories.yaml
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Get list of charts
+  find:
+    paths: /var/www/html/offlinerepo/charts
+  register: charts
+  when: "'localhost' in inventory_hostname"
+
+- name: load charts
+  uri:
+    url: http://chartmuseum.lan:8080/api/charts
+    src: "{{ item.path }}"
+    method: POST
+    status_code: 201
+    return_content: true
+  with_items: "{{ charts.files }}"
+  register: results
+  until: results.status == 201 and results.json.saved == true
+  retries: 10
+  delay: 5
+  when: "'localhost' in inventory_hostname"
+
+- name: update helm repo
+  shell: helm repo update

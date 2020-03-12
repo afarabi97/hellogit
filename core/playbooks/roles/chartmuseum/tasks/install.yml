@@ -14,7 +14,7 @@
     dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
 
 - name: deploy chartmuseum
-  command: "helm install --name chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
+  command: "helm install chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
 
 - name: Patching Chartmuseum
   command: kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='[{"op":"replace","path":"/spec/template/spec/volumes/0","value":{"name":"storage-volume","hostPath":{"path":"{{chartmuseum_data_dir}}","type":"DirectoryOrCreate"}}}]'
@@ -27,29 +27,10 @@
     delay: 3
     timeout: 180
 
-- name: add chart repos
-  command: "helm repo add chartmuseum http://chartmuseum.{{ fqdn }}:8080"
-
-- name: copy charts
-  copy:
-    src: /var/www/html/offlinerepo/charts
-    dest: "/tmp"
-
-- name: Get files on remote machine
-  find:
-    paths: "/tmp/charts"
-    patterns: '*.tgz'
-    recurse: no
-  register: charts
-
-- name: load charts
-  shell:  "helm push {{ item.path }} chartmuseum"
-  with_items: "{{ charts.files }}"
-  register: helm_push_results
-  until: helm_push_results.rc == 0
-  retries: 20
-  delay: 5
-
-- name: update helm repo
-  shell: helm repo update
-
+- name: Wait for chartmuseum.lan to be ready
+  wait_for:
+    port: 8080
+    host: chartmuseum.lan
+    connect_timeout: 3
+    delay: 3
+    timeout: 180

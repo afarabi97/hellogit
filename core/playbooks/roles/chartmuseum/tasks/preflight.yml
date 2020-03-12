@@ -12,18 +12,20 @@
 
 - name: Check if chartmuseum release exists
   shell: |
-    helm list chartmuseum --output json
+    helm list --filter=chartmuseum --output json
   register: chartmuseum_helm_results
 
 - set_fact:
     chartmuseum_helm_results_json: "{{chartmuseum_helm_results.stdout|from_json}}"
   when: chartmuseum_helm_results.stdout != ''
 
+- debug:
+    msg: "{{chartmuseum_helm_results_json}}"
 
 - set_fact:
     chartmuseum_deployed: true
-  when: chartmuseum_helm_results_json is defined and (item.Status == 'DEPLOYED' or item.Status == 'FAILED')
-  with_items: "{{chartmuseum_helm_results_json.Releases}}"
+  when: chartmuseum_helm_results_json is defined and (item.status == 'DEPLOYED' or item.status == 'FAILED')
+  with_items: "{{chartmuseum_helm_results_json}}"
 
 - set_fact:
     chartmuseum_deployed: true

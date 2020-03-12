@@ -69,9 +69,6 @@ pip_downloads:
   - requests==2.22.0
   - "restresponse==2.0.0"
   - urllib3==1.25.7
-  - pyhelm==2.14.4
-  - grpcio==1.24.1
-  - grpcio-tools==1.24.1
   - pbr==5.4.4
   - aniso8601==8.0.0
   - kubernetes==10.0.1
@@ -95,6 +92,7 @@ TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 chart_repos:
   - "bitnami https://charts.bitnami.com/bitnami"
   - "elastic https://helm.elastic.co"
+  - "stable https://kubernetes-charts.storage.googleapis.com"
 
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt

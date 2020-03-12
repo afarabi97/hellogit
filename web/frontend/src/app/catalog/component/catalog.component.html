@@ -12,9 +12,9 @@
         <mat-slide-toggle #commElement (change)="communityToggle($event)">Community Applications</mat-slide-toggle>
       </div>
       <div *ngIf="_CatalogService.isLoading">
-          <h3 *ngIf="this.charts.length == 0" class="" fxLayout="column" fxLayoutAlign="center center">
-            No Charts available. If Kit is deployed, check the Chart Museum and Tiller services
-          </h3>
+          <!--<h3 *ngIf="this.charts.length == 0" class="" fxLayout="column" fxLayoutAlign="center center">
+            No Charts available. If Kit is deployed, check the Chart Museum service
+          </h3>-->
           <app-chart-list class="charts__gallery__content" [charts]="filteredCharts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
       </div>
       <div *ngIf="!_CatalogService.isLoading">
