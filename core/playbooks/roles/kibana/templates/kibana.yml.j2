@@ -25,6 +25,7 @@ spec:
       selfSignedCertificate:
         subjectAltNames:
         - dns: {{kibana_fqdn}}
+        - dns: kibana.lan
   count: 1
   config:
     xpack.monitoring.ui.container.elasticsearch.enabled: true

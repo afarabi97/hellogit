@@ -78,6 +78,7 @@ spec:
         subjectAltNames:
         - dns: {{elastic_fqdn}}
         - dns: {{elastic_headless_fqdn}}
+        - dns: elasticsearch.lan
   nodeSets:
   - name: master
     count: {{es_master_count}}
