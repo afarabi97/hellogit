@@ -896,17 +896,14 @@ class VirtualMachine:
         # To get hash for a new password run the following bash command and make sure you escape special characters.
         # perl -e "print crypt('<Your Password>', "Q9"),"
         change_root_pwd = "usermod --password Q9sIxtbggUGaw root"
-        change_assessor_pwd = "usermod --password Q9sIxtbggUGaw assessor"
         try:
             remote_shell.sudo(change_root_pwd)
-            remote_shell.sudo(change_assessor_pwd, warn=True)
         except UnexpectedExit:
             # For some strange reason, the password files can be
             # locked so we release those locks before changing the password
             remote_shell.sudo('rm -f /etc/passwd.lock')
             remote_shell.sudo('rm -f /etc/shadow.lock')
             remote_shell.sudo(change_root_pwd)
-            remote_shell.sudo(change_assessor_pwd, warn=True)
 
     def deleteExtraNics(self) -> None:
         """
@@ -956,7 +953,6 @@ class VirtualMachine:
 
     def _clear_history(self, remote_shell: Connection):
         remote_shell.sudo('cat /dev/null > /root/.bash_history')
-        remote_shell.sudo('cat /dev/null > /home/assessor/.bash_history', warn=True)
 
     def _remove_extra_files(self, remote_shell: Connection):
         remote_shell.sudo('rm -rf /root/.ssh/*')
