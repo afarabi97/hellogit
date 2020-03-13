@@ -554,6 +554,74 @@
 		</rule>
 		<rule>
 			<id></id>
+			<tracker>1584065261</tracker>
+			<type>pass</type>
+			<interface>opt2</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<address>Endgame</address>
+			</source>
+			<destination>
+				<address>Server1</address>
+				<port>53</port>
+			</destination>
+			<descr><![CDATA[Allow Endgame on DMZ access to DNS on Server1]]></descr>
+			<updated>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</updated>
+			<created>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</created>
+			<disabled></disabled>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1584064872</tracker>
+			<type>pass</type>
+			<interface>opt2</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<address>Endgame</address>
+			</source>
+			<destination>
+				<address>Elasticsearch</address>
+				<port>Elasticsearch_Port</port>
+			</destination>
+			<descr><![CDATA[Allow Endgame on DMZ to access Elasticsearch on Internal]]></descr>
+			<created>
+				<time>1584064872</time>
+				<username>assessor@10.101.32.243</username>
+			</created>
+			<updated>
+				<time>1584065078</time>
+				<username>assessor@10.101.32.243</username>
+			</updated>
+			<disabled></disabled>
+		</rule>
+		<rule>
+			<id></id>
 			<tracker>1513004750</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
@@ -1463,6 +1531,13 @@
 			<address>sensor1.lan sensor2.lan sensor3.lan sensor4.lan sensor5.lan sensor6.lan sensor7.lan sensor8.lan sensor9.lan sensor10.lan sensor11.lan sensor12.lan sensor13.lan</address>
 			<descr><![CDATA[All the sensors]]></descr>
 			<detail><![CDATA[Sensor 1||Sensor 2||Sensor 3||Sensor 4||Sensor 5||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000||Entry added Tue, 30 Apr 2019 14:18:01 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>Server1</name>
+			<type>host</type>
+			<address>server1.lan</address>
+			<descr></descr>
+			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
 		</alias>
 		<alias>
 			<name>Web_Services</name>
