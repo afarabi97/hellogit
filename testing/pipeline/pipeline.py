@@ -4,16 +4,18 @@ import logging
 
 from argparse import ArgumentParser, Namespace
 from jobs.ctrl_setup import ControllerSetupJob
+from jobs.drive_creation import DriveCreationJob
 from jobs.kickstart import KickstartJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, publish_to_labrepo
+from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file
 
 from models import add_args_from_instance
 from models.settings import (ControllerSetupSettings, KickstartSettings,
                              KitSettings, CatalogSettings, BasicNodeCreds)
 from models.export import ExportSettings, ExportLocSettings
+from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
@@ -80,10 +82,9 @@ class Runner:
         cleanup_parser = subparsers.add_parser(SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
 
-        publish_parser = subparsers.add_parser(SubCmd.publish, help="This subcommand will publish all the deliverables that were exported from the run-export command.")
-        publish_parser.set_defaults(which=SubCmd.publish)
-        add_args_from_instance(publish_parser, BasicNodeCreds(), True)
-        add_args_from_instance(publish_parser, ExportLocSettings(), True)
+        drive_parser = subparsers.add_parser(SubCmd.create_master_drive, help="This subcommand will create a master drive.  Before running this subcommand please make sure you have an external USB drive plugged into a Ubuntu server or desktop.")
+        drive_parser.set_defaults(which=SubCmd.create_master_drive)
+        add_args_from_instance(drive_parser, DriveCreationSettings(), True)
 
         args = parser.parse_args()
 
@@ -170,12 +171,11 @@ class Runner:
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
                 generate_versions_file(export_settings.export_loc)
-            elif args.which == SubCmd.publish:
-                export_settings = ExportSettings()
-                export_settings.from_namespace(args)
-                creds = BasicNodeCreds()
-                creds.from_namespace(args)
-                publish_to_labrepo(export_settings, creds)
+            elif args.which == SubCmd.create_master_drive:
+                drive_settings = DriveCreationSettings()
+                drive_settings.from_namespace(args)
+                executor = DriveCreationJob(drive_settings)
+                executor.execute()
             elif args.which == SubCmd.run_cleanup:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 try:

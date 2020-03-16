@@ -28,7 +28,7 @@ def validate_export_location(export_loc: ExportLocSettings):
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Path:
-    path_to_export = Path(export_loc.export_path + '/' + export_loc.export_version)
+    path_to_export = Path(export_loc.export_path + '/')
     path_to_export.mkdir(parents=True, exist_ok=True)
     return path_to_export
 
@@ -52,20 +52,6 @@ def generate_versions_file(export_loc: ExportLocSettings):
         fa.write(hashes_content.getvalue())
 
 
-def publish_to_labrepo(export_loc: ExportLocSettings, creds: BasicNodeCreds):
-    validate_export_location(export_loc)
-    path_to_export = create_export_path(export_loc)
-
-    with FabricConnectionWrapper(creds.username, creds.password, creds.ipaddress) as remote_shell:
-        remote_dir_loc = '/repos/releases/{}'.format(export_loc.export_version)
-        remote_shell.run('rm -rf {}'.format(remote_dir_loc))
-        remote_shell.run('mkdir -p {}'.format(remote_dir_loc))
-        for path in path_to_export.glob("**/*"):
-            remote_shell.put(str(path), remote_dir_loc)
-        remote_shell.local('rm -rf {}'.format(str(path_to_export)))
-    logging.info("Completed the publishing of release deliverables to {}:{}".format(hostname, remote_dir_loc))
-
-
 class ControllerExport:
 
     def __init__(self, ctrl_settings: ControllerSetupSettings, export_loc: ExportLocSettings):
@@ -74,6 +60,15 @@ class ControllerExport:
         self.export_loc = export_loc
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
+        reserve_space = 500000000 * 2 #equates to 500 MB in bytes
+        stat_vfs = os.statvfs("/")
+        num_blocks_to_zero_out = (stat_vfs.f_bsize * stat_vfs.f_bavail) - reserve_space
+        cmd = ("dd if=/dev/zero of=/root/zerofillfile bs={block_size} count={num_blocks}; "
+               "sync;sleep 1;sync; rm -f /root/zerofillfile"
+               .format(block_size=stat_vfs.f_bsize,
+                       num_blocks=num_blocks_to_zero_out))
+
+        remote_shell.sudo(cmd, warn=True)
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
     def _clear_history(self, remote_shell: Connection):
@@ -142,7 +137,7 @@ class ControllerExport:
 
         username = self.vcenter_settings.username.replace("@", "%40")
         cmd = ("ovftool --noSSLVerify --diskMode=thin vi://{username}:'{password}'@{vsphere_ip}"
-               "/DEV_Datacenter/vm/{folder}/{vm_name} {destination}"
+               "/DEV_Datacenter/vm/{folder}/{vm_name} \"{destination}\""
                .format(username=username,
                        password=self.vcenter_settings.password,
                        vsphere_ip=self.vcenter_settings.ipaddress,
@@ -162,8 +157,6 @@ class ControllerExport:
         logging.info("Exporting the controller to OVA.")
         validate_export_location(self.export_loc)
         path_to_export = create_export_path(self.export_loc)
-
-        # power_off_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         self._prepare_for_export(self.ctrl_settings.node.username,
@@ -207,23 +200,34 @@ class ConfluenceExport:
                                               self.pdf_export_settings.export_loc.export_version,
                                               page_title.strip())
 
+    def _push_file_and_unzip(self,
+                             file_to_push: str,
+                             ctrl_settings: ControllerSetupSettings):
+        with FabricConnectionWrapper(ctrl_settings.node.username,
+                                     ctrl_settings.node.password,
+                                     ctrl_settings.node.ipaddress) as remote_shell:
+            export_loc = '/var/www/html'
+            remote_shell.put(file_to_push, export_loc + '/thisiscvah.zip')
+            with remote_shell.cd(export_loc):
+                remote_shell.run('rm -rf THISISCVAH/')
+                remote_shell.run('unzip thisiscvah.zip -d THISISCVAH/')
+                remote_shell.run('ls THISISCVAH/')
+
     def add_docs_to_controller(self, ctrl_settings: ControllerSetupSettings):
         power_on_vms(ctrl_settings.vcenter, ctrl_settings.node)
-        page_title = self.html_export_settings.page_title
-        confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
-                                          username=self.html_export_settings.confluence.username,
-                                          password=self.html_export_settings.confluence.password)
-        with tempfile.TemporaryDirectory() as export_path:
-            confluence.export_page_w_children(export_path, self.html_export_settings.export_loc.export_version, "HTML", page_title)
-            file_to_push = "{}/DIP_{}_HTML_Manual.zip".format(export_path, self.html_export_settings.export_loc.export_version)
-            with FabricConnectionWrapper(ctrl_settings.node.username,
-                                         ctrl_settings.node.password,
-                                         ctrl_settings.node.ipaddress) as remote_shell:
-                export_loc = '/var/www/html'
-                remote_shell.put(file_to_push, export_loc + '/thisiscvah.zip')
-                with remote_shell.cd(export_loc):
-                    remote_shell.run('rm -rf THISISCVAH/')
-                    remote_shell.run('unzip thisiscvah.zip -d THISISCVAH/')
+        file_to_push = "{}/DIP_{}_HTML_Manual.zip".format(self.html_export_settings.export_loc.export_path,
+                                                          self.html_export_settings.export_loc.export_version)
+        if Path(file_to_push).exists():
+            self._push_file_and_unzip(file_to_push, ctrl_settings)
+        else:
+            page_title = self.html_export_settings.page_title
+            confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
+                                              username=self.html_export_settings.confluence.username,
+                                              password=self.html_export_settings.confluence.password)
+            with tempfile.TemporaryDirectory() as export_path:
+                confluence.export_page_w_children(export_path, self.html_export_settings.export_loc.export_version, "HTML", page_title)
+                file_to_push = "{}/DIP_{}_HTML_Manual.zip".format(export_path, self.html_export_settings.export_loc.export_version)
+                self._push_file_and_unzip(file_to_push, ctrl_settings)
 
     def set_perms_restricted_on_page(self):
         page_title = self.html_export_settings.page_title

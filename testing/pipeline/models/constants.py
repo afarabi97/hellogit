@@ -25,5 +25,4 @@ class SubCmd:
     unset_perms = 'unset-perms'
     export_ctrl = 'export-ctrl'
     generate_versions_file = 'generate-versions-file'
-
-    publish = 'publish'
+    create_master_drive = 'create-master-drive'

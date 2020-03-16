@@ -60,7 +60,8 @@ class Remote(Runner):
         self.channel.exec_command(command)
 
     def close_proc_stdin(self):
-        self.channel.shutdown_write()
+        pass
+        #self.channel.shutdown_write()
 
     def read_proc_stdout(self, num_bytes):
         return self.channel.recv(num_bytes)

@@ -4,6 +4,7 @@
 variables:
   LABREPO_HOST: "labrepo.sil.lab"
   TFPLENUM_EXPORT_LOC: "/mnt/drive_creation/"
+  TFPLENUM_DOC_EXPORT_LOC: "/mnt/drive_creation/"
   TFPLENUM_EXPORT_VERSION: RC
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
   TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
@@ -29,6 +30,16 @@ variables:
   VCENTER_DATASTORE: "NVMe Storage"
   TEMPLATE_TO_CLONE: "dip-ctrl.lan"
   VM_GATEWAY: "10.40.12.1"
+
+  #Master Drive Creation Variables
+  MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"
+  MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.179"
+  MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH: "/mnt/drive_creation/MULTIBOOT_20200110.IMG"
+  MASTER_DRIVE_CREATION_EXTERNAL_DRIVE: "/dev/sdb"
+  MASTER_DRIVE_CREATION_MOUNT_POINT: "/mnt/Data"
+  MASTER_DRIVE_CREATION_RSYNC_SOURCE: "/mnt/drive_creation/v3.3/CPT/Data/"
+  RUN_CREATE_MASTER_DRIVE: "false"
+  #End
 
   #The VM prefix is the prefix for all the VMs that will be created.
   #EX <VM_PREFIX>-ctrl.lan | <VM_PREFIX>-sensor1.lan | <VM_PREFIX>-server1.lan
@@ -99,8 +110,11 @@ Create artifacts folder:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    rm -rf $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
-    mkdir -p $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+    rm -f "$TFPLENUM_EXPORT_LOC"/*
+    mkdir -p "$TFPLENUM_EXPORT_LOC/"
+
+    rm -f "$TFPLENUM_DOC_EXPORT_LOC"/*
+    mkdir -p "$TFPLENUM_DOC_EXPORT_LOC/"
   only:
     variables:
       - $PIPELINE == "export"
@@ -145,14 +159,14 @@ Build Offline Documentation:
     python3 testing/pipeline/pipeline.py run-export export-html-docs \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_EXPORT_LOC" \
+    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
 
     python3 testing/pipeline/pipeline.py run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_EXPORT_LOC" \
+    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "6.8.1.2 DIP System Setup" "6.8.1.1 MIP System Setup" "6.8.2.1 DIP System Operation" "6.8.2.2 MIP System Operation" "6.8.9.4 Windows Agent Plugin Guide" "6.8.9.5 Helm Integration" "6.8.9.2 Setup Controller"
   retry: 2
@@ -168,7 +182,7 @@ Ship Phyical Stack Build:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip infrastucture/
-    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip $TFPLENUM_EXPORT_LOC/$TFPLENUM_EXPORT_VERSION
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip "$TFPLENUM_EXPORT_LOC"
   only:
     variables:
       - $PIPELINE == "export"
@@ -242,7 +256,7 @@ Add Docs to Controller:
     python3 testing/pipeline/pipeline.py run-export add-docs-to-controller \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_EXPORT_LOC" \
+    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   cache:
@@ -484,19 +498,19 @@ Generate Versions File:
     variables:
       - $PIPELINE == "export"
 
-# Publish to Labrepo:
-#   stage: publish
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I)"
-#     echo "Current working directory is $(pwd)"
-#     python pipeline.py publish \
-#     --username "$LABREPO_USER" \
-#     --password "$LABREPO_PASS" \
-#     --ipaddress "$LABREPO_HOST" \
-#     --export-path "$TFPLENUM_EXPORT_LOC" \
-#     --export-version "$TFPLENUM_EXPORT_VERSION"
-#   only:
-#     variables:
-#       - $PIPELINE == "export"
+Create Master Drive:
+  stage: publish
+  tags:
+    - tfplenum-buildv2
+  script: |
+    python3 testing/pipeline/pipeline.py create-master-drive \
+    --multi-boot-img-path "$MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH" \
+    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_DRIVE" \
+    --mount-point "$MASTER_DRIVE_CREATION_MOUNT_POINT" \
+    --rsync-source "$MASTER_DRIVE_CREATION_RSYNC_SOURCE" \
+    --username "$MASTER_DRIVE_CREATION_USERNAME" \
+    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
+  only:
+    variables:
+      - $RUN_CREATE_MASTER_DRIVE == "true"

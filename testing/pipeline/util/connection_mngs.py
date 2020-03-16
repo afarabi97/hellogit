@@ -3,7 +3,7 @@ from kubernetes import client, config
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
-from fabric import Connection
+from fabric import Connection, Config
 
 
 USERNAME = 'root'
@@ -128,12 +128,15 @@ class FabricConnectionWrapper:
         self._password = password
         self._ipaddress = ipaddress
         self._establish_fabric_connection()
+        self._sudo_config = None # type: Config
 
     def _establish_fabric_connection(self) -> None:
         if not self._connection:
+            self._sudo_config = Config(overrides={'sudo': {'password': self._password}})
             self._connection = Connection(self._ipaddress,
                                           user=self._username,
                                           connect_timeout=CONNECTION_TIMEOUT,
+                                          config=self._sudo_config,
                                           connect_kwargs={'password': self._password,
                                                           'allow_agent': False,
                                                           'look_for_keys': False})
