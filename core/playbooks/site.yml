@@ -290,6 +290,20 @@
   tags:
     - kibana
 
+- name: Deploy Auditbeat
+  hosts:
+    - localhost
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - audit
+  tags:
+    - audit
+
 - name: Deploy metric services
   hosts: master_server
   gather_facts: no

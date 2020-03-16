@@ -39,6 +39,13 @@
     repoquery --repoid=local_rhel_7 --qf=%{name} -g --list --grouppkgs=all "{{ item }}" | xargs yumdownloader --enablerepo=local_rhel_7 --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64 {}
   with_items: "{{ group_packages }}"
 
+- name: "Download direct rpms"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - "{{ direct_download_rpms }}"
+
 - name: Remove local iso repo
   yum_repository:
     name: local_rhel_7

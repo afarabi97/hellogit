@@ -134,7 +134,7 @@ def execute_add_node() -> Response:
         ).format(playbook_pass=root_password)
 
         cmd_to_executeTwo = ("ansible-playbook site.yml -i inventory.yml "
-            "-t crio,kube-node,logs,frontend-health-metrics,node-health "
+            "-t crio,kube-node,logs,audit,frontend-health-metrics,node-health "
             "--limit localhost,{node}"
         ).format(
             playbook_pass=root_password,
