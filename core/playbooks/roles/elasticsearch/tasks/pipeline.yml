@@ -12,6 +12,17 @@
     body: "{{ lookup('file', 'files/zeek-pipeline/template_zeek')}}"
     status_code: 200, 201
 
+- name: Check if alias exists
+  uri:
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/ecs-zeek-000001"
+    method: GET
+    validate_certs: no
+    user: "{{default_elastic_user}}"
+    password: "{{ es_password.stdout }}"
+    status_code: 200,201,404
+  register: check_alias_results
+  ignore_errors: yes
+
 - name: Delete alias
   uri:
     url: "https://{{elastic_fqdn}}:{{elastic_port}}/ecs-zeek-000001"
@@ -21,6 +32,7 @@
     password: "{{ es_password.stdout }}"
     status_code: 200, 201
   ignore_errors: yes
+  when: check_alias_results.status == 200
 
 - name: Bootstrap Index
   uri:

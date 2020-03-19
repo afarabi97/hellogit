@@ -57,42 +57,19 @@
     force_basic_auth: yes
   register: results_kibana
   until: (results_kibana.status == 200) and (results_kibana.json.status.overall.state == 'green')
-  retries: 35
-  delay: 5
-
-# - name: Load Dashboards
-#   uri:
-#     url: "https://{{ kibana_fqdn }}/api/kibana/dashboards/import?force=true"
-#     method: POST
-#     validate_certs: no
-#     user: elastic
-#     password: "{{ es_password.stdout }}"
-#     body_format: json
-#     headers:
-#       kbn-xsrf: y
-#     body: "{{ lookup('file', '{{ item }}')}}"
-#     status_code: 200, 201
-#     force_basic_auth: yes
-#   retries: 3
-#   delay: 10
-#   register: dashboard_results
-#   until: dashboard_results.status == 200
-#   with_fileglob:
-#     - "files/dashboards/*.json"
-#   tags:
-#     - load-dashboards
+  retries: 60
+  delay: 10
 
 - name: Load Saved Objects
   shell:  |
     curl -k -X POST -u {{default_elastic_user}}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{item}}
   args:
     warn: false
-  retries: 3
+  retries: 5
   delay: 10
   register: saved_objects_results
   until: saved_objects_results.rc == 0
   with_items:
     - "{{ kibana_dir }}/config.ndjson"
-    #- "{{ kibana_dir }}/winlogbeat.ndjson"
   tags:
     - kibana-saved-objects

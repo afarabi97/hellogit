@@ -3,9 +3,10 @@
     errors
     health
     kubernetes cluster.local
-    proxy . {{ hostvars[groups['master_server'][0]].management_ipv4 }}
+    forward . {{ hostvars[groups['master_server'][0]].management_ipv4 }}
     cache 30
     loop
     reload
     loadbalance
+    ready :8181
 }

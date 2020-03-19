@@ -8,19 +8,18 @@ mongodb_version: "4.0.12-debian-9-r22"
 zeek_version: "3.0.0"
 busybox_version: "1.29.3"
 coreos_version: "1688.5.3"
-flannel_version: "v0.11.0"
-k8s_coredns_version: "1.2.6"
-k8s_etcd_version: "3.2.24"
+k8s_coredns_version: "1.6.5"
+k8s_etcd_version: "3.4.3-0"
 k8s_pause_version: "3.1"
 k8s_resizer_version: "1.8.4"
-k8s_version: "1.13.11"
+k8s_version: "1.17.4"
 kube_state_version: "v1.6.0"
-metallb_version: "v0.7.3"
+metallb_version: "v0.9.3"
 moloch_version: "2.1.0"
 suricata_version: "5.0.0"
 helm_version: "v3.1.1"
-chartmuseum_version: "2.3.2"
-chartmuseum_image_version: "v0.8.2"
+chartmuseum_version: "2.9.0"
+chartmuseum_image_version: "v0.11.0"
 elastic_7_version: "7.5.0"
 elastic_7_chart_version: "7.5.0"
 window_remote_installer_version: "1.2"
@@ -37,6 +36,9 @@ mariadb_version: 10.4.11
 mattermost_version: 5.18.0
 wikijs_version: 2.0.12
 misp_version: 2.4.120
+crio_version: "v1.17.1"
+conmon_version: 2.0.12
+calico_version: "v3.13.1"
 
 # Docker Image List
 kube_images:
@@ -69,7 +71,6 @@ kube_images:
   - k8s.gcr.io/etcd:{{k8s_etcd_version}}
   - k8s.gcr.io/coredns:{{k8s_coredns_version}}
   - k8s.gcr.io/addon-resizer:{{k8s_resizer_version}}
-  - quay.io/coreos/flannel:{{flannel_version}}
   - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
   - docker.io/redmine:{{ redmine_version }}
   - docker.io/postgres:{{ postgres_version }}
@@ -79,6 +80,11 @@ kube_images:
   - docker.io/requarks/wiki:{{ wikijs_version }}
   - docker.io/tfplenum/misp:{{misp_version}}
   - docker.io/tfplenum/misp-modules:{{misp_version}}
+  - docker.io/calico/pod2daemon-flexvol:{{calico_version}}
+  - docker.io/calico/cni:{{calico_version}}
+  - docker.io/calico/node:{{calico_version}}
+  - docker.io/calico/kube-controllers:{{calico_version}}
+  - docker.io/calico/ctl:{{calico_version}}
 
 helm_charts:
   - stable/chartmuseum {{ chartmuseum_version }}

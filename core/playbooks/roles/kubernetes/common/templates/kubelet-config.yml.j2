@@ -1,0 +1,31 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+nodeStatusUpdateFrequency: "{{ kubelet_status_update_frequency }}"
+failSwapOn: {{ kubelet_fail_swap_on|default(true) }}
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+  x509:
+    clientCAFile: {{ kube_cert_dir }}/ca.crt
+authorization:
+  mode: Webhook
+staticPodPath: {{ kube_manifest_dir }}
+cgroupDriver: {{cgroup_manager}}
+maxPods: 110
+address: 0.0.0.0
+readOnlyPort: 10255
+healthzPort: 10248
+healthzBindAddress: 127.0.0.1
+kubeletCgroups: {{ kubelet_kubelet_cgroups }}
+clusterDomain: {{ cluster_domain }}
+{% if kubelet_rotate_certificates|bool %}
+rotateCertificates: true
+{% endif %}
+kubeReserved:
+  cpu: {{ hostvars[inventory_hostname].kube_cpu_reserve }}m
+  memory: {{ hostvars[inventory_hostname].kube_mem_reserve }}Ki
+systemReserved:
+  cpu: {{ hostvars[inventory_hostname].sys_cpu_reserve }}m
+  memory: {{ hostvars[inventory_hostname].sys_mem_reserve }}Ki

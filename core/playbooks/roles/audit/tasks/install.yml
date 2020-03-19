@@ -1,0 +1,57 @@
+---
+
+  - name: Stop auditd service
+    shell: |
+      service auditd stop
+    args:
+      warn: false
+
+  - name: Disable auditd service
+    service:
+      name: auditd
+      enabled: no
+
+  - name: Mask Journald-Auditd
+    systemd:
+      name: systemd-journald-audit.socket
+      masked: yes
+
+  - name: install auditbeat
+    yum:
+      name: auditbeat-{{elastic_7_version}}
+      state: installed
+
+  - name: Get ES Password
+    shell: |
+      kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+    register: es_password
+
+  - name: Copy Audit Template
+    template:
+      src: "templates/auditbeat.yml.j2"
+      dest: "{{ audit_dir }}/auditbeat.yml"
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: Copy Repo Config
+    copy:
+      src: templates/audit.rules
+      dest: "{{ audit_dir }}/audit.rules.d/audit.rules"
+      mode: 0600
+      owner: root
+      group: root
+
+  - name: get elastic ca
+    shell: |
+      kubectl get secret tfplenum-es-http-certs-public -o jsonpath="{.data['ca\.crt']}" | base64 -d > /etc/ssl/certs/elasticsearch-ca.crt
+
+  - name: get elastic ca
+    shell: |
+      kubectl get secret tfplenum-kb-http-certs-public -o jsonpath="{.data['ca\.crt']}" | base64 -d > /etc/ssl/certs/kibana-ca.crt
+
+  - name: Enable and Start Auditbeat
+    service:
+      name: auditbeat
+      state: started
+      enabled: yes

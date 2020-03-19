@@ -1,0 +1,25 @@
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+After=crio.service
+
+[Service]
+EnvironmentFile=-{{ kube_config_dir }}/kubelet.env
+ExecStart=/usr/bin/kubelet \
+		$KUBE_LOGTOSTDERR \
+		$KUBE_LOG_LEVEL \
+		$KUBELET_API_SERVER \
+		$KUBELET_ADDRESS \
+		$KUBELET_PORT \
+		$KUBELET_HOSTNAME \
+		$KUBELET_ARGS \
+		$DOCKER_SOCKET \
+		$KUBELET_NETWORK_PLUGIN
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+CPUAccounting=true
+MemoryAccounting=true
+
+[Install]
+WantedBy=multi-user.target

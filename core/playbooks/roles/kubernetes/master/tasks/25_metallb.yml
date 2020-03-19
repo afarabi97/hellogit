@@ -6,6 +6,9 @@
 - name: 'Apply MetalLB Config'
   command: 'kubectl apply -f {{ kube_dir }}/metallb_configmap.yml'
 
+- name: 'Create MetaLB memberlist secret'
+  command: 'kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"'
+
 - name: Wait for metallb to be ready
   import_role:
     name: kubernetes/common

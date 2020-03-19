@@ -1,0 +1,39 @@
+---
+- name: Wait for Calico to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "pod"
+    namespace: "kube-system"
+    resource_name: ""
+    label: "k8s-app=calico-kube-controllers"
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Install Calicoctl
+  command: "kubectl apply -f calicoctl.yml"
+  args:
+    chdir: "{{ kube_dir }}"
+
+- name: Calicoctl Alias
+  lineinfile:
+    dest: "~/.bashrc"
+    create: yes
+    mode: 0644
+    line: 'alias calicoctl="kubectl exec -i -n kube-system calicoctl /calicoctl -- "'
+    regexp: "^alias calicoctl="
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['servers'] }}"
+
+- name: Update Calico IP Pool Config
+  shell: |
+    /bin/bash -i -c "calicoctl replace -f - < ipip.yml"
+  args:
+    chdir: "{{ kube_dir }}"
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 10

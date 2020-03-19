@@ -1,5 +1,5 @@
 #!/bin/bash
-export DIP_VERSION=3.3.0
+export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
 boostrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -41,9 +41,8 @@ function labrepo_available() {
     labrepo_check=`curl -m 120 -s http://labrepo.sil.lab/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
-      echo "This build requires Labrepo on the SIL Network...exiting"
+      echo "Using public repos this might not always work as external dependencies change frequently."
       labrepo_check=false
-      exit
     fi
 }
 

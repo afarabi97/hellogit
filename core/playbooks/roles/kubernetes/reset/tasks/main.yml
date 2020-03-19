@@ -35,11 +35,9 @@
   with_items:
     - /var/lib/cni
     - /var/lib/kubelet
-    #- /etc/cni
     - /etc/kubernetes
     - /var/lib/etcd
     - ~/.kube
-    - /run/flannel
   register: remove_artifacts_result
   failed_when: "'Device or resource busy' in remove_artifacts_result"
 
@@ -52,6 +50,5 @@
   shell: |
     ip link delete {{ item }};
   with_items:
-    - flannel.1
     - cni0
   ignore_errors: yes

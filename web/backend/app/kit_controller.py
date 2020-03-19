@@ -6,7 +6,7 @@ import os
 
 from app import app, logger, conn_mng, CORE_DIR
 from app.archive_controller import archive_form
-from app.common import OK_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.kit_service import perform_kit
 from app.service.time_service import change_time_on_nodes

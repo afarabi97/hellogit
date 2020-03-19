@@ -1,8 +1,51 @@
 ---
-- name: Install CRI-O
+
+- name: Get Conmon binary from controller
+  get_url:
+    url: "{{offline_repo_base}}/conmon-{{conmon_version}}/bin/conmon"
+    dest: "/usr/bin/conmon"
+    mode: 0755
+    group: root
+    owner: root
+
+- name: Download crio tar
+  unarchive:
+    src: "{{ offline_repo_base }}/crio-{{crio_version}}.tar.gz"
+    dest: "{{ install_dir  }}"
+    creates: "{{ crio_dir }}"
+    remote_src: yes
+
+- name: main.yml | Building calico's directory scrucuture
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "/etc/cni/net.d/"
+    - "/opt/cni/bin/"
+
+- name: Install CRI-O Dependencies
   yum:
-    name: [ buildah, cri-o, cri-tools, runc, containernetworking-plugins ]
+    name: [ buildah, cri-tools, runc ]
     state: present
+
+- name: Copy custom Makefile
+  copy:
+    src: "files/Makefile"
+    dest: "{{ crio_dir }}/Makefile"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Install crio
+  shell: |
+    make
+  register: results
+  args:
+    chdir: "{{ crio_dir }}"
+
+- debug:
+    msg: "{{ results.stdout }}"
 
 - name: Remove Default CNIs
   file:
@@ -10,31 +53,20 @@
     state: absent
   with_items:
     - "/etc/cni/net.d/100-crio-bridge.conf"
-    - "/usr/lib/systemd/system/crio.service"
-
-- name: Configure CRIO CNI
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/cni/net.d/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - "100-crio-flannel.conf"
-    - "200-loopback.conf"
-
-- name: Modified service file
-  copy:
-    src: "crio.service"
-    dest: "/usr/lib/systemd/system/crio.service"
-    group: root
-    owner: root
-    mode: 0644
+    - "/etc/cni/net.d/10-crio-bridge.conf"
 
 - name: 'Configure CRIO Config'
   template:
     src: "templates/crio.conf.j2"
     dest: "/etc/crio/crio.conf"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: 'Add Custom Registries Conf'
+  template:
+    src: "templates/registries.conf.j2"
+    dest: "/etc/containers/registries.conf"
     group: root
     owner: root
     mode: 0644

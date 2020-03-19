@@ -6,7 +6,8 @@ install_user: root
 install_group: root
 install_dir: /opt/tfplenum
 log_dir: /var/log/ansible/hosts/
-fqdn: default.svc.cluster.local
+cluster_domain: cluster.local
+fqdn: default.svc.{{cluster_domain}}
 data_path: /data
 
 # Redis

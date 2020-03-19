@@ -19,4 +19,6 @@
   with_items:
     - metallb_configmap
     - metallb_deployment
-    - kube-flannel
+    - calicoctl
+    - calico
+    - ipip

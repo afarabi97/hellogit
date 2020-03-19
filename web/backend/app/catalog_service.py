@@ -41,7 +41,6 @@ def get_node_type(hostname: str) -> str:
     """
     nodes = []
     kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if kit_configuration:
         nodes = kit_configuration['form']['nodes']
         node_list = list(filter(lambda node: node['hostname'] == hostname, nodes))
@@ -57,7 +56,6 @@ def get_nodes(details: bool=False) -> list:
     """
     nodes = []
     kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if kit_configuration:
         for node in kit_configuration['form']['nodes']:
             host_simple = {}
@@ -76,13 +74,12 @@ def get_node_apps(node_hostname: str) -> list:
     deployed_apps = []
     saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
     for v in saved_values:
-        if "values" in v:
-            if "node_hostname" in v["values"]:
-                node_type = get_node_type(v["values"]["node_hostname"])
-                if node_type:
-                    hostname = v["values"]["node_hostname"]
-                    if hostname == node_hostname:
-                        deployed_apps.append(v["application"])
+        if "values" in v and "node_hostname" in v["values"]:
+            node_type = get_node_type(v["values"]["node_hostname"])
+            if node_type:
+                hostname = v["values"]["node_hostname"]
+                if hostname == node_hostname:
+                    deployed_apps.append(v["application"])
 
     return deployed_apps
 
@@ -122,85 +119,91 @@ def get_repo_charts() -> list:
             application = key
             if application not in _CHART_EXEMPTS:
                 for c in value:
-                    tChart = {}
-                    tChart["application"] = application
-                    tChart["version"] = c["version"]
-                    tChart["appVersion"] = c["appVersion"]
-                    tChart["description"] = c["description"]
-                    results.append(tChart)
+                    t_chart = {}
+                    t_chart["application"] = application
+                    t_chart["version"] = c["version"]
+                    t_chart["appVersion"] = c["appVersion"]
+                    t_chart["description"] = c["description"]
+                    results.append(t_chart)
     except Exception as exc:
        logger.exception(exc)
     return results
 
-def chart_info(application: str) -> dict:
+
+def _inspect_chart(application: str) -> dict:
+    chart = {}
+    stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application,
+                working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0 and stdout != '':
+        chart = yaml.full_load(stdout.strip())
+    return chart
+
+def _inspect_readme(application: str):
+    appconfig = {}
+    stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application,
+                working_dir=WORKING_DIR, use_shell=True)
+    if ret_code == 0 and stdout != '':
+        appconfig = json.loads(stdout.strip())
+    return appconfig
+
+
+def _build_chart_info(application: str, chart: dict, appconfig: dict) -> dict:
     info = {}
     info["id"] = application
-    chart = None
-    appconfig= None
-    try:
-        stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application,
-                working_dir=WORKING_DIR, use_shell=True)
-        if ret_code == 0 and stdout != '':
-            chart = yaml.full_load(stdout.strip())
-        if chart:
-            info["version"] = chart["version"]
-            info["description"] = chart["description"]
-            info["appVersion"] = chart["appVersion"]
-            info["formControls"] = None
-            info["type"] = "chart"
-            info["node_affinity"] = "Server - Any"
-            info["devDependent"] = None
-
-            stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application,
-                working_dir=WORKING_DIR, use_shell=True)
-            if ret_code == 0 and stdout != '':
-                appconfig = json.loads(stdout.strip())
-
-            if appconfig:
-                if "formControls" in appconfig:
-                    info["formControls"] = appconfig["formControls"]
-                if "type" in appconfig:
-                    info["type"] = appconfig["type"]
-                if "node_affinity" in appconfig:
-                    info["node_affinity"] = appconfig["node_affinity"]
-                if "devDependent" in appconfig:
-                    info["devDependent"] = appconfig["devDependent"]
-    except Exception as exc:
-        logger.exception(exc)
-        print("ERROR: " + str(exc))
+    info["version"] = chart.get("version", None)
+    info["description"] = chart.get("description", None)
+    info["appVersion"] = chart.get("appVersion", None)
+    info["formControls"] = appconfig.get("formControls", None)
+    info["type"] = appconfig.get("type", "chart")
+    info["node_affinity"] = appconfig.get("node_affinity","Server - Any")
+    info["devDependent"] = appconfig.get("devDependent", None)
     return info
 
 
-def get_app_state(application: str, namespace: str) -> list:
-    deployed_apps = []
-    chart_releases = None
+def chart_info(application: str) -> dict:
+    chart = None
+    appconfig= None
     try:
+        chart = _inspect_chart(application)
+        appconfig = _inspect_readme(application)
+        if chart and appconfig:
+            return _build_chart_info(application, chart, appconfig)
+    except Exception as exc:
+        logger.exception(exc)
+        print("ERROR: " + str(exc))
+    return None
+
+def _get_helm_list(application: str) -> dict:
+        chart_releases = None
         stdout, ret_code = run_command2(command="helm list --all -o json --filter='" + application + "$'",
         working_dir=WORKING_DIR, use_shell=True)
 
         if ret_code == 0 and stdout != '':
             chart_releases = json.loads(stdout.strip())
+        return chart_releases
+
+
+def get_app_state(application: str, namespace: str) -> list:
+    deployed_apps = []
+    try:
+        chart_releases = _get_helm_list(application)
         if chart_releases:
             for c in chart_releases:
                 node = {}
+                node["application"] = application
+                node["appVersion"] = c["app_version"]
+                node["status"] = c["status"].upper()
                 node["deployment_name"] = c["name"]
                 node["hostname"] = None
                 node["node_type"] = None
                 saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": c["name"]})
-
-                if saved_values:
-                    if "values" in saved_values:
-                        if "node_hostname" in saved_values["values"]:
-                            node["node_type"] = get_node_type(saved_values["values"]["node_hostname"])
-                            if node["node_type"]:
-                                node["hostname"] = saved_values["values"]["node_hostname"]
-
-                node["application"] = application
-                #node["version"] = ""
-                node["appVersion"] = c["app_version"]
-                node["status"] = c["status"].upper()
+                values = saved_values.get("values", None)
+                if values:
+                    node_hostname = values.get("node_hostname", None)
+                if node_hostname:
+                    node["hostname"] = node_hostname
+                    node["node_type"] = get_node_type(node_hostname)
                 deployed_apps.append(node)
-
     except Exception as exc:
         logger.error(exc)
         print("ERROR: " + str(exc))
@@ -230,25 +233,43 @@ def get_values(application) -> dict:
 def generate_values(application: str, namespace: str, configs: list=None) -> list:
     try:
         values = get_values(application)
-    except SchemeError as e:
-        response.append(str(e))
+    except Exception as e:
         logger.exception(e)
     if configs:
-        lValues = []
+        l_values = []
         for config in configs:
             for node_hostname, v in config.items():
                 sensordict = {}
                 sensordict[node_hostname] = {}
-                cValues = values.copy()
+                c_values = values.copy()
                 for key, value in v.items():
-                    cValues[key] = value
-                sensordict[node_hostname] = cValues
-            lValues.append(sensordict)
+                    c_values[key] = value
+                sensordict[node_hostname] = c_values
+            l_values.append(sensordict)
 
-        return lValues
+        return l_values
     if values:
         return values
     return []
+
+
+def _write_values(deployment_name: str, value_items: dict) -> str:
+    timestr = strftime("%Y%m%d-%H%M%S")
+    tpath = "/tmp/" + deployment_name  + "_" + timestr + ".yaml"
+    with open(tpath , 'w') as values_file:
+        values_file.write(yaml.dump(value_items))
+    return tpath
+
+def _build_values(values: dict):
+    print(values)
+    try:
+        for h, v in values.items():
+            deployment_name = h
+            value_items = v
+    except Exception as exc:
+            logger.error(exc)
+            pass
+    return deployment_name, value_items
 
 
 @celery.task
@@ -262,19 +283,12 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
         node_hostname = None
 
         message = '%s %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize())
-        try:
-            for h, v in value.items():
-                deployment_name = h
-                value_items = v
-        except Exception as exc:
-                logger.error(exc)
-                pass
+
+        deployment_name, value_items = _build_values(value)
 
         if deployment_name and value_items:
-
-            if "node_hostname" in value_items:
-                node_hostname = value_items["node_hostname"]
-            else:
+            node_hostname = value_items.get("node_hostname", None)
+            if node_hostname is None:
                 node_hostname = deployment_name
 
             message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize(), node_hostname)
@@ -292,10 +306,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     if "nodeSelector" in value_items:
                         value_items["nodeSelector"] = { "role": "server" }
 
-                timestr = strftime("%Y%m%d-%H%M%S")
-                tpath = "/tmp/" + deployment_name  + "_" + timestr + ".yaml"
-                with open(tpath , 'w') as values_file:
-                    values_file.write(yaml.dump(value_items))
+                tpath = _write_values(deployment_name, value_items)
 
                 stdout, ret_code = run_command2(command="helm install " + deployment_name +
                     " chartmuseum/" + application +
@@ -312,7 +323,6 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
                     conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
                     conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
-                    saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
 
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()

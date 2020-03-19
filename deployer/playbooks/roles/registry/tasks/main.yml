@@ -16,11 +16,12 @@
   template:
     backup: yes
     src: config.yml.j2
-    dest: /etc/docker-distribution/registry/config.yml
+    dest: "{{registry_config}}"
     owner: root
     group: root
     mode: 0644
   register: docker_dist_config_result
+  tags: pull-docker-images
 
 - name: Register Firewall Port
   firewalld:
@@ -35,6 +36,7 @@
     enabled: yes
     state: started
     daemon_reload: yes
+  tags: pull-docker-images
 
 - name: Restart docker-dist
   service:
@@ -42,13 +44,13 @@
     state: restarted
     enabled: yes
   when: docker_dist_config_result.changed
+  tags: pull-docker-images
 
 - name: Install Docker
   yum:
     name:
       - docker-ce
     state: installed
-
 
 - name: Create directory docker directory
   file:
@@ -67,19 +69,80 @@
     group: root
     mode: 0644
   register: docker_config_result
+  tags: pull-docker-images
 
 - name: Restart Docker
   systemd:
     name: docker
     enabled: yes
     state: restarted
+  tags: pull-docker-images
+
+- set_fact:
+    dockerio_images: []
+    not_dockerio_images: []
+  tags: pull-docker-images
+
+- set_fact:
+    dockerio_images: "{{ dockerio_images }} + ['{{item}}']"
+  with_items:
+    - "{{ kube_images }}"
+  when: "'docker.io' in item"
+  tags: pull-docker-images
+
+- set_fact:
+    not_dockerio_images: "{{ not_dockerio_images }} + ['{{item}}']"
+  with_items:
+    - "{{ kube_images }}"
+  when: "'docker.io' not in item"
+  tags: pull-docker-images
+
+- name: Download docker container images from docker hub
+  shell: |
+    docker pull {{ item }}
+  with_items:
+    - "{{ dockerio_images }}"
+  async: 2500
+  poll: 0
+  register: dockerio_pull_results
+  tags: pull-docker-images
+
+- name: Waiting for docker hub images to download
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  loop: "{{ dockerio_pull_results.results }}"
+  loop_control:
+    loop_var: "async_result_item"
+  register: job_results
+  until: job_results.finished is defined and job_results.finished
+  retries: 120
+  tags: pull-docker-images
+
+- name: Remove Proxy from docker registry
+  lineinfile:
+    path: "{{registry_config}}"
+    state: absent
+    line: "{{item}}"
+  with_items:
+    - "proxy:"
+    - "  remoteurl: https://registry-1.docker.io"
+  register: docker_dist_config_result
+  tags: pull-docker-images
+
+- name: Restart docker-dist
+  service:
+    name: docker-distribution
+    state: restarted
+    enabled: yes
+  when: docker_dist_config_result.changed
+  tags: pull-docker-images
 
 - name: Download docker container images from internet
   shell: |
     docker pull {{ item }}
   with_items:
-    - "{{ kube_images }}"
-  async: 1000
+    - "{{ not_dockerio_images }}"
+  async: 2500
   poll: 0
   register: docker_pull_results
   tags: pull-docker-images
@@ -106,7 +169,7 @@
     docker push localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}
   with_items:
     - "{{ kube_images }}"
-  async: 1000
+  async: 2500
   poll: 0
   register: docker_push_results
   tags: pull-docker-images

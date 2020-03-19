@@ -5,13 +5,13 @@
     buildah from --tls-verify=false {{ docker_registry_repo }}/{{ item[item.find('/')+1:] }}
   with_items:
     - "{{ kube_images }}"
-  when: "'k8s.gcr.io' in item"
+  when: "'k8s.gcr.io' in item or 'registry.opensuse.org' in item"
 
 - name: 'Retag local images back to original name'
   shell: |
     buildah tag {{ docker_registry_repo }}/{{ item[item.find('/')+1:] }} {{ item }}
   with_items:
     - "{{ kube_images }}"
-  when: "'k8s.gcr.io' in item"
+  when: "'k8s.gcr.io' in item or 'registry.opensuse.org' in item"
 
 ...

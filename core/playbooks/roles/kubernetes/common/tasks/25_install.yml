@@ -31,32 +31,45 @@
       - "kubeadm-{{ k8s_version }}"
       - "kubelet-{{ k8s_version }}"
       - "kubectl-{{ k8s_version }}"
+      - "device-mapper-persistent-data"
+      - "lvm2"
+      - "ebtables"
+      - "ethtool"
     state: installed
     allow_downgrade: yes
   register: installed_packages
   notify:
     - restart kubelet
 
+- name: Write kubelet environment config file (kubeadm)
+  template:
+    src: "kubelet.env.j2"
+    dest: "{{ kube_config_dir }}/kubelet.env"
+    backup: yes
+  notify: restart kubelet
+
+- name: Write kubelet config file
+  template:
+    src: "kubelet-config.yml.j2"
+    dest: "{{ kube_config_dir }}/kubelet-config.yaml"
+  notify: restart kubelet
+
 - name: Modified service file
-  copy:
-    src: "kubelet.service"
+  template:
+    src: "templates/kubelet.service.j2"
     dest: "/etc/systemd/system/kubelet.service"
     group: root
     owner: root
     mode: 0644
+  notify: restart kubelet
 
-- name: reload systemd
-  systemd:
-    daemon_reload: yes
+- name: flush_handlers and reload-systemd
+  meta: flush_handlers
 
-- name: 'Install Kubernetes support packages'
-  yum:
-    name:
-      - "device-mapper-persistent-data"
-      - "lvm2"
-      - "ebtables"
-      - "ethtool"
-    state: installed
-  register: installed_packages
+- name: Enable kubelet
+  service:
+    name: kubelet
+    enabled: yes
+    state: started
 
 ...

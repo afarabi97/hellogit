@@ -107,17 +107,16 @@ export class SystemHealthComponent implements OnInit {
     let unscheduledPodStatus = [];
 
     for (let pod of pods) {
-        let host_ip = pod["status"]["host_ip"];
-        if (host_ip) {
-          let hostname = lookup[host_ip];
-          if (hostname in podStatus) {
-            podStatus[hostname].push(pod);
-          } else {
-            podStatus[hostname] = [pod];
-          }
+      let hostname = pod["spec"]["node_name"];
+      if (hostname) {
+        if (hostname in podStatus) {
+          podStatus[hostname].push(pod);
         } else {
-          unscheduledPodStatus.push(pod);
+          podStatus[hostname] = [pod];
         }
+      } else {
+        unscheduledPodStatus.push(pod);
+      }
     }
 
     let _podStatus = {};

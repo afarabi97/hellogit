@@ -44,6 +44,7 @@ def scale_es() -> Response:
 
         return OK_RESPONSE
     except Exception as e:
+        logger.exception(e)
         traceback.print_exc()
         return ERROR_RESPONSE
     return OK_RESPONSE
@@ -64,6 +65,7 @@ def scale_es_advanced() -> Response:
 
         return OK_RESPONSE
     except Exception as e:
+        logger.exception(e)
         traceback.print_exc()
         return ERROR_RESPONSE
     return OK_RESPONSE
@@ -80,6 +82,7 @@ def get_es_full_config() -> Response:
         deploy_config = elastic_deploy.read()
         return (jsonify({ "elastic": yaml.dump(deploy_config) }), 200)
     except Exception as e:
+        logger.exception(e)
         traceback.print_exc()
         return ERROR_RESPONSE
     return OK_RESPONSE

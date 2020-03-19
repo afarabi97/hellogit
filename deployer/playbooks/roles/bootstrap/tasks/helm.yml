@@ -12,6 +12,7 @@
   shell: helm repo add {{ item }}
   with_items:
     - "{{ chart_repos }}"
+  tags: pull-helm-images
 
 - name: update helm repo cache
   shell: helm repo update

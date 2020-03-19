@@ -86,11 +86,11 @@ def execute_upgrade(upgrade_path: str):
         notification.setMessage("Upgrade " + upgrade_path + " completed.")
         notification.post_to_websocket_api()
 
-    except Exception as err:
-        logger.exception(err)
+    except Exception as e:
+        logger.exception(e)
         notification.setStatus(status=NotificationCode.ERROR.name)
         notification.setMessage("Upgrade encountered an error")
-        notification.setException(exception=str(err))
+        notification.setException(exception=str(e))
         notification.post_to_websocket_api()
         raise e
 

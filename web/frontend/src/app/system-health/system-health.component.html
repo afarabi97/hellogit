@@ -20,22 +20,22 @@
         <ng-container matColumnDef="type">
           <th mat-header-cell *matHeaderCellDef>Type</th>
           <td mat-cell *matCellDef="let node">
-            {{ node.metadata.node_type }}
+            {{ node.metadata.labels.role | titlecase}}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="ip_address">
           <th mat-header-cell *matHeaderCellDef>IP Address</th>
           <td mat-cell *matCellDef="let node">
-            <a (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.metadata.public_ip }}</a>
+            <a (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.status.addresses[0].address }}</a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="ready">
           <th mat-header-cell *matHeaderCellDef>Ready</th>
           <td mat-cell *matCellDef="let node">
-              <a matTooltip="{{ node.status.conditions[3].message }}">
-                <div *ngIf="node.status.conditions[3].status === 'True'; else notworking">
+              <a matTooltip="{{ node.status.conditions[4].message }}">
+                <div *ngIf="node.status.conditions[4].status === 'True'; else notworking">
                   <i class="material-icons" style="color:lightgreen;">check_circle</i>
                 </div>
                 <ng-template #notworking>

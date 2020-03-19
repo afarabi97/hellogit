@@ -24,23 +24,33 @@
   with_items:
     - crio
     - crio-shutdown
+  ignore_errors: yes
+  register: crio_results
 
 - name: Check if any pods are still running
   shell: |
     crictl ps -qa
   register: running_pods
+  when: crio_results.rc == 0
+  ignore_errors: yes
 
 - name: Stop all running containers
   shell: |
     crictl stop $(crictl ps -qa)
     crictl rm $(crictl ps -qa)
   ignore_errors: yes
-  when: running_pods.stdout != ""
+  when: running_pods is defined and running_pods.stdout != ""
 
 - name: Uninstall CRI-O
   yum:
-    name: [ buildah, cri-o, cri-tools, runc, containernetworking-plugins, container-selinux, criu ]
+    name: [ buildah, cri-tools, runc, container-selinux, criu ]
     state: absent
+
+- name: Install crio
+  shell: |
+    make uninstall
+  args:
+    chdir: "{{ crio_dir }}"
 
 - name: Clean up directories
   file:
@@ -48,5 +58,8 @@
     state: absent
   with_items:
     - "/etc/cni/net.d"
-    - "/usr/lib/systemd/system/crio.service"
     - "/usr/bin/crictl"
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes

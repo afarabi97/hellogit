@@ -39,14 +39,6 @@ additional_repo_info:
     gpgcheck: true
     description: "Docker CE repo"
     download_path: "{{ tfplenumoffline_dir }}"
-  crio:
-    name: "crio"
-    baseurl: "http://yum.labrepo.sil.lab/crio"
-    gpgkeyurl: ""
-    gpgkeyname: ""
-    gpgcheck: false
-    description: "crio repo"
-    download_path: "{{ tfplenumoffline_dir }}"
 
 epel_repo:
     metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"

@@ -64,6 +64,7 @@ def get_es_nodes():
         return nodes
     except Exception as e:
         traceback.print_exc()
+        logger.exception(e)
         return None
 
 def parse_nodes(nodes):

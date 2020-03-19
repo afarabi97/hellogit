@@ -6,6 +6,7 @@
   tags:
     - pull-helm-images
     - helm
+    - conmon
 
 - import_tasks: cleanup.yml
 
@@ -33,6 +34,9 @@
 
 - import_tasks: helm.yml
   tags: helm
+
+- import_tasks: conmon.yml
+  tags: conmon
 
 - name: Copy dirs from rhel iso
   delegate_to: "{{ inventory_hostname }}"

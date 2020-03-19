@@ -49,6 +49,7 @@
     immediate: yes
     state: enabled
   with_items:
+    - 179/tcp
     - 2376-2380/tcp
     - 10248-10256/tcp
     - 30000-32767/tcp
@@ -68,7 +69,6 @@
     /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
     /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
   with_items:
-    - flannel.1
     - cni0
 
 - name: Iptables Foward Rule

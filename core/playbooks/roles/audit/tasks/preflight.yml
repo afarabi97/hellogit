@@ -1,0 +1,8 @@
+---
+- name: Checking if Auditbeat is Installed
+  stat:
+    path: /usr/bin/auditbeat
+  register: auditbeat_installed
+
+
+

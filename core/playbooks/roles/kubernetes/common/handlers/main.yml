@@ -26,3 +26,9 @@
   service:
     name: crio
     state: restarted
+
+- name: Calico | Reload NetworkManager
+  service:
+    name: NetworkManager
+    state: reloaded
+  when: '"running" in nm_check.stdout'

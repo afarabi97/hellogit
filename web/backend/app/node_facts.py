@@ -206,7 +206,7 @@ class Node(object):
             ip = ""
             mac = ""
             # Do not return interfaces with veth, cni, docker or flannel
-            exclude = ["veth", "cni", "docker", "flannel", "virbr0", "lo"]
+            exclude = ["veth", "cni", "docker", "flannel", "virbr0", "lo", "cali", "tunl"]
             if not any([special in i for special in exclude]):
                 name = "ansible_" + i
                 interface = json_object['ansible_facts'][name]

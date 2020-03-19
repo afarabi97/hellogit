@@ -1,0 +1,17 @@
+---
+- name: Disable and Stop Auditbeat
+  service:
+    name: auditbeat
+    state: stopped
+    enabled: no
+
+- name: Remove auditbeat
+  yum:
+    name: auditbeat-{{elastic_7_version}}
+    state: absent
+
+- name: Delete install directory
+  file:
+    path: "{{ audit_dir }}"
+    state: absent
+...

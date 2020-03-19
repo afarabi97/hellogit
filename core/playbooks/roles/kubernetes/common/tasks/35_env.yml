@@ -1,10 +1,25 @@
 ---
-- name: 'Configure Kubelet'
-  lineinfile:
-    path: /etc/sysconfig/kubelet
-    regexp: "^KUBELET_EXTRA_ARGS="
-    line: "KUBELET_EXTRA_ARGS=--cni-bin-dir=/usr/libexec/cni --cgroup-driver=cgroupfs --read-only-port 10255 --system-reserved cpu={{ hostvars[inventory_hostname].sys_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].sys_mem_reserve }}Ki --kube-reserved cpu={{ hostvars[inventory_hostname].kube_cpu_reserve }}m,memory={{ hostvars[inventory_hostname].kube_mem_reserve }}Ki --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"
-  notify: restart kubelet
+- name: Calico | Check if host has NetworkManager
+  command: systemctl show NetworkManager
+  register: nm_check
+  failed_when: false
+  changed_when: false
+
+- name: Calico | Ensure NetworkManager conf.d dir
+  file:
+    path: "/etc/NetworkManager/conf.d"
+    state: directory
+    recurse: yes
+  when: nm_check.rc == 0
+
+- name: Calico | Prevent NetworkManager from managing Calico interfaces
+  copy:
+    content: |
+      [keyfile]
+      unmanaged-devices=interface-name:cali*;interface-name:tunl*
+    dest: /etc/NetworkManager/conf.d/calico.conf
+  when: nm_check.rc == 0
+  notify: Calico | Reload NetworkManager
 
 - name: Create net.d directory
   file:
@@ -16,17 +31,5 @@
   file:
     path: "/etc/cni/net.d/100-crio-bridge.conf"
     state: absent
-
-- name: 'Configure CRIO CNI'
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/cni/net.d/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - "100-crio-flannel.conf"
-    - "200-loopback.conf"
-  notify: restart crio
 
 ...

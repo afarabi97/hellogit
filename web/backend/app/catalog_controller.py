@@ -141,7 +141,7 @@ def _get_all_charts() -> List:
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
     charts = []
-    charts = get_repo_charts(catalog.helm_repo_uri)  # type: list
+    charts = get_repo_charts()  # type: list
     return jsonify(charts)
 
 

@@ -7,3 +7,8 @@ package_list:
   - rsync
   - tcpdump
   - tcpreplay
+  - gcc
+  - glib2-devel
+  - glibc-devel
+  - make
+  - pkgconfig

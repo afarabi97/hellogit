@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+items:
+- apiVersion: projectcalico.org/v3
+  kind: IPPool
+  metadata:
+    name: default-ipv4-ippool
+  spec:
+    blockSize: 26
+    cidr: {{kube_pod_cidr}}
+    ipipMode: CrossSubnet
+    natOutgoing: true
+    nodeSelector: all()
+    vxlanMode: Never
+kind: IPPoolList

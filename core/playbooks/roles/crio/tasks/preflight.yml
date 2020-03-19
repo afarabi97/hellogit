@@ -4,3 +4,8 @@
   stat:
     path: /usr/bin/crio
   register: crio_installed
+
+- name: Checking if crio is Installed
+  stat:
+    path: /usr/local/bin/crio
+  register: crio_installed
