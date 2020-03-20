@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>{{ title | capitalizeFirst }} Logs</h2>
+<div mat-dialog-content>
+  <mat-tab-group (selectedTabChange)="changeTab($event)" dynamicHeight>
+    <mat-tab *ngFor="let container of info" label="{{ container.name }}">
+      <pre>
+        <div style="overflow-x: auto">
+          {{ container.logs.trim() }}
+        </div>
+      </pre>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Close</button>
+</div>

@@ -124,6 +124,7 @@ export class KitComponent implements OnInit, AfterViewInit {
       if (form && form.valid){
         this.executeKitForm = new KitFormTime(form.get('date').value, form.get('timezone').value);
         if (!generateKitInvetory) {
+          this.isGettingDeviceFacts = true;
           this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => this.openConsole());
         } else {
           this.kitSrv.generateKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => {
@@ -140,6 +141,7 @@ export class KitComponent implements OnInit, AfterViewInit {
    * @memberof KitFormComponent
    */
   public openConsole(): void {
+    this.isGettingDeviceFacts = false;
     this.router.navigate(['/stdout/Kit']);
   }
 
@@ -354,7 +356,7 @@ export class KitComponent implements OnInit, AfterViewInit {
     const nodeArray:FormArray = this.kitFormGroup.get('nodes') as FormArray;
     const removeNode = nodeArray.at(index);
     const hostname = removeNode.get('hostname').value;
-    
+
     this._CatalogService.getinstalledapps(hostname).subscribe( result => {
       let result_casted = result as [];
       if( result_casted !== null && result_casted.length > 0 ) {

@@ -97,6 +97,8 @@ import { DateTimeModule } from './date-time-picker/date-time.module';
 //Pipes
 import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
+import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
+
 
 // ES Scale
 import { ESScaleComponent } from './es-scale/es-scale.component';
@@ -152,7 +154,8 @@ import { ESScaleComponent } from './es-scale/es-scale.component';
     AddNodeComponent,
     KickstartNodeFormComponent,
     KitNodeFormComponent,
-    ESScaleComponent
+    ESScaleComponent,
+    PodLogModalDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -190,7 +193,8 @@ import { ESScaleComponent } from './es-scale/es-scale.component';
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     ReplayPcapDialog,
-    ModalTableComponent
+    ModalTableComponent,
+    PodLogModalDialogComponent
   ]
 })
 export class AppModule { }

@@ -70,6 +70,26 @@ def describe_pod(pod_name: str, namespace: str) -> Response:
     stdout = run_command(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
     return jsonify({'stdout': stdout, 'stderr': ''})
 
+@app.route('/api/pod_logs/<pod_name>/<namespace>', methods=['GET'])
+def pod_logs(pod_name: str, namespace: str) -> Response:
+    """
+    Runs a command and pulls the pods describe command output.
+
+    :param pod_name: The name of the pod of cource.
+                     You can get it with 'kubectl get pods' on the main server node.
+    """
+    logs = []
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        pod = kube_apiv1.read_namespaced_pod(pod_name, namespace) # type: V1PodList
+        pod = pod.to_dict()
+        if "spec" in pod and "containers" in pod['spec']:
+            for container in pod['spec']['containers']:
+                container_name = container['name']
+                command = str(WEB_DIR / 'tfp-env/bin/python') + ' kubernetes_pod_logs.py %s %s %s' % (pod_name, namespace, container_name)
+                stdout = run_command(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
+                logs.append({'name': container_name, 'logs': stdout})
+    return jsonify(logs)
+
 
 @app.route('/api/describe_node/<node_name>', methods=['GET'])
 def describe_node(node_name: str) -> Response:
@@ -84,7 +104,7 @@ def describe_node(node_name: str) -> Response:
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 
-def _get_node_type(hostname: str, nodes: List) -> str:    
+def _get_node_type(hostname: str, nodes: List) -> str:
     if nodes:
         for node in nodes:
             if hostname == node['hostname']:

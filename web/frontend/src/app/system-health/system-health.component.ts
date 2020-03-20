@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
+import { PodLogModalDialogComponent } from '../pod-log-dialog/pod-log-dialog.component';
 import { MatTabChangeEvent } from '@angular/material';
 import { interval, Subscription } from 'rxjs';
 import { ModalTableComponent } from './table-dialog/modal-table.component';
@@ -31,6 +32,7 @@ export class SystemHealthComponent implements OnInit {
   podErrors: MatTableDataSource<Array<Object>>;
   nodeStatuses: MatTableDataSource<Array<Object>>;
   totals: Object;
+  loading: boolean;
 
   @ViewChild('nodeStatusesTable', {static: false}) nodeTable: MatTable<any>;
 
@@ -50,6 +52,7 @@ export class SystemHealthComponent implements OnInit {
   ngOnInit() {
     this.title.setTitle("System Health");
     this.currentTabIndex = 0;
+    this.loading = false;
 
     this._reloadHealthPage();
 
@@ -230,21 +233,45 @@ export class SystemHealthComponent implements OnInit {
   }
 
   describePod(podMetadata: any) {
+    this.loading = true;
     this.healthSrv.describePod(podMetadata.name, podMetadata.namespace).subscribe(data => {
       this.dialog.open(ModalDialogDisplayMatComponent, {
-        width: MODAL_SIZE,
+        minWidth: MODAL_SIZE,
         data: { title: podMetadata.name, info: data['stdout']}
       });
+      this.loading = false;
+    }, err => {
+      console.error(err);
+      this.healthSrv.displaySnackBar(err.message);
+    });
+  }
+
+  podLogs(podMetadata: any) {
+    this.loading = true;
+    this.healthSrv.podLogs(podMetadata.name, podMetadata.namespace).subscribe(data => {
+      this.dialog.open(PodLogModalDialogComponent, {
+        minWidth: MODAL_SIZE,
+        data: { title: podMetadata.name, info: data}
+      });
+      this.loading = false;
+    }, err => {
+      console.error(err);
+      this.healthSrv.displaySnackBar(err.message);
     });
   }
 
   describeNode(nodeName: string) {
+    this.loading = true;
     this.healthSrv.describeNode(nodeName).subscribe(data => {
       this.dialog.open(ModalDialogDisplayMatComponent, {
-        width: MODAL_SIZE,
+        minWidth: MODAL_SIZE,
         data: { title: nodeName, info: data['stdout']}
       });
-    })
+      this.loading = false;
+    }, err => {
+      console.error(err);
+      this.healthSrv.displaySnackBar(err.message);
+    });
   }
 
   openNodeInfo(nodeName: string, nodeInfo: Object){
