@@ -74,7 +74,6 @@ module.exports = function(config) {
     browsers: [],
     singleRun: true,
     browserNoActivityTimeout: 60000,
-    processKillTimeout: 60000,
-    browserDisconnectTimeout: 60000
+    browserDisconnectTimeout: 2000,
   });
 };
