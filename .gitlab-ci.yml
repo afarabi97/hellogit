@@ -73,7 +73,6 @@ sonarqube-check:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 # container_scanning:
@@ -183,7 +182,7 @@ Setup Controller:
     echo "Current working directory is $(pwd)"
     echo "dip-cache-${CI_PIPELINE_ID}"
 
-    if [ $CI_PIPELINE_SOURCE == "merge_request_event" ] || [ $CI_PIPELINE_SOURCE == "push" ]; then
+    if [ $CI_PIPELINE_SOURCE == "push" ]; then
         export NUM_SENSORS=2
         export BUILD_TYPE="clone_from_nightly"
         export VMWARE_FOLDER="Testing"
@@ -219,7 +218,6 @@ Setup Controller:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "export"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 Run Python Unit Tests:
@@ -241,7 +239,6 @@ Run Python Unit Tests:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 Add Docs to Controller:
@@ -277,7 +274,7 @@ Kickstart:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
 
-    if [ $CI_PIPELINE_SOURCE == "merge_request_event" ] || [ $CI_PIPELINE_SOURCE == "push" ]; then
+    if [ $CI_PIPELINE_SOURCE == "push" ]; then
         export NUM_SENSORS=2
         export VMWARE_FOLDER="Testing"
         export VM_PREFIX="test${CI_PIPELINE_ID}"
@@ -312,7 +309,6 @@ Kickstart:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 Deploy Kit:
@@ -334,7 +330,6 @@ Deploy Kit:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 Perform Security Scans:
@@ -384,7 +379,6 @@ CVAH Catalog:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 System Function Testing:
@@ -398,7 +392,6 @@ System Function Testing:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
   cache:
     key: dip-cache-${CI_PIPELINE_ID}
@@ -431,7 +424,6 @@ Simulate Power Failure:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
 
 System Function Testing2:
   stage: rerun-integration-test
@@ -451,7 +443,6 @@ System Function Testing2:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
   artifacts:
     paths:
       - "./*.xml"
@@ -477,7 +468,6 @@ Cleanup Job:
   only:
     variables:
       - $IS_CLEANUP == "true"
-      - $CI_PIPELINE_SOURCE == "merge_request_event"
       - $CI_PIPELINE_SOURCE == "push"
 
 Export Controller:
