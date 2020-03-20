@@ -65,6 +65,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   public elasticPodTypes: Array<SliderControl>;
   public isUserEditing: boolean;
   public elasticConfig: string;
+  public loading: boolean;
 
   masterSlider: SliderControl;
 
@@ -77,9 +78,11 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
     this.elasticPodTypes = new Array<SliderControl>();
     this.isUserEditing = false;
     this.elasticConfig = "";
+    this.loading = true;
   }
 
   ngOnInit() {
+    this.loading = true;
     this.EsScaleSrv.checkElastic().subscribe(response => {
       if(response["status"] !== "Ready" && response["status"] !== "Unknown" && response["status"] !== "None") {
         this.scaleInProgressDialog();
@@ -92,6 +95,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
       if(response["status"] == "Unknown") {
         this.snackbar.showSnackBar('Error - Unknown Elastic Status', -1, 'Dismiss');
       }
+      this.loading = false;
     });
 
 

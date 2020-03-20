@@ -26,6 +26,7 @@ export class KickstartComponent implements OnInit {
   public dhcp_range_options: string[] = [];
   private default_ipv4_settings;
   public kickStartFormGroup: FormGroup;
+  public loading: boolean;
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
@@ -47,6 +48,7 @@ export class KickstartComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   private initializeView(): void {
+    this.loading = true;
     this.kickStartSrv.gatherDeviceFacts("localhost")
       .subscribe(data => {
         this.kickStartSrv.getKickstartForm().subscribe((kickstart: any) => {
@@ -54,12 +56,14 @@ export class KickstartComponent implements OnInit {
             this.openIPChangedModal(kickstart.controller_interface[0]);
             this.initKickStartForm(kickstart);
           }
+          this.loading = false;
         });
         if (data) {
           this.default_ipv4_settings = data['default_ipv4_settings'];
           this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
           this.defaultDisk = data["disks"][0].name;
         }
+
       });
   }
 
@@ -366,6 +370,7 @@ export class KickstartComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   public onSubmit(): void {
+    this.loading = true;
     this.systemSetupSrv.executeKickstart(this.kickStartFormGroup);
   }
 

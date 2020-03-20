@@ -3,6 +3,7 @@
     <mat-card-header>
       <mat-card-title> Docker Images </mat-card-title>
     </mat-card-header>
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
     <mat-card-content>
       <table mat-table [dataSource]="registry">
         <ng-container matColumnDef="name">

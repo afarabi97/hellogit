@@ -42,6 +42,7 @@ export class KitComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.isGettingDeviceFacts = false;
     this.title.setTitle("Kit Configuration");
   }
 
@@ -153,6 +154,7 @@ export class KitComponent implements OnInit, AfterViewInit {
    * @memberof KitFormComponent
    */
   private setupForm(kitData: any): void {
+    this.isGettingDeviceFacts = false;
     if (kitData === null || kitData === undefined) {
       this.getNodeDeviceFacts(this.kickstartForm['nodes']);
       this.setKubernetesCIDRRange();
@@ -182,6 +184,7 @@ export class KitComponent implements OnInit, AfterViewInit {
    * @memberof KitFormComponent
    */
   private initalizeForm(): void {
+    this.isGettingDeviceFacts = true;
     this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
       if (!kickstartData) {
         let reroute = () => this.router.navigate(['/kickstart'])

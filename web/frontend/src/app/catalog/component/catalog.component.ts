@@ -46,7 +46,7 @@ export class CatalogComponent implements OnInit {
    */
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
-
+    this._CatalogService.isLoading = false;
     this._CatalogService.get_all_application_statuses().subscribe(data => {
 
       this.charts = data;

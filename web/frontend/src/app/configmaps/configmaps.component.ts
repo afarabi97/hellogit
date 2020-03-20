@@ -21,6 +21,7 @@ export class ConfigmapsComponent implements OnInit {
   isUserEditing: boolean;
   isDeleteConfigMap: boolean;
   isDeleteConfigMapData: boolean;
+  loading: boolean;
 
   activeConfigDataTitle: string;
   activeConfigDataKey: string;
@@ -48,11 +49,13 @@ export class ConfigmapsComponent implements OnInit {
 
   ngOnInit() {
     this.title.setTitle("Config Maps");
+    this.loading = true;
     this.configMapSrv.getConfigMaps().subscribe(data => {
       if (data['items']){
         this.configMaps = data['items'];
         this.isConfigMapVisible = new Array(this.configMaps.length).fill(false);
       }
+      this.loading = false;
     });
   }
 

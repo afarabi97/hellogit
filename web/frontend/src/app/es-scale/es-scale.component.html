@@ -29,6 +29,7 @@
     <mat-card-header>
       <mat-card-title>Elasticsearch Node Types</mat-card-title>
     </mat-card-header>
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
     <mat-card-content>
       <ng-container *ngFor="let slider of elasticPodTypes">
         <div *ngIf="!slider.hidden" fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px" >

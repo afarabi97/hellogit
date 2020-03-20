@@ -11,14 +11,17 @@ export class RegistryComponent implements OnInit {
   registry;
 
   columnsForImages = ['name', 'tags', 'image_id', 'image_size']
+  loading: boolean;
 
   constructor(private registrySrv: RegistryService,
               private title: Title) { }
 
   ngOnInit() {
     this.title.setTitle("Docker Registry");
+    this.loading = true;
     this.registrySrv.getDockerRegistry().subscribe(data => {
       this.registry = data;
+      this.loading = false;
     });
   }
 
