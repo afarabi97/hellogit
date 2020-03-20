@@ -94,6 +94,8 @@ spec:
 {% endif %}
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
+      node.attr.node_name: ${NODE_NAME}
+      cluster.routing.allocation.awareness.attributes: node_name
     podTemplate:
       metadata:
         labels:
@@ -129,6 +131,10 @@ spec:
           env:
           - name: ES_JAVA_OPTS
             value: "-Xms{{es_master_java_memory}}g -Xmx{{es_master_java_memory}}g"
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
 {% if es_mdi %}
         volumes:
         - name: elasticsearch-data
@@ -145,6 +151,8 @@ spec:
       node.ingest: true
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
+      node.attr.node_name: ${NODE_NAME}
+      cluster.routing.allocation.awareness.attributes: node_name
     podTemplate:
       metadata:
         labels:
@@ -175,6 +183,10 @@ spec:
           env:
           - name: ES_JAVA_OPTS
             value: "-Xms{{es_data_java_memory}}g -Xmx{{es_data_java_memory}}g"
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         volumes:
         - name: elasticsearch-data
           hostPath:
@@ -189,6 +201,8 @@ spec:
       node.ingest: true
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
+      node.attr.node_name: ${NODE_NAME}
+      cluster.routing.allocation.awareness.attributes: node_name
     podTemplate:
       metadata:
         labels:
@@ -222,6 +236,10 @@ spec:
           env:
           - name: ES_JAVA_OPTS
             value: "-Xms{{ es_coordinating_java_memory }}g -Xmx{{ es_coordinating_java_memory }}g"
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
 ---
 apiVersion: v1
 kind: Service
