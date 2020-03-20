@@ -1,4 +1,4 @@
-<div class="main-content2">
+<div class="main-content2" *ngIf="!isUserEditing">
   <!-- Title -->
   <mat-card>
     <mat-card-header>
@@ -51,9 +51,11 @@
       </ng-container>
     </mat-card-content>
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-raised-button color="primary" (click)="askRunDialog()" [disabled]="status" >Run</button>
-      </mat-card-actions>
+      <button mat-raised-button color="primary" (click)="askRunDialog()" [disabled]="status" matTooltip="Execute Elastic Scaling">Run</button>
+      <button mat-raised-button color="warn" (click)="editElasticConfig()" [disabled]="status" matTooltip="Advanced edit of entire Elastic Config">Edit Full Config</button>
+    </mat-card-actions>
   </mat-card>
   <br>
   <br>
 </div>
+<app-elasticconfig-editor *ngIf="isUserEditing" [text]="elasticConfig" (closeNoSaveEvent)="closeEditor($event)" (closeSaveEvent)="saveAndCloseEditor($event)"></app-elasticconfig-editor>

@@ -63,6 +63,8 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   public status: boolean = false;
   public ioConnection: any;
   public elasticPodTypes: Array<SliderControl>;
+  public isUserEditing: boolean;
+  public elasticConfig: string;
 
   masterSlider: SliderControl;
 
@@ -73,6 +75,8 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
               private snackbar: SnackbarWrapper,
               private router: Router) {
     this.elasticPodTypes = new Array<SliderControl>();
+    this.isUserEditing = false;
+    this.elasticConfig = "";
   }
 
   ngOnInit() {
@@ -170,5 +174,29 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
       width: '35%',
       data: {"paneString": message, "paneTitle": title, "option2": option2},
     });
+  }
+
+  editElasticConfig(){
+    this.isUserEditing = true;
+    this.EsScaleSrv.getElasticFullConfig().subscribe(data => {
+      this.elasticConfig = data['elastic'];
+    });
+  }
+
+  saveAndCloseEditor(configData: string){
+    this.isUserEditing = false;
+    this.EsScaleSrv.postElasticFullConfig(configData).subscribe(data => {
+      setTimeout(() => {
+        this.EsScaleSrv.deployElastic().subscribe(response => {
+          this.status = true;
+        });
+      }, 5000);
+    }, error => {
+
+    });
+  }
+
+  closeEditor(event: any) {
+    this.isUserEditing = false;
   }
 }

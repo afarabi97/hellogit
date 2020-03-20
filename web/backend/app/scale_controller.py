@@ -5,6 +5,7 @@ from flask import request, jsonify, Response
 import traceback
 from app.service.scale_service import es_cluster_status, check_scale_status, get_es_nodes, parse_nodes, get_allowable_scale_count
 from app.dao import elastic_deploy
+import yaml, json
 
 @app.route('/api/scale/elastic', methods=['POST'])
 def scale_es() -> Response:
@@ -47,6 +48,41 @@ def scale_es() -> Response:
         return ERROR_RESPONSE
     return OK_RESPONSE
 
+@app.route('/api/scale/elastic/advanced', methods=['POST'])
+def scale_es_advanced() -> Response:
+    """
+    Scale elasticsearch
+
+    :return (Response): Returns a Reponse object
+    """
+    deploy_config = {}
+    payload = request.get_json()
+    try:
+        if "elastic" in payload:
+            deploy_config = yaml.load(payload['elastic'])
+            elastic_deploy.update(deploy_config)
+
+        return OK_RESPONSE
+    except Exception as e:
+        traceback.print_exc()
+        return ERROR_RESPONSE
+    return OK_RESPONSE
+
+@app.route('/api/scale/elastic/advanced', methods=['GET'])
+def get_es_full_config() -> Response:
+    """
+    Scale elasticsearch
+
+    :return (Response): Returns a Reponse object
+    """
+    deploy_config = {};
+    try:
+        deploy_config = elastic_deploy.read()
+        return (jsonify({ "elastic": yaml.dump(deploy_config) }), 200)
+    except Exception as e:
+        traceback.print_exc()
+        return ERROR_RESPONSE
+    return OK_RESPONSE
 
 @app.route('/api/scale/elastic/nodes', methods=['GET'])
 def get_es_node_count() -> Response:

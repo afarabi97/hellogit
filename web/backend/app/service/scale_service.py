@@ -58,8 +58,9 @@ def get_es_nodes():
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         password = get_elastic_password()
         service_ip, port = get_elastic_service_ip()
-        es = Elasticsearch(service_ip, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=False)
-        nodes = es.cat.nodes(format='json')
+        if service_ip is not None and port is not None:
+            es = Elasticsearch(service_ip, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=False)
+            nodes = es.cat.nodes(format='json')
         return nodes
     except Exception as e:
         traceback.print_exc()
@@ -70,20 +71,22 @@ def parse_nodes(nodes):
     master = 0
     data = 0
     coordinating_ingest = 0
-    for n in nodes:
-        role = n["node.role"]
-        if "m" in role and "d" in role and "i" in role:
-            mdi += 1
-        else:
-            if "m" in role:
-                master += 1
-            if "d" in role:
-                data += 1
-            if "i" in role:
-                coordinating_ingest += 1
-    # if data is zero than we are working with an mdi cluster
-    if master == 0 and data == 0:
-        master = mdi
+
+    if nodes is not None:
+        for n in nodes:
+            role = n["node.role"]
+            if "m" in role and "d" in role and "i" in role:
+                mdi += 1
+            else:
+                if "m" in role:
+                    master += 1
+                if "d" in role:
+                    data += 1
+                if "i" in role:
+                    coordinating_ingest += 1
+        # if data is zero than we are working with an mdi cluster
+        if master == 0 and data == 0:
+            master = mdi
 
     return { "master": master, "data": data, "coordinating": coordinating_ingest}
 
@@ -116,6 +119,7 @@ def es_cluster_status() -> str:
         deploy_master_count = 0
         deploy_coordinating_count = 0
         deploy_data_count = 0
+        deploy_total_count = 0
 
         if "spec" in deploy_config:
             spec = deploy_config["spec"]
@@ -128,7 +132,7 @@ def es_cluster_status() -> str:
                         deploy_coordinating_count = n["count"]
                     if n["name"] == "data":
                         deploy_data_count = n["count"]
-
+                    deploy_total_count += n["count"]
         nodes = get_es_nodes()
         es_node_count = None
         if nodes:
@@ -140,7 +144,7 @@ def es_cluster_status() -> str:
             if es_node_count["master"] ==  deploy_master_count \
             and es_node_count["data"] == deploy_data_count \
             and es_node_count["coordinating"] == deploy_coordinating_count \
-            and resp["status"]["phase"] == "Ready":
+            and resp["status"]["phase"] == "Ready" and resp["status"]["availableNodes"] == deploy_total_count:
                 return resp["status"]["phase"]
         if resp == None:
             return "None"
@@ -164,14 +168,17 @@ def check_scale_status(application: str):
     notification.setStatus(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
     try:
+        notification = NotificationMessage(role=_JOB_NAME)
         notification.setMessage("{} scaling in progress.".format(application))
         notification.setStatus(NotificationCode.IN_PROGRESS.name)
         notification.post_to_websocket_api()
 
         previous_status = es_cluster_status()
+        sleep(5)
         while True:
             status = es_cluster_status()
             if status != "Ready" and status != previous_status:
+                notification = NotificationMessage(role=_JOB_NAME)
                 notification.setMessage("{} scaling is {}.".format(application, status))
                 notification.setStatus(NotificationCode.IN_PROGRESS.name)
                 notification.post_to_websocket_api()
@@ -180,7 +187,7 @@ def check_scale_status(application: str):
                 break
             previous_status = status
             sleep(5)
-
+        notification = NotificationMessage(role=_JOB_NAME)
         notification.setMessage("{} scaling completed successfully.".format(application))
         notification.setStatus(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
@@ -188,6 +195,7 @@ def check_scale_status(application: str):
     except Exception as e:
         traceback.print_exc()
         msg = "{} scaling failed with error {}.".format(application, str(e))
+        notification = NotificationMessage(role=_JOB_NAME)
         notification.setMessage(msg)
         notification.setStatus(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()

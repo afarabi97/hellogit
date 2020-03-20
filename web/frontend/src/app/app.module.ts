@@ -102,6 +102,7 @@ import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.comp
 
 // ES Scale
 import { ESScaleComponent } from './es-scale/es-scale.component';
+import { ElasticEditorComponent } from './elasticconfig-editor/elasticconfig-editor.component';
 
 @NgModule({
   declarations: [
@@ -155,7 +156,8 @@ import { ESScaleComponent } from './es-scale/es-scale.component';
     KickstartNodeFormComponent,
     KitNodeFormComponent,
     ESScaleComponent,
-    PodLogModalDialogComponent
+    PodLogModalDialogComponent,
+    ElasticEditorComponent
   ],
   imports: [
     BrowserModule,

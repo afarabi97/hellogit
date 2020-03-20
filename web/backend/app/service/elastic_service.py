@@ -156,4 +156,3 @@ def finish_repository_registration(service_ip: str):
         notification.setStatus(status=NotificationCode.ERROR.name)
         notification.setMessage(str(e))
         notification.post_to_websocket_api()
-

@@ -22,6 +22,6 @@ def get_suricata_pod_name(ip_address: str,
     return _get_pod_name(ip_address, 'suricata', mongo_conn)
 
 
-def get_bro_pod_name(ip_address: str, 
+def get_bro_pod_name(ip_address: str,
                      mongo_conn: MongoConnectionManager=None) -> str:
     return _get_pod_name(ip_address, 'zeek', mongo_conn)

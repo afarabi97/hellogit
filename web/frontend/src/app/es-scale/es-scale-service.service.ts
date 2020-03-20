@@ -35,5 +35,15 @@ export class ESScaleServiceService {
     return this.http.get(url).pipe();
   }
 
+  getElasticFullConfig():  Observable<Object> {
+    const url = '/api/scale/elastic/advanced';
+    return this.http.get(url).pipe();
+  }
+
+  postElasticFullConfig(config): Observable<Object> {
+    const url = '/api/scale/elastic/advanced';
+    let payload = { "elastic" : config };
+    return this.http.post(url, payload, HTTP_OPTIONS).pipe();
+  }
 
 }
