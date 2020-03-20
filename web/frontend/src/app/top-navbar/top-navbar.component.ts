@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output } from '@angular/core';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { NavBarService } from './navbar.service';
 import { interval } from "rxjs";
 import { WebsocketService } from '../services/websocket.service';
-import { WeaponSystemNameService} from '../services/weapon-system-name.service';
+import { WeaponSystemNameService } from '../services/weapon-system-name.service';
 import { getSideNavigationButtons, NavGroup, NavLink } from './navigation';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
@@ -30,20 +30,20 @@ export class TopNavbarComponent implements OnInit {
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
 
   emitTheme() {
-    this.themeChanged.emit({'system_name': this.system_name});
+    this.themeChanged.emit({ 'system_name': this.system_name });
   }
 
-  @ViewChild('notifications', {static: false}) notifications: NotificationsComponent;
+  @ViewChild('notifications', { static: false }) notifications: NotificationsComponent;
 
   constructor(private cookieService: CookieService,
-              private navService: NavBarService,
-              private socketSrv: WebsocketService,
-              private sysNameSrv: WeaponSystemNameService,
-              private ref: ChangeDetectorRef,
-              private dialog: MatDialog) { }
+    private navService: NavBarService,
+    private socketSrv: WebsocketService,
+    private sysNameSrv: WeaponSystemNameService,
+    private ref: ChangeDetectorRef,
+    private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.setSystemName();
+    this.setSystemTheme();
 
     this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
     const clockCounter = interval(1000);
@@ -62,7 +62,7 @@ export class TopNavbarComponent implements OnInit {
     this.socketRefresh();
   }
 
-  private setSystemName() {
+  private setSystemTheme() {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];
@@ -71,7 +71,7 @@ export class TopNavbarComponent implements OnInit {
         this.ref.detectChanges();
       },
       err => {
-        this.system_name = 'DIP';
+        this.system_name = null;
         this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
         this.emitTheme();
         this.ref.detectChanges();
@@ -85,24 +85,34 @@ export class TopNavbarComponent implements OnInit {
 
     control.controlType = DialogControlTypes.dropdown;
 
-    let group = new FormGroup({'dropdown': control});
+    let group = new FormGroup({ 'dropdown': control });
 
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: '400px',
       maxHeight: '400px',
-      data: { title: "Select the system type.",
-              instructions: "",
-              dialogForm: group,
-              confirmBtnText: "OK" }
+      data: {
+        title: "Select the system type.",
+        instructions: "",
+        dialogForm: group,
+        confirmBtnText: "OK"
+      }
     });
 
     dialogRef.afterClosed().subscribe(response => {
       let system_name = response.controls['dropdown'].value;
+      //Changes the system name once the dropdown is selected.
+      document.getElementById("sysname").innerHTML = system_name;
+      this.sysNameSrv.setSystemName(system_name).subscribe(()  => {
+        this.setSystemTheme();
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
+        window.location.reload(); //reload current page after selected system
+        //To do: make it redirect to the portal after reload
+      });
     });
 
   }
 
-  private setClock(data: Object){
+  private setClock(data: Object) {
     this.timezone = data["timezone"];
     let datetime = data["datetime"];
     let dateParts = datetime.split(' ')[0].split("-");
@@ -118,7 +128,7 @@ export class TopNavbarComponent implements OnInit {
     );
   }
 
-  private restartClock(){
+  private restartClock() {
     this.navService.getCurrentDIPTime().subscribe(data => {
       this.setClock(data);
     });
@@ -133,7 +143,7 @@ export class TopNavbarComponent implements OnInit {
     this.cookieService.set('isOpen', this.showLinkNames.toString());
   }
 
-  private socketRefresh(){
+  private socketRefresh() {
     this.socketSrv.getSocket().on('clockchange', (data: any) => {
       this.restartClock();
     });

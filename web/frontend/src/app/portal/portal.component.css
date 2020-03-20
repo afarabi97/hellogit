@@ -17,3 +17,23 @@ a:hover {
 .zoom:hover {
   transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
 }
+
+.mat-card-header{
+  font-weight: bold; 
+  text-align: center;
+}
+
+.mat-card-title{
+  font-weight: bold; 
+  text-align: center;
+}
+
+.PortalTitle{
+ /*Want to make the "Portal" page show centered, regardless of the Add Link button to the right*/
+  text-align: center;
+  position: absolute;
+  margin: auto;
+}
+
+
+

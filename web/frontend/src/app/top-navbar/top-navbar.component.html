@@ -1,16 +1,16 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
       <h3 *ngIf="showLinkNames">
-        <div>TFPlenum Controller</div>
+        <div id="systemTitle">TFPlenum <span id="sysname">{{ system_name }}</span> Controller</div>
         <mat-list>
           <mat-list-item (click)="selectSystem()">
             <mat-icon mat-list-icon>laptop</mat-icon>
-            <h4 mat-line>{{ system_name }}</h4>
+            <h4 mat-line>Select System</h4>
           </mat-list-item>
         </mat-list>
         <mat-divider></mat-divider>
       </h3>
-      <span class="version" *ngIf="showLinkNames">v{{ version }}</span>
+      <span class="version" *ngIf="showLinkNames">v. {{ version }}</span>
       <mat-list>
         <mat-list-item>
           <mat-icon mat-list-icon matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>

@@ -72,20 +72,46 @@ const dipNavigation: Array<NavGroup> = [
 
 const mipNavigation: Array<NavGroup> = [
   {
+    children: [portal]
+  },
+  {
     label: 'System Setup',
     children: [
       kickstart,
       kit
+    ]
+  },
+  {
+    label: 'Tools',
+    children: [tools]
+  },
+  {
+    label: 'Confluence',
+    children: [
+      thisiscvah
     ]
   }
 ];
 
 const gipNavigation: Array<NavGroup> = [
   {
+    children: [portal]
+  },
+  {
     label: 'System Setup',
     children: [
       kickstart,
       kit
+    ]
+  },
+  {
+    label: 'Tools',
+    children: [tools]
+  },
+  {
+    label: 'Confluence',
+    children: [
+      thisiscvah
     ]
   }
 ];

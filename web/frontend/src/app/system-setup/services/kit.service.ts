@@ -7,17 +7,19 @@ import { catchError } from 'rxjs/operators';
 import { FormControl, Validators, FormGroup, FormBuilder, FormArray } from '@angular/forms';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { KitFormNode, kit_validators, KitForm, ValidateServerCpuMem } from '../kit/kit-form';
+import { WeaponSystemNameService } from 'src/app/services/weapon-system-name.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class KitService {
-
+  public sysName: any = "DIP";
   constructor(private http: HttpClient,
-              private snackbarWrapper: SnackbarWrapper,
-              private formBuilder: FormBuilder
-              ) { }
+    private snackbarWrapper: SnackbarWrapper,
+    private formBuilder: FormBuilder,
+    private sysNameSrv: WeaponSystemNameService
+  ) {}
 
   getKitForm(): Observable<Object> {
     const url = '/api/get_kit_form';
@@ -118,7 +120,11 @@ export class KitService {
   private addNodeControls(value: string, genericNode: FormGroup, node: KitFormNode, addNode?: boolean): void {
     if (value === 'Sensor') {
       this.addSensorControls(genericNode, node.is_remote);
-    } else if (value === 'Server') {
+    } 
+    if (value === 'MIP') {
+      this.addServerControls(genericNode, node, addNode); //added MIP node control based on server values
+    }
+    else if (value === 'Server') {
       this.addServerControls(genericNode, node.is_master_server, node, addNode);
     }
   }
@@ -151,27 +157,53 @@ export class KitService {
    * @returns {FormGroup}
    * @memberof KitFormComponent
    */
-  public newKitFormGroup(kitForm?: KitForm, isDisabled=true): FormGroup {
+
+  public newKitFormGroup(kitForm?: KitForm, isDisabled = true): FormGroup {
     const kitFormGroup = this.formBuilder.group({
       nodes: this.formBuilder.array([]),
-      kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '', Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
+      kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
+        Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
       dns_ip: new FormControl(''),
-      remove_node: new FormControl('')      
+      remove_node: new FormControl('')
     });
-    kitFormGroup.setValidators(Validators.compose([      
-      validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
-      validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-      validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-      ValidateServerCpuMem
-    ]));
-    if (kitForm) {
-      const nodes = kitFormGroup.get('nodes') as FormArray;
-      kitForm.nodes.map(node => nodes.push(this.newKitNodeForm(node)));
-      if (isDisabled){
-        nodes.disable();
-        kitFormGroup.disable();
-      }
-    }
+
+    this.sysNameSrv.getSystemName().subscribe(
+      data => {
+        data  = String(data['system_name']); //Return System Name via string
+        this.sysName = data;
+        
+        //Cycle validation messages per system name/ type
+
+        if (this.sysName == 'GIP') { 
+          kitFormGroup.setValidators(Validators.compose([
+            validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
+            validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+            ValidateServerCpuMem
+          ]));
+        };
+        if (this.sysName == 'DIP') {
+          kitFormGroup.setValidators(Validators.compose([
+            validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
+            validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+            validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+            ValidateServerCpuMem
+          ]));
+        };
+        if (this.sysName =='MIP') { 
+          kitFormGroup.setValidators(Validators.compose([
+            ValidateServerCpuMem
+          ]));
+        };
+
+        if (kitForm) {
+          const nodes = kitFormGroup.get('nodes') as FormArray;
+          kitForm.nodes.map(node => nodes.push(this.newKitNodeForm(node)));
+          if (isDisabled) {
+            nodes.disable();
+            kitFormGroup.disable();
+          }
+        }
+      });
     return kitFormGroup;
   }
 

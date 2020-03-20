@@ -20,7 +20,7 @@ export const KICKSTART_ID = "kickstart_form";
 export const CTRL_SELECTED = "A controller interface must first be selected.";
 export const SENSOR_APPS = ["bro", "suricata", "moloch"];
 export const GENERAL_KIT_FAILURE_MSG = 'Kit failed to generate Kit inventory file for an unknown reason. Please check the logs files located in /var/log/tfplenum for more details.';
-export const NODE_TYPES = ["Server", "Sensor"];
+export const NODE_TYPES = ["Server", "Sensor", "MIP"]; //Added MIP
 
 
 export const COMMON_VALIDATORS = {
