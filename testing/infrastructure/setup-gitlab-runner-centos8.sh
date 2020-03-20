@@ -23,52 +23,26 @@ function update_system_pkgs {
 }
 
 function install_vmware_tools {
-    run_cmd yum install -y perl open-vm-tools
+    run_cmd yum install -y perl open-vm-tools nmap
 }
 
 function install_gitlab_runner {
-    # For RHEL/CentOS/Fedora
-    run_cmd curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
-
-    # For RHEL/CentOS/Fedora
-    run_cmd yum install gitlab-runner
-
-    #Download the certifcate manually from your webbrowser from
-    #https://gitlab.sil.lab/api/v4/runners
-    #put this file in /etc/gitlab-runner/certs/ and name it gitlab.sil.lab.crt
+    # yum install -y wget git
+    # wget https://gitlab-runner-downloads.s3.amazonaws.com/latest/rpm/gitlab-runner_amd64.rpm
+    # rpm -i gitlab-runner_amd64.rpm
 
     mkdir -p /etc/gitlab-runner/certs/
     run_cmd openssl s_client -showcerts -connect gitlab.sil.lab:443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /etc/gitlab-runner/certs/gitlab.sil.lab.crt
     run_cmd gitlab-ci-multi-runner register
-
-    # yum install wget git
-    # wget https://gitlab-runner-downloads.s3.amazonaws.com/latest/rpm/gitlab-runner_amd64.rpm
-    # rpm -i gitlab-runner_amd64.rpm
 }
-
-function install_worker_deps {
-    run_cmd yum -y install git epel-release
-	run_cmd yum -y install python36.x86_64 python36-pip unzip gcc python36-devel
-}
-
 
 function install_requirements(){
   pushd $int_testing_dir > /dev/null
   run_cmd pip3 install --upgrade pip
-  run_cmd pip3 install --upgrade --force-reinstall -r /opt/vsphere-automation-sdk-python/requirements.txt --extra-index-url file:///opt/vsphere-automation-sdk-python/lib
-  run_cmd pip3 install -r requirements.txt
+  run_cmd pip3 install -r ../pipeline/requirements.txt
   popd > /dev/null
 }
 
-function setup_sdk(){
-  pushd /opt > /dev/null
-  rm -rf vsphere-automation-sdk-python
-  git clone https://github.com/vmware/vsphere-automation-sdk-python.git
-  cd vsphere-automation-sdk-python/
-  git checkout v6.8.7
-  cd ..
-  popd > /dev/null
-}
 
 function install_ovftool(){
     pushd /root > /dev/null
@@ -77,11 +51,9 @@ function install_ovftool(){
     popd > /dev/null
 }
 
-update_system_pkgs
-install_vmware_tools
+# update_system_pkgs
+# install_vmware_tools
 install_gitlab_runner
-install_worker_deps
-setup_sdk
 install_requirements
 install_ovftool
 echo "Script complete!"

@@ -112,7 +112,11 @@ class KitInventoryGenerator:
             self._template_ctx["remove_node"] = ''
 
     def _set_pfsense_ipaddress(self) -> None:
-        self._template_ctx["pfsense_ipaddress"] = self._kickstart_form["gateway"]
+        #For virtual kits, we inject the pfsense value.
+        try:
+            self._template_ctx["pfsense_ipaddress"]
+        except KeyError as e:
+            self._template_ctx["pfsense_ipaddress"] = self._kickstart_form["gateway"]
 
     def generate(self) -> None:
         """

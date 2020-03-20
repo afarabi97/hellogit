@@ -1,0 +1,61 @@
+---
+- name: Create a VM from a template
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        folder: "{{ node.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Removing VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Cloning {{ node.template }} to {{ node.hostname }}"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        validate_certs: False
+        name: "{{ node.hostname }}"
+        template: "{{ node.template }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        state: poweredon
+        networks:
+          - name: "{{ node.portgroup }}"
+            ip: "{{ node.ipaddress }}"
+            gateway: "{{ node.gateway }}"
+            netmask: "{{ node.netmask }}"
+        customization:
+          autologon: no
+          dns_servers: "{{ node.dns_servers }}"
+          domain: lan
+          password: "{{ node.password }}"
+          hostname: "{{ node.hostname }}"
+        hardware:
+          memory_mb: "{{ node.memory }}"
+          num_cpus: "{{ node.cpu }}"
+        disk:
+        - size_gb: 100
+          type: thin
+          datastore: "{{ node.datastore }}"
+      delegate_to: localhost

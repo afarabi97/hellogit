@@ -15,6 +15,13 @@ function run_cmd {
     fi
 }
 
+function create_cert {
+    openssl genrsa -out "gitlab.sil.lab.key" 2048
+    openssl req -new -key gitlab.sil.lab.key -out gitlab.csr
+    openssl x509 -req -days 3650 -in gitlab.csr -signkey gitlab.sil.lab.key -out gitlab.sil.lab.crt
+    # Update the files in the /etc/gitlab/ssl
+}
+
 function update_system_pkgs {
     run_cmd yum update -y
 }

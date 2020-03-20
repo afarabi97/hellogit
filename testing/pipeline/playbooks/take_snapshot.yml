@@ -1,0 +1,31 @@
+---
+- name: Poweroff VM and Create Snapshot
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        folder: "{{ node.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: Create a VM snapshot
+      vmware_guest_snapshot:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        name: "{{ node.hostname }}"
+        validate_certs: False
+        state: present
+        snapshot_name: "{{ snapshot_name }}"

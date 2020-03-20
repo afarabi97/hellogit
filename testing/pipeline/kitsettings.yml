@@ -1,0 +1,3 @@
+!KitSettings
+python_executable: /home/davidnavarro/.virtualenvs/pipeline/bin/python
+kubernetes_cidr: 10.40.12.16

@@ -38,7 +38,7 @@ function install_python36(){
 function labrepo_available() {
     echo "-------"
     echo "Checking if labrepo is available..."
-    labrepo_check=`curl -m 10 -s http://labrepo.sil.lab/check.html`
+    labrepo_check=`curl -m 120 -s http://labrepo.sil.lab/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
       echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
@@ -329,27 +329,31 @@ function set_git_variables() {
 }
 
 function clone_repos(){
-    for i in ${REPOS[@]}; do
-        local directory="/opt/$i"
-        if [ -d "$directory" ]; then
-            rm -rf $directory
-        fi
-        if [[ ! -d "$directory" && ("$USE_FORK" == "no") ]]; then
-            run_cmd git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
-            pushd $directory > /dev/null
-            run_cmd git checkout $BRANCH_NAME
-            popd > /dev/null
-        fi
-        if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
-            run_cmd git clone https://bitbucket.di2e.net/scm/thisiscvah/$i.git
-            pushd $directory > /dev/null
-            case "$i" in
-            "tfplenum" )
-                run_cmd git checkout "$TFPLENUM_BRANCH_NAME";;
-            esac
-            popd > /dev/null
-        fi
-    done
+    if [ -z "$REPO_URL" ]; then
+        export REPO_URL="https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git"
+    else
+        git config --global http.sslVerify false
+    fi
+
+    local directory="/opt/tfplenum"
+    if [ -d "$directory" ]; then
+        rm -rf $directory
+    fi
+    if [[ ! -d "$directory" && ("$USE_FORK" == "no") ]]; then
+        run_cmd git clone $REPO_URL
+        pushd $directory > /dev/null
+        run_cmd git checkout $BRANCH_NAME
+        popd > /dev/null
+    fi
+    if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
+        run_cmd git clone $REPO_URL
+        pushd $directory > /dev/null
+        case "$i" in
+        "tfplenum" )
+            run_cmd git checkout "$TFPLENUM_BRANCH_NAME";;
+        esac
+        popd > /dev/null
+    fi
 }
 
 function test_branch_name() {
@@ -479,6 +483,7 @@ if [ "$RUN_TYPE" == "full" ]; then
     setup_git
     clone_repos
     git config --global --unset credential.helper
+    rm -f /root/credential-helper.sh
     execute_pre
     remove_npmrc
     install_python36

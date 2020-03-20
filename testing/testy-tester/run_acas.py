@@ -40,6 +40,7 @@ class ACASRunner:
         self._username = username
         self._password = password
         self._headers = None # type: Dict
+        self._scan_obj = None #type: Dict
 
     def _get_current_utc_unixtime_stamp(self) -> str:
         d = datetime.utcnow()
@@ -98,6 +99,40 @@ class ACASRunner:
                                      cookies=self._cached_cookies)
         self._exit_if_not_200(response)
         return response
+
+    def _patch(self, url: str, payload: Dict) -> Response:
+        response = self._session.patch(url,
+                                       json=payload,
+                                       verify=False,
+                                       headers=self._headers,
+                                       cookies=self._cached_cookies)
+        self._exit_if_not_200(response)
+        return response
+
+    def _patch_scan(self, scan_id: int, nodes_to_scan: List[str]):
+        print(self._scan_obj)
+        payload = {
+            "repository":{
+                "id": int(self._scan_obj["repository"]["id"])
+            },
+            "schedule":{
+                "start":"TZID=America/New_York:20200319T173000",
+                "repeatRule":"FREQ=TEMPLATE;INTERVAL=1",
+                "type":"template",
+                "enabled":"true"
+            },
+            "policy":{
+                "id": str(self._scan_obj["policy"]["id"])
+            },
+            "ipList": ','.join(nodes_to_scan),
+            "assets":[
+
+            ],
+            "plugin":{
+                "id":-1
+            }
+        }
+        self._patch(self._base_url + "/rest/scan/{}".format(scan_id), payload)
 
     def _execute_scan(self, scan_id: int, scan_name: str) -> int:
         payload = {
@@ -235,9 +270,12 @@ class ACASRunner:
                 break
         sleep(30) # Wait for report to launch after scan completes.
 
-    def execute(self, scan_name: str):
+    def execute(self, scan_name: str, nodes_to_scan: List[str]):
         self._login()
         scan_id = self._get_scan_id_by_name(scan_name)
+        response = self._get(self._base_url + "/rest/scan/{}".format(scan_id))
+        self._scan_obj = response.json()["response"]
+        self._patch_scan(scan_id, nodes_to_scan)
         scan_result_id = self._execute_scan(scan_id, scan_name)
         self._check_scan_result(scan_result_id)
         self._export_report()
@@ -253,10 +291,12 @@ def main():
                         help="The password of the ACAS server.")
     parser.add_argument("-s", "--scan_name", dest="scan_name", required=True,
                         help="The name of the scan you wish to execute.")
+    parser.add_argument('--nodes-to-scan', dest='nodes_to_scan', nargs="+", \
+                         required=True, help="The nodes that will be scaned for the ACAS report.")
     args = parser.parse_args()
 
     runner = ACASRunner(args.ip_address, args.username, args.password)
-    runner.execute(args.scan_name)
+    runner.execute(args.scan_name, args.nodes_to_scan)
 
 
 if __name__ == '__main__':

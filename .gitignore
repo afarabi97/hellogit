@@ -52,3 +52,8 @@ infrastucture/Software/
 *.old
 infrastucture/Kit_*/
 *.rpm
+
+controllersetupsettings.yml
+kickstartsettings.yml
+catalogsettings.yml
+nodestoscan.txt

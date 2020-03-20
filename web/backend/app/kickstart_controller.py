@@ -51,13 +51,6 @@ def save_kickstart_to_mongo(kickstart_form: Dict) -> None:
                                                   upsert=True)  # type: InsertOneResult
 
 
-@app.route('/api/test123', methods=['GET'])
-def test123() -> Response:
-    t = {'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff', 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
-    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": "add_node_wizard"}, {"_id": "add_node_wizard", "form": t, "step": 3}, upsert=True)
-    return OK_RESPONSE
-
-
 @app.route('/api/get_add_node_wizard_state', methods=['GET'])
 def get_add_node_wizard_state() -> Response:
     ret_val = conn_mng.mongo_add_node_wizard.find_one({"_id": ADDNODE_ID})
@@ -103,7 +96,7 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    payload = request.get_json()    
+    payload = request.get_json()
 
     if 'nodes' in payload:
         kickstart_form = payload
@@ -162,7 +155,7 @@ def get_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    
+
     if mongo_document is None:
         return OK_RESPONSE
 

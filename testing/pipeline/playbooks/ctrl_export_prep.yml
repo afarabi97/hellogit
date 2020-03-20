@@ -1,0 +1,40 @@
+---
+- name: Prepare controller for export
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        folder: "{{ node.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Prepping the controller"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        validate_certs: False
+        name: "{{ node.hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        state: present
+        networks:
+          - name: Internal
+            type: dhcp
+        hardware:
+          memory_mb: "{{ node.memory }}"
+          num_cpus: "{{ node.cpu }}"
+        cdrom:
+          type: none
+          state: absent
+      delegate_to: localhost

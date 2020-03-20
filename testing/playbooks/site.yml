@@ -39,13 +39,13 @@
     - preflight
   tags: preflight
 
-- name: Replay PCAPs
-  hosts:
-  - localhost
-  gather_facts: yes
-  roles:
-    - replay
-  tags: replay
+# - name: Replay PCAPs
+#   hosts:
+#   - localhost
+#   gather_facts: yes
+#   roles:
+#     - replay
+#   tags: replay
 
 - name: Verify kubernetes is healthy
   hosts: master_server

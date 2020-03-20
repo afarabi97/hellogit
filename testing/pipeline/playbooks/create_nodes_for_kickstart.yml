@@ -1,0 +1,102 @@
+---
+- name: Kickstart the nodes!
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "{{ item.hostname }}"
+        folder: "{{ item.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ nodes }}"
+
+    - name: "Removing VM"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "{{ item.hostname }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ nodes }}"
+
+    - name: "Cloning Server VM"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        guest_id: "rhel7_64Guest"
+        validate_certs: False
+        name: "{{ item.hostname }}"
+        folder: "{{ item.folder }}"
+        state: poweredon
+        networks:
+          - name: "{{ item.portgroup }}"
+            mac: "{{ item.mng_mac }}"
+        customization:
+          autologon: no
+          dns_servers: "{{ item.dns_servers }}"
+          domain: sil.lab
+          password: "{{ item.password }}"
+          hostname: "{{ item.hostname }}"
+        hardware:
+          memory_mb: "{{ item.memory }}"
+          num_cpus: "{{ item.cpu }}"
+        disk:
+        - size_gb: 50
+          type: thin
+          datastore: "{{ item.datastore }}"
+        - size_gb: 50
+          type: thin
+          datastore: "{{ item.datastore }}"
+      delegate_to: localhost
+      with_items: "{{ servers }}"
+
+    - name: "Cloning Sensor VM"
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        guest_id: "rhel7_64Guest"
+        validate_certs: False
+        name: "{{ item.hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ item.folder }}"
+        state: poweredon
+        networks:
+          - name: "{{ item.portgroup }}"
+            mac: "{{ item.mng_mac }}"
+          - name: "Monitoring Portgroup"
+            mac: "{{ item.sensing_mac }}"
+        customization:
+          autologon: no
+          dns_servers: "{{ item.dns_servers }}"
+          domain: sil.lab
+          password: "{{ item.password }}"
+          hostname: "{{ item.hostname }}"
+        hardware:
+          memory_mb: "{{ item.memory }}"
+          num_cpus: "{{ item.cpu }}"
+        disk:
+        - size_gb: 50
+          type: thin
+          datastore: "{{ item.datastore }}"
+        - size_gb: 50
+          type: thin
+          datastore: "{{ item.datastore }}"
+      delegate_to: localhost
+      with_items: "{{ sensors }}"
