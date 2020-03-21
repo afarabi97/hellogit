@@ -1,6 +1,9 @@
 ---
 - name: Delete Web CA secret
-  command: "kubectl delete secret {{ webca_secret }}"
+  shell: |
+    kubectl delete secret {{ webca_secret }} --ignore-not-found=true
+  register: results
+  changed_when: results.rc == 0
   ignore_errors: true
 
 - name: Copy Templates

@@ -107,8 +107,8 @@ class NodeSettings(Model):
 
         if is_for_ctrl_setup:
             parser.add_argument('--vm-template', dest='template', required=True, help="The name of the VM or Template to clone from.")
-            parser.add_argument("--cpu", dest="cpu", help="The default number of CPU cores to assign to the VM(s).", default="4")
-            parser.add_argument("--memory", dest="memory", help="The default amount of memory to assign to the VM(s)", default="4096")
+            parser.add_argument("--cpu", dest="cpu", help="The default number of CPU cores to assign to the VM(s).", default="8")
+            parser.add_argument("--memory", dest="memory", help="The default amount of memory to assign to the VM(s)", default="16384")
 
 
 class VCenterSettings(Model):

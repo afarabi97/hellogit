@@ -46,7 +46,7 @@ function labrepo_available() {
 function prompt_runtype() {
     echo "Select a run type:"
     echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
-    echo "bootstrap: Only runs bootstrap ansible role."
+    echo "Bootstrap: Only runs bootstrap ansible role."
     echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
         select cr in "Full" "Bootstrap" "Docker Images"; do
@@ -62,7 +62,7 @@ function prompt_runtype() {
 function prompt_runtype_mip {
     echo "Select a run type:"
     echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
-    echo "bootstrap: Only runs bootstrap ansible role."
+    echo "Bootstrap: Only runs bootstrap ansible role."
     if [ -z "$RUN_TYPE" ]; then
         select cr in "Full" "Bootstrap"; do
             case $cr in

@@ -24,8 +24,9 @@ spec:
         - "-c"
         - "chown -R 1000 /elastic-data"
         volumeMounts:
-        - name: elasticdb
+        - name: data
           mountPath: /elastic-data
+          subPath: elastic
       containers:
       - name: elastic
         image: "{{ .Values.elastic_image }}"
@@ -47,8 +48,9 @@ spec:
           - name: discovery.type
             value: single-node
         volumeMounts:
-        - name: elasticdb
+        - name: data
           mountPath: /usr/share/elasticsearch/data
+          subPath: elastic
       - name: cortex-nginx
         image: "{{ .Values.nginx_image }}"
         imagePullPolicy: IfNotPresent
@@ -130,8 +132,9 @@ spec:
         - name: setup
           mountPath: /etc/cortex/setup.py
           subPath: setup.py
-        - name: cortex-analyzers
+        - name: data
           mountPath: /opt/cortex/analyzers
+          subPath: analyzers
       nodeSelector:
         role: "server"
       volumes:
@@ -145,14 +148,9 @@ spec:
       - name: cortex-secret
         secret:
           secretName: {{ .Release.Name }}-secret
-      - name: elasticdb
-        hostPath:
-          path: /data/cortex
-          type: DirectoryOrCreate
-      - name: cortex-analyzers
-        hostPath:
-          path: /data/cortex/analyzers
-          type: DirectoryOrCreate
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
       - name: webca
         secret:
           defaultMode: 420

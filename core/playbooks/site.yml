@@ -279,6 +279,18 @@
     - helm
   tags: helm
 
+- name: Setup Storage
+  hosts:
+    - servers
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - storage
+  tags:
+    - storage
+
 - name: chartmuseum
   any_errors_fatal: true
   hosts:

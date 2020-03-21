@@ -3,20 +3,24 @@
 - name: Remove Chartmuseum
   shell: |
     helm delete chartmuseum
+  register: results
+  changed_when: results.rc == 0
+  ignore_errors: yes
 
 - name: Wait for chartmuseum to be removed
   shell: |
-    kubectl wait --for=condition=delete deployment/chartmuseum-chartmuseum
-  ignore_errors: true
-
-- name: Delete directory
-  file:
-    path: "{{chartmuseum_data_dir}}"
-    state: absent
+    while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep chartmuseum | tail -n +0 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  ignore_errors: yes
+  changed_when: false
 
 - name: Remove Chartmuseum Certificate
   command: "{{ item }}"
-  ignore_errors: true
+  ignore_errors: yes
   with_items:
     - "kubectl delete certificate chartmuseum --ignore-not-found=true"
     - "kubectl delete secret chartmuseum-certificate --ignore-not-found=true"
+  register: results
+  changed_when: results.rc == 0

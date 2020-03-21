@@ -1,13 +1,18 @@
 ---
 
-- set_fact:
+- name: Set Default ES Install Variable
+  set_fact:
     es_installed: false
 
 - name: Checking if Elastic is already deployed
-  shell: kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum | awk '{ print $1 }'
+  shell: |
+    set -o pipefail
+    kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum | awk '{ print $1 }'
   register: es_results
   failed_when: es_results.rc >= 2
+  changed_when: false
 
-- set_fact:
+- name: Update ES Install Variable
+  set_fact:
     es_installed: true
   when: es_results is defined and es_results.stdout == 'tfplenum'

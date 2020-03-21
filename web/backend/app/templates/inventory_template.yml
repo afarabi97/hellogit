@@ -18,12 +18,6 @@ all:
     # DNS Server or the kit will break.
     dns_ip: {{ template_ctx.dns_ip }}
 
-    # The Pfsense IP address that will be added as a dns forward lookup to the Kubernetes master node's dnsmasq service.
-    # If you need to add external DNS IPAddress entries login to your PfSense firewall and add them there.
-    # All the servers sensors point to the dnsmasq that resides on the kubernetes master if DNS lookups fail here,
-    # it will then try and resolve the dns names through the PFSense firewall.
-    pfsense_ipaddress: {{ template_ctx.pfsense_ipaddress }}
-
     #############################
     # Kubernetes Settings       #
     #############################

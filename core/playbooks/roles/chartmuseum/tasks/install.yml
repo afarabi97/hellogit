@@ -7,56 +7,23 @@
     mode: 0644
     state: directory
 
-- name: Copy Templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ chartmuseum_install_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - certificate.yml
-    - patch.json
-
-- name: Install Chartmuseum Certificate
-  shell: |
-    kubectl apply -f {{ chartmuseum_install_dir }}/certificate.yml
-
-- name: Read Patch JSON file
-  shell: "cat {{ chartmuseum_install_dir }}/patch.json"
-  register: patch_json
-
-- name: Create data directory
-  file:
-    path: "{{chartmuseum_data_dir}}"
-    owner: "1000"
-    group: "1000"
-    mode: 0755
-    state: directory
-
 - name: Download chartmuseum chart
   get_url:
-    url: "{{ offline_repo_base }}/charts/chartmuseum-{{chartmuseum_version}}.tgz"
-    dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
+    url: "{{ offline_repo_base }}/charts/chartmuseum-{{ chartmuseum_version }}.tgz"
+    dest: "{{ install_dir }}/chartmuseum/chartmuseum-{{ chartmuseum_version }}.tgz"
 
-- name: deploy chartmuseum
-  command: "helm install chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set service.externalPort=443 --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
-
-- name: Patching Chartmuseum
-  command: "kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='{{ patch_json.stdout }}'"
-
-- name: Wait for service to be ready
-  wait_for:
-    port: 443
-    host: chartmuseum.{{ fqdn }}
-    connect_timeout: 3
-    delay: 3
-    timeout: 180
+- name: Install Chartmuseum
+  shell: |
+    helm install chartmuseum chartmuseum-{{ chartmuseum_version }}.tgz --set domain={{ domain }}
+  args:
+    chdir: "{{ install_dir }}/chartmuseum"
+  register: results
+  changed_when: results.rc == 0
 
 - name: Wait for chartmuseum to be ready
   wait_for:
     port: 443
-    host: chartmuseum.{{domain}}
+    host: chartmuseum.{{ domain }}
     connect_timeout: 3
     delay: 3
     timeout: 180

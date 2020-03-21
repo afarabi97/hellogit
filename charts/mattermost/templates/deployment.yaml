@@ -24,9 +24,9 @@ spec:
         - "-c"
         - "chown -R 2000:2000 /mattermost-data"
         volumeMounts:
-        - name: mattermost-db
+        - name: data
           mountPath: /mattermost-data
-          subPath: appData
+          subPath: app
       containers:
       - name: mariadb
         image: {{ .Values.mariadbImage }}
@@ -43,9 +43,9 @@ spec:
         - name: MYSQL_PASSWORD
           value: {{ .Values.sqlPassword }}
         volumeMounts:
-        - name: mattermost-db
+        - name: data
           mountPath: /var/lib/mysql
-          subPath: mariaDB
+          subPath: database
       - name: mattermost
         image: {{ .Values.mattermostImage }}
         imagePullPolicy: IfNotPresent
@@ -91,9 +91,9 @@ spec:
               name: {{ .Release.Name }}-secret
               key: team_name
         volumeMounts:
-        - name: mattermost-db
+        - name: data
           mountPath: /mattermost/data
-          subPath: appData
+          subPath: app
         - name: setup
           mountPath: /mattermost/setup.sh
           subPath: setup.sh
@@ -115,10 +115,6 @@ spec:
       nodeSelector:
         role: "server"
       volumes:
-      - name: mattermost-db
-        hostPath:
-          path: /data/mattermost
-          type: DirectoryOrCreate
       - name: setup
         configMap:
           name: {{ .Release.Name }}-setup
@@ -128,3 +124,6 @@ spec:
           defaultMode: 420
           optional: false
           secretName: {{ .Release.Name }}-certificate
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc

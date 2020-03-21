@@ -1,0 +1,5 @@
+---
+storage_dir: "{{ install_dir  }}/storage"
+fsType: xfs
+number_of_server_apps: 10
+app_data_path: "{{ data_path }}/apps"

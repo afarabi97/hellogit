@@ -80,8 +80,9 @@ spec:
         - "-c"
         - "chown -R 1000 /elastic-data"
         volumeMounts:
-        - name: elasticdb
+        - name: data
           mountPath: /elastic-data
+          subPath: elastic
       {{- end }}
       {{- if .Values.mispIntegration }}
       - name: hive-init-misp
@@ -161,7 +162,7 @@ spec:
           - name: discovery.type
             value: single-node
         volumeMounts:
-        - name: elasticdb
+        - name: data
           mountPath: /usr/share/elasticsearch/data
           subPath: elastic
       {{- end }}
@@ -283,9 +284,9 @@ spec:
         configMap:
           name: {{ .Release.Name }}-nginx
           defaultMode: 0444
-      - name: elasticdb
-        hostPath:
-          path: /data/hive
-          type: DirectoryOrCreate
       - name: api-cache
         emptyDir: {}
+          name: hiveconfig
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc

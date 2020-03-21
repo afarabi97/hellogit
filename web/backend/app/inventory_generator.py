@@ -111,13 +111,6 @@ class KitInventoryGenerator:
         if "remove_node" not in self._template_ctx:
             self._template_ctx["remove_node"] = ''
 
-    def _set_pfsense_ipaddress(self) -> None:
-        #For virtual kits, we inject the pfsense value.
-        try:
-            self._template_ctx["pfsense_ipaddress"]
-        except KeyError:
-            self._template_ctx["pfsense_ipaddress"] = self._kickstart_form["gateway"]
-
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
@@ -125,7 +118,6 @@ class KitInventoryGenerator:
         """
         self._set_defaults()
         self._set_reservations()
-        self._set_pfsense_ipaddress()
 
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)
@@ -168,7 +160,7 @@ class MIPKickstartInventoryGenerator:
 class MIPConfigInventoryGenerator:
     def __init__(self, context: Dict):
         self._template_ctx = context
-    
+
     def generate(self) -> None:
         template = JINJA_ENV.get_template('mip_config_inventory.yml')
 

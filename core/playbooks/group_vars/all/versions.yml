@@ -18,8 +18,8 @@ metallb_version: "v0.9.3"
 moloch_version: "2.2.3"
 suricata_version: "5.0.2"
 helm_version: "v3.1.1"
-chartmuseum_version: "2.9.0"
-chartmuseum_image_version: "v0.11.0"
+chartmuseum_version: "2.12.0"
+chartmuseum_image_version: "v0.12.0"
 elastic_7_version: "7.6.2"
 elastic_7_chart_version: "7.6.2"
 window_remote_installer_version: "1.2"
@@ -41,6 +41,7 @@ conmon_version: 2.0.12
 calico_version: "v3.13.1"
 nginx_version: "1.17.9"
 cert_manager_version: v0.14.2
+storage_provisioner_version: 2.3.4
 
 # "docker Image List
 kube_images:
@@ -91,9 +92,9 @@ kube_images:
   - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}", for_dip: true, for_gip: true }
+  - { image: "quay.io/external_storage/local-volume-provisioner:v{{storage_provisioner_version}}", for_dip: true, for_gip: true }
 
 helm_charts:
-  - stable/chartmuseum {{ chartmuseum_version }}
   - elastic/elasticsearch {{ elastic_7_chart_version }}
   - elastic/kibana {{ elastic_7_chart_version }}
   - elastic/filebeat {{ elastic_7_chart_version }}

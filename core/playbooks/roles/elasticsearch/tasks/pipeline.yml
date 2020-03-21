@@ -3,21 +3,21 @@
 
 - name: Deploy Zeek Index Template
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_template/template_zeek"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_template/template_zeek"
     method: PUT
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', 'files/zeek-pipeline/template_zeek')}}"
+    body: "{{ lookup('file', 'files/zeek-pipeline/template_zeek') }}"
     status_code: 200, 201
 
 - name: Check if alias exists
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/ecs-zeek-000001"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/ecs-zeek-000001"
     method: GET
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     status_code: 200,201,404
   register: check_alias_results
@@ -25,10 +25,10 @@
 
 - name: Delete alias
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/ecs-zeek-000001"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/ecs-zeek-000001"
     method: DELETE
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     status_code: 200, 201
   ignore_errors: yes
@@ -36,10 +36,10 @@
 
 - name: Bootstrap Index
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/ecs-zeek-000001"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/ecs-zeek-000001"
     method: PUT
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
     body: "{\"aliases\": { \"ecs-zeek\": { \"is_write_index\": true }}}"
@@ -47,13 +47,13 @@
 
 - name: Zeek Pipeline
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_ingest/pipeline/{{ item[item.rfind('/')+1:] }}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_ingest/pipeline/{{ item[item.rfind('/')+1:] }}"
     method: PUT
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', '{{ item }}')}}"
+    body: "{{ lookup('file', '{{ item }}') }}"
     status_code: 200, 201
   with_fileglob:
     - "files/zeek-pipeline/zeek_*"

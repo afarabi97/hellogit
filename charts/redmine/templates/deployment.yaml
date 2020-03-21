@@ -28,8 +28,9 @@ spec:
         - name: POSTGRES_DB
           value: {{ .Values.postgresqlDatabase }}
         volumeMounts:
-        - name: postgresdb
+        - name: data
           mountPath: /var/lib/postgresql/data
+          subPath: database
       - name: redmine
         image: "{{ .Values.redmineImage }}"
         imagePullPolicy: IfNotPresent
@@ -46,8 +47,9 @@ spec:
         - name: REDMINE_DB_PASSWORD
           value: {{ .Values.postgresqlPassword }}
         volumeMounts:
-        - name: redmine-data
+        - name: data
           mountPath: /usr/src/redmine/files
+          subPath: files
       - name: redmine-nginx
         image: "{{ .Values.nginx_image }}"
         imagePullPolicy: IfNotPresent
@@ -79,14 +81,6 @@ spec:
       nodeSelector:
         role: "server"
       volumes:
-      - name: postgresdb
-        hostPath:
-          path: /data/redminedb
-          type: DirectoryOrCreate
-      - name: redmine-data
-        hostPath:
-          path: /data/redmine-data
-          type: DirectoryOrCreate
       - name: webca
         secret:
           defaultMode: 420
@@ -96,3 +90,6 @@ spec:
         configMap:
           name: {{ .Release.Name }}-nginx
           defaultMode: 0444
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc

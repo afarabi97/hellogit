@@ -2,13 +2,13 @@
 python_executable: /home/supcom/.virtualenvs/pipeline/bin/python
 run_type: clone_from_nightly
 node: !NodeSettings
-  cpu: 4
+  cpu: 8
   dns_servers:
   - 10.10.101.11
   - 10.10.101.12
   - 10.11.101.13
   ipaddress: 172.16.77.47
-  memory: 4096
+  memory: 16384
   netmask: 255.255.255.0
   portgroup: 77 Portgroup
   gateway: 172.16.77.1

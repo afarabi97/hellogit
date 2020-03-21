@@ -24,9 +24,9 @@ spec:
         - "-c"
         - "chown -R 1000 /wikijs-data"
         volumeMounts:
-        - name: wikijs
+        - name: data
           mountPath: /wikijs-data
-          subPath: wiki-content
+          subPath: content
       containers:
       - name: mariadb
         image: {{ .Values.mariadbImage }}
@@ -43,9 +43,9 @@ spec:
         - name: MYSQL_PASSWORD
           value: {{ .Values.sqlUserPassword }}
         volumeMounts:
-        - name: wikijs
+        - name: data
           mountPath: /var/lib/mysql
-          subPath: mariaDB
+          subPath: database
       - name: wikijs
         image: {{ .Values.wikijsImage }}
         imagePullPolicy: IfNotPresent
@@ -73,29 +73,29 @@ spec:
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: wikijs-secret
+              name: secret
               key: admin_pass
         - name: ADMIN_EMAIL
           valueFrom:
             secretKeyRef:
-              name: wikijs-secret
+              name: secret
               key: admin_email
         volumeMounts:
-        - name: wikijs-configmap
+        - name: configmap
           mountPath: "/wiki/data/sideload/en.json"
           subPath: en.json
-        - name: wikijs-configmap
+        - name: configmap
           mountPath: "/wiki/data/sideload/locales.json"
           subPath: locales.json
-        - name: wikijs-configmap
+        - name: configmap
           mountPath: "/wiki/config.yml"
           subPath: config.yml
-        - name: wikijs-configmap
+        - name: configmap
           mountPath: "/wiki/server/wiki-setup.js"
           subPath: wiki-setup.js
-        - name: wikijs
+        - name: data
           mountPath: /wiki/data
-          subPath: wiki-content
+          subPath: content
         - name: webca
           mountPath: /etc/ssl/certs/webCA.crt
           readOnly: true
@@ -111,11 +111,11 @@ spec:
       nodeSelector:
         role: "server"
       volumes:
-      - name: wikijs-configmap
+      - name: configmap
         configMap:
-          name: {{ .Release.Name }}
+          name: {{ .Release.Name }}-configmap
           defaultMode: 0444
-      - name: wikijs-secret
+      - name: secret
         secret:
           secretName: {{ .Release.Name }}-secret
       - name: webca
@@ -123,11 +123,6 @@ spec:
           defaultMode: 420
           optional: false
           secretName: {{ .Release.Name }}-certificate
-      - name: wikijs
-        hostPath:
-          path: /data/wikijs
-          type: DirectoryOrCreate
-      - name: wikijs-backups
-        hostPath:
-          path: "/home/backup:/backups"
-          type: DirectoryOrCreate
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc

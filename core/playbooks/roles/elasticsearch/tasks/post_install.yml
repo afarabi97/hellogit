@@ -2,14 +2,17 @@
 
 - name: Wait for Elasticsearch to become healthy
   shell: |
+    set -o pipefail
     kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum  | awk '{ print $2 }'
   register: results_elastic
   until: (results_elastic.stdout == 'green')
   retries: 60
   delay: 5
+  changed_when: false
 
 - name: Get ES Password
   shell: |
+    set -o pipefail
     kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
   changed_when: false
@@ -18,10 +21,10 @@
 
 - name: Check Elasticsearch endpoint is ready
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
     return_content: yes
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
   register: results_elastic
@@ -32,59 +35,62 @@
 - name: Create logtsash role
   uri:
     method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/role/{{item}}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/role/{{ item }}"
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
+    body: "{{ lookup('file', 'files/users/{{ item }}.json') }}"
     status_code: 200, 201
   with_items:
     - logstash_writer
     - moloch_writer
 
-- set_fact:
+- name: Set Logstash User Password
+  set_fact:
     logstash_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
 
 - name: Create logstash user secret
   shell: |
-    kubectl create secret generic tfplenum-logstash-user --from-literal=username={{logstash_user}} --from-literal=password={{logstash_password}}
+    kubectl create secret generic tfplenum-logstash-user --from-literal=username={{ logstash_user }} --from-literal=password={{ logstash_password }}
+  register: results
+  changed_when: results.rc == 0
 
 - name: Create logtsash user
   uri:
     method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('template', 'files/users/{{item}}.json.j2')}}"
+    body: "{{ lookup('template', 'files/users/{{ item }}.json.j2') }}"
     status_code: 200, 201
   with_items:
-    - "{{logstash_user}}"
+    - "{{ logstash_user }}"
 
 - name: Create users
   uri:
     method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/user/{{item}}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
+    body: "{{ lookup('file', 'files/users/{{ item }}.json') }}"
     status_code: 200, 201
   with_items:
     - moloch
 
 - name: Load Index Policies
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_ilm/policy/{{ item }}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_ilm/policy/{{ item }}"
     method: PUT
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('template', 'files/policies/{{item}}.json.j2') }}"
+    body: "{{ lookup('template', 'files/policies/{{ item }}.json.j2') }}"
     status_code: 200, 201
   with_items:
     - filebeat-suricata
@@ -99,7 +105,7 @@
 - name: Load Deploy into controller mongo
   uri:
     method: GET
-    url: "https://{{ansible_controller_hostname}}/api/load_elastic_deploy?override=1"
+    url: "https://{{ ansible_controller_hostname }}/api/load_elastic_deploy?override=1"
     validate_certs: no
     status_code: 200, 201
 ...

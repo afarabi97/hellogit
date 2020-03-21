@@ -135,11 +135,16 @@ spec:
               fieldRef:
                 fieldPath: spec.nodeName
 {% if es_mdi %}
-        volumes:
-        - name: elasticsearch-data
-          hostPath:
-            path: {{ es_data_path }}
-            type: DirectoryOrCreate
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: elastic-disks
+        resources:
+          requests:
+            storage: 1Gi
 {% endif %}
 {% if es_mdi == false %}
   - name: data
@@ -188,11 +193,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-        volumes:
-        - name: elasticsearch-data
-          hostPath:
-            path: {{ es_data_path }}
-            type: DirectoryOrCreate
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: elastic-disks
+        resources:
+          requests:
+            storage: 1Gi
 {% endif %}
   - name: coordinating
     count: {{es_coordinating_count}}

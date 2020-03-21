@@ -1,0 +1,38 @@
+---
+- name: Create install disk discovery directory
+  file:
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ app_disk_discovery_dir }}"
+    - "{{ elastic_disk_discovery_dir }}"
+
+# This will create multiple app data directories under /data
+# These will be used by the storage provisioner later on.
+- name: Create App Data Directory
+  file:
+    path: "{{ app_data_path }}/{{ item }}"
+    state: directory
+    mode: "0775"
+  loop: "{{ range(0, number_of_server_apps)|list }}"
+
+
+- name: Create Binding Directories
+  file:
+    path: "{{ app_disk_discovery_dir }}/{{ item }}"
+    state: directory
+    mode: "0775"
+  loop: "{{ range(0, number_of_server_apps)|list }}"
+
+# Bind each data directory to /mnt/disks/apps
+- name: Mount and bind a volume
+  mount:
+    path: "{{ app_disk_discovery_dir }}/{{ item }}"
+    src: "{{ app_data_path }}/{{ item }}"
+    opts: bind
+    state: mounted
+    fstype: none
+  loop: "{{ range(0, number_of_server_apps)|list }}"

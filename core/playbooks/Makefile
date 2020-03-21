@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all system-info domain dev genkeys rerun common common-nokeys kubernetes certificate_authority elasticsearch kibana metrics kubernetes-rerun certificate_authority-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
+.PHONY: all system-info domain dev genkeys rerun common common-nokeys kubernetes storage certificate_authority elasticsearch kibana metrics kubernetes-rerun certificate_authority-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
 
 # Default target, build *and* run tests
 all:
@@ -58,6 +58,9 @@ chartmuseum:
 elasticsearch:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch
 
+storage:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage
+
 kibana:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana
 
@@ -77,25 +80,28 @@ node-health:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,certificate_authority,storage,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,crio,kube-master,kube-node,certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,crio,kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,crio,kube-master,kube-node,certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,crio,kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 crio-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t crio,kube-master,kube-node,certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t crio,kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 certificate_authority-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+
+storage-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 chartmuseum-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup

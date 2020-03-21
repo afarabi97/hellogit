@@ -1,14 +1,21 @@
 ---
 
 - import_tasks: "preflight.yml"
+  when: inventory_hostname in groups['master_server']
 
 - import_tasks: "uninstall.yml"
-  when: es_installed
+  when: es_installed and inventory_hostname in groups['master_server']
+
+- import_tasks: "reset_data.yml"
+- import_tasks: "setup_data_dir.yml"
 
 - import_tasks: "install.yml"
+  when: inventory_hostname in groups['master_server']
 
 - import_tasks: "post_install.yml"
+  when: inventory_hostname in groups['master_server']
   tags: es-post-install
 
 - import_tasks: "pipeline.yml"
+  when: inventory_hostname in groups['master_server']
   tags: zeek-pipeline

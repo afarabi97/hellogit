@@ -101,9 +101,8 @@ spec:
         role: "server"
       volumes:
       - name: misp-vol
-        hostPath:
-          path: /data/misp/
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
       - name: misp-config
         configMap:
           name: {{ .Release.Name }}-configmap

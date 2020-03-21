@@ -1,0 +1,7 @@
+---
+
+- name: Install Storage Provisioner
+  shell: |
+    kubectl apply -f {{ storage_dir }}/provisioner.yml
+  register: results
+  changed_when: results.rc == 0

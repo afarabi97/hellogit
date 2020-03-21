@@ -1,11 +1,14 @@
 apiVersion: cert-manager.io/v1alpha3
 kind: Certificate
 metadata:
-  name: chartmuseum
-  namespace: default
+  name: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
 spec:
   # Secret names are always required.
-  secretName: chartmuseum-certificate
+  secretName: {{ .Release.Name }}-certificate
   duration: 8760h # 365d
   renewBefore: 360h # 15d
   commonName: chartmuseum
@@ -22,9 +25,9 @@ spec:
     - server auth
   dnsNames:
   - chartmuseum
-  - chartmuseum.{{ domain }}
-  - chartmuseum.{{ fqdn }}
-  - chartmuseum-headless.{{ fqdn }}
+  - chartmuseum.{{ .Values.domain }}
+  - chartmuseum.default.svc.cluster.local
+  - chartmuseum-headless.default.svc.cluster.local
   issuerRef:
     name: webca-issuer
     kind: Issuer

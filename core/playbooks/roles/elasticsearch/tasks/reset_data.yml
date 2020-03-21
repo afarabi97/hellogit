@@ -1,0 +1,33 @@
+---
+- name: Create Elastic Mount List
+  set_fact:
+    elastic_mount_list: []
+
+- name: Add items to Elastic Mount List
+  set_fact:
+    elastic_mount_list: "{{ elastic_mount_list + [ item.mount|replace(' (deleted)','') ] }}"
+  with_items: "{{ ansible_mounts }}"
+  when: "'/mnt/disks/elastic' in item.mount"
+
+- name: Unmount and bind a volume
+  mount:
+    path: "{{ item }}"
+    state: absent
+    fstype: none
+  with_items: "{{ elastic_mount_list }}"
+  register: task_result
+  until: not task_result.failed
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Delete Binding Directories
+  file:
+    path: "{{ elastic_mount_list }}"
+    state: absent
+  with_items: "{{ elastic_mount_list }}"
+
+- name: Remove Elastic Data Dir
+  file:
+    path: "{{ es_data_path }}/"
+    state: absent

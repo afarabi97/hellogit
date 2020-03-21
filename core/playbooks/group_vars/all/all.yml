@@ -78,6 +78,11 @@ docker_registry_repo: "{{ ansible_controller_hostname }}"
 # 2 == large (R440s)
 kit_size: -1
 
+# Local Provisioner
+base_discovery_dir: /mnt/disks
+app_disk_discovery_dir: "{{base_discovery_dir}}/apps"
+elastic_disk_discovery_dir: "{{base_discovery_dir}}/elastic"
+
 dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
 enable_kube_ha: false
 

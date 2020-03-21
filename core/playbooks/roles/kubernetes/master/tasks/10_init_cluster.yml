@@ -48,13 +48,6 @@
   shell: |
     kubeadm token create --ttl 0 --print-join-command 2>/dev/null > "{{ kube_worker_join_file }}"
 
-# - name: Replace 6443 with 8443 just to make sure matching whole line
-#   replace:
-#     path: "{{ kubernetes_conf_file }}"
-#     regexp: "server: https://{{ kube_virtual_ip }}:6443"
-#     replace: "server: https://{{ kube_virtual_ip }}:8443"
-#   when: enable_kube_ha
-
 - name: Kube | Retrieve files
   fetch:
     src: "{{ item }}"

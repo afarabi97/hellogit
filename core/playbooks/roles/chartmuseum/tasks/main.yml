@@ -1,23 +1,26 @@
 ---
 
-- import_tasks: preflight.yml
-  when: inventory_hostname in groups['master_server']
-
 - import_tasks: uninstall.yml
   when:
     - inventory_hostname in groups['master_server']
-    - chartmuseum_deployed
 
 - import_tasks: install.yml
   when: inventory_hostname in groups['master_server']
 
 - name: remove public repos
-  command: "helm repo remove {{ item }}"
-  with_items:
-    - bitnami
-    - elastic
-    - stable
+  shell: |
+    helm repo list -o json
   ignore_errors: yes
+  register: repolist
+  changed_when: false
+
+- name: remove all helm repos
+  command: "helm repo remove {{ item.name }}"
+  with_items:
+    - "{{ repolist.stdout | from_json }}"
+  ignore_errors: yes
+  register: results
+  changed_when: results.rc == 0
 
 - name: Create directory
   file:
@@ -43,17 +46,20 @@
 
 - name: load charts
   uri:
-    url: https://chartmuseum.{{domain}}/api/charts
+    url: https://chartmuseum.{{ domain }}/api/charts
     src: "{{ item.path }}"
     method: POST
     status_code: 201
     return_content: true
   with_items: "{{ charts.files }}"
   register: results
-  until: results.status == 201 and results.json.saved == true
+  until: results.status == 201 and results.json.saved
   retries: 10
   delay: 5
   when: "'localhost' in inventory_hostname"
 
 - name: update helm repo
-  shell: helm repo update
+  shell: |
+    helm repo update
+  register: results
+  changed_when: results.rc == 0

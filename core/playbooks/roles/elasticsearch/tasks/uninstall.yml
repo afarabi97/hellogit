@@ -1,7 +1,7 @@
 ---
 
 - name: Uninstall ES
-  command: "{{ item }}"
+  command: "{{ item }} --ignore-not-found"
   ignore_errors: true
   with_items:
     - "kubectl delete elasticsearch.elasticsearch.k8s.elastic.co/tfplenum"
@@ -11,33 +11,44 @@
     - "kubectl delete svc -l component=kibana"
     - "kubectl delete certificate elasticsearch"
     - "kubectl delete secret elasticsearch-certificate"
-
+  register: results
+  changed_when: results.rc == 0
 
 - name: Delete Additional ES Secrets
   command: "kubectl delete secret {{ item }} --ignore-not-found"
   with_items:
     - "-n default tfplenum-logstash-user"
     - "-n default kibana-secret-settings"
+  register: results
+  changed_when: results.rc == 0
 
 - name: Wait for all es pods to die
   shell: |
+    set -o pipefail
     while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep tfplenum-es- | tail -n +0 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
   ignore_errors: true
+  register: results
+  changed_when: results.rc == 0
 
 - name: Wait for all kibana pods to die
   shell: |
+    set -o pipefail
     while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep tfplenum-kb- | tail -n +0 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
   ignore_errors: true
+  register: results
+  changed_when: results.rc == 0
 
 - name: Uninstall ECK Operator
   shell: |
     kubectl delete -f {{ elastic_dir }}/operator.yml
   ignore_errors: true
+  register: results
+  changed_when: results.rc == 0
 
 ...

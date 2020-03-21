@@ -103,7 +103,7 @@ mongodb:
   mongodbDatabase: rocketchat
 
   replicaSet:
-    enabled: true
+    enabled: false
     replicas:
       secondary: 0
       arbiter: 0
@@ -131,7 +131,7 @@ mongodb:
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##
 persistence:
-  enabled: false
+  enabled: true
   ## rocketchat data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -139,9 +139,9 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: "-"
+  storageClass: "fast-disks"
   accessMode: ReadWriteOnce
-  size: 8Gi
+  size: 1Gi
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

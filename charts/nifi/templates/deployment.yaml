@@ -88,10 +88,6 @@ spec:
         - name: NIFI_WEB_HTTP_HOST
           value: localhost
         volumeMounts:
-        # - name: config
-        #   subPath: nifi.properties
-        #   mountPath: {{ .Values.nifi_base_dir }}/conf/nifi.properties
-        #   readOnly: true
         - name: config
           mountPath: /setup.sh
           subPath: setup.sh
@@ -99,9 +95,6 @@ spec:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
           subPath: logs
-        #- name: nifi-data
-      #    mountPath: {{ .Values.nifi_base_dir }}/conf
-      #    subPath: conf
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/database_repository
           subPath: database_repository
@@ -126,9 +119,8 @@ spec:
           name: {{.Release.Name}}
           defaultMode: 0777
       - name: nifi-data
-        hostPath:
-          path: {{ .Values.path }}
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
       - name: webca
         secret:
           defaultMode: 420
@@ -138,33 +130,3 @@ spec:
         configMap:
           name: {{ .Release.Name }}-nginx
           defaultMode: 0444
-# -------
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: {{ .Release.Name }}-zk
-#   labels:
-#     component: {{ .Release.Name }}-zk
-# spec:
-#   replicas: {{ .Values.zk_replicas }}
-#   selector:
-#     matchLabels:
-#       component: {{ .Release.Name }}-zk
-#   template:
-#     metadata:
-#       labels:
-#         component: {{ .Release.Name }}-zk
-#     spec:
-#       containers:
-#       - name: nifi
-#         image: "{{ .Values.zk_image }}:{{ .Values.zk_version }}"
-#         imagePullPolicy: IfNotPresent
-#        resources:
-#          requests:
-#            cpu: {{ .Values.cpu_request }}m
-#         ports:
-#         - containerPort: {{ .Values.port }}
-#           name: webgui
-#       restartPolicy: Always
-#       nodeSelector:
-#         role: server

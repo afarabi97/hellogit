@@ -1,0 +1,77 @@
+---
+- name: Delete Storage Provisioner
+  shell: |
+    kubectl delete -f {{ storage_dir }}/provisioner.yml --ignore-not-found
+  when: inventory_hostname in groups['master_server']
+
+- name: Wait for all provisioners pods to die
+  shell: |
+    while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep local-volume-provisioner | tail -n +0 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  ignore_errors: true
+  when: inventory_hostname in groups['master_server']
+
+- name: Create App Mount List
+  set_fact:
+    app_mount_list: []
+
+- name: Add items to App Mount List
+  set_fact:
+    app_mount_list: "{{ app_mount_list + [ item.mount|replace(' (deleted)','') ] }}"
+  with_items: "{{ ansible_mounts }}"
+  when: "'/mnt/disks/apps' in item.mount"
+
+- name: Unmount and bind a volume
+  mount:
+    path: "{{ item }}"
+    state: absent
+    fstype: none
+  with_items: "{{ app_mount_list }}"
+  register: task_result
+  until: not task_result.failed
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- name: Delete Binding Directories
+  file:
+    path: "{{ app_mount_list }}"
+    state: absent
+  with_items: "{{ app_mount_list }}"
+
+- name: Remove Apps Data Dir
+  file:
+    path: "{{ app_data_path }}/"
+    state: absent
+
+- name: Wipe Elastic
+  import_role:
+    name: elasticsearch
+    tasks_from: uninstall
+  when: inventory_hostname in groups['master_server']
+
+- name: Check for installed charts
+  shell: |
+    helm list -q
+  register: helm_list
+  changed_when: false
+  ignore_errors: true
+  when: inventory_hostname in groups['master_server']
+
+- name: Delete Charts
+  shell: |
+    helm delete {{ item }}
+  register: results
+  changed_when: results.rc == 0
+  ignore_errors: true
+  with_items:
+    - "{{ helm_list.stdout }}"
+  when: helm_list is defined and helm_list|length > 0 and inventory_hostname in groups['master_server']
+
+- name: Remove orphaned PVs
+  shell: |
+    kubectl delete pv -l app=local-volume-provisioner
+  ignore_errors: true
+  when: inventory_hostname in groups['master_server']

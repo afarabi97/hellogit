@@ -8,7 +8,8 @@ elastic_user: "1000"
 elastic_group: "1000"
 
 #### install path
-es_data_path: "{{data_path}}/elastic"
+es_data_path: "{{ data_path }}/elastic"
 logstash_user: "logstash_internal"
 default_elastic_user: elastic
+default_data_dir_per_server: 3
 
