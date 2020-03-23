@@ -15,7 +15,6 @@ variables:
   VMWARE_DATASTORE: "NVMe Storage 2"
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
-  GIT_DEPTH: 0
   ACAS_IPADDRESS: "172.16.82.15"
   ACAS_USERNAME: "acas"
   ACAS_PASSWORD: "we.are.tfplenum"
@@ -73,7 +72,6 @@ sonarqube-check:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "push"
 
 # container_scanning:
 #   image:
@@ -182,14 +180,6 @@ Setup Controller:
     echo "Current working directory is $(pwd)"
     echo "dip-cache-${CI_PIPELINE_ID}"
 
-    if [ $CI_PIPELINE_SOURCE == "push" ]; then
-        export NUM_SENSORS=2
-        export BUILD_TYPE="clone_from_nightly"
-        export VMWARE_FOLDER="Testing"
-        export VM_PREFIX="test${CI_PIPELINE_ID}"
-        export TEMPLATE_TO_CLONE="dip-ctrl.lan"
-    fi
-
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py setup-controller \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -218,7 +208,6 @@ Setup Controller:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "export"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "push"
 
 Run Python Unit Tests:
   tags:
@@ -239,7 +228,6 @@ Run Python Unit Tests:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "push"
 
 Add Docs to Controller:
   stage: docs
@@ -273,13 +261,6 @@ Kickstart:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-
-    if [ $CI_PIPELINE_SOURCE == "push" ]; then
-        export NUM_SENSORS=2
-        export VMWARE_FOLDER="Testing"
-        export VM_PREFIX="test${CI_PIPELINE_ID}"
-    fi
-
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py run-kickstart \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -305,11 +286,11 @@ Kickstart:
       - controllersetupsettings.yml
       - kickstartsettings.yml
       - nodestoscan.txt
+  retry: 2
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "push"
 
 Deploy Kit:
   stage: kit
@@ -330,7 +311,6 @@ Deploy Kit:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
-      - $CI_PIPELINE_SOURCE == "push"
 
 Perform Security Scans:
   stage: security_scans
@@ -379,7 +359,6 @@ CVAH Catalog:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "push"
 
 System Function Testing:
   stage: integration-test
@@ -392,7 +371,6 @@ System Function Testing:
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
-      - $CI_PIPELINE_SOURCE == "push"
   cache:
     key: dip-cache-${CI_PIPELINE_ID}
     paths:
@@ -468,7 +446,6 @@ Cleanup Job:
   only:
     variables:
       - $IS_CLEANUP == "true"
-      - $CI_PIPELINE_SOURCE == "push"
 
 Export Controller:
   stage: export

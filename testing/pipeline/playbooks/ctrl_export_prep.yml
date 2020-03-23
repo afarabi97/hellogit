@@ -38,3 +38,41 @@
           type: none
           state: absent
       delegate_to: localhost
+
+    - name: "Remove old template if it exists."
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ release_template_name }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: "Cloning the release for archive."
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        validate_certs: False
+        name: "{{ release_template_name }}"
+        template: "{{ node.hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        state: present
+        is_template: yes
+        networks:
+          - name: Internal
+            type: dhcp
+        hardware:
+          memory_mb: "{{ node.memory }}"
+          num_cpus: "{{ node.cpu }}"
+        cdrom:
+          type: none
+          state: absent
+        disk:
+        - size_gb: 100
+          type: thin
+          datastore: "dev-vol02"
+      delegate_to: localhost

@@ -74,7 +74,6 @@ class ControllerExport:
         self.export_loc = export_loc
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
-        remote_shell.sudo('dd if=/dev/zero of=/tmp/zerofillfile bs=1M ; sync ; rm -rf /tmp/zerofillfile', warn=True)
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
     def _clear_history(self, remote_shell: Connection):
@@ -142,7 +141,7 @@ class ControllerExport:
             dest.unlink()
 
         username = self.vcenter_settings.username.replace("@", "%40")
-        cmd = ("ovftool --noSSLVerify vi://{username}:'{password}'@{vsphere_ip}"
+        cmd = ("ovftool --noSSLVerify --diskMode=thin vi://{username}:'{password}'@{vsphere_ip}"
                "/DEV_Datacenter/vm/{folder}/{vm_name} {destination}"
                .format(username=username,
                        password=self.vcenter_settings.password,
@@ -171,7 +170,11 @@ class ControllerExport:
                                  self.ctrl_settings.node.password,
                                  self.ctrl_settings.node.ipaddress)
 
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], self.ctrl_settings.to_dict())
+        payload = self.ctrl_settings.to_dict()
+        ctrl_hostname = self.ctrl_settings.node.hostname
+        version = self.export_loc.export_version
+        payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
+        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
         destination_path = "{}/DIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
 
