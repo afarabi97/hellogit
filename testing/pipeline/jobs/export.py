@@ -208,6 +208,7 @@ class ConfluenceExport:
                                               page_title.strip())
 
     def add_docs_to_controller(self, ctrl_settings: ControllerSetupSettings):
+        power_on_vms(ctrl_settings.vcenter, ctrl_settings.node)
         page_title = self.html_export_settings.page_title
         confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
                                           username=self.html_export_settings.confluence.username,
