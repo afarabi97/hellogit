@@ -76,6 +76,9 @@ packages:
   - yum-utils
   - xinetd
   - lsof
+  - screen
+  - tmux
+
 
 packages_without_deps:
   - "kubeadm-{{ k8s_version }}"

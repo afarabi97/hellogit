@@ -64,10 +64,3 @@
   roles:
     - registry
   tags: registry
-
-- name: Deploy STIGs
-  hosts: localhost
-  any_errors_fatal: true
-  roles:
-    - stigs
-  tags: stigs
