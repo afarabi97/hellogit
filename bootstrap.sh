@@ -41,8 +41,9 @@ function labrepo_available() {
     labrepo_check=`curl -m 120 -s http://labrepo.sil.lab/check.html`
     if [ "$labrepo_check" != true ]; then
       echo "Warning: Labrepo not found. Defaulting to public repos."
-      echo "Labrepo requires Dev Network.  This is not a fatal error and can be ignored."
+      echo "This build requires Labrepo on the SIL Network...exiting"
       labrepo_check=false
+      exit
     fi
 }
 

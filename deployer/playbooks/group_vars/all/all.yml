@@ -41,10 +41,10 @@ additional_repo_info:
     download_path: "{{ tfplenumoffline_dir }}"
   crio:
     name: "crio"
-    baseurl: "https://cbs.centos.org/repos/paas7-crio-113-candidate/x86_64/os/"
+    baseurl: "http://yum.labrepo.sil.lab/crio"
     gpgkeyurl: ""
     gpgkeyname: ""
-    gpgcheck: true
+    gpgcheck: false
     description: "crio repo"
     download_path: "{{ tfplenumoffline_dir }}"
 
