@@ -83,6 +83,14 @@ class ACASRunner:
         self._headers = {"X-SecurityCenter" : token, "Content-Type" : "application/json"}
         print("Log in successful")
 
+    def _logout(self):
+        response = self._session.delete(self._base_url + '/rest/token',
+                                        verify=False,
+                                        headers=self._headers,
+                                        cookies=self._cached_cookies)
+        self._exit_if_not_200(response)
+        print("Log out successful")
+
     def _post(self, url: str, payload: Dict) -> Response:
         response = self._session.post(url,
                                       json=payload,
@@ -100,6 +108,15 @@ class ACASRunner:
         self._exit_if_not_200(response)
         return response
 
+    def _patch(self, url, payload: Dict) -> Response:
+        response = self._session.patch(url,
+                                       json=payload,
+                                       verify=False,
+                                       headers=self._headers,
+                                       cookies=self._cached_cookies)
+        self._exit_if_not_200(response)
+        return response
+
     def _patch(self, url: str, payload: Dict) -> Response:
         response = self._session.patch(url,
                                        json=payload,
@@ -110,7 +127,6 @@ class ACASRunner:
         return response
 
     def _patch_scan(self, scan_id: int, nodes_to_scan: List[str]):
-        print(self._scan_obj)
         payload = {
             "repository":{
                 "id": int(self._scan_obj["repository"]["id"])
@@ -203,20 +219,20 @@ class ACASRunner:
 
             print("Successfully exported report to {}".format(file_to_save))
 
-    def _get_latest_running_report(self) -> Dict:
+    def _get_latest_running_report(self, scan_name: str) -> Dict:
         response = self._get(self._base_url + "/rest/report?filter=usable&fields=name%2CjobID%2Cstatus%2Crunning%2CstartTime%2CfinishTime")
         response_dict = response.json()
-        print_json(response_dict)
         cached_report = None
-        for report in response_dict["response"]["usable"] :
-            if cached_report is None:
-                cached_report = report
-                continue
+        for report in response_dict["response"]["usable"]:
+            if scan_name in report["name"]:
+                if cached_report is None:
+                    cached_report = report
+                    continue
 
-            if int(cached_report["id"]) < int(report["id"]) and report["running"] == "true":
-                cached_report = report
+                if int(cached_report["id"]) < int(report["id"]):
+                    cached_report = report
 
-        if cached_report["running"] == "false":
+        if cached_report is None:
             raise ReportNotFound()
 
         return cached_report
@@ -235,8 +251,9 @@ class ACASRunner:
                 print("Waiting for scan to complete timed out after %d minutes." % timeout_min)
                 break
 
-    def _export_report(self):
-        latest_running_report = self._get_latest_running_report()
+    def _export_report(self, scan_name: str):
+        sleep(15) # We sleep for 15 seconds to give acas application time to kick off the report.
+        latest_running_report = self._get_latest_running_report(scan_name)
         report_id = int(latest_running_report["id"])
         self._wait_for_report_to_complete(report_id)
         self._download_report(report_id)
@@ -270,6 +287,10 @@ class ACASRunner:
                 break
         sleep(30) # Wait for report to launch after scan completes.
 
+    def update_targets(self, scan_id: str):
+        payload = {"ipList": ",".join(self._targets)}
+        response = self._patch(self._base_url + "/rest/scan/{}".format(scan_id), payload)
+
     def execute(self, scan_name: str, nodes_to_scan: List[str]):
         self._login()
         scan_id = self._get_scan_id_by_name(scan_name)
@@ -278,7 +299,8 @@ class ACASRunner:
         self._patch_scan(scan_id, nodes_to_scan)
         scan_result_id = self._execute_scan(scan_id, scan_name)
         self._check_scan_result(scan_result_id)
-        self._export_report()
+        self._export_report(scan_name)
+        self._logout()
 
 
 def main():
