@@ -60,15 +60,18 @@ class ControllerExport:
         self.export_loc = export_loc
 
     def _run_reclaim_disk_space(self, remote_shell: Connection):
-        reserve_space = 500000000 * 2 #equates to 500 MB in bytes
         stat_vfs = os.statvfs("/")
-        num_blocks_to_zero_out = (stat_vfs.f_bsize * stat_vfs.f_bavail) - reserve_space
-        cmd = ("dd if=/dev/zero of=/root/zerofillfile bs={block_size} count={num_blocks}; "
-               "sync;sleep 1;sync; rm -f /root/zerofillfile"
+        reserve_space = 500000000 / stat_vfs.f_bavail  #equates to 500 MB in bytes
+        num_blocks_to_zero_out = stat_vfs.f_bavail - int(reserve_space)
+        cmd = ("dd if=/dev/zero of=/tmp/zerofillfile bs={block_size} count={num_blocks}; "
+               "sync;sleep 1;rm -f /tmp/zerofillfile;sync"
                .format(block_size=stat_vfs.f_bsize,
                        num_blocks=num_blocks_to_zero_out))
 
-        remote_shell.sudo(cmd, warn=True)
+        ret_val = remote_shell.sudo(cmd, warn=True)
+        if ret_val.return_code != 0:
+            logging.warn("{} returned with {}.".format(cmd, ret_val.return_code))
+
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
     def _clear_history(self, remote_shell: Connection):

@@ -6,17 +6,15 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
-    - name: "Power off the VM {{ node.hostname }}"
-      ignore_errors: yes
-      vmware_guest:
+    - name: Wait for the virtual machine to shutdown
+      vmware_guest_powerstate:
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         name: "{{ node.hostname }}"
-        folder: "{{ node.folder }}"
-        state: poweredoff
+        state: shutdown-guest
         validate_certs: False
-      delegate_to: localhost
+        state_change_timeout: 300
 
     - name: Create a VM snapshot
       vmware_guest_snapshot:
