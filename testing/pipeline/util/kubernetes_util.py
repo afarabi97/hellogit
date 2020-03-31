@@ -5,6 +5,7 @@ from datetime import timedelta, datetime
 from models.settings import NodeSettings
 from util.connection_mngs import KubernetesWrapper
 from typing import Dict
+from urllib3.exceptions import MaxRetryError
 
 
 def _check_pod_states(items: Dict) -> bool:
@@ -54,9 +55,13 @@ def wait_for_pods_to_be_alive(master_srv: NodeSettings, timeout_minutes: int=10)
             if future_time <= datetime.utcnow():
                 logging.info("wait_for_pods_to_be_alive took too long to complete. Exiting application.")
                 exit(3)
-            api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
-            items = api_response.to_dict()['items']
-            if _check_pod_states(items):
-                break
+
+            try:
+                api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
+                items = api_response.to_dict()['items']
+                if _check_pod_states(items):
+                    break
+            except MaxRetryError as e:
+                logging.warn(e)
 
             time.sleep(5)
