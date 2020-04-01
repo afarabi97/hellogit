@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: mattermost-init
-        image: "busybox:1.29.3"
+        image: "busybox:1.31.1"
         securityContext:
           runAsUser: 0
         command:
@@ -52,7 +52,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "cp /config.json.save /mattermost/config/config.json; sed -i 's@\"SiteURL\": \"\"@\"SiteURL\": \"http://mattermost.lan\"@g' /mattermost/config/config.json; /entrypoint.sh mattermost"
+        - "/mattermost/config_file.sh; /mattermost/setup.sh & /entrypoint.sh mattermost"
         ports:
         - containerPort: 8065
         env:
@@ -70,14 +70,36 @@ spec:
           value: "mysql"
         - name: MM_SQLSETTINGS_DATASOURCE
           value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:3306)/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
-#          value: $(MM_USERNAME):$(MM_PASSWORD)@tcp($(DB_HOST):$(DB_PORT_NUMBER))/$(MM_DBNAME)?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
-#          value: (print .Values.sqlUsername ":" .Values.sqlPassword "@tcp(" .Values.sqlHost ":" .Values.sqlPort ")/" .Values.sqlDatabase "?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s" )
-#          value: (print .Values.sqlUsername ":" .Values.sqlPassword "@tcp(" .Values.sqlHost ":" .Values.sqlPort ")/" .Values.sqlDatabase "?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s" )
-#          value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:{{ .Values.sqlPort }})/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
+        - name: ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_user
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_email
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_pass
+        - name: TEAM_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: team_name
         volumeMounts:
         - name: mattermost-db
           mountPath: /mattermost/data
           subPath: appData
+        - name: setup
+          mountPath: /mattermost/setup.sh
+          subPath: setup.sh
+        - name: setup
+          mountPath: /mattermost/config_file.sh
+          subPath: config_file.sh
       nodeSelector:
         role: "server"
       volumes:
@@ -85,3 +107,7 @@ spec:
         hostPath:
           path: /data/mattermost
           type: DirectoryOrCreate
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+          defaultMode: 0777

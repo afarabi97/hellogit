@@ -47,10 +47,23 @@ spec:
             secretKeyRef:
               name: {{ template "rocketchat.fullname" . }}
               key: mongo-oplog-uri
-        {{- if .Values.host }}
+        - name: ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "rocketchat.fullname" . }}
+              key: admin_user
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "rocketchat.fullname" . }}
+              key: admin_pass
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "rocketchat.fullname" . }}
+              key: admin_email
         - name: ROOT_URL
-          value: https://{{ .Values.host }}
-        {{- end }}
+          value: http://{{ .Release.Name }}.lan
         {{- if .Values.smtp.enabled }}
         - name: MAIL_URL
           valueFrom:

@@ -48,7 +48,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "5.18.0",
+          "appVersion": "5.21.0",
           "application": "mattermost",
           "description": "Mattermost is a chat and file sharing platform",
           "pmoSupported": false
@@ -66,25 +66,25 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "4.0.12",
+          "appVersion": "4.2.5",
           "application": "mongodb",
           "description": "NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications.",
           "pmoSupported": true
         },
         {
-          "appVersion": "1.10.0",
+          "appVersion": "1.11.4",
           "application": "niagra-files",
           "description": "Easy to use, powerful, and reliable system to process and distribute data",
           "pmoSupported": false
         },
         {
-          "appVersion": "4.0.5",
+          "appVersion": "4.1.0",
           "application": "redmine",
           "description": "Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.",
           "pmoSupported": false
         },
         {
-          "appVersion": "1.3.1",
+          "appVersion": "3.0.9",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
           "pmoSupported": true
@@ -102,7 +102,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "2.0.12",
+          "appVersion": "2.2.51",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true

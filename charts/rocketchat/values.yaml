@@ -4,7 +4,7 @@
 
 image:
   repository: rocketchat/rocket.chat
-  tag: 2.2.0
+  tag: 3.0.9
   pullPolicy: IfNotPresent
 
 ## Host for the application
@@ -21,14 +21,11 @@ smtp:
   host:
   port: 587
 
+admin_user: admin
+admin_pass: password!
+admin_email: admin@dip.local
 # Extra env vars for Rocket.Chat:
 extraEnv:   |
-  - name: ADMIN_USERNAME
-    value: "admin"
-  - name: ADMIN_PASS
-    value: "password"
-  - name: ADMIN_EMAIL
-    value: "fake@email.com"
   - name: Show_Setup_Wizard
     value: "completed"
   - name: Jitsi_Open_New_Window
@@ -75,15 +72,15 @@ externalMongodbOplogUrl: mongodb://root:password@mongodb.default.svc.cluster.loc
 mongodb:
   ## Enable or disable MongoDB dependency completely.
   #enabled: true #Needs to stay commented or it will pull the requirements.yaml and break the deployment
-  
+
   service:
     port: 27017
 
-#Defines the local registry for the docker image for mongo  
+#Defines the local registry for the docker image for mongo
   image:
     registry: bitnami
     repository: mongodb
-    tag: 4.0.12-debian-9-r22
+    tag: 4.2.5
     pullPolicy: IfNotPresent
 
   nodeAffinity:

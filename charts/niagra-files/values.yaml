@@ -1,6 +1,6 @@
 #### Nifi configuration variables ####
 nifi_image: 'apache/nifi'
-nifi_version: '1.10.0'
+nifi_version: '1.11.4'
 nifi_port: "8080"
 nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current

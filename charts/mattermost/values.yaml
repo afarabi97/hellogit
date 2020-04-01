@@ -1,9 +1,12 @@
 # Default values for mattermost
-mattermostImage: mattermost/mattermost-prod-app:5.18.0
+mattermostImage: mattermost/mattermost-prod-app:5.21.0
 
 # database variables
-mariadbImage: mariadb:10.4.11
+mariadbImage: mariadb:10.5.2
 sqlDatabase: mattermost-db
 sqlUsername: mmuser
 sqlPassword: mmuser_password
 sqlRootPassword: mmuser_password
+admin_user: admin
+admin_pass: 1qaz@WSX1qaz@WSX
+admin_email: CPT

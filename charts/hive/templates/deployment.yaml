@@ -46,7 +46,7 @@ spec:
           mountPath: /tmp/api
           subPath: hive-data
       - name: hive-init-cortex2
-        image: "busybox:1.29.3"
+        image: "busybox:1.31.1"
         securityContext:
           runAsUser: 0
         command:
@@ -62,7 +62,7 @@ spec:
           subPath: hive.conf
       {{ else }}
       - name: hive-init-elastic
-        image: "busybox:1.29.3"
+        image: "busybox:1.31.1"
         securityContext:
           runAsUser: 0
         command:
@@ -75,7 +75,7 @@ spec:
       {{- end }}
       {{- if .Values.mispIntegration }}
       - name: hive-init-misp
-        image: "busybox:1.29.3"
+        image: "busybox:1.31.1"
         securityContext:
           runAsUser: 0
         command:

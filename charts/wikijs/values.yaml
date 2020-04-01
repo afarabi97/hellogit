@@ -1,8 +1,8 @@
 # Default values for mattermost
-wikijsImage: requarks/wiki:2.0.12
+wikijsImage: requarks/wiki:2.2.51
 
 # database variables
-mariadbImage: mariadb:10.4.11
+mariadbImage: mariadb:10.5.2
 sqlDatabase: wikijs-db
 sqlUsername: wikijs
 sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0
