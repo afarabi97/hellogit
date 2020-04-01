@@ -1,14 +1,13 @@
 ---
+
 - name: Kube | Init Kubernetes cluster
-  shell: "kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ k8s_version }} --token-ttl=0 | grep 'kubeadm join' | tee /etc/kubernetes/join-node.sh"
+  shell: "kubeadm init --config {{ kube_dir }}/kubeadm.conf"
   register: init_kube_cluster_result
   failed_when: "'ERROR' in init_kube_cluster_result.stderr"
 
-- name: update join script
-  replace:
-    path: /etc/kubernetes/join-node.sh
-    regexp: 'kubeadm join'
-    replace: 'kubeadm join --discovery-token-unsafe-skip-ca-verification --cri-socket=unix:///var/run/crio/crio.sock'
+- name: Create Join Script
+  shell: |
+    kubeadm token create --ttl 0 --print-join-command 2>/dev/null > /etc/kubernetes/join-node.sh
 
 - name: Kube | Retrieve files
   fetch:

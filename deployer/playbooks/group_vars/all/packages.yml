@@ -40,6 +40,7 @@ packages:
   - grub2-efi-x64
   - efibootmgr
   - httpd
+  - ipvsadm
   - inotify-tools
   - iperf
   - jq

@@ -11,14 +11,15 @@
 
 - name: 'Install templates'
   template:
-    src: "{{ item }}.yml.j2"
-    dest: "{{ kube_dir }}/{{ item }}.yml"
+    src: "{{ item }}.j2"
+    dest: "{{ kube_dir }}/{{ item }}"
     owner: root
     group: root
     mode: 0644
   with_items:
-    - metallb_configmap
-    - metallb_deployment
-    - calicoctl
-    - calico
-    - ipip
+    - metallb_configmap.yml
+    - metallb_deployment.yml
+    - calicoctl.yml
+    - calico.yml
+    - ipip.yml
+    - kubeadm.conf
