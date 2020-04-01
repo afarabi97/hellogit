@@ -36,11 +36,11 @@ def get_system_name():
 def set_system_name(system_name: str):
     ini_path = '/etc/tfplenum.ini'
     config = configparser.ConfigParser()
-    config.read(ini_path)    
+    config.read(ini_path)
     try:
         config.set('tfplenum', 'system_name', system_name)
         with open(ini_path, "w") as fhandle:
-            config.write(fhandle)        
+            config.write(fhandle)
         return jsonify({'message': 'Set to: ' + system_name})
     except KeyError:
         return jsonify({'message': 'Could not get the system_name.'}), 404
@@ -85,12 +85,6 @@ def gather_device_facts() -> Response:
         for interface in node.interfaces:
             if interface.ip_address != management_ip:
                 potential_monitor_interfaces.append(interface.name)
-            # TODO Commented out to support dirty builds. Consider removing this later.
-            # if interface.ip_address == management_ip:
-            #     if interface.speed < MIN_MBPS:
-            #         return jsonify(error_message="ERROR: Please check your "
-            #                        "network configuration. The link speed on {} is less than {} Mbps."
-            #                        .format(interface.name, MIN_MBPS))
 
         return jsonify(cpus_available=node.cpu_cores,
                        memory_available=node.memory_gb,
@@ -136,8 +130,8 @@ def kill_job() -> Response:
 
             # Send notification that the task has been cancelled
             notification = NotificationMessage(role=job_name.lower())
-            notification.setMessage("%s cancelled." % job_name.capitalize())
-            notification.setStatus(NotificationCode.CANCELLED.name)
+            notification.set_message("%s cancelled." % job_name.capitalize())
+            notification.set_status(NotificationCode.CANCELLED.name)
             notification.post_to_websocket_api()
 
         return OK_RESPONSE
@@ -222,9 +216,8 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     for index, ip in enumerate(available_ip_addresses):
         pos = ip.rfind('.') + 1
         last_octet = int(ip[pos:])
-        if last_octet in ip_address_blocks:
-            if _is_valid_ip_block(available_ip_addresses, index):
-                available_ip_blocks.append(ip)
+        if last_octet in ip_address_blocks and _is_valid_ip_block(available_ip_addresses, index):
+            available_ip_blocks.append(ip)
     return available_ip_blocks
 
 
@@ -276,7 +269,7 @@ def _get_mng_ip_and_mac(node: Dict) -> Tuple[str, str]:
     try:
         iface = node['deviceFacts']['default_ipv4_settings']
         return iface['address'], iface['macaddress']
-    except KeyError as e:
+    except KeyError:
         pass
     return None, None
 

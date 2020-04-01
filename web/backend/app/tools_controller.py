@@ -44,15 +44,15 @@ class AmmendedPasswordNotFound(Exception):
 @app.route('/api/change_kit_clock', methods=['POST'])
 def change_kit_clock() -> Response:
     payload = request.get_json()
-    dateParts = payload['date'].split(' ')[0].split('/')
-    timeParts = payload['date'].split(' ')[1].split(':')
-    timeForm = {'timezone': payload['timezone'],
-                 'date': { 'year': dateParts[2], 'month': dateParts[0], 'day': dateParts[1]},
-                 'time': '{}:{}:{}'.format(timeParts[0], timeParts[1], timeParts[2])
+    date_parts = payload['date'].split(' ')[0].split('/')
+    time_parts = payload['date'].split(' ')[1].split(':')
+    time_form = {'timezone': payload['timezone'],
+                 'date': { 'year': date_parts[2], 'month': date_parts[0], 'day': date_parts[1]},
+                 'time': '{}:{}:{}'.format(time_parts[0], time_parts[1], time_parts[2])
                }
 
     try:
-        change_time_on_kit(timeForm)
+        change_time_on_kit(time_form)
     except TimeChangeFailure as e:
         return jsonify({"message": str(e)})
 
@@ -86,12 +86,12 @@ def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict
 @app.route('/api/change_kit_password', methods=['POST'])
 def change_kit_password():
     payload = request.get_json()
-    passwordForm = payload["passwordForm"]
-    ammendedPasswords = payload["amendedPasswords"]
+    password_form = payload["passwordForm"]
+    ammended_passwords = payload["amendedPasswords"]
     current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     if current_config:
         old_password = decode_password(current_config["form"]["root_password"])
-        password_hash, ret_code = run_command2('perl -e "print crypt(\'{}\', "Q9"),"'.format(passwordForm["root_password"]))
+        password_hash, ret_code = run_command2('perl -e "print crypt(\'{}\', "Q9"),"'.format(password_form["root_password"]))
         change_root_pwd = "usermod --password {} root".format(password_hash)
 
         for node in current_config["form"]["nodes"]:
@@ -101,7 +101,7 @@ def change_kit_password():
                 return ERROR_RESPONSE
 
             try:
-                amended_password = _get_ammended_password(ip, ammendedPasswords)
+                amended_password = _get_ammended_password(ip, ammended_passwords)
                 correct_password = amended_password
             except AmmendedPasswordNotFound:
                 correct_password = None
@@ -125,8 +125,8 @@ def change_kit_password():
                     return jsonify(node)
 
 
-        current_config["form"]["root_password"] = encode_password(passwordForm["root_password"])
-        current_config["form"]["re_password"] = encode_password(passwordForm["root_password"])
+        current_config["form"]["root_password"] = encode_password(password_form["root_password"])
+        current_config["form"]["re_password"] = encode_password(password_form["root_password"])
         new_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
                                             {"_id": KICKSTART_ID, "form": current_config["form"]},
                                             upsert=False,
@@ -211,7 +211,7 @@ def is_elk_snapshot_repo_setup():
 
     try:
         mng = ElasticsearchManager(service_ip, conn_mng)
-        ret_val = mng.get_repository()
+        mng.get_repository()
         return jsonify({"is_setup": "complete"})
     except (NotFoundError, ConnectionError):
         return jsonify({"is_setup": "notstarted"})
@@ -262,7 +262,7 @@ class RemoteNetworkDevice(object):
       self._node = node
       self._device = device
 
-    def up(self):
+    def set_up(self):
         with FabricConnection(self._node) as shell:
             result = shell.run("bash -c 'ip link set {} up'".format(self._device))
             if result.return_code == 0:
@@ -295,7 +295,7 @@ class RemoteNetworkDevice(object):
 def change_state_of_remote_network_device(node: str, device: str, state: str):
     device = RemoteNetworkDevice(node, device)
     if state == "up":
-        result = device.up()
+        result = device.set_up()
         if result:
             return jsonify(result)
         else:
@@ -365,8 +365,8 @@ def load_es_deploy():
         return (jsonify("Deploy config successfully loaded."), 200)
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()
         return ERROR_RESPONSE
     return ERROR_RESPONSE

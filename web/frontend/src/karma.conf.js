@@ -20,7 +20,7 @@ module.exports = function(config) {
     files: [],
     exclude: [],
     coverageIstanbulReporter: {
-      dir: require('path').join(__dirname, 'coverage'), reports: [ 'html', 'lcovonly' ],
+      reports: [ 'html', 'lcovonly' ],
       dir: path.join(__dirname, 'doc-tests-coverage'),
       fixWebpackSourcePaths: true,
       skipFilesWithNoCoverage: false,

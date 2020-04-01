@@ -20,15 +20,15 @@ class ReplayObject:
 def replay_pcap_srv(payload: Dict, root_password: str):
     replay = ReplayObject(payload)
     notification = NotificationMessage(role="pcap")
-    notification.setStatus(status=NotificationCode.STARTED.name)
-    notification.setMessage("{} replay started.".format(replay.pcap))
+    notification.set_status(status=NotificationCode.STARTED.name)
+    notification.set_message("{} replay started.".format(replay.pcap))
     notification.post_to_websocket_api()
 
     try:
         pcap_file = Path(PCAP_UPLOAD_DIR + "/" + replay.pcap)
         if not pcap_file.exists() or not pcap_file.is_file():
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setMessage("{} does not exist or is not a file.".format(str(pcap_file)))
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_message("{} does not exist or is not a file.".format(str(pcap_file)))
             notification.post_to_websocket_api()
 
         with FabricConnectionManager('root', root_password, payload['sensor']) as ssh_con:
@@ -38,11 +38,11 @@ def replay_pcap_srv(payload: Dict, root_password: str):
                 ssh_con.run("tcpreplay --mbps=100 -i {} {}".format(iface, remote_pcap))
             ssh_con.run("rm -f {}".format(remote_pcap))
 
-        notification.setStatus(status=NotificationCode.COMPLETED.name)
-        notification.setMessage("Completed tcpreplay of {}.".format(replay.pcap))
+        notification.set_status(status=NotificationCode.COMPLETED.name)
+        notification.set_message("Completed tcpreplay of {}.".format(replay.pcap))
         notification.post_to_websocket_api()
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()

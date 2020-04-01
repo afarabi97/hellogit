@@ -141,7 +141,7 @@ class KickstartPayloadGenerator:
             ],
             "nodes": self._construct_node_parts(),
             "continue": True,
-            "domain": "sil.lab"
+            "domain": "lan"
         }
 
 

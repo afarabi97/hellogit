@@ -115,7 +115,7 @@ class KitInventoryGenerator:
         #For virtual kits, we inject the pfsense value.
         try:
             self._template_ctx["pfsense_ipaddress"]
-        except KeyError as e:
+        except KeyError:
             self._template_ctx["pfsense_ipaddress"] = self._kickstart_form["gateway"]
 
     def generate(self) -> None:

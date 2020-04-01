@@ -18,6 +18,8 @@ from app.service.socket_service import NotificationMessage, NotificationCode
 
 _JOB_NAME = "upgrade"
 _MESSAGETYPE_PREFIX = "upgrade"
+_DEFAULT_ERROR_MSG = "Upgrade encountered an error"
+
 
 def get_upgrade_paths(original_controller_ip: str) -> list:
     """
@@ -73,8 +75,8 @@ def execute_upgrade(upgrade_path: str):
 
 
     try:
-        notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-        notification.setMessage("Executing " + upgrade_path + " upgrade playbook.")
+        notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+        notification.set_message("Executing " + upgrade_path + " upgrade playbook.")
         notification.post_to_websocket_api()
 
         cwd_dir = str(UPGRADES_DIR / upgrade_path / "playbooks")
@@ -82,15 +84,15 @@ def execute_upgrade(upgrade_path: str):
         job = AsyncJob(_JOB_NAME.capitalize(), command, working_dir=cwd_dir)
         ret_val = job.run_asycn_command()
 
-        notification.setStatus(status=NotificationCode.COMPLETED.name)
-        notification.setMessage("Upgrade " + upgrade_path + " completed.")
+        notification.set_status(status=NotificationCode.COMPLETED.name)
+        notification.set_message("Upgrade " + upgrade_path + " completed.")
         notification.post_to_websocket_api()
 
     except Exception as e:
         logger.exception(e)
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage("Upgrade encountered an error")
-        notification.setException(exception=str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(_DEFAULT_ERROR_MSG)
+        notification.set_exception(exception=str(e))
         notification.post_to_websocket_api()
         raise e
 
@@ -121,28 +123,23 @@ def get_ssh_keys(fabric: FabricConnection) -> None:
     ssh_dir = "/root/.ssh"
     cmd_to_list_ssh_files = ("for i in /root/.ssh/*; do echo $i; done")
     cmd_selinux = ("chcon -R -t ssh_home_t " + ssh_dir)
-    try:
-        if not os.path.exists(ssh_dir):
-            os.mkdir(ssh_dir)
-            proc = subprocess.Popen(cmd_selinux, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            out, err = proc.communicate()
-            logger.info(out.decode('utf-8'))
-        files_string_ = fabric.run(cmd_to_list_ssh_files).stdout.strip()
-        files_list = files_string_.replace("\r","").split("\n")
-        for f in files_list:
-            fabric.get(f, f)
-    except Exception as e:
-        raise e
+
+    if not os.path.exists(ssh_dir):
+        os.mkdir(ssh_dir)
+        proc = subprocess.Popen(cmd_selinux, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out, err = proc.communicate()
+        logger.info(out.decode('utf-8'))
+    files_string_ = fabric.run(cmd_to_list_ssh_files).stdout.strip()
+    files_list = files_string_.replace("\r","").split("\n")
+    for f in files_list:
+        fabric.get(f, f)
 
 
 def get_kube_config(fabric: FabricConnection) -> None:
     kube_dir = "/root/.kube"
-    try:
-        if not os.path.exists(kube_dir):
-            os.mkdir(kube_dir)
-        fabric.get(kube_dir + "/config", kube_dir + "/config")
-    except Exception as e:
-        raise e
+    if not os.path.exists(kube_dir):
+        os.mkdir(kube_dir)
+    fabric.get(kube_dir + "/config", kube_dir + "/config")
 
 
 def migrate_controller(original_controller_ip: str, username: str, password: str) -> None:
@@ -157,7 +154,6 @@ def migrate_controller(original_controller_ip: str, username: str, password: str
 
     conn_mng.mongo_kit.delete_many({})
     conn_mng.mongo_kickstart.delete_many({})
-    jobs_results = {}
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX)
 
     try:
@@ -181,9 +177,9 @@ def migrate_controller(original_controller_ip: str, username: str, password: str
         logger.info(out.decode('utf-8'))
     except Exception as e:
         logger.exception(e)
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage("Upgrade encountered an error")
-        notification.setException(exception=str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(_DEFAULT_ERROR_MSG)
+        notification.set_exception(exception=str(e))
         notification.post_to_websocket_api()
         raise e
 
@@ -197,34 +193,34 @@ def update_controller_ip(new_controller_ip: str) -> None:
 
 def upgrade(original_controller_ip: str, username: str, password: str, new_controller_ip: str, upgrade_path: str):
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX)
-    notification.setStatus(status=NotificationCode.STARTED.name)
-    notification.setMessage("Upgrade started.")
+    notification.set_status(status=NotificationCode.STARTED.name)
+    notification.set_message("Upgrade started.")
     notification.post_to_websocket_api()
 
     jobs_results = {}
     try:
-        notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-        notification.setMessage("Migrating data from old controller.")
+        notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+        notification.set_message("Migrating data from old controller.")
         notification.post_to_websocket_api()
         migrate_controller(original_controller_ip, username, password)
     except Exception as e:
         logger.exception(e)
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage("Upgrade encountered an error")
-        notification.setException(exception=str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(_DEFAULT_ERROR_MSG)
+        notification.set_exception(exception=str(e))
         notification.post_to_websocket_api()
         return e
 
-    notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-    notification.setMessage("Restoring configurations.")
+    notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+    notification.set_message("Restoring configurations.")
     notification.post_to_websocket_api()
 
     update_controller_ip(new_controller_ip)
     generate_kickstart_inventory()
     generate_kit_inventory()
 
-    notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-    notification.setMessage("Executing kit upgrade path.")
+    notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+    notification.set_message("Executing kit upgrade path.")
     notification.post_to_websocket_api()
     jobs_results = execute(upgrade_path)
 

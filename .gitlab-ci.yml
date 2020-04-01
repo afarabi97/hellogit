@@ -73,19 +73,36 @@ stages:
 include:
   - local: mip.gitlab-ci.yml
 
-sonarqube-check:
+sonarqube analyze production code:
   tags:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
+    ./web/setup/setup_angular_only.sh
     sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
+  only:
+    variables:
+      - $PIPELINE == "virtual_build_and_test"
+      - $PIPELINE == "developer"
+      - $PIPELINE == "static_analysis_only"
+
+sonarqube analyze test code:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum-test -Dsonar.sources=testing/
   allow_failure: true
   only:
     variables:
       - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "developer"
+      - $PIPELINE == "static_analysis_only"
+
 
 # container_scanning:
 #   image:

@@ -33,7 +33,7 @@ export class TotalSensorResourcesCardComponent implements OnChanges {
         this.sensorResource.cpuCoresAvailable += node.deviceFacts['cpus_available'];
         this.sensorResource.memoryAvailable += node.deviceFacts['memory_available'];
         node.deviceFacts.disks.map(disk => {
-          if(!disk.hasRoot) {
+          if(!disk.has_root) {
             this.sensorResource.clusterStorageAvailable_gb += disk.size_gb;
             this.sensorResource.clusterStorageAvailable_tb += disk.size_tb;
           }

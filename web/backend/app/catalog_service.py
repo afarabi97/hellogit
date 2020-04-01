@@ -268,7 +268,7 @@ def _build_values(values: dict):
             value_items = v
     except Exception as exc:
             logger.error(exc)
-            pass
+
     return deployment_name, value_items
 
 
@@ -292,11 +292,11 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                 node_hostname = deployment_name
 
             message = '%s %s on %s' % (NotificationCode.INSTALLING.name.capitalize(), application.capitalize(), node_hostname)
-            notification.setMessage(message=message)
+            notification.set_message(message=message)
             try:
                 # Send Update Notification to websocket
-                notification.setException(exception=None)
-                notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_exception(exception=None)
+                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
                 notification.post_to_websocket_api()
 
                 if "Sensor" in node_affinity:
@@ -318,7 +318,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     results = yaml.full_load(stdout.strip())
 
                     # Send Update Notification to websocket
-                    notification.setStatus(status=results["STATUS"].upper())
+                    notification.set_status(status=results["STATUS"].upper())
                     notification.post_to_websocket_api()
                     response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
                     conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
@@ -328,8 +328,8 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     results = stdout.strip()
                     logger.exception(results)
                     # Send Update Notification to websocket
-                    notification.setStatus(status=NotificationCode.ERROR.name)
-                    notification.setException(exception=results)
+                    notification.set_status(status=NotificationCode.ERROR.name)
+                    notification.set_exception(exception=results)
                     notification.post_to_websocket_api()
                 if os.path.exists(tpath):
                     os.remove(tpath)
@@ -337,21 +337,20 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
             except Exception as exc:
                 logger.error(exc)
                 # Send Update Notification to websocket
-                notification.setStatus(status=NotificationCode.ERROR.name)
-                notification.setException(exception=exc)
+                notification.set_status(status=NotificationCode.ERROR.name)
+                notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
-                pass
         else:
             err = "Error unable to parse values from request"
             logger.exception(err)
             # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setException(exception=err)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_exception(exception=err)
             notification.post_to_websocket_api()
 
     # Send Update Notification to websocket
-    notification.setMessage(message="Install completed.")
-    notification.setStatus(status=NotificationCode.COMPLETED.name)
+    notification.set_message(message="Install completed.")
+    notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
     return response
 
@@ -360,7 +359,6 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
     response = []
-    new_values = []
     for node in nodes:
         node_hostname = None
         deployment_name = None
@@ -383,11 +381,11 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
 
         if deployment_to_uninstall:
             message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
-            notification.setMessage(message=message)
-            notification.setException(exception=None)
+            notification.set_message(message=message)
+            notification.set_exception(exception=None)
             try:
                 # Send Update Notification to websocket
-                notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
+                notification.set_status(status=NotificationCode.IN_PROGRESS.name)
                 notification.post_to_websocket_api()
 
                 # Remove kube node label
@@ -403,34 +401,33 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
 
                     # Send Update Notification to websocket
                     message = '%s %s on %s' % (NotificationCode.DELETING.name.capitalize(), application, node_hostname)
-                    notification.setStatus(status=NotificationCode.DELETED.name)
+                    notification.set_status(status=NotificationCode.DELETED.name)
                     notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
                     logger.exception(exc)
                     # Send Update Notification to websocket
-                    notification.setStatus(status=NotificationCode.ERROR.name)
-                    notification.setException(exception=exc)
+                    notification.set_status(status=NotificationCode.ERROR.name)
+                    notification.set_exception(exception=exc)
                     notification.post_to_websocket_api()
                 response.append(results)
                 sleep(1)
             except Exception as exc:
                 logger.exception(exc)
                 # Send Update Notification to websocket
-                notification.setStatus(status=NotificationCode.ERROR.name)
-                notification.setException(exception=exc)
+                notification.set_status(status=NotificationCode.ERROR.name)
+                notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
-                pass
         else:
             err = "Error unable to determine deployment name please try again"
             logger.exception(err)
             # Send Update Notification to websocket
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setException(exception=err)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_exception(exception=err)
             notification.post_to_websocket_api()
 
     # Send Update Notification to websocket
-    notification.setMessage(message="Delete completed.")
-    notification.setStatus(status=NotificationCode.COMPLETED.name)
+    notification.set_message(message="Delete completed.")
+    notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
     return response

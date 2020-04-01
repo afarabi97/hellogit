@@ -56,8 +56,8 @@ def _initalize_counters():
             dbrecord = conn_mng.mongo_counters.find_one({"_id": counter})
             if dbrecord == None:
                 data = {"_id": counter, "seq": randint(100, 100000)}
-                ret_val  = conn_mng.mongo_counters.insert_one(data)
-    except pymongo.errors.DuplicateKeyError as e:
+                conn_mng.mongo_counters.insert_one(data)
+    except pymongo.errors.DuplicateKeyError:
         # race condition of multiple api workers coming online will produce
         # dupcliate key error
         pass
@@ -118,8 +118,7 @@ from app import mip_config_controller
 
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
-def receiveSignal(signalNumber, frame):
+def receive_signal(signal_number, frame):
     exit(1)
-    return
 
-signal.signal(signal.SIGTERM, receiveSignal)
+signal.signal(signal.SIGTERM, receive_signal)

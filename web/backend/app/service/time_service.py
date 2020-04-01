@@ -15,6 +15,10 @@ from shared.utils import decode_password
 from typing import Dict, Tuple, Union, List
 
 
+FAILURE_MSG = "Failed to run {} on {}"
+FAILURE_MSG_CTRL = "Failed to run {} on controller."
+
+
 class TimeChangeFailure(Exception):
     pass
 
@@ -35,14 +39,14 @@ def zero_pad(num: Union[int, str]) -> str:
 
 class DatetimeService:
 
-    def __init__(self, timeForm: Dict, master_node_ipaddress: str):
-        hours, minutes, seconds = timeForm['time'].split(':')
+    def __init__(self, time_form: Dict, master_node_ipaddress: str):
+        hours, minutes, seconds = time_form['time'].split(':')
         self._set_hwclock_cmd = "hwclock --systohc --utc" # Sets hardware clock to systemtime and changes the timezone to UTC with appropriate offset.
         self._command_date_format = '%Y-%m-%d %H:%M:%S'
-        self._timezone_cmd = 'timedatectl set-timezone {}'.format(timeForm['timezone'])
-        self._initial_time = '{year}-{month}-{day} {hours}:{minutes}:{seconds}'.format(year=timeForm['date']['year'],
-                                                                                       month=zero_pad(timeForm['date']['month']),
-                                                                                       day=zero_pad(timeForm['date']['day']),
+        self._timezone_cmd = 'timedatectl set-timezone {}'.format(time_form['timezone'])
+        self._initial_time = '{year}-{month}-{day} {hours}:{minutes}:{seconds}'.format(year=time_form['date']['year'],
+                                                                                       month=zero_pad(time_form['date']['month']),
+                                                                                       day=zero_pad(time_form['date']['day']),
                                                                                        hours=hours,
                                                                                        minutes=minutes,
                                                                                        seconds=seconds)
@@ -66,7 +70,7 @@ class DatetimeService:
         command = self._get_timecommand(self._initial_datetime + elapsed_time)
         ret_val = cmd.run(command)
         if ret_val.return_code != 0:
-            raise TimeChangeFailure("Failed to run {} on {}".format(command, ip_address))
+            raise TimeChangeFailure(FAILURE_MSG.format(command, ip_address))
 
     def _has_chronyd(self, cmd: Connection) -> bool:
         try:
@@ -98,7 +102,7 @@ class DatetimeService:
         command = self._get_timecommand(self._initial_datetime + elapsed_time)
         _, ret_val = run_command2(command)
         if ret_val != 0:
-            raise TimeChangeFailure("Failed to run {} on controller.".format(command))
+            raise TimeChangeFailure(FAILURE_MSG_CTRL.format(command))
 
     def _set_ctrl_clock_using_chronyd(self):
         run_command2('systemctl stop chronyd')
@@ -126,7 +130,7 @@ class DatetimeService:
         with FabricConnectionManager('root', password, ip_address) as cmd:
             ret_val = cmd.run(self._timezone_cmd) # type: Result
             if ret_val.return_code != 0:
-                raise TimeChangeFailure("Failed to run {} on {}".format(self._timezone_cmd, ip_address))
+                raise TimeChangeFailure(FAILURE_MSG.format(self._timezone_cmd, ip_address))
 
             try:
                 cmd.run(self._unset_ntp_cmd, warn=True)
@@ -143,7 +147,7 @@ class DatetimeService:
 
             ret_val = cmd.run(self._set_hwclock_cmd)
             if ret_val.return_code != 0:
-                raise TimeChangeFailure("Failed to run {} on {}".format(self._set_hwclock_cmd, ip_address))
+                raise TimeChangeFailure(FAILURE_MSG.format(self._set_hwclock_cmd, ip_address))
 
             cmd.run(self._set_ntp_cmd, warn=True)
 
@@ -151,7 +155,7 @@ class DatetimeService:
     def set_controller_clock(self, use_timedatectl: bool):
         _, ret_val = run_command2(self._timezone_cmd)
         if ret_val != 0:
-            raise TimeChangeFailure("Failed to run {} on controller.".format(self._timezone_cmd))
+            raise TimeChangeFailure(FAILURE_MSG_CTRL.format(self._timezone_cmd))
 
         run_command2(self._unset_ntp_cmd)
         if use_timedatectl:
@@ -167,7 +171,7 @@ class DatetimeService:
 
         _, ret_val = run_command2(self._set_hwclock_cmd)
         if ret_val != 0:
-            raise TimeChangeFailure("Failed to run {} on controller.".format(self._set_hwclock_cmd))
+            raise TimeChangeFailure(FAILURE_MSG_CTRL.format(self._set_hwclock_cmd))
         run_command2(self._set_ntp_cmd)
 
 
@@ -198,9 +202,9 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
     :param payload: The dictionary object containing the payload.
     :return: None
     """
-    timeForm = payload['timeForm']
+    time_form = payload['timeForm']
     _reorder_nodes_and_put_master_first(payload['kitForm']["nodes"])
-    dt_srv = DatetimeService(timeForm, payload['kitForm']["nodes"][0]["management_ip_address"])
+    dt_srv = DatetimeService(time_form, payload['kitForm']["nodes"][0]["management_ip_address"])
     for node in payload['kitForm']["nodes"]:
         try:
             is_master = node['is_master_server']
@@ -212,12 +216,12 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
     notify_clock_refresh()
 
 
-def change_time_on_kit(timeForm: Dict):
+def change_time_on_kit(time_form: Dict):
     kickstart = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     kit = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if kit and kickstart:
         _reorder_nodes_and_put_master_first(kit['form']["nodes"])
-        dt_srv = DatetimeService(timeForm, kit['form']["nodes"][0]["management_ip_address"])
+        dt_srv = DatetimeService(time_form, kit['form']["nodes"][0]["management_ip_address"])
         password = decode_password(kickstart['form']['root_password'])
         for node in kit['form']["nodes"]:
             try:

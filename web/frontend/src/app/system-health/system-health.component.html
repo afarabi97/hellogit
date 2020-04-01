@@ -4,49 +4,49 @@
       <mat-card-title>Node Health</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table #nodeStatusesTable [dataSource]="nodeStatuses" multiTemplateDataRows>
+      <table mat-table #nodeStatusesTable [dataSource]="nodeStatuses" multiTemplateDataRows aria-describedby="Node status table">
 
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let node">
             <a (click)="toggleNodeResources(node)">
-              <i class="material-icons" *ngIf="!isNodeResourceVisible(node)">chevron_right</i>
-              <i class="material-icons" *ngIf="isNodeResourceVisible(node)">expand_more</i>
+              <em class="material-icons" *ngIf="!isNodeResourceVisible(node)">chevron_right</em>
+              <em class="material-icons" *ngIf="isNodeResourceVisible(node)">expand_more</em>
               <span style="vertical-align: super;">{{ node.metadata.name }}</span>
             </a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Type</th>
           <td mat-cell *matCellDef="let node">
             {{ node.metadata.labels.role | titlecase}}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="ip_address">
-          <th mat-header-cell *matHeaderCellDef>IP Address</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>IP Address</th>
           <td mat-cell *matCellDef="let node">
             <a (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.status.addresses[0].address }}</a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="ready">
-          <th mat-header-cell *matHeaderCellDef>Ready</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Ready</th>
           <td mat-cell *matCellDef="let node">
               <a matTooltip="{{ node.status.conditions[4].message }}">
                 <div *ngIf="node.status.conditions[4].status === 'True'; else notworking">
-                  <i class="material-icons" style="color:lightgreen;">check_circle</i>
+                  <em class="material-icons" style="color:lightgreen;">check_circle</em>
                 </div>
                 <ng-template #notworking>
-                  <i class="material-icons" style="color:darkred;">cancel</i>
+                  <em class="material-icons" style="color:darkred;">cancel</em>
                 </ng-template>
               </a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="storage">
-            <th mat-header-cell *matHeaderCellDef>Storage</th>
+            <th scope="col" mat-header-cell *matHeaderCellDef>Storage</th>
             <td mat-cell *matCellDef="let node">
                 <div *ngIf="node['metadata']['annotations']['tfplenum/root_usage'] !== undefined">
                   <span matTooltip="{{ node['metadata']['annotations']['tfplenum/root_usage'][2] / 1073741824 | number : '.2-2' }} GiB free">root: {{ node['metadata']['annotations']['tfplenum/root_usage'][3] }}%</span>
@@ -58,7 +58,7 @@
           </ng-container>
 
         <ng-container matColumnDef="memory">
-            <th mat-header-cell *matHeaderCellDef>Memory</th>
+            <th scope="col" mat-header-cell *matHeaderCellDef>Memory</th>
             <td mat-cell *matCellDef="let node">
                 <div *ngIf="node['metadata']['annotations']['tfplenum/memory'] !== undefined">
                   <span matTooltip="{{ node['metadata']['annotations']['tfplenum/memory'][1] / 1073741824 | number : '.2-2' }} GiB available">{{ node['metadata']['annotations']['tfplenum/memory'][2] }}%</span>
@@ -67,7 +67,7 @@
           </ng-container>
 
           <ng-container matColumnDef="cpu">
-            <th mat-header-cell *matHeaderCellDef>CPU</th>
+            <th scope="col" mat-header-cell *matHeaderCellDef>CPU</th>
             <td mat-cell *matCellDef="let node">
                 <div *ngIf="node['metadata']['annotations']['tfplenum/cpu_percent'] !== undefined">
                   <span>{{ node['metadata']['annotations']['tfplenum/cpu_percent'] }}%</span>
@@ -76,11 +76,11 @@
           </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let node">
               <button mat-button matTooltip="Click to run describe node." color="primary"
                   (click)="describeNode(node.metadata.name)">
-                  <i class="material-icons">info</i>
+                  <em class="material-icons">info</em>
               </button>
           </td>
         </ng-container>
@@ -204,9 +204,9 @@
 </ng-template>
 
 <ng-template #podStatues let-pods='pods' let-isVisible='isVisible'>
-  <table mat-table [dataSource]="pods" multiTemplateDataRows>
+  <table mat-table [dataSource]="pods" multiTemplateDataRows aria-describedby="Pod status table">
     <ng-container matColumnDef="namespace">
-      <th mat-header-cell *matHeaderCellDef>Namespace</th>
+      <th scope="col" mat-header-cell *matHeaderCellDef>Namespace</th>
       <td mat-cell *matCellDef="let pod">
         <a (click)="openPodDialog(pod)">
           <span style="vertical-align: super;">{{ pod.metadata.namespace }}</span>
@@ -214,13 +214,13 @@
       </td>
     </ng-container>
     <ng-container matColumnDef="pod_name">
-      <th mat-header-cell *matHeaderCellDef>Pod Name</th>
+      <th scope="col" mat-header-cell *matHeaderCellDef>Pod Name</th>
       <td mat-cell *matCellDef="let pod">
         <a matTooltip="Click me" (click)="openPodStatusInfo(pod.metadata.name, pod.status)">{{ pod.metadata.name }}</a>
       </td>
     </ng-container>
     <ng-container matColumnDef="container_states">
-      <th mat-header-cell *matHeaderCellDef>Container States</th>
+      <th scope="col" mat-header-cell *matHeaderCellDef>Container States</th>
       <td mat-cell *matCellDef="let pod">
         <div *ngFor="let container of getPodStatus(pod.status)">
           <span *ngIf="container.name">{{ container.name }}: </span>
@@ -229,19 +229,19 @@
       </td>
     </ng-container>
     <ng-container matColumnDef="restart_count">
-      <th mat-header-cell *matHeaderCellDef>Restart Count</th>
+      <th scope="col" mat-header-cell *matHeaderCellDef>Restart Count</th>
       <td mat-cell *matCellDef="let pod">
         {{ getContainerRestartCount(pod) }}
       </td>
     </ng-container>
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let pod">
           <button mat-button matTooltip="Click to run describe pod." color="primary" (click)="describePod(pod.metadata)">
-            <i class="material-icons">info</i>
+            <em class="material-icons">info</em>
           </button>
           <button mat-button matTooltip="Click to view pod logs." color="primary" (click)="podLogs(pod.metadata)">
-            <i class="material-icons">help</i>
+            <em class="material-icons">help</em>
           </button>
       </td>
     </ng-container>

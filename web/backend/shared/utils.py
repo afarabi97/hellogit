@@ -97,13 +97,13 @@ def fix_hostname(dns_suffix: str, hostname_or_ip: str):
 
     :return fixed hostname:
     """
-    def isIpv4Address(s: str) -> bool:
+    def is_ipv4_address(s: str) -> bool:
         pieces = s.split('.')
         if len(pieces) != 4: return False
         try: return all(0<=int(p)<256 for p in pieces)
         except ValueError: return False
 
-    if isIpv4Address(hostname_or_ip):
+    if is_ipv4_address(hostname_or_ip):
         pass # Exit if block and return the address.
     elif len(dns_suffix) > 0 and dns_suffix not in hostname_or_ip:
         return hostname_or_ip + "." + dns_suffix

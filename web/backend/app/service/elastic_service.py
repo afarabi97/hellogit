@@ -30,7 +30,7 @@ def apply_es_deploy(run_check_scale_status: bool=True):
         if not config.load_kube_config():
             config.load_kube_config()
         api = client.CustomObjectsApi()
-        resp = api.patch_namespaced_custom_object(group=ELASTIC_OP_GROUP,
+        api.patch_namespaced_custom_object(group=ELASTIC_OP_GROUP,
                     version=ELASTIC_OP_VERSION,
                     plural=ELASTIC_OP_PLURAL,
                     namespace=ELASTIC_OP_NAMESPACE,
@@ -42,8 +42,8 @@ def apply_es_deploy(run_check_scale_status: bool=True):
         return True
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()
     return False
 
@@ -100,15 +100,15 @@ class KubernetesDeploymentYamlModifier:
 @celery.task
 def finish_repository_registration(service_ip: str):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.setStatus(status=NotificationCode.STARTED.name)
-    notification.setMessage("Started repository registration routine.")
+    notification.set_status(status=NotificationCode.STARTED.name)
+    notification.set_message("Started repository registration routine.")
     notification.post_to_websocket_api()
 
     try:
         if es_cluster_status() != "Ready":
             failure_msg = "Cluster status is not ready unable to continue."
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setMessage(failure_msg)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_message(failure_msg)
             notification.post_to_websocket_api()
             return
 
@@ -121,8 +121,8 @@ def finish_repository_registration(service_ip: str):
 
         if apply_es_deployment == False:
             failure_msg = "Error appling changes to es cluster"
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setMessage(failure_msg)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_message(failure_msg)
             notification.post_to_websocket_api()
             return
 
@@ -144,15 +144,15 @@ def finish_repository_registration(service_ip: str):
                 pass
 
         if ret_val['acknowledged']:
-            notification.setStatus(status=NotificationCode.COMPLETED.name)
-            notification.setMessage("Completed Elasticsearch repository registration.")
+            notification.set_status(status=NotificationCode.COMPLETED.name)
+            notification.set_message("Completed Elasticsearch repository registration.")
             notification.post_to_websocket_api()
         else:
-            notification.setStatus(status=NotificationCode.ERROR.name)
-            notification.setMessage(failure_msg)
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_message(failure_msg)
             notification.post_to_websocket_api()
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()

@@ -34,7 +34,7 @@ export class TotalServerResourcesCardComponent implements OnChanges {
         this.serverResource.cpuCoresAvailable += node.deviceFacts['cpus_available'];
         this.serverResource.memoryAvailable += node.deviceFacts['memory_available'];
         node.deviceFacts.disks.map(disk => {
-          if(!disk.hasRoot) {
+          if(!disk.has_root) {
             this.serverResource.clusterStorageAvailable_gb += disk.size_gb;
             this.serverResource.clusterStorageAvailable_tb += disk.size_tb;
           }

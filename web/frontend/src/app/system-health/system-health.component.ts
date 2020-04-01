@@ -182,7 +182,8 @@ export class SystemHealthComponent implements OnInit {
       let tab_data = this._getPodStatusTabData(pods, lookup);
       this.podStatus = tab_data[0];
       this.unscheduledPodStatus = tab_data[1];
-      this.tabs_names = tab_data[2].sort();
+      this.tabs_names = tab_data[2];
+      this.tabs_names.sort();
     });
 
     this.healthSrv.getPipelineStatus().subscribe(data => {

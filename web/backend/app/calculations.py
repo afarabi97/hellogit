@@ -1,8 +1,8 @@
 from app.resources import (NodeResources,
                            cal_percentage_of_total,
                            NodeResourcePool,
-                           convert_GiB_to_KiB,
-                           convert_KiB_to_GiB)
+                           convert_gib_to_kib,
+                           convert_kib_to_gib)
 from typing import Dict, List, Tuple
 from shared.constants import NODE_TYPES
 

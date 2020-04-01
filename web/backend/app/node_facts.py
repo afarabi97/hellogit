@@ -44,7 +44,7 @@ class Disk(object):
         name (str): Name of disk / storage device
         size_gb (float): Size of storage device in GB
         size_tb (float): Size of storage device in TB
-        hasRoot (bool): Flag indicating whether or not a disk has the root of a filesystem present
+        has_root (bool): Flag indicating whether or not a disk has the root of a filesystem present
     """
 
     def __init__(self, name: str):
@@ -54,7 +54,7 @@ class Disk(object):
         :param name: The name of the disk
         """
         self.name = name
-        self.hasRoot = False
+        self.has_root = False
         self.size_gb = 0.0
         self.size_tb = 0.0
 
@@ -86,7 +86,7 @@ class Disk(object):
         :return:
         """
         return "Disk: %s Size GB: %.2f Size TB: %.2f  HasRoot: %r" % (
-                self.name, self.size_gb, self.size_tb, self.hasRoot)
+                self.name, self.size_gb, self.size_tb, self.has_root)
 
 
 class Node(object):
@@ -230,20 +230,20 @@ class Node(object):
 
                 found_disk = next((x for x in disks if x.name == part_val), None)
                 if found_disk is not None:
-                    found_disk.hasRoot = True
+                    found_disk.has_root = True
 
                 master_part_val = master_links.get(part_val)
                 top_part_val = partition_links.get(part_val)
                 found_disk = next((x for x in disks if x.name == top_part_val), None)
                 if found_disk is not None:
-                    found_disk.hasRoot = True
+                    found_disk.has_root = True
                 found_disk = next((x for x in disks if x.name == master_part_val), None)
                 if found_disk is not None:
-                    found_disk.hasRoot = True
+                    found_disk.has_root = True
                 top_part_val = partition_links.get(master_part_val)
                 found_disk = next((x for x in disks if x.name == top_part_val), None)
                 if found_disk is not None:
-                    found_disk.hasRoot = True
+                    found_disk.has_root = True
 
         # Get Memory
         memory = json_object['ansible_facts']['ansible_memory_mb']['real']['total']

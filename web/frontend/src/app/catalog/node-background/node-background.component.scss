@@ -60,31 +60,6 @@
   color:#dedede;
 }
 
-.node-graphic.hero.zoomed
-{
-  margin:-35px 0 0!important;
-}
-
-.node-graphic.hero .deeper{
-  transform:scale(0) rotate(20deg);
-}
-
-.node-graphic.hero.zoomed .deeper{
-  margin:-124px 0 0 98px;
-  transform:scale(.8) rotate(-119deg);
-}
-
-.node-graphic.hero .deepest{
-  margin:185px 0 0 -232px;
-  transform:scale(1) rotate(-268deg);
-}
-
-.node-graphic.hero.zoomed .deepest{
-  margin:139px 0 0 -232px;
-  transform:scale(1.45) rotate(-268deg);
-  transition-delay:.2s;
-}
-
 .node-graphic.two{
   margin:20px -38px 0 0;
 }

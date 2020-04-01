@@ -106,7 +106,7 @@ def _handle_add_node(add_node_payload: Dict) -> Dict:
         try:
             index = _get_index(kickstart_form, add_node_state["form"])
             del kickstart_form["nodes"][index]
-        except IndexNotFound as e:
+        except IndexNotFound:
             pass
 
     kickstart_form["nodes"].append(add_node_payload)

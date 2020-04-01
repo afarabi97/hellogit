@@ -29,16 +29,6 @@ function _install_nodejs(){
     run_cmd npm -v
 }
 
-function _install_angular(){
-	pushd $FRONTEND_DIR/frontend > /dev/null
-	run_cmd npm install -g npm@~6.13.4
-    run_cmd npm install -g @angular/cli@~8.3.21
-	run_cmd npm cache verify
-    run_cmd npm install
-	npm audit fix
-	popd > /dev/null
-}
-
 function _open_firewall_ports(){
     firewall-cmd --permanent --add-port=4200/tcp
     firewall-cmd --permanent --add-port=443/tcp

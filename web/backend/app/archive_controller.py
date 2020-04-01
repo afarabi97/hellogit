@@ -18,7 +18,7 @@ from pprint import PrettyPrinter
 
 def _get_mongo_collections(config_id: str):
     """
-    Factory function call used for obtaining the appropriate database collections 
+    Factory function call used for obtaining the appropriate database collections
     based on the passed in config_id.
 
     :param config_id: The config ID, all config ids are defined in the constants.py
@@ -29,7 +29,7 @@ def _get_mongo_collections(config_id: str):
     archive_mongo_collection = None
 
     if config_id == KICKSTART_ID:
-        config_mongo_collection = conn_mng.mongo_kickstart        
+        config_mongo_collection = conn_mng.mongo_kickstart
         archive_mongo_collection = conn_mng.mongo_kickstart_archive
     elif config_id == KIT_ID:
         config_mongo_collection = conn_mng.mongo_kit
@@ -40,9 +40,9 @@ def _get_mongo_collections(config_id: str):
     return config_mongo_collection, archive_mongo_collection
 
 
-def archive_form(page_form_payload: Dict, 
-                  is_completed_form: bool, 
-                  archive_mongo_collection: Collection, 
+def archive_form(page_form_payload: Dict,
+                  is_completed_form: bool,
+                  archive_mongo_collection: Collection,
                   comment="Archived by the system."):
     """
     Archives the form object.
@@ -51,7 +51,7 @@ def archive_form(page_form_payload: Dict,
     :param is_completed_form: A boolean that tells us if the form was in a completed state.
     :param archive_mongo_collection: The mongo collection that it will be saved to.
     :param comment: A user or system generated comment.
-    """        
+    """
     archive_form = {}
     archive_form['archive_date'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
     archive_form['form'] = page_form_payload
@@ -60,22 +60,22 @@ def archive_form(page_form_payload: Dict,
     archive_mongo_collection.insert_one(archive_form)
 
 
-@app.route('/api/delete_archive/<config_id>/<archiveId>', methods=['DELETE'])
-def delete_archive(config_id: str, archiveId: str) -> Response:
+@app.route('/api/delete_archive/<config_id>/<archive_id>', methods=['DELETE'])
+def delete_archive(config_id: str, archive_id: str) -> Response:
     """
     Deletes the archive from the database.
 
     :param config_id: config ID we want to interact with.
-    :param archiveId: The mongo ID of the document stored in the database.
+    :param archive_id: The mongo ID of the document stored in the database.
 
     :return: An http response
     """
     _, archive_mongo_collection = _get_mongo_collections(config_id)
-    result = archive_mongo_collection.delete_one({"_id": ObjectId(archiveId)}) # type: DeleteResult
+    result = archive_mongo_collection.delete_one({"_id": ObjectId(archive_id)}) # type: DeleteResult
     if result and result.deleted_count == 1:
         return str(result.deleted_count)
     else:
-        logger.warning("Failed to delete archive ID %s" % archiveId)    
+        logger.warning("Failed to delete archive ID %s" % archive_id)
     return ERROR_RESPONSE
 
 
@@ -98,7 +98,7 @@ def _is_completed_form(config_id: str, some_form: Dict, some_form2: Dict) -> boo
         del form_cpy['re_password']
         del form_cpy2['root_password']
         del form_cpy2['re_password']
-    
+
     return json.dumps(form_cpy, sort_keys=True) == json.dumps(form_cpy2, sort_keys=True)
 
 
@@ -121,7 +121,7 @@ def archive_form_api() -> Response:
     is_completed_form = False
     if current_config is not None:
         is_completed_form = _is_completed_form(config_id, payload['form'], current_config['form'])
-    
+
     archive_form(payload['form'], is_completed_form, archive_mongo_collection, payload['comment'])
     return OK_RESPONSE
 
@@ -145,7 +145,7 @@ def restore_archived() -> Response:
         if config_id == KICKSTART_ID:
             archived_form['form']['root_password'] = decode_password(archived_form['form']['root_password'])
             archived_form['form']['re_password'] = decode_password(archived_form['form']['re_password'])
-        archived_form['_id'] = str(archived_form['_id'])                
+        archived_form['_id'] = str(archived_form['_id'])
         return jsonify(archived_form)
     return ERROR_RESPONSE
 
@@ -157,7 +157,7 @@ def get_archived_ids(config_id: str) -> Response:
     :return:
     """
     _, archive_mongo_collection = _get_mongo_collections(config_id)
-    ret_val = []    
+    ret_val = []
     result = archive_mongo_collection.find({})
     if result:
         for item in result:

@@ -3,7 +3,7 @@ Main module for handling all of the Kit Configuration REST calls.
 """
 from app import (app, logger, conn_mng, WEB_DIR, CORE_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.resources import convert_KiB_to_GiB, convert_GiB_to_KiB, convert_MiB_to_KiB
+from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 from app.service.job_service import run_command
 from datetime import datetime
 
@@ -22,6 +22,10 @@ from kubernetes.client.models.v1_node_list import V1NodeList
 import socket
 
 
+PYTHON_PATH = str(WEB_DIR / 'tfp-env/bin/python')
+FABRIC_PATH = str(WEB_DIR / 'backend/fabfiles')
+
+
 def _get_mem_total(memory_str: str) -> int:
     try:
         mem_str = str(memory_str)
@@ -33,11 +37,11 @@ def _get_mem_total(memory_str: str) -> int:
                 if pos == -1:
                     mem = int(mem_str) / 1024
                 else:
-                    mem = convert_GiB_to_KiB(int(mem_str[:pos]))
+                    mem = convert_gib_to_kib(int(mem_str[:pos]))
             else:
                 mem = int(mem_str[:pos])
         else:
-            mem = convert_MiB_to_KiB(int(mem_str[:pos]))
+            mem = convert_mib_to_kib(int(mem_str[:pos]))
         return mem
     except KeyError:
         pass
@@ -66,8 +70,8 @@ def describe_pod(pod_name: str, namespace: str) -> Response:
     :param pod_name: The name of the pod of cource.
                      You can get it with 'kubectl get pods' on the main server node.
     """
-    command = str(WEB_DIR / 'tfp-env/bin/python') + ' describe_kubernetes_pod.py %s %s' % (pod_name, namespace)
-    stdout = run_command(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
+    command = PYTHON_PATH + ' describe_kubernetes_pod.py %s %s' % (pod_name, namespace)
+    stdout = run_command(command, working_dir=FABRIC_PATH)
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 @app.route('/api/pod_logs/<pod_name>/<namespace>', methods=['GET'])
@@ -85,8 +89,8 @@ def pod_logs(pod_name: str, namespace: str) -> Response:
         if "spec" in pod and "containers" in pod['spec']:
             for container in pod['spec']['containers']:
                 container_name = container['name']
-                command = str(WEB_DIR / 'tfp-env/bin/python') + ' kubernetes_pod_logs.py %s %s %s' % (pod_name, namespace, container_name)
-                stdout = run_command(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
+                command = PYTHON_PATH + ' kubernetes_pod_logs.py %s %s %s' % (pod_name, namespace, container_name)
+                stdout = run_command(command, working_dir=FABRIC_PATH)
                 logs.append({'name': container_name, 'logs': stdout})
     return jsonify(logs)
 
@@ -99,17 +103,16 @@ def describe_node(node_name: str) -> Response:
     :param node_name: The name of the node of cource.
                       You can get it with 'kubectl get nodes' on the main server node.
     """
-    command = str(WEB_DIR / 'tfp-env/bin/python') + ' describe_kubernetes_node.py %s' % node_name
-    stdout = run_command(command, working_dir=str(WEB_DIR / 'backend/fabfiles'))
+    command = PYTHON_PATH + ' describe_kubernetes_node.py %s' % node_name
+    stdout = run_command(command, working_dir=FABRIC_PATH)
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 
 def _get_node_type(hostname: str, nodes: List) -> str:
     if nodes:
         for node in nodes:
-            if hostname == node['hostname']:
-                if node["node_type"]:
-                    return node["node_type"]
+            if hostname == node['hostname'] and node["node_type"]:
+                return node["node_type"]
     return ""
 
 
@@ -126,11 +129,11 @@ def _get_node_info(nodes: V1NodeList) -> List:
                     item['metadata']['annotations']['tfplenum/{}'.format(metric['name'])] = metric['value']
 
             item['status']['allocatable']['cpu'] = str(_get_cpu_total(item['status']['allocatable']['cpu'])) + "m"
-            item['status']['allocatable']["ephemeral-storage"] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
-            item['status']['allocatable']['memory'] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['allocatable']['memory']))) + "Gi"
+            item['status']['allocatable']["ephemeral-storage"] = str(convert_kib_to_gib(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
+            item['status']['allocatable']['memory'] = str(convert_kib_to_gib(_get_mem_total(item['status']['allocatable']['memory']))) + "Gi"
             item['status']['capacity']['cpu'] = str(_get_cpu_total(item['status']['capacity']['cpu'])) + "m"
-            item['status']['capacity']["ephemeral-storage"] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['capacity']['ephemeral-storage']))) + "Gi"
-            item['status']['capacity']['memory'] = str(convert_KiB_to_GiB(_get_mem_total(item['status']['capacity']['memory']))) + "Gi"
+            item['status']['capacity']["ephemeral-storage"] = str(convert_kib_to_gib(_get_mem_total(item['status']['capacity']['ephemeral-storage']))) + "Gi"
+            item['status']['capacity']['memory'] = str(convert_kib_to_gib(_get_mem_total(item['status']['capacity']['memory']))) + "Gi"
             public_ip = item["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
             item["metadata"]["public_ip"] = public_ip
             item["metadata"]["node_type"] = _get_node_type(item["metadata"]["name"], mongo_document['form']['nodes'])
@@ -147,17 +150,15 @@ def _get_pod_info(pods: V1PodList) -> List:
     return pods.to_dict()['items']
 
 
-def _get_totals(pods: V1PodList, nodes: V1NodeList) -> Dict:
-    mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    cpu_total = 0
-    mem_total = 0
-    node_names = {}
-    node_names["Unallocated"] = {'cpus_requested': 0, 'mem_requested': 0}
-    for pod in pods.items:
-        if pod.spec.node_name:
-            if pod.spec.node_name not in node_names:
-                node_names[pod.spec.node_name] = {'cpus_requested': 0, 'mem_requested': 0}
+class HealthNodeTotals:
+    def __init__(self, pods: V1PodList, nodes: V1NodeList):
+        self.pods = pods
+        self.nodes = nodes
+        self.mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+        self.node_names = {}
+        self.node_names["Unallocated"] = {'cpus_requested': 0, 'mem_requested': 0}
 
+    def _set_totals_per_pod(self, pod):
         for container in pod.spec.containers:
             if container.resources.requests:
                 try:
@@ -165,49 +166,59 @@ def _get_totals(pods: V1PodList, nodes: V1NodeList) -> Dict:
                 except KeyError:
                     cpu = 0
 
-                cpu_total += cpu
-
                 try:
                     mem = _get_mem_total(container.resources.requests['memory'])
                 except KeyError:
                     mem = 0
 
-                mem_total += mem
-
                 if pod.spec.node_name:
-                    node_names[pod.spec.node_name]['cpus_requested'] += cpu
-                    node_names[pod.spec.node_name]['mem_requested'] += mem
+                    self.node_names[pod.spec.node_name]['cpus_requested'] += cpu
+                    self.node_names[pod.spec.node_name]['mem_requested'] += mem
                 else:
-                    node_names["Unallocated"]['cpus_requested'] += cpu
-                    node_names["Unallocated"]['mem_requested'] += mem
+                    self.node_names["Unallocated"]['cpus_requested'] += cpu
+                    self.node_names["Unallocated"]['mem_requested'] += mem
 
-    for key in node_names:
-        node_names[key]['cpus_requested_str']  = str(node_names[key]['cpus_requested']) + "m"
-        node_names[key]['mem_requested_str']  = str(convert_KiB_to_GiB(node_names[key]['mem_requested'])) + "Gi"
+    def _set_requested_totals(self):
+        for pod in self.pods.items:
+            if pod.spec.node_name and pod.spec.node_name not in self.node_names:
+                self.node_names[pod.spec.node_name] = {'cpus_requested': 0, 'mem_requested': 0}
 
-    for key in node_names:
-        for node in nodes.items:
-            if key == node.metadata.name:
-                node_names[key]['name'] = node.metadata.name
-                node_names[key]['node_type'] = _get_node_type(node.metadata.name, mongo_document['form']['nodes'])
+            self._set_totals_per_pod(pod)
 
-                try:
-                    cpu_milli = _get_cpu_total(node.status.allocatable['cpu'])
-                except KeyError:
-                    cpu_milli = 0
+    def _set_requested_total_strings(self):
+        for key in self.node_names:
+            self.node_names[key]['cpus_requested_str']  = str(self.node_names[key]['cpus_requested']) + "m"
+            self.node_names[key]['mem_requested_str']  = str(convert_kib_to_gib(self.node_names[key]['mem_requested'])) + "Gi"
 
-                cpu_milli -= node_names[key]['cpus_requested']
+    def _set_allocatable_totals(self):
+        for key in self.node_names:
+            for node in self.nodes.items:
+                if key == node.metadata.name:
+                    self.node_names[key]['name'] = node.metadata.name
+                    self.node_names[key]['node_type'] = _get_node_type(node.metadata.name, self.mongo_document['form']['nodes'])
 
-                try:
-                    mem = _get_mem_total(node.status.allocatable['memory'])
-                except KeyError:
-                    mem = 0
-                mem -= node_names[key]['mem_requested']
+                    try:
+                        cpu_milli = _get_cpu_total(node.status.allocatable['cpu'])
+                    except KeyError:
+                        cpu_milli = 0
 
-                node_names[key]['remaining_allocatable_cpu'] = str(cpu_milli) + "m"
-                node_names[key]['remaining_allocatable_mem'] = str(convert_KiB_to_GiB(mem)) + "Gi"
+                    cpu_milli -= self.node_names[key]['cpus_requested']
 
-    return node_names
+                    try:
+                        mem = _get_mem_total(node.status.allocatable['memory'])
+                    except KeyError:
+                        mem = 0
+                    mem -= self.node_names[key]['mem_requested']
+
+                    self.node_names[key]['remaining_allocatable_cpu'] = str(cpu_milli) + "m"
+                    self.node_names[key]['remaining_allocatable_mem'] = str(convert_kib_to_gib(mem)) + "Gi"
+
+
+    def execute(self) -> Dict:
+        self._set_requested_totals()
+        self._set_requested_total_strings()
+        self._set_allocatable_totals()
+        return self.node_names
 
 
 def _get_health_status() -> Dict:
@@ -216,7 +227,8 @@ def _get_health_status() -> Dict:
         nodes = kube_apiv1.list_node() # type: V1NodeList
 
         ret_val = {}
-        ret_val['totals'] = _get_totals(pods, nodes)
+        health = HealthNodeTotals(pods, nodes)
+        ret_val['totals'] = health.execute()
         ret_val['node_info'] = _get_node_info(nodes)
         ret_val['pod_info'] = _get_pod_info(pods)
 

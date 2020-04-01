@@ -39,8 +39,6 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     :param kit_form: The kit kit_form received from the frontend
     :return: True if successfull, False otherwise.
     """
-    # import json
-    # print(json.dumps(kit_form, indent=4, sort_keys=True))
     current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if current_kit_configuration:
         archive_form(current_kit_configuration['form'], True, conn_mng.mongo_kit_archive)
@@ -51,11 +49,13 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
                                             return_document=ReturnDocument.AFTER)  # type: InsertOneResult
 
     current_kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_kit_configuration and current_kickstart_config:
-        if current_kit_configuration["form"] and current_kickstart_config["form"]["root_password"]:
-            kit_generator = KitInventoryGenerator(kit_form, current_kickstart_config["form"])
-            kit_generator.generate()
-            return True, decode_password(current_kickstart_config["form"]["root_password"])
+    if (current_kit_configuration and
+            current_kickstart_config and
+            current_kit_configuration["form"] and
+            current_kickstart_config["form"]["root_password"]):
+        kit_generator = KitInventoryGenerator(kit_form, current_kickstart_config["form"])
+        kit_generator.generate()
+        return True, decode_password(current_kickstart_config["form"]["root_password"])
     return False, None
 
 
@@ -65,9 +65,9 @@ def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
 
     :return: Returns True if its successfull.
     """
-    isSucessful, root_password = _replace_kit_inventory(payload['kitForm'])
+    is_sucessful, root_password = _replace_kit_inventory(payload['kitForm'])
     _delete_kubernetes_conf()
-    if isSucessful:
+    if is_sucessful:
         change_time_on_nodes(payload, root_password)
         return True, root_password
     return False, None
@@ -129,14 +129,14 @@ def execute_add_node() -> Response:
     conn_mng.mongo_add_node_wizard.delete_one({"_id": ADDNODE_ID})
 
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    isSucessful, root_password = _replace_kit_inventory(current_kit_configuration["form"])
-    if isSucessful:
-        cmd_to_executeOne = ("ansible-playbook site.yml -i inventory.yml "
+    is_sucessful, root_password = _replace_kit_inventory(current_kit_configuration["form"])
+    if is_sucessful:
+        cmd_to_execute_one = ("ansible-playbook site.yml -i inventory.yml "
             "-e ansible_ssh_pass='{playbook_pass}' "
             "-t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common,openvpn"
         ).format(playbook_pass=root_password)
 
-        cmd_to_executeTwo = ("ansible-playbook site.yml -i inventory.yml "
+        cmd_to_execute_two = ("ansible-playbook site.yml -i inventory.yml "
             "-t crio,kube-node,logs,audit,frontend-health-metrics,node-health "
             "--limit localhost,{node}"
         ).format(
@@ -144,8 +144,8 @@ def execute_add_node() -> Response:
             node=add_node_payload['hostname']
         )
 
-        results = chain(perform_kit.si(cmd_to_executeOne),
-        perform_add_node.si(cmd_to_executeTwo))()
+        results = chain(perform_kit.si(cmd_to_execute_one),
+        perform_add_node.si(cmd_to_execute_two))()
 
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(results), "pid": ""},
@@ -168,8 +168,8 @@ def execute_remove_node() -> Response:
     :return: Response object
     """
     payload = request.get_json()
-    isSucessful, root_password = _replace_kit_inventory(payload)
-    if isSucessful:
+    is_sucessful, root_password = _replace_kit_inventory(payload)
+    if is_sucessful:
         cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}'"
                         ).format(playbook_pass=root_password)
         task_id = perform_kit.delay(cmd_to_execute, True)
@@ -192,10 +192,10 @@ def execute_remove_node() -> Response:
 
         kickstart_form["nodes"] = kick_nodes
 
-        current_kickstart_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                            {"_id": KICKSTART_ID, "form": kickstart_form},
-                                            upsert=True,
-                                            return_document=ReturnDocument.AFTER)  # type: InsertOneResult
+        conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                                      {"_id": KICKSTART_ID, "form": kickstart_form},
+                                                      upsert=True,
+                                                      return_document=ReturnDocument.AFTER)  # type: InsertOneResult
         kit_form = kit_mongo_document["form"]
         kit_nodes = list(kit_form["nodes"])
         for node in kit_nodes:
@@ -204,10 +204,10 @@ def execute_remove_node() -> Response:
 
         kit_form["nodes"] = kit_nodes
 
-        current_kit_configuration = conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
-                                            {"_id": KIT_ID, "form": kit_form},
-                                            upsert=True,
-                                            return_document=ReturnDocument.AFTER)  # type: InsertOneResult
+        conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
+                                                {"_id": KIT_ID, "form": kit_form},
+                                                upsert=True,
+                                                return_document=ReturnDocument.AFTER)  # type: InsertOneResult
 
         return (jsonify(str(task_id)), 200)
 

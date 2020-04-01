@@ -34,7 +34,7 @@ ZEEK_IMAGE_VERSION = "3.0.0"
 BRO_RULE_DIR = "/zeek/share/bro/site"
 
 NODE_TYPES = ["Server", "Sensor"]
-class TARGET_STATES(Enum):
+class TargetStates(Enum):
     uninstalled = "Uninstalled"
     installed = "Installed"
     error = "Error"

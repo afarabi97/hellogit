@@ -50,7 +50,7 @@
         customization:
           autologon: no
           dns_servers: "{{ item.dns_servers }}"
-          domain: sil.lab
+          domain: lan
           password: "{{ item.password }}"
           hostname: "{{ item.hostname }}"
         hardware:
@@ -85,7 +85,7 @@
         customization:
           autologon: no
           dns_servers: "{{ item.dns_servers }}"
-          domain: sil.lab
+          domain: lan
           password: "{{ item.password }}"
           hostname: "{{ item.hostname }}"
         hardware:

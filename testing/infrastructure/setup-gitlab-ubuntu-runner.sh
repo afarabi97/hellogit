@@ -51,7 +51,21 @@ function install_sonarscanner(){
     popd > /dev/null
 }
 
+function install_nodejs(){
+    run_cmd rm -rf node-v13.5.0-linux-x64*
+	run_cmd wget https://nodejs.org/dist/v13.5.0/node-v13.5.0-linux-x64.tar.xz
+    run_cmd tar xf node-v13.5.0-linux-x64.tar.xz
+    run_cmd cd node-v13.5.0-linux-x64/
+    run_cmd cp -R * /usr/local/
+    run_cmd cd ..
+	run_cmd rm -rf node-v13.5.0-linux-x64/
+	run_cmd rm -f node-v13.5.0-linux-x64.tar.xz
+    run_cmd node -v
+    run_cmd npm -v
+}
+
 update_system_pkgs
+install_nodejs
 setup_gitlab_runner
 install_requirements
 install_ovftool

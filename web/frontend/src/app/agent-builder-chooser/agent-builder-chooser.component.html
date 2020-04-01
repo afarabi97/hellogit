@@ -12,7 +12,7 @@
           Before filling out the form, make sure you have configured your Kit's PFSense firewall as well as installed logstash.
           When all inputs are valid, the "Build Agent" button will be enabled.
           <br><br>
-          Note: The checks on this page are only for <i>valid</i> data, not <i>correct</i> data. For example, any
+          Note: The checks on this page are only for <em>valid</em> data, not <em>correct</em> data. For example, any
           valid IP address will work for the "PF Sense Firewall IP", even if it not your actual firewall IP.
         </p>
       </div>
@@ -27,54 +27,53 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table [dataSource]="configs">
-
+      <table mat-table [dataSource]="configs" aria-describedby="Installer configuration table">
         <ng-container matColumnDef="select">
-          <th mat-header-cell *matHeaderCellDef>Select</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let config; index as i">
               <mat-radio-button (change)="updateSelectedConfig(config)" [value]="i" name="configGroup"></mat-radio-button>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="config_name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let config">{{ config.config_name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="install_custom">
-          <th mat-header-cell *matHeaderCellDef>Custom</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Custom</th>
           <td mat-cell *matCellDef="let cfg">
             <div *ngIf="cfg?.customPackages; else customNo">
-              <i class="material-icons" style="color:lightgreen;">check_circle</i>
+              <em class="material-icons" style="color:lightgreen;">check_circle</em>
             </div>
             <ng-template #customNo>
-              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
+              <em class="material-icons" style="color:lightgreen;">panorama_fish_eye</em>
             </ng-template>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="install_endgame">
-          <th mat-header-cell *matHeaderCellDef>Endgame</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Endgame</th>
           <td mat-cell *matCellDef="let cfg">
             <div *ngIf="cfg.install_endgame; else sysNo">
-              <i class="material-icons" style="color:lightgreen;">check_circle</i>
+              <em class="material-icons" style="color:lightgreen;">check_circle</em>
             </div>
             <ng-template #sysNo>
-              <i class="material-icons" style="color:lightgreen;">panorama_fish_eye</i>
+              <em class="material-icons" style="color:lightgreen;">panorama_fish_eye</em>
             </ng-template>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="endgame_sensor_name">
-          <th mat-header-cell *matHeaderCellDef>Endgame Sensor</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Endgame Sensor</th>
           <td mat-cell *matCellDef="let config">{{ config.endgame_sensor_name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Action</th>
           <td mat-cell *matCellDef="let config">
             <button mat-button (click)="openConfirmDeleteConfig(config)">
-              <i class="material-icons" style="color:red;">delete</i>
+              <em class="material-icons" style="color:red;">delete</em>
             </button>
           </td>
         </ng-container>
@@ -88,7 +87,7 @@
     <mat-card-actions>
         <button mat-raised-button color="primary" (click)="downloadInstaller(config_selection)"
                 [disabled]="config_selection ? is_downloading : true">
-        <i class="material-icons">cloud_download</i> Download Installer
+        <em class="material-icons">cloud_download</em> Download Installer
       </button>
       <button mat-raised-button color="primary" [disabled]="config_selection ? false : true" (click)="showConfig(config_selection)">Details</button>
     </mat-card-actions>
@@ -102,44 +101,44 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table #targetTable [dataSource]="targetConfigs" multiTemplateDataRows>
+      <table mat-table #targetTable [dataSource]="targetConfigs" multiTemplateDataRows aria-describedby="Remote Targets Configuration Table">
         <ng-container matColumnDef="select">
-          <th mat-header-cell *matHeaderCellDef>Select</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Select</th>
           <td mat-cell *matCellDef="let target; dataIndex as i">
             <mat-radio-button (change)="updateSelectedTarget(target)" [value]="i" name="targetGroup"></mat-radio-button>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let target; dataIndex as i">
             <a (click)="toggleHostListExpansion(target, i)">
-              <i class="material-icons">{{ target['state'].expanded ? 'expand_more' : 'chevron_right'}}</i>
+              <em class="material-icons">{{ target['state'].expanded ? 'expand_more' : 'chevron_right'}}</em>
               <span style="vertical-align: super;">{{ target['config'].name }}</span>
             </a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="protocol">
-          <th mat-header-cell *matHeaderCellDef>Protocol</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Protocol</th>
           <td mat-cell *matCellDef="let target">{{ target['config'].protocol }}</td>
         </ng-container>
 
         <ng-container matColumnDef="port">
-          <th mat-header-cell *matHeaderCellDef>Port</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Port</th>
           <td mat-cell *matCellDef="let target">{{ getPort(target['config']) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="domain_name">
-          <th mat-header-cell *matHeaderCellDef>DNS Suffix</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>DNS Suffix</th>
           <td mat-cell *matCellDef="let target">{{ getDomainSuffix(target['config']) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Action</th>
           <td mat-cell *matCellDef="let target; dataIndex as i">
             <button mat-button (click)="openConfirmDeleteTarget(target['config'], i)">
-              <i class="material-icons" style="color:red;">delete</i>
+              <em class="material-icons" style="color:red;">delete</em>
             </button>
           </td>
         </ng-container>
@@ -150,25 +149,25 @@
               <button mat-raised-button color="primary" style="margin-top: 10px;"
                       (click)="openAddWindowsHostModal(target['config'], target['state']['hostList'])">Add Windows Hosts</button>
 
-              <table mat-table #hostTable [dataSource]="getHostList(target['state']['hostList'], hostListPaginator)">
+              <table mat-table #hostTable [dataSource]="getHostList(target['state']['hostList'], hostListPaginator)" aria-describedby="Remote targets host subtable">
 
                 <ng-container matColumnDef="hostname">
-                  <th mat-header-cell *matHeaderCellDef>Hostname</th>
+                  <th scope="row" mat-header-cell *matHeaderCellDef>Hostname</th>
                   <td mat-cell *matCellDef="let host">{{ host.hostname }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="state">
-                  <th mat-header-cell *matHeaderCellDef>State</th>
+                  <th scope="row" mat-header-cell *matHeaderCellDef>State</th>
                   <td mat-cell *matCellDef="let host">{{ host.state }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="last_state_change">
-                  <th mat-header-cell *matHeaderCellDef>Last State Change</th>
+                  <th scope="row" mat-header-cell *matHeaderCellDef>Last State Change</th>
                   <td mat-cell *matCellDef="let host">{{ host.last_state_change }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <th scope="row" mat-header-cell *matHeaderCellDef>Actions</th>
                   <td mat-cell *matCellDef="let host; index as host_index">
                       <!-- The menu for this button is defined at the bottom of this html page. -->
                       <button mat-icon-button
@@ -204,11 +203,11 @@
     <mat-card-actions>
       <button mat-raised-button color="primary" (click)="installAgents(config_selection, target_selection)"
                          [disabled]="!(config_selection && target_selection)">
-        <i class="material-icons">cloud_upload</i> Deploy Installer
+        <em class="material-icons">cloud_upload</em> Deploy Installer
       </button>
       <button mat-raised-button color="warn" style="float: right;"
         [disabled]="!(config_selection && target_selection)" (click)="uninstallAgents(config_selection, target_selection)">
-        <i class="material-icons">delete_sweep</i> Batch Uninstall
+        <em class="material-icons">delete_sweep</em> Batch Uninstall
       </button>
     </mat-card-actions>
   </mat-card>

@@ -108,8 +108,8 @@ def get_namespaced_custom_object_status() -> str:
         return resp
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()
         return "Unknown"
 
@@ -125,8 +125,8 @@ def es_cluster_status() -> str:
         if "spec" in deploy_config:
             spec = deploy_config["spec"]
             if "nodeSets" in spec:
-                nodeSets = deploy_config["spec"]["nodeSets"]
-                for n in nodeSets:
+                node_sets = deploy_config["spec"]["nodeSets"]
+                for n in node_sets:
                     if n["name"] == "master":
                         deploy_master_count = n["count"]
                     if n["name"] == "coordinating":
@@ -141,12 +141,14 @@ def es_cluster_status() -> str:
 
         resp = get_namespaced_custom_object_status()
 
-        if es_node_count:
-            if es_node_count["master"] ==  deploy_master_count \
-            and es_node_count["data"] == deploy_data_count \
-            and es_node_count["coordinating"] == deploy_coordinating_count \
-            and resp["status"]["phase"] == "Ready" and resp["status"]["availableNodes"] == deploy_total_count:
-                return resp["status"]["phase"]
+        if (es_node_count
+                and es_node_count["master"] ==  deploy_master_count
+                and es_node_count["data"] == deploy_data_count
+                and es_node_count["coordinating"] == deploy_coordinating_count
+                and resp["status"]["phase"] == "Ready"
+                and resp["status"]["availableNodes"] == deploy_total_count):
+            return resp["status"]["phase"]
+
         if resp == None:
             return "None"
 
@@ -156,8 +158,8 @@ def es_cluster_status() -> str:
         return "Pending"
     except Exception as e:
         traceback.print_exc()
-        notification.setStatus(status=NotificationCode.ERROR.name)
-        notification.setMessage(str(e))
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
         notification.post_to_websocket_api()
         return "Unknown"
 
@@ -165,13 +167,13 @@ def es_cluster_status() -> str:
 @celery.task
 def check_scale_status(application: str):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.setMessage("%s scaling started." % application)
-    notification.setStatus(NotificationCode.STARTED.name)
+    notification.set_message("%s scaling started." % application)
+    notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
     try:
         notification = NotificationMessage(role=_JOB_NAME)
-        notification.setMessage("{} scaling in progress.".format(application))
-        notification.setStatus(NotificationCode.IN_PROGRESS.name)
+        notification.set_message("{} scaling in progress.".format(application))
+        notification.set_status(NotificationCode.IN_PROGRESS.name)
         notification.post_to_websocket_api()
 
         previous_status = es_cluster_status()
@@ -180,8 +182,8 @@ def check_scale_status(application: str):
             status = es_cluster_status()
             if status != "Ready" and status != previous_status:
                 notification = NotificationMessage(role=_JOB_NAME)
-                notification.setMessage("{} scaling is {}.".format(application, status))
-                notification.setStatus(NotificationCode.IN_PROGRESS.name)
+                notification.set_message("{} scaling is {}.".format(application, status))
+                notification.set_status(NotificationCode.IN_PROGRESS.name)
                 notification.post_to_websocket_api()
 
             if status == "Ready":
@@ -189,16 +191,16 @@ def check_scale_status(application: str):
             previous_status = status
             sleep(5)
         notification = NotificationMessage(role=_JOB_NAME)
-        notification.setMessage("{} scaling completed successfully.".format(application))
-        notification.setStatus(NotificationCode.COMPLETED.name)
+        notification.set_message("{} scaling completed successfully.".format(application))
+        notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
 
     except Exception as e:
         traceback.print_exc()
         msg = "{} scaling failed with error {}.".format(application, str(e))
         notification = NotificationMessage(role=_JOB_NAME)
-        notification.setMessage(msg)
-        notification.setStatus(NotificationCode.ERROR.name)
+        notification.set_message(msg)
+        notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
 
 def get_allowable_scale_count():
@@ -218,8 +220,8 @@ def get_allowable_scale_count():
     if "spec" in deploy_config:
         spec = deploy_config["spec"]
         if "nodeSets" in spec:
-            nodeSets = deploy_config["spec"]["nodeSets"]
-            for n in nodeSets:
+            node_sets = deploy_config["spec"]["nodeSets"]
+            for n in node_sets:
                 for c in n["podTemplate"]["spec"]["containers"]:
                     if n["name"] == "coordinating":
                         coordinating_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
@@ -248,8 +250,6 @@ def get_allowable_scale_count():
                 node_name      = node.metadata.name
                 allocatable    = node.status.allocatable
                 max_pods       = int(int(allocatable["pods"]) * 1.5)
-                field_selector = ("status.phase!=Succeeded,status.phase!=Failed," +
-                          "spec.nodeName=" + node_name)
 
                 stats["cpu_alloc"] = Q_(allocatable["cpu"])
                 stats["mem_alloc"] = Q_(allocatable["memory"]).to(ureg.Mi)
@@ -294,9 +294,6 @@ def get_allowable_scale_count():
 
                 stats["cpu_remaining"] =  stats["cpu_alloc"] - stats["cpu_req"]
                 stats["mem_remaining"] =  stats["mem_alloc"] - stats["mem_req"]
-
-                #cpu_request_percent = int(stats["cpu_req_per"].magnitude)
-                #memory_request_percent = int(stats["mem_req_per"].magnitude)
 
                 data[node_name] = stats
                 request.append({ node_name: data[node_name]})

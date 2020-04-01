@@ -55,7 +55,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   config_selection: AgentInstallerConfig = null;
   target_selection: IpTargetList = null;
-  
+
   // Interface
   configs: MatTableDataSource<any>;
   targetConfigs: MatTableDataSource<any>;
@@ -74,7 +74,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   ngOnInit() {
     this.agentBuilderSvc.checkLogStashInstalled().subscribe(data =>{
-      let status = data as Array<Object>;
+      const status = data as Array<Object>;
       if (status && status.length > 0){
         if (status[0]["status"] !== "DEPLOYED"){
           this.displaySnackBar("Logstash is not in a deployed state.  Please check the system health page or try to reinstall Logstash on the catalog page.");
@@ -163,7 +163,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       rows.push(row);
     }
-    
+
     let targetConfigs = new MatTableDataSource<any>(rows);
     targetConfigs.paginator = this.targetConfigPaginator;
 
@@ -258,7 +258,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   execute(title, instructions, callback) {
     let username = new DialogFormControl("Domain username", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
     let password = new DialogFormControl("Domain Password", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]), undefined, undefined, DialogControlTypes.password);
-    
+
     let controlsConfig = {
       user_name: username,
       password: password
@@ -278,7 +278,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
 
     let closed = dialogRef.afterClosed();
-    
+
     closed.subscribe(result => {
       let form = result as FormGroup;
 
@@ -293,13 +293,13 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   }
 
-  installAgents(config, target) {   
+  installAgents(config, target) {
     let title = "Install Windows hosts";
     let instructions = "Executing this form will attempt to install the selected executable \
                         configuration on all Windows hosts within your target configuration. \
                         Are you sure you want to do this?";
 
-    
+
     this.execute(title, instructions, credentials => {
       let payload = {
         'installer_config': config,
@@ -461,7 +461,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
         let scratch = {...formData, ...endgame}
         formData = scratch;
-       
+
         this.agentBuilderSvc.saveConfig(formData).subscribe(
           configs => {
             this.setSavedConfigs(configs);
@@ -549,14 +549,14 @@ export class AgentBuilderChooserComponent implements OnInit {
 
             if (targetConfig.targets) {
               targets = targetConfig.targets;
+              distinct = targets.concat(additionalTargets).filter(this.isFirstHost);
+              hostList.data = distinct;
+              targetConfig.targets = distinct;
             } else {
               targets = new Array<Host>();
+              hostList.data = additionalTargets;
+              targetConfig.targets = additionalTargets;
             }
-
-            distinct = targets.concat(additionalTargets).filter(this.isFirstHost);
-
-            hostList.data = distinct;
-            targetConfig.targets = distinct;
 
             this.displaySnackBar("Windows hosts saved successfully.");
           }

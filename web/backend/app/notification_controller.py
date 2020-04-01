@@ -26,14 +26,14 @@ def delete_notifications() -> Response:
     conn_mng.mongo_notifications.delete_many({})
     return OK_RESPONSE
 
-@app.route('/api/notifications/<notificationId>', methods=['DELETE'])
-def delete_notification(notificationId) -> Response:
+@app.route('/api/notifications/<notification_id>', methods=['DELETE'])
+def delete_notification(notification_id) -> Response:
     """
     Delete a notification using _id
 
     :param _id: notification id
     """
 
-    conn_mng.mongo_notifications.delete_one({"_id": ObjectId(notificationId)})
+    conn_mng.mongo_notifications.delete_one({"_id": ObjectId(notification_id)})
     return OK_RESPONSE
 

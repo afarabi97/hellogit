@@ -18,7 +18,6 @@ def get_pcaps() -> Response:
     ret_val = []
     pcap_dir = Path(PCAP_UPLOAD_DIR)
     for pcap in pcap_dir.glob("*.pcap"):
-        dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
         hashes = hash_file(str(pcap))
         pcap = {'name': pcap.name,
                 'size': pcap.stat().st_size,

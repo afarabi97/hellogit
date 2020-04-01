@@ -192,9 +192,8 @@ def get_master_node_ip_and_password(kit_form: Dict) -> str:
     """
     for node in kit_form["nodes"]:
         try:
-            if node["node_type"] == NODE_TYPES[0]:
-                if node["is_master_server"]:
-                    return node["management_ip_address"]
+            if node["node_type"] == NODE_TYPES[0] and node["is_master_server"]:
+                return node["management_ip_address"]
         except KeyError:
             pass
 

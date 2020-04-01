@@ -15,7 +15,7 @@ from app.service.job_service import run_command2, run_command
 from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
-from shared.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from shared.constants import TargetStates, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
 from shared.tfwinrm_util import WindowsConnectionManager
 from shared.utils import fix_hostname, decode_password
 from pathlib import Path
@@ -47,7 +47,7 @@ class EndgameAgentPuller:
         self._endgame_pass = endgame_pass
         self._content_header = { 'Content-Type': 'application/json' }
 
-    def _checkResponse(self, resp, action):
+    def _check_response(self, resp, action):
         if(resp.ok):
             return action(resp)
         else:
@@ -64,16 +64,16 @@ class EndgameAgentPuller:
         #Get data about current sensor configuration
         url = 'https://{}:{}/api/v1/deployment-profiles'.format(self._endgame_server_ip, self._endgame_port)
         resp = self._session.get(url)
-        sensor_data = self._checkResponse(resp, lambda r : r.json()['data'][0])
+        sensor_data = self._check_response(resp, lambda r : r.json()['data'][0])
         return sensor_data
 
     def _authenticate(self):
         url = 'https://{}:{}/api/v1/auth/login'.format(self._endgame_server_ip, self._endgame_port)
 
         resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header)
-        return self._checkResponse(resp, lambda r: r.json()['metadata']['token'])
+        return self._check_response(resp, lambda r: r.json()['metadata']['token'])
 
-    def _saveInstaller(self, resp, sensor_data, dst_folder: str):
+    def _save_installer(self, resp, sensor_data, dst_folder: str):
 
         cd = resp.headers.get('Content-Disposition')
         installer_name = cgi.parse_header(cd)[1]['filename']
@@ -81,7 +81,7 @@ class EndgameAgentPuller:
         with open(installer_path, 'wb') as f:
             f.write(resp.content)
 
-    def getAgentPkg(self, installer_id: str, dst_folder: str) -> str:
+    def get_agent_pkg(self, installer_id: str, dst_folder: str) -> str:
         auth_token = self._authenticate()
 
         auth_header = { "Authorization": "JWT {}".format(auth_token) }
@@ -91,7 +91,7 @@ class EndgameAgentPuller:
         #Download the Windows sensor software and save it to a file.
         url = 'https://{}:{}/api/v1/windows/installer/{}'.format(self._endgame_server_ip, self._endgame_port, installer_id)
         resp = self._session.get(url)
-        self._saveInstaller(resp, sensor_data, dst_folder)
+        self._save_installer(resp, sensor_data, dst_folder)
         return sensor_data['api_key']
 
 
@@ -140,11 +140,11 @@ class AgentBuilder:
                                           decode_password(self._installer_config['endgame_password']),
                                           self._installer_config['endgame_port'].strip())
 
-        api_token = agent_puller.getAgentPkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
+        api_token = agent_puller.get_agent_pkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/install.ps1", {"api_token": api_token})
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/uninstall.ps1", {"api_token": api_token})
         self._copy_package(folder_to_copy, dst_folder)
-    
+
     def _get_packages(self):
         with ExitStack() as stack:
             appconfigs = AGENT_PKGS_DIR.rglob('*/appconfig.json')
@@ -164,15 +164,15 @@ class AgentBuilder:
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
-        customPackages = self._installer_config.get('customPackages', None)
-        if customPackages:
-            for name, tpl_context in customPackages.items():
+        custom_packages = self._installer_config.get('customPackages', None)
+        if custom_packages:
+            for name, tpl_context in custom_packages.items():
                 package = self._packages.get(name, None)
                 if package:
                     folder = package['folder']
                     pkg_folder = AGENT_PKGS_DIR / folder
                     self._package_generic(pkg_folder, dst_folder, tpl_context)
-  
+
     def _zip_package(self, package_dir: str):
         zipf = zipfile.ZipFile(self._zip_path, 'w', zipfile.ZIP_DEFLATED)
         try:
@@ -283,10 +283,10 @@ class WinRunner:
         self._installer = self._agent_dir / "agent.zip"
 
         if not self._installer.exists() or not self._installer.is_file():
-            self._notification.setMessage("Failed because the installer file does not exist.")
-            self._notification.setStatus(NotificationCode.ERROR.name)
+            self._notification.set_message("Failed because the installer file does not exist.")
+            self._notification.set_status(NotificationCode.ERROR.name)
             self._notification.post_to_websocket_api()
-            self._update_windows_host_state(TARGET_STATES.error.value)
+            self._update_windows_host_state(TargetStates.error.value)
 
     def _run_prep_operations_over_smb(self):
         self._winapi.run_smb_command(self._prep_powershell_script)
@@ -319,13 +319,13 @@ class WinRunner:
 
     def _set_end_state(self):
         if self._action == 'uninstall':
-            self._update_windows_host_state(TARGET_STATES.uninstalled.value)
+            self._update_windows_host_state(TargetStates.uninstalled.value)
         else:
-            self._update_windows_host_state(TARGET_STATES.installed.value)
+            self._update_windows_host_state(TargetStates.installed.value)
 
         msg = "%s %s successfully completed for Windows host: %s." % (_JOB_NAME.capitalize(), self._action, self._hostname_or_ip)
-        self._notification.setMessage(msg)
-        self._notification.setStatus(NotificationCode.COMPLETED.name)
+        self._notification.set_message(msg)
+        self._notification.set_status(NotificationCode.COMPLETED.name)
         self._notification.post_to_websocket_api()
 
     def _initalize_winapi(self):
@@ -365,8 +365,8 @@ class WinRunner:
             raise ValueError("The protocol passed in is not supported.")
 
     def execute(self) -> int:
-        self._notification.setMessage("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, self._hostname_or_ip) )
-        self._notification.setStatus(NotificationCode.IN_PROGRESS.name)
+        self._notification.set_message("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, self._hostname_or_ip) )
+        self._notification.set_status(NotificationCode.IN_PROGRESS.name)
         self._notification.post_to_websocket_api()
 
         try:
@@ -391,18 +391,15 @@ class WinRunner:
             self._set_end_state()
         except Exception as e:
             traceback.print_exc()
-            self._notification.setMessage("Failed to {} {} because of error: {}".format(self._action, self._hostname_or_ip, str(e)))
-            self._notification.setStatus(NotificationCode.ERROR.name)
+            self._notification.set_message("Failed to {} {} because of error: {}".format(self._action, self._hostname_or_ip, str(e)))
+            self._notification.set_status(NotificationCode.ERROR.name)
             self._notification.post_to_websocket_api()
-            self._update_windows_host_state(TARGET_STATES.error.value)
+            self._update_windows_host_state(TargetStates.error.value)
         return 0
 
 
 @celery.task
 def perform_agent_reinstall(configs: Dict, hostname_or_ip: str, do_uninstall_only: bool) -> int:
-    # print(json.dumps(configs, indent=4, sort_keys=True))
-    # print(hostname_or_ip)
-    # print(do_uninstall_only)
     try:
         runner = WinRunner(hostname_or_ip, configs, do_uninstall_only)
         return runner.execute()

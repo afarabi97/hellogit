@@ -4,7 +4,7 @@ Main module that controls the REST calls for the portal page.
 import json
 
 from app import (app, conn_mng, logger)
-from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
+from app.common import OK_RESPONSE, ERROR_RESPONSE, cursor_to_json_response
 from fabric.runners import Result
 from flask import jsonify, Response
 from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper2, get_elastic_password
@@ -21,6 +21,10 @@ DISCLUDES = ("elasticsearch.lan",
         "elasticsearch-data.lan",
         "netflow-filebeat.lan")
 
+HTTPS_STR = 'https://'
+HTTP_STR = 'http://'
+
+
 def get_moloch_credentials():
     collection = conn_mng.mongo_catalog_saved_values
     application = collection.find_one({'application': 'moloch-viewer'})
@@ -31,62 +35,62 @@ def get_moloch_credentials():
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     if dns == "grr-frontend.lan":
         if ip:
-            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': 'admin/password'})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
         else:
-            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': 'admin/password'})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
     elif dns == "moloch.lan":
         credentials = get_moloch_credentials()
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': credentials})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': credentials})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': credentials})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': credentials})
     elif dns == "kubernetes-dashboard.lan":
         if ip:
-            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': ''})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': ''})
         else:
-            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': ''})
     elif dns == "hive.lan":
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': ''})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
     elif dns == "cortex.lan":
         if ip:
-            portal_links.append({'ip': 'http://' + ip + ":9001", 'dns': 'http://' + dns + ":9001", 'logins': ''})
+            portal_links.append({'ip': HTTP_STR + ip + ":9001", 'dns': HTTP_STR + dns + ":9001", 'logins': ''})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
     elif dns == "kibana.lan":
         password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)
         if ip:
-            portal_links.append({'ip': 'https://' + ip, 'dns': 'https://' + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': 'https://' + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "redmine.lan":
         logins = 'admin/admin'
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "misp.lan":
         logins = 'admin@admin.test/admin'
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "wikijs.lan":
         logins = 'admin@dip.local/password!'
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     else:
         if ip:
-            portal_links.append({'ip': 'http://' + ip, 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': ''})
         else:
-            portal_links.append({'ip': '', 'dns': 'http://' + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
 
-def _isDiscluded(dns: str) -> bool:
+def _is_discluded(dns: str) -> bool:
     """
     Checks to see if the link should be discluded or included.
 
@@ -112,13 +116,14 @@ def get_portal_links() -> Response:
             for line in ret_val.stdout.split('\n'):
                 try:
                     ip, dns = line.split(' ')
-                    if _isDiscluded(dns):
+                    if _is_discluded(dns):
                         continue
                     _append_portal_link(portal_links, dns, ip)
-                except ValueError as e:
+                except ValueError:
                     pass
             return jsonify(portal_links)
     except Exception as e:
+        logger.exception(e)
         return jsonify([])
 
     return ERROR_RESPONSE
@@ -131,7 +136,7 @@ def get_user_links() -> Response:
     :return: flask.Response containing all link data.
     """
     user_links = conn_mng.mongo_user_links.find({})
-    return cursorToJsonResponse(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
+    return cursor_to_json_response(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
 @app.route('/api/add_user_link', methods=['POST'])
 def add_user_link() -> Response:

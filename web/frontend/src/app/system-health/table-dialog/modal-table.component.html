@@ -1,13 +1,13 @@
 <h2 mat-dialog-title>{{ title | capitalizeFirst }}</h2>
 <div mat-dialog-content>
-  <table class="table mat-table">
+  <table class="table mat-table" aria-describedby="Container information table">
     <thead>
       <tr class="mat-header-row ng-star-inserted">
-        <th class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Container name</th>
-        <th class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">CPU Request</th>
-        <th class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Memory Request</th>
-        <th class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">CPU Limit</th>
-        <th class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Memory Limit</th>
+        <th scope="col" class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Container name</th>
+        <th scope="col" class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">CPU Request</th>
+        <th scope="col" class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Memory Request</th>
+        <th scope="col" class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">CPU Limit</th>
+        <th scope="col" class="mat-header-cell cdk-column-ruleName mat-column-ruleName ng-star-inserted">Memory Limit</th>
       </tr>
     </thead>
     <tbody>

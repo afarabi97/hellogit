@@ -12,7 +12,7 @@ import copy
 import zipfile
 
 from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR, AGENT_PKGS_DIR)
-from app.common import OK_RESPONSE, ERROR_RESPONSE, cursorToJsonResponse
+from app.common import OK_RESPONSE, ERROR_RESPONSE, cursor_to_json_response
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,
                                        build_agent_if_not_exists)
@@ -23,7 +23,7 @@ from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
-from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR
+from shared.constants import TargetStates, AGENT_UPLOAD_DIR
 from shared.connection_mngs import MongoConnectionManager
 from shared.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
@@ -43,7 +43,7 @@ JINJA_ENV = Environment(
 
 
 @app.route('/api/custom_windows_installer_packages', methods=['GET'])
-def getAppConfigs():
+def get_app_configs():
     configs = []
 
     filenames = AGENT_PKGS_DIR.glob('*/appconfig.json')
@@ -55,7 +55,7 @@ def getAppConfigs():
                 configs.append(data)
             except JSONDecodeError:
                 pass
-    
+
     return jsonify(configs)
 
 
@@ -69,9 +69,6 @@ def build_installer() -> Response:
     """
     payload = request.get_json()
     sanitize_dictionary(payload)
-    installer_config = payload['installer_config']
-    folder_name = installer_config['_id']
-    agent_dir = Path(AGENT_UPLOAD_DIR + "/" + folder_name)
     zip_path = build_agent_if_not_exists(payload)
     logger.debug('Sending file: {}'.format(zip_path))
     return send_file(zip_path,
@@ -124,7 +121,7 @@ def save_if_unique_json(payload: Dict, field: str, cnxn, return_func) -> Respons
     matches = cnxn.count({field: payload[field]})
     if matches == 0:
         try:
-            result = cnxn.insert_one(payload)
+            cnxn.insert_one(payload)
             return return_func()
         except:
             return "", '500 Could not insert document'
@@ -145,7 +142,7 @@ def replace_record(rqst, field: str, cnxn, return_func) -> Response:
 @app.route('/api/get_agent_installer_target_lists', methods=['GET'])
 def get_agent_installer_target_lists() -> Response:
     target_lists = win_targets_cnxn.find({})
-    return cursorToJsonResponse(target_lists, sort_field = 'name')
+    return cursor_to_json_response(target_lists, sort_field = 'name')
 
 
 @app.route('/api/save_agent_installer_target_list', methods=['POST'])
@@ -168,33 +165,37 @@ def _is_host_duplicate(target_config: Dict, host_to_add: Dict) -> bool:
         for old_host in target_config["targets"]:
             if old_host["hostname"].lower() == host_to_add["hostname"].lower():
                 return True
-    except KeyError as e:
+    except KeyError:
         pass
 
     return False
+
+
+def _get_unique_hosts_to_add(target_config: Dict, hosts_to_add: Dict) -> List[Dict]:
+    to_insert = []
+    unique_hostnames = set(hosts_to_add['hostnames'].lower().split('\n'))
+    for hostname in unique_hostnames:
+        if hostname == "":
+            continue
+
+        host_to_add = {}
+        host_to_add["hostname"] = hostname
+        if target_config:
+            if _is_host_duplicate(target_config, host_to_add):
+                continue
+
+            host_to_add['state'] = TargetStates.uninstalled.value
+            host_to_add['last_state_change'] = ""
+            to_insert.append(host_to_add)
+    return to_insert
 
 
 @app.route('/api/add_host/<target_config_id>', methods=['POST'])
 def add_host_to_target_config(target_config_id: str) -> Response:
     hosts_to_add = request.get_json()
     if hosts_to_add['hostnames'] and len(hosts_to_add['hostnames']) > 0:
-        to_insert = []
-        unique_hostnames = set(hosts_to_add['hostnames'].lower().split('\n'))
-        for hostname in unique_hostnames:
-            if hostname == "":
-                continue
-
-            host_to_add = {}
-            host_to_add["hostname"] = hostname
-            target_config = win_targets_cnxn.find_one({'_id': ObjectId(target_config_id)})
-            if target_config:
-                if _is_host_duplicate(target_config, host_to_add):
-                    continue
-
-                host_to_add['state'] = TARGET_STATES.uninstalled.value
-                host_to_add['last_state_change'] = ""
-                to_insert.append(host_to_add)
-
+        target_config = win_targets_cnxn.find_one({'_id': ObjectId(target_config_id)})
+        to_insert = _get_unique_hosts_to_add(target_config, hosts_to_add)
         ret_val = win_targets_cnxn.find_one_and_update({'_id': ObjectId(target_config_id)},
                                                        {'$push': {'targets': { '$each': to_insert }}},
                                                        return_document=ReturnDocument.AFTER)
@@ -240,7 +241,7 @@ def delete_agent_installer_config(config_id: str) -> Response:
 @app.route('/api/get_agent_installer_configs', methods=['GET'])
 def get_agent_installer_configs() -> Response:
     saved_configs = win_install_cnxn.find({})
-    return cursorToJsonResponse(saved_configs, sort_field = 'config_name')
+    return cursor_to_json_response(saved_configs, sort_field = 'config_name')
 
 
 def _authenticate_with_kinit(username: str, password: str, dns_suffix: str):
@@ -275,7 +276,6 @@ def _create_kerberos_configuration(target_config: Dict):
 def _create_and_run_celery_tasks(payload: Dict,
                                  targets: Union[List, str],
                                  do_uninstall_only:bool=False):
-    tasks = []
     if isinstance(targets, str):
         targets = [targets]
 
@@ -333,7 +333,6 @@ def install_agents() -> Response:
 def reinstall_agent() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
-    target_config = payload['target_config']
     target = payload['target']
     hostname = target['hostname']
 

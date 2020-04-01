@@ -44,18 +44,18 @@ class NotificationCode(Enum):
 
 
 class NotificationMessage(object):
-    def __init__(self, role: str, action: str=None, application: str=None, messageType: str=_DEFAULT_MESSAGE_TYPE):
+    def __init__(self, role: str, action: str=None, application: str=None, message_type: str=_DEFAULT_MESSAGE_TYPE):
         self.role = role
-        self.messageType = messageType
+        self.message_type = message_type
         self.action = action
         self.application = application
         self.timestamp = datetime.datetime.utcnow().isoformat()
         self.exception = ""
 
-    def setMessage(self, message: str) -> None:
+    def set_message(self, message: str) -> None:
         self.message = message
 
-    def setStatus(self, status: str) -> None:
+    def set_status(self, status: str) -> None:
         valid_names = []
         for code_status in NotificationCode:
             valid_names.append(code_status.name)
@@ -64,19 +64,19 @@ class NotificationMessage(object):
                 return
         raise ValueError("The %s passed is does not match on of %s." % (status, str(valid_names)) )
 
-    def setException(self, exception: str) -> None:
+    def set_exception(self, exception: str) -> None:
         self.exception = exception
 
-    def toJson(self):
+    def to_json(self):
         return { "timestamp": self.timestamp, "role": self.role, "message": self.message, "action": self.action, "application": self.application,  "status": self.status, "exception": self.exception }
 
     def post_to_websocket_api(self) -> None:
         try:
-            notification = self.toJson()
+            notification = self.to_json()
             result = conn_mng.mongo_notifications.insert_one(notification)
             if result and result.inserted_id:
                 notification["_id"] = str(result.inserted_id)
-            socketio.emit(self.messageType, notification, broadcast=True)
+            socketio.emit(self.message_type, notification, broadcast=True)
         except Exception as exc:
             logger.exception(exc)
 

@@ -22,9 +22,8 @@ def get_associated_pods(config_map_name: str) -> List:
         api_response = kube_apiv1.list_pod_for_all_namespaces() # type: V1PodList
         for item in  api_response.items:
             for volume in item.spec.volumes:
-                if volume.config_map:
-                    if config_map_name == volume.config_map.name:
-                        ret_val.append({"podName": item.metadata.name, "namespace": item.metadata.namespace})
+                if volume.config_map and config_map_name == volume.config_map.name:
+                    ret_val.append({"podName": item.metadata.name, "namespace": item.metadata.namespace})
 
     return jsonify(ret_val)
 
@@ -81,23 +80,23 @@ def save_config_map() -> Response:
     :return Response:
     """
     payload = request.get_json()
-    configMap = payload["configMap"]
-    associatedPods = payload["associatedPods"]
-    metadata = client.V1ObjectMeta(name=configMap['metadata']['name'], namespace=configMap['metadata']['namespace'])
+    config_map = payload["configMap"]
+    associated_pods = payload["associatedPods"]
+    metadata = client.V1ObjectMeta(name=config_map['metadata']['name'], namespace=config_map['metadata']['namespace'])
 
     body = client.V1ConfigMap(
         api_version="v1",
         kind="ConfigMap",
-        data=configMap['data'],
+        data=config_map['data'],
         metadata=metadata
     )
 
-    config_map_name = configMap['metadata']['name']
-    config_map_namespace = configMap['metadata']['namespace']
+    config_map_name = config_map['metadata']['name']
+    config_map_namespace = config_map['metadata']['namespace']
 
     with KubernetesWrapper(conn_mng) as kube_apiv1:
-        api_response = kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
-        bounce_pods.delay(associatedPods)
+        kube_apiv1.replace_namespaced_config_map(config_map_name, config_map_namespace, body)
+        bounce_pods.delay(associated_pods)
         return jsonify({'name': config_map_name})
 
     return ERROR_RESPONSE

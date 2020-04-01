@@ -8,8 +8,8 @@ _JOB_NAME = "kickstart"
 @celery.task
 def perform_kickstart(command: str, platform='DIP'):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.setMessage("%s started." % _JOB_NAME.capitalize())
-    notification.setStatus(NotificationCode.STARTED.name)
+    notification.set_message("%s started." % _JOB_NAME.capitalize())
+    notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
 
     if(platform == 'DIP'):
@@ -20,20 +20,20 @@ def perform_kickstart(command: str, platform='DIP'):
 
     job = AsyncJob(_JOB_NAME.capitalize(), command, working_dir=cwd_dir)
 
-    notification.setMessage("%s in progress." % _JOB_NAME.capitalize())
-    notification.setStatus(NotificationCode.IN_PROGRESS.name)
+    notification.set_message("%s in progress." % _JOB_NAME.capitalize())
+    notification.set_status(NotificationCode.IN_PROGRESS.name)
     notification.post_to_websocket_api()
 
     ret_val = job.run_asycn_command()
     msg = "%s job successfully completed." % _JOB_NAME.capitalize()
     if ret_val != 0:
         msg = "%s job failed." % _JOB_NAME.capitalize()
-        notification.setMessage(msg)
-        notification.setStatus(NotificationCode.ERROR.name)
+        notification.set_message(msg)
+        notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
     else:
-        notification.setMessage(msg)
-        notification.setStatus(NotificationCode.COMPLETED.name)
+        notification.set_message(msg)
+        notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
     conn_mng.mongo_celery_tasks.delete_one({"_id": _JOB_NAME.capitalize()})
     return ret_val

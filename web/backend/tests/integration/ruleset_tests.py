@@ -93,19 +93,9 @@ class TestRulesetController(BaseTestCase):
             "ruleToAdd": None
         }
 
-        delete_rule = {
-            "rulesetID": None, # Type: str
-            "ruleToDelete": None  # Type: Dict
-        }
-
         update_rule = {
             "rulesetID": None,
             "ruleToUpdate": None
-        }
-
-        update_ruleset = {
-            "rulesetID": None,
-            "rulesetToUpdate": None
         }
 
         self._verify_ruleset_count(0)
@@ -123,7 +113,7 @@ class TestRulesetController(BaseTestCase):
         # Verify that ruleset state change to Dirty
         add_rule['rulesetID'] = ruleset_id
         add_rule['ruleToAdd'] = single_rule
-        response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
+        response = self.session.post(self.create_rule_url, json=add_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 1)
         actual_result = response.json() # type: Dict
@@ -137,14 +127,14 @@ class TestRulesetController(BaseTestCase):
         # Verify that the states is still dirty
         add_rule['rulesetID'] = ruleset_id
         add_rule['ruleToAdd'] = single_rule
-        response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
+        response = self.session.post(self.create_rule_url, json=add_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 1)
 
         # Test save different rule
         add_rule['rulesetID'] = ruleset_id
         add_rule['ruleToAdd'] = single_rule2
-        response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
+        response = self.session.post(self.create_rule_url, json=add_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 2)
 
@@ -212,5 +202,5 @@ class TestRulesetController(BaseTestCase):
                 single_rule["rule"] = "ruleContent" + str(x)
                 add_rule['rulesetID'] = rule_set_id
                 add_rule['ruleToAdd'] = single_rule
-                response = self.session.post(self.base_url + "/api/create_rule", json=add_rule)
+                response = self.session.post(self.create_rule_url, json=add_rule)
                 self.assertEqual(response.status_code, 200)

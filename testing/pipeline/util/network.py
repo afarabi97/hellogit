@@ -34,6 +34,20 @@ def retry(count=5, time_to_sleep_between_retries=20):
     return decorator
 
 
+def is_ipv4_address(s: str) -> bool:
+    if s is None or len(s) == 0:
+        return False
+
+    pieces = s.split('.')
+    if len(pieces) != 4:
+        return False
+
+    try:
+        return all(0<=int(p)<256 for p in pieces)
+    except ValueError:
+        return False
+
+
 def _open_proc(command: str,
                working_dir: str=None,
                use_shell:bool=False):
@@ -189,6 +203,9 @@ class IPAddressManager:
         ip_address_blocks = _get_ip_blocks(cidr)
         available_ip_blocks = []
         for index, ip in enumerate(available_ip_addresses):
+            if not is_ipv4_address(ip):
+                continue
+
             pos = ip.rfind('.') + 1
             last_octet = int(ip[pos:])
             if last_octet in ip_address_blocks:

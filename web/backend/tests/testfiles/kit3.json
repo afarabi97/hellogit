@@ -21,19 +21,19 @@
           },
           "disks": [
               {
-                  "hasRoot": true,
+                  "has_root": true,
                   "name": "sda",
                   "size_gb": 20,
                   "size_tb": 0.01953125
               },
               {
-                  "hasRoot": false,
+                  "has_root": false,
                   "name": "sdb",
                   "size_gb": 20,
                   "size_tb": 0.01953125
               },
               {
-                  "hasRoot": false,
+                  "has_root": false,
                   "name": "sdc",
                   "size_gb": 20,
                   "size_tb": 0.01953125
@@ -88,19 +88,19 @@
           },
           "disks": [
               {
-                  "hasRoot": true,
+                  "has_root": true,
                   "name": "sda",
                   "size_gb": 20,
                   "size_tb": 0.01953125
               },
               {
-                  "hasRoot": false,
+                  "has_root": false,
                   "name": "sdb",
                   "size_gb": 20,
                   "size_tb": 0.01953125
               },
               {
-                  "hasRoot": false,
+                  "has_root": false,
                   "name": "sdc",
                   "size_gb": 20,
                   "size_tb": 0.01953125
@@ -155,13 +155,13 @@
         },
         "disks": [
             {
-                "hasRoot": true,
+                "has_root": true,
                 "name": "sda",
                 "size_gb": 20,
                 "size_tb": 0.01953125
             },
             {
-                "hasRoot": false,
+                "has_root": false,
                 "name": "sdb",
                 "size_gb": 20,
                 "size_tb": 0.01953125
@@ -209,13 +209,13 @@
           },
           "disks": [
               {
-                  "hasRoot": true,
+                  "has_root": true,
                   "name": "sda",
                   "size_gb": 20,
                   "size_tb": 0.01953125
               },
               {
-                  "hasRoot": false,
+                  "has_root": false,
                   "name": "sdb",
                   "size_gb": 20,
                   "size_tb": 0.01953125

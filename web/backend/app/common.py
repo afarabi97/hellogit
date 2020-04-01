@@ -22,7 +22,7 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
-def cursorToJson(csr, fields: List[str] = None, sort_field: str = None) -> List:
+def cursor_to_json(csr, fields: List[str] = None, sort_field: str = None) -> List:
     """
     Take a cursor returned from a MongoDB search and convert
     it to list of records
@@ -46,7 +46,7 @@ def cursorToJson(csr, fields: List[str] = None, sort_field: str = None) -> List:
         records.sort(key = lambda r : r[sort_field].upper())
     return records
 
-def cursorToJsonResponse(csr, fields: List[str] = None, sort_field: str = None) -> Response:
+def cursor_to_json_response(csr, fields: List[str] = None, sort_field: str = None) -> Response:
     """
     Take a cursor returned from a MongoDB search and convert
     it to an API response containing the data.
@@ -56,5 +56,5 @@ def cursorToJsonResponse(csr, fields: List[str] = None, sort_field: str = None) 
     :param sort_field: Optional field name to sort return records by
     :return: flask.Response containing the data of the records in the cursor.
     """
-    records = cursorToJson(csr, fields, sort_field)
+    records = cursor_to_json(csr, fields, sort_field)
     return Response(json.dumps(records), mimetype='application/json')

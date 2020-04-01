@@ -5,13 +5,13 @@
     </mat-card-header>
     <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
     <mat-card-content>
-      <table mat-table [dataSource]="registry">
+      <table mat-table [dataSource]="registry" aria-describedby="Docker registry table">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let repo">{{ repo.name }}</td>
         </ng-container>
         <ng-container matColumnDef="tags">
-          <th mat-header-cell *matHeaderCellDef>Tags</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Tags</th>
           <td mat-cell *matCellDef="let repo">
             <p *ngFor="let meta of repo.metadata">
               {{ meta.tag}}
@@ -19,7 +19,7 @@
           </td>
         </ng-container>
         <ng-container matColumnDef="image_id">
-          <th mat-header-cell *matHeaderCellDef>Image ID</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Image ID</th>
           <td mat-cell *matCellDef="let repo">
             <p *ngFor="let meta of repo.metadata">
               {{ meta.image_id }}
@@ -27,7 +27,7 @@
           </td>
         </ng-container>
         <ng-container matColumnDef="image_size">
-          <th mat-header-cell *matHeaderCellDef>Image Size MB</th>
+          <th scope="col" mat-header-cell *matHeaderCellDef>Image Size MB</th>
           <td mat-cell *matCellDef="let repo">
             <p *ngFor="let meta of repo.metadata">
               {{ meta.image_size }}

@@ -11,13 +11,13 @@ _JOB_NAME = "tools"
 @celery.task
 def check_snapshot_status(elk_service_ip: str, snapshot_name: str):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.setMessage("Snapshot %s started." % snapshot_name)
-    notification.setStatus(NotificationCode.STARTED.name)
+    notification.set_message("Snapshot %s started." % snapshot_name)
+    notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
 
     try:
-        notification.setMessage("Snapshot {} in progress.".format(snapshot_name))
-        notification.setStatus(NotificationCode.IN_PROGRESS.name)
+        notification.set_message("Snapshot {} in progress.".format(snapshot_name))
+        notification.set_status(NotificationCode.IN_PROGRESS.name)
         notification.post_to_websocket_api()
         mng = ElasticsearchManager(elk_service_ip, conn_mng)
         while True:
@@ -26,13 +26,13 @@ def check_snapshot_status(elk_service_ip: str, snapshot_name: str):
                 break
             sleep(5)
 
-        notification.setMessage("Snapshot {} completed successfully.".format(snapshot_name))
-        notification.setStatus(NotificationCode.COMPLETED.name)
+        notification.set_message("Snapshot {} completed successfully.".format(snapshot_name))
+        notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
         notify_snapshot_refresh()
     except Exception as e:
         traceback.print_exc()
         msg = "Snapshot {} failed with error {}.".format(snapshot_name, str(e))
-        notification.setMessage(msg)
-        notification.setStatus(NotificationCode.ERROR.name)
+        notification.set_message(msg)
+        notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()

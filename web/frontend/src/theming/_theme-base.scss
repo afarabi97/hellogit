@@ -14,129 +14,128 @@
   }
 
   .material-icons {
-    font-family: 'Material Icons';
+    font-family: 'Material Icons', sans-serif, serif, 'Times New Roman', Times;
   }
 
   .mat-error {
     font-size: map-get($theme, primary-font-size) + ' ' + !important;
   }
-  
+
   .mat-tooltip {
     font-size: map-get($theme, primary-font-size) + ' ' + !important;
   }
-  
+
   .mat-form-field{
     font-size: map-get($theme, form-field-font-size) + ' ' + !important;
   }
-  
+
   snack-bar-container.mat-snack-bar-container {
     background-color: map-get($theme, first-elevation-dark-background);
     color: map-get($theme, primary-text-color);
     border: 1px solid + map-get($theme, primary-border-color);
   }
-  
+
   p {
     color: map-get($theme, primary-text-color);
     font-size: map-get($theme, primary-font-size);
   }
-  
+
   a {
     color: map-get($theme, primary-link-color);
     cursor: pointer;
   }
-  
+
   .btn-secondary {
     background-color: map-get($theme, first-elevation-dark-background);
     border-color: map-get($theme, secondary-border-color);
   }
-  
+
   mat-expansion-panel .mat-expansion-panel-body {
     padding-right: 16px;
   }
-  
+
   mat-dialog-container{
     background-color: map-get($theme, first-elevation-dark-background) + ' ' + !important;
-  
+
     .mat-stepper-horizontal, .mat-stepper-vertical {
       background-color: inherit;
     }
   }
-  
+
   mat-dialog-container, .main-content2, .container-fluid {
     .mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary {
       background-color: map-get($theme, primary-btn-color);
       color: map-get($theme, primary-btn-text-color);
     }
-  
+
     .mat-flat-button.mat-warn, .mat-raised-button.mat-warn, .mat-fab.mat-warn, .mat-mini-fab.mat-warn {
       background-color: map-get($theme, danger-btn-color);
       color: map-get($theme, primary-btn-text-color);
     }
   }
-  
+
   .main-content2::before {
     display: block;
     content: "\00a0";
   }
-  
+
   .main-content2 {
-    margin-top: 1.5em;
     width: fit-content;
     margin: 0 auto;
     max-width: 1200px;
-  
+
     .pageInstructions {
       background-color: map-get($theme, first-elevation-dark-background);
       padding: 15px 15px 3px 15px;
     }
-  
+
     .mat-card-actions .mat-button:first-child, .mat-card-actions .mat-raised-button:first-child {
       margin-bottom: 10px;
       margin-left: 15px;
     }
-  
+
     .mat-card>.mat-card-actions:last-child {
       margin-bottom: 0px;
     }
-  
+
     .mat-card-actions, .mat-card-content, .mat-card-subtitle {
       margin-bottom: 0px;
     }
-  
+
     .mat-card-header .mat-card-title {
       font-size: 16pt;
     }
-  
+
     .mat-form-field {
       margin-bottom: 1em;
     }
-  
+
     mat-vertical-stepper {
       background-color: map-get($theme, first-elevation-dark-background);
       width: 1200px;
       margin-top: 40px;
     }
-  
+
     mat-card {
       border: 1px solid + map-get($theme, primary-border-color);
       padding: 0px;
       background-color: map-get($theme, first-elevation-dark-background);
       width: 1200px;
-  
+
       mat-card-title {
         width: 100%;
       }
-  
+
       .validation-errors {
         color: map-get($theme, warn);
         height: 35px;
       }
-  
+
       mat-card-header {
         background-color: map-get($theme, header-background);
         border-radius: 4px 4px 0px 0px;
         padding: 12px 0px 0px 0px;
-  
+
         .mat-card-header-text{
           width: 100%;
           button {
@@ -145,27 +144,27 @@
           }
         }
       }
-  
+
       mat-card-actions {
         background-color: map-get($theme, footer-background);
         border-radius: 0px 0px 4px 4px;
         padding: 12px 0px 0px 0px;
         margin: 0px 0px 0px 0px;
-  
+
         button {
           margin-bottom: 10px;
           margin-left: 15px;
         }
       }
-  
+
       mat-card-content {
         padding: 16px;
         background-color: map-get($theme, first-elevation-dark-background);
-  
+
         .mat-paginator-outer-container {
           background-color: map-get($theme, first-elevation-dark-background);
         }
-  
+
         table {
           background-color: map-get($theme, first-elevation-dark-background);
           width: 100%;
@@ -174,48 +173,45 @@
             font-size: 13px;
             color: white;
           }
-  
+
           .mat-paginator-outer-container {
             background-color: map-get($theme, second-elevation-dark-background);
           }
-  
+
           table {
             background-color: map-get($theme, second-elevation-dark-background);
           }
         }
       }
-  
+
       mat-paginator {
         font-size: 10pt;
-  
+
         .mat-paginator-page-size-select{
           margin: 0px;
         }
       }
-    }
-  
-    mat-card {
       mat-vertical-stepper.inMatCard {
         width: 100%;
         margin-top: 0px;
       }
-  
+
     }
-  
+
   }
-  
+
   .container-fluid {
     width: 100%;
-  
+
     mat-card {
       background-color: map-get($theme, first-elevation-dark-background);
       padding: 0px;
-  
+
       mat-card-header {
         background-color: map-get($theme, header-background);
         border-radius: 4px 4px 0px 0px;
         padding: 12px 0px 0px 0px;
-  
+
         .mat-card-header-text{
           width: 100%;
           button {
@@ -224,29 +220,29 @@
           }
         }
       }
-  
+
       mat-card-content {
         padding-left: 1em;
-  
+
         mat-form-field{
           width: 100%;
         }
-  
+
         .line-numbers {
           display: inline-block;
           margin: 0px 5px 0px 0px;
         }
-  
+
         .line-numbers div {
           font-size: 14px;
         }
-  
+
         .text-area-wrapper {
           display: inline-block;
           margin: 0px;
           width: 80%;
         }
-  
+
         .text-area {
           overflow: hidden;
           padding: 0px;
@@ -257,23 +253,23 @@
           background-color: black;
           color: lightgreen;
         }
-  
+
         textarea {
           resize: none;
         }
       }
-  
+
       mat-card-footer{
         margin: 0px;
         padding: 0px 15px 15px 15px;
       }
     }
-  
+
     .line-numbers {
       display: inline-block;
       margin: 0 5px 0 0;
     }
-  }    
+  }
 }
 
 @mixin angular-tfplenum-theme($theme) {

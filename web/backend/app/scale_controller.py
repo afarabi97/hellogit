@@ -32,8 +32,8 @@ def scale_es() -> Response:
         if "spec" in deploy_config:
             spec = deploy_config["spec"]
             if "nodeSets" in spec:
-                nodeSets = deploy_config["spec"]["nodeSets"]
-                for n in nodeSets:
+                node_sets = deploy_config["spec"]["nodeSets"]
+                for n in node_sets:
                     if n["name"] == "master":
                         n["count"] = master_count
                     if n["name"] == "coordinating":
@@ -95,9 +95,9 @@ def get_es_node_count() -> Response:
     :return (Response): Returns a Reponse object
     """
 
-    nodeList = get_es_nodes()
-    nodes = parse_nodes(nodeList)
-    if nodeList:
+    node_list = get_es_nodes()
+    nodes = parse_nodes(node_list)
+    if node_list:
         max_node_count = get_allowable_scale_count()
         nodes.update(max_node_count)
     if nodes:

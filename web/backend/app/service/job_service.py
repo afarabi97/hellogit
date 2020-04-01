@@ -13,8 +13,6 @@ from uuid import uuid4
 def _open_proc(command: str,
                working_dir: str=None,
                use_shell:bool=False):
-    sout = None
-    serr = None
     proc = None
 
     if use_shell:

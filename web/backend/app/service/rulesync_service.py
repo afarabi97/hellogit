@@ -37,8 +37,8 @@ class RuleSynchronization():
 
     def _send_notification(self, msg: str, code: str = NotificationCode.ERROR.name):
         print(msg)
-        self.notification.setStatus(status=code)
-        self.notification.setMessage(msg)
+        self.notification.set_status(status=code)
+        self.notification.set_message(msg)
         self.notification.post_to_websocket_api()
 
     def _is_sensor_in_ruleset(self, ip_address: str, rule_set: Dict) -> bool:
@@ -64,7 +64,7 @@ class RuleSynchronization():
                 try:
                     if rule_set["isEnabled"]:
                         ids_to_reset.append(rule_set['_id'])
-                except KeyError as e:
+                except KeyError:
                     self._send_notification("Failed to clear " + str(rule_set))
 
         self.mongo.mongo_ruleset.update_many({'_id': {'$in': ids_to_reset}}, {'$set': {'state': []}})
@@ -103,12 +103,11 @@ class RuleSynchronization():
             if rule_set["appType"] != app_type:
                 continue
 
-            if self._is_sensor_in_ruleset(ip_address, rule_set):
-                if rule_set["isEnabled"]:
-                    state_obj = {"hostname": hostname, "state": statestr}
-                    ret_val = self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}) # type: UpdateResult
-                    if ret_val.modified_count == 0:
-                        self._send_notification("Failed to update rule set ID {} with {}".format(rule_set["_id"], str(state_obj)))
+            if self._is_sensor_in_ruleset(ip_address, rule_set) and rule_set["isEnabled"]:
+                state_obj = {"hostname": hostname, "state": statestr}
+                ret_val = self.mongo.mongo_ruleset.update_one({"_id": rule_set["_id"]}, {"$push": {"state": state_obj}}) # type: UpdateResult
+                if ret_val.modified_count == 0:
+                    self._send_notification("Failed to update rule set ID {} with {}".format(rule_set["_id"], str(state_obj)))
 
     def _set_suricata_states(self,
                     hostname: str,
@@ -126,9 +125,8 @@ class RuleSynchronization():
         with KubernetesWrapper(self.mongo) as kube_apiv1:
             api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
             for pod in api_response.to_dict()['items']:
-                if ip_address == pod['status']['host_ip']:
-                    if 'suricata' == pod['metadata']['labels']['component']:
-                        return pod['metadata']['name']
+                if ip_address == pod['status']['host_ip'] and 'suricata' == pod['metadata']['labels']['component']:
+                    return pod['metadata']['name']
 
         raise ValueError("Failed to find Suricata pod name.")
 
@@ -222,8 +220,8 @@ class RuleSynchronization():
 
     def sync_rulesets(self):
         try:
-            self.notification.setStatus(status=NotificationCode.STARTED.name)
-            self.notification.setMessage("Rule synchronization started.")
+            self.notification.set_status(status=NotificationCode.STARTED.name)
+            self.notification.set_message("Rule synchronization started.")
             self.notification.post_to_websocket_api()
 
             with MongoConnectionManager() as mongo:
@@ -235,8 +233,8 @@ class RuleSynchronization():
                 self._clear_enabled_rulesets(kit)
 
 
-                self.notification.setStatus(status=NotificationCode.IN_PROGRESS.name)
-                self.notification.setMessage("Rule synchronization in progress.")
+                self.notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+                self.notification.set_message("Rule synchronization in progress.")
                 self.notification.post_to_websocket_api()
                 for node in kit["form"]["nodes"]:
                     if node["node_type"] != NODE_TYPES[1]:
@@ -250,9 +248,9 @@ class RuleSynchronization():
                             self._sync_suricata_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
                             self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
-                            self.notification.setStatus(status=NotificationCode.ERROR.name)
-                            self.notification.setMessage("Failed to synchronize Suricata rules for {}.".format(hostname))
-                            self.notification.setException(e)
+                            self.notification.set_status(status=NotificationCode.ERROR.name)
+                            self.notification.set_message("Failed to synchronize Suricata rules for {}.".format(hostname))
+                            self.notification.set_exception(e)
                             self.notification.post_to_websocket_api()
                             traceback.print_exc()
 
@@ -260,21 +258,21 @@ class RuleSynchronization():
                             print("Synchronizing Bro scripts for {}.".format(hostname))
                             self._sync_bro_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
-                            self.notification.setStatus(status=NotificationCode.ERROR.name)
-                            self.notification.setMessage("Failed to synchronize Bro scripts for {}.".format(hostname))
-                            self.notification.setException(e)
+                            self.notification.set_status(status=NotificationCode.ERROR.name)
+                            self.notification.set_message("Failed to synchronize Bro scripts for {}.".format(hostname))
+                            self.notification.set_exception(e)
                             self.notification.post_to_websocket_api()
                             self._set_bro_states(hostname, ip_address, RULESET_STATES[3])
                             traceback.print_exc()
 
             print("Synchronization Complete!")
-            self.notification.setStatus(status=NotificationCode.COMPLETED.name)
-            self.notification.setMessage("Rule synchronization complete successfully!")
+            self.notification.set_status(status=NotificationCode.COMPLETED.name)
+            self.notification.set_message("Rule synchronization complete successfully!")
             self.notification.post_to_websocket_api()
         except Exception as e:
-            self.notification.setStatus(status=NotificationCode.ERROR.name)
-            self.notification.setMessage("Unrecoverable error. This is really bad contact the programmers!")
-            self.notification.setException(e)
+            self.notification.set_status(status=NotificationCode.ERROR.name)
+            self.notification.set_message("Unrecoverable error. This is really bad contact the programmers!")
+            self.notification.set_exception(e)
             self.notification.post_to_websocket_api()
             traceback.print_exc()
 

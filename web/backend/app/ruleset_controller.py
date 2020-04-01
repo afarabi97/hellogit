@@ -21,6 +21,9 @@ from shared.utils import tar_folder
 from typing import Dict, Tuple, List
 
 
+RULES_ID = 'rules._id'
+
+
 @app.route('/api/get_rulesets/<rule_set_group_name>', methods=['GET'])
 def get_rulesets(rule_set_group_name: str) -> Response:
     rule_sets = []
@@ -63,7 +66,7 @@ def get_rules(rule_set_id: str) -> Response:
 
 @app.route('/api/get_rules_content/<rule_set_id>/<rule_id>', methods=['GET'])
 def get_rule_content(rule_set_id: str, rule_id: str) -> Response:
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id), 'rules._id': int(rule_id)})
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id), RULES_ID: int(rule_id)})
     if rule_set:
         for rule in rule_set['rules']:
             if rule["_id"] == int(rule_id):
@@ -123,16 +126,15 @@ def update_ruleset() -> Response:
 
 
 def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
-    error_string = ""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        theRule = rule['rule']
+        the_rule = rule['rule']
         filename = '{}/suricata.rules'.format(tmpdirname)
-        if isinstance(theRule, str):
+        if isinstance(the_rule, str):
             with Path(filename).open('w') as fp:
-                fp.write(theRule)
+                fp.write(the_rule)
         else:
-            theRule.save(filename)
-            theRule.stream.seek(0)
+            the_rule.save(filename)
+            the_rule.stream.seek(0)
 
         pull_docker_cmd = "docker pull localhost:5000/tfplenum/suricata:{}".format(SURICATA_IMAGE_VERSION)
         cmd = ("docker run --rm "
@@ -150,17 +152,16 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
 
 
 def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
-    error_string = ""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        theRule = rule['rule']
+        the_rule = rule['rule']
         filename = "custom.bro"
         filepath = '{}/{}'.format(tmpdirname, filename)
-        if isinstance(theRule, str):
+        if isinstance(the_rule, str):
             with Path(filepath).open('w') as fp:
-                fp.write(theRule)
+                fp.write(the_rule)
         else:
-            theRule.save(filepath)
-            theRule.stream.seek(0)
+            the_rule.save(filepath)
+            the_rule.stream.seek(0)
 
         pull_docker_cmd = "docker pull localhost:5000/tfplenum/zeek:{}".format(ZEEK_IMAGE_VERSION)
         stdoutput, ret_val = run_command2(pull_docker_cmd, use_shell=True)
@@ -247,7 +248,7 @@ def update_rule() -> Response:
         if is_valid:
             dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
             rule['lastModifiedDate'] = dt_string
-            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify},
+            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, RULES_ID: id_to_modify},
                                                                   {'$set': { "rules.$": rule,
                                                                              "state": RULESET_STATES[1],
                                                                              "lastModifiedDate": dt_string }},
@@ -274,7 +275,7 @@ def toggle_rule() -> Response:
 
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['lastModifiedDate'] = dt_string
-    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, 'rules._id': id_to_modify},
+    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, RULES_ID: id_to_modify},
                                                             {'$set': { "rules.$.isEnabled": rule["isEnabled"],
                                                                         "state": RULESET_STATES[1],
                                                                         "lastModifiedDate": dt_string }},
