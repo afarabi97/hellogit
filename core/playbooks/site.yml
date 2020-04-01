@@ -57,11 +57,11 @@
   pre_tasks:
     - setup:
   tasks:
-  - name: Set Kit Size
-    set_fact:
-      kit_size: >-
-        {% if (groups['servers']|length) >= 2 %}{% if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{% endif %}{% endif %}
-      cacheable: yes
+    - name: Set Kit Size
+      set_fact:
+        kit_size: >-
+          {% if (groups['servers']|length) >= 2 %}{% if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{% endif %}{% endif %}
+        cacheable: yes
 
 - name: Setup Repos
   hosts:
@@ -80,16 +80,16 @@
     - servers
     - sensors
   tasks:
-  - name: Install NetworkManager packages
-    yum:
-      name: "NetworkManager-glib"
-      state: installed
-    register: network_manager_result
-  - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
-    systemd:
-      name: NetworkManager
-      state: restarted
-    when: network_manager_result.changed
+    - name: Install NetworkManager packages
+      yum:
+        name: "NetworkManager-glib"
+        state: installed
+      register: network_manager_result
+    - name: "Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301"
+      systemd:
+        name: NetworkManager
+        state: restarted
+      when: network_manager_result.changed
   tags:
     - dnsmasq
     - update-networkmanager
@@ -98,9 +98,9 @@
   hosts: localhost
   any_errors_fatal: true
   tasks:
-  - fail:
-      msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
-    when: "ansible_version.full is version('2.5', '<=')"
+    - fail:
+        msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
+      when: "ansible_version.full is version('2.5', '<=')"
   tags: preflight
 
 - name: dnsmasq

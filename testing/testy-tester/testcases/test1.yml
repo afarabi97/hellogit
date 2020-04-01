@@ -14,26 +14,26 @@ host_configuration:
 
 kit:
   kickstart_configuration:
-      netmask: "255.255.255.0"
+    netmask: "255.255.255.0"
 
-      # Gateway will probably be different on a per kit basis (depends on the vlan)
-      gateway: "1"
-      dhcp_range: "192"
-      # Note root_password is specified under VM_settings.
+    # Gateway will probably be different on a per kit basis (depends on the vlan)
+    gateway: "1"
+    dhcp_range: "192"
+    # Note root_password is specified under VM_settings.
 
   kit_configuration:
-      # The branch we want to pull from.
-      branch_name: devel
-      source_repo: labrepo
+    # The branch we want to pull from.
+    branch_name: devel
+    source_repo: labrepo
 
-      # Kubernetes cidr will probably be different on a per kit basis
-      kubernetes_cidr: "112"
+    # Kubernetes cidr will probably be different on a per kit basis
+    kubernetes_cidr: "112"
 
-      home_nets:
-          - "0/24"
+    home_nets:
+      - "0/24"
 
-      # This is optional - you can fill it in if you need to
-      external_nets:
+    # This is optional - you can fill it in if you need to
+    external_nets:
 
   VMs:
     # Note: You should not have more than one of these
@@ -43,7 +43,7 @@ kit:
       # GestOS should be one of the enumeration values in com.vmware.vcenter.vm.GuestOS
       # https://vdc-repo.vmware.com/vmwb-repository/dcr-public/89baa2e8-e8f1-4d6a-87c5-baa3116e422a/42afa517-2614-43fb-a352-c3ed88ae95fc/doc/com/vmware/vcenter/vm/class-use/GuestOS.html
       vm_guestos: RHEL_7_64
-      domain: 'lan'
+      domain: "lan"
       gateway: "1"
       dns:
         - "1"
@@ -124,7 +124,11 @@ kit:
           deployment_name: "server-moloch-viewer"
         logstash:
           node_hostname: "server"
-          kafka_clusters: ["test1-sensor1-zeek.default.svc.cluster.local:9092","test1-sensor2-zeek.default.svc.cluster.local:9092"]
+          kafka_clusters:
+            [
+              "test1-sensor1-zeek.default.svc.cluster.local:9092",
+              "test1-sensor2-zeek.default.svc.cluster.local:9092",
+            ]
           replicas: 2
           heap_size: 4
           deployment_name: "server-logstash"

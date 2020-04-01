@@ -1,0 +1,10 @@
+- name: "HIGH | RHEL-07-010290 | PATCH | The Red Hat Enterprise Linux operating system must not have accounts configured with blank or null passwords."
+  replace:
+    dest: "{{ item }}"
+    regexp: "nullok ?"
+  with_items:
+    - /etc/pam.d/system-auth
+    - /etc/pam.d/password-auth
+  tags:
+    - RHEL-07-010290
+    - pamd

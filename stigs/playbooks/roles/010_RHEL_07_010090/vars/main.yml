@@ -1,0 +1,2 @@
+# RHEL-07-010090 acceptable values: screen, tmux
+rhel7stig_screen_package: screen

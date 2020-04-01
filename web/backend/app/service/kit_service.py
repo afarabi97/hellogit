@@ -28,7 +28,7 @@ def perform_kit(command: str, is_remove_node:bool=False):
     notification.post_to_websocket_api()
 
     cwd_dir = str(CORE_DIR / "playbooks")
-    job = AsyncJob(_JOB_NAME.capitalize(), command, working_dir=cwd_dir)
+    job = AsyncJob(_JOB_NAME.capitalize(), command, working_dir=cwd_dir, use_shell=True)
 
     notification.setMessage("%s in progress." % _JOB_NAME.capitalize())
     notification.setStatus(NotificationCode.IN_PROGRESS.name)

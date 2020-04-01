@@ -1,0 +1,16 @@
+- name: "MEDIUM | RHEL-07-010050 | PATCH | The Red Hat Enterprise Linux operating system must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a command line user logon."
+  template:
+    src: ./templates/logon-banner.j2
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - /etc/issue.in
+    - /etc/issue.net
+    - /etc/issue
+  tags:
+    - RHEL-07-010050
+    - ssh
+    - dod_logon_banner
+

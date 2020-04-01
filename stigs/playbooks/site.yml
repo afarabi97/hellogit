@@ -1,0 +1,64 @@
+- name: Deploy STIGS for all
+  hosts:
+    - localhost
+    - servers
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+  tags: all-stigs
+
+- name: Deploy STIGs for controllers
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+    - 010_RHEL_07_010090
+  tags:
+    - controller-stigs
+
+- name: Deploy STIGs for servers
+  hosts:
+    - servers
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+    - 010_RHEL_07_010090
+  tags: server-stigs
+
+- name: Deploy STIGs for sensors
+  hosts:
+    - sensors
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+  tags: sensor-stigs

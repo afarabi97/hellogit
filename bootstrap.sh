@@ -421,8 +421,13 @@ EOF
 
 function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
+
     pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
     make bootstrap
+    popd > /dev/null
+
+    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+    make controller-stigs
     popd > /dev/null
 }
 

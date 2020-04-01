@@ -84,7 +84,6 @@ packages:
   - screen
   - tmux
 
-
 packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
   - "kubectl-{{ k8s_version }}"

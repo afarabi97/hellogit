@@ -1,0 +1,11 @@
+- name: "MEDIUM | RHEL-07-040170 | PATCH | The Red Hat Enterprise Linux operating system must display the Standard Mandatory DoD Notice and Consent Banner immediately prior to, or as part of, remote access logon prompts."
+  lineinfile:
+      dest: /etc/ssh/sshd_config
+      regexp: ^#?Banner
+      line: Banner /etc/issue.net
+      validate: /usr/sbin/sshd -tf %s
+  notify: restart sshd
+  tags:
+      - RHEL-07-040170
+      - ssh
+      - dod_logon_banner
