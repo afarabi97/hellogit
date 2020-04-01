@@ -554,6 +554,40 @@
 		</rule>
 		<rule>
 			<id></id>
+			<tracker>1584065262</tracker>
+			<type>pass</type>
+			<interface>opt2</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<address>Endgame</address>
+			</source>
+			<destination>
+				<address>Server1</address>
+				<port>123</port>
+			</destination>
+			<descr><![CDATA[Allow Endgame on DMZ access to NTP on Server1]]></descr>
+			<updated>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</updated>
+			<created>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</created>
+			<disabled></disabled>
+		</rule>
+		<rule>
+			<id></id>
 			<tracker>1584065261</tracker>
 			<type>pass</type>
 			<interface>opt2</interface>
@@ -567,7 +601,7 @@
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
+			<protocol>udp</protocol>
 			<source>
 				<address>Endgame</address>
 			</source>
