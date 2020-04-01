@@ -1,6 +1,7 @@
 ---
 
-host_file: /etc/dnsmasq_static_hosts
-conf_file: /etc/dnsmasq.conf
+host_dir: /etc/dnsmasq_hosts
+host_file: "{{host_dir}}/static_hosts"
+kube_host_file: "{{host_dir}}/static_hosts"
 
 ...

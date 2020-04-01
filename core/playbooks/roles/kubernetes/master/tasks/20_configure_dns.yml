@@ -16,7 +16,7 @@
 
 - name: Kube | Insert kube-dns into dnsmasq
   lineinfile:
-    path: /etc/dnsmasq.conf
+    path: "{{dnsmasq_conf_file}}"
     line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
   when: inventory_hostname in groups['master_server']
 

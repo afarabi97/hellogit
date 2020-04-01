@@ -77,4 +77,6 @@ docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port
 # 2 == large (R440s)
 kit_size: -1
 
+dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
+
 ...

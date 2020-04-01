@@ -250,7 +250,7 @@
 
 - name: Update dnsmasq conf file on the server to use the new bridge interface
   replace:
-    path: /etc/dnsmasq.conf
+    path: "{{dnsmasq_conf_file}}"
     regexp: '^interface=.*'
     replace: 'interface=br0'
   when: inventory_hostname in groups['master_server']

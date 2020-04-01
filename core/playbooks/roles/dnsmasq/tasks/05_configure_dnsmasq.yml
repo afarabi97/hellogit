@@ -82,13 +82,17 @@
     state: restarted
   when: network_service_result.changed and kubelet_stat_result.stat.exists
 
+- name: "Remove Host Dir"
+  file:
+    path: "{{ host_dir }}"
+    state: absent
+
 - name: Delete existing files
   file:
     state: absent
     path: "{{ item }}"
   with_items:
-    - "{{ host_file }}"
-    - "{{ conf_file }}"
+    - "{{ dnsmasq_conf_file }}"
 
 - name: Remove dnsmasq
   yum:
@@ -109,40 +113,28 @@
   set_fact:
     host_list: "{{ groups['servers'] + groups['sensors'] }}"
 
+- name: "Create host dir"
+  file:
+    path: "{{ host_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
 - name: Copy over hosts template
   template:
     src: templates/hosts.j2
     dest: "{{ host_file }}"
   tags: update-dnsmasq-hosts
 
-# This will bind dnsmasq to only one interface
-- name: Select dnsmasq bind interface
-  replace:
-    path: "{{ conf_file }}"
-    regexp: '^#interface='
-    replace: 'interface={{ management_interface }}'
-
-- name: Force dnsmasq to only bind on that interface
-  replace:
-    path: "{{ conf_file }}"
-    regexp: '^#bind-interfaces'
-    replace: 'bind-interfaces'
-
-- name: Updating configuration file
-  replace:
-    path: "{{ conf_file }}"
-    regexp: '^#addn-hosts=/etc/banner_add_hosts'
-    replace: 'addn-hosts={{ host_file }}'
-
-- name: Add dnsmasq_kube_hosts to dnsmasq conf
-  lineinfile:
-    path: "{{ conf_file }}"
-    insertafter: 'addn-hosts={{ host_file }}'
-    line: 'addn-hosts=/etc/dnsmasq_kube_hosts'
+- name: Create dnsmasq conf
+  template:
+    src: templates/10-dnsmasq.conf.j2
+    dest: "{{dnsmasq_conf_file}}"
 
 - name: Create dnsmasq_kube_hosts file
   file:
-    path: /etc/dnsmasq_kube_hosts
+    path: "{{ kube_host_file }}"
     state: touch
 
 - name: Configure firewalld
@@ -183,12 +175,11 @@
       msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running."
     when: (kube_dns_ip.stdout | ipv4) != kube_dns_ip.stdout
 
-  - name: Insert PF Sense forward lookup IP into dnsmasq
+  - name: Insert kube-dns into dnsmasq
     lineinfile:
-      path: /etc/dnsmasq.conf
-      line: 'server={{ pfsense_ipaddress }}'
-    when: inventory_hostname in groups['master_server']
-
+      path: "{{dnsmasq_conf_file}}"
+      line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
+    when: inventory_hostname in groups['master_server'] and kube_dns_ip.stdout != ''
   ignore_errors: yes
 
 - name: Start dnsmasq and enable it

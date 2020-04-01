@@ -107,7 +107,7 @@ def get_portal_links() -> Response:
     try:
         with FabricConnectionWrapper(conn_mng) as ssh_conn:
             portal_links = []
-            ret_val = ssh_conn.run('cat /etc/dnsmasq_kube_hosts', hide=True)  # type: Result
+            ret_val = ssh_conn.run('cat /etc/dnsmasq_hosts/kube_hosts', hide=True)  # type: Result
             for line in ret_val.stdout.split('\n'):
                 try:
                     ip, dns = line.split(' ')
