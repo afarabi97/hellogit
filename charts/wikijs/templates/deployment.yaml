@@ -54,7 +54,7 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - "node ./server/setup.js & node server"
+        - "node ./server/wiki-setup.js & node server"
         env:
         - name: DB_HOST
           value: localhost
@@ -68,6 +68,18 @@ spec:
           value: {{ .Values.sqlUserPassword }}
         - name: DB_TYPE
           value: "mariadb"
+        - name: URL
+          value: http://{{ .Release.Name }}.lan
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wikijs-secret
+              key: adminPassword
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: wikijs-secret
+              key: adminEmail
         volumeMounts:
         - name: wikijs-configmap
           mountPath: "/wiki/data/sideload/en.json"
@@ -79,8 +91,8 @@ spec:
           mountPath: "/wiki/config.yml"
           subPath: config.yml
         - name: wikijs-configmap
-          mountPath: "/wiki/server/setup.js"
-          subPath: setup.js
+          mountPath: "/wiki/server/wiki-setup.js"
+          subPath: wiki-setup.js
         - name: wikijs
           mountPath: /wiki/data
           subPath: wiki-content
@@ -91,6 +103,9 @@ spec:
         configMap:
           name: {{ .Release.Name }}
           defaultMode: 0444
+      - name: wikijs-secret
+        secret:
+          secretName: {{ .Release.Name }}-secret
       - name: wikijs
         hostPath:
           path: /data/wikijs

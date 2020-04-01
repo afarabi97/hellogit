@@ -1,9 +1,9 @@
-const path = require('path')
-const autoload = require('auto-load')
-const Knex = require('knex')
-const Promise = require('bluebird')
+const path = require('path');
+const autoload = require('auto-load');
+const Knex = require('knex');
+const Promise = require('bluebird');
 const fs = require('fs');
-const http = require('http')
+const http = require('http');
 
 let WIKI = {
   IS_DEBUG: process.env.NODE_ENV === 'development',
@@ -16,7 +16,7 @@ let WIKI = {
 }
 global.WIKI = WIKI
 WIKI.configSvc.init()
-WIKI.logger = require('./core/logger').init('MASTER')
+WIKI.logger = require('./core/logger').init('MASTER');
 
 dbClient = 'mysql2'
 dbConfig = {
@@ -51,10 +51,10 @@ knex = Knex({
 })
 
 data = JSON.stringify({
-  adminEmail: "{{ .Values.adminEmail }}",
-  adminPassword: "{{ .Values.adminPassword }}",
-  adminPasswordConfirm: "{{ .Values.adminPassword }}",
-  siteUrl: "{{ .Values.url }}",
+  adminEmail: process.env.ADMIN_EMAIL,
+  adminPassword: process.env.ADMIN_PASSWORD,
+  adminPasswordConfirm: process.env.ADMIN_PASSWORD,
+  siteUrl: process.env.URL,
   telemetry: false
 })
 
