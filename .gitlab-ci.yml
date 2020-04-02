@@ -33,6 +33,7 @@ variables:
   VCENTER_DATASTORE: "dev-vol02"
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl.lan"
   MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl.lan"
+  GIP_SVC_TEMPLATE_TO_CLONE: "GIP Services Template"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
 
@@ -57,6 +58,7 @@ variables:
   SENSOR_MEM: 30720
   NUM_MIPS: 1
 
+
 stages:
   - code-analysis
   - pre-build
@@ -80,6 +82,7 @@ include:
   - local: dip.gitlab-ci.yml
   - local: mip.gitlab-ci.yml
   - local: dip.export.gitlab-ci.yml
+  - local: gip.gitlab-ci.yml
   - local: mip.export.gitlab-ci.yml
 
 Create Master Drive:

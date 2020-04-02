@@ -1,0 +1,24 @@
+---
+- name: installing chrony
+  yum:
+    name: chrony
+    state: present
+
+- name: Start firewalld
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Enable firewall rule for ntp
+  firewalld:
+    service: ntp
+    immediate: yes
+    permanent: yes
+    state: enabled
+
+- name: configuring chrony configuration
+  template:
+    src: files/chrony.conf
+    dest: /etc/chrony.conf
+  notify: restart chronyd

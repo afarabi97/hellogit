@@ -1,5 +1,6 @@
 
 class SubCmd:
+    # Top Level commands
     setup_ctrl = 'setup-controller'
     run_kickstart = 'run-kickstart'
     run_kit = 'run-kit'
@@ -9,6 +10,7 @@ class SubCmd:
     run_unit_tests = 'run-unit-tests'
     run_export = 'run-export'
     run_cleanup = 'run-cleanup'
+    gip_setup = 'gip-setup'
 
     # run-catalog subcommands
     suricata = "suricata"
@@ -28,7 +30,9 @@ class SubCmd:
     create_master_drive = 'create-master-drive'
     export_mip_ctrl = 'export-mip-ctrl'
 
-
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'
     run_mip_config = 'run-mip-config'
+
+    # Gib subcommands
+    create_gip_service_vm = 'create-gip-service-vm'

@@ -1,0 +1,51 @@
+---
+- name: installing samba
+  yum:
+    name: samba
+    state: installed
+
+- name: configuring samba configuration
+  copy:
+    src: smb.conf
+    dest:  /etc/samba/smb.conf
+  notify: restart samba
+
+
+- name: start smbd service
+  systemd:
+    name: smb
+    state: started
+    enabled: yes
+
+- name: opening ports
+  firewalld:
+    service: samba
+    state: enabled
+    permanent: yes
+
+
+- name: Create sharedrepo directory
+  file:
+    path: /sharedrepo
+    state: directory
+    mode: '0750'
+    owner: root
+    group: root
+
+- name: setting up selinux context on sharedrepo directory
+  command: chcon -R -t samba_share_t /sharedrepo
+
+- name: adding samba user
+  user:
+    name: MSSadmin
+    password: '!'
+
+- name: Adding password into smb database
+  command: pdbedit --user=MSSadmin
+  failed_when:  not (result.rc == 0 or result.rc == 255)
+  register: result
+
+- name: setup the smb password
+  command: /usr/bin/smbpasswd -s -a MSSadmin
+  args:
+    stdin: "1qaz2wsx!QAZ@WSX\n1qaz2wsx!QAZ@WSX\n"

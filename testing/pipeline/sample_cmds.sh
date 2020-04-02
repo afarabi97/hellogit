@@ -53,8 +53,25 @@ function run_kit {
     python pipeline.py run-kit
 }
 
-setup_ctrl
-#run_kickstart
-#run_kit
+function create_gip_services_vm {
+    python pipeline.py --system-name GIP \
+    gip-setup create-gip-service-vm  \
+    --vcenter-username "svc.gitlab@sil.lab" \
+    --vcenter-password 'MXFhejJ3c3ghUUFaQFdTWA==' \
+    --vcenter-ipaddress "10.10.103.10" \
+    --vcenter-datacenter "DEV_Datacenter" \
+    --vm-folder "Navarro" \
+    --portgroup "12-Dev2-Navarro" \
+    --gateway "10.40.12.1" \
+    --dns-server "10.10.101.11" "10.10.101.12" "10.11.101.13" \
+    --vm-datastore "dev-vol02" \
+    --network-id "10.40.12.0" \
+    --vm-prefix "navgip" \
+    --vm-template "GIP Services Template"
+}
+
+# setup_ctrl
+# run_kickstart
+create_gip_services_vm
 
 popd > /dev/null

@@ -1,0 +1,8 @@
+---
+- name: A playbook to setup samba, tftp, chrony.
+  hosts: gipsvc
+  become_user: root
+  roles:
+    - { role: "samba", tags: ["samba"] }
+    - { role: "tftp", tags: ["tftp"] }
+    - { role: "chrony", tags: ["chrony"] }

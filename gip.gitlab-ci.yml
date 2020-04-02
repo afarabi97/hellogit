@@ -1,0 +1,28 @@
+Setup GIP Services VM:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    gip-setup create-gip-service-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX-gip" \
+    --vm-template "$GIP_SVC_TEMPLATE_TO_CLONE"
+  only:
+    variables:
+      - $PIPELINE == "developer-gip"
+      - $PIPELINE == "developer-all"

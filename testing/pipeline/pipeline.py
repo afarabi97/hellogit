@@ -11,6 +11,7 @@ from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport
+from jobs.gip_creation import GipCreationJob
 
 from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
@@ -23,6 +24,7 @@ from models.mip_config import MIPConfigSettings
 from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd
+from models.gip_settings import GipSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
 
@@ -101,13 +103,23 @@ class Runner:
         MIPConfigSettings.add_args(mip_config_parser)
         mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
 
+        gip_setup_parser = subparsers.add_parser(SubCmd.gip_setup, help="Configures GIP VMs and other related commands.")
+        GipSettings.add_args(gip_setup_parser)
+        gip_setup_parser.set_defaults(which=SubCmd.gip_setup)
+
         parser.add_argument('--system-name', dest='system_name',
                             choices=['DIP','MIP','GIP'],
                             help="Selects which component your controller should be built for.")
+
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.setup_ctrl:
+            if args.which == SubCmd.create_gip_service_vm:
+                gip_settings = GipSettings()
+                gip_settings.from_namespace(args)
+                executor = GipCreationJob(gip_settings)
+                executor.execute()
+            elif args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()
                 ctrl_settings.from_namespace(args)
 

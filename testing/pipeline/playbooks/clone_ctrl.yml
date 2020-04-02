@@ -45,6 +45,7 @@
             ip: "{{ node.ipaddress }}"
             gateway: "{{ node.gateway }}"
             netmask: "{{ node.netmask }}"
+            start_connected: yes
         customization:
           autologon: no
           dns_servers: "{{ node.dns_servers }}"

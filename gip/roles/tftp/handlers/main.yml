@@ -1,0 +1,5 @@
+---
+- name: restart tftp
+  systemd:
+    state: restarted
+    name: tftp

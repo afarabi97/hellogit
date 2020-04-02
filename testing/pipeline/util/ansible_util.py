@@ -12,20 +12,35 @@ from ansible.vars.manager import VariableManager
 from typing import List, Dict, Union
 from models.common import NodeSettings, VCenterSettings
 
+
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
 
-def execute_playbook(playbooks: List, extra_vars: Dict, inventory_file: str=None):
+class Target:
+    def __init__(self, name: str, ipaddress: str, port:int=22):
+        self.name = name
+        self.ipaddress = ipaddress
+        self.port = port
+
+
+def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=None, targets: Union[Target, List[Target]]=None):
     loader = DataLoader()
     context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False, listhosts=False, syntax=False, connection='ssh',
                                     module_path=None, forks=100, remote_user='xxx', private_key_file=None,
                                     ssh_common_args=None, ssh_extra_args=None, sftp_extra_args=None, scp_extra_args=None, become=True,
                                     become_method='sudo', become_user=getpass.getuser(), verbosity=True, check=False, start_at_task=None)
 
-    if inventory_file:
+    inventory = InventoryManager(loader=loader)
+    if targets:
+        if isinstance(targets, Target):
+            targets = [targets]
+
+        for myhost in targets:
+            inventory.add_host(myhost.name, port=myhost.port)
+            host = inventory.get_host(myhost.name)
+            host.address = myhost.ipaddress
+    elif inventory_file:
         inventory = InventoryManager(loader=loader, sources=(inventory_file,))
-    else:
-        inventory = InventoryManager(loader=loader)
 
     variable_manager = VariableManager(loader=loader,
                                        inventory=inventory,

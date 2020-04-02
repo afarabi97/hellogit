@@ -1,0 +1,5 @@
+---
+- name: restart chronyd
+  systemd:
+    state: restarted
+    name: chronyd

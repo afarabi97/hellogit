@@ -1,0 +1,45 @@
+---
+- name: install xinetd
+  yum:
+    name: xinetd
+    state: present
+
+- name: Set the default SELinux file context for the tftp root dir
+  sefcontext:
+    target: '/var/lib/tftpboot(/.*)?'
+    setype: tftpdir_rw_t
+    state: present
+
+- name: Setting selinux context for tftp anon write
+  command: setsebool -P tftp_anon_write 1
+
+- name: installing tftp service
+  yum:
+    name: tftp-server
+    state: present
+
+- name: Make sure a service is for tfpt to work
+  systemd:
+    name: xinetd
+    state: started
+    enabled: yes
+
+
+- name: Start firewalld
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Enable firewall rule for tftp
+  firewalld:
+    service: tftp
+    immediate: yes
+    permanent: yes
+    state: enabled
+
+- name: configuring tftp configuration
+  copy:
+    src: tftp
+    dest: /etc/xinetd.d/tftp
+  notify: restart tftp
