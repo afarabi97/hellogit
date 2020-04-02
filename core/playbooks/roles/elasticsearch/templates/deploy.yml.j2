@@ -96,6 +96,8 @@ spec:
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
       cluster.routing.allocation.awareness.attributes: node_name
+      script.cache.max_size: "500"
+      script.max_compilations_rate: "256/1m"
     podTemplate:
       metadata:
         labels:
@@ -153,6 +155,8 @@ spec:
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
       cluster.routing.allocation.awareness.attributes: node_name
+      script.cache.max_size: "500"
+      script.max_compilations_rate: "256/1m"
     podTemplate:
       metadata:
         labels:
@@ -203,6 +207,8 @@ spec:
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
       cluster.routing.allocation.awareness.attributes: node_name
+      script.cache.max_size: "500"
+      script.max_compilations_rate: "256/1m"
     podTemplate:
       metadata:
         labels:

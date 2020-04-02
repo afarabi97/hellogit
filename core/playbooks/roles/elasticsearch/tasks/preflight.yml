@@ -4,11 +4,10 @@
     es_installed: false
 
 - name: Checking if Elastic is already deployed
-  shell: kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum | awk '{ print $3 }'
+  shell: kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum | awk '{ print $1 }'
   register: es_results
   failed_when: es_results.rc >= 2
 
 - set_fact:
     es_installed: true
-  when: es_results is defined and es_results.stdout|int > 0
-
+  when: es_results is defined and es_results.stdout == 'tfplenum'

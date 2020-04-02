@@ -8,6 +8,13 @@
     path: "{{ elastic_dir }}"
     state: directory
 
+- name: Reset ES Data directory
+  file:
+    path: "{{ data_path }}/elastic"
+    state: absent
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['servers'] }}"
+
 - name: Create ES Data directory if it does not exist
   file:
     path: "{{ data_path }}/elastic"
@@ -38,6 +45,7 @@
   with_items:
     - operator.yml
     - deploy.yml
+    - license.yml
 
 - name: Install ECK Operator
   shell: |
@@ -46,5 +54,9 @@
 - name: Install Elasticsearch
   shell: |
     kubectl apply -f {{ elastic_dir }}/deploy.yml
+
+- name: Add Elastic License
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/license.yml
 
 ...

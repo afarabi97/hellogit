@@ -37,11 +37,4 @@
     kubectl delete -f {{ elastic_dir }}/operator.yml
   ignore_errors: true
 
-- name: Create ES Data directory if it does not exist
-  file:
-    path: "{{ data_path }}/elastic"
-    state: absent
-  delegate_to: "{{ item }}"
-  loop: "{{ groups['servers'] }}"
-
 ...

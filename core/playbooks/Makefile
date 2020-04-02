@@ -74,46 +74,43 @@ node-health:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 common-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 crio-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t crio,kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 helm-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 chartmuseum-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 elasticsearch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 kibana-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 audit-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t audit,metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t metrics,logs,moloch,node-health,run-filebeat-setup
 
 moloch-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,node-health,es-license,run-filebeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t moloch,node-health,run-filebeat-setup
 
 health-metrics-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health,es-license,run-filebeat-setup
-
-es-license:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t es-license
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health,run-filebeat-setup
 
 filebeat-setup:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t run-filebeat-setup

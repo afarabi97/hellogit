@@ -178,31 +178,31 @@
             }
         },
         {
-            "rename": {
-                "field": "client_software",
-                "target_field": "dhcp.client_software",
-                "ignore_missing": true
+            "set": {
+                "field": "dhcp.client_software",
+                "value": "{{client_software}}",
+                "if": "ctx.client_software != null"
             }
         },
         {
             "set": {
                 "field": "source.software.original",
-                "value": "{{dhcp.client_software}}",
-                "if": "ctx.dhcp.client_software != null"
-            }
-        },
-        {
-            "rename": {
-                "field": "server_software",
-                "target_field": "dhcp.server_software",
-                "ignore_missing": true
+                "value": "{{client_software}}",
+                "if": "ctx.client_software != null"
             }
         },
         {
             "set": {
                 "field": "destination.software.original",
-                "value": "{{dhcp.server_software}}",
-                "if": "ctx.dhcp.server_software != null"
+                "value": "{{server_software}}",
+                "if": "ctx.server_software != null"
+            }
+        },
+        {
+            "set": {
+                "field": "dhcp.server_software",
+                "value": "{{server_software}}",
+                "if": "ctx.server_software != null"
             }
         },
         {
@@ -212,16 +212,16 @@
             }
         },
         {
-            "convert": {
-                "field": "duration",
-                "type": "float",
-                "if": "ctx.duration != null"
-            }
-        },
-        {
             "rename": {
                 "field": "duration",
                 "target_field": "event.duration",
+                "ignore_missing": true
+            }
+        },
+        {
+            "convert": {
+                "field": "event.duration",
+                "type": "float",
                 "ignore_missing": true
             }
         },
@@ -236,6 +236,15 @@
             "set": {
                 "field": "network.protocol",
                 "value": "dhcp"
+            }
+        },
+        {
+            "remove": {
+                "ignore_missing": true,
+                "field": [
+                    "server_software",
+                    "client_software"
+                ]
             }
         }
     ],

@@ -120,25 +120,29 @@
         {
             "rename": {
                 "field": "name",
-                "target_field": "software.name"
+                "target_field": "software.name",
+                "ignore_missing": true
             }
         },
         {
             "rename": {
                 "field": "unparsed_version",
-                "target_field": "software.original"
+                "target_field": "software.original",
+                "ignore_missing": true
             }
         },
         {
             "rename": {
                 "field": "software_type",
-                "target_field": "software.type"
+                "target_field": "software.type",
+                "ignore_missing": true
             }
         },
         {
             "rename": {
                 "field": "url",
-                "target_field": "url.original"
+                "target_field": "url.original",
+                "ignore_missing": true
             }
         }
     ],
