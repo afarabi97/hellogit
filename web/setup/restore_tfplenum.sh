@@ -32,8 +32,6 @@ function restoreMCPServer {
     cp -r backup/confluence/THISISCVAH/ /var/www/html/.
     cp -r backup/confluence/OJCCTM/ /var/www/html/.
     cp -r backup/confluence/pcaps/ /var/www/html/.
-    cp backup/inventory.yml /opt/tfplenum/core/playbooks/.
-    cp backup/inventory.yml /opt/tfplenum/deployer/playbooks/.
     mongorestore --gzip --archive=backup/tfplenum_database.gz --db tfplenum_database
     rm -rf backup/
     popd > /dev/null

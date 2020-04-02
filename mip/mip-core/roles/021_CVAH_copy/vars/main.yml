@@ -1,0 +1,4 @@
+---
+cpt_cvah_tar: "{{ web_server }}cpt-cvah-mod.tar.gz"
+mdt_cvah_tar: "{{ web_server }}mdt-cvah.tar.gz"
+...

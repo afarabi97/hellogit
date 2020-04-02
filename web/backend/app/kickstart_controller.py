@@ -5,7 +5,7 @@ import json
 
 from app import (app, logger, conn_mng, DEPLOYER_DIR)
 from app.archive_controller import archive_form
-from app.inventory_generator import KickstartInventoryGenerator
+from app.inventory_generator import KickstartInventoryGenerator, MIPKickstartInventoryGenerator
 from app.service.job_service import run_command
 from app.service.kickstart_service import perform_kickstart
 from app.common import OK_RESPONSE, ERROR_RESPONSE
@@ -15,7 +15,6 @@ from pymongo.results import InsertOneResult
 from shared.constants import KICKSTART_ID, ADDNODE_ID
 from shared.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
 from typing import Dict
-
 
 def _is_valid_ip(ip_address: str) -> bool:
     """
@@ -46,9 +45,38 @@ def save_kickstart_to_mongo(kickstart_form: Dict) -> None:
 
     kickstart_form["re_password"] = encode_password(kickstart_form["re_password"])
     kickstart_form["root_password"] = encode_password(kickstart_form["root_password"])
+
     conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
                                                   {"_id": KICKSTART_ID, "form": kickstart_form},
                                                   upsert=True)  # type: InsertOneResult
+
+def save_mip_kickstart_to_mongo(kickstart_form: Dict) -> None:
+    """
+    Saves Kickstart to mongo database.
+
+    :param kickstart_form: Dictionary for the Kickstart form
+    """
+    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if current_config:
+        archive_form(current_config['form'], True, conn_mng.mongo_kickstart_archive)
+
+    kickstart_form["re_password"] = encode_password(kickstart_form["re_password"])
+    kickstart_form["root_password"] = encode_password(kickstart_form["root_password"])
+
+    kickstart_form["luks_password"] = encode_password(kickstart_form["luks_password"])
+    kickstart_form["confirm_luks_password"] = encode_password(kickstart_form["confirm_luks_password"])
+
+    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                                  {"_id": KICKSTART_ID, "form": kickstart_form},
+                                                  upsert=True)  # type: InsertOneResult
+
+
+
+@app.route('/api/test123', methods=['GET'])
+def test123() -> Response:
+    t = {'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff', 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
+    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": "add_node_wizard"}, {"_id": "add_node_wizard", "form": t, "step": 3}, upsert=True)
+    return OK_RESPONSE
 
 
 @app.route('/api/get_add_node_wizard_state', methods=['GET'])
@@ -96,7 +124,7 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    payload = request.get_json()
+    payload = request.get_json()    
 
     if 'nodes' in payload:
         kickstart_form = payload
@@ -129,6 +157,44 @@ def generate_kickstart_inventory() -> Response:
     return (jsonify(str(task_id)), 200)
 
 
+@app.route('/api/generate_mip_kickstart_inventory', methods=['POST'])
+def generate_mip_kickstart_inventory() -> Response:
+    kickstart_form = request.get_json()
+
+    if not kickstart_form['continue']:
+        invalid_ips = []
+        for node in kickstart_form["nodes"]:
+            if not _is_valid_ip(node["ip_address"]):
+                invalid_ips.append(node["ip_address"])
+
+        invalid_ips_len = len(invalid_ips)
+        if invalid_ips_len > 0:
+            if invalid_ips_len == 1:
+                return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
+                                                .format(', '.join(invalid_ips)))
+            else:
+                return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
+                                                .format(', '.join(invalid_ips)))
+
+    save_mip_kickstart_to_mongo(kickstart_form)
+
+    kickstart_form["root_password"] = decode_password(kickstart_form["root_password"])
+    kickstart_form["re_password"] = decode_password(kickstart_form["re_password"])
+
+    kickstart_form["luks_password"] = decode_password(kickstart_form["luks_password"])
+    kickstart_form["confirm_luks_password"] = decode_password(kickstart_form["confirm_luks_password"])
+
+    kickstart_generator = MIPKickstartInventoryGenerator(kickstart_form)
+    kickstart_generator.generate()
+
+    cmd_to_execute = ("ansible-playbook site.yml -t 'kickstart,profiles' -i inventory.yml")
+
+    task_id = perform_kickstart.delay(cmd_to_execute, 'MIP')
+    conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kickstart"},
+                                                     {"_id": "Kickstart", "task_id": str(task_id), "pid": ""},
+                                                     upsert=True)
+    return (jsonify(str(task_id)), 200)
+
 @app.route('/api/update_kickstart_ctrl_ip/<new_ctrl_ip>', methods=['PUT'])
 def update_kickstart_ctrl_ip(new_ctrl_ip: str) -> Response:
     """
@@ -155,13 +221,35 @@ def get_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-
+    
     if mongo_document is None:
         return OK_RESPONSE
 
     mongo_document['_id'] = str(mongo_document['_id'])
-    mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
     mongo_document["form"]["root_password"] = decode_password(mongo_document["form"]["root_password"])
+    mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
+    
+    return jsonify(mongo_document["form"])
+
+@app.route('/api/get_mip_kickstart_form', methods=['GET'])
+def get_mip_kickstart_form() -> Response:
+    """
+    Gets the MIP Kickstart form that was generated by the user on the Kickstart
+    configuration page.
+
+    :return:
+    """
+    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    
+    if mongo_document is None:
+        return OK_RESPONSE
+
+    mongo_document['_id'] = str(mongo_document['_id'])
+    mongo_document["form"]["root_password"] = decode_password(mongo_document["form"]["root_password"])
+    mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
+    mongo_document["form"]["luks_password"] = decode_password(mongo_document["form"]["luks_password"])
+    mongo_document["form"]["confirm_luks_password"] = decode_password(mongo_document["form"]["confirm_luks_password"])
+    
     return jsonify(mongo_document["form"])
 
 

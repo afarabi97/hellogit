@@ -1,0 +1,2 @@
+vscode_path: "{{ tmp_apps }}/{{ vscode_file }}"
+vscode_desktop_app: code.desktop

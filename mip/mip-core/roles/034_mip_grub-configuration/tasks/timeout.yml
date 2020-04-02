@@ -1,0 +1,11 @@
+---
+- name: Updating GRUB timeout time
+  replace:
+    path: /etc/default/grub
+    regexp: 'GRUB_TIMEOUT=5'
+    replace: "GRUB_TIMEOUT=-1"
+
+- name: Remake the GRUB config to account for new timeout choice
+  command: "{{ item }} "
+  with_items: 
+    - grub2-mkconfig -o {% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}grub.cfg

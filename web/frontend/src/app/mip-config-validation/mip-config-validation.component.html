@@ -1,0 +1,14 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>Validation</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+        <mat-list>
+          <mat-list-item class="validation-errors"
+            *ngFor="let error of getFormValidationErrors(form.controls); let j = index">
+              {{ j + 1 }}. {{ error.error_value }}
+          </mat-list-item>
+        </mat-list>
+    </mat-card-content>
+</mat-card>

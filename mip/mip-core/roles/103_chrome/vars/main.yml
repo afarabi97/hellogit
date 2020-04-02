@@ -1,0 +1,4 @@
+---
+chrome_path: "{{ tmp_apps }}/{{ chrome_file }}"
+chrome_app_path: "{{ application_path }}/google-chrome.desktop"
+...

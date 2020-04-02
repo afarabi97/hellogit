@@ -59,6 +59,9 @@ class ExportSettings(Model):
         if SubCmd.generate_versions_file == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
 
+        if SubCmd.export_mip_ctrl == namespace.which:
+            populate_model_from_namespace(self.export_loc, namespace)
+
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -89,7 +92,7 @@ class ExportSettings(Model):
         unset_perms_parser.set_defaults(which=SubCmd.unset_perms)
 
         export_ctrl_parser = subparsers.add_parser(SubCmd.export_ctrl,
-                                                   help="This subcommand will prep and export your controller to the provided location.")
+                                                   help="This subcommand will prep and export your DIP controller to the provided location.")
         add_args_from_instance(export_ctrl_parser, ExportLocSettings(), True)
         export_ctrl_parser.set_defaults(which=SubCmd.export_ctrl)
 
@@ -97,3 +100,8 @@ class ExportSettings(Model):
                                                    help="This subcommand will hash all the files in the specified export location direcotry and generated a versions.txt files.")
         add_args_from_instance(export_ver_parser, ExportLocSettings(), True)
         export_ver_parser.set_defaults(which=SubCmd.generate_versions_file)
+
+        export_mip_ctrl_parser = subparsers.add_parser(SubCmd.export_mip_ctrl,
+                                                   help="This subcommand will prep and export your MIP controller to the provided location.")
+        add_args_from_instance(export_mip_ctrl_parser, ExportLocSettings(), True)
+        export_mip_ctrl_parser.set_defaults(which=SubCmd.export_mip_ctrl)

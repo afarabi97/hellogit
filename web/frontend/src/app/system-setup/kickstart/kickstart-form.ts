@@ -108,7 +108,20 @@ export const kickstart_validators = {
     { ops: { ip_range: [{ value: 'controller_interface', label: 'Controller Interface', testRange: true }, { value: 'netmask', label: 'Netmask', testRange: false }] }, error_message: 'Invalid selection', validatorFn: 'ip&subnet' },
     { error_message: 'DHCP Range is required', validatorFn: 'required' },
     { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' },
-  ]
+  ],
+  dns: [
+    { error_message: 'DNS Server is required', validatorFn: 'required' },
+    { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' },
+  ],
+  luks_password: [
+    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a luks password with a minimum length of 6 characters.', validatorFn: 'pattern' },
+    { error_message: 'Luks password is required', validatorFn: 'required' }
+  ],
+  confirm_luks_password: [
+    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a luks password with a minimum length of 6 characters.', validatorFn: 'pattern' },
+    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
+    { error_message: 'Retyping luks password is required', validatorFn: 'required' }
+  ],
 }
 
 export const kickStartTooltips = {
@@ -136,5 +149,9 @@ export const kickStartTooltips = {
   By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
   BIOS is sometimes called Legacy in the bios settings.',
   data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process.  \
-  By default, the Supermicro will use sdb and the HP DL160 will use sdc.'
+  By default, the Supermicro will use sdb and the HP DL160 will use sdc.',
+  dns: 'The DNS Server that MIPs use to resolve queries.',
+  mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
+  luks_password: 'This is the password you will use to decrypt the disk.',
+  confirm_luks_password: 'This is the password you will use to decrypt the disk.'
 }

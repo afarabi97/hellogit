@@ -5,15 +5,17 @@ import logging
 from argparse import ArgumentParser, Namespace
 from jobs.ctrl_setup import ControllerSetupJob
 from jobs.drive_creation import DriveCreationJob
-from jobs.kickstart import KickstartJob
+from jobs.kickstart import KickstartJob, MIPKickstartJob
+from jobs.mip_config import MIPConfigJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file
+from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport
 
 from models import add_args_from_instance
 from models.settings import (ControllerSetupSettings, KickstartSettings,
-                             KitSettings, CatalogSettings, BasicNodeCreds)
+                             KitSettings, CatalogSettings, BasicNodeCreds,
+                             MIPKickstartSettings, MIPConfigSettings)
 from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd
@@ -57,6 +59,11 @@ class Runner:
         KickstartSettings.add_args(kickstart_ctrl_parser)
         kickstart_ctrl_parser.set_defaults(which=SubCmd.run_kickstart)
 
+        mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart, help="This command is used to Kickstart/PXE \
+                                                                           boot the nodes for the MIP.")
+        MIPKickstartSettings.add_mip_args(mip_kickstart_ctrl_parser)
+        mip_kickstart_ctrl_parser.set_defaults(which=SubCmd.run_mip_kickstart)
+
         kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit, help="This command is used to Kickstart/PXE \
                                                                       boot the nodes for the DIP kit.")
         KitSettings.add_args(kit_ctrl_parser)
@@ -85,6 +92,10 @@ class Runner:
         drive_parser = subparsers.add_parser(SubCmd.create_master_drive, help="This subcommand will create a master drive.  Before running this subcommand please make sure you have an external USB drive plugged into a Ubuntu server or desktop.")
         drive_parser.set_defaults(which=SubCmd.create_master_drive)
         add_args_from_instance(drive_parser, DriveCreationSettings(), True)
+
+        mip_config_parser = subparsers.add_parser(SubCmd.run_mip_config, help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
+        MIPConfigSettings.add_args(mip_config_parser)
+        mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
 
         args = parser.parse_args()
 
@@ -176,6 +187,13 @@ class Runner:
                 drive_settings.from_namespace(args)
                 executor = DriveCreationJob(drive_settings)
                 executor.execute()
+            elif args.which == SubCmd.export_mip_ctrl:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                export_settings = ExportSettings()
+                export_settings.from_namespace(args)
+
+                executor = MIPControllerExport(ctrl_settings, export_settings.export_loc)
+                executor.export_mip_controller()
             elif args.which == SubCmd.run_cleanup:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
                 try:
@@ -188,6 +206,25 @@ class Runner:
                 catalog_parser.print_help()
             elif args.which == SubCmd.run_export:
                 export_parser.print_help()
+            elif args.which == SubCmd.run_mip_kickstart:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+
+                mip_kickstart_settings = MIPKickstartSettings()
+                mip_kickstart_settings.from_mip_namespace(args)
+                YamlManager.save_to_yaml(mip_kickstart_settings)
+
+                executor = MIPKickstartJob(ctrl_settings, mip_kickstart_settings)
+                executor.run_mip_kickstart()
+            elif args.which == SubCmd.run_mip_config:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
+
+                mip_config_settings = MIPConfigSettings()
+                mip_config_settings.from_namespace(args)
+                YamlManager.save_to_yaml(mip_config_settings)
+
+                executor = MIPConfigJob(ctrl_settings, kickstart_settings, mip_config_settings)
+                executor.run_mip_config()
             else:
                 self._run_catalog(args.which, args)
         except ValueError as e:

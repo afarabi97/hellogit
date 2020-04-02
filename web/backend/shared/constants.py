@@ -12,8 +12,11 @@ WEB_DIR = SHARED_DIR / '../../'
 TESTING_DIR = SHARED_DIR / '../../../testing'
 UPGRADES_DIR = SHARED_DIR / '../../../upgrades'
 AGENT_PKGS_DIR = SHARED_DIR / '../../../agent_pkgs'
+MIP_KICK_DIR = SHARED_DIR / '../../../mip/mip-deployer'
+MIP_CONFIG_DIR = SHARED_DIR / '../../../mip/mip-core'
 
 KIT_ID = "kit_form"
+MIP_CONFIG_ID = "mip_config"
 PORTAL_ID = 'portal_links'
 KICKSTART_ID = "kickstart_form"
 ADDNODE_ID = "add_node_wizard"

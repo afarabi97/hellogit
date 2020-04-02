@@ -1,0 +1,12 @@
+---
+- name: Remove known hosts file
+  file:
+    path: /root/.ssh/known_hosts
+    state: absent
+  delegate_to: 127.0.0.1
+
+- name: Remove google-chrome repo if already present
+  ini_file:
+    dest: /etc/yum.repos.d/google-chrome.repo
+    section: google-chrome
+    state: absent

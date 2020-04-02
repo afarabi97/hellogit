@@ -1,0 +1,35 @@
+---
+all:
+  vars:
+    dhcp: true
+    dhcp_start: {{ dhcp_start }}
+    dhcp_end: {{ dhcp_end }}
+ 
+    luks_password: {{ luks_password }}
+    root_password: {{ root_password }}
+    timezone: 'UTC'
+
+    default_boot_drive: sda
+    default_root_partition: 2
+    server_ip: {{ controller_interface[0] }}
+    netmask: {{ netmask }}
+    gateway: {{ gateway }}
+    dns: {{ dns }}
+
+  children:
+    mips:
+      hosts: 
+        {% for node in nodes %}
+        {{ node.hostname }}:
+          ip: {{ node.ip_address }}
+          mac: {{ node.mac_address }}
+          pxe_type: {{ node.pxe_type|lower() }}
+          {%- if node.pxe_type == "BIOS" %}
+          boot_drive: sda
+          root_partition: '2'
+          {%- endif %}
+          {%- if node.pxe_type == "UEFI" %}
+          boot_drive: nvme0n1
+          root_partition: 'p3'
+          {%- endif %}    
+        {% endfor %}

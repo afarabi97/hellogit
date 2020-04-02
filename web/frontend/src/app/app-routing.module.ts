@@ -16,6 +16,7 @@ import { ToolsFormComponent } from './tools-form/tools.component';
 import { UpgradeComponent } from './system-setup/upgrade/upgrade.component';
 import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 import { ESScaleComponent } from './es-scale/es-scale.component';
+import { MIPConfigComponent } from './mip-config/mip-config.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'upgrade', component: UpgradeComponent},
   { path: 'add_node', component: AddNodeComponent},
   { path: 'es_scale', component: ESScaleComponent},
+  { path: 'mip_config', component: MIPConfigComponent}
 ];
 
 

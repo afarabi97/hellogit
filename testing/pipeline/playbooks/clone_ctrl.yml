@@ -55,7 +55,7 @@
           memory_mb: "{{ node.memory }}"
           num_cpus: "{{ node.cpu }}"
         disk:
-        - size_gb: 100
+        - size_gb: "{{ node.disk_size }}"
           type: thin
           datastore: "{{ node.datastore }}"
       delegate_to: localhost

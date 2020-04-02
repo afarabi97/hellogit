@@ -1,0 +1,30 @@
+---
+- name: Remove the epel-release package.
+  yum:
+    name: epel-release
+    state: absent
+
+- name: Find repositories in /etc/yum.repos.d.
+  find:
+    paths: /etc/yum.repos.d
+    patterns: ".*repo$"
+    use_regex: true
+  register: repo
+
+- name: Remove repositories that were found in /etc/yum.repos.d.
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ repo.files }}"
+
+- name: Remove the /var/cache/yum directory.
+  shell: |
+    rm -rf /var/cache/yum
+  args:
+    warn: false
+
+- name: Remove the ~/.pip directory.
+  file:
+    path: "~/.pip"
+    state: absent
+

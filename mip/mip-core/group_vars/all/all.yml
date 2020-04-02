@@ -1,0 +1,20 @@
+---
+remote_user: root 
+ansible_password: "default"
+user: "assessor"
+operator_group: "operators"
+user_desktop: "/home/{{user}}/Desktop"
+application_path: "/usr/share/applications"
+tmp_apps: "/tmp/tmp_apps"
+web_server: "{{ controller_web_server | default('http://misc.labrepo.sil.lab/MIP/') }}"
+kernel_version: 3.10.0-1062.12.1.el7.x86_64
+uefi_grub_path: "/boot/efi/EFI/redhat/"
+legacy_grub_path: "/boot/grub2/"
+
+# Password variables for users
+assessor_pw: "{{ assessor_pw_inventory | default('default') | password_hash('sha512') }}"          
+usaf_admin_pw: "{{ usaf_admin_pw_inventory  | default('default') | password_hash('sha512') }}"      
+admin_pw: "{{ admin_pw_inventory  | default('default') | password_hash('sha512') }}"
+auditor_pw: "{{ auditor_pw_inventory  | default('default') | password_hash('sha512') }}"
+maintainer_pw: "{{ maintainer_pw_inventory  | default('default') | password_hash('sha512') }}"
+...

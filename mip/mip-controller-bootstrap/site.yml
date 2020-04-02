@@ -1,0 +1,22 @@
+- name: Retrieve resources from labrepo.
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - role: bootstrap
+  tags:
+    - bootstrap
+
+- name: Clone repos
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - clonerepo
+  tags: clonerepo
+
+- name: Clean up
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - role: cleanup
+  tags:
+    - cleanup

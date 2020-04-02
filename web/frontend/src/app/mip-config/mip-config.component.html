@@ -1,0 +1,110 @@
+<ng-container [formGroup]="form">
+    <div class="main-content2">
+        <!-- Instructions -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>
+                    Instructions
+                </mat-card-title>
+            </mat-card-header>
+    
+            <mat-card-content>
+                <ul>
+                    <li>Wait for the controller to gather facts for the MIPs that were Kickstarted.</li>
+                    <li>Click the "Enable" button</li>
+                    <li>Select MDT if required.</li>
+                    <li>When you are ready click the "Run Playbook" button.</li>
+                </ul>
+            </mat-card-content>
+    
+            <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="openConsole()">
+                  Open Console
+                </button>
+    
+                <div class="form-controls">
+                    <button [disabled]="loading" mat-raised-button color="accent" (click)="onEnable()">Enable</button>
+                    <button [disabled]="loading || form.disabled" mat-raised-button color="warn" (click)="onClear()">Clear</button>
+                </div>
+            </mat-card-actions>
+        </mat-card>
+    
+        <br>
+    
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>
+                    <div fxLayout="row" fxLayoutAlign="space-between none">
+                        <div>Operator Type</div>
+                        <mat-radio-group formControlName="type">
+                            <mat-radio-button value="CPT">CPT</mat-radio-button>
+                            <mat-radio-button value="MDT">MDT</mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                </mat-card-title>
+            </mat-card-header>
+        </mat-card>
+        
+        <br>
+
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>
+                    <div fxLayout="row" fxLayoutAlign="space-between none">
+                        <div>Passwords</div>
+                        <mat-checkbox #singlePassword formControlName="singlePassword" matTooltip="Uncheck to specify the password for users individually." class="mat-body-1">Use same password</mat-checkbox>
+                    </div>
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="assessor_pw"></app-mip-config-password>
+                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="usaf_admin_pw"></app-mip-config-password>
+                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="admin_pw"></app-mip-config-password>
+                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="auditor_pw"></app-mip-config-password>
+                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="maintainer_pw"></app-mip-config-password>
+                <app-mip-config-password #global [enabled]="singlePassword.checked" [hidden]="singlePassword.checked ? false : true" [form]="form" name="global_pw"></app-mip-config-password>
+            </mat-card-content>
+
+
+        </mat-card>
+
+        <br>
+
+        <!-- Nodes -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>MIPs</mat-card-title>
+            </mat-card-header>
+    
+            <mat-card-content fxLayout="column">
+                <mat-accordion multi="true">
+                    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+                    <mat-expansion-panel expanded="true" *ngFor="let node of nodes; let i = index">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>MIP {{ i + 1 }}</mat-panel-title>
+                        </mat-expansion-panel-header>
+                
+                        <ng-container *ngIf="!node?.error_message">
+                            <app-mip-config-node [form]="form" [boot_drive]="boot_drives[node['hostname']]" [node]="node"></app-mip-config-node>
+                        </ng-container>
+    
+                        <ng-container *ngIf="node?.error_message">
+                            Something bad happened.
+                        </ng-container>
+    
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </mat-card-content>
+    
+            <mat-card-actions>
+                <button [disabled]="form.disabled || form.invalid" mat-raised-button [disabled]="nodes ? false : true" (click)="runPlaybook()">Run Playbook</button>
+            </mat-card-actions>
+        </mat-card>
+        
+        <br>
+
+        <!-- Validation -->
+        <app-mip-config-validation [form]="form"></app-mip-config-validation>
+    </div>
+</ng-container>

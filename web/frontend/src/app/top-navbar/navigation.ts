@@ -13,6 +13,7 @@ const rulesets = { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isEx
 const pcaps = { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false };
 const tools = { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false };
 const thisiscvah = { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true };
+const mipConfig = { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false };
 
 export interface NavLink {
   label: string;
@@ -78,7 +79,7 @@ const mipNavigation: Array<NavGroup> = [
     label: 'System Setup',
     children: [
       kickstart,
-      kit
+      mipConfig
     ]
   },
   {

@@ -80,7 +80,7 @@ def gather_device_facts() -> Response:
         else:
             password = ''
 
-        node, default_ipv4 = get_system_info(management_ip, password)
+        node, default_ipv4, product_name = get_system_info(management_ip, password)
         potential_monitor_interfaces = []
         for interface in node.interfaces:
             if interface.ip_address != management_ip:
@@ -98,7 +98,8 @@ def gather_device_facts() -> Response:
                        hostname=node.hostname,
                        default_ipv4_settings=default_ipv4,
                        potential_monitor_interfaces=potential_monitor_interfaces,
-                       interfaces=json.dumps([interface. __dict__ for interface in node.interfaces]))
+                       interfaces=json.dumps([interface. __dict__ for interface in node.interfaces]),
+                       product_name=product_name)
     except Exception as e:
         logger.exception(e)
         return jsonify(error_message=str(e))

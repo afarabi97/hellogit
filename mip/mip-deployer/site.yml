@@ -1,0 +1,15 @@
+---
+- name: Setup Kickstart server
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - kickstart
+  tags: kickstart
+
+- name: Generate Profiles
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - profiles
+  tags: profiles
+...

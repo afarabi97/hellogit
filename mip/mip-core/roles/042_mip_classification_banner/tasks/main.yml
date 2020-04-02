@@ -1,0 +1,27 @@
+---
+- name: Creating /opt/banner/bin directory
+  file:
+    path: /opt/banner/bin
+    state: directory
+    owner: root
+    group: root
+    mode: '1755'
+
+- name: Copying all the scripts over to the MIP   
+  copy:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  with_items:
+    - { src: '/root/Files_To_Be_Copied_Over/opt/banner/bin/classification-banner', dest: '/opt/banner/bin/', owner: root, group: root, mode: '0644'}
+    - { src: '/root/Files_To_Be_Copied_Over/usr/local/bin/classification-banner.py', dest: '/usr/local/bin',  owner: root, group: root, mode: '0755'}
+    - { src: '/root/Files_To_Be_Copied_Over/etc/xdg/autostart/classification-banner.desktop', dest: '/etc/xdg/autostart', owner: root, group: root, mode: '0644'}
+    - { src: '/root/Files_To_Be_Copied_Over/home/assessor/Desktop/Config.desktop', dest: '/home/assessor/Desktop', owner: assessor, group: operators, mode: '0755'}
+
+- name: Set trust setting for MIP config script
+  become: yes 
+  become_user: "assessor"
+  shell:
+    cmd: /usr/bin/dbus-launch gio set "/home/assessor/Desktop/Config.desktop" 'metadata::trusted' yes

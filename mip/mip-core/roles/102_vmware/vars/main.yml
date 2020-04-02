@@ -1,0 +1,6 @@
+---
+ vmware_path: "{{ tmp_apps }}/{{ vmware_file }}"
+ vmware_dir: /cvah/vm
+ vmware_home_dir: /home/{{ user }}/.vmware
+ vmware_desktop_app: vmware-workstation.desktop
+ vmware_license: WM095-DZA84-M8UD5-0NJH5-0HA74

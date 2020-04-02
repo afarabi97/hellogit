@@ -1,0 +1,27 @@
+---
+- name: Create a group for the operation role.
+  group: 
+    name: operators
+    state: present
+
+- name: Making Desktop folder for skeleton directory
+  file:
+    path: /etc/skel/Desktop
+    state: directory
+    owner: root
+    group: root
+    mode: '1755'
+
+- name: Create canonical accounts for the MIP echelon.
+  user:
+    name: "{{ item['user'] }}"
+    groups: "{{ item['groups'] }}"
+    append: yes
+    comment: "{{ item['comment'] }}"
+    password: "{{ item['password'] }}"
+  loop:
+    - { user: 'assessor', groups: ['users','operators','wheel' ], comment: 'Assessor', password: "{{ assessor_pw }}" }
+    - { user: 'usaf_admin', groups: ['users','operators'] ,comment: 'USAF_ADMIN', password: "{{ usaf_admin_pw }}" }
+    - { user: '911admin', groups: ['wheel'], comment: 'Emergency Login', password: "{{ admin_pw }}" }
+    - { user: 'auditor', groups: ['wheel'], comment: 'Auditor', password: "{{ auditor_pw }}" }
+    - { user: 'maintainer', groups: ['wheel'], comment: 'Maintainer', password: "{{ maintainer_pw }}" }

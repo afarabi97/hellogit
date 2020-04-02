@@ -1,0 +1,4 @@
+---
+- import_tasks: McAfee_install.yml
+- import_tasks: McAfee_config.yml
+...

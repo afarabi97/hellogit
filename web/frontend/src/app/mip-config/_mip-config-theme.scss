@@ -1,0 +1,15 @@
+@mixin mip-config-theme($theme) {
+    .app-mip-config {
+        .mat-expansion-panel {
+            background-color: map-get($theme, second-elevation-dark-background);
+        }
+
+        .mat-raised-button {
+            background-color: map-get($theme, primary-btn-color);
+        }
+
+        li {
+            color: map-get($theme, primary-text-color);
+        }
+    }
+}

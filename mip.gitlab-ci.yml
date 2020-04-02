@@ -1,0 +1,157 @@
+Setup MIP Nightly Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py setup-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-template "jdms-mip-template" \
+    --gateway "$VM_GATEWAY" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type build_from_scratch \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --system-name "MIP" \
+    --disk-size "250" \
+    --repo-url "$REPO_URL" \
+    --vm-prefix "$VM_PREFIX"
+  only:
+    variables:
+      - $PIPELINE == "jdms-nightly-mip-controller"
+  cache:
+    key: tfplenum-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings.yml
+
+Setup MIP Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Changing to the testing/pipeline directory."
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py setup-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --gateway "$VM_GATEWAY" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type "$BUILD_TYPE" \
+    --vm-template "$MIP_TEMPLATE_TO_CLONE" \
+    --disk-size "250" \
+    --vm-prefix "$VM_PREFIX"
+  only:
+    variables:
+      - $PIPELINE == "jdms-mip-developer"
+      - $PIPELINE == "jdms-export-mip-controller"
+  cache:
+    key: tfplenum-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings.yml
+
+MIP Kickstart:
+  stage: kickstart
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-mip-kickstart \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --gateway "$VM_GATEWAY" \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --num-mips "2" \
+    --mip-mem "24576" \
+    --mip-cpu "8" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size 250
+  only:
+    variables:
+      - $PIPELINE == "jdms-mip-developer"
+  cache:
+    key: tfplenum-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings.yml
+      - mipkickstartsettings.yml
+      - nodestoscan.txt
+
+Configure MIPs:
+  stage: mip_config
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-mip-config \
+  only:
+    variables:
+      - $PIPELINE == "jdms-mip-developer"
+  cache:
+    key: tfplenum-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings.yml
+      - mipkickstartsettings.yml
+      - mipconfigsettings.yml
+      - nodestoscan.txt
+
+Export MIP Controller:
+  stage: export
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-export export-mip-ctrl \
+    --export-path "$TFPLENUM_EXPORT_LOC" \
+    --export-version "$TFPLENUM_MIP_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "jdms-export-mip-controller"
+  cache:
+    key: tfplenum-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings.yml
+      - mipkickstartsettings.yml
+      - mipconfigsettings.yml
+      - nodestoscan.txt
+
+Generate MIP Versions File:
+  stage: hashfiles
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-export generate-versions-file \
+    --export-path "$TFPLENUM_EXPORT_LOC" \
+    --export-version "$TFPLENUM_MIP_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "jdms-export-mip-controller"

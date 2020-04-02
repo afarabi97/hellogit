@@ -61,8 +61,24 @@ export class KickstartService {
     );
   }
 
+  generateMIPKickstartInventory(kickStartForm: Object) {
+    const url = '/api/generate_mip_kickstart_inventory';
+
+    return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
+      catchError(this.handleError('generateMIPKickstartInventory'))
+    );
+  }
+
   getKickstartForm() {
     const url = '/api/get_kickstart_form';
+    return this.http.get(url)
+      .pipe(
+        catchError(this.handleError())
+      );
+  }
+
+  getMIPKickstartForm() {
+    const url = '/api/get_mip_kickstart_form';
     return this.http.get(url)
       .pipe(
         catchError(this.handleError())

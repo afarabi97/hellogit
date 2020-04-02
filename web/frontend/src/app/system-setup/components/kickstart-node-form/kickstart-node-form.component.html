@@ -27,34 +27,51 @@
         node.get('mac_address')?.touched" matSuffix color="warn">error</mat-icon>
     <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
   </mat-form-field>
-  <mat-form-field>
-    <mat-label>Boot Drive</mat-label>
-    <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
-      matTooltip="{{ getTooltip('boot_drive') }}" />
-    <mat-icon *ngIf="
-          node.get('boot_drive')?.valid &&
-          node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-    <mat-icon *ngIf="
-          node.get('boot_drive')?.invalid &&
-          node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
-    <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Data Drive</mat-label>
-    <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
-      matTooltip="{{ getTooltip('data_drive') }}" />
-    <mat-icon *ngIf="
-        node.get('data_drive')?.valid &&
-        node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
-    <mat-icon *ngIf="
-        node.get('data_drive')?.invalid &&
-        node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
-    <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>PXE Type</mat-label>
-    <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
-      <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
-    </mat-select>
-  </mat-form-field>
+
+  <ng-container *ngIf="system_name === 'DIP'">
+    <mat-form-field>
+      <mat-label>Boot Drive</mat-label>
+      <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
+        matTooltip="{{ getTooltip('boot_drive') }}" />
+      <mat-icon *ngIf="
+            node.get('boot_drive')?.valid &&
+            node.get('boot_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+      <mat-icon *ngIf="
+            node.get('boot_drive')?.invalid &&
+            node.get('boot_drive')?.touched" matSuffix color="warn">error</mat-icon>
+      <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Data Drive</mat-label>
+      <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
+        matTooltip="{{ getTooltip('data_drive') }}" />
+      <mat-icon *ngIf="
+          node.get('data_drive')?.valid &&
+          node.get('data_drive')?.touched" matSuffix color="primary">check_circle</mat-icon>
+      <mat-icon *ngIf="
+          node.get('data_drive')?.invalid &&
+          node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
+      <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
+    </mat-form-field>
+  </ng-container>
+
+
+  <ng-container *ngIf="system_name==='DIP'">
+    <mat-form-field>
+      <mat-label>PXE Type</mat-label>
+      <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
+        <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+
+  <ng-container *ngIf="system_name==='MIP'">
+    <mat-form-field>
+      <mat-label>MIP Model</mat-label>
+      <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('mip_pxe_type')}}">
+        <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
 </form>

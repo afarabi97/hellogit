@@ -47,6 +47,15 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kit
 
     @property
+    def mongo_mip_config(self) -> Collection:
+        """
+        Returns a mongo object that can do database manipulations.
+
+        :return:
+        """
+        return self._tfplenum_database.mip_config
+
+    @property
     def mongo_kit_archive(self) -> Collection:
         """
         Returns a mongo object that can do database manipulations.

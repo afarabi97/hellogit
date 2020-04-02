@@ -1,0 +1,7 @@
+---
+- name: Install ostinato
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ ostinato_path }}"
+...

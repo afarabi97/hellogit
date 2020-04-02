@@ -1,0 +1,22 @@
+---
+- name: Rebooting mips 
+  reboot:
+    test_command: "whoami"
+    reboot_timeout: 2000
+
+- name: Change grub menu timeout
+  import_role:
+    name: 034_mip_grub-configuration
+    tasks_from: timeout
+
+- name: Force LUKS to prompt for passphrase again
+  import_role:
+    name: 901_common_STIG-remediation
+    tasks_from: luks-reencrypt
+
+- name: Disable root login via ssh
+  import_role:
+    name: 901_common_STIG-remediation
+    tasks_from: ssh_policy
+
+- import_tasks: dhcp.yml

@@ -315,4 +315,4 @@ def get_system_info(server_ip: str, password: str) -> Tuple[Node, Dict]:
     :return: Node object as specified above
     """
     json_object = ansible_setup(server_ip, password)
-    return Node(json_object), json_object['ansible_facts']['ansible_default_ipv4']
+    return Node(json_object), json_object['ansible_facts']['ansible_default_ipv4'], json_object['ansible_facts']['ansible_product_name']

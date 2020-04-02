@@ -26,3 +26,9 @@ class SubCmd:
     export_ctrl = 'export-ctrl'
     generate_versions_file = 'generate-versions-file'
     create_master_drive = 'create-master-drive'
+    export_mip_ctrl = 'export-mip-ctrl'
+
+
+    # mip subcommands
+    run_mip_kickstart = 'run-mip-kickstart'
+    run_mip_config = 'run-mip-config'

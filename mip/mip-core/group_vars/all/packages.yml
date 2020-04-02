@@ -1,0 +1,110 @@
+---
+packages:
+  #VMware packages
+  - kernel-3.10.0-1062.12.1.el7.x86_64
+  - kernel-headers-3.10.0-1062.12.1.el7.x86_64
+  - kernel-devel-3.10.0-1062.12.1.el7.x86_64
+  - gcc
+  #Wireshark packages
+  - gcc-c++ 
+  - bison 
+  - flex 
+  - qt-devel 
+  - gtk3-devel 
+  - rpm-build 
+  - libtool 
+  - c-ares-devel 
+  - qt5-qtbase-devel 
+  - qt5-qtmultimedia-devel 
+  - qt5-linguist 
+  - desktop-file-utils
+  - libgcrypt
+  - libgcrypt-devel
+  - libpcap
+  - libpcap-devel
+#Other
+  - libvirt*
+  - iptables-services  
+  - nmap               
+  - nmap-frontend
+  - wget                              
+  - mlocate            
+  - yum-utils          
+  - bind-utils         
+  - fping
+  - aide
+  - openvpn
+  - easy-rsa
+  - ntfs-3g
+  - ntp
+  - p7zip
+  - tftp-server
+  - tftp                
+  - terminator
+  - fuse-sshfs
+  - tofrodos  
+  - opensc  
+  - chrony
+  - scap-workbench 
+  - screen
+  - yum-plugin-versionlock
+  - python3
+  - vim
+  - srm.x86_64 
+  - tmux
+  - git
+  - nload
+  - putty 
+  - libXScrnSaver           
+  - libappindicator-gtk3 
+  - libdbusmenu            
+  - libdbusmenu-gtk3     
+  - liberation-fonts   
+  - liberation-narrow-fonts
+  - libindicator-gtk3
+  - libsmi
+  - wireshark
+
+cpt_packages:
+  - container-selinux
+  - containernetworking-plugins
+  - containers-common
+  - libnet
+  - protobuf-c
+  - criu
+  - runc
+  - podman
+
+
+#Third Party Software
+burpsuite_file: burpsuite_pro_linux_v2_1_06.sh
+chrome_file: google-chrome-stable_013120_x86_64.rpm
+dat_file: CM-245989-avvdat-9523.tar
+engine_file: avengine64-6010.zip
+gitkraken_file: gitkraken-amd64.rpm
+McAfee_file: McAfeeVSEForLinux-2.0.3.29216.tar.gz
+nexpose_file: Rapid7Setup-Linux64.bin
+ostinato_file: ostinato-0.8-1.1.x86_64.rpm
+ostinato_server_file: ostinato-server-0.8-1.1.x86_64.rpm
+vmware_file: VMware-Workstation-Full-15.1.0-13591040.x86_64.bundle
+vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
+wireshark_file: wireshark-2.6.13.tar.xz
+McAfee_gip_file: CPT_McAfee_Update.tar
+
+software: 
+  - "{{ web_server }}{{ vmware_file }}"
+  - "{{ web_server }}{{ vscode_file }}"
+  - "{{ web_server }}{{ gitkraken_file }}"
+  - "{{ web_server }}{{ chrome_file }}"
+  - "{{ web_server }}{{ wireshark_file }}"
+  - "{{ web_server }}{{ McAfee_file }}"
+  - "{{ web_server }}{{ dat_file }}"
+  - "{{ web_server }}{{ engine_file }}"
+
+cpt_software:
+  - "{{ web_server }}{{ nexpose_file }}"
+  - "{{ web_server }}{{ burpsuite_file }}"
+  - "{{ web_server }}{{ ostinato_file }}"
+  - "{{ web_server }}{{ ostinato_server_file }}"
+  - "{{ web_server }}{{ McAfee_gip_file }}"
+...

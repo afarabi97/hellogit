@@ -6,7 +6,8 @@ from models.settings import (NodeSettings, VCenterSettings, Model,
                              RepoSettings, ControllerSetupSettings,
                              KickstartSettings, KitSettings, SuricataSettings,
                              CatalogSettings, MolochCaptureSettings, MolochViewerSettings,
-                             ZeekSettings, LogstashSettings)
+                             ZeekSettings, LogstashSettings, MIPKickstartSettings,
+                             MIPConfigSettings)
 from typing import Union
 
 class YamlManager:
@@ -28,6 +29,8 @@ class YamlManager:
             cls.yaml.register_class(MolochViewerSettings)
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
+            cls.yaml.register_class(MIPKickstartSettings)
+            cls.yaml.register_class(MIPConfigSettings)
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, application:str=None):
@@ -55,4 +58,9 @@ class YamlManager:
     @classmethod
     def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
         yaml_name = "{}.yml".format(KickstartSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+
+    @classmethod
+    def load_mip_kickstart_settings_from_yaml(cls) -> KickstartSettings:
+        yaml_name = "{}.yml".format(MIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)

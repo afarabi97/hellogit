@@ -142,10 +142,6 @@ function _preload_pcap_files {
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/wannacry.pcap
-
-    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/dns-dnskey.trace
-    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/get.trace
-    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/smb1_transaction_request.pcap
     popd > /dev/null
 }
 

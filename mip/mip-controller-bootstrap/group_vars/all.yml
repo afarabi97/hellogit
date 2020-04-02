@@ -1,0 +1,20 @@
+web_root: /var/www/html
+
+misc_server: http://misc.labrepo.sil.lab
+isos_server: http://isos.labrepo.sil.lab
+
+iso_rhel_version: "7.7"
+iso_rhel_pth: "/root/rhel-workstation-{{ iso_rhel_version }}-x86_64-dvd.iso" 
+iso_rhel_checksum: 56c4be4757c4b8e560d21e13a8cc3854ace401547e02999ff8dbc2696f92dff3
+
+workstation_repos:
+  - rhel-7-workstation-rpms
+  - rhel-7-workstation-optional-rpms
+  - rhel-7-workstation-extras-rpms
+  - rhel-7-workstation-source-rpms
+
+server_repos:
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
+  - rhel-7-server-rpms
+

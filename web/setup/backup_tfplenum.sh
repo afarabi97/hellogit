@@ -14,8 +14,6 @@ function backup_tfplenum {
     cp -rv /var/www/html/THISISCVAH/ backup/.
     cp -rv /var/www/html/OJCCTM/ backup/.
     cp -rv /var/www/html/pcaps/ backup/.
-    cp /opt/tfplenum/core/playbooks/inventory.yml backup/.
-    cp /opt/tfplenum/deployer/playbooks/inventory.yml backup/.
     if [ $PARAM_BACKUP_NAME ]; then
         tar -czvf $PARAM_BACKUP_NAME backup/
     else

@@ -1,0 +1,87 @@
+---
+- name: Template cronjob for automatic dat file update
+  template:
+    src: dat_cronjob.j2
+    dest: /var/spool/cron/root
+    mode: '0600'
+  tags:
+    - CPT
+    - MDT
+
+- name: Unpack dat tar file 
+  unarchive:
+    src: "{{ tmp_apps }}/{{ dat_file }}"
+    dest: "{{ dat_path }}"
+    remote_src: yes
+  tags:
+    - CPT
+    - MDT
+
+- name: Unpack engine tar file 
+  unarchive:
+    src: "{{ tmp_apps }}/{{ engine_file }}"
+    dest: "{{ engine_path }}"
+    remote_src: yes
+  tags:
+    - CPT
+    - MDT
+
+- name: Unpack GIP McAfee tar file
+  unarchive:
+    src: "{{ tmp_apps }}/{{ McAfee_gip_file }}"
+    dest: "{{ tmp_apps }}"
+    remote_src: yes
+  tags:
+    - CPT
+
+- name: Copy McAfee desktop application 
+  copy:
+    src: "{{ McAfee_tmp_dir }}/{{ McAfee_desktop }}"
+    dest: "{{ user_desktop }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '755'
+    remote_src: yes
+  tags:
+    - CPT
+
+- name: Copy McAfee scripts for GIP
+  copy:
+    src: "{{ item }}"
+    dest: /cvah/scripts
+    owner: "{{ user }}"
+    group: "{{ operator_group }}"
+    mode: '770'
+    remote_src: yes
+  loop: "{{ McAfee_scripts }}"
+  tags:
+    - CPT
+
+- name: Copy McAfee icon to operator directory
+  copy:
+    src: "{{ McAfee_tmp_dir }}/mcafee"
+    dest: /operator
+    owner: root
+    group: "{{ operator_group }}"
+    mode: '755'
+    remote_src: yes
+  tags:
+    - CPT
+
+- name: Trust McAfee desktop application
+  become: yes 
+  become_user: "{{ user }}"
+  shell:
+    cmd: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ McAfee_desktop }}" 'metadata::trusted' yes
+  tags:
+    - CPT
+
+- name: Start nails McAfee service
+  service:
+    name: nails
+    state: started
+    enabled: yes
+  tags:
+    - CPT
+    - MDT
+...

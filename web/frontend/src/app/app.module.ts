@@ -104,8 +104,18 @@ import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.comp
 import { ESScaleComponent } from './es-scale/es-scale.component';
 import { ElasticEditorComponent } from './elasticconfig-editor/elasticconfig-editor.component';
 
+// MIP Configuration
+import { MIPConfigComponent } from './mip-config/mip-config.component';
+import { MIPConfigNodeComponent } from './mip-config-node/mip-config-node.component';
+import { MIPConfigPasswordComponent } from './mip-config-password/mip-config-password.component';
+import { MIPConfigValidationComponent } from './mip-config-validation/mip-config-validation.component';
+
 @NgModule({
   declarations: [
+    MIPConfigNodeComponent,
+    MIPConfigComponent,
+    MIPConfigPasswordComponent,
+    MIPConfigValidationComponent,
     AppComponent,
     TopNavbarComponent,
     KickstartComponent,

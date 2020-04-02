@@ -12,7 +12,7 @@ import os
 import signal
 
 from shared.connection_mngs import MongoConnectionManager
-from shared.constants import CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR, AGENT_PKGS_DIR
+from shared.constants import CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, TESTING_DIR, UPGRADES_DIR, AGENT_PKGS_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR
 from flask_cors import CORS
 from flask import Flask
 from flask_socketio import SocketIO
@@ -114,6 +114,7 @@ from app import version_controller
 from app import upgrade_controller
 from app import tools_controller
 from app import scale_controller
+from app import mip_config_controller
 
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.

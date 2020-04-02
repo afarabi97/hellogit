@@ -6,29 +6,28 @@ variables:
   TFPLENUM_EXPORT_LOC: "/mnt/drive_creation/"
   TFPLENUM_DOC_EXPORT_LOC: "/mnt/drive_creation/"
   TFPLENUM_EXPORT_VERSION: RC
+  TFPLENUM_MIP_EXPORT_VERSION: MIP_RC
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
-  TFPLENUM_COMMIT_HASH: $CI_COMMIT_REF_NAME
   PIPELINE: "developer"
   BUILD_TYPE: "clone_from_nightly"
   IS_CLEANUP: "false"
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
-  VMWARE_DATASTORE: "NVMe Storage 2"
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   ACAS_IPADDRESS: "172.16.82.15"
   ACAS_USERNAME: "acas"
   ACAS_PASSWORD: "we.are.tfplenum"
-  ACAS_SCAN_TO_RUN: "Scan test Kit1"
+  ACAS_SCAN_TO_RUN: "TFPlenum Dynamic Scan2"
   RUN_ACAS: "false"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
-  REPO_BRANCH: $CI_COMMIT_REF_NAME
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
   VCENTER_DATACENTER: "DEV_Datacenter"
   VCENTER_PORTGROUP: "12-Dev2-Navarro"
-  VCENTER_DATASTORE: "NVMe Storage"
+  VCENTER_DATASTORE: "dev-vol02"
   TEMPLATE_TO_CLONE: "dip-ctrl.lan"
+  MIP_TEMPLATE_TO_CLONE: "jdms-nightly-mip-ctrl.lan"
   VM_GATEWAY: "10.40.12.1"
 
   #Master Drive Creation Variables
@@ -60,6 +59,7 @@ stages:
   - kickstart
   - kit
   - security_scans
+  - mip_config
   - catalog
   - unit-test
   - integration-test
@@ -69,6 +69,9 @@ stages:
   - export
   - hashfiles
   - publish
+
+include:
+  - local: mip.gitlab-ci.yml
 
 sonarqube-check:
   tags:
@@ -136,12 +139,12 @@ Setup Nightly Controller:
     --repo-url "$REPO_URL" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
-    --dns-server $DNS_SERVERS \
+    --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "$TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX" \
-    --branch-name "$REPO_BRANCH" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
     --run-type build_from_scratch \
     --vm-datastore "$VCENTER_DATASTORE"
   retry: 2
@@ -194,7 +197,7 @@ Setup Controller:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    echo "dip-cache-${CI_PIPELINE_ID}"
+    echo "tfplenum-cache-${CI_PIPELINE_ID}"
 
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py setup-controller \
@@ -207,16 +210,16 @@ Setup Controller:
     --repo-url "$REPO_URL" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
-    --dns-server $DNS_SERVERS \
+    --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "$TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX" \
-    --branch-name "$REPO_BRANCH" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
     --run-type "$BUILD_TYPE" \
     --vm-datastore "$VCENTER_DATASTORE"
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
   retry: 2
@@ -236,7 +239,7 @@ Run Python Unit Tests:
     python3 testing/pipeline/pipeline.py run-unit-tests
   allow_failure: true
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -260,7 +263,7 @@ Add Docs to Controller:
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
     policy: pull
@@ -287,7 +290,7 @@ Kickstart:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
-    --dns-server $DNS_SERVERS \
+    --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-prefix "$VM_PREFIX" \
     --gateway "$VM_GATEWAY" \
@@ -299,7 +302,7 @@ Kickstart:
     --sensor-mem $SENSOR_MEM \
     --vm-datastore "$VCENTER_DATASTORE"
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -319,7 +322,7 @@ Deploy Kit:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py run-kit
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -344,7 +347,7 @@ Perform Security Scans:
     --scan_name "$ACAS_SCAN_TO_RUN" \
     --nodes-to-scan $(cat nodestoscan.txt)
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - nodestoscan.txt
     policy: pull
@@ -368,7 +371,7 @@ CVAH Catalog:
     python3 testing/pipeline/pipeline.py run-catalog zeek
     python3 testing/pipeline/pipeline.py run-catalog logstash
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -390,7 +393,7 @@ System Function Testing:
     variables:
       - $PIPELINE == "virtual_build_and_test"
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -411,7 +414,7 @@ Simulate Power Failure:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py simulate-power-failure
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -430,7 +433,7 @@ System Function Testing2:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py run-integration-tests
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -455,7 +458,7 @@ Cleanup Job:
     python3 testing/pipeline/pipeline.py run-cleanup
   when: always
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
       - kickstartsettings.yml
@@ -476,7 +479,7 @@ Export Controller:
     --export-path "$TFPLENUM_EXPORT_LOC" \
     --export-version "$TFPLENUM_EXPORT_VERSION"
   cache:
-    key: dip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings.yml
     policy: pull

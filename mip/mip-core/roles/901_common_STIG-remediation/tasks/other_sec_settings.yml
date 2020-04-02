@@ -1,0 +1,24 @@
+---
+- name: Disabling ctrl + alt + del for reboot
+  file:
+    src: /dev/null
+    dest: /etc/systemd/system/ctrl-alt-del.target
+    state: link
+   
+- name: Globally masking ctrl-alt-del
+  systemd: 
+    name: ctrl-alt-del.target
+    masked: yes
+
+- name: Creating Security Settings lock
+  lineinfile:
+    path: /etc/dconf/db/local.d/00-security-settings-lock
+    line: "{{ item }}"
+    create: yes
+    state: present
+  with_items:
+    - "[org/gnome/settings-daemon/plugins/media-keys]"
+    - logout=''
+
+- name: Updating dconf
+  command: dconf update

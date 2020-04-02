@@ -72,7 +72,7 @@
           type: none
           state: absent
         disk:
-        - size_gb: 100
-          type: thin
-          datastore: "dev-vol02"
+          - size_gb: "{{ node.disk_size }}"
+            type: thin
+            datastore: "dev-vol02"
       delegate_to: localhost

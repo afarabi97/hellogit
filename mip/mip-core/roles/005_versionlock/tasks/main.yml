@@ -1,0 +1,9 @@
+---
+- name: Template versionlock.list /etc/yum/pluginconf.d
+  template:
+    src: versionlock.j2
+    dest: /etc/yum/pluginconf.d/versionlock.list
+    owner: root
+    group: root
+    mode: '0644'
+...

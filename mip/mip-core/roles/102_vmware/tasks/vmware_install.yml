@@ -1,0 +1,34 @@
+---
+- name: Execute bundle installation
+  shell: >
+    sh {{ vmware_path }} --eulas-agreed --console --required
+    --set-setting=vmware-player-app softwareUpdateEnabled no
+    --set-setting=vmware-player-app dataCollectionEnabled no
+    --set-setting=vmware-workstation-server hostdUser {{ user }}
+    --set-setting=vmware-workstation-server datastore {{ vmware_dir }}
+    --set-setting=vmware-workstation-server httpsPort 443
+    --set-setting vmware-workstation serialNumber {{ vmware_license }}
+
+- name: Install additional VMware modules
+  shell:
+    cmd: vmware-modconfig --console --install-all
+
+- name: Copy vmware shorcut to desktop
+  copy:
+    src: "{{ application_path }}/{{ vmware_desktop_app }}"
+    dest: "{{ user_desktop }}"
+    remote_src: yes
+
+- name: Change vmware desktop permissions 
+  file:
+    path: "{{ user_desktop }}/{{ vmware_desktop_app }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0774'
+
+- name: Trust vmware desktop application
+  become: yes 
+  become_user: "{{ user }}"
+  shell:
+    cmd: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' yes
+...

@@ -62,6 +62,20 @@ function prompt_runtype() {
     fi
 }
 
+function prompt_runtype_mip {
+    echo "Select a run type:"
+    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
+    echo "Boostrap: Only runs boostrap ansible role."
+    if [ -z "$RUN_TYPE" ]; then
+        select cr in "Full" "Bootstrap"; do
+            case $cr in
+                Full ) export RUN_TYPE=full; break;;
+                Bootstrap ) export RUN_TYPE=bootstrap; break;;
+            esac
+        done
+    fi
+}
+
 function check_rhel_iso(){
     echo "Checking for RHEL ISO..."
     rhel_iso_exists=false
@@ -219,6 +233,37 @@ function setup_ansible(){
     popd > /dev/null
 }
 
+function add_workstation_repositories() {
+    if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
+        cat <<EOF > /etc/yum.repos.d/workstation-labrepo-rhel.repo
+[rhel-7-workstation-rpms]
+name=labrepos rhel-7-workstation-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-optional-rpms]
+name=labrepos rhel-7-workstation-optional-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-optional-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-extras-rpms]
+name=labrepos rhel-7-workstation-extras-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-extras-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-source-rpms]
+name=labrepos rhel-7-workstation-source-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-source-rpms
+enabled=0
+gpgcheck=0
+EOF
+        yum clean all > /dev/null
+        rm -rf /var/cache/yum/ > /dev/null
+    fi
+}
 
 function generate_repo_file() {
     rm -rf /etc/yum.repos.d/*.repo > /dev/null
@@ -419,6 +464,13 @@ EOF
   git config --global credential.helper "/bin/bash ~/credential-helper.sh"
 }
 
+function execute_mip_bootstrap_playbook(){
+    echo "Running MIP controller bootstrap."
+    pushd "/opt/tfplenum/mip/mip-controller-bootstrap" > /dev/null
+    make bootstrap
+    popd > /dev/null
+}
+
 function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
 
@@ -445,7 +497,14 @@ function prompts(){
     prompt_for_system
 
     export TFPLENUM_OS_TYPE=rhel
-    prompt_runtype
+    if [ "$SYSTEM_NAME" == "DIP" ]; then
+        prompt_runtype
+    fi
+
+    if [ "$SYSTEM_NAME" == "MIP" ]; then
+        prompt_runtype_mip
+    fi
+
     get_controller_ip
 
     if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
@@ -455,6 +514,9 @@ function prompts(){
             export RHEL_SOURCE_REPO="public";
         fi
         generate_repo_file
+        if [[ "$SYSTEM_NAME" == "MIP" ]]; then
+            add_workstation_repositories
+        fi
     fi
 
     if [ "$RUN_TYPE" == "full" ]; then
@@ -475,7 +537,7 @@ function prompt_for_system() {
             esac
         done
     fi
-
+    export SYSTEM_NAME=$SYSTEM_NAME;
     echo "[tfplenum]" > /etc/tfplenum.ini
     echo "system_name = ${SYSTEM_NAME}" >> /etc/tfplenum.ini
 }
@@ -488,7 +550,6 @@ if [ "$RUN_TYPE" == "full" ]; then
     setup_git
     clone_repos
     git config --global --unset credential.helper
-    rm -f /root/credential-helper.sh
     execute_pre
     remove_npmrc
     install_python36
@@ -501,10 +562,16 @@ fi
 
 if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     setup_ansible
-    execute_bootstrap_playbook
+    if [[ "$SYSTEM_NAME" == "DIP" ]]; then
+        execute_bootstrap_playbook
+    fi
+
+    if [[ "$SYSTEM_NAME" == "MIP" ]]; then
+        execute_mip_bootstrap_playbook
+    fi
 fi
 
-if [ "$RUN_TYPE" == "dockerimages" ]; then
+if [ "$RUN_TYPE" == "dockerimages" ] && [ "$SYSTEM_NAME" == "DIP" ]; then
     execute_pull_docker_images_playbook
 fi
 

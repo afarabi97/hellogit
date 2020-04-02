@@ -1,7 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
-import { PXE_TYPES } from '../../../frontend-constants';
+import { PXE_TYPES, MIP_PXE_TYPES } from '../../../frontend-constants';
+import { WeaponSystemNameService} from '../../../services/weapon-system-name.service';
 
 @Component({
   selector: 'app-kickstart-node-form',
@@ -16,11 +17,37 @@ export class KickstartNodeFormComponent implements OnInit {
   @Input()
   availableIPs: string[] = [];
 
-  pxe_types: string[] = PXE_TYPES;
+  pxe_types: string[];
+  system_name: string;
 
-  constructor() { }
+  constructor(private sysNameSrv: WeaponSystemNameService) {
+    this.setSystemName();
+  }
 
   ngOnInit() {
+  }
+
+  private setSystemName() {
+    this.sysNameSrv.getSystemName().subscribe(
+      data => {
+        this.system_name = data['system_name'];
+        this.set_pxe_types(this.system_name);
+      },
+      err => {
+        this.system_name = 'DIP';
+        this.set_pxe_types(this.system_name);
+      }
+    );
+  }
+
+  set_pxe_types(name: string) {
+    if(name === "DIP") {
+      this.pxe_types = PXE_TYPES;
+    }
+
+    if(name === "MIP") {
+      this.pxe_types = MIP_PXE_TYPES;
+    }
   }
 
   getTooltip(inputName: string): string {

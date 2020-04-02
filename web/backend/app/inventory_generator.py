@@ -6,7 +6,7 @@ import os
 from typing import Dict
 
 from jinja2 import Environment, select_autoescape, FileSystemLoader
-from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR
+from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR
 from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
 from app.resources import NodeResourcePool, NodeResources
@@ -134,3 +134,48 @@ class KitInventoryGenerator:
 
         with open(str(CORE_DIR / 'playbooks/inventory.yml'), "w") as kit_file:
             kit_file.write(kit_template)
+
+class MIPKickstartInventoryGenerator:
+    def __init__(self, json_dict: Dict):
+        self._template_ctx = json_dict
+
+    def _map_mip_model(self) -> None:
+        for node in self._template_ctx["nodes"]:
+            if node['pxe_type'] == "6800/7720":
+                node['pxe_type'] = "BIOS"
+            elif node['pxe_type'] == "7730":
+                node['pxe_type'] = "UEFI"
+
+    def _set_dhcp_range(self):
+        self._template_ctx['dhcp_start'] = self._template_ctx['dhcp_range']
+        pos = self._template_ctx['dhcp_range'].rfind('.') + 1
+        last_octet = int(self._template_ctx['dhcp_range'][pos:]) + 15
+        end_ip = self._template_ctx['dhcp_range'][0:pos] + str(last_octet)
+        self._template_ctx['dhcp_end'] = end_ip
+
+    def generate(self) -> None:
+        self._map_mip_model()
+        self._set_dhcp_range()
+        template = JINJA_ENV.get_template('mip_kickstart_inventory.yml')
+        kickstart_template = template.render(self._template_ctx)
+
+        if not os.path.exists(str(MIP_KICK_DIR)):
+            os.makedirs(str(MIP_KICK_DIR))
+
+        with open(str(MIP_KICK_DIR / 'inventory.yml'), "w") as kickstart_file:
+            kickstart_file.write(kickstart_template)
+
+class MIPConfigInventoryGenerator:
+    def __init__(self, context: Dict):
+        self._template_ctx = context
+    
+    def generate(self) -> None:
+        template = JINJA_ENV.get_template('mip_config_inventory.yml')
+
+        inventory = template.render(self._template_ctx)
+
+        if not os.path.exists(str(MIP_CONFIG_DIR)):
+            os.makedirs(str(MIP_CONFIG_DIR))
+
+        with open(str(MIP_CONFIG_DIR / 'inventory.yml'), "w") as inventory_file:
+            inventory_file.write(inventory)

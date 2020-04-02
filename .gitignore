@@ -55,5 +55,6 @@ infrastucture/Kit_*/
 
 controllersetupsettings.yml
 kickstartsettings.yml
+mipkickstartsettings.yml
 catalogsettings.yml
 nodestoscan.txt

@@ -11,7 +11,8 @@ from typing import Union, List, Dict
 
 from models.settings import (ControllerSetupSettings, KickstartSettings,
                              NodeSettings, KitSettings, CatalogSettings, SuricataSettings,
-                             MolochCaptureSettings, MolochViewerSettings, ZeekSettings)
+                             MolochCaptureSettings, MolochViewerSettings, ZeekSettings,
+                             MIPKickstartSettings, MIPConfigSettings)
 
 
 def zero_pad(num: int) -> str:
@@ -141,6 +142,68 @@ class KickstartPayloadGenerator:
             "nodes": self._construct_node_parts(),
             "continue": True,
             "domain": "sil.lab"
+        }
+
+
+class MIPKickstartPayloadGenerator:
+
+    def __init__(self, ctrl_settings: ControllerSetupSettings, mip_kickstart_settings: MIPKickstartSettings):
+        self._ctrl_settings = ctrl_settings
+        self._mip_kickstart_settings = mip_kickstart_settings
+
+    def _construct_node_part(self, node: NodeSettings) -> Dict:
+        mac_address = node.mng_mac
+        boot_mode = "6800/7720"
+        return {
+            "hostname": node.hostname,
+            "ip_address": node.ipaddress,
+            "mac_address": node.mng_mac,
+            "pxe_type": boot_mode
+        }
+
+    def _construct_node_parts(self) -> List[Dict]:
+        ret_val = []
+        for node in self._mip_kickstart_settings.mips:
+            ret_val.append(self._construct_node_part(node))
+        return ret_val
+
+    def generate(self) -> Dict:
+        print(str(self._mip_kickstart_settings.node_defaults))
+        return {
+            "dhcp_range": self._mip_kickstart_settings.dhcp_ip_block,
+            "gateway": self._mip_kickstart_settings.node_defaults.gateway,
+            "netmask": self._mip_kickstart_settings.node_defaults.netmask,
+            "root_password": self._mip_kickstart_settings.node_defaults.password,
+            "re_password": self._mip_kickstart_settings.node_defaults.password,
+            "luks_password": self._mip_kickstart_settings.node_defaults.luks_password,
+            "confirm_luks_password": self._mip_kickstart_settings.node_defaults.luks_password,
+            "controller_interface": [
+                self._ctrl_settings.node.ipaddress
+            ],
+            "nodes": self._construct_node_parts(),
+            "continue": True,
+            "dns": self._mip_kickstart_settings.node_defaults.dns_servers[0]
+        }
+
+
+class MIPConfigPayloadGenerator:
+    def __init__(self, ctrl_settings, mip_kickstart_settings, mip_config_settings):
+        self._ctrl_settings = ctrl_settings
+        self._mip_kickstart_settings = mip_kickstart_settings
+        self._mip_config_settings = mip_config_settings
+
+    def _construct_mips_part(self):
+        mips = []
+        for mip in self._mip_kickstart_settings.mips:
+            mips.append({'address': mip.ipaddress})
+        return mips
+
+    def generate(self) -> Dict:
+        return {
+            "mips": self._construct_mips_part(),
+            "type": self._mip_config_settings.operator_type,
+            "passwords": [{"password": self._mip_config_settings.password, "confirm_password": self._mip_config_settings.password}],
+            "singlePassword": True
         }
 
 
@@ -438,3 +501,29 @@ class APITester:
         payload = self._kickstart_payload_generator.generate()
         response = post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+
+
+class MIPAPITester(APITester):
+
+    def __init__(self, ctrl_settings: ControllerSetupSettings, mip_kickstart: MIPKickstartSettings, mip_config: MIPConfigSettings=None):
+        super().__init__(ctrl_settings, None, None, None)
+        self._kickstart_payload_generator = MIPKickstartPayloadGenerator(ctrl_settings, mip_kickstart)
+        self._mip_config_payload_generator = MIPConfigPayloadGenerator(ctrl_settings, mip_kickstart, mip_config)
+
+    def run_mip_kickstart_api_call(self) -> None:
+        with MongoConnectionManager(self._controller_ip) as mongo_manager:
+            mongo_manager.mongo_kickstart.drop()
+            mongo_manager.mongo_last_jobs.drop()
+
+        payload = self._kickstart_payload_generator.generate()
+        response = post_request(self._url.format("/api/generate_mip_kickstart_inventory"), payload)
+        wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+
+    def run_mip_config_api_call(self) -> None:
+        with MongoConnectionManager(self._controller_ip) as mongo_manager:
+            mongo_manager.mongo_mip_config.drop()
+            mongo_manager.mongo_last_jobs.drop()
+
+        payload = self._mip_config_payload_generator.generate()
+        response = post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
+        wait_for_mongo_job("Mipconfig", self._controller_ip, 60)

@@ -37,7 +37,7 @@
               {
                 "input": "src/theming/gip-theme.scss",
                 "lazy": false,
-                "bundleName": "dip-theme"
+                "bundleName": "gip-theme"
               }
             ],
             "scripts": []

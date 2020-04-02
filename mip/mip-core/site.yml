@@ -1,0 +1,171 @@
+---
+- name: Clean up known hosts
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - pre_installation_tasks
+  tags:
+    - pre
+    - MDT
+    - CPT
+
+- name: Adding offline repos          ## RHEL repos won't download without RHEL subscription service   ##
+  hosts: mips
+  any_errors_fatal: true
+  roles: 
+    - 002_adding-repos
+  tags:
+    - repos
+    - MDT
+    - CPT
+
+- name: Install and download packages for MDT and CPT
+  hosts: mips
+  gather_facts: no
+  roles:
+    - 003_main_packages
+  tags:
+    - MDT
+    - CPT
+
+- name: Install and download packages for CPT only
+  hosts: mips
+  roles: 
+    - 004_CPT_packages
+  tags:
+    - CPT
+
+- name: Version lock kernel, kernel headers, kernel-devel
+  hosts: mips
+  gather_facts: no
+  roles: 
+    - 005_versionlock
+  tags:
+    - CPT
+    - MDT
+
+- name: Adding Users
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 020_adding-users
+  tags:
+    - users
+    - MDT
+    - CPT
+
+- name: CVAH folder 
+  hosts: mips
+  roles: 
+    - 021_CVAH_copy
+    
+- name: Copy over the scripts used by the MIP
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 022_mip_scripts
+  tags:
+    - scripts
+    - MDT
+    - CPT
+
+- name: CPT release file and notes
+  hosts: mips
+  gather_facts: no
+  roles: 
+    - 023_CPT_release
+  tags:
+    - CPT
+
+- name: MDT release file and notes
+  hosts: mips
+  roles: 
+    - 024_MDT_release
+  tags:
+    - MDT
+
+- name: Changing firewall settings
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 027_mip_firewall-config
+  tags: 
+    - firewall
+    - MDT
+    - CPT
+
+- name: Grub Configuration
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 034_mip_grub-configuration
+  tags: 
+    - grub
+    - MDT
+    - CPT
+
+- name: MIP Login Settings
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 041_mip_login-env
+  tags: 
+    - login
+    - MDT
+    - CPT
+
+- name: Classification banner setup
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 042_mip_classification_banner
+  tags: 
+    - banner
+    - MDT
+    - CPT
+
+- name: Install McAfee software
+  hosts: mips
+  roles:
+    - 100_mcafee
+
+- name: Install COTS software for MDT and CPT
+  hosts: mips
+  roles:
+    - 101_wireshark
+    - 102_vmware
+    - 103_chrome
+    - 104_vscode
+    - 105_gitkraken
+  tags:
+    - MDT
+    - CPT
+    
+- name: Install third party software CPT only
+  hosts: mips
+  roles:
+    - 106_burpsuite
+    - 107_nexpose
+    - 108_ostinato
+  tags:
+    - CPT
+
+- name: Common STIG remediations
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - 901_common_STIG-remediation
+  tags: 
+    - stigs    
+    - MDT
+    - CPT
+
+- name: Starting Post Installation tasks
+  hosts: mips
+  any_errors_fatal: true
+  roles:
+    - post_installation_tasks
+  tags: 
+    - post
+    - MDT
+    - CPT

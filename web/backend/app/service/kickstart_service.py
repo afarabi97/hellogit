@@ -1,4 +1,4 @@
-from app import celery, logger, DEPLOYER_DIR, conn_mng
+from app import celery, logger, DEPLOYER_DIR, conn_mng, MIP_KICK_DIR
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
 from pathlib import Path
@@ -6,13 +6,18 @@ from pathlib import Path
 _JOB_NAME = "kickstart"
 
 @celery.task
-def perform_kickstart(command: str):
+def perform_kickstart(command: str, platform='DIP'):
     notification = NotificationMessage(role=_JOB_NAME)
     notification.setMessage("%s started." % _JOB_NAME.capitalize())
     notification.setStatus(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
 
-    cwd_dir = str(DEPLOYER_DIR / "playbooks")
+    if(platform == 'DIP'):
+      cwd_dir = str(DEPLOYER_DIR / "playbooks")
+
+    if(platform == 'MIP'):
+      cwd_dir = str(MIP_KICK_DIR)
+
     job = AsyncJob(_JOB_NAME.capitalize(), command, working_dir=cwd_dir)
 
     notification.setMessage("%s in progress." % _JOB_NAME.capitalize())

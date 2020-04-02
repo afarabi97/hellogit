@@ -42,7 +42,7 @@ class ControllerSetupJob:
                          export GIT_PASSWORD='" + self.ctrl_settings.repo.password + "' && \
                          export TFPLENUM_BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
                          export USE_FORK='no' && \
-                         export SYSTEM_NAME='DIP' && \
+                         export SYSTEM_NAME='" + self.ctrl_settings.system_name + "' && \
                          export REPO_URL='" + self.ctrl_settings.repo.url +"' && \
                          bash /root/bootstrap.sh")
 

@@ -1,0 +1,45 @@
+---
+- name: template McAffee nails.option file for silent installation
+  template:
+    src: nails.j2
+    dest: /root/nails.options
+    mode: '0664'
+  tags:
+    - CPT
+    - MDT
+
+- name: unpack McAfee tar file 
+  unarchive:
+    src: "{{ tmp_apps }}/{{ McAfee_file }}"
+    dest: "{{ tmp_apps }}"
+    remote_src: yes
+  tags:
+    - CPT
+    - MDT
+
+- name: install rpms required for McAfee
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ McAfee_packages }}"
+  tags:
+    - CPT
+    - MDT
+
+- name: Check if NAI directory exists
+  stat:
+    path: /opt/NAI
+  register: stat_result
+  tags:
+    - CPT
+    - MDT
+
+- name: excute McAfee installer 
+  command: "bash {{ McAfee_installer }}"
+  args:
+    chdir: "{{ tmp_apps }}/{{ McAfee_dir }}"
+  when: stat_result.stat.exists == False
+  tags:
+    - CPT
+    - MDT
+...

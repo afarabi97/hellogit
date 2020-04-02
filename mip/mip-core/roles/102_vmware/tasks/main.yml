@@ -1,0 +1,4 @@
+---
+- import_tasks: vmware_install.yml
+- import_tasks: vmware_config.yml
+...

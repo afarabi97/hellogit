@@ -13,6 +13,7 @@ import { kickStartTooltips, kickstart_validators } from './kickstart-form';
 import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from '../../validators/generic-validators.validator';
 import { isIpv4InSubnet } from '../../globals';
 import { SystemSetupService } from '../services/system-setup.service';
+import { WeaponSystemNameService} from '../../services/weapon-system-name.service';
 
 @Component({
   selector: 'app-kickstart-form',
@@ -27,6 +28,7 @@ export class KickstartComponent implements OnInit {
   private default_ipv4_settings;
   public kickStartFormGroup: FormGroup;
   public loading: boolean;
+  public system_name: string;
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
@@ -34,37 +36,75 @@ export class KickstartComponent implements OnInit {
     private matDialog: MatDialog,
     private snackbarWrapper: SnackbarWrapper,
     private title: Title,
-    private systemSetupSrv: SystemSetupService) {
-    this.initKickStartForm();
+    private systemSetupSrv: SystemSetupService,
+    private sysNameSrv: WeaponSystemNameService) {
+      this.title.setTitle("Kickstart Configuration");
+      this.setSystemName();
   }
 
   ngOnInit() {
-    this.title.setTitle("Kickstart Configuration");
-    this.initializeView();
   }
-  /**
-   * makes all the requests to get active data.
-   *
-   * @memberof KickstartFormComponent
-   */
+
+  private setSystemName() {
+    this.sysNameSrv.getSystemName().subscribe(
+      data => {
+        this.system_name = data['system_name'];
+        this.initKickStartForm();
+        this.initializeView();
+      },
+      err => {
+        this.system_name = 'DIP';
+        this.initKickStartForm();
+        this.initializeView();
+      }
+    );
+  }
+
   private initializeView(): void {
     this.loading = true;
+    if (this.system_name == 'DIP') {
+      this.initDIP();
+    }
+
+    if (this.system_name == 'MIP') {
+      this.initMIP();
+    }
+  }
+
+  private initDIP() {
     this.kickStartSrv.gatherDeviceFacts("localhost")
-      .subscribe(data => {
-        this.kickStartSrv.getKickstartForm().subscribe((kickstart: any) => {
-          if (kickstart) {
-            this.openIPChangedModal(kickstart.controller_interface[0]);
-            this.initKickStartForm(kickstart);
-          }
-          this.loading = false;
-        });
-        if (data) {
-          this.default_ipv4_settings = data['default_ipv4_settings'];
-          this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
-          this.defaultDisk = data["disks"][0].name;
+    .subscribe(data => {
+      this.kickStartSrv.getKickstartForm().subscribe((kickstart: any) => {
+        if (kickstart) {
+          this.openIPChangedModal(kickstart.controller_interface[0]);
+          this.initKickStartForm(kickstart);
         }
+        this.loading = false;
 
       });
+      if (data) {
+        this.default_ipv4_settings = data['default_ipv4_settings'];
+        this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
+        this.defaultDisk = data["disks"][0].name;
+      }
+    });
+  }
+
+  private initMIP() {
+    this.kickStartSrv.gatherDeviceFacts("localhost")
+    .subscribe(data => {
+      this.kickStartSrv.getMIPKickstartForm().subscribe((kickstart: any) => {
+        if (kickstart) {
+          this.initKickStartForm(kickstart);
+        }
+        this.loading = false;
+      });
+      if (data) {
+        this.default_ipv4_settings = data['default_ipv4_settings'];
+        this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
+        this.defaultDisk = data["disks"][0].name;
+      }
+    });
   }
 
   /**
@@ -177,7 +217,19 @@ export class KickstartComponent implements OnInit {
       netmask: new FormControl(kickstartForm ? kickstartForm.netmask : '255.255.255.0', Validators.compose([validateFromArray(kickstart_validators.netmask)])),
       gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
     });
+
+    if (this.system_name === "MIP") {
+      let luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.luks_password)]));
+      let confirm_luks_password_control = new FormControl(kickstartForm ? kickstartForm.confirm_luks_password : '', Validators.compose([validateFromArray(kickstart_validators.confirm_luks_password, { parentControl: luks_password_control })]));
+
+      kickstartFormGroup.addControl('luks_password', luks_password_control);
+      kickstartFormGroup.addControl('confirm_luks_password', confirm_luks_password_control);
+
+      kickstartFormGroup.addControl('dns', new FormControl(kickstartForm ? kickstartForm.dns : '', Validators.compose([validateFromArray(kickstart_validators.dns)])));
+    }
+
     // since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
+
     kickstartFormGroup.addControl('re_password', new FormControl(kickstartForm ? kickstartForm.re_password : '', Validators.compose([validateFromArray(kickstart_validators.re_password, { parentControl: kickstartFormGroup.get('root_password') })])));
     kickstartFormGroup.addControl('dhcp_range', new FormControl(kickstartForm ? kickstartForm.dhcp_range : '', Validators.compose([validateFromArray(kickstart_validators.dhcp_range, { parentFormGroup: kickstartFormGroup })])));
     // reset the dhcp range when on change
@@ -256,14 +308,34 @@ export class KickstartComponent implements OnInit {
    */
   private newNodeFormGroup(node?, index?): FormGroup {
     let nodes = this.kickStartFormGroup.get('nodes');
-    return this.fb.group({
-      hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
-      ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
-      mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
-      data_drive: new FormControl(node && node.data_drive ? node.data_drive : 'sdb', Validators.compose([validateFromArray(kickstart_validators.data_drive)])),
-      boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : 'sda', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
-      pxe_type: new FormControl(node ? node.pxe_type : 'BIOS', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
-    });
+
+    let formGroup: FormGroup;
+
+    if (this.system_name === "DIP") {
+      let dip_group = this.fb.group({
+        hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
+        ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
+        mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
+        data_drive: new FormControl(node && node.data_drive ? node.data_drive : 'sdb', Validators.compose([validateFromArray(kickstart_validators.data_drive)])),
+        boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : 'sda', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
+        pxe_type: new FormControl(node ? node.pxe_type : 'BIOS', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
+      });
+
+      formGroup = dip_group;
+    }
+
+    if (this.system_name === "MIP") {
+      let mip_group = this.fb.group({
+        hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
+        ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
+        mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
+        pxe_type: new FormControl(node ? node.pxe_type : '7730', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
+      });
+
+      formGroup = mip_group;
+    }
+
+    return formGroup;
   }
 
   /**
@@ -371,7 +443,14 @@ export class KickstartComponent implements OnInit {
    */
   public onSubmit(): void {
     this.loading = true;
-    this.systemSetupSrv.executeKickstart(this.kickStartFormGroup);
+    if (this.system_name === "DIP") {
+      this.systemSetupSrv.executeKickstart(this.kickStartFormGroup);
+    }
+
+    if (this.system_name === "MIP") {
+      this.systemSetupSrv.executeMIPKickstart(this.kickStartFormGroup);
+    }
+
   }
 
   /**
@@ -443,6 +522,14 @@ export class KickstartComponent implements OnInit {
     this.kickStartFormGroup.get('gateway').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
     this.getAvaliableIPBlock(this.kickStartFormGroup);
     this.getOpenIP();
+  }
+
+  public setDNS(): void {
+    if (this.system_name === 'MIP') {
+      let controller_interface = this.kickStartFormGroup.get('controller_interface').value[0];
+      let gateway = controller_interface.split('.');
+      this.kickStartFormGroup.get('dns').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
+    }
   }
 
   public openConsole(){

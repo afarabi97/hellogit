@@ -1,0 +1,23 @@
+---
+- debug:
+     msg: "{{ ansible_product_name }}"
+  register: MIP_model
+
+- name: remove existing key from the LUKS container
+  luks_device:
+    device: '/dev/{% if MIP_model.msg == "Precision 7730" %}nvme0n1p3{% else %}sda2{% endif %}'
+    remove_keyfile: "/etc/mypasswdfile"
+
+- name: delete temporary luks files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - /etc/mypasswdfile
+  - /etc/dracut.conf.d/99-mypwfile.conf
+
+- name: Change /etc/crypttab back to none
+  replace:
+    path: /etc/crypttab
+    regexp: '/etc/mypasswdfile'
+    replace: 'none'

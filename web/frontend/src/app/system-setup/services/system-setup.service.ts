@@ -73,4 +73,36 @@ export class SystemSetupService {
     });
   }
 
+  private continueMIPAnyways(kickstartFormOrSingleNodeForm: FormGroup) {
+    let payload = kickstartFormOrSingleNodeForm.getRawValue();
+    payload['continue'] = true;
+    this.kickStartSrv.generateMIPKickstartInventory(payload)
+      .subscribe(data => {
+        this.openKickstartConsole();
+      });
+  }
+
+  public executeMIPKickstart(kickstartForm: FormGroup) {
+    let payload = kickstartForm.getRawValue();
+    payload['continue'] = false;
+    this.kickStartSrv.generateMIPKickstartInventory(payload).subscribe(data => {
+      if (data !== null && data['error_message']) {
+        let message = data['error_message'];
+        let title = "Kickstart Error";
+        let option1 = "Cancel";
+        let option2 = "Continue";
+        this.matDialog.open(ConfirmDailogComponent, {
+          width: '35%',
+          data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
+        }).afterClosed().subscribe(response => {
+          if (response == option2) {
+            this.continueMIPAnyways(kickstartForm);
+          }
+        });
+      } else {
+        this.openKickstartConsole()
+      }
+    });
+  }
+
 }

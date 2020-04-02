@@ -1,0 +1,8 @@
+---
+ wireshark_install_dir: /operator/mip/bin/wireshark
+ wireshark_path: "{{ tmp_apps }}/{{ wireshark_file }}"
+ wireshark_tmp_install_dir: "{{ tmp_apps }}/wireshark-2.6.13"
+ wireshark_desktop_application: /usr/share/applications/wireshark.desktop
+ wireshark_desktop_dir: /operator/mip/bin/wireshark/share/applications/wireshark.desktop
+ wireshark_icon_dir: /operator/mip/bin/wireshark/share/icons/hicolor/scalable/apps/wireshark.svg
+...

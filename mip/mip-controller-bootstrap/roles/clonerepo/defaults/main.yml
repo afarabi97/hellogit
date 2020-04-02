@@ -1,0 +1,14 @@
+---
+#Path where iso is to be mounted ex: /mnt
+mnt_pth: /mnt
+mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
+tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
+tfplenum_repo_dir: "{{ tfplenumoffline_dir }}/tfplenum"
+
+group_packages:
+  - base
+  - core
+
+gpg_keys:
+  - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+  - "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"

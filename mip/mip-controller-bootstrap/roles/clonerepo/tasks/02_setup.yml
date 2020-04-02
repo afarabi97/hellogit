@@ -1,0 +1,37 @@
+---
+- name: "Create directory for offline repos"
+  file:
+    path: "{{ tfplenumoffline_dir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+    setype: httpd_sys_content_t
+
+- name: "Enable rhel workstation repos"
+  ini_file:
+    dest: /etc/yum.repos.d/workstation-labrepo-rhel.repo
+    section: "{{ item }}"
+    option: enabled
+    value: 1
+  loop: "{{ workstation_repos }}"
+
+- name: Clean repos
+  command: yum clean all
+  ignore_errors: yes
+
+- name: Make RedHat dir for media installation
+  file:
+    path: "{{ web_root }}/{{ ansible_distribution }}"
+    owner: root
+    group: root
+    mode : 0755
+    state: directory
+
+- name: Copy content from rhel iso to websever RedHat dir
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize:
+    dest: "{{ web_root }}/{{ ansible_distribution }}"
+    src:  "{{ mnt_pth }}/"
+    recursive: yes
+...

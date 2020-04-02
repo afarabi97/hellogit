@@ -174,6 +174,30 @@ class ControllerExport:
         destination_path = "{}/DIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
 
+class MIPControllerExport(ControllerExport):
+    def __init__(self, ctrl_settings: ControllerSetupSettings, export_loc: ExportLocSettings):
+        super().__init__(ctrl_settings, export_loc)
+
+    def export_mip_controller(self):
+        logging.info("Exporting the controller to OVA.")
+        validate_export_location(self.export_loc)
+        path_to_export = create_export_path(self.export_loc)
+
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        self._prepare_for_export(self.ctrl_settings.node.username,
+                                 self.ctrl_settings.node.password,
+                                 self.ctrl_settings.node.ipaddress)
+
+        payload = self.ctrl_settings.to_dict()
+        ctrl_hostname = self.ctrl_settings.node.hostname
+        version = self.export_loc.export_version
+        payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
+        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+
+        destination_path = "{}/MIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
+        self._export(destination_path)
+
 
 class ConfluenceExport:
 

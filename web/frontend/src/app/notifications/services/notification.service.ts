@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { EntityConfig, ApiService } from '../../services/tfplenum.service';
+import { WeaponSystemNameService} from '../../services/weapon-system-name.service';
 
 export const config: EntityConfig = { entityPart: 'notifications', type: 'Notification' };
 export const HTTP_OPTIONS = {
@@ -11,7 +12,10 @@ export const HTTP_OPTIONS = {
     providedIn: 'root'
 })
 export class NotificationService extends ApiService<any> {
-  public buttonList: any = [{"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},
+  public buttonList: any;
+
+
+  private dipButtons: any = [{"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},
                             {"name": "Catalog", "selected": false, "title": "Catalog Messages","role": "catalog", "notifications": [], "icon": "apps"},
                             {"name": "Kickstart", "selected": false, "title": "Kickstart Messages","role": "kickstart", "notifications": [], "icon": "layers"},
                             {"name": "Kit", "selected": false, "title": "Kit Messages", "role": "kit", "notifications": [], "icon": "storage"},
@@ -22,14 +26,43 @@ export class NotificationService extends ApiService<any> {
                             {"name": "Tools", "selected": false, "title": "Tools Messages", "role": "tools", "notifications": [], "icon": "build"},
                             {"name": "Upgrade", "selected": false, "title": "Upgrade Messages", "role": "upgrade", "notifications": [], "icon": "timeline"}];
 
+  private mipButtons: any = [
+    {"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},
+    {"name": "Kickstart", "selected": false, "title": "Kickstart Messages","role": "kickstart", "notifications": [], "icon": "layers"},
+    {"name": "MipConfig", "selected": false, "title": "MIP Configuration Messages", "role": "mipconfig", "notifications": [], "icon": "storage"}
+  ];
+
+
+  system_name: string;
 
   /**
    *Creates an instance of CatalogService.
    * @param {HttpClient} http
    * @memberof CatalogService
    */
-  constructor() {
+  constructor(private sysNameSrv: WeaponSystemNameService) {
     super(config);
+    this.setSystemName();
+  }
+
+  private setSystemName() {
+    this.sysNameSrv.getSystemName().subscribe(
+      data => {
+        this.system_name = data['system_name'];
+
+        if (this.system_name === 'MIP') {
+          this.buttonList = this.mipButtons;
+        }
+
+        if (this.system_name === 'DIP') {
+          this.buttonList = this.dipButtons;
+        }
+      },
+      err => {
+        this.system_name = 'DIP';
+        this.buttonList = this.dipButtons;
+      }
+    );
   }
 
 }

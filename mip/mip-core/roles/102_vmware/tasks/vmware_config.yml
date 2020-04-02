@@ -1,0 +1,18 @@
+---
+ # folder is typically created when application is opened
+- name: Create tmp directory for vmware installation
+  file:
+    path: "{{ vmware_home_dir }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    state: directory 
+
+  # template automatically adds vms to library
+- name: Template vmware inventory.vmls to /home/assessor/.vmware
+  template:
+    src: vmware_inventory.j2
+    dest: "{{ vmware_home_dir }}/inventory.vmls"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0664'
+...
