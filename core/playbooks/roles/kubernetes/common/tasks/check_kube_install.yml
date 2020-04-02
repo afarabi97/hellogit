@@ -19,6 +19,11 @@
     path: /usr/bin/kubectl
   register: kubectl_installed
 
+- name: Checking if kube config exists
+  stat:
+    path: "{{ kubeconfig_path }}"
+  register: kubeconfig_installed
+
 - set_fact:
     kube_installed: true
-  when: kubelet_installed.stat.exists or kubeadm_installed.stat.exists or kubectl_installed.stat.exists
+  when: kubelet_installed.stat.exists or kubeadm_installed.stat.exists or kubectl_installed.stat.exists or kubeconfig_installed.stat.exists

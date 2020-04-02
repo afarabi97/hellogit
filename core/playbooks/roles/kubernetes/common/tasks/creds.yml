@@ -3,6 +3,6 @@
 - name: Propagate cluster admin credentials
   copy:
     src: files/admin.conf
-    dest: ~/.kube/config
+    dest: "{{ kubeconfig_path }}"
     mode: 0644
 ...

@@ -2,7 +2,7 @@
 
 - name: Create credential directory
   file:
-    path: "~/.kube"
+    path: "{{kubeconfig_dir}}"
     state: directory
     mode: u+rw,g+r
 

@@ -11,8 +11,8 @@
 
 - name: Propagate controller with cluster admin credentials
   fetch:
-    src: ~/.kube/config
-    dest: ~/.kube/config
+    src: "{{ kubeconfig_path }}"
+    dest: "{{ kubeconfig_path }}"
     mode: 0644
     flat: yes
 

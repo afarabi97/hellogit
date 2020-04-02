@@ -4,7 +4,7 @@ Main module for handling all of the Kit Configuration REST calls.
 import json
 import os
 
-from app import app, logger, conn_mng, CORE_DIR
+from app import app, logger, conn_mng, CORE_DIR, STIGS_DIR
 from app.archive_controller import archive_form
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
@@ -15,21 +15,8 @@ from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
 from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
-from app.service.add_node_service import perform_add_node
 from typing import Dict, Tuple, Union
 from celery import chain
-
-def _delete_kubernetes_conf():
-    """
-    Delets the kubernetes file on disk so that the next time we connect
-    using our Kubernenets in our connection_mng.py module. It will reset to
-    a new configuration file.
-
-    :return:
-    """
-    config_path = KUBEDIR + '/config'
-    if os.path.exists(config_path) and os.path.isfile(config_path):
-        os.remove(config_path)
 
 
 def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
@@ -66,7 +53,6 @@ def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
     :return: Returns True if its successfull.
     """
     is_sucessful, root_password = _replace_kit_inventory(payload['kitForm'])
-    _delete_kubernetes_conf()
     if is_sucessful:
         change_time_on_nodes(payload, root_password)
         return True, root_password
@@ -80,26 +66,26 @@ def execute_kit_inventory() -> Response:
 
     :return: Response object
     """
-    try:
-        payload = request.get_json()
-        is_successful, root_password = _process_kit_and_time(payload)
-        if is_successful:
-            conn_mng.mongo_catalog_saved_values.delete_many({})
-        cmd_part = "ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
-        first_cmd = "{} site.yml".format(cmd_part)
-        second_cmd = '{} --tags "server-stigs,sensor-stigs" --skip-tags "all-stigs,controller-stigs" ../../stigs/playbooks/site.yml'.format(cmd_part)
-        full_cmd = "{} && {}".format(first_cmd, second_cmd)
-        task_id = perform_kit.delay(full_cmd)
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                         {"_id": "Kit", "task_id": str(task_id), "pid": ""},
-                                                         upsert=True)
-        return (jsonify(str(task_id)), 200)
-    except NodeDirtyException as e:
-        return (jsonify({"error_message": str(e)}), 500)
+    payload = request.get_json()
+    is_successful, root_password = _process_kit_and_time(payload)
+    if is_successful:
+        conn_mng.mongo_catalog_saved_values.delete_many({})
+        cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
+        cmd_to_execute_two = "ansible-playbook site.yml --tags server-stigs,sensor-stigs --skip-tags all-stigs,controller-stigs"
 
-    error_msg = "Executing /api/execute_kit_inventory has failed."
-    logger.error(error_msg)
-    return (jsonify({"error_message": error_msg}), 500)
+        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
+            perform_kit.si(cmd_to_execute_two,cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode"))()
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
+                                                        {"_id": "Kit", "task_id": str(results), "pid": ""},
+                                                        upsert=True)
+
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Stignode"},
+                                                        {"_id": "Stignode", "task_id": str(results), "pid": ""},
+                                                        upsert=True)
+        return (jsonify(str(results)), 200)
+
+    logger.error("Executing /api/execute_kit_inventory has failed.")
+    return ERROR_RESPONSE
 
 
 @app.route('/api/generate_kit_inventory', methods=['POST'])
@@ -153,8 +139,8 @@ def execute_add_node() -> Response:
             node=add_node_payload['hostname']
         )
 
-        results = chain(perform_kit.si(cmd_to_execute_one),
-        perform_add_node.si(cmd_to_execute_two))()
+        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
+            perform_kit.si(cmd_to_execute_two, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode"))()
 
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(results), "pid": ""},
