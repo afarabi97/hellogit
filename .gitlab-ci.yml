@@ -1,6 +1,3 @@
-# include:
-  # - template: Container-Scanning.gitlab-ci.yml
-
 variables:
   LABREPO_HOST: "labrepo.sil.lab"
   TFPLENUM_EXPORT_LOC: "/mnt/drive_creation/"
@@ -71,57 +68,8 @@ stages:
   - publish
 
 include:
+  - local: code-analysis.yml
   - local: mip.gitlab-ci.yml
-
-sonarqube analyze production code:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    ./web/setup/setup_angular_only.sh
-    sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
-      - $PIPELINE == "static_analysis_only"
-
-sonarqube analyze test code:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum-test -Dsonar.sources=testing/
-  allow_failure: true
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
-      - $PIPELINE == "static_analysis_only"
-
-
-# container_scanning:
-#   image:
-#     name: gitlab.sil.lab:5050/tfplenum/tfplenum/klair:2
-#     entrypoint: []
-#   variables:
-#     GIT_STRATEGY: clone
-#     CI_APPLICATION_REPOSITORY: gitlab.sil.lab:5050/tfplenum/tfplenum/zeek
-#     CI_APPLICATION_TAG: 3.0.0
-#   artifacts:
-#     paths:
-#       - gl-container-scanning-report.json
-#     reports:
-#       container_scanning: gl-container-scanning-report.json
-#   tags:
-#     - tfplenum-docker
-#   only:
-#     variables:
-#       - $PIPELINE == "code_quality"
 
 Create artifacts folder:
   stage: pre-build
