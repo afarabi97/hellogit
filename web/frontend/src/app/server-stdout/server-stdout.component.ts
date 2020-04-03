@@ -54,8 +54,10 @@ export class ServerStdoutComponent implements OnInit {
     });
 
     this.stdoutService.getMessage().subscribe(data => {
-      this.messages.push({msg: data['log'], color: data['color']});
-      this.scrollToBottom();
+      if(data['jobName'] == this.jobName) {
+        this.messages.push({msg: data['log'], color: data['color']});
+        this.scrollToBottom();
+      }
     });
 
   }
