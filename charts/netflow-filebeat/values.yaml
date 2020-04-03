@@ -1,0 +1,10 @@
+kibana_fqdn: kibana.default.svc.cluster.local
+kibana_port: 443
+elastic_fqdn: elasticsearch.default.svc.cluster.local
+elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
+elastic_port: 9200
+interfaces: ["eth0"]
+image_name: beats/filebeat
+image_tag: 7.5.0
+affinity_hostname: {}
+netflow_port: 2055

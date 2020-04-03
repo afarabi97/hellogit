@@ -18,7 +18,8 @@ DISCLUDES = ("elasticsearch.lan",
         "mysql.lan",
         "logstash.lan",
         "chartmuseum.lan",
-        "elasticsearch-data.lan")
+        "elasticsearch-data.lan",
+        "netflow-filebeat.lan")
 
 def get_moloch_credentials():
     collection = conn_mng.mongo_catalog_saved_values

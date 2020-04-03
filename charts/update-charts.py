@@ -32,6 +32,8 @@ charts = [
         { "name": "misp",
                 "version": "1.0.0"},
         { "name": "cortex",
+                "version": "1.0.0"},
+        { "name": "netflow-filebeat",
                 "version": "1.0.0"}
     ]
 
