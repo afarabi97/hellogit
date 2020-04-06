@@ -96,13 +96,19 @@ const mipNavigation: Array<NavGroup> = [
 
 const gipNavigation: Array<NavGroup> = [
   {
-    children: [portal]
-  },
-  {
     label: 'System Setup',
     children: [
       kickstart,
-      kit
+      kit,
+      catalog,
+    ]
+  },
+  {
+    label: 'Kubernetes',
+    children: [
+      health,
+      configurationMaps,
+      dockerRegistry
     ]
   },
   {

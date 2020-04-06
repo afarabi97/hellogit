@@ -1,7 +1,9 @@
 #!/bin/bash
+set -x
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 FRONTEND_DIR="$SCRIPT_DIR/../"
 DIP_VERSION=`cat /etc/dip-version`
+export NG_CLI_ANALYTICS="false"
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root or use sudo."
@@ -11,6 +13,18 @@ fi
 pushd $SCRIPT_DIR > /dev/null
 source ./common.in
 
+
+function _labrepo_available() {
+    echo "-------"
+    echo "Checking if labrepo is available..."
+    export labrepo_check=`curl -m 120 -s http://labrepo.sil.lab/check.html`
+    if [ "$labrepo_check" != true ]; then
+      echo "Warning: Labrepo not found. Defaulting to public repos."
+      echo "Using public repos this might not always work as external dependencies change frequently."
+      labrepo_check=false
+    fi
+}
+
 function _install_deps(){
 	yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 	yum -y install wget nmap unzip krb5-workstation krb5-devel nfs-utils
@@ -18,7 +32,11 @@ function _install_deps(){
 
 function _install_nodejs(){
     run_cmd rm -rf node-v13.5.0-linux-x64*
-	run_cmd wget https://nodejs.org/dist/v13.5.0/node-v13.5.0-linux-x64.tar.xz
+    node_download_url="http://misc.labrepo.sil.lab/node-v13.5.0-linux-x64.tar.xz"
+    if [ "$labrepo_check" != true ]; then
+	    node_download_url="https://nodejs.org/dist/v13.5.0/node-v13.5.0-linux-x64.tar.xz"
+    fi
+    run_cmd wget $node_download_url
     run_cmd tar xf node-v13.5.0-linux-x64.tar.xz
     run_cmd cd node-v13.5.0-linux-x64/
     run_cmd cp -R * /usr/local/
@@ -132,11 +150,15 @@ function _preload_pcap_files {
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap
     curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/wannacry.pcap
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/dns-dnskey.trace
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/get.trace
+    curl -L -O http://misc.labrepo.sil.lab/malware-pcaps/smb1_transaction_request.pcap
     popd > /dev/null
 }
 
 rm -rf ~/.pip
 mkdir -p /var/log/tfplenum/
+_labrepo_available
 _install_deps
 _install_nodejs
 _install_angular

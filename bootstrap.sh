@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
 boostrap_version=1.3.0
@@ -314,16 +315,21 @@ function get_controller_ip() {
     fi
 }
 
-function prompt_di2e_creds() {
-    if [ -z "$DIEUSERNAME" ]; then
+function prompt_git_creds() {
+    export REMOTE_GIT_NAME="GITLAB"
+    if [ "$labrepo_check" != true ]; then
+        export REMOTE_GIT_NAME="DI2E"
+        echo "*****Unable to find gitlab switching to DI2E*****"
+    fi
+    if [ -z "$GIT_USERNAME" ]; then
         echo "-------"
-        echo "Bootstrapping a controller requires DI2E credentials."
+        echo "Bootstrapping a controller requires ${REMOTE_GIT_NAME} credentials."
         while true; do
-            read -p "DI2E Username: "  DIEUSERNAME
-            if [ "$DIEUSERNAME" == "" ]; then
+            read -p "${REMOTE_GIT_NAME} Username: "  GIT_USERNAME
+            if [ "$GIT_USERNAME" == "" ]; then
                 echo "The username cannot be empty.  Please try again."
-            elif [ "$DIEUSERNAME" != "" ]; then
-                export GIT_USERNAME=$DIEUSERNAME
+            elif [ "$GIT_USERNAME" != "" ]; then
+                export GIT_USERNAME=$GIT_USERNAME
                 break
             fi
         done
@@ -331,12 +337,12 @@ function prompt_di2e_creds() {
 
     if [ -z "$PASSWORD" ]; then
         while true; do
-            read -s -p "DI2E Password: " PASSWORD
+            read -s -p "${REMOTE_GIT_NAME} Password: " PASSWORD
             echo
             if [ "$PASSWORD" == "" ]; then
                 echo "The passwords cannot be empty.  Please try again."
             else
-                read -s -p "DI2E Password (again): " PASSWORD2
+                read -s -p "${REMOTE_GIT_NAME} Password (again): " PASSWORD2
             fi
 
             if [ "$PASSWORD" != "$PASSWORD2" ]; then
@@ -356,9 +362,9 @@ function set_git_variables() {
         echo "Which branch do you want to checkout for all repos?"
         select cr in "Master" "Devel" "Custom"; do
             case $cr in
-                Master ) export BRANCH_NAME=master; export USE_FORK=no; break;;
-                Devel ) export BRANCH_NAME=devel; export USE_FORK=no; break;;
-                Custom ) export BRANCH_NAME=custom; export USE_FORK=yes; break;;
+                Master ) export TFPLENUM_BRANCH_NAME=master; break;;
+                Devel ) export TFPLENUM_BRANCH_NAME=devel; break;;
+                Custom ) export BRANCH_NAME=custom; break;;
             esac
         done
 
@@ -374,47 +380,22 @@ function set_git_variables() {
 }
 
 function clone_repos(){
-    if [ -z "$REPO_URL" ]; then
+    export REPO_URL="https://gitlab.sil.lab/tfplenum/tfplenum.git"
+    git config --global http.sslVerify false
+    if [ "$labrepo_check" != true ]; then
         export REPO_URL="https://bitbucket.di2e.net/scm/thisiscvah/tfplenum.git"
-    else
-        git config --global http.sslVerify false
     fi
 
     local directory="/opt/tfplenum"
     if [ -d "$directory" ]; then
         rm -rf $directory
     fi
-    if [[ ! -d "$directory" && ("$USE_FORK" == "no") ]]; then
+    if [[ ! -d "$directory" ]]; then
         run_cmd git clone $REPO_URL
         pushd $directory > /dev/null
-        run_cmd git checkout $BRANCH_NAME
+        run_cmd git checkout $TFPLENUM_BRANCH_NAME
         popd > /dev/null
     fi
-    if [[ ! -d "$directory" && ("$USE_FORK" == "yes") ]]; then
-        run_cmd git clone $REPO_URL
-        pushd $directory > /dev/null
-        case "$i" in
-        "tfplenum" )
-            run_cmd git checkout "$TFPLENUM_BRANCH_NAME";;
-        esac
-        popd > /dev/null
-    fi
-}
-
-function test_branch_name() {
-    if [[ ! $(git checkout $1) ]]; then
-        echo "Branch $1 is not found in your repo please reenter you branch name or create one with that name"
-        enter_branch_name "$1" "$2"
-    else
-        git checkout $1
-    fi
-}
-
-function enter_branch_name() {
-    echo " Enter correct branch name for $2 the branch $1 doesnt exist"
-    read -p "Branch Name: " NEW_BRANCH_NAME
-    export NEW_BRANCH_NAME=$NEW_BRANCH_NAME
-    test_branch_name "$NEW_BRANCH_NAME"
 }
 
 function setup_frontend(){
@@ -497,7 +478,7 @@ function prompts(){
     prompt_for_system
 
     export TFPLENUM_OS_TYPE=rhel
-    if [ "$SYSTEM_NAME" == "DIP" ]; then
+    if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
         prompt_runtype
     fi
 
@@ -520,7 +501,7 @@ function prompts(){
     fi
 
     if [ "$RUN_TYPE" == "full" ]; then
-        prompt_di2e_creds
+        prompt_git_creds
         set_git_variables
     fi
 }
@@ -562,7 +543,7 @@ fi
 
 if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     setup_ansible
-    if [[ "$SYSTEM_NAME" == "DIP" ]]; then
+    if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
         execute_bootstrap_playbook
     fi
 
@@ -571,7 +552,7 @@ if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     fi
 fi
 
-if [ "$RUN_TYPE" == "dockerimages" ] && [ "$SYSTEM_NAME" == "DIP" ]; then
+if [ "$RUN_TYPE" == "dockerimages" ] && ([ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]); then
     execute_pull_docker_images_playbook
 fi
 
