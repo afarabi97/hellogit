@@ -24,15 +24,31 @@ def netmask_to_cidr(netmask: str) -> int:
     return sum([bin(int(x)).count('1') for x in netmask.split('.')])
 
 
+def is_ipv4_address(s: str) -> bool:
+    if s is None or len(s) == 0:
+        return False
+
+    pieces = s.split('.')
+    if len(pieces) != 4:
+        return False
+
+    try:
+        return all(0<=int(p)<256 for p in pieces)
+    except ValueError:
+        return False
+
+
+
 def filter_ip(ipaddress: str) -> bool:
     """
     Filters IP addresses from NMAP functions commands.
     :return:
     """
-    if ipaddress.endswith('.0'):
+    if (not is_ipv4_address(ipaddress) or
+            ipaddress.endswith('.0') or
+            ipaddress == ''):
         return True
-    if ipaddress == '':
-        return True
+
     return False
 
 
@@ -97,12 +113,6 @@ def fix_hostname(dns_suffix: str, hostname_or_ip: str):
 
     :return fixed hostname:
     """
-    def is_ipv4_address(s: str) -> bool:
-        pieces = s.split('.')
-        if len(pieces) != 4: return False
-        try: return all(0<=int(p)<256 for p in pieces)
-        except ValueError: return False
-
     if is_ipv4_address(hostname_or_ip):
         pass # Exit if block and return the address.
     elif len(dns_suffix) > 0 and dns_suffix not in hostname_or_ip:

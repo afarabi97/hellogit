@@ -28,7 +28,6 @@ export class TotalServerResourcesCardComponent implements OnChanges {
   }
 
   setValues(nodes) {
-    console.log(nodes);
     nodes.map(node => {
       if (node.node_type == 'Server' && node.deviceFacts) {
         this.serverResource.cpuCoresAvailable += node.deviceFacts['cpus_available'];

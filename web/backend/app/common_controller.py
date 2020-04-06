@@ -16,7 +16,7 @@ from app.node_facts import get_system_info
 from fabric.runners import Result
 from flask import request, jsonify, Response
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.utils import filter_ip, netmask_to_cidr, decode_password
+from shared.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple, Set
 
 import configparser
@@ -214,6 +214,9 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     ip_address_blocks = _get_ip_blocks(cidr)
     available_ip_blocks = []
     for index, ip in enumerate(available_ip_addresses):
+        if not is_ipv4_address(ip):
+            continue
+
         pos = ip.rfind('.') + 1
         last_octet = int(ip[pos:])
         if last_octet in ip_address_blocks and _is_valid_ip_block(available_ip_addresses, index):

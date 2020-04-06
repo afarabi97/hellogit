@@ -23,6 +23,10 @@ class TimeChangeFailure(Exception):
     pass
 
 
+class NodeDirtyException(Exception):
+    pass
+
+
 def zero_pad(num: Union[int, str]) -> str:
     """
     Zeros pads the numers that are lower than 10.
@@ -65,12 +69,12 @@ class DatetimeService:
         time_cmd = "timedatectl set-time '{}'".format(inital_time)
         return time_cmd
 
-    def _set_clock_using_timedatectl(self, cmd: Connection, ip_address: str):
+    def _set_clock_using_timedatectl(self, cmd: Connection, hostname: str):
         elapsed_time = self._get_elapsed_time() # type: timedelta
         command = self._get_timecommand(self._initial_datetime + elapsed_time)
         ret_val = cmd.run(command)
         if ret_val.return_code != 0:
-            raise TimeChangeFailure(FAILURE_MSG.format(command, ip_address))
+            raise TimeChangeFailure(FAILURE_MSG.format(command, hostname))
 
     def _has_chronyd(self, cmd: Connection) -> bool:
         try:
@@ -81,15 +85,24 @@ class DatetimeService:
             pass
         return False
 
-    def _set_clock_using_chronyd(self, cmd: Connection, ip_address: str):
+    def _has_ansible(self, cmd: Connection) -> bool:
+        try:
+            ret_val = cmd.run("ansible-playbook --help", hide=True)
+            if ret_val.return_code == 0:
+                return True
+        except UnexpectedExit:
+            pass
+        return False
+
+    def _set_clock_using_chronyd(self, cmd: Connection, hostname: str):
         cmd.run('systemctl stop chronyd')
         ret_val = cmd.run(self._chrony_burst_cmd)
         if ret_val.return_code != 0:
-            raise TimeChangeFailure("Failed to run chronyd burst command on {}.".format(ip_address))
+            raise TimeChangeFailure("Failed to run chronyd burst command on {}.".format(hostname))
 
         ret_val = cmd.run('systemctl start chronyd')
         if ret_val.return_code != 0:
-            raise TimeChangeFailure("Failed to start chronyd service on {}".format(ip_address))
+            raise TimeChangeFailure("Failed to start chronyd service on {}".format(hostname))
 
     def _ctrl_has_chronyd(self) -> bool:
         _, ret_val = run_command2("chronyd --help", use_shell=True)
@@ -115,41 +128,40 @@ class DatetimeService:
             raise TimeChangeFailure("Failed to start chronyd service on ctrl.")
 
     def change_time_on_target(self,
-                              password: str,
-                              ip_address: str,
+                              cmd: Connection,
+                              hostname: str,
                               is_master_server: bool) -> None:
         """
         Executes commands
 
-        :param password: The ssh password of the box.
-        :param ip_address: The IP Address of the node.
+        :param cmd: Fabric Connection
+        :param hostname: The hostname of the node.
         :param is_master_server: True if this is the master server node which always runs timedatectl
 
         :return:
         """
-        with FabricConnectionManager('root', password, ip_address) as cmd:
-            ret_val = cmd.run(self._timezone_cmd) # type: Result
-            if ret_val.return_code != 0:
-                raise TimeChangeFailure(FAILURE_MSG.format(self._timezone_cmd, ip_address))
+        ret_val = cmd.run(self._timezone_cmd) # type: Result
+        if ret_val.return_code != 0:
+            raise TimeChangeFailure("Failed to run {} on {}".format(self._timezone_cmd, hostname))
 
-            try:
-                cmd.run(self._unset_ntp_cmd, warn=True)
-            except UnexpectedExit:
-                pass
+        try:
+            cmd.run(self._unset_ntp_cmd, warn=True)
+        except UnexpectedExit:
+            pass
 
-            if is_master_server:
-                self._set_clock_using_timedatectl(cmd, ip_address)
+        if is_master_server:
+            self._set_clock_using_timedatectl(cmd, hostname)
+        else:
+            if self._has_chronyd(cmd):
+                self._set_clock_using_chronyd(cmd, hostname)
             else:
-                if self._has_chronyd(cmd):
-                    self._set_clock_using_chronyd(cmd, ip_address)
-                else:
-                    self._set_clock_using_timedatectl(cmd, ip_address)
+                self._set_clock_using_timedatectl(cmd, hostname)
 
-            ret_val = cmd.run(self._set_hwclock_cmd)
-            if ret_val.return_code != 0:
-                raise TimeChangeFailure(FAILURE_MSG.format(self._set_hwclock_cmd, ip_address))
+        ret_val = cmd.run(self._set_hwclock_cmd)
+        if ret_val.return_code != 0:
+                raise TimeChangeFailure(FAILURE_MSG.format(self._set_hwclock_cmd, hostname))
 
-            cmd.run(self._set_ntp_cmd, warn=True)
+        cmd.run(self._set_ntp_cmd, warn=True)
 
 
     def set_controller_clock(self, use_timedatectl: bool):
@@ -210,7 +222,11 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
             is_master = node['is_master_server']
         except KeyError:
             is_master = False
-        dt_srv.change_time_on_target(password, node["management_ip_address"], is_master)
+
+        with FabricConnectionManager('root', password, node["management_ip_address"]) as cmd:
+            if dt_srv._has_chronyd(cmd) or dt_srv._has_ansible(cmd):
+                raise NodeDirtyException("{} is dirty.  Please rekickstart this node before proceeding.".format(node["hostname"]))
+            dt_srv.change_time_on_target(cmd, node["hostname"], is_master)
 
     dt_srv.set_controller_clock(True)
     notify_clock_refresh()
@@ -228,7 +244,9 @@ def change_time_on_kit(time_form: Dict):
                 is_master = node['is_master_server']
             except KeyError:
                 is_master = False
-            dt_srv.change_time_on_target(password, node["management_ip_address"], is_master)
+
+            with FabricConnectionManager('root', password, node["management_ip_address"]) as cmd:
+                dt_srv.change_time_on_target(cmd, node["hostname"], is_master)
 
         dt_srv.set_controller_clock(False)
         notify_clock_refresh()

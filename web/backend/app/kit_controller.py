@@ -9,7 +9,7 @@ from app.archive_controller import archive_form
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.kit_service import perform_kit
-from app.service.time_service import change_time_on_nodes
+from app.service.time_service import change_time_on_nodes, NodeDirtyException
 from flask import request, Response, jsonify
 from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
@@ -80,22 +80,26 @@ def execute_kit_inventory() -> Response:
 
     :return: Response object
     """
-    payload = request.get_json()
-    is_successful, root_password = _process_kit_and_time(payload)
-    if is_successful:
-        conn_mng.mongo_catalog_saved_values.delete_many({})
+    try:
+        payload = request.get_json()
+        is_successful, root_password = _process_kit_and_time(payload)
+        if is_successful:
+            conn_mng.mongo_catalog_saved_values.delete_many({})
         cmd_part = "ansible-playbook -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
         first_cmd = "{} site.yml".format(cmd_part)
         second_cmd = '{} --tags "server-stigs,sensor-stigs" --skip-tags "all-stigs,controller-stigs" ../../stigs/playbooks/site.yml'.format(cmd_part)
         full_cmd = "{} && {}".format(first_cmd, second_cmd)
         task_id = perform_kit.delay(full_cmd)
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                        {"_id": "Kit", "task_id": str(task_id), "pid": ""},
-                                                        upsert=True)
+                                                         {"_id": "Kit", "task_id": str(task_id), "pid": ""},
+                                                         upsert=True)
         return (jsonify(str(task_id)), 200)
+    except NodeDirtyException as e:
+        return (jsonify({"error_message": str(e)}), 500)
 
-    logger.error("Executing /api/execute_kit_inventory has failed.")
-    return ERROR_RESPONSE
+    error_msg = "Executing /api/execute_kit_inventory has failed."
+    logger.error(error_msg)
+    return (jsonify({"error_message": error_msg}), 500)
 
 
 @app.route('/api/generate_kit_inventory', methods=['POST'])
@@ -105,13 +109,18 @@ def generate_kit_inventory() -> Response:
 
     :return: Response object
     """
-    payload = request.get_json()
-    is_successful, _ = _process_kit_and_time(payload)
-    if is_successful:
-        return OK_RESPONSE
+    try:
+        payload = request.get_json()
+        is_successful, _ = _process_kit_and_time(payload)
+        if is_successful:
+            return OK_RESPONSE
 
-    logger.error("Executing /api/enerate_kit_inventory has failed.")
-    return ERROR_RESPONSE
+    except NodeDirtyException as e:
+        return (jsonify({"error_message": str(e)}), 500)
+
+    error_msg = "Executing /api/generate_kit_inventory has failed."
+    logger.error(error_msg)
+    return (jsonify({"error_message": error_msg}), 500)
 
 
 @app.route('/api/execute_add_node', methods=['POST'])
