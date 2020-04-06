@@ -1,10 +1,7 @@
 {% set index_rollover_size = 90 %}
-{% set shrink_number_of_shards = 2 %}
 {% if kit_size > 1 %}
 {% set index_rollover_size = 150 %}
-{% set shrink_number_of_shards = 4 %}
 {% endif %}
-
 {
   "policy" : {
     "phases" : {
@@ -24,7 +21,7 @@
             "max_num_segments" : 1
           },
           "shrink" : {
-            "number_of_shards" : {{shrink_number_of_shards}}
+            "number_of_shards" : 3
           }
         }
       }

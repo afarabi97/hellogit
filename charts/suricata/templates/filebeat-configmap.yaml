@@ -15,7 +15,7 @@ data:
     #==================== Elasticsearch template setting ==========================
 
     setup.template.settings:
-      index.number_of_shards: 5
+      index.number_of_shards: 6
       index.number_of_replicas: 1
       index.refresh_interval: 30s
       index.merge.scheduler.max_thread_count: 1
@@ -49,7 +49,7 @@ data:
     queue.mem:
       events: 65536
       flush.min_events: 4096
-      flush.timeout: 30s    
+      flush.timeout: 30s
 
     monitoring:
       enabled: true
