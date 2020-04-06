@@ -2,10 +2,8 @@
 STARTING_DIR=$(pwd)
 DATE_STR=$(date +"%m-%d-%y_%H-%M")
 PARAM_BACKUP_NAME=$1
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 WEB_DIR="$SCRIPT_DIR/../"
-
 function backup_tfplenum {
     mkdir -p $WEB_DIR/backups
     pushd $WEB_DIR/backups > /dev/null
@@ -14,6 +12,8 @@ function backup_tfplenum {
     cp -rv /var/www/html/THISISCVAH/ backup/.
     cp -rv /var/www/html/OJCCTM/ backup/.
     cp -rv /var/www/html/pcaps/ backup/.
+    cp /opt/tfplenum/core/playbooks/inventory.yml backup/core-inventory.yml
+    cp /opt/tfplenum/deployer/playbooks/inventory.yml backup/deployer-inventory.yml
     if [ $PARAM_BACKUP_NAME ]; then
         tar -czvf $PARAM_BACKUP_NAME backup/
     else
@@ -22,6 +22,5 @@ function backup_tfplenum {
     rm -rf backup/
     popd > /dev/null
 }
-
 backup_tfplenum
 cd $STARTING_DIR
