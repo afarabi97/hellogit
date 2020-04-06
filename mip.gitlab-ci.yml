@@ -14,6 +14,7 @@ Setup MIP Nightly Controller:
     --repo-password "$REPO_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "jdms-mip-template" \
@@ -51,6 +52,7 @@ Setup MIP Controller:
     --repo-url "$REPO_URL" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-datastore "$VCENTER_DATASTORE" \
@@ -83,6 +85,7 @@ MIP Kickstart:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --gateway "$VM_GATEWAY" \

@@ -1,3 +1,4 @@
+import logging
 import random
 import subprocess
 from functools import wraps
@@ -68,6 +69,22 @@ def _open_proc(command: str,
 
     return proc
 
+def _print_unavailable_ips(available_ip_addresses: List[str]):
+    cached_octet = None
+    print("Unavailable IPS")
+    for i, ip in enumerate(available_ip_addresses):
+        pos = ip.rfind('.') + 1
+        if cached_octet is None:
+            cached_octet = int(ip[pos:])
+            continue
+
+        if (cached_octet + 1) != int(ip[pos:]):
+            print(ip)
+
+        cached_octet = int(ip[pos:])
+    print("END Unavailable IPS")
+
+
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     """
     Ensures that the /28 IP blocks ip are all available.
@@ -89,7 +106,7 @@ def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
             else:
                 return False
 
-        if i == 15:
+        if i == 31:
             break
     return True
 
@@ -97,15 +114,15 @@ def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
 def _get_ip_blocks(cidr: int) -> List[int]:
     """
     Gets IP blocks based on CIDR notation.
-    It only accept /24 through /27 subnet ranges.
+    It only accept /24 through /26 subnet ranges.
 
-    It returns an array of the start of each IP /28 block.
+    It returns an array of the start of each IP /27 block.
 
     :param cidr: The network cidr
 
-    :return: [1, 16, 32 ...]
+    :return: [1, 32, 64 ...]
     """
-    cidr_to_host_mapping = {24: 254, 25: 126, 26: 62, 27: 30}
+    cidr_to_host_mapping = {24: 254, 25: 126, 26: 62}
     count = 0
     number_of_hosts = cidr_to_host_mapping[cidr]
     valid_ip_blocks = []
@@ -117,7 +134,7 @@ def _get_ip_blocks(cidr: int) -> List[int]:
             else:
                 valid_ip_blocks.append(i)
 
-        if count == 16:
+        if count == 32:
             count = 0
     return valid_ip_blocks
 
@@ -141,27 +158,39 @@ def run_command(command: str,
 
 
 class IPAddressManager:
-    unused_ips = None
     unused_ip_blocks = None
+    kit_block_ip = None
+    next_ip = None
+    unused_ips = None
 
-    def __init__(self, network_id: str, netmask: str):
+    def __init__(self, network_id: str, kit_index: int=0):
         self._network_id = network_id
-        self._netmask = netmask
+        self._kit_index = int(kit_index)
         if IPAddressManager.unused_ips is None:
             self._create_ip_address_cache()
         if IPAddressManager.unused_ip_blocks is None:
             self._create_ip_block_cache()
+            IPAddressManager.kit_block_ip = IPAddressManager.unused_ip_blocks[self._kit_index]
+
+        self._is_block_valid(IPAddressManager.kit_block_ip)
+
+    def _is_block_valid(self, ip_block: List[str]) -> bool:
+        pos = ip_block.rfind('.') + 1
+        last_octet = int(ip_block[pos:])
+        count = 0
+        for i in range(last_octet, last_octet + 32):
+            count = count + 1
+            ipaddress = self._network_id[0: len(self._network_id) - 1] + str(i)
+            if ipaddress not in IPAddressManager.unused_ips:
+                logging.warn("{} is already in use. This may be because we have not deleted the old kit yet or it"
+                             " may be a IP conflict.".format(ipaddress))
 
     def filter_ip(self, ipaddress: str) -> bool:
         """
         Filters IP addresses from NMAP functions commands.
         :return:
         """
-        for i in range(0, 11):
-            if ipaddress.endswith('.' + str(i)):
-                return True
-
-        for i in range(150, 256):
+        for i in range(0, 1):
             if ipaddress.endswith('.' + str(i)):
                 return True
 
@@ -170,18 +199,10 @@ class IPAddressManager:
         return False
 
     def _create_ip_address_cache(self):
-        cidr = netmask_to_cidr(self._netmask)
-        if cidr <= 24:
-            command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % self._network_id
-        else:
-            command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (self._network_id, cidr)
-
+        command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % self._network_id
         stdout_str = run_command(command, use_shell=True)
         available_ip_addresses = stdout_str.split('\n')
         IPAddressManager.unused_ips = [x for x in available_ip_addresses if not self.filter_ip(x)]
-
-    def get_unused_ipaddress(self) -> str:
-        return IPAddressManager.unused_ips.pop(random.randint(0, len(IPAddressManager.unused_ips) - 1))
 
     def _create_ip_block_cache(self):
         """
@@ -190,28 +211,31 @@ class IPAddressManager:
         :param mng_ip: The management IP or controller IP address
         :param netmask: The netmask of the controller IP address.
         """
-        cidr = netmask_to_cidr(self._netmask)
-        if cidr <= 24:
-            command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % self._network_id
-            cidr = 24
-        else:
-            command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (self._network_id, cidr)
-
-        stdout_str = run_command(command, use_shell=True)
-        available_ip_addresses = stdout_str.split('\n')
-        available_ip_addresses = [x for x in available_ip_addresses if not self.filter_ip(x)]
-        ip_address_blocks = _get_ip_blocks(cidr)
+        ip_address_blocks = [81, 113, 145, 177, 209]
         available_ip_blocks = []
-        for index, ip in enumerate(available_ip_addresses):
-            if not is_ipv4_address(ip):
-                continue
-
-            pos = ip.rfind('.') + 1
-            last_octet = int(ip[pos:])
-            if last_octet in ip_address_blocks:
-                if _is_valid_ip_block(available_ip_addresses, index):
-                    available_ip_blocks.append(ip)
+        for block in ip_address_blocks:
+            available_ip_blocks.append(self._network_id[0:len(self._network_id)-2] + "." + str(block))
         IPAddressManager.unused_ip_blocks = available_ip_blocks
 
-    def get_unused_ip_block(self) -> str:
-        return IPAddressManager.unused_ip_blocks.pop(len(IPAddressManager.unused_ip_blocks) - 1)
+    def get_ctrl_address(self) -> str:
+        return IPAddressManager.kit_block_ip
+
+    def get_next_node_address(self) -> str:
+        if IPAddressManager.next_ip is None:
+            IPAddressManager.next_ip = IPAddressManager.kit_block_ip
+        pos = IPAddressManager.next_ip.rfind('.') + 1
+        last_octet = int(IPAddressManager.next_ip[pos:])
+        IPAddressManager.next_ip = IPAddressManager.next_ip[:pos] + str(last_octet + 1)
+        return IPAddressManager.next_ip
+
+    def get_kubernetes_ip_block(self, kit_index: int=0) -> str:
+        ip = IPAddressManager.kit_block_ip
+        pos = ip.rfind('.') + 1
+        last_octet = int(ip[pos:])
+        return ip[:pos] + str(last_octet + 15)
+
+    def get_dhcp_ip_block(self, kit_index: int=0):
+        ip = IPAddressManager.kit_block_ip
+        pos = ip.rfind('.') + 1
+        last_octet = int(ip[pos:])
+        return ip[:pos] + str(last_octet + 8)

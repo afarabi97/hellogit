@@ -2,7 +2,10 @@ import os
 import logging
 import requests
 
-from models.settings import KickstartSettings, ControllerSetupSettings, NodeSettings, CatalogSettings
+from models.kickstart import KickstartSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.catalog import CatalogSettings
+from models.common import NodeSettings
 from models.constants import SubCmd
 
 from util.connection_mngs import FabricConnectionWrapper

@@ -5,7 +5,7 @@ import socket
 import sys
 
 from datetime import datetime, timedelta
-from models.settings import NodeSettings
+from models.common import NodeSettings
 from paramiko import SSHException
 from time import sleep
 from typing import List, Dict, Union

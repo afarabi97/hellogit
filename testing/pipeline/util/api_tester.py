@@ -9,10 +9,12 @@ from datetime import datetime, timedelta
 from util.connection_mngs import MongoConnectionManager
 from typing import Union, List, Dict
 
-from models.settings import (ControllerSetupSettings, KickstartSettings,
-                             NodeSettings, KitSettings, CatalogSettings, SuricataSettings,
-                             MolochCaptureSettings, MolochViewerSettings, ZeekSettings,
-                             MIPKickstartSettings, MIPConfigSettings)
+from models.ctrl_setup import ControllerSetupSettings
+from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.kit import KitSettings
+from models.catalog import MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings, CatalogSettings
+from models.mip_config import MIPConfigSettings
+from models.common import NodeSettings
 
 
 def zero_pad(num: int) -> str:

@@ -1,7 +1,9 @@
 import os
 import logging
 
-from models.settings import MIPKickstartSettings, ControllerSetupSettings, MIPConfigSettings
+from models.kickstart import MIPKickstartSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.mip_config import MIPConfigSettings
 from util.ansible_util import execute_playbook
 from util.api_tester import MIPAPITester
 from util.connection_mngs import FabricConnectionWrapper

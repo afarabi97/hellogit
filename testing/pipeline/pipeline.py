@@ -13,9 +13,13 @@ from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport
 
 from models import add_args_from_instance
-from models.settings import (ControllerSetupSettings, KickstartSettings,
-                             KitSettings, CatalogSettings, BasicNodeCreds,
-                             MIPKickstartSettings, MIPConfigSettings)
+from models.ctrl_setup import ControllerSetupSettings
+from models.kit import KitSettings
+from models.catalog import CatalogSettings
+from models.common import BasicNodeCreds
+from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.mip_config import MIPConfigSettings
+
 from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd

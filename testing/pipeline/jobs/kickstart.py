@@ -1,7 +1,9 @@
 import os
 import logging
 
-from models.settings import KickstartSettings, ControllerSetupSettings, NodeSettings, MIPKickstartSettings
+from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.common import NodeSettings
 from typing import List
 from util.ansible_util import execute_playbook, power_on_vms
 from util.api_tester import APITester, MIPAPITester

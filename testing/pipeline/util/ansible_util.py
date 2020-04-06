@@ -10,7 +10,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from typing import List, Dict, Union
-from models.settings import NodeSettings, VCenterSettings
+from models.common import NodeSettings, VCenterSettings
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 

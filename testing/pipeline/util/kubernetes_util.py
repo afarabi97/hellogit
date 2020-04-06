@@ -2,7 +2,7 @@ import logging
 import time
 
 from datetime import timedelta, datetime
-from models.settings import NodeSettings
+from models.common import NodeSettings
 from util.connection_mngs import KubernetesWrapper
 from typing import Dict
 from urllib3.exceptions import MaxRetryError

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from models.settings import ControllerSetupSettings
+from models.ctrl_setup import ControllerSetupSettings
 from typing import Dict
 from util.connection_mngs import FabricConnectionWrapper
 from util.ssh import test_nodes_up_and_alive

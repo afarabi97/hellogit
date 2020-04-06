@@ -1,4 +1,6 @@
-from models.settings import KickstartSettings, ControllerSetupSettings, CatalogSettings
+from models.kickstart import KickstartSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.catalog import CatalogSettings
 from models.constants import SubCmd
 from util.api_tester import APITester
 

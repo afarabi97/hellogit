@@ -10,7 +10,8 @@ from util.ansible_util import execute_playbook
 from util.connection_mngs import FabricConnectionWrapper
 from util.hash_util import hash_file
 from models.export import ExportSettings, ExportLocSettings
-from models.settings import ControllerSetupSettings, BasicNodeCreds
+from models.ctrl_setup import ControllerSetupSettings
+from models.common import BasicNodeCreds
 from pathlib import Path
 from io import StringIO
 from util.ansible_util import power_on_vms, power_off_vms

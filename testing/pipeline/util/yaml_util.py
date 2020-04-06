@@ -2,13 +2,14 @@
 
 import sys
 import ruamel.yaml
-from models.settings import (NodeSettings, VCenterSettings, Model,
-                             RepoSettings, ControllerSetupSettings,
-                             KickstartSettings, KitSettings, SuricataSettings,
-                             CatalogSettings, MolochCaptureSettings, MolochViewerSettings,
-                             ZeekSettings, LogstashSettings, MIPKickstartSettings,
-                             MIPConfigSettings)
+from models.common import NodeSettings, VCenterSettings, Model, RepoSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.kit import KitSettings
+from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.catalog import CatalogSettings, MolochCaptureSettings, MolochViewerSettings, ZeekSettings, LogstashSettings, SuricataSettings
+from models.mip_config import MIPConfigSettings
 from typing import Union
+
 
 class YamlManager:
     yaml = None

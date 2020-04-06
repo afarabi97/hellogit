@@ -13,6 +13,7 @@ variables:
   IS_CLEANUP: "false"
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
+  NETWORK_BLOCK_INDEX: 0
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   ACAS_IPADDRESS: "172.16.82.15"
@@ -106,6 +107,7 @@ Setup Nightly Controller:
     --repo-url "$REPO_URL" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "$TEMPLATE_TO_CLONE" \
@@ -177,6 +179,7 @@ Setup Controller:
     --repo-url "$REPO_URL" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "$TEMPLATE_TO_CLONE" \
@@ -257,6 +260,7 @@ Kickstart:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
+    --network-block-index $NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-prefix "$VM_PREFIX" \

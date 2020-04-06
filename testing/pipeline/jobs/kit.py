@@ -1,7 +1,9 @@
 import os
 import logging
 
-from models.settings import KickstartSettings, ControllerSetupSettings, KitSettings
+from models.kickstart import KickstartSettings
+from models.ctrl_setup import ControllerSetupSettings
+from models.kit import KitSettings
 from util.ansible_util import execute_playbook
 from util.api_tester import APITester
 from util.connection_mngs import FabricConnectionWrapper
