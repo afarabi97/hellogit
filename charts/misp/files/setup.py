@@ -9,6 +9,7 @@ headers = {"Content-Type": "application/json", "Accept": "application/json"}
 api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
 HIVE_USER_API_KEY=os.environ['HIVE_USER_API_KEY']
+ADMIN_PASS=os.environ['ADMIN_PASS']
 #HIVE_USER_API_KEY="P6iX7ht5UqjmL5Hktk44kDSymHuRnOJIq78URU4c"
 
 def post(url=None, data=None, requires_auth=False):
@@ -105,6 +106,8 @@ def get_users():
 if __name__ == '__main__':
     print("Running MISP Setup Script")
     if get_status():
+        # Set password for admin@admin.test
+        password = os.popen("/var/www/MISP/app/Console/cake Password admin@admin.test \""+ADMIN_PASS+"\" -o").readlines()
         # Get API key for admin@admin.test
         api_key_arr = os.popen("/var/www/MISP/app/Console/cake Authkey admin@admin.test").readlines()
         api_key = api_key_arr[-1].strip()

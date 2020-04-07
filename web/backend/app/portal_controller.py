@@ -24,12 +24,17 @@ DISCLUDES = ("elasticsearch.lan",
 HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
 
-
-def get_moloch_credentials():
+def get_app_credentials(app: str, user_key: str, pass_key: str):
+    username = ""
+    password = ""
     collection = conn_mng.mongo_catalog_saved_values
-    application = collection.find_one({'application': 'moloch-viewer'})
-    password = application['values']['password']
-    username = application['values']['username']
+    application = collection.find_one({'application': app})
+    if pass_key in application['values']:
+        password = application['values'][pass_key]
+    if user_key in application['values']:
+        username = application['values'][user_key]
+    if username == "" and password == "":
+        return ""
     return "{}/{}".format(username, password)
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
@@ -39,26 +44,28 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
     elif dns == "moloch.lan":
-        credentials = get_moloch_credentials()
+        logins = get_app_credentials('moloch-viewer','username','password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': credentials})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': credentials})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "kubernetes-dashboard.lan":
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': ''})
     elif dns == "hive.lan":
+        logins = get_app_credentials('hive','superadmin_username','superadmin_password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': ''})
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "cortex.lan":
+        logins = get_app_credentials('cortex','superadmin_username','superadmin_password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip + ":9001", 'dns': HTTP_STR + dns + ":9001", 'logins': ''})
+            portal_links.append({'ip': HTTP_STR + ip + ":9001", 'dns': HTTP_STR + dns + ":9001", 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': ''})
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "kibana.lan":
         password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)
@@ -73,13 +80,19 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         else:
             portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "misp.lan":
-        logins = 'admin@admin.test/admin'
+        logins = get_app_credentials('misp','admin_user','admin_pass')
         if ip:
             portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
     elif dns == "wikijs.lan":
-        logins = 'admin@dip.local/password!'
+        logins = get_app_credentials('wikijs','admin_email','admin_pass')
+        if ip:
+            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+    elif dns == "mattermost.lan":
+        logins = get_app_credentials('mattermost','admin_user','admin_pass')
         if ip:
             portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
         else:

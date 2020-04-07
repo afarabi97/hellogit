@@ -9,7 +9,7 @@
           "description": "Enter Wiki Admin email.",
           "required": true,
           "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
-          "name": "adminEmail",
+          "name": "admin_email",
           "error_message": "Enter a value"
         },
         {
@@ -18,7 +18,7 @@
           "description": "Enter Wiki Admin password (min 8 characters)",
           "required": true,
           "regexp": "^.{8,}$",
-          "name": "adminPassword",
+          "name": "admin_pass",
           "error_message": "Enter a value"
         }
     ]

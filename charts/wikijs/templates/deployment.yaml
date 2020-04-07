@@ -74,12 +74,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: wikijs-secret
-              key: adminPassword
+              key: admin_pass
         - name: ADMIN_EMAIL
           valueFrom:
             secretKeyRef:
               name: wikijs-secret
-              key: adminEmail
+              key: admin_email
         volumeMounts:
         - name: wikijs-configmap
           mountPath: "/wiki/data/sideload/en.json"

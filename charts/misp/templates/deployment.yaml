@@ -43,6 +43,8 @@ spec:
         ports:
         - containerPort: 80
         env:
+        - name: BASE_URL
+          value: http://{{ .Release.Name }}.lan
         - name: MYSQL_HOST
           value: 127.0.0.1
         - name: MYSQL_DATABASE
@@ -60,6 +62,11 @@ spec:
             secretKeyRef:
               name: misp-secret
               key: hive_user_api_key
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: misp-secret
+              key: admin_pass
         volumeMounts:
         - name: misp-setup
           mountPath: /setup.py
