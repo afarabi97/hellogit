@@ -17,6 +17,7 @@ from shared.connection_mngs import KUBEDIR
 from shared.utils import decode_password
 from typing import Dict, Tuple, Union
 from celery import chain
+from app.service.system_info_service import get_system_name
 
 
 def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:

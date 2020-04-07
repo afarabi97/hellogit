@@ -62,7 +62,7 @@ export class KickstartComponent implements OnInit {
 
   private initializeView(): void {
     this.loading = true;
-    if (this.system_name == 'DIP') {
+    if (this.system_name == 'DIP' || this.system_name == 'GIP') {
       this.initDIP();
     }
 
@@ -311,7 +311,7 @@ export class KickstartComponent implements OnInit {
 
     let formGroup: FormGroup;
 
-    if (this.system_name === "DIP") {
+    if (this.system_name === "DIP" || this.system_name === "GIP") {
       let dip_group = this.fb.group({
         hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
         ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
@@ -443,7 +443,7 @@ export class KickstartComponent implements OnInit {
    */
   public onSubmit(): void {
     this.loading = true;
-    if (this.system_name === "DIP") {
+    if (this.system_name === "DIP" || this.system_name === "GIP") {
       this.systemSetupSrv.executeKickstart(this.kickStartFormGroup);
     }
 

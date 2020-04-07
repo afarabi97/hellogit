@@ -44,8 +44,15 @@
     mode: u+rw,g+rw
   with_items:
     - operator.yml
-    - deploy.yml
     - license.yml
+
+- name: Copy Deploy Template
+  template:
+    src: "templates/deploy_{{system_name|lower}}.yml.j2"
+    dest: "{{ elastic_dir }}/deploy.yml"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+    mode: u+rw,g+rw
 
 - name: Install ECK Operator
   shell: |

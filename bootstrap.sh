@@ -519,8 +519,11 @@ function prompt_for_system() {
         done
     fi
     export SYSTEM_NAME=$SYSTEM_NAME;
-    echo "[tfplenum]" > /etc/tfplenum.ini
-    echo "system_name = ${SYSTEM_NAME}" >> /etc/tfplenum.ini
+cat <<EOF > /etc/tfplenum.ini
+[tfplenum]
+system_name = ${SYSTEM_NAME}
+version = ${DIP_VERSION}
+EOF
 }
 
 

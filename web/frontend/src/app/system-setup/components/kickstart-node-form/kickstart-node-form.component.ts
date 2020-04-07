@@ -41,7 +41,7 @@ export class KickstartNodeFormComponent implements OnInit {
   }
 
   set_pxe_types(name: string) {
-    if(name === "DIP") {
+    if(name === "DIP" || name === "GIP") {
       this.pxe_types = PXE_TYPES;
     }
 

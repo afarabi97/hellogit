@@ -18,18 +18,16 @@ from flask import request, jsonify, Response
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple, Set
+from app.service.system_info_service import get_system_name
 
-import configparser
 
 @app.route('/api/get_system_name', methods=['GET'])
-def get_system_name():
-    config = configparser.ConfigParser()
-    config.read('/etc/tfplenum.ini')
-    try:
-        system_name = config['tfplenum']['system_name']
+def get_system_name_api():
+    system_name = get_system_name()
+    if system_name:
         return jsonify({'system_name': system_name})
-    except KeyError:
-        return jsonify({'message': 'Could not get the system_name.'}), 404
+
+    return jsonify({'message': 'Could not get the system_name.'}), 404
 
 
 @app.route('/api/set_system_name/<system_name>', methods=['PUT'])

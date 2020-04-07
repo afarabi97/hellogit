@@ -1,67 +1,32 @@
-# Defaults
-{% set es_mdi = true %}
-{% set es_master_java_memory = 1 %}
-{% set es_master_memory = 1 %}
-{% set es_master_num_procs = "1000m" %}
-{% set es_master_count = 3 %}
-{% set es_data_java_memory = 1 %}
-{% set es_data_memory = 1 %}
-{% set es_data_num_procs = "1000m" %}
-{% set es_data_count = 2 %}
-{% set es_coordinating_java_memory = 1 %}
-{% set es_coordinating_memory = 1 %}
-{% set es_coordinating_num_procs = "1000m" %}
-{% set es_coordinating_count = groups['servers']|length %}
-{% set kibana_memory = 1 %}
-{% set kibana_cpu = "1000m" %}
-{% set kibana_count = 1 %}
 
-# R440 Kit
-{% if kit_size == 2 %}
-  {% set es_mdi = false %}
-  {% set es_master_java_memory = 15 %}
-  {% set es_master_memory = 15 %}
-  {% set es_master_num_procs = "3000m" %}
-  {% set es_master_count = 3 %}
-  {% set es_data_java_memory = 30 %}
-  {% set es_data_memory = 64 %}
-  {% set es_data_num_procs = "6000m" %}
-  {% set es_data_count = 6 %}
-  {% set es_coordinating_java_memory = 30 %}
-  {% set es_coordinating_memory = 45 %}
-  {% set es_coordinating_num_procs = "3000m" %}
-  {% set es_coordinating_count = groups['servers']|length %}
-  {% set kibana_memory = 6 %}
-  {% set kibana_cpu = "1000m" %}
-  {% set kibana_count = 2 %}
-# Small DL160 Kit
-{% elif kit_size == 1 %}
-  {% set es_mdi = true %}
-  {% set es_master_java_memory = 20 %}
-  {% set es_master_memory = 30 %}
-  {% set es_master_num_procs = "8000m" %}
-  {% set es_master_count = 3 %}
-  {% set es_coordinating_java_memory = 30 %}
-  {% set es_coordinating_memory = 45 %}
-  {% set es_coordinating_num_procs = "3000m" %}
-  {% set es_coordinating_count = groups['servers']|length %}
-  {% set kibana_memory = 1 %}
-  {% set kibana_cpu = "1000m" %}
-  {% set kibana_count = 1 %}
-# Tiny DL160 Kit
-{% elif kit_size == 0 %}
-  {% set es_mdi = true %}
-  {% set es_master_java_memory = 20 %}
-  {% set es_master_memory = 20 %}
-  {% set es_master_num_procs = "8000m" %}
-  {% set es_master_count = 3 %}
-  {% set es_coordinating_java_memory = 8 %}
-  {% set es_coordinating_memory = 9 %}
-  {% set es_coordinating_num_procs = "4000m" %}
-  {% set es_coordinating_count = groups['servers']|length %}
-  {% set kibana_memory = 1 %}
-  {% set kibana_cpu = "1000m" %}
-  {% set kibana_count = 1 %}
+# Defaults for minimal VM Setup
+{% set es_master_memory = 4 %}
+{% set es_master_java_memory = 2 %}
+{% set es_master_num_procs =2 %}
+{% set es_data_memory = 4 %}
+{% set es_data_java_memory = 2 %}
+{% set es_data_num_procs = 4 %}
+{% set es_coordinating_memory = 2 %}
+{% set es_coordinating_java_memory = 1 %}
+{% set es_coordinating_num_procs = 2 %}
+{% set es_ml_memory = 2 %}
+{% set es_ml_java_memory = 1 %}
+{% set es_ml_num_procs = 2 %}
+
+# GIP Hardware Settings
+{% if kit_size == 100 %}
+{% set es_master_memory = 24 %}
+{% set es_master_java_memory = 24 %}
+{% set es_master_num_procs = 4 %}
+{% set es_data_memory = 24 %}
+{% set es_data_java_memory = 24 %}
+{% set es_data_num_procs = 8 %}
+{% set es_coordinating_memory = 24 %}
+{% set es_coordinating_java_memory = 24 %}
+{% set es_coordinating_num_procs = 4 %}
+{% set es_ml_memory = 64 %}
+{% set es_ml_java_memory = 30 %}
+{% set es_ml_num_procs = 8 %}
 {% endif %}
 
 ---
@@ -81,17 +46,13 @@ spec:
         - dns: elasticsearch.lan
   nodeSets:
   - name: master
-    count: {{es_master_count}}
+    count: 3
     config:
-{% if es_mdi %}
-      node.master: true
-      node.data: true
-      node.ingest: true
-{% else %}
       node.master: true
       node.data: false
       node.ingest: false
-{% endif %}
+      node.ml: false
+      xpack.ml.enabled: true
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
@@ -118,11 +79,6 @@ spec:
                   operator: In
                   values:
                   - server
-{% if es_mdi == false %}
-        volumes:
-        - name: elasticsearch-data
-          emptyDir: {}
-{% endif %}
         containers:
         - name: elasticsearch
           # specify resource limits and requests
@@ -137,20 +93,18 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-{% if es_mdi %}
         volumes:
         - name: elasticsearch-data
           hostPath:
             path: {{ es_data_path }}
             type: DirectoryOrCreate
-{% endif %}
-{% if es_mdi == false %}
   - name: data
-    count: {{es_data_count}}
+    count: 6
     config:
       node.master: false
       node.data: true
       node.ingest: true
+      node.ml: false
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
@@ -196,13 +150,13 @@ spec:
           hostPath:
             path: {{ es_data_path }}
             type: DirectoryOrCreate
-{% endif %}
   - name: coordinating
-    count: {{es_coordinating_count}}
+    count: 2
     config:
       node.master: false
       node.data: false
       node.ingest: true
+      node.ml: false
       node.max_local_storage_nodes: "25"
       xpack.monitoring.collection.enabled: "true"
       node.attr.node_name: ${NODE_NAME}
@@ -242,6 +196,57 @@ spec:
           env:
           - name: ES_JAVA_OPTS
             value: "-Xms{{ es_coordinating_java_memory }}g -Xmx{{ es_coordinating_java_memory }}g"
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+  - name: ml
+    count: 4
+    config:
+      node.master: false
+      node.data: false
+      node.ingest: false
+      node.ml: true
+      xpack.ml.enabled: true
+      node.max_local_storage_nodes: "25"
+      xpack.monitoring.collection.enabled: "true"
+      node.attr.node_name: ${NODE_NAME}
+      cluster.routing.allocation.awareness.attributes: node_name
+      script.cache.max_size: "500"
+      script.max_compilations_rate: "256/1m"
+    podTemplate:
+      metadata:
+        labels:
+          # additional labels for pods
+          component: elasticsearch
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - server
+        volumes:
+        - name: elasticsearch-data
+          emptyDir: {}
+        containers:
+        - name: elasticsearch
+          # specify resource limits and requests
+          resources:
+            requests:
+              memory: {{es_ml_memory}}Gi
+              cpu: {{es_ml_num_procs}}
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms{{ es_ml_java_memory }}g -Xmx{{ es_ml_java_memory }}g"
           - name: NODE_NAME
             valueFrom:
               fieldRef:

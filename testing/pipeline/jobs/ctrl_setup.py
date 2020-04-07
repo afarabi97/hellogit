@@ -34,7 +34,6 @@ class ControllerSetupJob:
 
         boostrap_cmd = ("export BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
                          export TFPLENUM_SERVER_IP=" + self.ctrl_settings.node.ipaddress + " && \
-                         export DIEUSERNAME='" + self.ctrl_settings.repo.username + "' && \
                          export GIT_USERNAME='" + self.ctrl_settings.repo.username + "' && \
                          export RUN_TYPE=full && \
                          export RHEL_SOURCE_REPO='" + self.ctrl_settings.rhel_source_repo + "' && \

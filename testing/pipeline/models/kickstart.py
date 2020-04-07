@@ -77,7 +77,7 @@ class KickstartSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
-        parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 5), required=True,
+        parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 7), required=True,
                             help="The number of server VMs to create.")
         parser.add_argument('--num-sensors', type=int, dest="num_sensors", choices=range(1, 5), required=True,
                             help="The number of sensor VMs to create.")

@@ -171,7 +171,6 @@ def run_bootstrap(controller: Node, di2e_username: str, di2e_password: str, kit:
                                  controller.management_interface.ip_address) as client:
         cmd_to_execute = ("export BRANCH_NAME='" + kit.branch_name + "' && \
             export TFPLENUM_SERVER_IP=" + controller.management_interface.ip_address + " && \
-            export DIEUSERNAME='" + di2e_username + "' && \
             export GIT_USERNAME='" + di2e_username + "' && \
             export RUN_TYPE=full && \
             export RHEL_SOURCE_REPO='" + kit.source_repo + "' && \

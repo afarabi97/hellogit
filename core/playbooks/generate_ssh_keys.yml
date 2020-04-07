@@ -6,5 +6,10 @@
   shell: "sshpass -p '{{ ansible_ssh_pass }}' ssh-copy-id -oStrictHostKeyChecking=no {{ item }}"
   with_items: "{{ ssh_known_hosts + ssh_short_known_hosts }}"
   when: not (( ansible_ssh_pass is undefined ) or ( ansible_ssh_pass is none ) or ( ansible_ssh_pass | trim == ''))
+  register: result
+  until: result.rc == 0
+  retries: 15
+  delay: 5
+  changed_when: result.rc == 0
 
 ...

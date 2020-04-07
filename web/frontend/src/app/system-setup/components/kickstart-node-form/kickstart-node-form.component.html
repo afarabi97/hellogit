@@ -28,7 +28,7 @@
     <mat-error>{{getErrorMessage(node.get("mac_address"))}}</mat-error>
   </mat-form-field>
 
-  <ng-container *ngIf="system_name === 'DIP'">
+  <ng-container *ngIf="system_name === 'DIP'||system_name === 'GIP'">
     <mat-form-field>
       <mat-label>Boot Drive</mat-label>
       <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
@@ -57,7 +57,7 @@
   </ng-container>
 
 
-  <ng-container *ngIf="system_name==='DIP'">
+  <ng-container *ngIf="system_name==='DIP'||system_name==='GIP'">
     <mat-form-field>
       <mat-label>PXE Type</mat-label>
       <mat-select disableRipple formControlName="pxe_type" matTooltip="{{getTooltip('pxe_type')}}">
