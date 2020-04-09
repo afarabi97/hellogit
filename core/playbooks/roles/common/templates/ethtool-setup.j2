@@ -5,5 +5,16 @@ if [ "$2" == "up" ] && (
   [ "$1" == "{{ item }}" ] {{ '||' if not loop.last else "" }}
 {% endfor %}
 ); then
-    ethtool -K "$1" tx off rx off sg off rxvlan off txvlan off highdma off tso off ufo off gso off gro off lro off rxhash off
+    ethtool -K "$1" tx off
+    ethtool -K "$1" rx off
+    ethtool -K "$1" sg off
+    ethtool -K "$1" rxvlan off
+    ethtool -K "$1" txvlan off
+    ethtool -K "$1" highdma off
+    ethtool -K "$1" tso off
+    ethtool -K "$1" gso off
+    ethtool -K "$1" gro off
+    ethtool -K "$1" rxhash off
+    ethtool -K "$1" lro off
+    ethtool -K "$1" ufo off
 fi
