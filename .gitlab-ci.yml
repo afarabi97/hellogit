@@ -1,3 +1,6 @@
+# include:
+# - template: Container-Scanning.gitlab-ci.yml
+
 variables:
   LABREPO_HOST: "labrepo.sil.lab"
   TFPLENUM_EXPORT_LOC: "/mnt/drive_creation/"
@@ -15,7 +18,7 @@ variables:
   ACAS_IPADDRESS: "172.16.82.15"
   ACAS_USERNAME: "acas"
   ACAS_PASSWORD: "we.are.tfplenum"
-  ACAS_SCAN_TO_RUN: "TFPlenum Dynamic Scan2"
+  ACAS_SCAN_TO_RUN: "TFPlenum Dynamic Scan"
   RUN_ACAS: "false"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
@@ -47,7 +50,6 @@ variables:
   SENSOR_CPU: 24
   SENSOR_MEM: 30720
 
-
 stages:
   - code-analysis
   - pre-build
@@ -55,8 +57,8 @@ stages:
   - docs
   - kickstart
   - kit
-  - security_scans
   - mip_config
+  - security_scans
   - catalog
   - unit-test
   - integration-test
