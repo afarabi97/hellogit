@@ -9,10 +9,10 @@ sonarqube analyze production code:
     sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
+      - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "jdms-mip-developer"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
 
 sonarqube analyze test code:
   tags:
@@ -25,10 +25,10 @@ sonarqube analyze test code:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
+      - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "jdms-mip-developer"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
 
 analyze ansible core playbooks:
   tags:
@@ -43,9 +43,9 @@ analyze ansible core playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
+      - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-all"
 
 analyze ansible deployer playbooks:
   tags:
@@ -58,9 +58,9 @@ analyze ansible deployer playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
+      - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-all"
 
 analyze ansible stigs playbooks:
   tags:
@@ -73,9 +73,9 @@ analyze ansible stigs playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
+      - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-all"
 
 analyze ansible mip playbooks:
   tags:
@@ -90,9 +90,9 @@ analyze ansible mip playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "virtual_build_and_test"
       - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "jdms-mip-developer"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
 
 
 # include:

@@ -60,6 +60,15 @@ def power_off_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[Node
     execute_playbook([PIPELINE_DIR + "playbooks/power_control_nodes.yml"], extra_vars)
 
 
+def power_off_vms_gracefully(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
+    if isinstance(nodes, NodeSettings):
+        nodes = [nodes]
+
+    nodes_ary = [node.to_dict() for node in nodes]
+    extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'vcenter': vcenter}
+    execute_playbook([PIPELINE_DIR + "playbooks/power_control_nodes_gracefully.yml"], extra_vars)
+
+
 def delete_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
     if isinstance(nodes, NodeSettings):
         nodes = [nodes]

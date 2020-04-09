@@ -39,7 +39,7 @@ class Runner:
         kit_builder.addHandler(ch)
 
     def _run_catalog(self, application: str, args: Namespace):
-        ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+        ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
         catalog_settings = CatalogSettings()
         catalog_settings.set_from_kickstart(kickstart_settings, args)
@@ -101,17 +101,21 @@ class Runner:
         MIPConfigSettings.add_args(mip_config_parser)
         mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
 
+        parser.add_argument('--system-name', dest='system_name',
+                            choices=['DIP','MIP','GIP'],
+                            help="Selects which component your controller should be built for.")
         args = parser.parse_args()
 
         try:
             if args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()
                 ctrl_settings.from_namespace(args)
-                YamlManager.save_to_yaml(ctrl_settings)
+
+                YamlManager.save_to_yaml(ctrl_settings, args.system_name)
                 executor = ControllerSetupJob(ctrl_settings)
                 executor.setup_controller()
             elif args.which == SubCmd.run_kickstart:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
 
                 kickstart_settings = KickstartSettings()
                 kickstart_settings.from_namespace(args)
@@ -120,7 +124,7 @@ class Runner:
                 executor = KickstartJob(ctrl_settings, kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_kit:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 kit_settings = KitSettings()
@@ -130,19 +134,19 @@ class Runner:
                 executor = KitJob(ctrl_settings, kickstart_settings, kit_settings)
                 executor.run_kit()
             elif args.which == SubCmd.run_unit_tests:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 executor = IntegrationTestsJob(ctrl_settings, kickstart_settings)
                 executor.run_unit_tests()
             elif args.which == SubCmd.run_integration_tests:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 executor = IntegrationTestsJob(ctrl_settings, kickstart_settings)
                 executor.run_integration_tests()
             elif args.which == SubCmd.simulate_power_failure:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
                 executor = PowerFailureJob(ctrl_settings, kickstart_settings)
                 executor.simulate_power_failure()
@@ -157,7 +161,7 @@ class Runner:
                 executor = ConfluenceExport(export_settings)
                 executor.export_pdf_docs()
             elif args.which == SubCmd.add_docs_to_controller:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
 
@@ -176,7 +180,7 @@ class Runner:
                 executor = ConfluenceExport(export_settings)
                 executor.set_perms_restricted_on_page()
             elif args.which == SubCmd.export_ctrl:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
 
@@ -192,16 +196,23 @@ class Runner:
                 executor = DriveCreationJob(drive_settings)
                 executor.execute()
             elif args.which == SubCmd.export_mip_ctrl:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
 
                 executor = MIPControllerExport(ctrl_settings, export_settings.export_loc)
                 executor.export_mip_controller()
             elif args.which == SubCmd.run_cleanup:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 try:
-                    kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
+                    kickstart_settings = None
+                    if args.system_name == "DIP":
+                        kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
+                    elif args.system_name == "MIP":
+                        kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
+                    else:
+                        raise ValueError("System type is not supported for cleanup.")
+
                     kickstart_settings.nodes.append(ctrl_settings.node)
                     delete_vms(ctrl_settings.vcenter, kickstart_settings.nodes)
                 except FileNotFoundError:
@@ -211,7 +222,7 @@ class Runner:
             elif args.which == SubCmd.run_export:
                 export_parser.print_help()
             elif args.which == SubCmd.run_mip_kickstart:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
 
                 mip_kickstart_settings = MIPKickstartSettings()
                 mip_kickstart_settings.from_mip_namespace(args)
@@ -220,7 +231,7 @@ class Runner:
                 executor = MIPKickstartJob(ctrl_settings, mip_kickstart_settings)
                 executor.run_mip_kickstart()
             elif args.which == SubCmd.run_mip_config:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml()
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
 
                 mip_config_settings = MIPConfigSettings()

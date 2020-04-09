@@ -1,0 +1,19 @@
+---
+- name: Power ctrl VMs gracefully
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Wait for the virtual machine to shutdown
+      vmware_guest_powerstate:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ item.hostname }}"
+        state: shutdown-guest
+        validate_certs: False
+        state_change_timeout: 300
+      with_items: "{{ nodes }}"
+

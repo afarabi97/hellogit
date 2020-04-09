@@ -14,8 +14,8 @@ TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates/'
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
 
-def write_to_file(ipaddrlist: List[str]):
-    with open("nodestoscan.txt", "w") as fhandle:
+def write_to_file(ipaddrlist: List[str], file_name: str):
+    with open(file_name, "w") as fhandle:
         fhandle.write(' '.join(ipaddrlist))
 
 
@@ -47,7 +47,7 @@ class KickstartJob:
             if sensor_node and master_server:
                 break
 
-        write_to_file([self.ctrl_settings.node.ipaddress, master_server.ipaddress, sensor_node.ipaddress])
+        write_to_file([self.ctrl_settings.node.ipaddress, master_server.ipaddress, sensor_node.ipaddress], "dipnodestoscan.txt")
 
     def run_kickstart(self):
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
@@ -68,6 +68,9 @@ class MIPKickstartJob(KickstartJob):
         self.mip_kickstart_settings = mip_kickstart_settings
 
     def run_mip_kickstart(self):
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+
         self._open_mongo_port()
         runner = MIPAPITester(self.ctrl_settings, self.mip_kickstart_settings)
         runner.run_mip_kickstart_api_call()
@@ -81,4 +84,4 @@ class MIPKickstartJob(KickstartJob):
         ipList = [self.ctrl_settings.node.ipaddress]
         if len(self.mip_kickstart_settings.mips) > 0:
             ipList.append(self.mip_kickstart_settings.mips[0].ipaddress)
-        write_to_file(ipList)
+        write_to_file(ipList, "mipnodestoscan.txt")

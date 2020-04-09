@@ -4,7 +4,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 pushd $SCRIPT_DIR > /dev/null
 
 function setup_ctrl {
-    python pipeline.py setup-controller \
+    python pipeline.py \
+    --system-name "DIP" \
+    setup-controller \
     --vcenter-ipaddress "10.10.103.10" \
     --vcenter-username "svc.gitlab@sil.lab" \
     --vcenter-password 'MXFhejJ3c3ghUUFaQFdTWA==' \

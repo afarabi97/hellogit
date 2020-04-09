@@ -21,6 +21,14 @@ class KitJob:
         self.kickstart_settings = kickstart_settings
         self.kit_settings = kit_settings
 
+    def _install_vmware_tools(self):
+        for node in self.kickstart_settings.nodes:
+            with FabricConnectionWrapper(node.username,
+                                         node.password,
+                                         node.ipaddress) as client:
+                client.run("yum -y install perl open-vm-tools", shell=True, warn=True)
+
     def run_kit(self):
         runner = APITester(self.ctrl_settings, self.kickstart_settings, self.kit_settings)
         runner.run_kit_api_call()
+        self._install_vmware_tools()

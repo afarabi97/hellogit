@@ -1,0 +1,133 @@
+Create MIP artifacts folder:
+  stage: pre-build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    rm -f "$MIP_EXPORT_LOC"/*
+    mkdir -p "$MIP_EXPORT_LOC/"
+
+    rm -f "$MIP_DOC_EXPORT_LOC"/*
+    mkdir -p "$MIP_DOC_EXPORT_LOC/"
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+
+Build MIP Offline Documentation:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export export-html-docs \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --export-path "$MIP_DOC_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
+
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export export-single-page-pdf \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --export-path "$MIP_DOC_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "6.8.1.1 MIP System Setup" "6.8.2.2 MIP System Operation" "6.8.9.2 Setup Controller"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+
+Add Docs to MIP Controller:
+  stage: docs
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export add-docs-to-controller \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --export-path "$MIP_DOC_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
+  cache:
+    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_mip.yml
+    policy: pull
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+  retry: 2
+  artifacts:
+    paths:
+      - "htmlcov.zip"
+
+Export MIP Controller:
+  stage: export
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export export-mip-ctrl \
+    --export-path "$MIP_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+  cache:
+    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_mip.yml
+      - mipkickstartsettings.yml
+      - mipconfigsettings.yml
+      - mipnodestoscan.txt
+
+Generate MIP Versions File:
+  stage: hashfiles
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export generate-versions-file \
+    --export-path "$MIP_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+
+Generate MIP Versions File:
+  stage: hashfiles
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export generate-versions-file \
+    --export-path "$MIP_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"

@@ -58,7 +58,6 @@ class ControllerSetupJob:
             if ret_val.return_code != 0:
                 eprint("Failed to execute bootstrap.")
                 exit(ret_val.return_code)
-        take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)
 
     @retry()
     def _update_code(self, client):
@@ -94,3 +93,5 @@ EOF
             self._update_nightly_controller()
         else:
             raise ValueError("Invalid run type." + self.ctrl_settings.valid_run_types)
+
+        take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)

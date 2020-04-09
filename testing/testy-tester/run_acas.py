@@ -32,7 +32,7 @@ def print_json(some_obj: Union[Dict, List]):
 
 class ACASRunner:
 
-    def __init__(self, ip_or_host: str, username: str, password: str):
+    def __init__(self, ip_or_host: str, username: str, password: str, report_name: str):
         self._ip_or_host = ip_or_host
         self._base_url = "https://{}".format(self._ip_or_host)
         self._session = requests.Session()
@@ -41,6 +41,7 @@ class ACASRunner:
         self._password = password
         self._headers = None # type: Dict
         self._scan_obj = None #type: Dict
+        self._report_name = report_name
 
     def _get_current_utc_unixtime_stamp(self) -> str:
         d = datetime.utcnow()
@@ -211,7 +212,7 @@ class ACASRunner:
             stream=True
         ) as response:
             response.raise_for_status()
-            file_to_save = "{}TFPlenum_ACAS_Report.pdf".format(PROJECT_ROOT_DIR)
+            file_to_save = "{}{}".format(PROJECT_ROOT_DIR, self._report_name)
             with open(file_to_save, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
@@ -313,11 +314,13 @@ def main():
                         help="The password of the ACAS server.")
     parser.add_argument("-s", "--scan_name", dest="scan_name", required=True,
                         help="The name of the scan you wish to execute.")
-    parser.add_argument('--nodes-to-scan', dest='nodes_to_scan', nargs="+", \
-                         required=True, help="The nodes that will be scaned for the ACAS report.")
+    parser.add_argument('--nodes-to-scan', dest='nodes_to_scan', nargs="+",
+                        required=True, help="The nodes that will be scaned for the ACAS report.")
+    parser.add_argument('--report-name', dest='report_name', required=True,
+                        help="The name of the PDF file report.")
     args = parser.parse_args()
 
-    runner = ACASRunner(args.ip_address, args.username, args.password)
+    runner = ACASRunner(args.ip_address, args.username, args.password, args.report_name)
     runner.execute(args.scan_name, args.nodes_to_scan)
 
 

@@ -1,0 +1,300 @@
+
+Setup DIP Nightly Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    setup-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $DIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-template "$DIP_TEMPLATE_TO_CLONE" \
+    --gateway "$VM_GATEWAY" \
+    --vm-prefix "$VM_PREFIX-dip" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type build_from_scratch \
+    --vm-datastore "NVMe Storage"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "nightly_build"
+      - $PIPELINE == "nightly_build_dip"
+
+Setup DIP Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    echo "tfplenum-dip-cache-${CI_PIPELINE_ID}"
+
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    setup-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $DIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-template "$DIP_TEMPLATE_TO_CLONE" \
+    --gateway "$VM_GATEWAY" \
+    --vm-prefix "$VM_PREFIX-dip" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type "$BUILD_TYPE" \
+    --vm-datastore "$VCENTER_DATASTORE"
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-all"
+
+DIP Run Python Unit Tests:
+  tags:
+    - tfplenum-buildv2
+  stage: unit-test
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
+  allow_failure: true
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-all"
+
+DIP Kickstart:
+  stage: kickstart
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-kickstart \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $DIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-prefix "$VM_PREFIX" \
+    --gateway "$VM_GATEWAY" \
+    --num-servers $NUM_SERVERS \
+    --num-sensors $NUM_SENSORS \
+    --server-cpu $SERVER_CPU \
+    --server-mem $SERVER_MEM \
+    --sensor-cpu $SENSOR_CPU \
+    --sensor-mem $SENSOR_MEM \
+    --vm-datastore "$VCENTER_DATASTORE"
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - dipnodestoscan.txt
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-all"
+
+DIP Kit:
+  stage: kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-kit
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+      - dipnodestoscan.txt
+  only:
+    variables:
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-all"
+
+Perform DIP Security Scans:
+  stage: security_scans
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/testy-tester/run_acas.py \
+    --ipaddress "$ACAS_IPADDRESS" \
+    --username "$ACAS_USERNAME" \
+    --password "$ACAS_PASSWORD" \
+    --scan_name "$DIP_ACAS_SCAN_TO_RUN" \
+    --report-name "DIP_ACAS_Report.pdf" \
+    --nodes-to-scan $(cat dipnodestoscan.txt)
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - dipnodestoscan.txt
+    policy: pull
+  only:
+    variables:
+      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip"
+      - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
+  artifacts:
+    paths:
+      - "DIP_ACAS_Report.pdf"
+
+CVAH Catalog:
+  stage: catalog
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog suricata
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-capture
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-viewer
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog zeek
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog logstash
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+
+System Function Testing:
+  stage: integration-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py run-integration-tests
+  only:
+    variables:
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+    policy: pull
+  artifacts:
+    paths:
+      - "./*.xml"
+    reports:
+      junit: "./*.xml"
+
+Simulate Power Failure:
+  stage: test-powerfailure
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" simulate-power-failure
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+
+System Function Testing2:
+  stage: rerun-integration-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+  artifacts:
+    paths:
+      - "./*.xml"
+    reports:
+      junit: "./*.xml"
+
+DIP Cleanup:
+  stage: cleanup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup
+  when: always
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_dip.yml
+      - kickstartsettings.yml
+      - kitsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip"
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"

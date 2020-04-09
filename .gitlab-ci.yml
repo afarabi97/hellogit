@@ -3,32 +3,36 @@
 
 variables:
   LABREPO_HOST: "labrepo.sil.lab"
-  TFPLENUM_EXPORT_LOC: "/mnt/drive_creation/"
-  TFPLENUM_DOC_EXPORT_LOC: "/mnt/drive_creation/"
+  DIP_EXPORT_LOC: "/mnt/drive_creation/dip"
+  MIP_EXPORT_LOC: "/mnt/drive_creation/mip"
+  DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
+  MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
   TFPLENUM_EXPORT_VERSION: RC
-  TFPLENUM_MIP_EXPORT_VERSION: MIP_RC
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
-  PIPELINE: "developer"
+  PIPELINE: "developer-dip"
   BUILD_TYPE: "clone_from_nightly"
   IS_CLEANUP: "false"
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
-  NETWORK_BLOCK_INDEX: 0
+  DIP_NETWORK_BLOCK_INDEX: 0
+  MIP_NETWORK_BLOCK_INDEX: 1
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   ACAS_IPADDRESS: "172.16.82.15"
   ACAS_USERNAME: "acas"
   ACAS_PASSWORD: "we.are.tfplenum"
-  ACAS_SCAN_TO_RUN: "TFPlenum Dynamic Scan"
+  DIP_ACAS_SCAN_TO_RUN: "DIP Dynamic Scan"
+  MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
   RUN_ACAS: "false"
+  RUN_INTEGRATION: "false"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
   VCENTER_DATACENTER: "DEV_Datacenter"
   VCENTER_PORTGROUP: "12-Dev2-Navarro"
   VCENTER_DATASTORE: "dev-vol02"
-  TEMPLATE_TO_CLONE: "dip-ctrl.lan"
-  MIP_TEMPLATE_TO_CLONE: "jdms-nightly-mip-ctrl.lan"
+  DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl.lan"
+  MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl.lan"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
 
@@ -51,6 +55,7 @@ variables:
   SERVER_MEM: 30720
   SENSOR_CPU: 24
   SENSOR_MEM: 30720
+  NUM_MIPS: 1
 
 stages:
   - code-analysis
@@ -59,7 +64,6 @@ stages:
   - docs
   - kickstart
   - kit
-  - mip_config
   - security_scans
   - catalog
   - unit-test
@@ -73,405 +77,10 @@ stages:
 
 include:
   - local: code-analysis.yml
+  - local: dip.gitlab-ci.yml
   - local: mip.gitlab-ci.yml
-
-Create artifacts folder:
-  stage: pre-build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    rm -f "$TFPLENUM_EXPORT_LOC"/*
-    mkdir -p "$TFPLENUM_EXPORT_LOC/"
-
-    rm -f "$TFPLENUM_DOC_EXPORT_LOC"/*
-    mkdir -p "$TFPLENUM_DOC_EXPORT_LOC/"
-  only:
-    variables:
-      - $PIPELINE == "export"
-
-Setup Nightly Controller:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-template "$TEMPLATE_TO_CLONE" \
-    --gateway "$VM_GATEWAY" \
-    --vm-prefix "$VM_PREFIX" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type build_from_scratch \
-    --vm-datastore "$VCENTER_DATASTORE"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "daily_build"
-
-Build Offline Documentation:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-export export-html-docs \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
-
-    python3 testing/pipeline/pipeline.py run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "6.8.1.2 DIP System Setup" "6.8.1.1 MIP System Setup" "6.8.2.1 DIP System Operation" "6.8.2.2 MIP System Operation" "6.8.9.4 Windows Agent Plugin Guide" "6.8.9.5 Helm Integration" "6.8.9.2 Setup Controller"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export"
-
-Ship Phyical Stack Build:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip infrastucture/
-    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION.zip "$TFPLENUM_EXPORT_LOC"
-  only:
-    variables:
-      - $PIPELINE == "export"
-
-Setup Controller:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    echo "tfplenum-cache-${CI_PIPELINE_ID}"
-
-    echo "VM_PREFIX is $VM_PREFIX"
-    python3 testing/pipeline/pipeline.py setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-template "$TEMPLATE_TO_CLONE" \
-    --gateway "$VM_GATEWAY" \
-    --vm-prefix "$VM_PREFIX" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type "$BUILD_TYPE" \
-    --vm-datastore "$VCENTER_DATASTORE"
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "export"
-      - $PIPELINE == "developer"
-
-Run Python Unit Tests:
-  tags:
-    - tfplenum-buildv2
-  stage: unit-test
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-unit-tests
-  allow_failure: true
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
-
-Add Docs to Controller:
-  stage: docs
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-export add-docs-to-controller \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --export-path "$TFPLENUM_DOC_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "export"
-  retry: 2
-  artifacts:
-    paths:
-      - "htmlcov.zip"
-
-Kickstart:
-  stage: kickstart
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    echo "VM_PREFIX is $VM_PREFIX"
-    python3 testing/pipeline/pipeline.py run-kickstart \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-prefix "$VM_PREFIX" \
-    --gateway "$VM_GATEWAY" \
-    --num-servers $NUM_SERVERS \
-    --num-sensors $NUM_SENSORS \
-    --server-cpu $SERVER_CPU \
-    --server-mem $SERVER_MEM \
-    --sensor-cpu $SENSOR_CPU \
-    --sensor-mem $SENSOR_MEM \
-    --vm-datastore "$VCENTER_DATASTORE"
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - nodestoscan.txt
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
-
-Deploy Kit:
-  stage: kit
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-kit
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-      - nodestoscan.txt
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-      - $PIPELINE == "developer"
-
-Perform Security Scans:
-  stage: security_scans
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/testy-tester/run_acas.py \
-    --ipaddress "$ACAS_IPADDRESS" \
-    --username "$ACAS_USERNAME" \
-    --password "$ACAS_PASSWORD" \
-    --scan_name "$ACAS_SCAN_TO_RUN" \
-    --nodes-to-scan $(cat nodestoscan.txt)
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - nodestoscan.txt
-    policy: pull
-  only:
-    variables:
-      - $RUN_ACAS == "true"
-  artifacts:
-    paths:
-      - "TFPlenum_ACAS_Report.pdf"
-
-CVAH Catalog:
-  stage: catalog
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-catalog suricata
-    python3 testing/pipeline/pipeline.py run-catalog moloch-capture
-    python3 testing/pipeline/pipeline.py run-catalog moloch-viewer
-    python3 testing/pipeline/pipeline.py run-catalog zeek
-    python3 testing/pipeline/pipeline.py run-catalog logstash
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-
-System Function Testing:
-  stage: integration-test
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-integration-tests
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-    policy: pull
-  artifacts:
-    paths:
-      - "./*.xml"
-    reports:
-      junit: "./*.xml"
-
-Simulate Power Failure:
-  stage: test-powerfailure
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py simulate-power-failure
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-
-System Function Testing2:
-  stage: rerun-integration-test
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-integration-tests
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "virtual_build_and_test"
-  artifacts:
-    paths:
-      - "./*.xml"
-    reports:
-      junit: "./*.xml"
-
-Cleanup Job:
-  stage: cleanup
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-cleanup
-  when: always
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-      - kickstartsettings.yml
-      - kitsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $IS_CLEANUP == "true"
-
-Export Controller:
-  stage: export
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-export export-ctrl \
-    --export-path "$TFPLENUM_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
-  cache:
-    key: tfplenum-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings.yml
-    policy: pull
-  only:
-    variables:
-      - $PIPELINE == "export"
-
-Generate Versions File:
-  stage: hashfiles
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-export generate-versions-file \
-    --export-path "$TFPLENUM_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
-  only:
-    variables:
-      - $PIPELINE == "export"
+  - local: dip.export.gitlab-ci.yml
+  - local: mip.export.gitlab-ci.yml
 
 Create Master Drive:
   stage: publish

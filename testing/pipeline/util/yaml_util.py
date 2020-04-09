@@ -37,7 +37,7 @@ class YamlManager:
     def save_to_yaml(cls, some_model: Model, application:str=None):
         cls._initalize()
         if application:
-            yaml_name = "{}_{}.yml".format(some_model.__class__.__name__.lower(), application)
+            yaml_name = "{}_{}.yml".format(some_model.__class__.__name__.lower(), application.lower())
         else:
             yaml_name = "{}.yml".format(some_model.__class__.__name__.lower())
         with open(yaml_name, 'w') as outfile:
@@ -52,8 +52,8 @@ class YamlManager:
         return some_model
 
     @classmethod
-    def load_ctrl_settings_from_yaml(cls) -> ControllerSetupSettings:
-        yaml_name = "{}.yml".format(ControllerSetupSettings.__name__.lower())
+    def load_ctrl_settings_from_yaml(cls, application:str) -> ControllerSetupSettings:
+        yaml_name = "{}_{}.yml".format(ControllerSetupSettings.__name__.lower(), application.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
