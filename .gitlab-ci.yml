@@ -29,6 +29,7 @@ variables:
   VCENTER_DATASTORE: "dev-vol02"
   TEMPLATE_TO_CLONE: "dip-ctrl.lan"
   MIP_TEMPLATE_TO_CLONE: "jdms-nightly-mip-ctrl.lan"
+  MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
 
   #Master Drive Creation Variables

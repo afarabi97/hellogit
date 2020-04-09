@@ -113,6 +113,7 @@ Configure MIPs:
     echo "IP of runner is $(hostname -i | awk '{print $2}')"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py run-mip-config \
+    --operator-type "$MIP_OPERATOR_TYPE"
   only:
     variables:
       - $PIPELINE == "jdms-mip-developer"

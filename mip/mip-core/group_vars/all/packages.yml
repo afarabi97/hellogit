@@ -65,6 +65,12 @@ packages:
   - libsmi
   - wireshark
 
+dependent_packages:
+  - gtk3-immodule-xim
+  - libkadm5
+  - krb5-workstation
+
+
 cpt_packages:
   - container-selinux
   - containernetworking-plugins

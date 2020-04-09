@@ -29,11 +29,15 @@
 
 - name: Download Main Packages
   shell: |
-    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ tfplenum_repo_dir }}/Packages --resolve  --archlist=x86_64 {{ packages | join(' ') }}
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ tfplenum_repo_dir }}/Packages --resolve --archlist=x86_64 {{ packages | join(' ') }}
 
 - name: Download CPT packages
   shell: |
-    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ tfplenum_repo_dir }}/Packages --archlist=x86_64 {{ cpt_packages | join(' ') }}
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ tfplenum_repo_dir }}/Packages --resolve --archlist=x86_64 {{ cpt_packages | join(' ') }}
+
+- name: Download dependent packages
+  shell: |
+    yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ tfplenum_repo_dir }}/Packages --resolve --archlist=x86_64 {{ dependent_packages | join(' ') }}
 
 - name: Get packages from RedHat
   shell: |

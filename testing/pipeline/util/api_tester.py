@@ -528,4 +528,4 @@ class MIPAPITester(APITester):
 
         payload = self._mip_config_payload_generator.generate()
         response = post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
-        wait_for_mongo_job("Mipconfig", self._controller_ip, 60)
+        wait_for_mongo_job("Mipconfig", self._controller_ip, 180)

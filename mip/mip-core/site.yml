@@ -124,11 +124,6 @@
     - MDT
     - CPT
 
-- name: Install McAfee software
-  hosts: mips
-  roles:
-    - 100_mcafee
-
 - name: Install COTS software for MDT and CPT
   hosts: mips
   roles:
@@ -140,6 +135,11 @@
   tags:
     - MDT
     - CPT
+
+- name: Install McAfee software
+  hosts: mips
+  roles:
+    - 100_mcafee
     
 - name: Install third party software CPT only
   hosts: mips
