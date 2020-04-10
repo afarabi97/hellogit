@@ -74,11 +74,8 @@ spec:
   image: elasticsearch/elasticsearch:{{elastic_7_version}}
   http:
     tls:
-      selfSignedCertificate:
-        subjectAltNames:
-        - dns: {{elastic_fqdn}}
-        - dns: {{elastic_headless_fqdn}}
-        - dns: elasticsearch.lan
+      certificate:
+        secretName: elasticsearch-certificate
   nodeSets:
   - name: master
     count: {{es_master_count}}

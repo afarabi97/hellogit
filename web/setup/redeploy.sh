@@ -14,4 +14,5 @@ source ./common.in
 _deploy_angular_application
 _restart_services
 
+cp -f /opt/tfplenum/web/setup/loadWebCA.sh /var/www/html/loadWebCA.sh
 popd > /dev/null

@@ -29,9 +29,11 @@ data:
     setup.dashboards.enabled: true
     setup.kibana.host: "https://{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
     setup.kibana.ssl.enabled: true
-    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/kibana-ca.crt"]
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+    # ssl.certificate: "/etc/ssl/certs/filebeat.crt"
+    # ssl.key: "/etc/ssl/certs/filebeat.key"
 
     #================================ Outputs =====================================
 
@@ -40,7 +42,9 @@ data:
       hosts: ["https://{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+      # ssl.certificate: "/etc/ssl/certs/filebeat.crt"
+      # ssl.key: "/etc/ssl/certs/filebeat.key"
       worker: 6
       bulk_max_size: 4096
       compression_level: 3
@@ -56,3 +60,8 @@ data:
       elasticsearch:
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
+    #   username: ""
+    #   ssl:
+    #     ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+    #     ssl.certificate: "/etc/ssl/certs/filebeat.crt"
+    #     ssl.key: "/etc/ssl/certs/filebeat.key"

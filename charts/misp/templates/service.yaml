@@ -10,8 +10,8 @@ spec:
     component: {{ .Release.Name }}
   ports:
   - name: misp-https
-    port: 80
-    targetPort: 80
+    port: 443
+    targetPort: 443
     protocol: TCP
   - name: misp-modules
     port: 6666

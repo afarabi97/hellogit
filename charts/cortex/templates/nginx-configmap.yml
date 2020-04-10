@@ -1,0 +1,42 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nginx
+  labels:
+    component: {{ .Release.Name }}
+data:
+  default.conf: |
+    # Upstreams
+    upstream backend {
+        server 127.0.0.1:{{ .Values.corex_port }};
+    }
+
+    # HTTPS Server
+    server {
+        listen 443 ssl;
+        server_name {{ .Release.Name }}.lan;
+
+        # You can increase the limit if your need to.
+        client_max_body_size 200M;
+
+        ssl_certificate /tmp/bundle.crt;
+        ssl_certificate_key /etc/ssl/certs/cortex.key;
+        ssl_protocols TLSv1.2 TLSv1.3; # don’t use SSLv3 ref: POODLE
+
+        location / {
+            proxy_pass http://backend/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forward-Proto http;
+            proxy_set_header X-Nginx-Proxy true;
+
+            proxy_redirect off;
+        }
+    }

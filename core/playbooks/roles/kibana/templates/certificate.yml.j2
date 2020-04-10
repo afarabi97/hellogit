@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  name: kibana
+  namespace: default
+spec:
+  # Secret names are always required.
+  secretName: kibana-certificate
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: kibana
+  subject:
+   organizations:
+   - "CVA/H"
+   countries:
+   - "US"
+  isCA: false
+  keySize: 2048
+  keyAlgorithm: rsa
+  keyEncoding: pkcs1
+  usages:
+    - server auth
+  dnsNames:
+  - kibana
+  - kibana.lan
+  - kibana.{{ fqdn }}
+  - kibana-headless.{{ fqdn }}
+  issuerRef:
+    name: webca-issuer
+    kind: Issuer
+    group: cert-manager.io

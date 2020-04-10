@@ -10,6 +10,16 @@ data:
   config.yml: |
     port: 3000
     bindIP: 0.0.0.0
+    ssl:
+      enabled: true
+      port: 3443
+      provider: custom
+
+      format: pem
+      key: /etc/ssl/certs/wikijs.key
+      cert: /etc/ssl/certs/wikijs.crt
+      passphrase: null
+      dhparam: null
     db:
       type: $(DB_TYPE)
       host: $(DB_HOST)

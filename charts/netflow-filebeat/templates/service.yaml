@@ -11,5 +11,6 @@ spec:
   ports:
   - name: netflow
     port: {{ .Values.netflow_port }}
+    targetPort: {{ .Values.netflow_port }}
     protocol: UDP
   type: LoadBalancer

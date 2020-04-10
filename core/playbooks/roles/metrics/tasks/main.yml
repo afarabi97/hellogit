@@ -18,9 +18,14 @@
   loop:
     - kube-state-metrics.yaml
     - metricbeat-kubernetes.yaml
+    - certificate.yml
 
 - name: Flush services
-  command: "kubectl delete -f {{ metrics_dir }}/kube-state-metrics.yaml -f {{ metrics_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
+  command: "kubectl delete -f {{ metrics_dir }}/certificate.yml -f {{ metrics_dir }}/kube-state-metrics.yaml -f {{ metrics_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
+
+- name: Install Metricbeat Certificate
+  shell: |
+    kubectl apply -f {{ metrics_dir }}/certificate.yml
 
 - name: Deploy services
   include_role:

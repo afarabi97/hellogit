@@ -1,6 +1,32 @@
 ---
+- name: Create install directory
+  file:
+    path: "{{ chartmuseum_install_dir }}"
+    owner: root
+    group: root
+    mode: 0644
+    state: directory
 
-- name: Create directory
+- name: Copy Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ chartmuseum_install_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - certificate.yml
+    - patch.json
+
+- name: Install Chartmuseum Certificate
+  shell: |
+    kubectl apply -f {{ chartmuseum_install_dir }}/certificate.yml
+
+- name: Read Patch JSON file
+  shell: "cat {{ chartmuseum_install_dir }}/patch.json"
+  register: patch_json
+
+- name: Create data directory
   file:
     path: "{{chartmuseum_data_dir}}"
     owner: "1000"
@@ -17,7 +43,7 @@
   command: "helm install chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
 
 - name: Patching Chartmuseum
-  command: kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='[{"op":"replace","path":"/spec/template/spec/volumes/0","value":{"name":"storage-volume","hostPath":{"path":"{{chartmuseum_data_dir}}","type":"DirectoryOrCreate"}}}]'
+  command: "kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='{{ patch_json.stdout }}'"
 
 - name: Wait for service to be ready
   wait_for:

@@ -50,7 +50,7 @@ spec:
         image: {{ .Values.wikijsImage }}
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3000
+        - containerPort: 3443
         command:
         - "/bin/bash"
         - "-c"
@@ -69,7 +69,7 @@ spec:
         - name: DB_TYPE
           value: "mariadb"
         - name: URL
-          value: http://{{ .Release.Name }}.lan
+          value: https://{{ .Release.Name }}.lan
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -96,6 +96,18 @@ spec:
         - name: wikijs
           mountPath: /wiki/data
           subPath: wiki-content
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/wikijs.crt
+          readOnly: true
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/wikijs.key
+          readOnly: true
+          subPath: tls.key
       nodeSelector:
         role: "server"
       volumes:
@@ -106,6 +118,11 @@ spec:
       - name: wikijs-secret
         secret:
           secretName: {{ .Release.Name }}-secret
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-certificate
       - name: wikijs
         hostPath:
           path: /data/wikijs

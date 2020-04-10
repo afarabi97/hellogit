@@ -30,7 +30,9 @@ function install_winlogbeat() {
     $wlb_path = "C:\Program Files\$Script:wlb_archive"
 
     [string]$wlb_config = $wlb_path + "\winlogbeat.yml"
+    [string]$webCA = $wlb_path + "\webCA.crt"
     Copy-Item -Path .\winlogbeat.yml -Destination $wlb_config  -Force
+    Copy-Item -Path .\webCA.crt -Destination $webCA  -Force
 
     & C:\'Program Files'\$Script:wlb_archive\install-service-winlogbeat.ps1
 

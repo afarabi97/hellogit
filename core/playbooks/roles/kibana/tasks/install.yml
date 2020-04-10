@@ -8,13 +8,16 @@
     mode: u+rw,g+rw
     state: directory
 
-- name: Copy Kibana Template
+- name: Copy Kibana Templates
   template:
-    src: "templates/kibana.yml.j2"
-    dest: "{{ kibana_dir }}/kibana.yml"
+    src: "templates/{{ item }}.j2"
+    dest: "{{ kibana_dir }}/{{ item }}"
     owner: root
     group: root
     mode: u+rw,g+rw
+  with_items:
+    - kibana.yml
+    - certificate.yml
 
 - name: Copy files
   copy:
@@ -26,14 +29,9 @@
   tags:
     - kibana-saved-objects
 
-
-# - set_fact:
-#     kibana_secret: "{{ lookup('password', '/dev/null length=64 chars=ascii_letters,digits') }}"
-
-# - name: Create Kibana Secret
-#   shell: |
-#     kubectl create secret generic kibana-secret-settings \
-#     --from-literal=xpack.security.encryptionKey={{kibana_secret}}
+- name: Install Kibana Certificate
+  shell: |
+    kubectl apply -f {{ kibana_dir }}/certificate.yml
 
 - name: Install Kibana
   shell: |

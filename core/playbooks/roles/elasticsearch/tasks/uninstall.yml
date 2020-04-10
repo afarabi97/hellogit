@@ -9,6 +9,9 @@
     - "kubectl delete svc -l component=elasticsearch"
     - "kubectl delete svc -l component=elasticsearch-headless"
     - "kubectl delete svc -l component=kibana"
+    - "kubectl delete certificate elasticsearch"
+    - "kubectl delete secret elasticsearch-certificate"
+
 
 - name: Delete Additional ES Secrets
   command: "kubectl delete secret {{ item }} --ignore-not-found"

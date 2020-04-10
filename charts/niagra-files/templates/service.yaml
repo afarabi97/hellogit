@@ -6,9 +6,9 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   ports:
-  - name: "webgui"
-    port: 80
-    targetPort: {{ .Values.nifi_port }}
+  - name: https
+    port: 443
+    targetPort: 443
   selector:
     component: {{ .Release.Name }}
   type: LoadBalancer

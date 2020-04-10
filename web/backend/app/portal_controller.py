@@ -46,9 +46,9 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     elif dns == "moloch.lan":
         logins = get_app_credentials('moloch-viewer','username','password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "kubernetes-dashboard.lan":
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': ''})
@@ -57,15 +57,15 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     elif dns == "hive.lan":
         logins = get_app_credentials('hive','superadmin_username','superadmin_password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "cortex.lan":
         logins = get_app_credentials('cortex','superadmin_username','superadmin_password')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip + ":9001", 'dns': HTTP_STR + dns + ":9001", 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "kibana.lan":
         password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)
@@ -76,27 +76,39 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     elif dns == "redmine.lan":
         logins = 'admin/admin'
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "misp.lan":
         logins = get_app_credentials('misp','admin_user','admin_pass')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "wikijs.lan":
         logins = get_app_credentials('wikijs','admin_email','admin_pass')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif dns == "mattermost.lan":
         logins = get_app_credentials('mattermost','admin_user','admin_pass')
         if ip:
-            portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
-            portal_links.append({'ip': '', 'dns': HTTP_STR + dns, 'logins': logins})
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
+    elif dns == "rocketchat.lan":
+        logins = get_app_credentials('rocketchat','admin_user','admin_pass')
+        if ip:
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
+    elif dns == "niagra-files.lan":
+        logins = ''
+        if ip:
+            portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR +  dns, 'logins': logins})
+        else:
+            portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     else:
         if ip:
             portal_links.append({'ip': HTTP_STR + ip, 'dns': HTTP_STR + dns, 'logins': ''})

@@ -4,6 +4,7 @@ elastic_image: elasticsearch:6.8.0
 cortex_image: thehiveproject/cortex:3.0.0
 corex_port: 9001
 hive_image: thehiveproject/thehive:3.4.0
+nginx_image: nginx:1.17.9
 hive_port: 9000
 elastic_port: 9200
 superadmin_username: admin
@@ -13,4 +14,3 @@ org_admin_username: admin_thehive
 org_admin_password: password!
 org_user_username: user_thehive
 org_user_password: password!
-

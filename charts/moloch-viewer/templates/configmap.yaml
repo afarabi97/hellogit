@@ -10,7 +10,7 @@ data:
   config.ini: |
     [default]
     elasticsearch=https://{{ .Values.es_user }}:{{ .Values.es_password }}@{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
-    caTrustFile=/etc/ssl/certs/elasticsearch-ca.crt
+    caTrustFile=/etc/ssl/certs/webCA.crt
     rotateIndex=hourly6
     passwordSecret=default-password
     httpRealm=Moloch
@@ -47,3 +47,7 @@ data:
     pcapReadMethod=tpacketv3
     tpacketv3NumThreads=2
     maxPacketsInQueue={{ .Values.maxPacketsInQueue }}
+    # Cert file to use, comment out to use http instead
+    certFile=/etc/ssl/certs/moloch.crt
+    # Private key file to use, comment out to use http instead
+    keyFile=/etc/ssl/certs/moloch.key

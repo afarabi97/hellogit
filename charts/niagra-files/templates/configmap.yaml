@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}
 data:
+  setup.sh: |
+    #!/bin/sh
+    sed -i -e 's@./conf/flow.xml.gz@./flowfile_repository/flow.xml.gz@g' {{ .Values.nifi_base_dir }}/conf/nifi.properties
+
   nifi.properties: |
     # Licensed to the Apache Software Foundation (ASF) under one or more
     # contributor license agreements.  See the NOTICE file distributed with

@@ -43,7 +43,7 @@
 
 - name: load charts
   uri:
-    url: http://chartmuseum.lan:8080/api/charts
+    url: https://chartmuseum.lan:8080/api/charts
     src: "{{ item.path }}"
     method: POST
     status_code: 201

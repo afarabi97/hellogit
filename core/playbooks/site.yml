@@ -209,6 +209,34 @@
   tags:
     - common
 
+- name: Create Certificate Authority
+  hosts: localhost
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  tasks:
+    - import_role:
+        name: certificate_authority/localhost
+        tasks_from: create_ca
+    - import_role:
+        name: certificate_authority/localhost
+        tasks_from: create_controller_cert
+  tags:
+    - certificate_authority
+
+- name: Configure CA on all systems
+  hosts:
+    - localhost
+    - servers
+    - sensors
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - certificate_authority/common
+  tags:
+    - certificate_authority
+
 - name: OpenVPN
   hosts:
     - master_server
@@ -261,6 +289,18 @@
     - kubernetes/node
   tags:
     - kube-node
+
+- name: Install Cert Manager
+  hosts: localhost
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  tasks:
+    - import_role:
+        name: certificate_authority/localhost
+        tasks_from: cert_manager
+  tags:
+    - certificate_authority
 
 - name: helm
   any_errors_fatal: true

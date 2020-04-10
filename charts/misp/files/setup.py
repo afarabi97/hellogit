@@ -4,7 +4,7 @@ import time
 import os
 import subprocess
 
-URI="http://localhost"
+URI="https://localhost"
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
 api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
@@ -21,14 +21,14 @@ def post(url=None, data=None, requires_auth=False):
             c += 1
             if data and requires_auth:
                 headers['Authorization'] = api_key
-                r = requests.post(url, json=data,headers=headers)
+                r = requests.post(url, json=data,headers=headers,verify=False)
             elif data is None and requires_auth:
                 headers['Authorization'] = api_key
-                r = requests.post(url,headers=headers)
+                r = requests.post(url,headers=headers,verify=False)
             elif data and requires_auth == False:
-                r = requests.post(url, json=data)
+                r = requests.post(url, json=data,verify=False)
             else:
-                r = requests.post(url)
+                r = requests.post(url,verify=False)
 
             print(str(r.status_code) + " " + r.text)
 
@@ -50,9 +50,9 @@ def get(url=None, requires_auth=False):
             c += 1
             if requires_auth:
                 headers['Authorization'] = api_key
-                r = requests.get(url,headers=headers)
+                r = requests.get(url,headers=headers,verify=False)
             else:
-                r = requests.get(url,headers=headers)
+                r = requests.get(url,headers=headers,verify=False)
 
             print(str(r.status_code) + " " + r.text)
 
@@ -69,7 +69,7 @@ def get_status():
     while True:
         print("Waiting for MISP to becoming ready...")
         try:
-            r = requests.get(URI + "/admin/users",headers=headers,timeout=3)
+            r = requests.get(URI + "/admin/users",headers=headers,timeout=3,verify=False)
             if r.status_code == 200 or r.status_code == 403 or r.status_code == 401:
                 return True
             time.sleep(2)

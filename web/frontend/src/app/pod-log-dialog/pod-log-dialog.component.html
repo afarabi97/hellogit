@@ -4,7 +4,7 @@
     <mat-tab *ngFor="let container of info" label="{{ container.name }}">
       <pre>
         <div style="overflow-x: auto">
-          {{ container.logs.trim() }}
+{{ container.logs }}
         </div>
       </pre>
     </mat-tab>

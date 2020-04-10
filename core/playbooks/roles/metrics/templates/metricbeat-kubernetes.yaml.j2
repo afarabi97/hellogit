@@ -31,7 +31,9 @@ data:
       hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+    # ssl.certificate: "/etc/ssl/certs/metricbeat.crt"
+    # ssl.key: "/etc/ssl/certs/metricbeat.key"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -164,10 +166,18 @@ spec:
         - name: cgroup
           mountPath: /hostfs/sys/fs/cgroup
           readOnly: true
-        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
-          name: elasticsearch-certs
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
           readOnly: true
           subPath: ca.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/metricbeat.crt
+          readOnly: true
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/metricbeat.key
+          readOnly: true
+          subPath: tls.key
       volumes:
       - name: proc
         hostPath:
@@ -190,11 +200,11 @@ spec:
         hostPath:
           path: /var/lib/metricbeat-data
           type: DirectoryOrCreate
-      - name: elasticsearch-certs
+      - name: webca
         secret:
           defaultMode: 420
           optional: false
-          secretName: tfplenum-es-http-certs-public
+          secretName: metricbeat-cluster-certificate
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -220,7 +230,7 @@ data:
     setup.dashboards.enabled: true
     setup.kibana.host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
     setup.kibana.ssl.enabled: true
-    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/kibana-ca.crt"]
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
 
@@ -228,7 +238,9 @@ data:
       hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+    # ssl.certificate: "/etc/ssl/certs/metricbeat.crt"
+    # ssl.key: "/etc/ssl/certs/metricbeat.key"
 
 ---
 apiVersion: v1
@@ -319,14 +331,18 @@ spec:
         - name: modules
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
-        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
-          name: elasticsearch-certs
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
           readOnly: true
           subPath: ca.crt
-        - mountPath: /etc/ssl/certs/kibana-ca.crt
-          name: kibana-certs
+        - name: webca
+          mountPath: /etc/ssl/certs/metricbeat.crt
           readOnly: true
-          subPath: ca.crt
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/metricbeat.key
+          readOnly: true
+          subPath: tls.key
       volumes:
       - name: config
         configMap:
@@ -336,16 +352,11 @@ spec:
         configMap:
           defaultMode: 0600
           name: metricbeat-deployment-modules
-      - name: elasticsearch-certs
+      - name: webca
         secret:
           defaultMode: 420
           optional: false
-          secretName: tfplenum-es-http-certs-public
-      - name: kibana-certs
-        secret:
-          defaultMode: 420
-          optional: false
-          secretName: tfplenum-kb-http-certs-public
+          secretName: metricbeat-cluster-certificate
       nodeSelector:
         role: server
 ---

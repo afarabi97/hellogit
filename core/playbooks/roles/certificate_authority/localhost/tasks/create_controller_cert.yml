@@ -1,0 +1,73 @@
+---
+- name: Generate Controller Certificate
+  block:
+  - name: Generate Controller private key
+    openssl_privatekey:
+      path: "{{ cert_manager_dir }}/controller.pem"
+      force: true
+
+  - name: Generate Controller CSR
+    openssl_csr:
+      path: "{{ cert_manager_dir }}/controller.csr"
+      privatekey_path: "{{ cert_manager_dir }}/controller.pem"
+      common_name: "controller"
+      country_name: US
+      organization_name: CVA/H
+      subject_alt_name:
+        - "DNS:controller"
+        - "DNS:controller.lan"
+      basic_constraints_critical: true
+      basic_constraints:
+        - "CA:FALSE"
+      create_subject_key_identifier: true
+      extended_key_usage:
+        - "serverAuth"
+      force: true
+
+  - name: Generate Controller certificate
+    openssl_certificate:
+      path: "{{ cert_manager_dir }}/controller.crt"
+      privatekey_path: "{{ cert_manager_dir }}/controller.pem"
+      csr_path: "{{ cert_manager_dir }}/controller.csr"
+      ownca_not_after: "+365d"
+      ownca_path: "{{ cert_manager_dir }}/webCA.crt"
+      ownca_privatekey_path: "{{ cert_manager_dir }}/webCA.pem"
+      provider: ownca
+      force: true
+
+- name: Update Controller Web Cert
+  block:
+  - name: Rename/Move Controller Web Cert
+    copy:
+      src: "{{ cert_manager_dir }}/controller.crt"
+      dest: "/etc/ssl/certs/controller.crt"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Update tfplenum.conf file
+    lineinfile:
+      path: "/etc/httpd/conf.d/tfplenum.conf"
+      regexp: '^ *SSLCertificateFile .*$'
+      line: '    SSLCertificateFile /etc/ssl/certs/controller.crt'
+
+- name: Update Controller Web Key
+  block:
+  - name: Rename/Move Controller Web Key
+    copy:
+      src: "{{ cert_manager_dir }}/controller.pem"
+      dest: "/etc/ssl/private/controller.key"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Update tfplenum.conf file
+    lineinfile:
+      path: "/etc/httpd/conf.d/tfplenum.conf"
+      regexp: '^ *SSLCertificateKeyFile .*$'
+      line: '    SSLCertificateKeyFile /etc/ssl/private/controller.key'
+
+- name: Reload Apache
+  service:
+    name: httpd
+    state: reloaded

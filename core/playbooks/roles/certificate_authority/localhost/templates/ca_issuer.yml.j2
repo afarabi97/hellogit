@@ -1,0 +1,8 @@
+apiVersion: cert-manager.io/v1alpha3
+kind: Issuer
+metadata:
+  name: webca-issuer
+  namespace: default
+spec:
+  ca:
+    secretName: {{ webca_secret }}

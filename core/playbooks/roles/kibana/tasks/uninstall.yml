@@ -6,6 +6,8 @@
   with_items:
     - "kubectl delete kibana.kibana.k8s.elastic.co/tfplenum"
     - "kubectl delete svc -l component=kibana"
+    - "kubectl delete certificate kibana"
+    - "kubectl delete secret kibana-certificate"
 
 - name: Delete Additional ES Secrets
   command: "kubectl delete secret {{ item }} --ignore-not-found"

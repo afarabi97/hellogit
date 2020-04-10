@@ -218,8 +218,8 @@ tries to restart.
         - name: beats-modules
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
-        - mountPath: /etc/ssl/certs/elasticsearch-ca.crt
-          name: elasticsearch-certs
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
           readOnly: true
           subPath: ca.crt
       restartPolicy: Always
@@ -252,11 +252,11 @@ tries to restart.
       - name: beats-config
         configMap:
           name: {{ .Release.Name }}-beats-config
-      - name: elasticsearch-certs
+      - name: webca
         secret:
           defaultMode: 420
           optional: false
-          secretName: tfplenum-es-http-certs-public
+          secretName: {{ .Release.Name }}-metricbeat-certificate
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

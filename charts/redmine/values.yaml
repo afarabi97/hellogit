@@ -2,8 +2,9 @@
 replicas: 1
 redmineImage: redmine:4.1.0
 postgresImage: postgres:12.2
-redmineExternalPort: 80
 redmineInternalPort: 3000
+### Nginx Config
+nginx_image: nginx:1.17.9
 
 # database variables
 postgresqlDatabase: redmine

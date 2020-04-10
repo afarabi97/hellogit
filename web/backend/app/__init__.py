@@ -32,7 +32,7 @@ conn_mng = MongoConnectionManager()
 LOG_FILENAME = "/var/log/tfplenum/tfplenum.log"
 logger = logging.getLogger('tfplenum_logger')
 SEQUENCE_ID_COUNTERS = ["rulesetid", "ruleid"]
-
+os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 
 def _setup_logger(log_handle: Logger, max_bytes: int=10000000, backup_count: int=10):
     """

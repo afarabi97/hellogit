@@ -1,0 +1,30 @@
+---
+- name: Copy Web CA to all hosts
+  copy:
+    src: "/var/www/html/webCA.crt"
+    dest: "/etc/pki/ca-trust/source/anchors"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Reload CA trust
+  command: "/bin/update-ca-trust"
+
+- name: Checking if crio is Installed
+  stat:
+    path: /usr/bin/crio
+  register: crio_installed
+  when: "'localhost' not in inventory_hostname"
+
+- name: Checking if crio is Installed
+  stat:
+    path: /usr/local/bin/crio
+  register: crio_installed
+  when: "'localhost' not in inventory_hostname"
+
+- name: Restart Cri-O
+  service:
+    name: crio
+    state: restarted
+  when: "'localhost' not in inventory_hostname and crio_installed.stat.exists"
+  ignore_errors: true

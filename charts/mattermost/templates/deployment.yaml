@@ -100,6 +100,18 @@ spec:
         - name: setup
           mountPath: /mattermost/config_file.sh
           subPath: config_file.sh
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/mattermost.crt
+          readOnly: true
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/mattermost.key
+          readOnly: true
+          subPath: tls.key
       nodeSelector:
         role: "server"
       volumes:
@@ -111,3 +123,8 @@ spec:
         configMap:
           name: {{ .Release.Name }}-setup
           defaultMode: 0777
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-certificate

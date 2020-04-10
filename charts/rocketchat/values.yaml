@@ -7,6 +7,10 @@ image:
   tag: 3.0.9
   pullPolicy: IfNotPresent
 
+nginxImage:
+  repository: nginx
+  tag: 1.17.9
+  pullPolicy: IfNotPresent
 ## Host for the application
 ##
 host: localhost
@@ -187,7 +191,7 @@ service:
   ## Optional static port assignment for service type NodePort.
   #nodePort: 30000
 
-  port: 80
+  port: 443
 
 nodeAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:

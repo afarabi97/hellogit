@@ -42,14 +42,6 @@
       owner: root
       group: root
 
-  - name: get elastic ca
-    shell: |
-      kubectl get secret tfplenum-es-http-certs-public -o jsonpath="{.data['ca\.crt']}" | base64 -d > /etc/ssl/certs/elasticsearch-ca.crt
-
-  - name: get elastic ca
-    shell: |
-      kubectl get secret tfplenum-kb-http-certs-public -o jsonpath="{.data['ca\.crt']}" | base64 -d > /etc/ssl/certs/kibana-ca.crt
-
   - name: Enable and Start Auditbeat
     service:
       name: auditbeat

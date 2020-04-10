@@ -10,7 +10,7 @@ spec:
     component: {{ .Release.Name }}
   ports:
   - name: mattermost-http
-    port: 80
+    port: 443
     targetPort: 8065
     protocol: TCP
   type: LoadBalancer

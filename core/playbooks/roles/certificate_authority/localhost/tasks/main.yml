@@ -1,0 +1,5 @@
+---
+
+- import_tasks: create_ca.yml
+- import_tasks: create_controller_cert.yml
+- import_tasks: cert_manager.yml

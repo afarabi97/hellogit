@@ -23,13 +23,6 @@
   register: docker_dist_config_result
   tags: pull-docker-images
 
-- name: Register Firewall Port
-  firewalld:
-    port: "{{ firewall_port }}/tcp"
-    permanent: true
-    immediate: true
-    state: enabled
-
 - name: Enable docker distribution service
   systemd:
     name: docker-distribution

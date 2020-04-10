@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all dev genkeys rerun common common-nokeys kubernetes elasticsearch kibana metrics kubernetes-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes certificate_authority elasticsearch kibana metrics kubernetes-rerun certificate_authority-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
 
 # Default target, build *and* run tests
 all:
@@ -45,6 +45,9 @@ openvpn:
 
 kubernetes:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
+
+certificate_authority:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority
 
 helm:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm
@@ -87,6 +90,9 @@ crio-rerun:
 
 kubernetes-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
+
+certificate_authority-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 helm-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup

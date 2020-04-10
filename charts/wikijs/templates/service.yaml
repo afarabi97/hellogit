@@ -8,8 +8,8 @@ spec:
   selector:
     component: {{ .Release.Name }}
   ports:
-  - name: wikijs-http
-    port: 80
-    targetPort: 3000
+  - name: wikijs-https
+    port: 443
+    targetPort: 3443
     protocol: TCP
   type: LoadBalancer

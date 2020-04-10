@@ -9,8 +9,8 @@ spec:
   selector:
     component: {{ .Release.Name }}
   ports:
-  - name: hive
-    port: 80
-    targetPort: {{ .Values.hive_port }}
+  - name: https
+    port: 443
+    targetPort: 443
     protocol: TCP
   type: LoadBalancer

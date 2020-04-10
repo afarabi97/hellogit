@@ -120,6 +120,7 @@ RUN cp /var/www/MISP/INSTALL/apache.misp.ubuntu /etc/apache2/sites-available/mis
     a2ensite misp && \
     a2enmod rewrite && \
     a2enmod headers && \
+    a2enmod ssl && \
     a2enmod shib
 
 # MISP base configuration

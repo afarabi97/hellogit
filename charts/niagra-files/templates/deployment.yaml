@@ -46,25 +46,56 @@ spec:
           mountPath: {{ .Values.nifi_base_dir }}/state
           subPath: state
       containers:
+      - name: niagra-files-nginx
+        image: "{{ .Values.nginx_image }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: https
+          containerPort: 443
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "cat /etc/ssl/certs/niagra-files.crt /etc/ssl/certs/webCA.crt > /tmp/bundle.crt && exec nginx -g 'daemon off;'"
+        volumeMounts:
+        - name: nginx-configmap
+          mountPath: "/etc/nginx/conf.d/default.conf"
+          subPath: default.conf
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/niagra-files.crt
+          readOnly: true
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/niagra-files.key
+          readOnly: true
+          subPath: tls.key
       - name: niagra-files
         image: "{{ .Values.nifi_image }}:{{ .Values.nifi_version }}"
         imagePullPolicy: IfNotPresent
         command:
         - "/bin/sh"
         - "-c"
-        - "sed -i -e 's@./conf/flow.xml.gz@./flowfile_repository/flow.xml.gz@g' {{ .Values.nifi_base_dir }}/conf/nifi.properties;/opt/nifi/scripts/start.sh"
-
-       # resources:
-       #   requests:
-       #     cpu: {{ .Values.cpu_request }}m
+        - "/setup.sh; /opt/nifi/scripts/start.sh"
         ports:
-        - containerPort: {{ .Values.nifi_port }}
-          name: webgui
+        - name: webgui
+          containerPort: {{ .Values.nifi_port }}
+        env:
+        - name: NIFI_WEB_HTTP_HOST
+          value: localhost
         volumeMounts:
         # - name: config
         #   subPath: nifi.properties
         #   mountPath: {{ .Values.nifi_base_dir }}/conf/nifi.properties
         #   readOnly: true
+        - name: config
+          mountPath: /setup.sh
+          subPath: setup.sh
+          readOnly: true
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
           subPath: logs
@@ -90,13 +121,23 @@ spec:
       nodeSelector:
         role: server
       volumes:
-      # - name: config
-      #   configMap:
-      #     name: {{.Release.Name}}
+      - name: config
+        configMap:
+          name: {{.Release.Name}}
+          defaultMode: 0777
       - name: nifi-data
         hostPath:
           path: {{ .Values.path }}
           type: DirectoryOrCreate
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-certificate
+      - name: nginx-configmap
+        configMap:
+          name: {{ .Release.Name }}-nginx
+          defaultMode: 0444
 # -------
 # apiVersion: apps/v1
 # kind: Deployment

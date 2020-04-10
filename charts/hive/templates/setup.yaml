@@ -7,3 +7,32 @@ metadata:
 data:
   setup.py: |
 {{ .Files.Get "files/setup.py" | indent 4 }}
+
+  init-cortex1.sh: |
+    #!/bin/bash
+    curl -o /tmp/api/cortex_api.txt -XGET -u ${CORTEX_SUPERADMIN_USERNAME}:${CORTEX_SUPERADMIN_PASSWORD} --cacert /etc/ssl/certs/webCA.crt https://cortex.default.svc.cluster.local/api/user/${CORTEX_USER_USERNAME}/key
+
+  init-cortex2.sh: |
+    #!/bin/sh
+    api_key=$(cat /tmp/hive/cortex_api.txt)
+    cp /data/config.conf /tmp/hive/application.conf && sed -i 's|#key = \"CORTEX_API_KEY\"|key = \"'${api_key}'\"|g' /tmp/hive/application.conf
+    chown -R 1 /tmp/hive
+
+  init-misp.sh: |
+    #!/bin/sh
+    if [ ! -f /tmp/hive/application.conf ]; then
+      cp /data/config.conf /tmp/hive/application.conf;
+    fi
+    sed -i 's|#key = \"MISP_API_KEY\"|key = \"'${MISP_API_KEY}'\"|g' /tmp/hive/application.conf
+    chown -R 1 /tmp/hive
+
+  keystore.sh: |
+    #!/bin/bash
+
+    #WebCA truststore
+    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/webCA.crt -alias webCA -keystore /opt/thehive/keystore/webCA.jks -storepass ${KEYSTORE_PASSWORD}
+    if [ ! -f /tmp/hive/application.conf ]; then
+      cp /data/config.conf /tmp/hive/application.conf
+    fi
+    sed -i 's|password = \"KEYSTORE_PASSWORD\"|password = \"'${KEYSTORE_PASSWORD}'\"|g' /tmp/hive/application.conf
+    chown -R 1 /tmp/hive

@@ -9,8 +9,8 @@ spec:
   selector:
     component: {{ .Release.Name }}
   ports:
-  - name: redmine
-    port: {{ .Values.redmineExternalPort }}
-    targetPort: {{ .Values.redmineInternalPort }}
+  - name: https
+    port: 443
+    targetPort: 443
     protocol: TCP
   type: LoadBalancer

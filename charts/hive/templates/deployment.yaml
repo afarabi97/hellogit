@@ -24,7 +24,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "curl -o /tmp/api/cortex_api.txt -XGET -u ${CORTEX_SUPERADMIN_USERNAME}:${CORTEX_SUPERADMIN_PASSWORD} http://cortex.default.svc.cluster.local:{{ .Values.corex_port }}/api/user/${CORTEX_USER_USERNAME}/key"
+        - "/init-cortex1.sh"
         env:
           - name: CORTEX_SUPERADMIN_USERNAME
             valueFrom:
@@ -45,6 +45,13 @@ spec:
         - name: api-cache
           mountPath: /tmp/api
           subPath: hive-data
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        - name: setup
+          mountPath: /init-cortex1.sh
+          subPath: init-cortex1.sh
       - name: hive-init-cortex2
         image: "busybox:1.31.1"
         securityContext:
@@ -52,7 +59,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "api_key=$(cat /tmp/hive/cortex_api.txt) && cp /data/config.conf /tmp/hive/application.conf && sed -i 's|#key = \"CORTEX_API_KEY\"|key = \"'${api_key}'\"|g' /tmp/hive/application.conf && chown -R 1 /tmp/hive"
+        - "/init-cortex2.sh"
         volumeMounts:
         - name: api-cache
           mountPath: /tmp/hive
@@ -60,6 +67,9 @@ spec:
         - name: hiveconfig
           mountPath: /data/config.conf
           subPath: hive.conf
+        - name: setup
+          mountPath: /init-cortex2.sh
+          subPath: init-cortex2.sh
       {{ else }}
       - name: hive-init-elastic
         image: "busybox:1.31.1"
@@ -81,7 +91,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "if [ ! -f /tmp/hive/application.conf ]; then cp /data/config.conf /tmp/hive/application.conf; fi && sed -i 's|#key = \"MISP_API_KEY\"|key = \"'${MISP_API_KEY}'\"|g' /tmp/hive/application.conf && chown -R 1 /tmp/hive"
+        - "/init-misp.sh"
         env:
         - name: MISP_API_KEY
           valueFrom:
@@ -95,6 +105,40 @@ spec:
         - name: hiveconfig
           mountPath: /data/config.conf
           subPath: hive.conf
+        - name: setup
+          mountPath: /init-misp.sh
+          subPath: init-misp.sh
+      {{ end }}
+      {{- if or .Values.cortexIntegration .Values.mispIntegration }}
+      - name: hive-init-keystore
+        image: "{{ .Values.hive_image }}"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/etc/thehive/keystore.sh"
+        env:
+        - name: KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: keystore_password
+        volumeMounts:
+        - name: api-cache
+          mountPath: /tmp/hive
+          subPath: hive-data
+        - name: api-cache
+          mountPath: /opt/thehive/keystore
+          subPath: keystore
+        - name: setup
+          mountPath: /etc/thehive/keystore.sh
+          subPath: keystore.sh
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
       {{ end }}
       containers:
       {{- if not .Values.cortexIntegration }}
@@ -121,15 +165,41 @@ spec:
           mountPath: /usr/share/elasticsearch/data
           subPath: elastic
       {{- end }}
+      - name: hive-nginx
+        image: "{{ .Values.nginx_image }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: https
+          containerPort: 443
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "cat /etc/ssl/certs/hive.crt /etc/ssl/certs/webCA.crt > /tmp/bundle.crt && exec nginx -g 'daemon off;'"
+        volumeMounts:
+        - name: nginx-configmap
+          mountPath: "/etc/nginx/conf.d/default.conf"
+          subPath: default.conf
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/hive.crt
+          readOnly: true
+          subPath: tls.crt
+        - name: webca
+          mountPath: /etc/ssl/certs/hive.key
+          readOnly: true
+          subPath: tls.key
       - name: hive
         image: "{{ .Values.hive_image }}"
         imagePullPolicy: IfNotPresent
-        {{- if .Values.cortexIntegration }}
         command:
         - "/bin/sh"
         - "-c"
         - "/etc/thehive/setup.py & /opt/thehive/entrypoint --no-config"
-        {{- end }}
         ports:
         - containerPort: {{ .Values.hive_port }}
         env:
@@ -164,12 +234,23 @@ spec:
                 name: {{ .Release.Name }}-secret
                 key: read_write_user_password
         volumeMounts:
-        - name: api-cache
-          mountPath: /etc/thehive/application.conf
-          subPath: hive-data/application.conf
         - name: setup
           mountPath: /etc/thehive/setup.py
           subPath: setup.py
+        {{- if or .Values.cortexIntegration .Values.mispIntegration }}
+        - name: api-cache
+          mountPath: /etc/thehive/application.conf
+          subPath: hive-data/application.conf
+        {{ else }}
+        - name: hiveconfig
+          mountPath: /etc/thehive/application.conf
+          subPath: hive.conf
+        {{- end }}
+        {{- if .Values.mispIntegration }}
+        - name: api-cache
+          mountPath: /etc/thehive/webCA.jks
+          subPath: keystore/webCA.jks
+        {{- end }}
       nodeSelector:
         role: "server"
       volumes:
@@ -193,6 +274,15 @@ spec:
         configMap:
           name: {{ .Release.Name }}-setup
           defaultMode: 0777
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-certificate
+      - name: nginx-configmap
+        configMap:
+          name: {{ .Release.Name }}-nginx
+          defaultMode: 0444
       - name: elasticdb
         hostPath:
           path: /data/hive

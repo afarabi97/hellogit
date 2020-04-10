@@ -14,3 +14,9 @@
     path: "{{chartmuseum_data_dir}}"
     state: absent
 
+- name: Remove Chartmuseum Certificate
+  command: "{{ item }}"
+  ignore_errors: true
+  with_items:
+    - "kubectl delete certificate chartmuseum"
+    - "kubectl delete secret chartmuseum-certificate"

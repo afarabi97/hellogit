@@ -212,7 +212,7 @@ data:
       hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/elasticsearch-ca.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
 
     monitoring:
       enabled: true

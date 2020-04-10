@@ -161,6 +161,7 @@ class AgentBuilder:
         for template in templates:
             self._create_config(template, tpl_context)
         folder_to_copy = str(pkg_folder)
+        shutil.copy2("/var/www/html/webCA.crt", folder_to_copy)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):

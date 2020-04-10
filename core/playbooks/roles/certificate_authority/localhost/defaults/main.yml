@@ -1,0 +1,14 @@
+%YAML 1.1
+---
+
+certificates:
+  - id: winlogbeat
+    type: client
+
+get_ips: false
+
+# Min life before creating a new CA in days
+min_ca_life: 365
+cert_manager_dir: "/tmp/cert_manager"
+webca_secret: webca-key-pair
+create_ca: true

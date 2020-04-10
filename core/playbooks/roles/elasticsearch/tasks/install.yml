@@ -45,6 +45,11 @@
   with_items:
     - operator.yml
     - license.yml
+    - certificate.yml
+
+- name: Install Elasticsearch Certificate
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/certificate.yml
 
 - name: Copy Deploy Template
   template:

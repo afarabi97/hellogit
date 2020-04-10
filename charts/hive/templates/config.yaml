@@ -130,10 +130,20 @@ data:
     play.modules.enabled += connectors.cortex.CortexConnector
     cortex {
       "cortex-local" {
-       url = "http://cortex.default.svc.cluster.local:{{ .Values.corex_port }}"
+       url = "https://cortex.default.svc.cluster.local"
        #key = "CORTEX_API_KEY"
        # HTTP client configuration (SSL and proxy)
-       ws {}
+       ws {
+         ssl.trustManager.stores = [ {
+           path = /etc/thehive/webCA.jks
+           type = "JKS" # or PKCS12
+           password = "KEYSTORE_PASSWORD"
+         } ]
+         # proxy {
+         #   host = proxy.mydomain.org
+         #   port = 3128
+         # }
+       }
       }
     }
 {{ end }}
@@ -158,8 +168,8 @@ data:
       "misp-local" {
         # MISP connection configuration requires at least an url and a key. The key must
         # be linked with a sync account on MISP.
-      url = "http://misp.default.svc.cluster.local"
-      #key = "MISP_API_KEY"
+        url = "https://misp.default.svc.cluster.local"
+        #key = "MISP_API_KEY"
 
        # Name of the case template in TheHive that shall be used to import
        # MISP events as cases by default.
@@ -167,7 +177,7 @@ data:
 
        # Optional tags to add to each observable  imported  from  an  event
        # available on this instance.
-       tags = ["misp-server-id"]
+       tags = ["misp-local"]
 
        ## MISP event filters
        # MISP filters is used to exclude events from the import.
@@ -190,12 +200,14 @@ data:
        # Proxy can also be used
        ws {
          ssl.trustManager.stores = [ {
-           path = /path/to/truststore.jks
+           path = /etc/thehive/webCA.jks
+           type = "JKS" # or PKCS12
+           password = "KEYSTORE_PASSWORD"
          } ]
-         proxy {
-           host = proxy.mydomain.org
-           port = 3128
-         }
+         # proxy {
+         #   host = proxy.mydomain.org
+         #   port = 3128
+         # }
        }
 
        # MISP purpose defines if this instance can be used to import events (ImportOnly), export cases (ExportOnly) or both (ImportAndExport)

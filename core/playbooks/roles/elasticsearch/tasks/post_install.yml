@@ -32,7 +32,7 @@
 - name: Create logtsash role
   uri:
     method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
+    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_security/role/{{item}}"
     validate_certs: no
     user: "{{default_elastic_user}}"
     password: "{{ es_password.stdout }}"
@@ -96,25 +96,10 @@
   retries: 10
   delay: 5
 
-- name: Create logtsash role
-  uri:
-    method: POST
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_xpack/security/role/{{item}}"
-    validate_certs: no
-    user: "{{default_elastic_user}}"
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/users/{{item}}.json')}}"
-    status_code: 200, 201
-  with_items:
-    - logstash_writer
-    - moloch_writer
-
 - name: Load Deploy into controller mongo
   uri:
     method: GET
     url: "https://{{ansible_controller_hostname}}/api/load_elastic_deploy?override=1"
     validate_certs: no
     status_code: 200, 201
-
 ...

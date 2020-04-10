@@ -1,0 +1,43 @@
+---
+- name: Delete Web CA secret
+  command: "kubectl delete secret {{ webca_secret }}"
+  ignore_errors: true
+
+- name: Copy Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ cert_manager_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - operator.yml
+    - ca_issuer.yml
+
+- name: "Delete Cert Manager"
+  shell: |
+    kubectl delete -f {{ cert_manager_dir }}/operator.yml
+  ignore_errors: true
+
+- name: "Install Cert Manager Operator ({{ cert_manager_version }})"
+  shell: |
+    kubectl apply -f {{ cert_manager_dir }}/operator.yml
+
+- name: Wait for Cert Manager to become healthy | This can take a 2.5 minutes
+  shell: |
+    kubectl get pods --namespace cert-manager | grep webhook | awk '{ print $3 }'
+  register: results_certs
+  until: (results_certs.stdout == 'Running')
+  retries: 60
+  delay: 5
+
+- name: Wait another 10 seconds to make sure the Cert Manager is ready
+  wait_for: timeout=10
+  delegate_to: localhost
+
+- name: Create Web CA Secret
+  command: "kubectl create secret generic {{ webca_secret }} --from-file=tls.crt={{ cert_manager_dir }}/webCA.crt --from-file=tls.key={{ cert_manager_dir }}/webCA.pem"
+
+- name: Create Web CA
+  shell: |
+    kubectl apply -f {{ cert_manager_dir }}/ca_issuer.yml

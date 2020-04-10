@@ -70,7 +70,7 @@ pip_installs:
 
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_port: 5000
-docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port }}"
+docker_registry_repo: "{{ ansible_controller_hostname }}"
 
 # kit size is defaulted -1
 # 0 == tiny  (old DL160s)

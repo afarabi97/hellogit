@@ -39,6 +39,8 @@ misp_version: 2.4.120
 crio_version: "v1.17.1"
 conmon_version: 2.0.12
 calico_version: "v3.13.1"
+nginx_version: "1.17.9"
+cert_manager_version: v0.14.2
 
 # Docker Image List
 kube_images:
@@ -85,6 +87,10 @@ kube_images:
   - docker.io/calico/node:{{calico_version}}
   - docker.io/calico/kube-controllers:{{calico_version}}
   - docker.io/calico/ctl:{{calico_version}}
+  - docker.io/nginx:{{nginx_version}}
+  - quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}
+  - quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}
+  - quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}
 
 helm_charts:
   - stable/chartmuseum {{ chartmuseum_version }}

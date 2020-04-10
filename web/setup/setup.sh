@@ -82,7 +82,8 @@ function _configure_httpd {
 	run_cmd cat /etc/ssl/certs/dhparam.pem | sudo tee -a /etc/ssl/certs/apache-selfsigned.crt
 	rm -rf /etc/httpd/conf.d/ssl.conf
 	run_cmd cp -v ./tfplenum.conf /etc/httpd/conf.d/
-    run_cmd rm -rf /etc/httpd/conf.d/welcome.conf
+  run_cmd rm -rf /etc/httpd/conf.d/welcome.conf
+  run_cmd cp -f /opt/tfplenum/web/setup/loadWebCA.sh /var/www/html/loadWebCA.sh
 }
 
 function _install_and_configure_gunicorn {

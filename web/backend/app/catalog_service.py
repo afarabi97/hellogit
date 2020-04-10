@@ -16,6 +16,7 @@ import os
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 CHARTMUSEUM_PORT = "8080"
+CHARTMUSEUM_FQDN = "chartmuseum.lan"
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 
@@ -29,7 +30,7 @@ def _get_chartmuseum_uri() -> str:
             results = json.loads(stdout.strip())
             svc_ip = results["status"]["loadBalancer"]["ingress"][0]["ip"]
             if svc_ip and svc_ip != "":
-                return "http://" + svc_ip + ":" + CHARTMUSEUM_PORT
+                return "https://" + CHARTMUSEUM_FQDN + ":" + CHARTMUSEUM_PORT
         except Exception as exc:
             logger.exception(exc)
     return ""

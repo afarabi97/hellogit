@@ -1,0 +1,82 @@
+---
+- name: Create install directory
+  file:
+    path: "{{ cert_manager_dir }}"
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Check for Web CA CRT file
+  stat:
+    path: "{{ cert_manager_dir }}/webCA.crt"
+  register: ca_crt
+
+- name: Check for Web CA KEY file
+  stat:
+    path: "{{ cert_manager_dir }}/webCA.pem"
+  register: ca_key
+
+- name: Get Current CA Certificate info
+  openssl_certificate_info:
+    path: "{{ cert_manager_dir }}/webCA.crt"
+    # for valid_at, invalid_at and valid_in
+    valid_at:
+      one_year: "+{{ min_ca_life }}d"
+  when: "ca_crt.stat.exists"
+  register: ca_cert_info
+
+- name: Get Current CA Key info
+  openssl_privatekey_info:
+    path: "{{ cert_manager_dir }}/webCA.pem"
+  register: ca_key_info
+  when: "ca_key.stat.exists"
+
+- set_fact:
+    create_ca: false
+  when: "ca_cert_info and ca_key_info and ca_cert_info.public_key == ca_key_info.public_key and ca_cert_info.valid_at.one_year"
+  ignore_errors: true
+
+- debug:
+    msg: "CA crt and key files exist and not with expiration window ({{ min_ca_life }} days).  Using previous CA"
+  when: "not create_ca"
+
+- name: Generate Certificate Authority
+  block:
+  - name: Generate CA private key
+    openssl_privatekey:
+      path: "{{ cert_manager_dir }}/webCA.pem"
+      force: true
+
+  - name: Generate CA CSR
+    openssl_csr:
+      path: "{{ cert_manager_dir }}/webCA.csr"
+      privatekey_path: "{{ cert_manager_dir }}/webCA.pem"
+      common_name: "CVA/H Web CA"
+      country_name: US
+      organization_name: CVA/H
+      basic_constraints_critical: true
+      basic_constraints:
+        - "CA:TRUE"
+      key_usage:
+        - keyCertSign
+      use_common_name_for_san: false
+      create_subject_key_identifier: true
+      force: true
+
+  - name: Generate CA certificate
+    openssl_certificate:
+      path: "{{ cert_manager_dir }}/webCA.crt"
+      privatekey_path: "{{ cert_manager_dir }}/webCA.pem"
+      csr_path: "{{ cert_manager_dir }}/webCA.csr"
+      provider: selfsigned
+      force: true
+  when: "create_ca"
+
+- name: Copy Web CA to Controller http://controller.lan/webCA.crt
+  copy:
+    src: "{{ cert_manager_dir }}/webCA.crt"
+    dest: "/var/www/html/webCA.crt"
+    owner: root
+    group: root
+    mode: 0644
