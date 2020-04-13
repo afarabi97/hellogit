@@ -17,8 +17,8 @@ export class NavBarService {
 
   constructor(private http: HttpClient) { }
 
-  private mapVersion(data: Object): Version {
-    return new Version(data['version']);
+  private mapVersion(data): Version {
+    return new Version(data);
   }
 
   getCurrentDIPTime(){
@@ -29,7 +29,7 @@ export class NavBarService {
   public getVersion(): Observable<Version> {
     const url = "/api/version";
     return this.http.get(url).pipe(
-      map(data => this.mapVersion(data))
+      map((data: string) => this.mapVersion(data))
     );
   }
 }

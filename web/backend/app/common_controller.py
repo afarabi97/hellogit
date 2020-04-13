@@ -31,20 +31,6 @@ def get_system_name_api():
     return jsonify({'message': 'Could not get the system_name.'}), 404
 
 
-@app.route('/api/set_system_name/<system_name>', methods=['PUT'])
-def set_system_name(system_name: str):
-    ini_path = '/etc/tfplenum.ini'
-    config = configparser.ConfigParser()
-    config.read(ini_path)
-    try:
-        config.set('tfplenum', 'system_name', system_name)
-        with open(ini_path, "w") as fhandle:
-            config.write(fhandle)
-        return jsonify({'message': 'Set to: ' + system_name})
-    except KeyError:
-        return jsonify({'message': 'Could not get the system_name.'}), 404
-
-
 @app.route('/api/metrics', methods=['POST'])
 def replace_metrics():
     data = request.get_json()

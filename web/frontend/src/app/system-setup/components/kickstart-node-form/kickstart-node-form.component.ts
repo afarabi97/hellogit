@@ -21,26 +21,26 @@ export class KickstartNodeFormComponent implements OnInit {
   system_name: string;
 
   constructor(private sysNameSrv: WeaponSystemNameService) {
-    this.setSystemName();
+    this.setupPXETypes();
   }
 
   ngOnInit() {
   }
 
-  private setSystemName() {
+  private setupPXETypes() {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];
-        this.set_pxe_types(this.system_name);
+        this.setPXETypes(this.system_name);
       },
       err => {
         this.system_name = 'DIP';
-        this.set_pxe_types(this.system_name);
+        this.setPXETypes(this.system_name);
       }
     );
   }
 
-  set_pxe_types(name: string) {
+  setPXETypes(name: string) {
     if(name === "DIP" || name === "GIP") {
       this.pxe_types = PXE_TYPES;
     }

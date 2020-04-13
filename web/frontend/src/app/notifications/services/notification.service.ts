@@ -42,10 +42,10 @@ export class NotificationService extends ApiService<any> {
    */
   constructor(private sysNameSrv: WeaponSystemNameService) {
     super(config);
-    this.setSystemName();
+    this.setupNavigation();
   }
 
-  private setSystemName() {
+  private setupNavigation() {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];

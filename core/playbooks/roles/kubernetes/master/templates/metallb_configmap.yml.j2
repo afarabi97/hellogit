@@ -10,3 +10,10 @@ data:
       protocol: layer2
       addresses:
       - {{ kubernetes_services_cidr }}
+{% if use_proxy_pool %}
+    - name: proxy
+      protocol: layer2
+      addresses:
+      - 10.{{ gip_number }}.4.6/32
+      auto-assign: false
+{% endif %}

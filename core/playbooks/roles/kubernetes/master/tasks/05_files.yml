@@ -23,3 +23,5 @@
     - calico.yml
     - ipip.yml
     - kubeadm.conf
+  vars:
+    gip_number: "{{ ansible_controller_ip.split('.')[1] }}"

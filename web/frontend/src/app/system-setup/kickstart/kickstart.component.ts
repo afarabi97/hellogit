@@ -39,13 +39,13 @@ export class KickstartComponent implements OnInit {
     private systemSetupSrv: SystemSetupService,
     private sysNameSrv: WeaponSystemNameService) {
       this.title.setTitle("Kickstart Configuration");
-      this.setSystemName();
+      this.setupKickstartForm();
   }
 
   ngOnInit() {
   }
 
-  private setSystemName() {
+  private setupKickstartForm() {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];

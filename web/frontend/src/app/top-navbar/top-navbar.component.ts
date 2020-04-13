@@ -102,14 +102,7 @@ export class TopNavbarComponent implements OnInit {
       let system_name = response.controls['dropdown'].value;
       //Changes the system name once the dropdown is selected.
       document.getElementById("sysname").innerHTML = system_name;
-      this.sysNameSrv.setSystemName(system_name).subscribe(()  => {
-        this.setSystemTheme();
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
-        window.location.reload(); //reload current page after selected system
-        //To do: make it redirect to the portal after reload
-      });
     });
-
   }
 
   private setClock(data: Object) {

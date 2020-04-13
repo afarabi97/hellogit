@@ -91,6 +91,7 @@ kube_images:
   - quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}
   - quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}
   - quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}
+  - docker.io/tfplenum/squid:{{squid_version | default('1.1.0')}}
 
 helm_charts:
   - stable/chartmuseum {{ chartmuseum_version }}

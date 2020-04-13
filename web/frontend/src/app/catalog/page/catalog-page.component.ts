@@ -32,6 +32,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   public statuses: any;
   public configArray: Array<any> = [];
   public kafkaArray: Array<any> = [];
+  public gip_number: number;
 
   /**
    *Creates an instance of CatalogPageComponent.
@@ -96,6 +97,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this._CatalogService.getByString(this.chart.id + "/saved_values").subscribe(values => {
         this.savedValues = values.length !== 0 ? values : null;
       });
+
+      if (this.chart.id === "squid") {
+        this._CatalogService.getNodes().subscribe(nodes => {
+          this.gip_number = nodes[0].management_ip_address.split('.')[1];
+        });
+      }
 
     }
   }
@@ -553,6 +560,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     }
     const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname, value);
     nodeControls.addControl("deployment_name", new FormControl(deploymentName));
+
+    if (this.chart.id === "squid") {
+      nodeControls.addControl("jdms_gip_number", new FormControl(this.gip_number));
+    }
+
     return nodeControls;
   }
 
