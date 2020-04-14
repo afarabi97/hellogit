@@ -21,6 +21,9 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
   @Input()
   formArray: Array<FormGroup>;
 
+  @Input()
+  mode: string;
+
   @Output() 
   nodeTypeChange: EventEmitter<any> = new EventEmitter();
 

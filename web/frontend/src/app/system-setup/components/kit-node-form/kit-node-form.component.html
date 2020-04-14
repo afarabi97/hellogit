@@ -25,26 +25,28 @@
         </mat-card-content>
       </mat-card>
       <div fxFlex fxLayout="column" fxLayoutAlign="start stretch">
-        <mat-form-field>
-          <mat-label>Select Node Type</mat-label>
-          <mat-select formControlName="node_type" matTooltip="{{ getTooltip('node_type') }}" (selectionChange)="onNodeTypeChange($event)">
-            <mat-option value="Server">Server</mat-option>
-            <mat-option value="Sensor">Sensor</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div *ngIf="node.controls.node_type.value == 'Server'" fxLayout="column"
-          fxLayoutAlign="start stretch">
-          <mat-checkbox formControlName="is_master_server"
-            (change)="deselectOtherMasters()"
-            matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
-            Server</mat-checkbox>
-        </div>
-        <div *ngIf="node.controls.node_type.value == 'Sensor'" fxLayout="column"
-          fxLayoutAlign="start stretch">
-          <mat-checkbox matTooltip="When checked, remote will install and configure open VPN on this sensor"
-            formControlName="is_remote" matTooltip="{{ getTooltip('is_master_server') }}">Remote
-          </mat-checkbox>
-        </div>
+        <ng-container *ngIf="mode === 'dip'">
+          <mat-form-field>
+            <mat-label>Select Node Type</mat-label>
+            <mat-select formControlName="node_type" matTooltip="{{ getTooltip('node_type') }}" (selectionChange)="onNodeTypeChange($event)">
+              <mat-option value="Server">Server</mat-option>
+              <mat-option value="Sensor">Sensor</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div *ngIf="node.controls.node_type.value == 'Server'" fxLayout="column"
+            fxLayoutAlign="start stretch">
+            <mat-checkbox formControlName="is_master_server"
+              (change)="deselectOtherMasters()"
+              matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
+              Server</mat-checkbox>
+          </div>
+          <div *ngIf="node.controls.node_type.value == 'Sensor'" fxLayout="column"
+            fxLayoutAlign="start stretch">
+            <mat-checkbox matTooltip="When checked, remote will install and configure open VPN on this sensor"
+              formControlName="is_remote" matTooltip="{{ getTooltip('is_master_server') }}">Remote
+            </mat-checkbox>
+          </div>
+        </ng-container>
       </div>
     </div>
   </ng-container>

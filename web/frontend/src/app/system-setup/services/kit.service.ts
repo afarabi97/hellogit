@@ -136,13 +136,32 @@ export class KitService {
    * @memberof KitFormComponent
    */
   public newKitNodeForm(node, addNode?: boolean): FormGroup {
+    let default_node_type;
+  
+    if(this.sysName === 'GIP') {
+      default_node_type = 'Server';
+    }
+
+    if(this.sysName === 'DIP') {
+      default_node_type = '';
+    }
+
     let genericNode = this.formBuilder.group({
-      node_type: new FormControl(node && node.node_type ? node.node_type : '', Validators.compose([validateFromArray(kit_validators.node_type)])),
+      node_type: new FormControl(node && node.node_type ? node.node_type : default_node_type, Validators.compose([validateFromArray(kit_validators.node_type)])),
       hostname: new FormControl(node ? node.hostname : ''),
       management_ip_address: node ? node.management_ip_address ? node.management_ip_address : node.default_ipv4_settings.address : '',
       deviceFacts: node && node.deviceFacts ? node.deviceFacts : node
     });
-    genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
+
+    if (this.sysName === 'DIP') {
+      // This way of changing controls causes an "Expression has changed after it was checked" error when you are in development mode.
+      genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
+    }
+
+    if (this.sysName === 'GIP') {
+      this.addNodeControls('Server', genericNode, node, addNode);
+    }
+
     return genericNode;
   }
 
@@ -174,7 +193,6 @@ export class KitService {
 
         if (this.sysName == 'GIP') { 
           kitFormGroup.setValidators(Validators.compose([
-            validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
             validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
             ValidateServerCpuMem
           ]));

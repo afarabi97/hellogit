@@ -73,15 +73,17 @@
           </app-total-server-resources-card>
         </mat-card-content>
       </mat-card>
-      <mat-card style="border-right: none;">
-        <mat-card-header>
-          <mat-card-title>Total Sensor Resources</mat-card-title>
-        </mat-card-header>
-        <mat-card-content style="height: 70%;">
-          <app-total-sensor-resources-card [nodes]="kitFormGroup.get('nodes')">
-          </app-total-sensor-resources-card>
-        </mat-card-content>
-      </mat-card>
+      <ng-container *ngIf="system_name === 'DIP'">
+        <mat-card style="border-right: none;">
+          <mat-card-header>
+            <mat-card-title>Total Sensor Resources</mat-card-title>
+          </mat-card-header>
+          <mat-card-content style="height: 70%;">
+            <app-total-sensor-resources-card [nodes]="kitFormGroup.get('nodes')">
+            </app-total-sensor-resources-card>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
       </div>
     </div>
     <br>
@@ -99,7 +101,12 @@
               <mat-panel-description>{{node.get('hostname').value}}</mat-panel-description>
             </mat-expansion-panel-header>
             <section style="padding: 0.3em;" [formGroupName]="i">
-              <app-kit-node-form [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+              <ng-container *ngIf="system_name ==='DIP'">
+                <app-kit-node-form mode="dip" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+              </ng-container>
+              <ng-container *ngIf="system_name === 'GIP'">
+                <app-kit-node-form mode="gip" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+              </ng-container>
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
                 <button mat-raised-button color="warn"  (click)="canRemove(i)">Remove</button>
               </div>

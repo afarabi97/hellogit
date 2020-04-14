@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { FormArray, FormGroup, FormControl, FormBuilder, AbstractControl } from '@angular/forms';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
@@ -13,6 +13,7 @@ import { CatalogService } from '../../catalog/services/catalog.service';
 import { DialogFormControl, DialogControlTypes } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { getCurrentDate } from '../../date-time-picker/date-time.component';
+import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
 
 @Component({
   selector: 'app-kit-form',
@@ -26,7 +27,8 @@ export class KitComponent implements OnInit, AfterViewInit {
   kitFormGroup: FormGroup;
   nodes: FormArray;
 
-  isGettingDeviceFacts :boolean;
+  isGettingDeviceFacts: boolean;
+  system_name: string;
 
   constructor(private kickStartSrv: KickstartService,
               private title: Title,
@@ -35,7 +37,9 @@ export class KitComponent implements OnInit, AfterViewInit {
               private formBuilder: FormBuilder,
               private snackbar: SnackbarWrapper,
               private matDialog: MatDialog,
-              private _CatalogService: CatalogService) {
+              private _CatalogService: CatalogService,
+              private sysNameSrv: WeaponSystemNameService,
+              private ref: ChangeDetectorRef) {
     this.isGettingDeviceFacts = false;
     this.kitFormGroup = this.kitSrv.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
@@ -44,6 +48,11 @@ export class KitComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isGettingDeviceFacts = false;
     this.title.setTitle("Kit Configuration");
+    this.sysNameSrv.getSystemName().subscribe(
+      data => {
+        this.system_name = data['system_name'];
+      }
+    );
   }
 
   ngAfterViewInit() {
@@ -123,9 +132,11 @@ export class KitComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       let form = result as FormGroup;
       if (form && form.valid){
+        let formGroup = this.kitFormGroup;
         this.executeKitForm = new KitFormTime(form.get('date').value, form.get('timezone').value);
         if (!generateKitInvetory) {
           this.isGettingDeviceFacts = true;
+          this.ref.detectChanges();
           this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => this.openConsole());
         } else {
           this.kitSrv.generateKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => {
@@ -185,6 +196,7 @@ export class KitComponent implements OnInit, AfterViewInit {
    */
   private initalizeForm(): void {
     this.isGettingDeviceFacts = true;
+    this.ref.detectChanges();
     this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
       if (!kickstartData) {
         let reroute = () => this.router.navigate(['/kickstart'])
@@ -256,6 +268,7 @@ export class KitComponent implements OnInit, AfterViewInit {
    */
   private getNodeDeviceFacts(kickstartNodes: any[]): void {
     this.isGettingDeviceFacts = true;
+    this.ref.detectChanges();
     for (let i = 0; i < kickstartNodes.length; i++){
       this.kickStartSrv.gatherDeviceFacts(kickstartNodes[i].ip_address).subscribe(data => {
         if (data){
@@ -267,6 +280,7 @@ export class KitComponent implements OnInit, AfterViewInit {
           if (i === (kickstartNodes.length - 1)){
             this.isGettingDeviceFacts = false;
           }
+          this.ref.detectChanges();
         }
       });
     }
