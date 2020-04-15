@@ -40,14 +40,14 @@
     dest: "/tmp/chartmuseum-{{chartmuseum_version}}.tgz"
 
 - name: deploy chartmuseum
-  command: "helm install chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
+  command: "helm install chartmuseum  /tmp/chartmuseum-{{chartmuseum_version}}.tgz --set replicaCount=1 --set image.registry={{docker_registry_repo}} --set service.servicename=chartmuseum --set service.type=LoadBalancer --set service.externalPort=443 --set nodeSelector.dedicated=master --set env.open.DISABLE_API=false --set env.open.ALLOW_OVERWRITE=true"
 
 - name: Patching Chartmuseum
   command: "kubectl patch deployment chartmuseum-chartmuseum --type='json' -p='{{ patch_json.stdout }}'"
 
 - name: Wait for service to be ready
   wait_for:
-    port: 8080
+    port: 443
     host: chartmuseum.{{ fqdn }}
     connect_timeout: 3
     delay: 3
@@ -55,7 +55,7 @@
 
 - name: Wait for chartmuseum.lan to be ready
   wait_for:
-    port: 8080
+    port: 443
     host: chartmuseum.lan
     connect_timeout: 3
     delay: 3

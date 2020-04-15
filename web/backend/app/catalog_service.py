@@ -15,25 +15,13 @@ import os
 
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-CHARTMUSEUM_PORT = "8080"
 CHARTMUSEUM_FQDN = "chartmuseum.lan"
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 
 
 def _get_chartmuseum_uri() -> str:
-    svc_ip = None
-    kube_cmd = ("kubectl get svc chartmuseum -o json")
-    stdout, ret_code = run_command2(command=kube_cmd, working_dir=WORKING_DIR, use_shell=True)
-    if ret_code == 0 and stdout != "":
-        try:
-            results = json.loads(stdout.strip())
-            svc_ip = results["status"]["loadBalancer"]["ingress"][0]["ip"]
-            if svc_ip and svc_ip != "":
-                return "https://" + CHARTMUSEUM_FQDN + ":" + CHARTMUSEUM_PORT
-        except Exception as exc:
-            logger.exception(exc)
-    return ""
+    return "https://" + CHARTMUSEUM_FQDN
 
 def get_node_type(hostname: str) -> str:
     """

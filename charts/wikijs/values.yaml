@@ -7,6 +7,5 @@ sqlDatabase: wikijs-db
 sqlUsername: wikijs
 sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0
 sqlUserPassword: -sMoJDGYkTm-f8kKD9(w%HbKf
-url: http://wikijs.lan
 admin_email: admin@dip.local
 admin_pass: password!

@@ -5,7 +5,7 @@
 
 - name: Check if chartmuseum rest api exists
   uri:
-    url: https://chartmuseum.{{ fqdn }}:8080
+    url: https://chartmuseum.{{ fqdn }}
     return_content: yes
     validate_certs: false
   register: chartmuseum_results

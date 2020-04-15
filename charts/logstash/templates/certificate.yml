@@ -28,6 +28,13 @@ spec:
   - logstash.lan
   - logstash.default.svc.cluster.local
   - logstash-headless.default.svc.cluster.local
+{{ if ne .Values.external_fqdn "" }}
+  - {{ .Values.external_fqdn }}
+{{ end }}
+{{ if ne .Values.external_ip "" }}
+  ipAddresses:
+  - {{ .Values.external_ip }}
+{{ end }}
   issuerRef:
     name: webca-issuer
     kind: Issuer

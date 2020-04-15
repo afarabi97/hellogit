@@ -11,7 +11,10 @@ data:
   config_file.sh: |
     #!/bin/sh
     cp /config.json.save /mattermost/config/config.json
-    cat /mattermost/config/config.json | jq '.ServiceSettings.SiteURL = "http://mattermost.lan"' > /mattermost/config/config.json.tmp
-    cat /mattermost/config/config.json.tmp | jq '.ServiceSettings.ConnectionSecurity = "TLS"' > /mattermost/config/config.json
-    cat /mattermost/config/config.json | jq '.ServiceSettings.TLSCertFile = "/etc/ssl/certs/mattermost.crt"' > /mattermost/config/config.json.tmp
-    cat /mattermost/config/config.json.tmp | jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/mattermost.key"' > /mattermost/config/config.json
+    cp /config.json.save /mattermost/config/config.json.tmp
+
+    echo "Configuring TLS Settings"
+    cat /mattermost/config/config.json.tmp | jq '.ServiceSettings.SiteURL = "https://{{ .Release.Name }}.lan"' |
+                                             jq '.ServiceSettings.ConnectionSecurity = "TLS"' |
+                                             jq '.ServiceSettings.TLSCertFile = "/etc/ssl/certs/mattermost.crt"' |
+                                             jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/mattermost.key"' > /mattermost/config/config.json

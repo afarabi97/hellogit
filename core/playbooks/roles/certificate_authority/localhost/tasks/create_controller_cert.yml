@@ -15,7 +15,8 @@
       organization_name: CVA/H
       subject_alt_name:
         - "DNS:controller"
-        - "DNS:controller.lan"
+        - "DNS:{{ ansible_controller_hostname }}"
+        - "IP:{{ ansible_controller_ip }}"
       basic_constraints_critical: true
       basic_constraints:
         - "CA:FALSE"

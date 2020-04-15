@@ -6,5 +6,5 @@ repositories:
   keyFile: ""
   name: chartmuseum
   password: ""
-  url: https://chartmuseum.lan:8080
+  url: https://chartmuseum.lan
   username: ""

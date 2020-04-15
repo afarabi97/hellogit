@@ -91,7 +91,7 @@ spec:
               name: {{ template "rocketchat.fullname" . }}
               key: admin_email
         - name: ROOT_URL
-          value: http://{{ .Release.Name }}.lan
+          value: https://{{ .Release.Name }}.lan
         {{- if .Values.smtp.enabled }}
         - name: MAIL_URL
           valueFrom:
