@@ -6,7 +6,10 @@ from models.common import NodeSettings, VCenterSettings, Model, RepoSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
-from models.catalog import CatalogSettings, MolochCaptureSettings, MolochViewerSettings, ZeekSettings, LogstashSettings, SuricataSettings
+from models.gip_settings import GipSettings
+from models.catalog import (CatalogSettings, MolochCaptureSettings,
+                            MolochViewerSettings, ZeekSettings,
+                            LogstashSettings, SuricataSettings)
 from models.mip_config import MIPConfigSettings
 from typing import Union
 
@@ -32,6 +35,7 @@ class YamlManager:
             cls.yaml.register_class(LogstashSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
+            cls.yaml.register_class(GipSettings)
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, application:str=None):
@@ -64,4 +68,9 @@ class YamlManager:
     @classmethod
     def load_mip_kickstart_settings_from_yaml(cls) -> KickstartSettings:
         yaml_name = "{}.yml".format(MIPKickstartSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+
+    @classmethod
+    def load_gip_settings_from_yaml(cls) -> GipSettings:
+        yaml_name = "{}.yml".format(GipSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)

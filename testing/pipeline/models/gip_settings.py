@@ -25,5 +25,5 @@ class GipSettings(Model):
         self.vcenter.from_namespace(namespace)
 
         self.node = NodeSettings()
-        self.node.from_namespace(namespace)
+        self.node.from_namespace(namespace, NodeSettings.valid_node_types[6])
         self.node.disk_size = 250

@@ -117,6 +117,8 @@ class Runner:
             if args.which == SubCmd.create_gip_service_vm:
                 gip_settings = GipSettings()
                 gip_settings.from_namespace(args)
+
+                YamlManager.save_to_yaml(gip_settings)
                 executor = GipCreationJob(gip_settings)
                 executor.execute()
             elif args.which == SubCmd.setup_ctrl:
@@ -215,20 +217,29 @@ class Runner:
                 executor = MIPControllerExport(ctrl_settings, export_settings.export_loc)
                 executor.export_mip_controller()
             elif args.which == SubCmd.run_cleanup:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
-                try:
-                    kickstart_settings = None
-                    if args.system_name == "DIP":
+                if args.system_name == "DIP":
+                    ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+                    try:
                         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
-                    elif args.system_name == "MIP":
-                        kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
-                    else:
-                        raise ValueError("System type is not supported for cleanup.")
+                        kickstart_settings.nodes.append(ctrl_settings.node)
+                        delete_vms(ctrl_settings.vcenter, kickstart_settings.nodes)
+                    except FileNotFoundError:
+                        delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
 
-                    kickstart_settings.nodes.append(ctrl_settings.node)
-                    delete_vms(ctrl_settings.vcenter, kickstart_settings.nodes)
-                except FileNotFoundError:
-                    delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
+                elif args.system_name == "MIP":
+                    ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+                    try:
+                        kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
+                        kickstart_settings.nodes.append(ctrl_settings.node)
+                        delete_vms(ctrl_settings.vcenter, kickstart_settings.nodes)
+                    except FileNotFoundError:
+                        delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
+                elif args.system_name == "GIP":
+                    try:
+                        gip_settings = YamlManager.load_gip_settings_from_yaml()
+                        delete_vms(gip_settings.vcenter, gip_settings.node)
+                    except FileNotFoundError:
+                        pass
             elif args.which == SubCmd.run_catalog:
                 catalog_parser.print_help()
             elif args.which == SubCmd.run_export:

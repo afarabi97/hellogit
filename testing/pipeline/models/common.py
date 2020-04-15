@@ -7,7 +7,7 @@ from typing import Dict
 
 class NodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip")
+    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc")
     valid_sensor_types = ("remote_sensor", "sensor")
     valid_server_types = ("master_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
@@ -41,10 +41,15 @@ class NodeSettings(Model):
         else:
             self.hostname = "{}-{}{}.lan".format(vm_prefix, node_type, index)
 
-    def from_namespace(self, namespace: Namespace):
+    def from_namespace(self, namespace: Namespace, node_type: str=None):
         self.dns_servers = namespace.dns_servers
         self.vm_prefix = namespace.vm_prefix
-        self.set_hostname(self.vm_prefix)
+
+        if node_type:
+            self.set_hostname(self.vm_prefix, node_type=node_type)
+            self.node_type = node_type
+        else:
+            self.set_hostname(self.vm_prefix)
 
         try:
             self.memory = int(namespace.memory)
@@ -66,7 +71,7 @@ class NodeSettings(Model):
         self.datastore = namespace.datastore
         self.network_id = namespace.network_id
         self.network_block_index = namespace.network_block_index
-        self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_ctrl_address()
+        self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
 
         self.mng_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")
         self.sensing_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")

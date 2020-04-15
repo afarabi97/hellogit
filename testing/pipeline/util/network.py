@@ -217,12 +217,11 @@ class IPAddressManager:
             available_ip_blocks.append(self._network_id[0:len(self._network_id)-2] + "." + str(block))
         IPAddressManager.unused_ip_blocks = available_ip_blocks
 
-    def get_ctrl_address(self) -> str:
-        return IPAddressManager.kit_block_ip
-
     def get_next_node_address(self) -> str:
         if IPAddressManager.next_ip is None:
             IPAddressManager.next_ip = IPAddressManager.kit_block_ip
+            return IPAddressManager.next_ip
+
         pos = IPAddressManager.next_ip.rfind('.') + 1
         last_octet = int(IPAddressManager.next_ip[pos:])
         IPAddressManager.next_ip = IPAddressManager.next_ip[:pos] + str(last_octet + 1)

@@ -21,8 +21,33 @@ Setup GIP Services VM:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX-gip" \
+    --network-block-index $GIP_NETWORK_BLOCK_INDEX \
     --vm-template "$GIP_SVC_TEMPLATE_TO_CLONE"
+  cache:
+    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    paths:
+      - gipsettings.yml
   only:
     variables:
       - $PIPELINE == "developer-gip"
       - $PIPELINE == "developer-all"
+
+
+GIP Cleanup:
+  stage: cleanup
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup
+  when: always
+  cache:
+    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    paths:
+      - gipsettings.yml
+    policy: pull
+  only:
+    variables:
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-gip"
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
