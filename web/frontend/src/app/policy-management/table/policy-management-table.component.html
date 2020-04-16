@@ -37,8 +37,8 @@
 
       <ng-container matColumnDef="name">
         <th scope="col" mat-header-cell *matHeaderCellDef>Rule Set Name</th>
-        <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
-          <a (click)="getRules(ruleSet)">
+        <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet; dataIndex as i">
+          <a (click)="getRules(ruleSet, i)">
             <em class="material-icons" *ngIf="!isRulesVisibleFn(ruleSet)">chevron_right</em>
             <em class="material-icons" *ngIf="isRulesVisibleFn(ruleSet)">expand_more</em>
             <span style="vertical-align: super;">{{ ruleSet.name }}</span>

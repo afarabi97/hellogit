@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit, OnChanges, ChangeDetectorRef} from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, OnChanges, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
 import { IRuleSet, RuleSet } from '../interface/ruleSet.interface';
 import { PolicyManagementAddDialog } from '../add-dialog/policy-management-add-dialog.component';
 import { PolicyManagementService } from '../services/policy-management.service';
@@ -33,7 +33,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
 
   @ViewChild('paginator', {static: false}) paginator: MatPaginator;
-  @ViewChild('paginatorInner', {static: false}) paginatorInner: MatPaginator;
+  @ViewChildren('paginatorInner') paginatorInner: QueryList<MatPaginator>;
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   constructor( public policySrv: PolicyManagementService,
@@ -103,8 +103,8 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
       const transformedFilter = filter.trim().toLowerCase();
       return dataStr.indexOf(transformedFilter) !== -1;
     };
+
     this.ruleSetsDataSource.paginator = this.paginator;
-    this.rulesDataSource.paginator = this.paginatorInner;
     this.ruleSetsDataSource.sort = this.sort;
 
     this.reloadRuleSetTable();
@@ -114,17 +114,14 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.ruleSetsDataSource.paginator = this.paginator;
-    this.rulesDataSource.paginator = this.paginatorInner;
     this.ruleSetsDataSource.sort = this.sort;
-    // this.cdr.detectChanges();
   }
 
   ngOnChanges() {
     console.log("ngOnChanges");
     this.ruleSetsDataSource = new MatTableDataSource(this.ruleSetsDataSource.data);
     this.rulesDataSource = new MatTableDataSource(this.rulesDataSource.data);
-    this.rulesDataSource.paginator = this.paginatorInner;
-    this.rulesDataSource.paginator = this.paginator;
+    this.ruleSetsDataSource.paginator = this.paginator;
     this.rulesDataSource.sort = this.sort;
   }
 
@@ -145,9 +142,8 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     this.reloadRuleSetTable(event.value);
   }
 
-  getRules(ruleset: RuleSet) {
+  getRules(ruleset: RuleSet, index: number) {
     let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
-    const index = ruleSets.findIndex( i => i._id === ruleset._id);
     let wereRulesVisible = this.isRulesVisible[index];
 
     //Make everything invisible
@@ -165,7 +161,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     this.policySrv.getRules(ruleset._id).subscribe(rules => {
       ruleset.rules = rules;
       this.rulesDataSource.data = rules;
-      this.rulesDataSource.paginator = this.paginatorInner;
+      this.rulesDataSource.paginator = this.paginatorInner.toArray()[index];
     });
   }
 
