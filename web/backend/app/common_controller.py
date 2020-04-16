@@ -7,6 +7,7 @@ import os, signal
 import shutil
 import tempfile
 import zipfile
+import configparser
 
 from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form

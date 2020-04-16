@@ -4,7 +4,7 @@ elastic_port: 9200
 home_net: ["192.168.0.0/16"]
 interfaces: ["eth0"]
 image_name: tfplenum/zeek
-image_tag: 3.0.0
+image_tag: 3.1.1
 affinity_hostname: {}
 ids_log_rotate_interval: 300
 zeek_log_path: /data/zeek
