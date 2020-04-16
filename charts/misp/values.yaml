@@ -1,6 +1,7 @@
 # Default values for misp
 mispImage: tfplenum/misp:2.4.120
 mispModulesImage: tfplenum/misp-modules:2.4.120
+domain: lan
 
 # Database values
 mariadbImage: mariadb:10.5.2

@@ -53,10 +53,10 @@
     delay: 3
     timeout: 180
 
-- name: Wait for chartmuseum.lan to be ready
+- name: Wait for chartmuseum to be ready
   wait_for:
     port: 443
-    host: chartmuseum.lan
+    host: chartmuseum.{{domain}}
     connect_timeout: 3
     delay: 3
     timeout: 180

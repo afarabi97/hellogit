@@ -1,6 +1,8 @@
 bind-interfaces
-local=/lan/
+expand-hosts
+local=/{{domain}}/
+domain={{domain}}
 interface={{ management_interface }}
 hostsdir={{ host_dir }}
 listen-address={{ hostvars[groups['master_server'][0]].management_ipv4 }},127.0.0.1
-#server=//{{ pfsense_ipaddress }}
+server=//{{ pfsense_ipaddress }}

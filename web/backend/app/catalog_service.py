@@ -222,6 +222,10 @@ def get_values(application) -> dict:
 def generate_values(application: str, namespace: str, configs: list=None) -> list:
     try:
         values = get_values(application)
+        hostname = os.environ['HOSTNAME']
+        domain = hostname.split('.')[1:]
+        domain = '.'.join(domain) if domain else domain
+        values['domain'] = domain
     except Exception as e:
         logger.exception(e)
     if configs:
@@ -250,7 +254,6 @@ def _write_values(deployment_name: str, value_items: dict) -> str:
     return tpath
 
 def _build_values(values: dict):
-    print(values)
     try:
         for h, v in values.items():
             deployment_name = h

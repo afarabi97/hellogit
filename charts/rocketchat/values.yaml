@@ -1,7 +1,7 @@
 ## Rocket Chat image version
 ## ref: https://hub.docker.com/r/rocketchat/rocket.chat/tags
 ##
-
+domain: lan
 image:
   repository: rocketchat/rocket.chat
   tag: 3.0.9

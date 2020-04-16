@@ -71,7 +71,7 @@ import { IP_CONSTRAINT } from '../../frontend-constants';
 
 export const kickstart_validators = {
   hostname: [
-    { ops: { pattern: /^[a-z]([a-z]|[0-9]|[-])*[.]lan$/ }, error_message: 'Hostnames must be alphanumeric and end with .lan. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z]|[0-9]|[-])*[.][a-z]([a-z]|[0-9]|[-][.])*$/ }, error_message: 'Hostnames must be alphanumeric and end with .<domain>. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],

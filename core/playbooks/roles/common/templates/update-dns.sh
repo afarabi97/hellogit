@@ -9,7 +9,7 @@ if [ -f /usr/bin/kubectl ]; then
     HOST_FILE="/etc/dnsmasq_hosts/kube_hosts"
 
     # Get all services with external ips and store in dnsmasq_kube_hosts
-    kubectl get services --all-namespaces --no-headers=true | grep -v '<none>' | awk '{ print $5 " " $2 ".lan" }' > $TMP_FILE
+    kubectl get services --all-namespaces --no-headers=true | grep -v '<none>' | awk '{ print $5 " " $2 ".{{domain}}" }' > $TMP_FILE
 
     # check if file dnsmasq_kube_hosts exists if not create it
     if [ ! -f $HOST_FILE ]; then

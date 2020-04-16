@@ -41,4 +41,7 @@
   shell: |
     kubectl create configmap coredns --from-file Corefile={{ kube_dir }}/coredns_config_map.yml --dry-run -o yaml | kubectl replace --force --namespace=kube-system -f -
 
+- name: Update NodeSelector for CoreDNS to only deploy on server nodes
+  shell: |
+    kubectl patch deployment coredns -n kube-system --type='json' -p='[{"op":"remove","path":"/spec/template/spec/nodeSelector"},{"op":"add","path":"/spec/template/spec/nodeSelector","value":{"role":"server"}}]'
 ...

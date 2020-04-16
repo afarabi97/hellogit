@@ -1,7 +1,7 @@
 ---
 - name: Add update-dns script
-  copy:
-    src: files/update-dns.sh
+  template:
+    src: templates/update-dns.sh
     dest: /usr/bin/update-dns.sh
     mode: 0755
     owner: root

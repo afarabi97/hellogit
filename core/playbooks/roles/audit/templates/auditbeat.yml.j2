@@ -112,7 +112,7 @@ setup.kibana:
   # the Default Space will be used.
   #space.id:
 {% if "localhost" in inventory_hostname  %}
-    host: "https://kibana.lan:{{ kibana_port }}"
+    host: "https://kibana.{{domain}}:{{ kibana_port }}"
 {% else %}
     host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
 {% endif %}
@@ -141,7 +141,7 @@ setup.kibana:
 output.elasticsearch:
   # Array of hosts to connect to.
 {% if "localhost" in inventory_hostname  %}
-    hosts: ['elasticsearch.lan:{{elastic_port}}']
+    hosts: ['elasticsearch.{{domain}}:{{elastic_port}}']
 {% else %}
     hosts: ['{{elastic_fqdn}}:{{elastic_port}}']
 {% endif %}

@@ -37,7 +37,7 @@
       <mat-grid-list cols="2" rowHeight="4:1" gutterSize="10px">
         <h3 mat-subheader>Dashboard Links</h3>
         <ng-container *ngFor="let link of links">
-          <mat-grid-tile *ngIf="link.dns === 'https://kibana.lan'" (click)="onViewUrl(getBroDashboard(link.ip))"
+          <mat-grid-tile *ngIf="link.dns.includes('https://kibana')" (click)="onViewUrl(getBroDashboard(link.ip))"
             class="zoom" style="background: rgba(0,0,0,.38);">
             <div fxLayout="column" fxLayoutAlign="space-around start">
               <div style="margin-bottom: 10px; font-size: 1.5em;">
@@ -48,7 +48,7 @@
               </div>
             </div>
           </mat-grid-tile>
-          <mat-grid-tile *ngIf="link.dns === 'https://kibana.lan'" (click)="onViewUrl(getWinlogbeatDashboard(link.ip))"
+          <mat-grid-tile *ngIf="link.dns.includes('https://kibana')" (click)="onViewUrl(getWinlogbeatDashboard(link.ip))"
             class="zoom" style="background: rgba(0,0,0,.38);">
             <div fxLayout="column" fxLayoutAlign="space-around start">
               <div style="margin-bottom: 10px; font-size: 1.5em;">

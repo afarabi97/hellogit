@@ -206,9 +206,8 @@ def perform_integration_tests(ctrl_node: Node, root_password: str) -> None:
             ctrl_cmd.run(cmd_to_mkdir)
         with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
             try:
-                ctrl_cmd.run(cmd_to_execute, shell=True)
+                result = ctrl_cmd.run(cmd_to_execute, shell=True)
             except UnexpectedExit as e:
-                print(e)
                 error = True
 
         reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()

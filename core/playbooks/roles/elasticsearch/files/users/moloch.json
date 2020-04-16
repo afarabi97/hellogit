@@ -4,7 +4,7 @@
     "moloch_writer"
   ],
   "full_name": "moloch user",
-  "email": "moloch@tfplenum.lan",
+  "email": "moloch@tfplenum.{{domain}}",
   "metadata": {},
   "enabled": true,
   "password": "password"

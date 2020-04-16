@@ -13,13 +13,13 @@ from typing import List
 from flask import send_file, Response, request, jsonify
 from bson import ObjectId
 
-DISCLUDES = ("elasticsearch.lan",
-        "elasticsearch-headless.lan",
-        "mysql.lan",
-        "logstash.lan",
-        "chartmuseum.lan",
-        "elasticsearch-data.lan",
-        "netflow-filebeat.lan")
+DISCLUDES = ("elasticsearch",
+        "elasticsearch-headless",
+        "mysql",
+        "logstash",
+        "chartmuseum",
+        "elasticsearch-data",
+        "netflow-filebeat")
 
 HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
@@ -38,72 +38,73 @@ def get_app_credentials(app: str, user_key: str, pass_key: str):
     return "{}/{}".format(username, password)
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
-    if dns == "grr-frontend.lan":
+    short_dns = dns.split('.')[0]
+    if short_dns == "grr-frontend":
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
-    elif dns == "moloch.lan":
+    elif short_dns == "moloch":
         logins = get_app_credentials('moloch-viewer','username','password')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "kubernetes-dashboard.lan":
+    elif short_dns == "kubernetes-dashboard":
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': ''})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': ''})
-    elif dns == "hive.lan":
+    elif short_dns == "hive":
         logins = get_app_credentials('hive','superadmin_username','superadmin_password')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "cortex.lan":
+    elif short_dns == "cortex":
         logins = get_app_credentials('cortex','superadmin_username','superadmin_password')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "kibana.lan":
+    elif short_dns == "kibana":
         password = get_elastic_password(conn_mng)
         logins = 'elastic/{}'.format(password)
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "redmine.lan":
+    elif short_dns == "redmine":
         logins = 'admin/admin'
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "misp.lan":
+    elif short_dns == "misp":
         logins = get_app_credentials('misp','admin_user','admin_pass')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "wikijs.lan":
+    elif short_dns == "wikijs":
         logins = get_app_credentials('wikijs','admin_email','admin_pass')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "mattermost.lan":
+    elif short_dns == "mattermost":
         logins = get_app_credentials('mattermost','admin_user','admin_pass')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "rocketchat.lan":
+    elif short_dns == "rocketchat":
         logins = get_app_credentials('rocketchat','admin_user','admin_pass')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif dns == "niagra-files.lan":
+    elif short_dns == "niagra-files":
         logins = ''
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR +  dns, 'logins': logins})
@@ -123,7 +124,8 @@ def _is_discluded(dns: str) -> bool:
     :return:
     """
     for item in DISCLUDES:
-        if dns == item:
+        short_dns = dns.split('.')[0]
+        if short_dns == item:
             return True
     return False
 

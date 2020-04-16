@@ -28,8 +28,8 @@
     state: directory
 
 - name: Copy Repo Config
-  copy:
-    src: files/repositories.yaml
+  template:
+    src: templates/repositories.yaml
     dest: /root/.config/helm/repositories.yaml
     mode: 0644
     owner: root
@@ -43,7 +43,7 @@
 
 - name: load charts
   uri:
-    url: https://chartmuseum.lan/api/charts
+    url: https://chartmuseum.{{domain}}/api/charts
     src: "{{ item.path }}"
     method: POST
     status_code: 201

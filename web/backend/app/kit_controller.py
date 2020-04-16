@@ -72,10 +72,13 @@ def execute_kit_inventory() -> Response:
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
         cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
+        cmd_to_execute_one = 'semanage permissive -a systemd_hostnamed_t && {} && semanage permissive -d systemd_hostnamed_t'.format(cmd_to_execute_one)
         cmd_to_execute_two = "ansible-playbook site.yml --tags server-stigs,sensor-stigs --skip-tags all-stigs,controller-stigs"
-
-        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
-            perform_kit.si(cmd_to_execute_two,cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode"))()
+        
+        results = chain(
+            perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
+            perform_kit.si(cmd_to_execute_two,cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
+        )()
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                         {"_id": "Kit", "task_id": str(results), "pid": ""},
                                                         upsert=True)

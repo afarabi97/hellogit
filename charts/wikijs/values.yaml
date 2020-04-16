@@ -1,5 +1,6 @@
 # Default values for mattermost
 wikijsImage: requarks/wiki:2.2.51
+domain: lan
 
 # database variables
 mariadbImage: mariadb:10.5.2
