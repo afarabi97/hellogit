@@ -1,0 +1,10 @@
+---
+  EPEL_RPM_PUBLIC_URL: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+
+  package_list:
+  - vim
+  - net-tools
+  - wget
+  - gcc
+  - python36
+  - python36-devel

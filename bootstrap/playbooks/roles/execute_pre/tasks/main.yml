@@ -1,0 +1,13 @@
+---
+- import_tasks: install_packages.yml
+
+- name: "Make pip dir"
+  file:
+    path: /root/.pip/
+    state: directory
+
+- name: "Remove npmrc"
+  file:
+    path: ~/.npmrc
+    state: absent
+...

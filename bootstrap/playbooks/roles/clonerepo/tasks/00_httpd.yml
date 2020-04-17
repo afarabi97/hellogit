@@ -1,0 +1,23 @@
+---
+- name: "Install httpd so this repo can be published"
+  yum:
+    name: httpd
+    state: present
+
+- name: "Start httpd"
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: "Open up port 80 to allow access"
+  firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop:
+  - "http"
+  - "https"
+  notify: "Restart Docker"
+

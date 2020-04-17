@@ -1,0 +1,14 @@
+---
+
+- name: Remove .pip config from root
+  file:
+    path: /root/.pip
+    state: absent
+
+- name: "Download pip packages to the custom install repo"
+  shell: "/opt/tfplenum/core/tfp-env/bin/pip download -d {{ tfplenumoffline_dir }}/pip {{ item }}"
+  with_items:
+  - "{{ pip_downloads }}"
+
+- name: create pip repo
+  shell: "dir2pi {{ tfplenumoffline_dir }}/pip"

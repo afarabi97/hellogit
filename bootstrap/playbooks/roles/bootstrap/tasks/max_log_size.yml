@@ -1,0 +1,53 @@
+---
+
+- name: Set max journal size
+  lineinfile:
+    path: /etc/systemd/journald.conf
+    backrefs: yes
+    regexp: 'SystemMaxUse='
+    line: 'SystemMaxUse=500M'
+
+- name: Set global size
+  lineinfile:
+    path: /etc/logrotate.conf
+    insertafter: '^rotate \d$'
+    line: 'size 5M'
+
+- name: Set global max log size
+  lineinfile:
+    path: /etc/logrotate.conf
+    insertafter: '^rotate \d$'
+    line: 'maxsize 5M'
+
+- name: Rotate keep the last 5
+  lineinfile:
+    path: /etc/logrotate.conf
+    regexp: '^rotate \d$'
+    line: 'rotate 5'
+
+- name: Rotate Hourly
+  lineinfile:
+    backrefs: yes
+    path: /etc/logrotate.conf
+    regexp: '^weekly'
+    line: 'hourly'
+
+- name: copy logrotate to hourly cron
+  copy:
+    src: /etc/cron.daily/logrotate
+    dest: /etc/cron.hourly/logrotate
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Add tfplenum log rotate
+  copy:
+    src: "tfplenum-logrotate"
+    dest: "/etc/logrotate.d/tfplenum"
+
+- name: restart crond
+  systemd:
+    name: crond
+    state: restarted
+
+...

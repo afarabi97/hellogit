@@ -4,7 +4,6 @@ export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
 boostrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-PACKAGES="vim net-tools wget"
 EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 RHEL_VERSION="7.7"
 RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
@@ -28,12 +27,6 @@ function run_cmd {
         echo "$command returned error code $ret_val"
         exit 1
     fi
-}
-
-function install_python36(){
-	run_cmd yum install -y gcc
-	run_cmd yum install -y python36 python36-devel
-	mkdir -p /root/.pip/
 }
 
 function labrepo_available() {
@@ -398,10 +391,6 @@ function clone_repos(){
     fi
 }
 
-function setup_frontend(){
-    run_cmd /opt/tfplenum/web/setup/setup.sh
-}
-
 function _install_and_start_mongo40() {
 cat <<EOF > /etc/yum.repos.d/mongodb-org-4.0.repo
 [mongodb-org-4.0]
@@ -417,19 +406,11 @@ EOF
 
 
 function execute_pre(){
-
     rpm -e epel-release-latest-7.noarch.rpm
     yum remove epel-release -y
     rm -rf /etc/yum.repos.d/epel*.repo
     yum install $EPEL_RPM_PUBLIC_URL -y
     rm -rf epel-release-latest-7.noarch.rpm
-
-    run_cmd yum -y update
-    run_cmd yum -y install $PACKAGES
-}
-
-function remove_npmrc(){
-    rm -rf ~/.npmrc
 }
 
 function setup_git(){
@@ -455,7 +436,7 @@ function execute_mip_bootstrap_playbook(){
 function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
 
-    pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
+    pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
     make bootstrap
     popd > /dev/null
 
@@ -534,17 +515,10 @@ if [ "$RUN_TYPE" == "full" ]; then
     setup_git
     clone_repos
     git config --global --unset credential.helper
-    execute_pre
-    remove_npmrc
-    install_python36
-    setup_frontend
-fi
-
-if [ "$RUN_TYPE" == "bootstrap" ]; then
-    execute_pre
 fi
 
 if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
+    execute_pre
     setup_ansible
     if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
         execute_bootstrap_playbook

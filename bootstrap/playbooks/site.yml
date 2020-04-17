@@ -1,0 +1,27 @@
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+- name: Execute Pre
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - execute_pre
+  tags: execute_pre
+
+- name: Setup Frontend
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - setup_frontend
+  tags: setup_frontend
+
+- name: Bootstrap Controller
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - bootstrap
+  tags: bootstrap

@@ -1,0 +1,36 @@
+---
+
+# TODO we need a way to pull down RHEL ISO image.
+- name: Download RHEL ISO
+  get_url:
+    checksum: "sha256:{{ iso_rhel_checksum }}"
+    url: "{{ iso_rhel_url_labrepo }}"
+    dest: "{{ iso_rhel_pth }}"
+  when:
+    - "ansible_distribution == 'RedHat'"
+    - RHEL_SOURCE_REPO == 'labrepo'
+
+# Verify ISO
+- name: check if RHEL iso exists
+  stat:
+    path: "{{ iso_rhel_pth }}"
+    checksum_algorithm: sha256
+  register: iso_path_result2
+  when: BOOTSTRAP and ansible_distribution == 'RedHat'
+
+- name: Verify Rhel ISO Checksum
+  fail:
+    msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
+  when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
+
+- name: Mount content to {{ mnt_pth }}
+  mount:
+    fstype: iso9660
+    state: mounted
+    opts: loop
+    path: "{{ mnt_pth }}"
+    src: "{{ iso_rhel_pth }}"
+  when:
+    - mnt_pth != ""
+    - "ansible_distribution == 'RedHat'"
+  register: mounted

@@ -1,4 +1,33 @@
 ---
+- name: "Install gcc"
+  yum:
+    name: gcc
+    state: latest
+
+- name: "Install python36"
+  yum:
+    name: python36
+    state: latest
+
+- name: "Install python36-devel"
+  yum:
+    name: python36-devel
+    state: latest
+
+- name: "Make pip dir"
+  file:
+    path: /root/.pip/
+    state: directory
+
+- name: "Remove npmrc"
+  file:
+    path: ~/.npmrc
+    state: absent
+
+- name: "Run setup frontend script"
+  shell:
+    cmd: /opt/tfplenum/web/setup/setup.sh
+
 - name: "Start the httpd service."
   service:
     name: httpd

@@ -1,0 +1,5 @@
+---
+- name: "Run setup frontend script"
+  shell:
+    cmd: /opt/tfplenum/web/setup/setup.sh
+...
