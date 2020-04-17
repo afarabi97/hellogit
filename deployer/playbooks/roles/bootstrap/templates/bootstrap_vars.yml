@@ -1,4 +1,0 @@
----
-RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
-TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"
-...

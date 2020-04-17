@@ -35,4 +35,5 @@
 - name: Kube | Check {{ type }}
   shell: "{{ kubectl }}"
   register: kube_check_result
+  changed_when: false
   failed_when: "kube_check_result.rc != 0 and kube_check_result.rc != 1"

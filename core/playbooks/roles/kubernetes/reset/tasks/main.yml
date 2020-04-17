@@ -2,6 +2,11 @@
 ###################  Kubernetes Reset ###############
 #######################################################
 ---
+- name: Requires kubeadm package
+  yum:
+    name: kubeadm
+    state: present
+
 - name: Stop Kubelet
   systemd:
     name: "kubelet"
@@ -9,9 +14,14 @@
   ignore_errors: yes
 
 - name: Reset Kubernetes Node
-  command: kubeadm reset --cri-socket=/var/run/crio/crio.sock -f
+  shell: |
+    kubeadm reset -f -v1
   register: kube_reset_result
+  changed_when: kube_reset_result.rc == 0
   ignore_errors: yes
+  until: kube_reset_result.rc == 0
+  retries: 15
+  delay: 5
 
 - name: Stop CRI-O
   systemd:
@@ -51,4 +61,6 @@
     ip link delete {{ item }};
   with_items:
     - cni0
+  register: results
   ignore_errors: yes
+  changed_when: results.rc == 0

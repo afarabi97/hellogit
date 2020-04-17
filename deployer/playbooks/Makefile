@@ -26,20 +26,5 @@ profiles:
 setup:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup
 
-registry:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,registry
-
 generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
-
-pull-docker-images:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t pull-helm-images,pull-docker-images
-
-bootstrap:
-	@echo $(TFPLENUM_OS_TYPE)
-	@echo $(TFPLENUM_SERVER_IP)
-	@echo $(RHEL_SOURCE_REPO)
-
-	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "None" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap),\
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t bootstrap))

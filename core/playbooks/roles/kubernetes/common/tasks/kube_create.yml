@@ -2,12 +2,17 @@
 
 - name: Deploy "{{ name }}"
   block:
-    - command: 'kubectl create -f {{ file_name }}'
+    - shell: |
+        kubectl create -f {{ file_name }}
       register: deploy_result
+      changed_when: deploy_result.rc == 0
   rescue:
     - debug:
         msg: "Timeout occurred while deploying {{ resource_name }}, this is common enough. We are rerunning the task. It typically means the API server was temporarily busy with something else."
       when: deploy_result.rc == 1 and "'request did not complete within allowed duration' in deploy_result.stderr"
-    - command: 'kubectl create -f {{ file_name }}'
+    - shell: |
+        kubectl create -f {{ file_name }}
+      register: deploy_result
+      changed_when: deploy_result.rc == 0
 
 ...

@@ -6,40 +6,20 @@
   register: kubeadm_installed
 
 - name: Reset Kubernetes Node
-  command: kubeadm reset -f -v1
+  shell: |
+    kubeadm reset -f -v1
   register: kube_reset_result
-  when: kubeadm_installed.stat.exists
+  changed_when: kube_reset_result.rc == 0
   ignore_errors: yes
+  until: kube_reset_result.rc == 0
+  retries: 15
+  delay: 5
+  when: kubeadm_installed.stat.exists
 
 - name: reload iptables
   import_role:
     name: common
     tasks_from: 50_setup_firewall
-
-- name: Make sure crio is running
-  service:
-    name: "{{ item }}"
-    state: started
-    enabled: true
-  with_items:
-    - crio
-    - crio-shutdown
-  ignore_errors: yes
-  register: crio_results
-
-- name: Check if any pods are still running
-  shell: |
-    crictl ps -qa
-  register: running_pods
-  when: crio_results.rc == 0
-  ignore_errors: yes
-
-- name: Stop all running containers
-  shell: |
-    crictl stop $(crictl ps -qa)
-    crictl rm $(crictl ps -qa)
-  ignore_errors: yes
-  when: running_pods is defined and running_pods.stdout != ""
 
 - name: Uninstall CRI-O
   yum:

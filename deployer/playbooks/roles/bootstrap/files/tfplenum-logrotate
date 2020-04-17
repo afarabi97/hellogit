@@ -1,8 +1,0 @@
-/var/log/tfplenum/*.log {
-    hourly
-    rotate 5
-    size 5M
-    copytruncate
-    notifempty
-    missingok
-}

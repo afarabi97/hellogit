@@ -1,8 +1,0 @@
----
-
-- name: "Download all other direct download files into user defined locations."
-  get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-  with_items:
-    - "{{ direct_download_package_names }}"

@@ -19,7 +19,7 @@
   shell: "kubectl wait job/moloch-bootstrap --for=condition=complete --timeout=-1s"
 
 - name: Remove Bootstrap
-  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml
+  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
 
 - name: Flush Config
   command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'

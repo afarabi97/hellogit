@@ -1,0 +1,4 @@
+---
+
+join_script_file: files/join-worker-node.sh
+join_script_path: /etc/kubernetes/join.sh

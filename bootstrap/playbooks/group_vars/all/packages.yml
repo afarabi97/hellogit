@@ -1,6 +1,5 @@
 ---
 
-
 group_packages:
   - base
   - core
@@ -39,11 +38,13 @@ packages:
   - grub2
   - grub2-efi-x64
   - efibootmgr
+  - haproxy
   - httpd
   - ipvsadm
   - inotify-tools
   - iperf
   - jq
+  - keepalived
   - krb5-devel
   - krb5-workstation
   - "kubelet-{{ k8s_version }}"

@@ -16,7 +16,9 @@
 
 - name: "Delete Cert Manager"
   shell: |
-    kubectl delete -f {{ cert_manager_dir }}/operator.yml
+    kubectl delete -f {{ cert_manager_dir }}/operator.yml --ignore-not-found=true
+  register: results
+  changed_when: results.rc == 0
   ignore_errors: true
 
 - name: "Install Cert Manager Operator ({{ cert_manager_version }})"

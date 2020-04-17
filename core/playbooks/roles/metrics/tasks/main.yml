@@ -3,8 +3,8 @@
   command: "{{ item }}"
   ignore_errors: true
   with_items:
-    - "kubectl delete certificate metricbeat-cluster"
-    - "kubectl delete secret metricbeat-cluster-certificate"
+    - "kubectl delete certificate metricbeat-cluster --ignore-not-found=true"
+    - "kubectl delete secret metricbeat-cluster-certificate --ignore-not-found=true"
 
 - name: "Create config directory"
   file:

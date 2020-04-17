@@ -6,10 +6,18 @@ metadata:
 data:
   config: |
     address-pools:
-    - name: default
+{% if kube_virtual_ip is defined %}
+    - name: api
       protocol: layer2
       addresses:
-      - {{ kubernetes_services_cidr }}
+      - {{ kube_virtual_ip }}/32
+      auto-assign: false
+{% endif %}
+    - name: default
+      protocol: layer2
+      avoid-buggy-ips: true
+      addresses:
+      - {{ kubernetes_services_cidr | ipaddr('2') | ipaddr('address') }}-{{ kubernetes_services_cidr | ipaddr('-1') | ipaddr('address') }}
 {% if use_proxy_pool %}
     - name: proxy
       protocol: layer2

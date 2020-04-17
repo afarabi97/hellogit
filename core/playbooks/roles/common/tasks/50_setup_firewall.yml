@@ -29,7 +29,19 @@
     - 6443/tcp
     - 7472/tcp
     - 1194/tcp
+    - 8443/tcp
   when: inventory_hostname in groups['master_server']
+
+- name: Allow ports thru firewall
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 8443/tcp
+    - 6443/tcp
+  when: inventory_hostname in groups['servers'] and is_control_plane_node
 
 - name: Allow common services thru firewall
   firewalld:

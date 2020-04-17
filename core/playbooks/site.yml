@@ -6,59 +6,23 @@
 
 ---
 
-- name: Set System Name
+- name: Set System Name and Node Groups
   hosts: all
-  tags: always
   gather_facts: no
-  tasks:
-    - set_fact:
-        system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
-        cacheable: yes
+  roles:
+    - system_info
+  tags:
+    - always
+    - system-info
 
 - name: Set controller domain
   hosts: localhost
-  tags: always
   gather_facts: yes
   roles:
     - domain
-  tags: domain
-
-- name: Set controller variables on hosts
-  hosts:
-    - servers
-    - sensors
-  tags: always
-  tasks:
-    - set_fact:
-        host_list: "{{ groups['servers'] + groups['sensors'] }}"
-        ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
-        ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
-        domain: "{{ hostvars.localhost.domain }}"
-    - set_fact:
-        offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
-        docker_registry_repo: "{{ ansible_controller_hostname }}"
-    - debug:
-        msg: "Controller : {{ ansible_controller_hostname }}"
-
-- name: Tag master server
-  hosts: all
-  tags: always
-  tasks:
-    - add_host:
-        hostname: "{{ item }}"
-        groups: master_server
-      when: hostvars[item].is_master | default(false)
-      with_items: "{{ groups['all'] }}"
-
-- name: Tag remote sensors
-  hosts: all
-  tags: always
-  tasks:
-    - add_host:
-        hostname: "{{ item }}"
-        groups: remote_sensors
-      when: hostvars[item].is_remote | default(false)
-      with_items: "{{ groups['all'] }}"
+  tags:
+    - always
+    - domain
 
 - name: Set Kit Size
   hosts: master_server
@@ -285,6 +249,7 @@
     - "!master_server"
     - servers
     - sensors
+  serial: 1
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

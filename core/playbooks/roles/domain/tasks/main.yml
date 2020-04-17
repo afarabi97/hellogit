@@ -33,3 +33,17 @@
 - set_fact:
     offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
     docker_registry_repo: "{{ ansible_controller_hostname }}"
+
+- name: Add Vars to Servers and Sensors
+  set_fact:
+    host_list: "{{ groups['servers'] + groups['sensors'] }}"
+    ansible_controller_hostname: "{{ ansible_controller_hostname }}"
+    ansible_controller_ip: "{{ ansible_controller_ip }}"
+    domain: "{{ domain }}"
+    offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
+    docker_registry_repo: "{{ ansible_controller_hostname }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items:
+    - "{{ groups['servers'] }}"
+    - "{{ groups['sensors'] }}"

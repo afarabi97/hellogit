@@ -59,3 +59,4 @@
   - "kube_wait_result.rc != 0"
   - "'the server was unable to return a response in the time allotted, but may still be processing the request' not in kube_wait_result.stderr"
   - "'not found' not in kube_wait_result.stderr"
+  changed_when: false

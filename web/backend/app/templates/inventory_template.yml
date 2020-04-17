@@ -120,6 +120,7 @@ all:
               kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
               management_ipv4: {{ node.management_ip_address }}
               is_master: {{ node.is_master_server }}
+              is_control_plane_node: false
             {% endif %}
             {% endfor %}
 

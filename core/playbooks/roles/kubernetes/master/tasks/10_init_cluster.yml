@@ -1,13 +1,59 @@
 ---
 
-- name: Kube | Init Kubernetes cluster
-  shell: "kubeadm init --config {{ kube_dir }}/kubeadm.conf"
-  register: init_kube_cluster_result
-  failed_when: "'ERROR' in init_kube_cluster_result.stderr"
+- block:
+  - name: Install Api Mesh
+    import_role:
+      name: kubernetes/api-mesh
+  - set_fact:
+      kube_init_cmd: "{{ kube_init_cmd }} --upload-certs"
+  when: enable_kube_ha
 
-- name: Create Join Script
+- name: Kube | Init Kubernetes cluster
+  shell: "{{ kube_init_cmd }}"
+  register: init_kube_cluster_result
+  changed_when: init_kube_cluster_result.stdout == 0
+
+- name: Output to file
+  copy:
+    content: "{{  init_kube_cluster_result.stdout }}"
+    dest: "{{ kube_init_file }}"
+
+- name: Get Certificate
   shell: |
-    kubeadm token create --ttl 0 --print-join-command 2>/dev/null > /etc/kubernetes/join-node.sh
+    awk '/--control-plane --certificate-key/{print;}' {{ kube_init_file }}
+  register: certificate_key
+  changed_when: false
+  when: enable_kube_ha
+
+- name: Get Join Command
+  shell: |
+    awk '/^kubeadm join/{print;getline;print;}' {{ kube_init_file }}
+  register: join_command
+  changed_when: false
+  when: enable_kube_ha
+
+- name: Validate Join Command
+  shell: |
+    echo "{{ join_command.stdout }} {{ certificate_key.stdout }}" > "{{ kube_master_join_file }}"
+  register: create_join_script
+  changed_when: create_join_script.rc == 0
+  when: enable_kube_ha
+
+- name: Remove temp file
+  file:
+    path: "{{ kube_init_file }}"
+    state: absent
+
+- name: Create Worker Node Join Script
+  shell: |
+    kubeadm token create --ttl 0 --print-join-command 2>/dev/null > "{{ kube_worker_join_file }}"
+
+# - name: Replace 6443 with 8443 just to make sure matching whole line
+#   replace:
+#     path: "{{ kubernetes_conf_file }}"
+#     regexp: "server: https://{{ kube_virtual_ip }}:6443"
+#     replace: "server: https://{{ kube_virtual_ip }}:8443"
+#   when: enable_kube_ha
 
 - name: Kube | Retrieve files
   fetch:
@@ -16,7 +62,17 @@
     flat: yes
   with_items:
     - "{{ kubernetes_conf_file }}"
-    - "/etc/kubernetes/join-node.sh"
+    - "{{ kube_worker_join_file }}"
+  tags: pull_join_script
+
+- name: Kube | Retrieve Control Plane Join Script
+  fetch:
+    src: "{{ item }}"
+    dest: files/
+    flat: yes
+  with_items:
+    - "{{ kube_master_join_file }}"
+  when: enable_kube_ha
   tags: pull_join_script
 
 - name: Retrieve generated credentials
