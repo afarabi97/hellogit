@@ -224,8 +224,8 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
             is_master = False
 
         with FabricConnectionManager('root', password, node["management_ip_address"]) as cmd:
-            if dt_srv._has_chronyd(cmd) or dt_srv._has_ansible(cmd):
-                raise NodeDirtyException("{} is dirty.  Please rekickstart this node before proceeding.".format(node["hostname"]))
+            #if dt_srv._has_chronyd(cmd) or dt_srv._has_ansible(cmd):
+            #    raise NodeDirtyException("{} is dirty.  Please rekickstart this node before proceeding.".format(node["hostname"]))
             dt_srv.change_time_on_target(cmd, node["hostname"], is_master)
 
     dt_srv.set_controller_clock(True)

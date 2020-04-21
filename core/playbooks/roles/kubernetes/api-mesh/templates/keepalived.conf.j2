@@ -1,18 +1,11 @@
-global_defs {
-  router_id LVS_DEVEL
-}
-
 vrrp_instance VRRP1 {
 {% if inventory_hostname in groups['master_server'] %}
     state MASTER
 {% else %}
     state BACKUP
 {% endif %}
-#   Specify the network interface to which the virtual address is assigned
     interface {{ management_interface }}
-#   The virtual router ID must be unique to each VRRP instance that you define
     virtual_router_id 41
-#   Set the value of priority higher on the master server than on a backup server
 {% if inventory_hostname in groups['master_server'] %}
     priority 200
 {% else %}

@@ -32,6 +32,13 @@
     - 8443/tcp
   when: inventory_hostname in groups['master_server']
 
+- name: Rich Rule for VRRP
+  firewalld:
+    rich_rule: rule protocol value="vrrp" accept
+    permanent: yes
+    state: enabled
+  when: inventory_hostname in groups['master_server'] and enable_kube_ha
+
 - name: Allow ports thru firewall
   firewalld:
     port: "{{ item }}"
@@ -41,6 +48,13 @@
   with_items:
     - 8443/tcp
     - 6443/tcp
+  when: inventory_hostname in groups['servers'] and is_control_plane_node
+
+- name: Rich Rule for VRRP
+  firewalld:
+    rich_rule: rule protocol value="vrrp" accept
+    permanent: yes
+    state: enabled
   when: inventory_hostname in groups['servers'] and is_control_plane_node
 
 - name: Allow common services thru firewall
