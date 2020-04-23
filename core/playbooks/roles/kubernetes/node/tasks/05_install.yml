@@ -85,3 +85,11 @@
   command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
   when: inventory_hostname in groups['servers']
   register: debug_output
+
+- name: Kube | Remove NoSchedule Taint
+  shell: |
+    kubectl taint node {{ ansible_fqdn }} node-role.kubernetes.io/master-
+  when:
+    - enable_kube_ha
+    - inventory_hostname in groups['servers']
+    - is_control_plane_node
