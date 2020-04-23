@@ -66,3 +66,23 @@
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
   tags: sensor-stigs
+
+- name: Deploy STIGs for GIP Service VMs
+  hosts:
+    - gip-service-vms
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 006_RHEL_07_010290
+  tags: gip-service-vm-stigs
+
+- name: Deploy STIGs for MIP
+  hosts:
+    - mip-controllers
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 006_RHEL_07_010290
+  tags: mip-controller-stigs

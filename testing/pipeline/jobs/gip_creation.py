@@ -13,7 +13,8 @@ class GipCreationJob:
         self.gip_settings = gip_settings
 
     def _run_setup_playbook(self):
-        extra_vars = {"ansible_ssh_pass": self.gip_settings.node.password, "ansible_user": self.gip_settings.node.username}
+        extra_vars = {"ansible_ssh_pass": self.gip_settings.node.password,
+                      "ansible_user": self.gip_settings.node.username}
         execute_playbook([GIP_DIR + 'site.yml'],
                          extra_vars=extra_vars,
                          targets=Target("gipsvc", self.gip_settings.node.ipaddress))
@@ -23,6 +24,7 @@ class GipCreationJob:
 
     def execute(self):
         print("Executing gip job")
-        execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.gip_settings.to_dict())
-        test_nodes_up_and_alive([self.gip_settings.node], 10)
+        execute_playbook(
+            [PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.gip_settings.to_dict())
+        test_nodes_up_and_alive([self.gip_settings.node], 30)
         self._run_setup_playbook()
