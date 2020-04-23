@@ -113,6 +113,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.ruleset
 
     @property
+    def mongo_rule(self) -> Collection:
+        return self._tfplenum_database.rule
+
+    @property
     def mongo_console(self) -> Collection:
         return self._tfplenum_database.console
 

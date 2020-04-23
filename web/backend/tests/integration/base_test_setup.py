@@ -27,4 +27,8 @@ class BaseTestCase(unittest.TestCase):
         self.kit3_pth = Path(SCRIPT_DIR + '/testfiles/kit3.json')
         self.sample_pcap1 = Path(SCRIPT_DIR + '/testfiles/ipv4frags.pcap')
         self.kit_form3 = json.loads(self.kit3_pth.read_text(), encoding='utf-8')
+        self.sample_rules1 = Path(SCRIPT_DIR + '/testfiles/small.rules')
+        self.invalid_sample_rules1 = Path(SCRIPT_DIR + '/testfiles/invalid-small.rules')
+        self.zip_rules = Path(SCRIPT_DIR + '/testfiles/rules.zip')
+        self.zeek_rules = Path(SCRIPT_DIR + '/testfiles/small.zeek')
         shutil.rmtree('/var/www/html/pcaps/', ignore_errors=True)

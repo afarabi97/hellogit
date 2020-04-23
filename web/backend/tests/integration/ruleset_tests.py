@@ -22,7 +22,7 @@ class TestRulesetController(BaseTestCase):
         super().setUp()
 
     def _verify_ruleset_count(self, expected_count: int):
-        response = self.session.get(self.base_url + "/api/get_rulesets/all")
+        response = self.session.get(self.base_url + "/api/get_rulesets/")
         self.assertEqual(response.status_code, 200)
         rule_sets = response.json()
         self.assertEqual(expected_count, len(rule_sets))
@@ -35,7 +35,12 @@ class TestRulesetController(BaseTestCase):
 
     def _verify_rule(self, expected: Dict, actual: Dict):
         self.assertEqual(expected["ruleName"], actual["ruleName"])
-        self.assertEqual(expected["rule"], actual["rule"])
+        try:
+            actual["rule"]
+            self.assertTrue(False)
+        except KeyError:
+            pass
+
         self.assertEqual(expected["isEnabled"], actual["isEnabled"])
         self.assertIsNotNone(actual["_id"])
 
@@ -63,6 +68,69 @@ class TestRulesetController(BaseTestCase):
 
         host_info = response.json() # type: List
         self.assertEqual(2, len(host_info))
+
+    def test_upload_ruleset(self):
+        ruleset = {
+            "appType": "Suricata",
+            "clearance": "TS",
+            "name": "ruleSetOne",
+            "sensors": [],
+            "state": [],
+            "state": "Dirty",
+            "isEnabled": True
+        }
+
+        bro_ruleset = {
+            "appType": "Zeek",
+            "clearance": "TS",
+            "name": "ruleSetTwo",
+            "sensors": [],
+            "state": [],
+            "state": "Dirty",
+            "isEnabled": True
+        }
+
+        response = self.session.post(self.base_url + "/api/create_ruleset", json=ruleset)
+        self.assertEqual(response.status_code, 200)
+        actual_result = response.json() # type: Dict
+        self.assertIsNotNone(actual_result['_id'])
+        ruleset_id = actual_result['_id']
+        self._verify_ruleset(ruleset, actual_result, RULESET_STATES[0])
+
+        files = {'upload_file': open(self.sample_rules1,'rb')}
+        values = {'ruleSetForm': json.dumps(actual_result)}
+
+        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        self.assertEqual(200, response.status_code)
+        self._verify_ruleset_count(1)
+        self._verify_rule_count(ruleset_id, 1)
+
+        files['upload_file'] = open(self.invalid_sample_rules1,'rb')
+        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        self.assertEqual(200, response.status_code)
+        self.assertIsNotNone(response.json()['error_message'])
+        self._verify_ruleset_count(1)
+        self._verify_rule_count(ruleset_id, 1)
+
+        files['upload_file'] = open(self.zip_rules,'rb')
+        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        self.assertEqual(200, response.status_code)
+        self._verify_ruleset_count(1)
+        self._verify_rule_count(ruleset_id, 5)
+
+        response = self.session.post(self.base_url + "/api/create_ruleset", json=bro_ruleset)
+        self.assertEqual(response.status_code, 200)
+        actual_result = response.json() # type: Dict
+        self.assertIsNotNone(actual_result['_id'])
+        ruleset_id = actual_result['_id']
+        self._verify_ruleset(bro_ruleset, actual_result, RULESET_STATES[0])
+
+        files['upload_file'] = open(self.zeek_rules,'rb')
+        values = {'ruleSetForm': json.dumps(actual_result)}
+        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        self.assertEqual(200, response.status_code)
+        self._verify_ruleset_count(2)
+        self._verify_rule_count(ruleset_id, 1)
 
 
     def test_crud_operations_for_rulesets_and_rules(self):
@@ -104,7 +172,6 @@ class TestRulesetController(BaseTestCase):
         response = self.session.post(self.base_url + "/api/create_ruleset", json=ruleset)
         self.assertEqual(response.status_code, 200)
         actual_result = response.json() # type: Dict
-        self.assertEqual(actual_result['rules'], [])
         self.assertIsNotNone(actual_result['_id'])
         ruleset_id = actual_result['_id']
         self._verify_ruleset(ruleset , actual_result, RULESET_STATES[0])
@@ -123,20 +190,20 @@ class TestRulesetController(BaseTestCase):
         ruleset = response.json()
         self.assertEqual(ruleset['state'], RULESET_STATES[1])
 
-        # Test save same rule and make sure only one rule is saved as this is suppose to be a set.
+        # Test save same rule and make sure
         # Verify that the states is still dirty
         add_rule['rulesetID'] = ruleset_id
         add_rule['ruleToAdd'] = single_rule
         response = self.session.post(self.create_rule_url, json=add_rule)
         self.assertEqual(response.status_code, 200)
-        self._verify_rule_count(ruleset_id, 1)
+        self._verify_rule_count(ruleset_id, 2)
 
         # Test save different rule
         add_rule['rulesetID'] = ruleset_id
         add_rule['ruleToAdd'] = single_rule2
         response = self.session.post(self.create_rule_url, json=add_rule)
         self.assertEqual(response.status_code, 200)
-        self._verify_rule_count(ruleset_id, 2)
+        self._verify_rule_count(ruleset_id, 3)
 
         # Test update rule
         single_rule2_w_id = response.json()
@@ -147,7 +214,7 @@ class TestRulesetController(BaseTestCase):
         response = self.session.put(self.base_url + "/api/update_rule", json=update_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule(single_rule2_w_id, response.json())
-        self._verify_rule_count(ruleset_id, 2)
+        self._verify_rule_count(ruleset_id, 3)
 
         # Test update ruleset
         response = self.session.get(self.base_url + '/api/get_ruleset/' + str(ruleset_id))
@@ -157,12 +224,12 @@ class TestRulesetController(BaseTestCase):
         response = self.session.put(self.base_url + "/api/update_ruleset", json=test_rule_set)
         self.assertEqual(response.status_code, 200)
         self._verify_ruleset(test_rule_set, response.json(), RULESET_STATES[1])
-        self._verify_rule_count(ruleset_id, 2)
+        self._verify_rule_count(ruleset_id, 3)
 
         # Test delete rule
         response = self.session.delete(self.base_url + "/api/delete_rule/" + str(ruleset_id) + "/" + str(single_rule2_w_id['_id']))
         self.assertEqual(response.status_code, 200)
-        self._verify_rule_count(ruleset_id, 1)
+        self._verify_rule_count(ruleset_id, 2)
 
         # Test delete ruleset
         response = self.session.delete(self.base_url + "/api/delete_ruleset/" + str(ruleset_id))

@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../../services/websocket.service';
+import { PolicyManagementUploadDialog } from '../upload-dialog/policy-mng-upload.component';
 
 
 @Component({
@@ -25,11 +26,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
   expandedElement: IRuleSet | null;
   objectKeys = Object.keys;
-  filterGroup: FormGroup;
 
   isVisibleTest: boolean;
   isRulesVisible: Array<boolean>;
-  ruleSetGroups: Array<string>;
 
 
   @ViewChild('paginator', {static: false}) paginator: MatPaginator;
@@ -43,7 +42,6 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
     this.isVisibleTest = false;
     this.isRulesVisible = new Array();
-    this.ruleSetGroups = new Array();
     this.ruleSetsDataSource = new MatTableDataSource();
     this.rulesDataSource = new MatTableDataSource();
   }
@@ -62,19 +60,10 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
-  private reloadRuleSetTable(ruleSetGroupName: string = "All"){
-    this.policySrv.getRuleSets(ruleSetGroupName).subscribe(ruleSets => {
+  private reloadRuleSetTable(){
+    this.policySrv.getRuleSets().subscribe(ruleSets => {
       this.isRulesVisible =  new Array(ruleSets.length).fill(false);
       this.ruleSetsDataSource.data = ruleSets;
-      this.paginator._changePageSize(this.paginator.pageSize);
-    });
-
-    this.policySrv.getDistinctRuleSetGroups().subscribe(data => {
-      if (data instanceof ErrorMessage){
-        this.displaySnackBar(data.error_message);
-      } else {
-        this.ruleSetGroups = data as Array<string>;
-      }
     });
   }
 
@@ -136,10 +125,6 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
       search += data[key];
     }
     return search;
-  }
-
-  filterByRuleSetGroup(event: MatSelectChange){
-    this.reloadRuleSetTable(event.value);
   }
 
   getRules(ruleset: RuleSet, index: number) {
@@ -226,8 +211,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);
           } else if (data instanceof SuccessMessage){
-            // this.policySrv.innerRules.splice(index, 1);
-            this.rulesDataSource.data.splice(index, 1);
+            let tmp = this.rulesDataSource.data;
+            tmp.splice(index, 1);
+            this.rulesDataSource.data = tmp;
             this.displaySnackBar(data.success_message);
           }
         }, err => {
@@ -287,7 +273,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
             this.displaySnackBar(data.error_message);
           }
         }, err => {
-          this.displaySnackBar("Failed ot update ruleset of unknown reason.");
+          this.displaySnackBar("Failed to update ruleset for an unknown reason.");
           console.log(err);
         });
       }
@@ -327,15 +313,57 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
         this.policySrv.createRuleSet(ruleSetGroup.value as IRuleSet).subscribe(data => {
           if (data instanceof RuleSet){
             this.ruleSetsDataSource.data.push(data);
-            this.paginator._changePageSize(this.paginator.pageSize);
+            this.reloadRuleSetTable();
+            this.displaySnackBar("Successfully added a Ruleset file.");
           } else if (data instanceof ErrorMessage) {
             this.displaySnackBar(data.error_message);
           }
         }, err => {
-          this.displaySnackBar("Failed ot create ruleset of unknown reason.");
+          this.displaySnackBar("Failed to create ruleset for an unknown reason.");
           console.log(err);
         });
       }
+    });
+  }
+
+  uploadRulesFile(ruleSet: RuleSet){
+    this.policySrv.editRuleSet = ruleSet;
+    const dialogRef = this.dialog.open(PolicyManagementUploadDialog, {
+      width: '500px',
+      data: 'add'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result){
+        return;
+      }
+
+      let ruleSetGroup = result['formGroup'] as FormGroup;
+      if (ruleSetGroup && ruleSetGroup.valid){
+        this.displaySnackBar("Uploading rules file. Please wait for a confirmation message.");
+        this.policySrv.uploadRuleFile(result["fileToUpload"], ruleSetGroup.value as IRuleSet).subscribe(data => {
+          const successMsg = "Successfully uploaded rules file.";
+          if (data instanceof Rule){
+            let tmp = this.rulesDataSource.data;
+            tmp.push(data);
+            this.rulesDataSource.data = tmp;
+            this.displaySnackBar(successMsg);
+          } else if (data instanceof Array) {
+            let tmp = this.rulesDataSource.data;
+            for (let item of data){
+              tmp.push(item);
+            }
+            this.rulesDataSource.data = tmp;
+            this.displaySnackBar(successMsg);
+          } else if (data instanceof ErrorMessage) {
+            this.displaySnackBar(data.error_message);
+          }
+        }, err => {
+          this.displaySnackBar("Failed to create ruleset for an unknown reason.");
+          console.log(err);
+        });
+      }
+
     });
   }
 

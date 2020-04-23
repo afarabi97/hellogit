@@ -82,7 +82,8 @@ class RuleSynchronization():
             if not rule_set["isEnabled"]:
                 continue
 
-            for rule in rule_set["rules"]:
+            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            for rule in rules:
                 try:
                     if rule["isEnabled"]:
                         rules_file.write(rule["rule"] + "\n")
@@ -188,7 +189,8 @@ class RuleSynchronization():
             rule_set_dir = "%s/%s" % (BRO_CUSTOM_DIR, rule_set_name)
             self._run_cmd_or_raise(fabric, "mkdir -p " + rule_set_dir)
 
-            for rule in rule_set["rules"]:
+            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            for rule in rules:
                 if not rule["isEnabled"]:
                     continue
 

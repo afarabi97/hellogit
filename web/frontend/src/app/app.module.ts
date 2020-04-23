@@ -50,6 +50,7 @@ import { PolicyManagementComponent } from './policy-management/component/policy-
 import { PolicyManagementDialog } from './policy-management/dialog/policy-management-dialog.component';
 import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
 import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
+import { PolicyManagementUploadDialog } from './policy-management/upload-dialog/policy-mng-upload.component';
 
 //Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
@@ -143,6 +144,7 @@ import { MIPConfigValidationComponent } from './mip-config-validation/mip-config
     PolicyManagementDialog,
     PolicyManagementTable,
     PolicyManagementAddDialog,
+    PolicyManagementUploadDialog,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
@@ -194,6 +196,7 @@ import { MIPConfigValidationComponent } from './mip-config-validation/mip-config
     PolicyManagementComponent,
     PolicyManagementTable,
     PolicyManagementAddDialog,
+    PolicyManagementUploadDialog,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     ArchiveRestoreDialogComponent,

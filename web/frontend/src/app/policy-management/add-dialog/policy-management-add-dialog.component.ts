@@ -75,32 +75,35 @@ export class PolicyManagementAddDialog  implements OnInit {
       'clearance': new FormControl(ruleSet ? ruleSet.clearance : ''),
       'sensors': new FormControl(),
       'appType': new FormControl(ruleSet ? ruleSet.appType : ''),
-      'isEnabled': new FormControl(ruleSet ? ruleSet.isEnabled : true),
-      'groupName': new FormControl(ruleSet ? ruleSet.groupName : '')
+      'isEnabled': new FormControl(ruleSet ? ruleSet.isEnabled : true)
     });
 
     if (isEdit){
       this.ruleSetGroup.get('appType').disable();
       let valuesToSelect = [];
-      for (let item of ruleSet.sensors){
-        valuesToSelect.push(item.hostname);
-      }
+      if (ruleSet.sensors){
+        for (let item of ruleSet.sensors){
+          valuesToSelect.push(item.hostname);
+        }
 
-      this.ruleSetGroup.get('sensors').setValue(valuesToSelect);
+        this.ruleSetGroup.get('sensors').setValue(valuesToSelect);
+      }
     }
   }
 
   onSubmit() {
     let valuesToSendBack = [];
-    for (let hostname of this.ruleSetGroup.get("sensors").value){
-      for (let hostObj of this.sensorList){
-        if (hostname === hostObj.hostname){
-          valuesToSendBack.push(hostObj);
-          break;
+    if (this.ruleSetGroup.get("sensors").value){
+      for (let hostname of this.ruleSetGroup.get("sensors").value){
+        for (let hostObj of this.sensorList){
+          if (hostname === hostObj.hostname){
+            valuesToSendBack.push(hostObj);
+            break;
+          }
         }
       }
+      this.ruleSetGroup.get('sensors').setValue(valuesToSendBack);
     }
-    this.ruleSetGroup.get('sensors').setValue(valuesToSendBack);
     this.dialogRef.close(this.ruleSetGroup);
   }
 

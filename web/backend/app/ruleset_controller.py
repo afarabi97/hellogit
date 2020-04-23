@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import json
 
 from app import (app, logger, conn_mng, get_next_sequence, WEB_DIR)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
@@ -8,30 +9,32 @@ from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
 from datetime import datetime
 from flask import jsonify, request, Response, send_file
+from io import StringIO
 from pathlib import Path
 from pymongo.collection import Collection
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
-from pymongo.results import InsertOneResult, UpdateResult
+from pymongo.results import InsertOneResult, UpdateResult, DeleteResult
 from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
                               PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
                               RULE_TYPES, ZEEK_IMAGE_VERSION,
                               BRO_RULE_DIR)
 from shared.utils import tar_folder
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Union
+from werkzeug.utils import secure_filename
+from zipfile import ZipFile, BadZipFile
 
 
-RULES_ID = 'rules._id'
+CHUNK_SIZE = 5000000
 
 
-@app.route('/api/get_rulesets/<rule_set_group_name>', methods=['GET'])
-def get_rulesets(rule_set_group_name: str) -> Response:
-    rule_sets = []
-    if rule_set_group_name.lower() == "all":
-        rule_sets = conn_mng.mongo_ruleset.find({}, projection={"rules": False}) # type: Cursor
-    else:
-        rule_sets = conn_mng.mongo_ruleset.find({"groupName": rule_set_group_name}, projection={"rules": False}) # type: Cursor
+class InvalidRuleSyntax(Exception):
+    pass
 
+
+@app.route('/api/get_rulesets/', methods=['GET'])
+def get_rulesets() -> Response:
+    rule_sets = conn_mng.mongo_ruleset.find({}) # type: Cursor
     ret_val = []
     for rule_set in rule_sets:
         ret_val.append(rule_set)
@@ -40,42 +43,29 @@ def get_rulesets(rule_set_group_name: str) -> Response:
 
 @app.route('/api/get_ruleset/<rule_set_id>', methods=['GET'])
 def get_ruleset(rule_set_id: str) -> Response:
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id)},
-                                                projection={"rules": False}) # type: Cursor
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id)}) # type: Cursor
     if rule_set:
         return jsonify(rule_set)
     return jsonify({"error_message": "Failed to find the ruleset ID {}.".format(rule_set_id)})
 
 
-@app.route('/api/get_ruleset_groups', methods=['GET'])
-def get_ruleset_groups() -> Response:
-    rule_sets = conn_mng.mongo_ruleset.find({}, projection={"groupName": True}).distinct("groupName") # type: List
-    if rule_sets:
-        rule_sets.append("All")
-        return jsonify(rule_sets)
-    return jsonify({"error_message": "Failed to find the ruleset group names."})
-
-
 @app.route('/api/get_rules/<rule_set_id>', methods=['GET'])
 def get_rules(rule_set_id: str) -> Response:
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id)}, projection={"rules.rule": False})
-    if rule_set:
-        return jsonify(rule_set['rules'])
+    rules = conn_mng.mongo_rule.find({'rule_set_id': int(rule_set_id)}, projection={"rule": False})
+    if rules:
+        return jsonify(list(rules))
     return jsonify({"error_message": "Failed to find rules for ruleset ID {}.".format(rule_set_id)})
 
 
 @app.route('/api/get_rules_content/<rule_set_id>/<rule_id>', methods=['GET'])
 def get_rule_content(rule_set_id: str, rule_id: str) -> Response:
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id), RULES_ID: int(rule_id)})
-    if rule_set:
-        for rule in rule_set['rules']:
-            if rule["_id"] == int(rule_id):
-                return jsonify(rule)
+    rule = conn_mng.mongo_rule.find_one({'_id': int(rule_id)})
+    if rule:
+        return jsonify(rule)
     return jsonify({"error_message": "Failed to find rule content for ruleset ID {} and rule ID {}.".format(rule_set_id, rule_id)})
 
 
 def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
-    ruleset['rules'] = []
     ruleset['state'] = RULESET_STATES[0]
     ruleset["_id"] = get_next_sequence("rulesetid")
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
@@ -85,14 +75,63 @@ def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
     return ret_val
 
 
-def create_ruleset_from_file(path: Path, ret_val: InsertOneResult):
-    with path.open() as f:
-        rule = {
-            "ruleName": path.name,
-            "rule": f.read(),
-            "isEnabled": True
-        }
-        create_rule_service(ret_val.inserted_id, rule)
+def create_rule_service(ruleset_id: int, rule: Dict, projection={"rule": False}) -> Dict:
+    rule["_id"] = get_next_sequence("ruleid")
+    rule["rule_set_id"] = ruleset_id
+    dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+    rule['createdDate'] = dt_string
+    rule['lastModifiedDate'] = dt_string
+    ret_val = conn_mng.mongo_rule.insert_one(rule)
+    return conn_mng.mongo_rule.find_one({'_id': ret_val.inserted_id}, projection=projection)
+
+
+def create_rule_srv_wrapper(rule_set: Dict,
+                rule_name: str,
+                rule_content: str,
+                is_enabled:bool=True):
+    rule = {
+        "ruleName": rule_name,
+        "rule": rule_content,
+        "isEnabled": is_enabled
+    }
+    rule_set_id = rule_set["_id"]
+    rule_type = rule_set['appType']
+    is_valid = False
+    error_output = "Unsupported rule type."
+    if rule_type == RULE_TYPES[0]:
+        is_valid, error_output = _validate_suricata_rule(rule)
+    elif rule_type == RULE_TYPES[1]:
+        is_valid, error_output = _validate_bro_rule(rule)
+
+    if is_valid:
+        return create_rule_service(rule_set_id, rule)
+
+    raise InvalidRuleSyntax(error_output.split('\n'))
+
+
+def _get_file_name(filename: str, count: int) -> str:
+    pos = filename.rfind('.')
+    return "{}_{}{}".format(filename[0:pos], count, filename[pos:])
+
+
+def create_rule_from_file(path: Path, rule_set: Dict) -> Union[Dict, List[Dict]]:
+    # If the file is greater than 5 MB we need to split up the file into smaller pieces
+    if path.stat().st_size > CHUNK_SIZE:
+        partial_rule = StringIO()
+        count = 1
+        ret_val = []
+        with path.open() as f:
+            for line in f.readlines():
+                partial_rule.write(line)
+                if partial_rule.tell() >= CHUNK_SIZE:
+                    filename = _get_file_name(path.name, count)
+                    ret_val.append(create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue()))
+                    partial_rule = StringIO()
+                    count += 1
+        return ret_val
+    else:
+        with path.open() as f:
+            return create_rule_srv_wrapper(rule_set, path.name, f.read())
 
 
 @app.route('/api/create_ruleset', methods=['POST'])
@@ -118,7 +157,6 @@ def update_ruleset() -> Response:
     ruleset['lastModifiedDate'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
     ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
                                                          {"$set": ruleset},
-                                                         projection={"rules": False},
                                                          return_document=ReturnDocument.AFTER)
     if ret_val:
         return jsonify(ret_val)
@@ -127,7 +165,11 @@ def update_ruleset() -> Response:
 
 def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
     with tempfile.TemporaryDirectory() as tmpdirname:
-        the_rule = rule['rule']
+        try:
+            the_rule = rule['rule']
+        except KeyError:
+            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+
         filename = '{}/suricata.rules'.format(tmpdirname)
         if isinstance(the_rule, str):
             with Path(filename).open('w') as fp:
@@ -153,7 +195,11 @@ def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
 
 def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
     with tempfile.TemporaryDirectory() as tmpdirname:
-        the_rule = rule['rule']
+        try:
+            the_rule = rule['rule']
+        except KeyError:
+            the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
+
         filename = "custom.bro"
         filepath = '{}/{}'.format(tmpdirname, filename)
         if isinstance(the_rule, str):
@@ -180,16 +226,55 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
     return False, stdoutput
 
 
-def create_rule_service(ruleset_id: int, rule: Dict):
-    rule["_id"] = get_next_sequence("ruleid")
-    dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-    rule['createdDate'] = dt_string
-    rule['lastModifiedDate'] = dt_string
-    ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                         {'$push': {'rules': rule}},
-                                                         projection={"rules": False})
+def does_file_have_ext(some_path: str, extension: str) -> bool:
+    pos = some_path.rfind(".")
+    file_ext = some_path[pos:]
+    return file_ext.lower() == extension
 
+
+def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Dict]:
+    ret_val = []
+    with ZipFile(some_zip) as f:
+        f.extractall(export_path)
+    for root, dirs, files in os.walk(export_path):
+        for file_path in files:
+            abs_path = root + "/" + file_path
+            if does_file_have_ext(abs_path, '.txt') or does_file_have_ext(abs_path, '.rules'):
+                rule_or_rules = create_rule_from_file(Path(abs_path), rule_set)
+                if isinstance(rule_or_rules, list):
+                    ret_val += rule_or_rules
+                else:
+                    ret_val.append(rule_or_rules)
     return ret_val
+
+
+@app.route('/api/upload_rule', methods=['POST'])
+def upload_rule() -> Response:
+    rule_set = json.loads(request.form['ruleSetForm'],
+                          encoding="utf-8")
+    rule = None
+    if 'upload_file' not in request.files:
+        return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
+
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': rule_set['_id']})
+    if rule_set:
+        rule_set_file = request.files['upload_file']
+        filename = secure_filename(rule_set_file.filename)
+
+        with tempfile.TemporaryDirectory() as export_path:
+            abs_save_path = str(export_path) + '/' + filename
+            rule_set_file.save(abs_save_path)
+            try:
+                if does_file_have_ext(abs_save_path, '.zip'):
+                    rule_or_rules = _process_zipfile(export_path, abs_save_path, rule_set)
+                else:
+                    rule_or_rules = create_rule_from_file(Path(abs_save_path), rule_set)
+            except InvalidRuleSyntax as e:
+                return jsonify({"error_message": str(e)})
+    if rule_or_rules:
+        return jsonify(rule_or_rules)
+    else:
+        return jsonify({"error_message": "Failed to upload rules file for an unknown reason."})
 
 
 @app.route('/api/create_rule', methods=['POST'])
@@ -209,19 +294,9 @@ def create_rule() -> Response:
             is_valid, error_output = _validate_bro_rule(rule)
 
         if is_valid:
-            for old_rule in rule_set["rules"]:
-                if old_rule["rule"] == rule["rule"]:
-                    return jsonify({"error_message": "Failed to add " + rule["ruleName"] +
-                                ". The content of this rule matches another rule in the database."})
-
-            dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-            rule['createdDate'] = dt_string
-            rule['lastModifiedDate'] = dt_string
-            ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                                {'$push': {'rules': rule},
-                                                                '$set': {'state': RULESET_STATES[1]}},
-                                                                projection={"rules": False})
-            if ret_val:
+            rule = create_rule_service(ruleset_id, rule)
+            conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
+            if rule:
                 return jsonify(rule)
         elif error_output:
             return jsonify({"error_message": error_output.split('\n')})
@@ -235,7 +310,7 @@ def update_rule() -> Response:
     rule = update_rule['ruleToUpdate']
     id_to_modify = rule['_id']
 
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id}, projection={"rules": False})
+    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
     if rule_set:
         rule_type = rule_set['appType']
         is_valid = False
@@ -248,14 +323,17 @@ def update_rule() -> Response:
         if is_valid:
             dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
             rule['lastModifiedDate'] = dt_string
-            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, RULES_ID: id_to_modify},
-                                                                  {'$set': { "rules.$": rule,
-                                                                             "state": RULESET_STATES[1],
-                                                                             "lastModifiedDate": dt_string }},
-                                                                  return_document=ReturnDocument.AFTER)
-            if rule_set:
-                rule['_id'] = id_to_modify
-                return jsonify(rule)
+            rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+                                                           {"$set": rule},
+                                                           projection={"rule": False},
+                                                           return_document=ReturnDocument.AFTER)
+            if rule:
+                rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                                                                      {'$set': { "state": RULESET_STATES[1],
+                                                                                 "lastModifiedDate": dt_string }},
+                                                                      return_document=ReturnDocument.AFTER)
+                if rule_set:
+                    return jsonify(rule)
         else:
             return jsonify({"error_message": error_output.split('\n')})
     return jsonify({"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)})
@@ -275,33 +353,35 @@ def toggle_rule() -> Response:
 
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['lastModifiedDate'] = dt_string
-    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id, RULES_ID: id_to_modify},
-                                                            {'$set': { "rules.$.isEnabled": rule["isEnabled"],
-                                                                        "state": RULESET_STATES[1],
+    rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+                                                   {'$set': rule},
+                                                    projection={"rule": False},
+                                                    return_document=ReturnDocument.AFTER)
+    if rule:
+        rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                                                              {'$set': {"state": RULESET_STATES[1],
                                                                         "lastModifiedDate": dt_string }},
-                                                            return_document=ReturnDocument.AFTER)
-    if rule_set:
-        rule['_id'] = id_to_modify
-        return jsonify(rule)
+                                                              return_document=ReturnDocument.AFTER)
+        if rule_set:
+            return jsonify(rule)
     return jsonify({"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)})
 
 
 @app.route('/api/delete_rule/<rule_set_id>/<rule_id>', methods=['DELETE'])
 def delete_rule(rule_set_id: str, rule_id: str) -> Response:
-    ret_val = conn_mng.mongo_ruleset.update_one({'_id': int(rule_set_id)},
-                                                {'$pull': {'rules': {'_id': int(rule_id)}},
-                                                 '$set': {'state': RULESET_STATES[1]}
-                                                })  # type: UpdateResult
-    if ret_val.modified_count == 1:
+    ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
+    if ret_val.deleted_count == 1:
         return jsonify({"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)})
     return jsonify({"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_set_id)})
 
 
 @app.route('/api/delete_ruleset/<ruleset_id>', methods=['DELETE'])
 def delete_ruleset(ruleset_id: str) -> Response:
-    ret_val = conn_mng.mongo_ruleset.delete_one({'_id': int(ruleset_id)})
-    if ret_val.deleted_count == 1:
-        return jsonify({"success_message": "Successfully deleted rule set."})
+    rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': int(ruleset_id)})
+    if rules_deleted:
+        ret_val = conn_mng.mongo_ruleset.delete_one({'_id': int(ruleset_id)})
+        if ret_val.deleted_count == 1:
+            return jsonify({"success_message": "Successfully deleted rule set."})
     return jsonify({"error_message": "Failed to delete ruleset ID {}.".format(ruleset_id)})
 
 

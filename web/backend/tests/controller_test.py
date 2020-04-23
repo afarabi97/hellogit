@@ -67,8 +67,7 @@ class TestAgentBuilder(BaseTestCase):
                 'winlogbeat_port': '123',
                 'install_winlogbeat': False,
                 'install_sysmon': True })
-        print(response)
-        print(response.headers)
+
         self.assertEqual(200, response.status_code)
         # Check to see the API call returned a file by saving the file and
         #  checking that its filesize isn't zero

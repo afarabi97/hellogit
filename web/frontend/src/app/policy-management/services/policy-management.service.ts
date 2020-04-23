@@ -81,6 +81,20 @@ export class PolicyManagementService {
         return this.mapRule(something);
     }
 
+    private mapRuleListOrError(something: Object): IRule | IError | Array<IRule> {
+      if (something["error_message"]){
+          return new ErrorMessage(something as IError);
+      } else if (something instanceof Array){
+        let rules = new Array<IRule>();
+        for (let r of something) {
+          rules.push(this.mapRule(r));
+        }
+        return rules;
+      } else {
+        return this.mapRule(something);
+      }
+  }
+
     private mapRuleSetOrError(something: Object): IRuleSet | IError {
         if (something["error_message"]){
             return new ErrorMessage(something as IError);
@@ -109,17 +123,10 @@ export class PolicyManagementService {
         );
     }
 
-    getRuleSets(ruleSetGroupName: string): Observable<Array<IRuleSet>> {
-        const url = `/api/get_rulesets/${ruleSetGroupName}`;
+    getRuleSets(): Observable<Array<IRuleSet>> {
+        const url = `/api/get_rulesets/`;
         return this.http.get(url).pipe(
             map(data => this.mapRuleSets(data as Array<Object>))
-        );
-    }
-
-    getDistinctRuleSetGroups(): Observable<Array<string> | IError>{
-        const url = '/api/get_ruleset_groups';
-        return this.http.get(url).pipe(
-            map(data => this.mapStrArrayOrError(data))
         );
     }
 
@@ -128,6 +135,16 @@ export class PolicyManagementService {
         return this.http.post(url, ruleSet, HTTP_OPTIONS).pipe(
             map(data => this.mapRuleSetOrError(data))
         );
+    }
+
+    uploadRuleFile(rule_set: File, ruleSet: IRuleSet): Observable<Object> {
+      const url = '/api/upload_rule';
+      const formData = new FormData();
+      formData.append('upload_file', rule_set, rule_set.name);
+      formData.append('ruleSetForm', JSON.stringify(ruleSet));
+      return this.http.post(url, formData).pipe(
+        map(data => this.mapRuleListOrError(data))
+      );
     }
 
     deleteRuleSet(ruleSetID: number): Observable<IError | ISuccess> {

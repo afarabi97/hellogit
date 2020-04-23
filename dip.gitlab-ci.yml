@@ -84,7 +84,6 @@ DIP Run Python Unit Tests:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
-  allow_failure: true
   cache:
     key: tfplenum-dip-cache-${CI_PIPELINE_ID}
     paths:

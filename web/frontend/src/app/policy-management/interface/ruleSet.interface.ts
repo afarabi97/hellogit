@@ -10,7 +10,6 @@ export interface IRuleSet {
   state: string;
   createdDate: string;
   lastModifiedDate: string;
-  groupName: string;
   isEnabled: boolean;
 }
 
@@ -24,7 +23,6 @@ export class RuleSet {
   state: string;
   createdDate: string;
   lastModifiedDate: string;
-  groupName: string;
   isEnabled: boolean;
 
   constructor(ruleset: IRuleSet) {
@@ -37,7 +35,6 @@ export class RuleSet {
     this.state = ruleset.state;
     this.createdDate = ruleset.createdDate;
     this.lastModifiedDate = ruleset.lastModifiedDate;
-    this.groupName = ruleset.groupName;
     this.isEnabled = ruleset.isEnabled;
   }
 }

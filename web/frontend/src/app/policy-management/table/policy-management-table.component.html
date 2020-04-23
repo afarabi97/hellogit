@@ -12,15 +12,6 @@
       <mat-form-field color="accent">
         <input matInput placeholder="Filter" (keyup)="applyFilter($event.target.value)">
       </mat-form-field>
-
-      <mat-form-field style="margin-top: 10px;">
-        <mat-label>Rule Set Group</mat-label>
-        <mat-select (selectionChange)="filterByRuleSetGroup($event)">
-          <mat-option *ngFor="let group of ruleSetGroups" [value]="group">
-            {{ group }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
     </div>
     <table mat-table
           [dataSource]="ruleSetsDataSource"
@@ -92,6 +83,9 @@
       <ng-container matColumnDef="Actions">
         <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell class="mat-header-cell" *matCellDef="let ruleSet">
+          <button mat-button matTooltip="Upload Rules File"(click)="uploadRulesFile(ruleSet)">
+            <i class="material-icons">cloud_upload</i>
+          </button>
           <button mat-button matTooltip="Edit Rule" (click)="editRuleSet(ruleSet)">
             <em class="material-icons">edit</em>
           </button>
