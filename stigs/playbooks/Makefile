@@ -2,11 +2,9 @@ SHELL=/bin/bash
 
 # Confirm Ansible is installed.
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
-INVENTORY ?= 'inventory.yml'
-DEPLOYER_INVENTORY ?= '/opt/tfplenum/core/playbooks/inventory.yml'
-CORE_INVENTORY ?= '/opt/tfplenum/core/playbooks/inventory.yml'
-GIP_INVENTORY ?= '/opt/tfplenum/stigs/playbooks/gip-inventory.yml'
-MIP_INVENTORY ?= '/opt/tfplenum/stigs/playbooks/mip-inventory.yml'
+CORE_INVENTORY ?= '../../core/playbooks/inventory.yml'
+GIP_INVENTORY ?= 'gip-inventory.yml'
+MIP_INVENTORY ?= 'mip-inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
 # Default target, build *and* run tests

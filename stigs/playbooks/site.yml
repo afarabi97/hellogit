@@ -31,6 +31,7 @@
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
     - 010_RHEL_07_010090
+    - 011_RHEL_07_020310
   tags:
     - controller-stigs
 
@@ -49,6 +50,7 @@
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
     - 010_RHEL_07_010090
+    - 011_RHEL_07_020310
   tags: server-stigs
 
 - name: Deploy STIGs for sensors
@@ -65,6 +67,7 @@
     - 007_RHEL_07_010010
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
+    - 011_RHEL_07_020310
   tags: sensor-stigs
 
 - name: Deploy STIGs for GIP Service VMs
@@ -75,6 +78,7 @@
   roles:
     - 001_RHEL_07_020230
     - 006_RHEL_07_010290
+    - 011_RHEL_07_020310
   tags: gip-service-vm-stigs
 
 - name: Deploy STIGs for MIP
@@ -85,4 +89,5 @@
   roles:
     - 001_RHEL_07_020230
     - 006_RHEL_07_010290
+    - 011_RHEL_07_020310
   tags: mip-controller-stigs

@@ -1,0 +1,16 @@
+- name: "HIGH | RHEL-07-020310 | The Red Hat Enterprise Linux operating system must be configured so that the root account must be the only account having unrestricted access to the system."
+  block:
+      # Currently just locks user account
+      - name: "HIGH | RHEL-07-020310 | AUDIT | The Red Hat Enterprise Linux operating system must be configured so that the root account must be the only account having unrestricted access to the system."
+        shell: "cat /etc/passwd | awk -F: '($3 == 0 && $1 != \"root\") {i++;print $1 } END {exit i}'"
+        check_mode: no
+        changed_when: no
+        failed_when: no
+        register: rhel_07_020310_audit
+
+      - name: "HIGH | RHEL-07-020310 | PATCH | The Red Hat Enterprise Linux operating system must be configured so that the root account must be the only account having unrestricted access to the system."
+        command: "passwd -l {{ item }}"
+        with_items: "{{ rhel_07_020310_audit.stdout_lines }}"
+        when: rhel_07_020310_audit.rc
+  tags:
+      - RHEL-07-020310
