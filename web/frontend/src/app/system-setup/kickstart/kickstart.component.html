@@ -144,7 +144,7 @@
         </ng-container>
         <mat-form-field>
           <mat-label>Root Password</mat-label>
-          <input matInput type="password"
+          <input matInput (keyup)="reEvaluate($event)" type="password"
             placeholder="You must enter a root password with a minimum length of 6 characters."
             formControlName="root_password" matTooltip="{{ getTooltip('root_password') }}" />
           <mat-icon *ngIf="
@@ -157,7 +157,7 @@
         </mat-form-field>
         <mat-form-field>
           <mat-label>Retype Password</mat-label>
-          <input matInput type="password" placeholder="You must re-enter the root password"
+          <input matInput (keyup)="reEvaluate($event)" type="password" placeholder="You must re-enter the root password"
             formControlName="re_password" matTooltip="{{ getTooltip('re_password') }}" />
           <mat-icon *ngIf="
               kickStartFormGroup.get('re_password').valid &&

@@ -210,9 +210,13 @@ export class KickstartComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   private newkickStartForm(kickstartForm?): FormGroup {
+    const root_password = new FormControl(kickstartForm ? kickstartForm.root_password : '');
+    const re_password = new FormControl(kickstartForm ? kickstartForm.re_password : '', );
+
     const kickstartFormGroup = this.fb.group({
       controller_interface: this.fb.array([new FormControl(kickstartForm ? kickstartForm.controller_interface[0] : '', Validators.compose([validateFromArray(kickstart_validators.controller_interface)]))]),
-      root_password: new FormControl(kickstartForm ? kickstartForm.root_password : '', Validators.compose([validateFromArray(kickstart_validators.root_password)])),
+      root_password,
+      re_password,
       nodes: this.fb.array([]),
       netmask: new FormControl(kickstartForm ? kickstartForm.netmask : '255.255.255.0', Validators.compose([validateFromArray(kickstart_validators.netmask)])),
       gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
@@ -229,14 +233,24 @@ export class KickstartComponent implements OnInit {
     }
 
     // since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
+    const root_verify = Validators.compose([validateFromArray(kickstart_validators.root_password, { parentControl: kickstartFormGroup.get('re_password') })])
+    const re_verify = Validators.compose([validateFromArray(kickstart_validators.re_password, { parentControl: kickstartFormGroup.get('root_password') })])
+    root_password.setValidators(root_verify);
+    re_password.setValidators(re_verify);
 
-    kickstartFormGroup.addControl('re_password', new FormControl(kickstartForm ? kickstartForm.re_password : '', Validators.compose([validateFromArray(kickstart_validators.re_password, { parentControl: kickstartFormGroup.get('root_password') })])));
     kickstartFormGroup.addControl('dhcp_range', new FormControl(kickstartForm ? kickstartForm.dhcp_range : '', Validators.compose([validateFromArray(kickstart_validators.dhcp_range, { parentFormGroup: kickstartFormGroup })])));
     // reset the dhcp range when on change
     let controller_interface = kickstartFormGroup.get('controller_interface') as FormArray;
     this.onControllerChanges(kickstartFormGroup, controller_interface);
     this.onNetmaskChanges(kickstartFormGroup, controller_interface);
     return kickstartFormGroup;
+  }
+
+  reEvaluate(event: KeyboardEvent){
+    if (this.kickStartFormGroup){
+      this.kickStartFormGroup.get('root_password').updateValueAndValidity();
+      this.kickStartFormGroup.get('re_password').updateValueAndValidity();
+    }
   }
 
   /**

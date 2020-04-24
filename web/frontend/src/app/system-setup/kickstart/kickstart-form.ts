@@ -95,9 +95,14 @@ export const kickstart_validators = {
   netmask: [{ error_message: 'Netmask is required', validatorFn: 'required' }],
   //general form validation
   controller_interface: [{ error_message: 'Controller Interface is required', validatorFn: 'required' }],
+  // root_password: [
+  //   { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
+  //   { error_message: 'Root password is required', validatorFn: 'required' }
+  // ],
   root_password: [
     { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
-    { error_message: 'Root password is required', validatorFn: 'required' }
+    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
+    { error_message: 'Retyping Root password is required', validatorFn: 'required' }
   ],
   re_password: [
     { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
