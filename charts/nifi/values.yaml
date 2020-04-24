@@ -11,3 +11,4 @@ nginx_image: nginx:1.17.9
 zk_image: 'bitnami/zookeeper'
 zk_version: '3.5.5-r96'
 zk_replicas: 1
+domain: lan

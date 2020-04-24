@@ -10,3 +10,4 @@ nginx_image: nginx:1.17.9
 postgresqlDatabase: redmine
 postgresqlUsername: admin
 postgresqlPassword: P@ssw0rdP@ssw0rd!
+domain: lan

@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - wikijs
-  - wikijs.lan
+  - wikijs.{{ .Values.domain }}
   - wikijs.default.svc.cluster.local
   - wikijs-headless.default.svc.cluster.local
   issuerRef:

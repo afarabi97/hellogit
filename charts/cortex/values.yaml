@@ -14,3 +14,4 @@ org_admin_username: admin_thehive
 org_admin_password: password!
 org_user_username: user_thehive
 org_user_password: password!
+domain: lan

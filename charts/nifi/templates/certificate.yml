@@ -11,7 +11,7 @@ spec:
   secretName: {{ .Release.Name }}-certificate
   duration: 8760h # 365d
   renewBefore: 360h # 15d
-  commonName: niagra-files
+  commonName: nifi
   subject:
     organizations:
     - "CVA/H"
@@ -24,10 +24,10 @@ spec:
   usages:
     - server auth
   dnsNames:
-  - niagra-files
-  - niagra-files.lan
-  - niagra-files.default.svc.cluster.local
-  - niagra-files-headless.default.svc.cluster.local
+  - nifi
+  - nifi.{{ .Values.domain }}
+  - nifi.default.svc.cluster.local
+  - nifi-headless.default.svc.cluster.local
   issuerRef:
     name: webca-issuer
     kind: Issuer

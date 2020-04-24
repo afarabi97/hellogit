@@ -44,7 +44,7 @@ spec:
         - containerPort: 443
         env:
         - name: BASE_URL
-          value: https://{{ .Release.Name }}.lan
+          value: https://misp.{{ .Values.domain }}
         - name: MYSQL_HOST
           value: 127.0.0.1
         - name: MYSQL_DATABASE

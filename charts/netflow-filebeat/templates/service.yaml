@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: netflow-filebeat
   labels:
-    component: {{ .Release.Name }}
+    component: netflow-filebeat
 spec:
   selector:
-    component: {{ .Release.Name }}
+    component: netflow-filebeat
   ports:
   - name: netflow
     port: {{ .Values.netflow_port }}

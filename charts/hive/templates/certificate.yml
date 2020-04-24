@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - hive
-  - hive.lan
+  - hive.{{ .Values.domain }}
   - hive.default.svc.cluster.local
   - hive-headless.default.svc.cluster.local
   issuerRef:

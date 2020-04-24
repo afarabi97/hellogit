@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - rocketchat
-  - rocketchat.lan
+  - rocketchat.{{ .Values.domain }}
   - rocketchat.default.svc.cluster.local
   - rocketchat-headless.default.svc.cluster.local
   issuerRef:

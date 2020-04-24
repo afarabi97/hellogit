@@ -9,7 +9,7 @@ data:
   misp.conf: |-
     <VirtualHost *:443>
       ServerAdmin admin@dip.local
-      ServerName misp.lan
+      ServerName misp.{{ .Values.domain }}
       DocumentRoot /var/www/MISP/app/webroot
       <Directory /var/www/MISP/app/webroot>
           Options -Indexes

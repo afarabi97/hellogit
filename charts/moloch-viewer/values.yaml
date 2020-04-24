@@ -1,7 +1,7 @@
 #### Moloch configuration variables ####
 image: 'tfplenum/moloch'
 port: "8005"
-
+domain: lan
 # Username and password for Web login
 username: 'assessor'
 password: 'password'

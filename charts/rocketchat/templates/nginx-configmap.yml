@@ -16,7 +16,7 @@ data:
     # HTTPS Server
     server {
         listen 443 ssl;
-        server_name {{ .Release.Name }}.lan;
+        server_name rocketchat.{{ .Values.domain }};
 
         # You can increase the limit if your need to.
         client_max_body_size 200M;

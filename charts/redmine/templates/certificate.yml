@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - redmine
-  - redmine.lan
+  - redmine.{{ .Values.domain }}
   - redmine.default.svc.cluster.local
   - redmine-headless.default.svc.cluster.local
   issuerRef:

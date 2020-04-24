@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - logstash
-  - logstash.lan
+  - logstash.{{ .Values.domain }}
   - logstash.default.svc.cluster.local
   - logstash-headless.default.svc.cluster.local
 {{ if ne .Values.external_fqdn "" }}

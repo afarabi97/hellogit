@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - misp
-  - misp.lan
+  - misp.{{ .Values.domain }}
   - misp.default.svc.cluster.local
   - misp-headless.default.svc.cluster.local
   issuerRef:

@@ -25,7 +25,7 @@ spec:
     - server auth
   dnsNames:
   - cortex
-  - cortex.lan
+  - cortex.{{ .Values.domain }}
   - cortex.default.svc.cluster.local
   - cortex-headless.default.svc.cluster.local
   issuerRef:

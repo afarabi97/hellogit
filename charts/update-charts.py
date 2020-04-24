@@ -21,7 +21,7 @@ charts = [
                 "version": "1.1.13"},
         { "name": "mongodb",
                 "version": "7.2.10"},
-        { "name": "niagra-files",
+        { "name": "nifi",
                 "version": "1.0.0"},
         { "name": "redmine",
                 "version": "1.0.0"},

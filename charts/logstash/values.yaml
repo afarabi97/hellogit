@@ -9,4 +9,5 @@ heap_size: 12 # Heap size in GB
 cpu_request: 5000
 number_of_kafka_partitions: 20
 external_ip:
-external_fqdn: 
+external_fqdn:
+domain: lan

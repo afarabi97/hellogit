@@ -73,10 +73,29 @@
       force: true
   when: "create_ca"
 
-- name: Copy Web CA to Controller http://controller.lan/webCA.crt
+- name: Copy Web CA to Controller Web root
   copy:
     src: "{{ cert_manager_dir }}/webCA.crt"
     dest: "/var/www/html/webCA.crt"
     owner: root
     group: root
     mode: 0644
+
+- name: Create scripts directory
+  file:
+    path: "/var/www/html/scripts"
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Copy Web CA Scripts to Controller Web root
+  copy:
+    src: "templates/{{ item }}.j2"
+    dest: "/var/www/html/scripts/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - loadWebCA.ps1
+    - loadWebCA.sh

@@ -83,7 +83,6 @@ function _configure_httpd {
 	rm -rf /etc/httpd/conf.d/ssl.conf
 	run_cmd cp -v ./tfplenum.conf /etc/httpd/conf.d/
   run_cmd rm -rf /etc/httpd/conf.d/welcome.conf
-  run_cmd cp -rf /opt/tfplenum/web/setup/scripts /var/www/html/
 }
 
 function _install_and_configure_gunicorn {

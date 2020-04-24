@@ -22,7 +22,7 @@ spec:
     - server auth
   dnsNames:
   - elasticsearch
-  - elasticsearch.lan
+  - elasticsearch.{{ domain }}
   - elasticsearch.{{ fqdn }}
   - elasticsearch-headless.{{ fqdn }}
   issuerRef:

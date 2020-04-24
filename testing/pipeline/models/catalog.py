@@ -83,6 +83,9 @@ class LogstashSettings(Model):
         self.replicas = 2
         self.heap_size = 4
         self.deployment_name = "server-logstash"
+        self.external_fqdn = ""
+        self.external_ip = ""
+
 
     def set_from_kickstart(self, kickstart_settings: KickstartSettings):
         self.kafka_clusters = []
