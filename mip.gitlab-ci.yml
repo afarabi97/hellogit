@@ -64,7 +64,7 @@ Setup MIP Controller:
     --vm-prefix "$VM_PREFIX-mip"
   only:
     variables:
-      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
