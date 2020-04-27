@@ -5,6 +5,7 @@ from app import app, logger, conn_mng, CORE_DIR
 from app.archive_controller import archive_form
 from app.service.job_service import run_command2
 from app.service.socket_service import notify_clock_refresh
+from app.service.system_info_service import get_system_name
 from datetime import datetime, timedelta
 from fabric.connection import Connection
 from fabric.runners import Result
@@ -190,7 +191,13 @@ class DatetimeService:
 def _reorder_nodes_and_put_master_first(nodes: List[Dict]):
     node_cache = None
     index_cache = None
+
     for index, node in enumerate(nodes):
+        if get_system_name() == "GIP":
+            node['is_master_server'] = True
+            is_master = True
+            return
+
         try:
             is_master = node['is_master_server']
         except KeyError:
@@ -203,6 +210,7 @@ def _reorder_nodes_and_put_master_first(nodes: List[Dict]):
             node_cache = node
             index_cache = index
             break
+
     del nodes[index_cache]
     nodes.insert(0, node_cache)
 
@@ -236,7 +244,8 @@ def change_time_on_kit(time_form: Dict):
     kickstart = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     kit = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if kit and kickstart:
-        _reorder_nodes_and_put_master_first(kit['form']["nodes"])
+        if get_system_name() == "DIP":
+            _reorder_nodes_and_put_master_first(kit['form']["nodes"])
         dt_srv = DatetimeService(time_form, kit['form']["nodes"][0]["management_ip_address"])
         password = decode_password(kickstart['form']['root_password'])
         for node in kit['form']["nodes"]:

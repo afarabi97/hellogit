@@ -42,56 +42,55 @@ calico_version: "v3.13.1"
 nginx_version: "1.17.9"
 cert_manager_version: v0.14.2
 
-# Docker Image List
+# "docker Image List
 kube_images:
-  - docker.io/rocketchat/rocket.chat:{{rocketchat_version}}
-  - docker.io/bitnami/mongodb:{{mongodb_version}}
-  - docker.io/busybox:{{busybox_version}}
-  - docker.io/bitnami/kafka:{{kafka_image_version}}
-  - docker.io/bitnami/zookeeper:{{zookeeper_image_version}}
-  - docker.io/chartmuseum/chartmuseum:{{chartmuseum_image_version}}
-  - docker.io/metallb/controller:{{metallb_version}}
-  - docker.io/metallb/speaker:{{metallb_version}}
-  - docker.io/tfplenum/moloch:{{moloch_version}}
-  - docker.io/tfplenum/suricata:{{suricata_version}}
-  - docker.io/tfplenum/zeek:{{zeek_version}}
-  - docker.elastic.co/beats/metricbeat:{{elastic_7_version}}
-  - docker.elastic.co/beats/filebeat:{{elastic_7_version}}
-  - docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}
-  - docker.elastic.co/kibana/kibana:{{elastic_7_version}}
-  - docker.elastic.co/logstash/logstash:{{elastic_7_version}}
-  - docker.elastic.co/eck/eck-operator:{{elastic_operator}}
-  - docker.io/tfplenum/windows_remote_installer:{{window_remote_installer_version}}
-  - docker.io/elasticsearch:{{hive_elastic_version}}
-  - docker.io/thehiveproject/cortex:{{hive_cortex_version}}
-  - docker.io/tfplenum/thehive:{{hive_version}}
-  - k8s.gcr.io/kube-apiserver:v{{k8s_version}}
-  - k8s.gcr.io/kube-controller-manager:v{{k8s_version}}
-  - k8s.gcr.io/kube-scheduler:v{{k8s_version}}
-  - k8s.gcr.io/kube-proxy:v{{k8s_version}}
-  - k8s.gcr.io/pause:{{k8s_pause_version}}
-  - k8s.gcr.io/etcd:{{k8s_etcd_version}}
-  - k8s.gcr.io/coredns:{{k8s_coredns_version}}
-  - k8s.gcr.io/addon-resizer:{{k8s_resizer_version}}
-  - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
-  - docker.io/redmine:{{ redmine_version }}
-  - docker.io/postgres:{{ postgres_version }}
-  - docker.io/apache/nifi:{{ nifi_version }}
-  - docker.io/mariadb:{{ mariadb_version }}
-  - docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}
-  - docker.io/requarks/wiki:{{ wikijs_version }}
-  - docker.io/tfplenum/misp:{{misp_version}}
-  - docker.io/tfplenum/misp-modules:{{misp_version}}
-  - docker.io/calico/pod2daemon-flexvol:{{calico_version}}
-  - docker.io/calico/cni:{{calico_version}}
-  - docker.io/calico/node:{{calico_version}}
-  - docker.io/calico/kube-controllers:{{calico_version}}
-  - docker.io/calico/ctl:{{calico_version}}
-  - docker.io/nginx:{{nginx_version}}
-  - quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}
-  - quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}
-  - quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}
-  - docker.io/tfplenum/squid:{{squid_version | default('1.1.0')}}
+  - { image: "docker.io/rocketchat/rocket.chat:{{rocketchat_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/bitnami/mongodb:{{mongodb_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/busybox:{{busybox_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/bitnami/kafka:{{kafka_image_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.io/bitnami/zookeeper:{{zookeeper_image_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.io/chartmuseum/chartmuseum:{{chartmuseum_image_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/metallb/controller:{{metallb_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/metallb/speaker:{{metallb_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/moloch:{{moloch_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.io/tfplenum/suricata:{{suricata_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.io/tfplenum/zeek:{{zeek_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.elastic.co/beats/metricbeat:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/beats/filebeat:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/kibana/kibana:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/logstash/logstash:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/eck/eck-operator:{{elastic_operator}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/windows_remote_installer:{{window_remote_installer_version}}", for_dip: true, for_gip: false }
+  - { image: "docker.io/elasticsearch:{{hive_elastic_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/thehiveproject/cortex:{{hive_cortex_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/thehive:{{hive_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/kube-apiserver:v{{k8s_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/kube-controller-manager:v{{k8s_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/kube-scheduler:v{{k8s_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/kube-proxy:v{{k8s_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/pause:{{k8s_pause_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/etcd:{{k8s_etcd_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/coredns:{{k8s_coredns_version}}", for_dip: true, for_gip: true }
+  - { image: "k8s.gcr.io/addon-resizer:{{k8s_resizer_version}}", for_dip: true, for_gip: true }
+  - { image: "quay.io/coreos/kube-state-metrics:{{kube_state_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/redmine:{{ redmine_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/postgres:{{ postgres_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/apache/nifi:{{ nifi_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/mariadb:{{ mariadb_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/requarks/wiki:{{ wikijs_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/misp:{{misp_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/misp-modules:{{misp_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/pod2daemon-flexvol:{{calico_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/cni:{{calico_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/node:{{calico_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/kube-controllers:{{calico_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/ctl:{{calico_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/nginx:{{nginx_version}}", for_dip: true, for_gip: true }
+  - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
+  - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }
+  - { image: "quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}", for_dip: true, for_gip: true }
 
 helm_charts:
   - stable/chartmuseum {{ chartmuseum_version }}

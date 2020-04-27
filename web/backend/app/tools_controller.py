@@ -364,11 +364,11 @@ def load_es_deploy():
                     elastic_deploy.create(d)
         return (jsonify("Deploy config successfully loaded."), 200)
     except Exception as e:
-        traceback.print_exc()
+        logger.exception(e)
         notification.set_status(status=NotificationCode.ERROR.name)
         notification.set_message(str(e))
         notification.post_to_websocket_api()
-        return ERROR_RESPONSE
+        return jsonify(str(e))
     return ERROR_RESPONSE
 
 

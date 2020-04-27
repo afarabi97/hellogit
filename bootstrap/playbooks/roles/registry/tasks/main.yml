@@ -23,13 +23,6 @@
   register: docker_dist_config_result
   tags: pull-docker-images
 
-- name: Register Firewall Port
-  firewalld:
-    port: "{{ firewall_port }}/tcp"
-    permanent: true
-    immediate: true
-    state: enabled
-
 - name: Enable docker distribution service
   systemd:
     name: docker-distribution
@@ -48,8 +41,7 @@
 
 - name: Install Docker
   yum:
-    name:
-      - docker-ce
+    name: docker-ce
     state: installed
 
 - name: Create directory docker directory
@@ -81,19 +73,29 @@
 - set_fact:
     dockerio_images: []
     not_dockerio_images: []
+    image_list: []
+  tags: pull-docker-images
+
+- set_fact:
+    image_list: "{{ image_list }} + ['{{item.image}}']"
+  with_items:
+    - "{{ kube_images }}"
+  when: (system_name == "GIP" and item.for_gip) or
+        (system_name == "DIP" and item.for_dip) or
+        (system_name == "MIP")
   tags: pull-docker-images
 
 - set_fact:
     dockerio_images: "{{ dockerio_images }} + ['{{item}}']"
   with_items:
-    - "{{ kube_images }}"
+    - "{{ image_list }}"
   when: "'docker.io' in item"
   tags: pull-docker-images
 
 - set_fact:
     not_dockerio_images: "{{ not_dockerio_images }} + ['{{item}}']"
   with_items:
-    - "{{ kube_images }}"
+    - "{{ image_list }}"
   when: "'docker.io' not in item"
   tags: pull-docker-images
 
@@ -161,14 +163,14 @@
 - name: Tag local images for upload to registry
   shell: "docker tag {{ item }} localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}"
   with_items:
-    - "{{ kube_images }}"
+    - "{{ image_list }}"
   tags: pull-docker-images
 
 - name: Upload local images to registry
   shell: |
     docker push localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}
   with_items:
-    - "{{ kube_images }}"
+    - "{{ image_list }}"
   async: 2500
   poll: 0
   register: docker_push_results

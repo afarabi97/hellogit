@@ -5,6 +5,7 @@ tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 core_install_dir: /opt/tfplenum/core
 tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
+system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 
 rhel_repos:
   - rhel-7-server-rpms
