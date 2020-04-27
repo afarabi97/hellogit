@@ -14,9 +14,16 @@
     - 007_RHEL_07_010010
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
+    - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
   tags: all-stigs
 
-- name: Deploy STIGs for controllers
+- name: Deploy STIGs for the DIP Controller
   hosts:
     - localhost
   gather_facts: no
@@ -32,8 +39,56 @@
     - 009_RHEL_07_010470
     - 010_RHEL_07_010090
     - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
   tags:
-    - controller-stigs
+    - dip-controller-stigs
+
+- name: Deploy STIGs for MIP Controller
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 006_RHEL_07_010290
+    - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
+  tags: mip-controller-stigs
+
+- name: Deploy STIGs for the GIP Controller
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
+    - 006_RHEL_07_010290
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+    - 010_RHEL_07_010090
+    - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
+  tags:
+    - gip-controller-stigs
 
 - name: Deploy STIGs for servers
   hosts:
@@ -51,6 +106,12 @@
     - 009_RHEL_07_010470
     - 010_RHEL_07_010090
     - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
   tags: server-stigs
 
 - name: Deploy STIGs for sensors
@@ -68,6 +129,12 @@
     - 008_RHEL_07_010460
     - 009_RHEL_07_010470
     - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
   tags: sensor-stigs
 
 - name: Deploy STIGs for GIP Service VMs
@@ -79,15 +146,11 @@
     - 001_RHEL_07_020230
     - 006_RHEL_07_010290
     - 011_RHEL_07_020310
+    - 012_RHEL_07_010300
+    - 014_RHEL_07_020000
+    - 015_RHEL_07_020010
+    - 018_RHEL_07_021710
+    - 019_RHEL_07_040390
+    - 020_RHEL_07_010020
   tags: gip-service-vm-stigs
 
-- name: Deploy STIGs for MIP
-  hosts:
-    - mip-controllers
-  gather_facts: no
-  any_errors_fatal: true
-  roles:
-    - 001_RHEL_07_020230
-    - 006_RHEL_07_010290
-    - 011_RHEL_07_020310
-  tags: mip-controller-stigs

@@ -1,4 +1,5 @@
-- name: "MEDIUM | RHEL-07-010430 | PATCH | The Red Hat Enterprise Linux operating system must be configured so that the delay between logon prompts following a failed console logon attempt is at least four seconds." # noqa 204
+- name: >
+    "RHEL-07-010430"
   lineinfile:
     dest: /etc/login.defs
     regexp: ^#?FAIL_DELAY

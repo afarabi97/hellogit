@@ -1,4 +1,4 @@
-- name: "HIGH | RHEL-07-010290 | PATCH | The Red Hat Enterprise Linux operating system must not have accounts configured with blank or null passwords."
+- name: "RHEL-07-010290"
   replace:
     dest: "{{ item }}"
     regexp: "nullok ?"

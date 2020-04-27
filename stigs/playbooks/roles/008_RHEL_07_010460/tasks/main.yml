@@ -1,4 +1,4 @@
-- name: "MEDIUM | RHEL-07-010460 | PATCH | The Red Hat Enterprise Linux operating system must not allow users to override SSH environment variables."
+- name: "RHEL-07-010460"
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: ^#?PermitUserEnvironment

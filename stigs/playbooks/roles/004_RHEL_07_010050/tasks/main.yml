@@ -1,4 +1,5 @@
-- name: "MEDIUM | RHEL-07-010050 | PATCH | The Red Hat Enterprise Linux operating system must display the Standard Mandatory DoD Notice and Consent Banner before granting local or remote access to the system via a command line user logon." # noqa 204
+- name: >
+    "RHEL-07-010050"
   template:
     src: ./templates/logon-banner.j2
     dest: "{{ item }}"

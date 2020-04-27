@@ -65,7 +65,6 @@ variables:
   GIP_SERVER_CPU: 32
   GIP_SERVER_MEM: 65536
 
-
 stages:
   - code-analysis
   - pre-build

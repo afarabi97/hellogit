@@ -418,7 +418,13 @@ EOF
 function execute_mip_bootstrap_playbook(){
     echo "Running MIP controller bootstrap."
     pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
-    make mip_bootstrap
+    run_cmd make mip_bootstrap
+    popd > /dev/null
+
+    # Add Stig To MIPs
+    echo "Running MIP Controller Stigs"
+    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+    run_cmd make mip-controller-stigs
     popd > /dev/null
 }
 
@@ -426,18 +432,28 @@ function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
 
     pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
-    make dip_bootstrap
+    run_cmd make dip_bootstrap
     popd > /dev/null
 
-    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-    make controller-stigs
-    popd > /dev/null
+    # Add STIGS to DIP Controller
+    if [ "$SYSTEM_NAME" == "DIP" ]; then
+        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+        run_cmd make dip-controller-stigs
+        popd > /dev/null
+    fi
+
+    # Add STIGS to GIP Controller
+    if [ "$SYSTEM_NAME" == "GIP" ]; then
+        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+        run_cmd make gip-controller-stigs
+        popd > /dev/null
+    fi
 }
 
 function execute_pull_docker_images_playbook(){
     echo "Pulling docker images"
     pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
-    make pull-docker-images
+    run_cmd make pull-docker-images
     popd > /dev/null
 }
 

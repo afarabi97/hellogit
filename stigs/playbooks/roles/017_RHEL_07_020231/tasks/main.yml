@@ -1,0 +1,12 @@
+- name: "RHEL-07-020231"
+  copy:
+      dest: /etc/dconf/db/local.d/00-disable-ctrl-alt-del
+      content: |
+          [org/gnome/settings-daemon/plugins/media-keys]
+          logout=''
+      mode: '0644'
+  notify: dconf update
+  tags:
+      - RHEL-07-020231
+      - dconf
+      - gui

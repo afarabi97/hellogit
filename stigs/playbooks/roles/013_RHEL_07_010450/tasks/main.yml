@@ -1,0 +1,9 @@
+- name: "RHEL-07-010450"
+  lineinfile:
+      dest: /etc/gdm/custom.conf
+      regexp: (?i)timedloginenable
+      line: TimedLoginEnable=false
+      insertafter: '\[daemon\]'
+  tags:
+      - RHEL-07-010450
+      - gui

@@ -1,4 +1,4 @@
-- name: "MEDIUM | RHEL-07-010470 | PATCH | The Red Hat Enterprise Linux operating system must not allow a non-certificate trusted host SSH logon to the system."
+- name: "RHEL-07-010470"
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: ^#?HostbasedAuthentication

@@ -1,35 +1,39 @@
-- name: "HIGH | RHEL-07-010010 | The Red Hat Enterprise Linux operating system must be configured so that the file permissions, ownership, and group membership of system files and commands match the vendor values." # noqa 204
+- name: "RHEL-07-010010"
   block:
-    - name: "HIGH | RHEL-07-010010 | AUDIT | The Red Hat Enterprise Linux operating system must be configured so that the file permissions, ownership, and group membership of system files and commands match the vendor values." # noqa 204
+    - name: "RHEL-07-010010 AUDIT"
       shell: >
-        rpm -Va --nolinkto --nofiledigest --nosize --nomtime --nodigest --nosignature
-        | grep -E '^(.M|.....U|......G)' | tee /dev/stderr | cut -c13- | sed 's/^ //'
-        | xargs rpm -qf --qf='%{name}\n' | sort -u
+        rpm -Va --nolinkto --nofiledigest --nosize --nomtime --nodigest
+        --nosignature | grep -E '^(.M|.....U|......G)' |
+        tee /dev/stderr | cut -c13- | sed 's/^ //' |
+        xargs rpm -qf --qf='%{name}\n' | sort -u
       args:
         warn: no
       check_mode: no
       failed_when: no
-      changed_when: not rhel_07_010010_audit.stdout
+      # changed_when: rhel_07_010010_audit.stdout != ""
+      changed_when: rhel_07_010010_audit.stdout | length > 0
       register: rhel_07_010010_audit
 
-    - name: "HIGH | RHEL-07-010010 | AUDIT | The Red Hat Enterprise Linux operating system must be configured so that the file permissions, ownership, and group membership of system files and commands match the vendor values." # noqa 204
+    - name: "RHEL-07-010010 AUDIT"
       debug:
         msg: "{{ rhel_07_010010_audit.stderr_lines }}"
       changed_when: yes
-      when: not rhel_07_010010_audit.stdout
+      # when: rhel_07_010010_audit.stdout != ""
+      when: rhel_07_010010_audit.stdout | length > 0
 
-    - name: "HIGH | RHEL-07-010010 | PATCH | The Red Hat Enterprise Linux operating system must be configured so that the file permissions, ownership, and group membership of system files and commands match the vendor values." # noqa 204
+    - name: "RHEL-07-010010"
       shell: >
         ( rpm --setugids {{ item | quote }}; rpm --setperms {{ item | quote }} )
         2>&1 1>&2 | grep -v ': No such file or directory$'
       args:
         warn: no
       register: rhel_07_010010_patch
-      failed_when: not rhel_07_010010_patch.stdout
+      # failed_when: rhel_07_010010_patch.stdout != ""
+      failed_when: rhel_07_010010_patch.stdout | length > 0
       ignore_errors: yes
       with_items: "{{ rhel_07_010010_audit.stdout_lines }}"
 
-    - name: "HIGH | RHEL-07-010010 | AUDIT | WARNING: error during remediation"
+    - name: "RHEL-07-010010 AUDIT"
       debug:
         msg: "{{ item.stdout_lines }}"
       changed_when: yes
