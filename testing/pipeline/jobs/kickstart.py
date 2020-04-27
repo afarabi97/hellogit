@@ -1,7 +1,7 @@
 import os
 import logging
 
-from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.common import NodeSettings
 from typing import List
@@ -61,6 +61,25 @@ class KickstartJob:
         execute_playbook([PIPELINE_DIR + 'playbooks/create_nodes_for_kickstart.yml'], self.kickstart_settings.to_dict())
         test_nodes_up_and_alive(self.kickstart_settings.nodes, 30)
         self._write_acas_nodes_file()
+
+
+class GIPKickstartJob(KickstartJob):
+    def __init__(self, ctrl_settings: ControllerSetupSettings, gip_kickstart_settings: GIPKickstartSettings):
+        super().__init__(ctrl_settings, gip_kickstart_settings)
+
+    def _write_acas_nodes_file(self):
+        server = None # type: NodeSettings
+        for node in self.kickstart_settings.nodes: # type: NodeSettings
+
+            if server == None:
+                if node.node_type == NodeSettings.valid_node_types[4]:
+                    server = node
+
+            if server:
+                break
+
+        write_to_file([self.ctrl_settings.node.ipaddress], "gipnodestoscan.txt")
+
 
 class MIPKickstartJob(KickstartJob):
     def __init__(self, ctrl_settings: ControllerSetupSettings, mip_kickstart_settings: MIPKickstartSettings):

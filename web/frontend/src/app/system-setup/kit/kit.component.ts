@@ -279,7 +279,11 @@ export class KitComponent implements OnInit, AfterViewInit {
 
           if (i === (kickstartNodes.length - 1)){
             this.isGettingDeviceFacts = false;
+            let node = this.nodes.at(0);
+            let control = node.get('is_master_server');
+            control.setValue(true);
           }
+
           this.ref.detectChanges();
         }
       });

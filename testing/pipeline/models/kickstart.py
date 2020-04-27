@@ -93,6 +93,50 @@ class KickstartSettings(Model):
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, False)
 
+class GIPKickstartSettings(KickstartSettings):
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def add_args(parser: ArgumentParser):
+        parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 7), required=True,
+                            help="The number of server VMs to create.")
+        parser.add_argument('--server-cpu', type=int, dest="server_cpu", choices=range(2, 64), required=True,
+                            help="The default CPUs assigned to each server.")
+        parser.add_argument('--server-mem', type=int, dest="server_mem", required=True,
+                            help="The default amount of memory in mb assigned to each server.")
+
+        VCenterSettings.add_args(parser)
+        NodeSettings.add_args(parser, False)
+
+    def _validate_params(self):
+        if self.server_mem < 1024 or self.server_mem > 65536:
+            raise ValueError("The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536".format(self.server_mem))
+
+    def from_namespace(self, namespace: Namespace):
+        self.num_servers = namespace.num_servers
+        self.server_cpu = namespace.server_cpu
+        self.server_mem = namespace.server_mem
+        self.vcenter = VCenterSettings()
+        self.vcenter.from_namespace(namespace)
+        self.node_defaults = NodeSettings()
+        self.node_defaults.from_namespace(namespace)
+        self.dhcp_ip_block = IPAddressManager(self.node_defaults.network_id, self.node_defaults.network_block_index).get_dhcp_ip_block()
+        self._validate_params()
+
+        for i in range(1, self.num_servers + 1):
+            node = NodeSettings()
+            node.set_from_defaults(self.node_defaults)
+            node.set_hostname(self.node_defaults.vm_prefix, "server", i)
+
+            if i == 1:
+                node.set_for_kickstart(self.server_cpu, self.server_mem, NodeSettings.valid_node_types[0])
+            else:
+                node.set_for_kickstart(self.server_cpu, self.server_mem, NodeSettings.valid_node_types[4])
+
+            self.servers.append(node)
+
+        self.nodes = self.servers
 
 class MIPKickstartSettings(KickstartSettings):
     def __init__(self):

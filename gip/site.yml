@@ -3,6 +3,7 @@
   hosts: gipsvc
   become_user: root
   roles:
+    - { role: "clean-yum", tags: ["clean-yum"]}
     - { role: "samba", tags: ["samba"] }
     - { role: "tftp", tags: ["tftp"] }
     - { role: "chrony", tags: ["chrony"] }

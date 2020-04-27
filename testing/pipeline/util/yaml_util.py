@@ -5,7 +5,7 @@ import ruamel.yaml
 from models.common import NodeSettings, VCenterSettings, Model, RepoSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
-from models.kickstart import KickstartSettings, MIPKickstartSettings
+from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.gip_settings import GipSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
@@ -34,6 +34,7 @@ class YamlManager:
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
             cls.yaml.register_class(MIPKickstartSettings)
+            cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
             cls.yaml.register_class(GipSettings)
 
@@ -61,8 +62,13 @@ class YamlManager:
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
-    def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
+    def load_kickstart_settings_from_yaml(cls, application:str) -> KickstartSettings:
         yaml_name = "{}.yml".format(KickstartSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+    
+    @classmethod
+    def load_gip_kickstart_settings_from_yaml(cls) -> GIPKickstartSettings:
+        yaml_name = "{}.yml".format(GIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod

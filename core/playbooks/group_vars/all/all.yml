@@ -81,6 +81,6 @@ kit_size: -1
 dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
 enable_kube_ha: false
 
-use_proxy_pool: true
+use_proxy_pool: false
 
 ...

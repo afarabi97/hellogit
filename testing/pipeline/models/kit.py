@@ -10,6 +10,7 @@ class KitSettings(Model):
     def __init__(self):
         super().__init__()
         self.kubernetes_cidr = ''
+        self.use_proxy_pool = False
 
     @staticmethod
     def add_args(parser: ArgumentParser):

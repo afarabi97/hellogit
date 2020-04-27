@@ -36,3 +36,6 @@ class SubCmd:
 
     # Gib subcommands
     create_gip_service_vm = 'create-gip-service-vm'
+    setup_gip_ctrl = 'setup-gip-controller'
+    run_gip_kickstart = 'run-gip-kickstart'
+    run_gip_kit = 'run-gip-kit'

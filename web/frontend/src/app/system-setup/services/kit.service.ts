@@ -176,12 +176,19 @@ export class KitService {
    */
 
   public newKitFormGroup(kitForm?: KitForm, isDisabled = true): FormGroup {
+    let use_proxy_pool = false;
+
+    if (this.sysName === "GIP") {
+      use_proxy_pool = true;
+    }
+
     const kitFormGroup = this.formBuilder.group({
       nodes: this.formBuilder.array([]),
       kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
         Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
       dns_ip: new FormControl(''),
-      remove_node: new FormControl('')
+      remove_node: new FormControl(''),
+      use_proxy_pool: new FormControl(use_proxy_pool)
     });
 
     this.sysNameSrv.getSystemName().subscribe(

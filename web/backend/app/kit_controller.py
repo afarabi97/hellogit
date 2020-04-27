@@ -71,7 +71,13 @@ def execute_kit_inventory() -> Response:
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
-        cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
+        cmd_to_execute_one = None
+        system_name = get_system_name()
+        if system_name == "GIP":
+            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + root_password + "' --skip-tags moloch"
+        else:
+            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + root_password + "'"
+
         cmd_to_execute_one = 'semanage permissive -a systemd_hostnamed_t && {} && semanage permissive -d systemd_hostnamed_t'.format(cmd_to_execute_one)
         cmd_to_execute_two = "ansible-playbook site.yml --tags server-stigs,sensor-stigs --skip-tags all-stigs,controller-stigs"
         

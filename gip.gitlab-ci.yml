@@ -21,17 +21,16 @@ Setup GIP Services VM:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX-gip" \
-    --network-block-index $GIP_NETWORK_BLOCK_INDEX \
+    --network-block-index $GIP_SERVICES_NETWORK_BLOCK_INDEX \
     --vm-template "$GIP_SVC_TEMPLATE_TO_CLONE"
   cache:
-    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-services-cache-${CI_PIPELINE_ID}
     paths:
       - gipsettings.yml
   only:
     variables:
       - $PIPELINE == "developer-gip"
       - $PIPELINE == "developer-all"
-
 
 GIP Cleanup:
   stage: cleanup
@@ -43,7 +42,7 @@ GIP Cleanup:
     python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup
   when: always
   cache:
-    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    key: tfplenum-gip-services-cache-${CI_PIPELINE_ID}
     paths:
       - gipsettings.yml
     policy: pull
@@ -51,3 +50,138 @@ GIP Cleanup:
     variables:
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-gip"
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
+
+Setup GIP Nightly Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    gip-setup setup-gip-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $GIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-template "$GIP_TEMPLATE_TO_CLONE" \
+    --gateway "$VM_GATEWAY" \
+    --vm-prefix "$VM_PREFIX-gip-nightly" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type build_from_scratch \
+    --vm-datastore "NVMe Storage 2"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "nightly_build"
+      - $PIPELINE == "nightly_build_gip"
+
+Setup GIP Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    echo "tfplenum-gip-cache-${CI_PIPELINE_ID}"
+
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    gip-setup setup-gip-controller \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $GIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-template "$GIP_TEMPLATE_TO_CLONE" \
+    --gateway "$VM_GATEWAY" \
+    --vm-prefix "$VM_PREFIX-gip" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --run-type "$BUILD_TYPE" \
+    --vm-datastore "$VCENTER_DATASTORE"
+  cache:
+    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_gip.yml
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "export-gip"
+      - $PIPELINE == "export-all"
+      - $PIPELINE == "developer-gip"
+      - $PIPELINE == "developer-all"
+
+GIP Kickstart:
+  stage: kickstart
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    echo "VM_PREFIX is $VM_PREFIX"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    gip-setup run-gip-kickstart \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-id "$NETWORK_ID" \
+    --network-block-index $GIP_NETWORK_BLOCK_INDEX \
+    --dns-servers $DNS_SERVERS \
+    --vm-folder "$VMWARE_FOLDER" \
+    --vm-prefix "$VM_PREFIX-gip" \
+    --gateway "$VM_GATEWAY" \
+    --num-servers $GIP_NUM_SERVERS \
+    --server-cpu $GIP_SERVER_CPU \
+    --server-mem $GIP_SERVER_MEM \
+    --vm-datastore "$VCENTER_DATASTORE"
+  cache:
+    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_gip.yml
+      - gipkickstartsettings.yml
+      - gipnodestoscan.txt
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "developer-gip"
+      - $PIPELINE == "developer-all"
+
+GIP Kit:
+  stage: kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" gip-setup run-gip-kit
+  cache:
+    key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+    paths:
+      - controllersetupsettings_gip.yml
+      - gipkickstartsettings.yml
+      - kitsettings_gip.yml
+      - gipnodestoscan.txt
+  only:
+    variables:
+      - $PIPELINE == "developer-gip"
+      - $PIPELINE == "developer-all"

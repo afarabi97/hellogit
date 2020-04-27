@@ -86,7 +86,7 @@ EOF
 
     def setup_controller(self):
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
-        test_nodes_up_and_alive([self.ctrl_settings.node], 10)
+        test_nodes_up_and_alive([self.ctrl_settings.node], 30)
         if self.ctrl_settings.run_type == self.ctrl_settings.valid_run_types[0]:
             self._run_bootstrap()
         elif self.ctrl_settings.run_type == self.ctrl_settings.valid_run_types[1]:

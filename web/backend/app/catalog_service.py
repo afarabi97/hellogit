@@ -11,6 +11,8 @@ import requests, json, yaml
 from app.service.job_service import run_command2
 from time import sleep, strftime
 import os
+import socket
+import dns.resolver
 
 
 _MESSAGETYPE_PREFIX = "catalog"
@@ -19,9 +21,35 @@ CHARTMUSEUM_FQDN = "chartmuseum.lan"
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 
+from requests import Session, HTTPError
+from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
+
+
+class DNSResolverHTTPSAdapter(HTTPAdapter):
+    def __init__(self, common_name, host, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
+        max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
+        self.__common_name = common_name
+        self.__host = host
+        super(DNSResolverHTTPSAdapter, self).__init__(pool_connections=pool_connections, pool_maxsize=pool_maxsize,
+            max_retries=max_retries, pool_block=pool_block)
+
+    def get_connection(self, url, proxies=None):
+        redirected_url = url.replace(self.__common_name, self.__host)
+        return super(DNSResolverHTTPSAdapter, self).get_connection(redirected_url, proxies=proxies)
+
+    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+        pool_kwargs['assert_hostname'] = self.__common_name
+        super(DNSResolverHTTPSAdapter, self).init_poolmanager(connections, maxsize, block=block, **pool_kwargs)
+
 
 def _get_chartmuseum_uri() -> str:
     return "https://" + CHARTMUSEUM_FQDN
+
+
+def _get_chartmuseum_ip():
+    resolver = dns.resolver.Resolver()
+    return resolver.query(CHARTMUSEUM_FQDN, 'A')[0].to_text()
+
 
 def get_node_type(hostname: str) -> str:
     """
@@ -88,13 +116,13 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
-
 def get_repo_charts() -> list:
     """
     Returns a list of charts from helm repo
 
     : return (list): Returns a list of charts
     """
+
     stdout, ret_code = run_command2(command="helm repo update",
             working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0:
@@ -102,7 +130,11 @@ def get_repo_charts() -> list:
         logger.info("helm repo cache updated.")
     results = []
     try:
-        response = requests.get(_get_chartmuseum_uri() + "/api/charts")
+        uri = _get_chartmuseum_uri()
+        host = _get_chartmuseum_ip()
+        session = Session()
+        session.mount(uri, DNSResolverHTTPSAdapter(CHARTMUSEUM_FQDN, host))
+        response = session.get(_get_chartmuseum_uri() + "/api/charts")
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key

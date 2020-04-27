@@ -300,7 +300,8 @@ class KitPayloadGenerator:
                 "kubernetes_services_cidr": self._kit_settings.kubernetes_cidr,
                 "dns_ip": None,
                 # This is needed for the new portgroups as it usually defaults to a .1 address.
-                "pfsense_ipaddress": self._dns_ips[0]
+                "pfsense_ipaddress": self._dns_ips[0],
+                "use_proxy_pool": self._kit_settings.use_proxy_pool
             },
             "timeForm": self._construct_time_part()
         }

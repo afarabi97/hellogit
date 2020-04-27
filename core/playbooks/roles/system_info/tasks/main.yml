@@ -9,14 +9,8 @@
   add_host:
     hostname: "{{ item }}"
     groups: master_server
-  when: system_name == "DIP" and hostvars[item].is_master | default(false)
+  when: hostvars[item].is_master | default(false)
   with_items: "{{ groups['servers'] }}"
-
-- name: Add Server to Master Server Group
-  add_host:
-    hostname: "{{ groups['servers'][0] }}"
-    groups: master_server
-  when: system_name == "GIP"
 
 - name: Add Sensors to Remote Sensors Group
   add_host:
