@@ -2,25 +2,24 @@
 
 - name: Remove Directory
   file:
-    path: "{{item}}"
+    path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ tfplenumoffline_dir }}/conmon-{{conmon_version}}"
-    - "{{ tfplenumoffline_dir }}/conmon-v{{conmon_version}}.tar.gz"
+    - "{{ tfplenumoffline_dir }}/conmon-{{ conmon_version }}"
+    - "{{ tfplenumoffline_dir }}/conmon-v{{ conmon_version }}.tar.gz"
 
 - name: "Conmon Tar"
   get_url:
-    url: "https://github.com/containers/conmon/archive/v{{conmon_version}}.tar.gz"
-    dest: "{{ tfplenumoffline_dir }}/conmon-v{{conmon_version}}.tar.gz"
+    url: "https://github.com/containers/conmon/archive/v{{ conmon_version }}.tar.gz"
+    dest: "{{ tfplenumoffline_dir }}/conmon-v{{ conmon_version }}.tar.gz"
 
 - name: Extract Conmon
   unarchive:
     remote_src: yes
-    src: "{{ tfplenumoffline_dir }}/conmon-v{{conmon_version}}.tar.gz"
+    src: "{{ tfplenumoffline_dir }}/conmon-v{{ conmon_version }}.tar.gz"
     dest: "{{ tfplenumoffline_dir }}"
 
 - name: Create Conmon Binary
-  shell: |
-    make
-  args:
-    chdir: "{{ tfplenumoffline_dir }}/conmon-{{conmon_version}}"
+  make:
+    chdir: "{{ tfplenumoffline_dir }}/conmon-{{ conmon_version }}"
+

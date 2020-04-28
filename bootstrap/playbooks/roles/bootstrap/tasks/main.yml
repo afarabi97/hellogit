@@ -10,7 +10,8 @@
 
 - import_tasks: cleanup.yml
 
-- set_fact:
+- name: Set_fact bootstrap and git
+  set_fact:
     BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
     GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
     GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"
@@ -22,7 +23,7 @@
 - name: "Install required packages"
   yum:
     name: "{{ package_list }}"
-    state: latest
+    state: present
 
 - name: Execute clone repo role.
   include_role:

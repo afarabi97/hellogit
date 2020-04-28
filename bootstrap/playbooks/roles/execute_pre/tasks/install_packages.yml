@@ -2,9 +2,9 @@
 - name: "Yum update"
   yum:
     name: "*"
-    state: latest
+    state: present
 
 - name: "Install packages"
   yum:
     name: "{{ package_list }}"
-    state: latest
+    state: present

@@ -8,14 +8,18 @@
     remote_src: no
     extra_opts: [--strip-components=1]
 
-- name: install chart repos
-  shell: helm repo add {{ item }}
+- name: Install chart repos
+  command: helm repo add {{ item }}
   with_items:
     - "{{ chart_repos }}"
+  register: result
+  changed_when: result.rc == 0
   tags: pull-helm-images
 
 - name: update helm repo cache
-  shell: helm repo update
+  command: helm repo update
+  register: result
+  changed_when: result.rc == 0
 
 - name: "Create chart directory"
   file:
@@ -30,21 +34,27 @@
   register: charts
   tags: pull-helm-images
 
-- name: create charts
-  shell: "helm package {{ item.path }} -d {{ chart_dir }}"
+- name: Create charts
+  command: "helm package {{ item.path }} -d {{ chart_dir }}"
   with_items: "{{ charts.files }}"
+  register: result
+  changed_when: result.rc == 0
   tags: pull-helm-images
 
 - name: Fetch helm charts
-  shell: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
+  command: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
   with_items:
     - "{{ helm_charts }}"
+  register: result
+  changed_when: result.rc == 0
   tags: pull-helm-images
 
-- name: remove public repos
+- name: Remove public repos
   command: "helm repo remove {{ item }}"
   with_items:
     - bitnami
     - elastic
     - stable
+  register: result
   ignore_errors: yes
+  changed_when: result.rc == 0

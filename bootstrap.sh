@@ -2,7 +2,7 @@
 set -x
 export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
-boostrap_version=1.3.0
+bootstrap_version=1.3.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 RHEL_VERSION="7.7"
@@ -42,8 +42,8 @@ function labrepo_available() {
 
 function prompt_runtype() {
     echo "Select a run type:"
-    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
-    echo "Boostrap: Only runs boostrap ansible role."
+    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
+    echo "bootstrap: Only runs bootstrap ansible role."
     echo "Docker Images: Repull docker images to controller and upload to controllers docker registry."
     if [ -z "$RUN_TYPE" ]; then
         select cr in "Full" "Bootstrap" "Docker Images"; do
@@ -58,8 +58,8 @@ function prompt_runtype() {
 
 function prompt_runtype_mip {
     echo "Select a run type:"
-    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs boostrap ansible role."
-    echo "Boostrap: Only runs boostrap ansible role."
+    echo "Full: Fresh Builds, Home Builds, A full run will remove tfplenum directories in /opt, reclone tfplenum git repos and runs bootstrap ansible role."
+    echo "bootstrap: Only runs bootstrap ansible role."
     if [ -z "$RUN_TYPE" ]; then
         select cr in "Full" "Bootstrap"; do
             case $cr in
@@ -454,7 +454,7 @@ function execute_pull_docker_images_playbook(){
 
 function prompts(){
     echo "---------------------------------"
-    echo "TFPLENUM DEPLOYER BOOTSTRAP ${boostrap_version}"
+    echo "TFPLENUM DEPLOYER BOOTSTRAP ${bootstrap_version}"
     echo "---------------------------------"
     prompt_for_system
 

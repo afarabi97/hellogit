@@ -1,15 +1,22 @@
 ---
 
 - name: Get Controller Interface Name
-  shell: |
-    ip -o addr | grep {{ server_ip }} | awk '{ print $2 }'
+  shell: set -o pipefail && ip -o addr | grep {{ server_ip }} | awk '{ print $2 }'
   register: controller_interface_name
+  changed_when: controller_interface_name.rc == 0
+
+- name: Get network interface script files
+  find:
+    pattern: ifcfg-*
+    path: /etc/sysconfig/network-scripts/
+  register: ifcfg_files
 
 - name: Remove DNS line from interface script
-  shell: |
-    sed -i '/^DNS/ d' /etc/sysconfig/network-scripts/ifcfg-*
-  args:
-    warn: false
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: '/^DNS'
+    state: absent
+  with_items: "{{ ifcfg_files.files }}"
 
 - name: Add DNS to interface script
   lineinfile:

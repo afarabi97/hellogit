@@ -2,13 +2,24 @@
 
 - import_tasks: cleanup.yml
 
-- name: Remove docker images from docker after uploaded to registry
-  shell: |
-    docker rmi -f $(docker images -q)
+- name: Get docker images
+  command: docker images -q
+  register: docker_images
+  changed_when: docker_images.rc == 0
   tags:
-  - pull-docker-images
-  - pull-helm-images
+    - pull-docker-images
+    - pull-helm-images
+
+- name: Remove docker images from docker after uploaded to registry
+  command: "docker rmi -f {{ item }}"
+  register: result
   ignore_errors: yes
+  changed_when: result.rc == 0
+  with_items:
+    "{{ docker_images.stdout_lines }}"
+  tags:
+    - pull-docker-images
+    - pull-helm-images
 
 - name: Unmount iso from {{ mnt_pth }}
   mount:

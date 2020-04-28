@@ -21,9 +21,9 @@
     dest: "{{ tfplenumoffline_dir }}/offline.repo"
 
 - name: Clean repo cache
-  shell: yum clean all
-  args:
-    warn: false
+  command: /usr/bin/yum clean all # noqa 303
+  register: result
+  changed_when: result.rc == 0
 
 - name: create pip dir
   file:

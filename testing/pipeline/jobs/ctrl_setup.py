@@ -32,7 +32,7 @@ class ControllerSetupJob:
             curl_cmd = "curl -m 30 -k -o /root/bootstrap.sh --header 'PRIVATE-TOKEN: RT8FscKP1ZQ8NcgTdcas' \
                         'https://gitlab.sil.lab/api/v4/projects/1/repository/files/bootstrap.sh/raw?ref={}'".format(self.ctrl_settings.repo.branch_name)
 
-        boostrap_cmd = ("export BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
+        bootstrap_cmd = ("export BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
                          export TFPLENUM_SERVER_IP=" + self.ctrl_settings.node.ipaddress + " && \
                          export GIT_USERNAME='" + self.ctrl_settings.repo.username + "' && \
                          export RUN_TYPE=full && \
@@ -54,7 +54,7 @@ class ControllerSetupJob:
                 eprint("Failed to fetch the bootstrap script from bitbucket.")
                 exit(ret_val.return_code)
 
-            ret_val = client.run(boostrap_cmd, shell=True)
+            ret_val = client.run(bootstrap_cmd, shell=True)
             if ret_val.return_code != 0:
                 eprint("Failed to execute bootstrap.")
                 exit(ret_val.return_code)
