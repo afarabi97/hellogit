@@ -15,9 +15,11 @@ from app.service.job_service import run_command2, run_command
 from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
+from kubernetes.client.rest import ApiException
 from shared.constants import TargetStates, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
 from shared.tfwinrm_util import WindowsConnectionManager
 from shared.utils import fix_hostname, decode_password
+from shared.connection_mngs import get_kubernetes_secret
 from pathlib import Path
 from pprint import PrettyPrinter
 from pypsrp.powershell import PSDataStreams
@@ -155,13 +157,39 @@ class AgentBuilder:
                 packages[package_name] = {'folder': appconfig.parent.name}
             return packages
 
-    def _package_generic(self, pkg_folder: Path, dst_folder: Path, tpl_context: Dict):
+    def _process_kubernetes_dir(self,
+                                kubernetes_dir: Path,
+                                application_name: str,
+                                folder_to_copy: str):
+        if kubernetes_dir.exists() and kubernetes_dir.is_dir():
+            kubernetes_scripts = kubernetes_dir.glob('*')
+            for script in kubernetes_scripts:
+                stdout, ret_val = run_command2("kubectl apply -f {}".format(script))
+                if ret_val != 0:
+                    print("Failed to run kubectl apply command with error code {} and {}".format(ret_val, stdout))
+
+        try:
+            secret = get_kubernetes_secret(conn_mng, '{}-certificate'.format(application_name))
+            secret.write_to_file(folder_to_copy)
+        except ApiException:
+            pass
+
+    def _process_templates_dir(self, tpl_dir: Path, tpl_context: Dict):
+        if tpl_dir.exists() and tpl_dir.is_dir():
+            templates = tpl_dir.glob('*')
+            for template in templates:
+                self._create_config(template, tpl_context)
+
+    def _package_generic(self,
+                         pkg_folder: Path,
+                         dst_folder: Path,
+                         tpl_context: Dict,
+                         application_name: str):
         tpl_dir = pkg_folder / 'templates'
-        templates = tpl_dir.glob('*')
-        for template in templates:
-            self._create_config(template, tpl_context)
+        kubernetes_dir = pkg_folder / 'kubernetes'
         folder_to_copy = str(pkg_folder)
-        shutil.copy2("/var/www/html/webCA.crt", folder_to_copy)
+        self._process_templates_dir(tpl_dir, tpl_context)
+        self._process_kubernetes_dir(kubernetes_dir, application_name, folder_to_copy)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
@@ -172,7 +200,7 @@ class AgentBuilder:
                 if package:
                     folder = package['folder']
                     pkg_folder = AGENT_PKGS_DIR / folder
-                    self._package_generic(pkg_folder, dst_folder, tpl_context)
+                    self._package_generic(pkg_folder, dst_folder, tpl_context, folder)
 
     def _zip_package(self, package_dir: str):
         zipf = zipfile.ZipFile(self._zip_path, 'w', zipfile.ZIP_DEFLATED)

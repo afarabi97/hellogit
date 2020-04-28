@@ -303,7 +303,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.execute(title, instructions, credentials => {
       let payload = {
         'installer_config': config,
-        'target_config': target,
+        'target_config': target['config'],
         'windows_domain_creds': credentials
       }
 

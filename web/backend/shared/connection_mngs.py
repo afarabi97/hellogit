@@ -8,6 +8,8 @@ from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
 from elasticsearch.exceptions import RequestError, ConflictError
 from fabric import Connection, Config
 from kubernetes import client, config
+from kubernetes.client.models.v1_secret import V1Secret
+from pathlib import Path
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
@@ -519,3 +521,40 @@ class ElasticsearchManager:
         except Exception:
             pass
         return False
+
+
+class KubernetesSecret:
+
+    def __init__(self, response: V1Secret):
+        self.ca_certificate = b64decode(response.data['ca.crt']).decode('utf-8')
+        self.tls_certificate = b64decode(response.data['tls.crt']).decode('utf-8')
+        self.tls_key = b64decode(response.data['tls.key']).decode('utf-8')
+
+    def __str__(self):
+        ret_val = self.ca_certificate
+        ret_val += self.tls_certificate
+        ret_val += self.tls_key
+        return ret_val
+
+    def write_to_file(self, some_path: str):
+        if not Path(some_path).is_dir():
+            print("Not a valid directory")
+            return
+
+        ca_crt = Path(some_path + "/ca.crt")
+        ca_crt.write_text(self.ca_certificate)
+
+        tls_crt = Path(some_path + "/tls.crt")
+        tls_crt.write_text(self.tls_certificate)
+
+        tls_key = Path(some_path + "/tls.key")
+        tls_key.write_text(self.tls_key)
+
+
+def get_kubernetes_secret(conn_mng: MongoConnectionManager,
+                          secret_name: str,
+                          namespace: str="default") -> KubernetesSecret:
+    with KubernetesWrapper2(conn_mng) as api:
+        v1 = api.core_V1_API
+        response = v1.read_namespaced_secret(secret_name, namespace)
+        return KubernetesSecret(response)

@@ -68,6 +68,7 @@ class NotificationMessage(object):
         self.exception = exception
 
     def to_json(self):
+        self.timestamp = datetime.datetime.utcnow().isoformat()
         return { "timestamp": self.timestamp, "role": self.role, "message": self.message, "action": self.action, "application": self.application,  "status": self.status, "exception": self.exception }
 
     def post_to_websocket_api(self) -> None:

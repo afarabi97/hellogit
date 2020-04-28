@@ -124,13 +124,13 @@ output.logstash:
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
-  #ssl.certificate_authorities: ["${path.home}/webCA.crt"]
+  ssl.certificate_authorities: ["${path.home}/ca.crt"]
 
   # Certificate for SSL client authentication
-  #ssl.certificate: "${path.home}/winlogbeat.pem"
+  ssl.certificate: "${path.home}/tls.crt"
 
   # Client Certificate Key
-  #ssl.certificate: "${path.home}/winlogbeat.key"
+  ssl.key: "${path.home}/tls.key"
 
 #================================ Processors =====================================
 
@@ -145,7 +145,10 @@ processors:
 
 # Sets log level. The default log level is info.
 # Available log levels are: error, warning, info, debug
-#logging.level: debug
+logging.to_files: true
+logging.files:
+  path: C:\ProgramData\winlogbeat\Logs
+logging.level: info
 
 # At debug level, you can selectively enable logging only for some components.
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
