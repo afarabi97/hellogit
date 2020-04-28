@@ -1,0 +1,15 @@
+---
+- name: Generate RootPw
+  command: "openssl passwd -1 {{ root_password | b64decode }}"
+  register: rootpw
+
+- name: Update assessor user password
+  user:
+    name: assessor
+    password: "{{ rootpw.stdout }}"
+
+- name: Bump sshd
+  systemd:
+    name: sshd
+    enabled: yes
+    state: restarted

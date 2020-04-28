@@ -4,7 +4,7 @@
     - name: Install packages
       yum:
         name: "{{ apache }}"
-        state: latest
+        state: present
 
     - name: Remove apache welcome page
       file:

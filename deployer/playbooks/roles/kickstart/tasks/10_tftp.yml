@@ -5,7 +5,7 @@
     - name: Install {{ tftp_pkgs }}
       yum:
         name: "{{ tftp_pkgs }}"
-        state: latest
+        state: present
 
     - name: Create pxelinux.cfg
       file:

@@ -18,7 +18,7 @@
     - name: Install packages
       yum:
         name: "dnsmasq"
-        state: latest
+        state: present
 
     - name: DNS Services
       service:

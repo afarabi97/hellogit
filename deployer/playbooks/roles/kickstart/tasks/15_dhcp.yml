@@ -5,7 +5,7 @@
     - name: Install dhcp package
       yum:
         name: dhcp
-        state: latest
+        state: present
 
     - name: set default dhcp network and netmask
       set_fact:
@@ -52,5 +52,5 @@
       when: dhcp_config.changed
   when:
     - dhcp|bool
-    - dhcp_start != ""
-    - dhcp_end != ""
+    - dhcp_start
+    - dhcp_end
