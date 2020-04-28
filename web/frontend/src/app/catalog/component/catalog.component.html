@@ -8,8 +8,8 @@
         </div>
       </header>
       <div fxLayout="column" fxLayoutAlign="space-between center">
-        <mat-slide-toggle #pmoElement (change)="pmoToggle($event)" [checked]="true" style="margin-right:43px; margin-bottom: 15px;">PMO Applications</mat-slide-toggle>
-        <mat-slide-toggle #commElement (change)="communityToggle($event)">Community Applications</mat-slide-toggle>
+        <mat-slide-toggle #pmoElement (change)="pmoToggle($event)" [checked]="showCharts['pmo']" style="margin-right:43px; margin-bottom: 15px;">PMO Applications</mat-slide-toggle>
+        <mat-slide-toggle #commElement (change)="communityToggle($event)" [checked]="showCharts['comm']" >Community Applications</mat-slide-toggle>
       </div>
       <div *ngIf="_CatalogService.isLoading">
         <app-chart-list class="charts__gallery__content" [charts]="filteredCharts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>

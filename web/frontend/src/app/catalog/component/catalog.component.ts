@@ -7,6 +7,8 @@ import { WebsocketService } from '../../services/websocket.service';
 import { take, first, filter } from 'rxjs/operators';
 import { MatSlideToggle } from '@angular/material';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { CookieService } from '../../services/cookies.service';
+
 
 @Component({
   selector: 'app-catalog',
@@ -17,6 +19,7 @@ export class CatalogComponent implements OnInit {
   public charts: any;
   public filteredCharts: Chart[];
   public ioConnection: any;
+  public showCharts = { 'pmo': true, 'comm': false };
 
   @ViewChild('pmoElement', {static: false})
   public pmoElement: MatSlideToggle;
@@ -32,12 +35,11 @@ export class CatalogComponent implements OnInit {
    * @memberof CatalogComponent
    * @param {WebsocketService} _WebsocketService
    */
-  constructor(
-    public _CatalogService: CatalogService,
-    private titleSvc: Title,
-    public _WebsocketService:WebsocketService,
-    private snackbar: SnackbarWrapper,
-  ) { }
+   constructor(public _CatalogService: CatalogService,
+               private titleSvc: Title,
+               public _WebsocketService:WebsocketService,
+               private snackbar: SnackbarWrapper,
+               private cookieService: CookieService) { }
 
   /**
    * Gets all the charts
@@ -47,14 +49,24 @@ export class CatalogComponent implements OnInit {
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
     this._CatalogService.isLoading = false;
+    if(this.cookieService.get('chartFilter') != '') {
+      let show = JSON.parse(this.cookieService.get('chartFilter'));
+      this.showCharts['pmo'] = false;
+      this.showCharts['comm'] = false;
+      if(show['pmo']) {
+        this.showCharts['pmo'] = true;
+      }
+      if(show['comm']) {
+        this.showCharts['comm'] = true;
+      }
+    }
     this._CatalogService.get_all_application_statuses().subscribe(data => {
-
       this.charts = data;
       this.setPMOSupported(this.charts);
       this._CatalogService.isLoading = true;
-      this.filteredCharts = this.filterPMOApplications(true).concat(
-        this.filterCommunityApplications(this.commElement.checked)
-      );
+      this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
+         this.filterCommunityApplications(this.showCharts['comm'])
+       );
     });
 
     this.ioConnection = this._WebsocketService.onBroadcast()
@@ -119,14 +131,22 @@ export class CatalogComponent implements OnInit {
   }
 
   pmoToggle(event: MatSlideToggle){
-    this.filteredCharts = this.filterPMOApplications(event.checked).concat(
-      this.filterCommunityApplications(this.commElement.checked)
+    this.showCharts['pmo'] = event.checked;
+    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
+      this.filterCommunityApplications(this.showCharts['comm'])
     );
+    this.updateCookie();
   }
 
   communityToggle(event: MatSlideToggle){
-    this.filteredCharts = this.filterCommunityApplications(event.checked).concat(
-      this.filterPMOApplications(this.pmoElement.checked)
+    this.showCharts['comm'] = event.checked;
+    this.filteredCharts = this.filterCommunityApplications(this.showCharts['comm']).concat(
+      this.filterPMOApplications(this.showCharts['pmo'])
     );
+    this.updateCookie();
+  }
+
+  private updateCookie() {
+    this.cookieService.set('chartFilter', JSON.stringify(this.showCharts));
   }
 }
