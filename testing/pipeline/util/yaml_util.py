@@ -62,10 +62,10 @@ class YamlManager:
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
-    def load_kickstart_settings_from_yaml(cls, application:str) -> KickstartSettings:
+    def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
         yaml_name = "{}.yml".format(KickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
-    
+
     @classmethod
     def load_gip_kickstart_settings_from_yaml(cls) -> GIPKickstartSettings:
         yaml_name = "{}.yml".format(GIPKickstartSettings.__name__.lower())
