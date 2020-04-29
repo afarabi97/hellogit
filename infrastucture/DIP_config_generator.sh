@@ -180,6 +180,8 @@ function check_files {
 # Function to prompt user to IP/Kit Information
 function prompt_user {
   if [ -z $USER_PROMPTED ] ; then
+    echo "Enter the domain for the kit (ie: lan, mission, custom.domain): "
+    read -p "" DOMAIN
     echo "Enter the desired second octet of your IP Address (101 - 118)"
     read -p "this is your kit number and should be unique: " IP_SECOND_OCTET
     if [[ $IP_SECOND_OCTET -gt 118 ||  $IP_SECOND_OCTET -lt 101 || ! $IP_SECOND_OCTET =~ ^[0-9]+$ ]]; then
@@ -223,6 +225,9 @@ function create_firewall_config {
   mkdir -p Kit_${KIT_NUMBER}
   cp Firewall/$FIREWALL_BASE_FILE Kit_${KIT_NUMBER}/firewall.xml 2>/dev/null
   sed -i "s/10\.101\./10\.${IP_SECOND_OCTET}\./g" Kit_${KIT_NUMBER}/firewall.xml
+  # custom domain
+  sed -i "s/\.lan/\.${DOMAIN}/g" Kit_${KIT_NUMBER}/firewall.xml
+  sed -i "s/<domain>lan<\/domain>/<domain>${DOMAIN}<\/domain>/g" Kit_${KIT_NUMBER}/firewall.xml
   blank_line
   echo "Generated Kit_${KIT_NUMBER}/firewall.xml"
   blank_line
