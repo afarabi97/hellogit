@@ -16,8 +16,8 @@
   hosts: localhost
   any_errors_fatal: true
   roles:
-    - setup_frontend
-  tags: setup_frontend
+    - frontend
+  tags: frontend
 
 - name: Bootstrap Controller
   hosts: localhost

@@ -1,0 +1,74 @@
+---
+- name: Install Httpd
+  yum:
+    name:
+      - httpd
+      - mod_ssl
+    state: present
+
+- name: Allow Httpd Selinux connection
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+
+- name: Create Certificate Directory
+  file:
+    path: /etc/ssl/private
+    state: directory
+    mode: 0700
+
+- name: Generate an OpenSSL private key.
+  openssl_privatekey:
+    path: "{{ private_key }}"
+
+- name: Generate an OpenSSL CSR
+  openssl_csr:
+    path: "{{ certificate_request }}"
+    privatekey_path: "{{ private_key }}"
+    country_name: US
+    state_or_province_name: Texas
+    locality_name: Dallas
+    organization_name: unknown
+    common_name: tfplenum
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "{{ certificate }}"
+    privatekey_path: "{{ private_key }}"
+    csr_path: "{{ certificate_request }}"
+    provider: selfsigned
+
+- name: Remove default httpd files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/httpd/conf.d/ssl.conf
+    - /etc/httpd/conf.d/welcome.conf
+
+- name: Create tfplenum-frontend service
+  copy:
+    src: files/tfplenum-frontend.service
+    dest: /etc/systemd/system/tfplenum-frontend.service
+
+- name: Reload systemd
+  systemd:
+    daemon-reload: yes
+
+- name: Stop tfplenum-frontend service
+  systemd:
+    name: tfplenum-frontend
+    enabled: yes
+    state: stopped
+  ignore_errors: yes
+
+- name: Add tfplenum httpd config
+  copy:
+    src: files/tfplenum.conf
+    dest: /etc/httpd/conf.d/tfplenum.conf
+
+- name: Restart httpd
+  systemd:
+    name: httpd
+    state: restarted

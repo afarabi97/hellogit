@@ -1,0 +1,29 @@
+---
+
+- name: celery | create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /var/log/celery
+    - /etc/celery/
+
+- name: celery | copy config
+  copy:
+    src: files/celery.conf
+    dest: /etc/celery/celery.conf
+
+- name: celery | copy service
+  copy:
+    src: files/celery.service
+    dest: /etc/systemd/system/celery.service
+
+- name: celery | Reload systemd
+  systemd:
+    daemon-reload: yes
+
+- name: celery | Enable Service
+  systemd:
+    name: celery
+    enabled: yes
+    state: stopped

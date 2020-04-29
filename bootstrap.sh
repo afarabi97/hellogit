@@ -10,6 +10,9 @@ RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
+# Create tfplenum log dir
+mkdir -p /var/log/tfplenum
+
 pushd "/opt" > /dev/null
 
 if [ "$EUID" -ne 0 ]
@@ -210,7 +213,7 @@ function setup_ansible(){
     pushd $core_dir > /dev/null
     run_cmd yum install -y policycoreutils-python python-pip python-gobject sshpass
     run_cmd pip2 install --upgrade pip
-    run_cmd pip2 install virtualenv
+    run_cmd pip2 install virtualenv cryptography==2.9.2
     run_cmd virtualenv --python=python2 --system-site-packages tfp-env
     run_cmd $core_dir/tfp-env/bin/pip2 install -r $core_dir/requirements-py2.txt
     rm -f /usr/bin/ansible*

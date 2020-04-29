@@ -1,0 +1,26 @@
+---
+
+- name: mongo | Add yum repo
+  yum_repository:
+    name: mongo
+    description: MongoDB Repository
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://www.mongodb.org/static/pgp/server-4.0.asc
+    baseurl: https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.0/x86_64/
+
+
+- name: mongo | Install
+  yum:
+    name: mongodb-org
+    state: present
+
+- name: mongo | Enable Service
+  systemd:
+    name: mongod
+    enabled: yes
+
+- name: mongo | Remove yum repo
+  yum_repository:
+    name: mongo
+    state: absent

@@ -1,0 +1,37 @@
+---
+- import_tasks: 00_check.yml
+
+- import_tasks: 05_install_node.yml
+- import_tasks: 10_install_angular.yml
+  tags: install_angular
+
+- name: "Open up port 443 and 4200"
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop:
+  - "443/tcp"
+  - "4200/tcp"
+
+- import_tasks: 15_setup_python.yml
+  tags: setup_python
+
+- import_tasks: 20_setup_httpd.yml
+
+- import_tasks: 25_build_frontend.yml
+  tags: build_frontend
+
+- import_tasks: 30_install_mongo.yml
+- import_tasks: 35_install_redis.yml
+- import_tasks: 40_install_celery.yml
+- import_tasks: 45_restart_services.yml
+  tags: restart_frontend_services
+
+- name: Clean repo cache
+  file:
+    path: /var/cache/yum
+    state: absent
+
+...

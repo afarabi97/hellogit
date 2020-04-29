@@ -1,0 +1,7 @@
+---
+node_version: v13.5.0
+node_install_url: "https://nodejs.org/dist/{{ node_version }}/node-{{ node_version }}-linux-x64.tar.xz"
+labrepo_check: false
+private_key: /etc/ssl/private/apache-selfsigned.key
+certificate: /etc/ssl/certs/apache-selfsigned.crt
+certificate_request: /etc/ssl/private/localhost.csr

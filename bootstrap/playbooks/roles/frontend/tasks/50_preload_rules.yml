@@ -1,0 +1,22 @@
+---
+
+- name: rules | Create Directory
+  file:
+    path: "{{ web_install_dir }}/backend/rules"
+    state: directory
+
+- name: rules | Download Tar (just for backup)
+  get_url:
+    url: "https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz"
+    dest: "{{ web_install_dir }}/backend/rules"
+
+- name: rules | Download
+  unarchive:
+    remote_src: yes
+    src: "https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz"
+    dest: "{{ web_install_dir }}/backend/rules"
+
+- name: rules | Upload
+  script: "{{ web_install_dir }}/backend/preload_suricata_rules.py"
+  args:
+    executable: "{{ web_install_dir }}/tfp-env/bin/python"

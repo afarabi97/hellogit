@@ -1,6 +1,0 @@
----
-- name: "Run setup frontend script"
-  command: "bash /opt/tfplenum/web/setup/setup.sh"
-  register: result
-  changed_when: result.rc == 0
-...

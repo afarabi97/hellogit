@@ -1,0 +1,17 @@
+---
+- name: Set Node Tar Url
+  set_fact:
+    node_install_url: "http://misc.labrepo.sil.lab/node-{{ node_version }}-linux-x64.tar.xz"
+  when: labrepo_check
+
+- name: node | Download
+  get_url:
+    url: "{{ node_install_url }}"
+    dest: "{{ web_install_dir }}"
+
+- name: node | Extract
+  unarchive:
+    src: "{{ web_install_dir }}/node-{{ node_version }}-linux-x64.tar.xz"
+    dest: /usr/local
+    extra_opts:
+      - --strip-components=1

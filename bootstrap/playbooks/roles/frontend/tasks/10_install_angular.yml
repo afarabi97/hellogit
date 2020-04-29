@@ -1,0 +1,43 @@
+---
+
+- name: npm | Force Cache Clean
+  shell: |
+    npm cache clean --force
+  args:
+    chdir: "{{ web_install_dir }}/frontend"
+  register: results
+  changed_when: results.rc == 0
+
+- name: npm | Install specific npm version
+  npm:
+    name: npm
+    version: 6.13.4
+    path: "{{ web_install_dir }}/frontend"
+    global: yes
+
+- name: npm | Install Angular Cli
+  npm:
+    name: "@angular/cli"
+    version: 8.3.21
+    path: "{{ web_install_dir }}/frontend"
+    global: yes
+
+- name: npm | Verify Cache
+  shell: |
+    npm cache verify
+  register: results
+  changed_when: results.rc == 0
+  args:
+    chdir: "{{ web_install_dir }}/frontend"
+
+- name: npm | Install npm packages
+  npm:
+    path: "{{ web_install_dir }}/frontend"
+
+- name: npm | audit fix
+  shell: |
+    npm audit fix
+  args:
+    chdir: "{{ web_install_dir }}/frontend"
+  register: results
+  changed_when: results.rc == 0

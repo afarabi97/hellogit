@@ -1,0 +1,21 @@
+---
+- name: pcaps | Create Directory
+  file:
+    path: /var/www/html/pcaps
+    state: directory
+
+- name: pcaps | Download
+  get_url:
+    url: "{{ item }}"
+    dest: "/var/www/html/pcaps"
+  with_items:
+    - http://misc.labrepo.sil.lab/malware-pcaps/2018-09-06-infection-traffic-from-password-protected-Word-doc.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/2019-03-06-Flawed-Ammyy-traffic.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/2019-05-01-password-protected-doc-infection-traffic.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/2019-07-09-password-protected-Word-doc-pushes-Dridex.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/2019-08-12-Rig-EK-sends-MedusaHTTP-malware.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/2019-09-03-password-protected-Word-doc-pushes-Remcos-RAT.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/wannacry.pcap
+    - http://misc.labrepo.sil.lab/malware-pcaps/dns-dnskey.trace
+    - http://misc.labrepo.sil.lab/malware-pcaps/get.trace
+    - http://misc.labrepo.sil.lab/malware-pcaps/smb1_transaction_request.pcap

@@ -1,0 +1,12 @@
+---
+
+- name: Restart Services
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - httpd
+    - tfplenum-frontend
+    - mongod
+    - redis
+    - celery

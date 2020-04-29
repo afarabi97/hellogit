@@ -2,7 +2,9 @@
 
 web_root: /var/www/html
 tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
+tfplenum_root_dir: /opt/tfplenum
 core_install_dir: /opt/tfplenum/core
+web_install_dir: "{{ tfplenum_root_dir }}/web"
 tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"

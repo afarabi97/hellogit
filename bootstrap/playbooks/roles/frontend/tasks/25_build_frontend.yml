@@ -1,0 +1,22 @@
+---
+
+- name: Clear out previous build
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ web_install_dir }}/frontend/dist/frontend"
+    - /var/www/html/frontend
+
+- name: Build Angular App
+  shell: |
+    ng build --prod
+  args:
+    chdir: "{{ web_install_dir }}/frontend"
+  register: results
+  changed_when: results.rc == 0
+
+- name: Deploy Code
+  copy:
+    src: "{{ web_install_dir }}/frontend/dist/frontend"
+    dest: /var/www/html

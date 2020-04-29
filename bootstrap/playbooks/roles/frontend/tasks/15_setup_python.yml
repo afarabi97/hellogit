@@ -1,0 +1,29 @@
+---
+- name: Remove .pip dir
+  file:
+    path: /root/.pip
+    state: absent
+
+- name: Stop tfplenum-frontend service
+  systemd:
+    name: tfplenum-frontend
+    enabled: yes
+    state: stopped
+  ignore_errors: yes
+
+- name: Create Virtual Env
+  shell: |
+    python3 -m venv {{ web_install_dir }}/tfp-env
+  register: results
+  changed_when: results.rc == 0
+
+- name: Update Pip
+  pip:
+    name: pip
+    state: forcereinstall
+    virtualenv: "{{ web_install_dir }}/tfp-env"
+
+- name: Install Pip Modules from requirements
+  pip:
+    requirements: "{{ web_install_dir }}/requirements.txt"
+    virtualenv: "{{ web_install_dir }}/tfp-env"
