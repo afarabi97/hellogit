@@ -75,7 +75,7 @@ Setup GIP Nightly Controller:
     --vm-folder "$VMWARE_FOLDER" \
     --vm-template "$GIP_TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
-    --vm-prefix "$VM_PREFIX-gip-nightly" \
+    --vm-prefix "$VM_PREFIX-gip" \
     --branch-name "$CI_COMMIT_REF_NAME" \
     --run-type build_from_scratch \
     --vm-datastore "NVMe Storage 2"

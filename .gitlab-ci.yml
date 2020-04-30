@@ -35,7 +35,7 @@ variables:
   VCENTER_DATASTORE: "dev-vol02"
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl.lan"
   MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl.lan"
-  GIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl.lan"
+  GIP_TEMPLATE_TO_CLONE: "nightly-gip-ctrl.lan"
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP Services Template"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
