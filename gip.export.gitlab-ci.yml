@@ -1,0 +1,20 @@
+Export GIP Service VM:
+  stage: export
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    run-export export-gip-service-vm \
+    --export-path "$GIP_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-gip-service"
+      - $PIPELINE == "export-all"
+  cache:
+    key: tfplenum-services-cache-${CI_PIPELINE_ID}
+    paths:
+      - gipservicesettings.yml

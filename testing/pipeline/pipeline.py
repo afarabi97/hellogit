@@ -10,7 +10,7 @@ from jobs.mip_config import MIPConfigJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport
+from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport, GIPServiceExport
 from jobs.gip_creation import GipCreationJob
 
 from models import add_args_from_instance
@@ -24,7 +24,7 @@ from models.mip_config import MIPConfigSettings
 from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd
-from models.gip_settings import GipSettings
+from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKitSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
 
@@ -104,8 +104,11 @@ class Runner:
         mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
 
         gip_setup_parser = subparsers.add_parser(SubCmd.gip_setup, help="Configures GIP VMs and other related commands.")
-        GipSettings.add_args(gip_setup_parser)
-        gip_setup_parser.set_defaults(which=SubCmd.gip_setup)
+        gip_setup_subparsers = gip_setup_parser.add_subparsers()
+        GIPControllerSettings.add_args(gip_setup_subparsers)
+        GIPKickstartSettings.add_args(gip_setup_subparsers)
+        GIPServiceSettings.add_args(gip_setup_subparsers)
+        GIPKitSettings.add_args(gip_setup_subparsers)
 
         parser.add_argument('--system-name', dest='system_name',
                             choices=['DIP','MIP','GIP'],
@@ -114,44 +117,50 @@ class Runner:
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.setup_gip_ctrl:
-                gip_settings = GipSettings()
-                gip_settings.from_namespace(args)
+            if args.which == SubCmd.export_gip_service_vm:
+                gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
+                export_settings = ExportSettings()
+                export_settings.from_namespace(args)
 
-                controller_settings = gip_settings.controller_settings
-                YamlManager.save_to_yaml(controller_settings, args.system_name)
+                executor = GIPServiceExport(gip_service_settings, export_settings.export_loc)
+                executor.export_gip_service_vm()
+            elif args.which == SubCmd.setup_gip_ctrl:
+                gip_controller_settings = GIPControllerSettings()
+                gip_controller_settings.from_namespace(args)
+                YamlManager.save_to_yaml(gip_controller_settings)
+
+                controller_settings = gip_controller_settings.controller_settings
                 executor = ControllerSetupJob(controller_settings)
                 executor.setup_controller()
             elif args.which == SubCmd.run_gip_kickstart:
-                controller_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+                gip_controller_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
+                controller_settings = gip_controller_settings.controller_settings
 
-                gip_settings = GipSettings()
-                gip_settings.from_namespace(args)
-                gip_settings.controller_settings = controller_settings
-
-                gip_kickstart_settings = gip_settings.gip_kickstart_settings
-
+                gip_kickstart_settings = GIPKickstartSettings()
+                gip_kickstart_settings.from_namespace(args)
                 YamlManager.save_to_yaml(gip_kickstart_settings)
 
                 executor = GIPKickstartJob(controller_settings, gip_kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_gip_kit:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
-                kickstart_settings = YamlManager.load_gip_kickstart_settings_from_yaml()
+                gip_controller_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
+                gip_kickstart_settings = YamlManager.load_gip_kickstart_settings_from_yaml()
+                gip_kit_settings = GIPKitSettings()
+                gip_kit_settings.from_kickstart(gip_kickstart_settings)
+               
+                YamlManager.save_to_yaml(gip_kit_settings)
 
-                kit_settings = KitSettings()
-                kit_settings.use_proxy_pool = True
-                kit_settings.from_kickstart(kickstart_settings)
-                YamlManager.save_to_yaml(kit_settings, args.system_name)
+                controller_settings = gip_controller_settings.controller_settings
+                kit_settings = gip_kit_settings.kit_settings
 
-                executor = KitJob(ctrl_settings, kickstart_settings, kit_settings)
+                executor = KitJob(controller_settings, gip_kickstart_settings, kit_settings)
                 executor.run_kit()
             elif args.which == SubCmd.create_gip_service_vm:
-                gip_settings = GipSettings()
-                gip_settings.from_namespace(args)
+                service_settings = GIPServiceSettings()
+                service_settings.from_namespace(args)
 
-                YamlManager.save_to_yaml(gip_settings)
-                executor = GipCreationJob(gip_settings)
+                YamlManager.save_to_yaml(service_settings)
+                executor = GipCreationJob(service_settings)
                 executor.execute()
             elif args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()

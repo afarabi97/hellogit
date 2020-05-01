@@ -7,3 +7,4 @@
     - { role: "samba", tags: ["samba"] }
     - { role: "tftp", tags: ["tftp"] }
     - { role: "chrony", tags: ["chrony"] }
+    - { role: "packages", tags: ["packages"] }

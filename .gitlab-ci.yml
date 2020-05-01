@@ -5,6 +5,7 @@ variables:
   LABREPO_HOST: "labrepo.sil.lab"
   DIP_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_EXPORT_LOC: "/mnt/drive_creation/mip"
+  GIP_EXPORT_LOC: "/mnt/drive_creation/gip"
   DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
   TFPLENUM_EXPORT_VERSION: RC
@@ -36,7 +37,7 @@ variables:
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl.lan"
   MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl.lan"
   GIP_TEMPLATE_TO_CLONE: "nightly-gip-ctrl.lan"
-  GIP_SVC_TEMPLATE_TO_CLONE: "GIP Services Template"
+  GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
 
@@ -90,6 +91,7 @@ include:
   - local: dip.export.gitlab-ci.yml
   - local: gip.gitlab-ci.yml
   - local: mip.export.gitlab-ci.yml
+  - local: gip.export.gitlab-ci.yml
 
 Create Master Drive:
   stage: publish

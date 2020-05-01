@@ -99,15 +99,19 @@ class GIPKickstartSettings(KickstartSettings):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
-        parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 7), required=True,
+        gip_kickstart_parser = parser.add_parser(SubCmd.run_gip_kickstart,
+                                                      help="Executes Kickstart on a GIP controller.")
+        gip_kickstart_parser.set_defaults(which=SubCmd.run_gip_kickstart)
+
+        gip_kickstart_parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 7), required=True,
                             help="The number of server VMs to create.")
-        parser.add_argument('--server-cpu', type=int, dest="server_cpu", choices=range(2, 64), required=True,
+        gip_kickstart_parser.add_argument('--server-cpu', type=int, dest="server_cpu", choices=range(2, 64), required=True,
                             help="The default CPUs assigned to each server.")
-        parser.add_argument('--server-mem', type=int, dest="server_mem", required=True,
+        gip_kickstart_parser.add_argument('--server-mem', type=int, dest="server_mem", required=True,
                             help="The default amount of memory in mb assigned to each server.")
 
-        VCenterSettings.add_args(parser)
-        NodeSettings.add_args(parser, False)
+        VCenterSettings.add_args(gip_kickstart_parser)
+        NodeSettings.add_args(gip_kickstart_parser, False)
 
     def _validate_params(self):
         if self.server_mem < 1024 or self.server_mem > 65536:

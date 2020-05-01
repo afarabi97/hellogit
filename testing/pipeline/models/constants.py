@@ -29,12 +29,13 @@ class SubCmd:
     generate_versions_file = 'generate-versions-file'
     create_master_drive = 'create-master-drive'
     export_mip_ctrl = 'export-mip-ctrl'
+    export_gip_service_vm = 'export-gip-service-vm'
 
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'
     run_mip_config = 'run-mip-config'
 
-    # Gib subcommands
+    # Gip subcommands
     create_gip_service_vm = 'create-gip-service-vm'
     setup_gip_ctrl = 'setup-gip-controller'
     run_gip_kickstart = 'run-gip-kickstart'

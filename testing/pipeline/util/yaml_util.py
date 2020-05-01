@@ -6,7 +6,7 @@ from models.common import NodeSettings, VCenterSettings, Model, RepoSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
-from models.gip_settings import GipSettings
+from models.gip_settings import GIPControllerSettings, GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
                             LogstashSettings, SuricataSettings)
@@ -34,9 +34,12 @@ class YamlManager:
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
             cls.yaml.register_class(MIPKickstartSettings)
-            cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
-            cls.yaml.register_class(GipSettings)
+            cls.yaml.register_class(GIPControllerSettings)
+            cls.yaml.register_class(GIPServiceSettings)
+            cls.yaml.register_class(GIPKickstartSettings)
+            cls.yaml.register_class(GIPKitSettings)
+           
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, application:str=None):
@@ -62,6 +65,11 @@ class YamlManager:
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
+    def load_gip_ctrl_settings_from_yaml(cls) -> GIPControllerSettings:
+        yaml_name = "{}.yml".format(GIPControllerSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+
+    @classmethod
     def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
         yaml_name = "{}.yml".format(KickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
@@ -77,6 +85,7 @@ class YamlManager:
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
-    def load_gip_settings_from_yaml(cls) -> GipSettings:
-        yaml_name = "{}.yml".format(GipSettings.__name__.lower())
+    def load_gip_service_settings_from_yaml(cls) -> GIPServiceSettings:
+        yaml_name = "{}.yml".format(GIPServiceSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
+

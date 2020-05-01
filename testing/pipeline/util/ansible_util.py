@@ -23,9 +23,9 @@ class Target:
         self.port = port
 
 
-def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=None, targets: Union[Target, List[Target]]=None):
+def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=None, targets: Union[Target, List[Target]]=None, tags=[]):
     loader = DataLoader()
-    context.CLIARGS = ImmutableDict(tags={}, listtags=False, listtasks=False, listhosts=False, syntax=False, connection='ssh',
+    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False, listhosts=False, syntax=False, connection='ssh',
                                     module_path=None, forks=100, remote_user='xxx', private_key_file=None,
                                     ssh_common_args=None, ssh_extra_args=None, sftp_extra_args=None, scp_extra_args=None, become=True,
                                     become_method='sudo', become_user=getpass.getuser(), verbosity=True, check=False, start_at_task=None)

@@ -17,6 +17,7 @@ from io import StringIO
 from util.ansible_util import power_on_vms, power_off_vms
 from util.docs_exporter import MyConfluenceExporter
 from util.ssh import test_nodes_up_and_alive
+from models.gip_settings import GIPServiceSettings
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
@@ -198,6 +199,34 @@ class MIPControllerExport(ControllerExport):
 
         destination_path = "{}/MIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
+
+class GIPServiceExport(ControllerExport):
+    def __init__(self, gip_service_settings: GIPServiceSettings, export_loc: ExportLocSettings):
+        controller_settings = ControllerSetupSettings()
+        controller_settings.node = gip_service_settings.node
+        controller_settings.vcenter = gip_service_settings.vcenter
+
+        super().__init__(controller_settings, export_loc)
+    
+    def export_gip_service_vm(self):
+        logging.info("Exporting the service vm to OVA.")
+        validate_export_location(self.export_loc)
+        path_to_export = create_export_path(self.export_loc)
+
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        self._prepare_for_export(self.ctrl_settings.node.username,
+                                 self.ctrl_settings.node.password,
+                                 self.ctrl_settings.node.ipaddress)
+
+        payload = self.ctrl_settings.to_dict()
+        ctrl_hostname = self.ctrl_settings.node.hostname
+        version = self.export_loc.export_version
+        payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
+        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+
+        destination_path = "{}/GIP_{}_Service.ova".format(str(path_to_export), self.export_loc.export_version)
+        self._export(destination_path)  
 
 
 class ConfluenceExport:

@@ -7,6 +7,9 @@ Setup GIP Services VM:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
 
+    echo "Zipping up the gip playbooks."
+    zip -r playbooks.zip gip/
+
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
     gip-setup create-gip-service-vm \
@@ -26,9 +29,11 @@ Setup GIP Services VM:
   cache:
     key: tfplenum-services-cache-${CI_PIPELINE_ID}
     paths:
-      - gipsettings.yml
+      - gipservicesettings.yml
   only:
     variables:
+      - $PIPELINE == "developer-gip-service"
+      - $PIPELINE == "export-gip-service"
       - $PIPELINE == "developer-gip"
       - $PIPELINE == "developer-all"
 
@@ -44,7 +49,7 @@ GIP Cleanup:
   cache:
     key: tfplenum-gip-services-cache-${CI_PIPELINE_ID}
     paths:
-      - gipsettings.yml
+      - gipservicesettings.yml
     policy: pull
   only:
     variables:
@@ -93,7 +98,6 @@ Setup GIP Controller:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     echo "tfplenum-gip-cache-${CI_PIPELINE_ID}"
-
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
@@ -119,12 +123,10 @@ Setup GIP Controller:
   cache:
     key: tfplenum-gip-cache-${CI_PIPELINE_ID}
     paths:
-      - controllersetupsettings_gip.yml
+      - gipcontrollersettings.yml
   retry: 2
   only:
     variables:
-      - $PIPELINE == "export-gip"
-      - $PIPELINE == "export-all"
       - $PIPELINE == "developer-gip"
       - $PIPELINE == "developer-all"
 
@@ -157,7 +159,7 @@ GIP Kickstart:
   cache:
     key: tfplenum-gip-cache-${CI_PIPELINE_ID}
     paths:
-      - controllersetupsettings_gip.yml
+      - gipcontrollersettings.yml
       - gipkickstartsettings.yml
       - gipnodestoscan.txt
   retry: 2
@@ -177,9 +179,9 @@ GIP Kit:
   cache:
     key: tfplenum-gip-cache-${CI_PIPELINE_ID}
     paths:
-      - controllersetupsettings_gip.yml
+      - gipcontrollersettings.yml
       - gipkickstartsettings.yml
-      - kitsettings_gip.yml
+      - gipkitsettings.yml
       - gipnodestoscan.txt
   only:
     variables:

@@ -61,7 +61,9 @@ class ExportSettings(Model):
 
         if SubCmd.export_mip_ctrl == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
-
+        
+        if SubCmd.export_gip_service_vm == namespace.which:
+            populate_model_from_namespace(self.export_loc, namespace)
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -105,3 +107,8 @@ class ExportSettings(Model):
                                                    help="This subcommand will prep and export your MIP controller to the provided location.")
         add_args_from_instance(export_mip_ctrl_parser, ExportLocSettings(), True)
         export_mip_ctrl_parser.set_defaults(which=SubCmd.export_mip_ctrl)
+
+        export_gip_service_parser = subparsers.add_parser(SubCmd.export_gip_service_vm,
+                                                   help="This subcommand will prep and export your MIP controller to the provided location.")
+        add_args_from_instance(export_gip_service_parser, ExportLocSettings(), True)
+        export_gip_service_parser.set_defaults(which=SubCmd.export_gip_service_vm)
