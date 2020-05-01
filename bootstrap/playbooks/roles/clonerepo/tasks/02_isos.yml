@@ -1,11 +1,26 @@
 ---
 
-# TODO we need a way to pull down RHEL ISO image.
+- name: Set RHEL ISO To server for DIP bootstrap
+  set_fact:
+     iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+     iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+     iso_rhel_path: "{{ iso_rhel_server_path }}"
+  when:
+    - "system_name == 'DIP' or system_name == 'GIP'"
+
+- name: Set RHEL ISO To workstation for MIP bootstrap
+  set_fact:
+     iso_rhel_checksum: "{{ iso_rhel_worstation_checksum }}"
+     iso_rhel_url_labrepo: "{{ iso_rhel_workstation_url_labrepo }}"
+     iso_rhel_path: "{{ iso_rhel_worstation_path }}"
+  when:
+    - "system_name == 'MIP'"
+
 - name: Download RHEL ISO
   get_url:
     checksum: "sha256:{{ iso_rhel_checksum }}"
     url: "{{ iso_rhel_url_labrepo }}"
-    dest: "{{ iso_rhel_pth }}"
+    dest: "{{ iso_rhel_path }}"
   when:
     - "ansible_distribution == 'RedHat'"
     - RHEL_SOURCE_REPO == 'labrepo'
@@ -13,7 +28,7 @@
 # Verify ISO
 - name: check if RHEL iso exists
   stat:
-    path: "{{ iso_rhel_pth }}"
+    path: "{{ iso_rhel_path }}"
     checksum_algorithm: sha256
   register: iso_path_result2
   when: BOOTSTRAP and ansible_distribution == 'RedHat'
@@ -29,7 +44,7 @@
     state: mounted
     opts: loop
     path: "{{ mnt_pth }}"
-    src: "{{ iso_rhel_pth }}"
+    src: "{{ iso_rhel_path }}"
   when:
     - mnt_pth != ""
     - "ansible_distribution == 'RedHat'"

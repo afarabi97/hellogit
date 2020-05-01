@@ -13,6 +13,7 @@ sonarqube analyze production code:
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 sonarqube analyze test code:
   tags:
@@ -29,6 +30,7 @@ sonarqube analyze test code:
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 analyze ansible core playbooks:
   tags:
@@ -46,6 +48,7 @@ analyze ansible core playbooks:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 analyze ansible deployer playbooks:
   tags:
@@ -61,6 +64,7 @@ analyze ansible deployer playbooks:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 analyze ansible stigs playbooks:
   tags:
@@ -76,6 +80,7 @@ analyze ansible stigs playbooks:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 analyze ansible mip playbooks:
   tags:
@@ -84,7 +89,7 @@ analyze ansible mip playbooks:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    ansible-lint mip/mip-controller-bootstrap/site.yml
+    ansible-lint bootstrap/playbooks/site.yml
     ansible-lint mip/mip-core/site.yml
     ansible-lint mip/mip-deployer/site.yml
   allow_failure: true
@@ -93,6 +98,7 @@ analyze ansible mip playbooks:
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 
 # include:

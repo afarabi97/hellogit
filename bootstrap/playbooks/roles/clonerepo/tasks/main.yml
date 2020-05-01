@@ -8,18 +8,50 @@
     msg: 'Clonerepos role must be run using bootstrap script'
   when: BOOTSTRAP == false
 
-- name: Import tfplenum variables
-  include_vars:
-    file: "{{ tfplenum_vars }}"
+- name: "remove tfplenum repo directory"
+  file:
+    path: "{{ TFPLENUM_REPO_DIR }}"
+    state: absent
+  with_items:
+    - "{{ TFPLENUM_REPO_DIR }}"
+    - "/tmp/var/"
+
+- name: "Create tfplenum repo directory"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - "{{ TFPLENUM_REPO_DIR }}"
+    - "{{ TFPLENUM_REPO_DIR }}/Packages"
 
 - import_tasks: 00_httpd.yml
 - import_tasks: 02_isos.yml
 - import_tasks: 05_setup.yml
-- import_tasks: 10_pip.yml
-  tags: pip
-- import_tasks: 11_elasticdump.yml
-  tags: elasticdump
-- import_tasks: 15_direct.yml
-  tags: direct
+
+- name: DIP/GIP tasks
+  block:
+    - name: Import DIP/GIP variables
+      include_vars:
+        file: "{{ dip_core_vars }}"
+    - import_tasks: 10_pip.yml
+      tags: pip
+    - import_tasks: 11_elasticdump.yml
+      tags: elasticdump
+    - import_tasks: 15_dip_direct.yml
+      tags: direct
+  when:
+    - "system_name == 'DIP' or system_name == 'GIP'"
+
+- name: MIP tasks
+  block:
+  - name: Import MIP variables
+    include_vars:
+      file: "{{ mip_core_vars }}"
+  - import_tasks: 15_mip_direct.yml
+    tags: direct
+  when:
+    - "system_name == 'MIP'"
+
 - import_tasks: 20_download_rpms.yml
 ...

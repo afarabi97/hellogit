@@ -16,7 +16,7 @@ direct_download_rpms:
   - { url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", dest: "{{ tfplenumoffline_dir }}/tfplenum/Packages" }
   - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{elastic_7_version}}-x86_64.rpm", dest: "{{ tfplenumoffline_dir }}/tfplenum/Packages" }
 
-packages:
+dip_packages:
   - audit
   - bash-completion
   - bind-utils
@@ -86,12 +86,12 @@ packages:
   - screen
   - tmux
 
-packages_without_deps:
+dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
   - "kubectl-{{ k8s_version }}"
   - kubernetes-cni-0.6.0
 
-packages_to_remove:
+dip_packages_to_remove:
   - containerd.io
 
 ...

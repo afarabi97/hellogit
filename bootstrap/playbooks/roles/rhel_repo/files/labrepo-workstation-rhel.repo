@@ -1,0 +1,23 @@
+[rhel-7-workstation-rpms]
+name=labrepos rhel-7-workstation-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-optional-rpms]
+name=labrepos rhel-7-workstation-optional-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-optional-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-extras-rpms]
+name=labrepos rhel-7-workstation-extras-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-extras-rpms
+enabled=0
+gpgcheck=0
+
+[rhel-7-workstation-source-rpms]
+name=labrepos rhel-7-workstation-source-rpms
+baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-source-rpms
+enabled=0
+gpgcheck=0

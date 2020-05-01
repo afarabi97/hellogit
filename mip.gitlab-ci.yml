@@ -68,6 +68,7 @@ Setup MIP Controller:
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
@@ -103,6 +104,7 @@ MIP Kickstart:
     variables:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
@@ -123,6 +125,7 @@ Configure MIPs:
     variables:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
@@ -154,6 +157,7 @@ Perform MIP Security Scans:
     variables:
       - $RUN_ACAS == "true" && $PIPELINE == "developer-mip"
       - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
+      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "MIP_ACAS_Report.pdf"
@@ -177,3 +181,4 @@ MIP Cleanup:
     variables:
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-mip"
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip-mip"

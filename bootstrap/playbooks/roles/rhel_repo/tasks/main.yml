@@ -14,7 +14,17 @@
       rhsm_repository:
         name: "{{ item }}"
         state: enabled
-      with_items: "{{ rhel_repos }}"
+      with_items: "{{ server_repos }}"
+      when:
+        - "system_name == 'DIP' or system_name == 'GIP'"
+
+    - name: Enabling Red Hat repos...
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items: "{{ workstation_repos }}"
+      when:
+        - "system_name == 'MIP'"
 
     - name: Enable RHEL License
       replace:
@@ -27,9 +37,16 @@
   block:
     - name: Labrepo rhel repos
       copy:
-        src: "labrepo-rhel.repo"
-        dest: "/etc/yum.repos.d/labrepo-rhel.repo"
-
+        src: "labrepo-server-rhel.repo"
+        dest: "/etc/yum.repos.d/labrepo-server-rhel.repo"
+      when:
+        - "system_name == 'DIP' or system_name == 'GIP'"
+    - name: Labrepo rhel repos
+      copy:
+        src: "labrepo-workstation-rhel.repo"
+        dest: "/etc/yum.repos.d/labrepo-workstation-rhel.repo"
+      when:
+        - "system_name == 'MIP'"
     - name: Disable RHEL License
       replace:
         path: "/etc/yum/pluginconf.d/subscription-manager.conf"
@@ -37,4 +54,12 @@
         replace: 'enabled=0'
   when: RHEL_SOURCE_REPO == "labrepo"
 
+- name: Clean repos
+  command: yum clean all
+  ignore_errors: yes
+
+- name: Clean repo cache
+  file:
+    path: /var/cache/yum
+    state: absent
 ...

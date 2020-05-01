@@ -2,13 +2,15 @@
 
 - name: Import tfplenum variables
   include_vars:
-    file: "{{ tfplenum_vars }}"
+    file: "{{ dip_core_vars }}"
   tags:
     - pull-helm-images
     - helm
     - conmon
 
-- import_tasks: cleanup.yml
+- import_role:
+    name: cleanup
+    tasks_from: cleanup
 
 - name: Set_fact bootstrap and git
   set_fact:
@@ -16,7 +18,9 @@
     GIT_USERNAME: "{{ lookup('env','GIT_USERNAME') }}"
     GIT_PASSWORD: "{{ lookup('env','GIT_PASSWORD') }}"
 
-- import_tasks: rhel_repos.yml
+- name: Execute RHEL repo role.
+  include_role:
+    name: rhel_repo
   when: TFPLENUM_OS_TYPE == "rhel"
 - import_tasks: additional_repos.yml
 
@@ -33,23 +37,17 @@
   include_role:
     name: registry
 
+- import_tasks: preload_rules.yml
+
 - import_tasks: helm.yml
   tags: helm
 
 - import_tasks: conmon.yml
   tags: conmon
 
-- name: Copy dirs from rhel iso
-  delegate_to: "{{ inventory_hostname }}"
-  synchronize:
-    dest: "{{ TFPLENUM_REPO_DIR }}"
-    src:  "{{ mnt_pth }}/"
-    recursive: yes
-    rsync_opts:
-      - "--exclude=Packages"
-      - "--exclude=repodata"
+- import_role:
+    name: cleanup
 
-- import_tasks: post_cleanup.yml
 - import_tasks: offline_repos.yml
 - import_tasks: max_log_size.yml
 - import_tasks: update_etc_hosts.yml

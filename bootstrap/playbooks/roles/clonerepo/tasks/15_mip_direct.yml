@@ -1,0 +1,50 @@
+---
+
+- name: Fetch the files to be copied archive.
+  get_url:
+    url: "{{ misc_server }}/MIP/Files_To_Be_Copied_Over.tar"
+    dest: /root
+
+- name: Unarchive the files.
+  unarchive:
+    src: /root/Files_To_Be_Copied_Over.tar
+    dest: /root
+    remote_src: yes
+
+- name: Remove the archive.
+  file:
+    path: /root/Files_To_Be_Copied_Over.tar
+    state: absent
+
+- name: Create a directory in {{ web_root }}.
+  file:
+    path: "{{ web_root }}/MIP"
+    state: directory
+
+- name: Fetch MIP resources.
+  get_url:
+    url: "{{ misc_server }}/MIP/{{ item }}"
+    dest: "{{ web_root }}/MIP/"
+  loop:
+    - "{{ vmware_file }}"
+    - "{{ vscode_file }}"
+    - "{{ gitkraken_file }}"
+    - "{{ chrome_file }}"
+    - "{{ wireshark_file }}"
+    - "{{ McAfee_file }}"
+    - "{{ dat_file }}"
+    - "{{ engine_file }}"
+    - "{{ nexpose_file }}"
+    - "{{ burpsuite_file }}"
+    - "{{ ostinato_file }}"
+    - "{{ ostinato_server_file }}"
+    - "{{ mcafee_gip_file }}"
+
+- name: Fetch MIP Resources.
+  get_url:
+    url: "{{ misc_server }}/MIP/{{ item }}"
+    dest: "{{ web_root }}/MIP/"
+  loop:
+    - "{{ cpt_archive }}"
+    - "{{ mdt_archive }}"
+  when: download_archives

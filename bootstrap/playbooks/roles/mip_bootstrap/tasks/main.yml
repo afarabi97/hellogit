@@ -1,0 +1,26 @@
+---
+- name: Set_fact bootstrap
+  set_fact:
+    BOOTSTRAP: "{{ lookup('env','BOOTSTRAP') }}"
+
+- name: Execute RHEL repo role.
+  include_role:
+    name: rhel_repo
+  when: TFPLENUM_OS_TYPE == "rhel"
+
+- name: Execute clone repo role.
+  include_role:
+    name: clonerepo
+
+- name: Install the tftp-server,syslinux, and xinetd packages.
+  yum:
+    name: tftp-server,syslinux,xinetd
+    state: latest
+
+- name: Install dhcp package.
+  yum:
+    name: dhcp
+    state: latest
+
+- import_role:
+    name: cleanup

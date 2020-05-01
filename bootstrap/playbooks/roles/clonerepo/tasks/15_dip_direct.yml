@@ -6,3 +6,10 @@
     dest: "{{ item.dest }}"
   with_items:
     - "{{ direct_download_package_names }}"
+
+- name: "Download direct rpms"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - "{{ direct_download_rpms }}"

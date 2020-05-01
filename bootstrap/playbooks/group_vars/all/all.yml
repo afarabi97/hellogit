@@ -5,14 +5,24 @@ tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 tfplenum_root_dir: /opt/tfplenum
 core_install_dir: /opt/tfplenum/core
 web_install_dir: "{{ tfplenum_root_dir }}/web"
-tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
+dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
+mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
 
-rhel_repos:
+server_repos:
   - rhel-7-server-rpms
   - rhel-7-server-extras-rpms
   - rhel-7-server-optional-rpms
+
+workstation_repos:
+  - rhel-7-workstation-rpms
+  - rhel-7-workstation-optional-rpms
+  - rhel-7-workstation-extras-rpms
+  - rhel-7-workstation-source-rpms
+
+misc_server: http://misc.labrepo.sil.lab
+isos_server: http://isos.labrepo.sil.lab
 
 additional_repo_info:
   kube:
@@ -68,9 +78,15 @@ pip_downloads:
   - psutil==5.6.7
 
 iso_rhel_version: "7.7"
-iso_rhel_pth: "/root/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_url_labrepo: "http://isos.labrepo.sil.lab/rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_checksum: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+iso_rhel_server_name: "rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_server_path: "/root/{{ iso_rhel_server_name }}"
+iso_rhel_server_url_labrepo: "{{ isos_server }}/{{ iso_rhel_server_name }}"
+iso_rhel_server_checksum: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+
+iso_rhel_worstation_name: "rhel-workstation-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_worstation_path: "/root/{{ iso_rhel_worstation_name }}"
+iso_rhel_workstation_url_labrepo: "{{ isos_server }}/{{ iso_rhel_worstation_name }}"
+iso_rhel_worstation_checksum: 56c4be4757c4b8e560d21e13a8cc3854ace401547e02999ff8dbc2696f92dff3
 
 BOOTSTRAP: false
 

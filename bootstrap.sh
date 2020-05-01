@@ -232,7 +232,7 @@ function setup_ansible(){
 
 function add_workstation_repositories() {
     if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-        cat <<EOF > /etc/yum.repos.d/workstation-labrepo-rhel.repo
+        cat <<EOF > /etc/yum.repos.d/labrepo-workstation-rhel.repo
 [rhel-7-workstation-rpms]
 name=labrepos rhel-7-workstation-rpms
 baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-rpms
@@ -266,7 +266,7 @@ function generate_repo_file() {
     rm -rf /etc/yum.repos.d/*.repo > /dev/null
 
     if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-cat <<EOF > /etc/yum.repos.d/labrepo-rhel.repo
+cat <<EOF > /etc/yum.repos.d/labrepo-server-rhel.repo
 [rhel-7-server-extras-rpms]
 name=labrepos rhel-7-server-extras-rpms
 baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-extras-rpms
@@ -394,20 +394,6 @@ function clone_repos(){
     fi
 }
 
-function _install_and_start_mongo40() {
-cat <<EOF > /etc/yum.repos.d/mongodb-org-4.0.repo
-[mongodb-org-4.0]
-name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.0/x86_64/
-gpgcheck=1
-enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
-EOF
-    run_cmd yum install -y mongodb-org
-    run_cmd systemctl enable mongod
-}
-
-
 function execute_pre(){
     rpm -e epel-release-latest-7.noarch.rpm
     yum remove epel-release -y
@@ -431,8 +417,8 @@ EOF
 
 function execute_mip_bootstrap_playbook(){
     echo "Running MIP controller bootstrap."
-    pushd "/opt/tfplenum/mip/mip-controller-bootstrap" > /dev/null
-    make bootstrap
+    pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
+    make mip_bootstrap
     popd > /dev/null
 }
 
@@ -440,7 +426,7 @@ function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
 
     pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
-    make bootstrap
+    make dip_bootstrap
     popd > /dev/null
 
     pushd "/opt/tfplenum/stigs/playbooks" > /dev/null

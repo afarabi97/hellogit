@@ -17,6 +17,9 @@
     dest: "{{ web_install_dir }}/backend/rules"
 
 - name: rules | Upload
-  script: "{{ web_install_dir }}/backend/preload_suricata_rules.py"
+  shell: |
+    {{ web_install_dir }}/tfp-env/bin/python preload_suricata_rules.py
   args:
-    executable: "{{ web_install_dir }}/tfp-env/bin/python"
+    chdir: "{{ web_install_dir }}/backend"
+  register: results
+  changed_when: results.rc == 0

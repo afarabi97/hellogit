@@ -75,6 +75,7 @@ Setup DIP Controller:
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 DIP Run Python Unit Tests:
   tags:
@@ -94,6 +95,7 @@ DIP Run Python Unit Tests:
     variables:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 DIP Kickstart:
   stage: kickstart
@@ -135,6 +137,7 @@ DIP Kickstart:
     variables:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 DIP Kit:
   stage: kit
@@ -155,6 +158,7 @@ DIP Kit:
     variables:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 Perform DIP Security Scans:
   stage: security_scans
@@ -179,6 +183,7 @@ Perform DIP Security Scans:
     variables:
       - $RUN_ACAS == "true" && $PIPELINE == "developer-dip"
       - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
+      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "DIP_ACAS_Report.pdf"
@@ -206,6 +211,7 @@ CVAH Catalog:
     variables:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
 
 System Function Testing:
   stage: integration-test
@@ -219,6 +225,7 @@ System Function Testing:
     variables:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
   cache:
     key: tfplenum-dip-cache-${CI_PIPELINE_ID}
     paths:
@@ -251,6 +258,7 @@ Simulate Power Failure:
     variables:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
 
 System Function Testing2:
   stage: rerun-integration-test
@@ -271,6 +279,7 @@ System Function Testing2:
     variables:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "./*.xml"
@@ -297,3 +306,4 @@ DIP Cleanup:
     variables:
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip"
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
+      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip-mip"

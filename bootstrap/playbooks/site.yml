@@ -19,9 +19,18 @@
     - frontend
   tags: frontend
 
-- name: Bootstrap Controller
+- name: Bootstrap DIP/GIP Controller
   hosts: localhost
   any_errors_fatal: true
   roles:
-    - bootstrap
-  tags: bootstrap
+    - dip_bootstrap
+  tags:
+    - dip_bootstrap
+
+- name: Bootstrap MIP Controller
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - mip_bootstrap
+  tags:
+    - mip_bootstrap

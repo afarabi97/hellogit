@@ -15,6 +15,7 @@
   with_items:
     - "{{ TFPLENUM_REPO_DIR }}"
     - "{{ TFPLENUM_REPO_DIR }}/Packages"
+    - "{{ web_root }}/{{ ansible_distribution }}"
 
 - name: "Install bootstrap packages"
   yum:
@@ -26,3 +27,24 @@
     name: "firewalld"
     state: started
     enabled: true
+
+- name: Copy dirs from rhel iso
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize:
+    dest: "{{ TFPLENUM_REPO_DIR }}"
+    src:  "{{ mnt_pth }}/"
+    recursive: yes
+    rsync_opts:
+      - "--exclude=Packages"
+      - "--exclude=repodata"
+  when:
+    - "system_name == 'DIP' or system_name == 'GIP'"
+
+- name: Copy content from rhel iso to websever RedHat dir
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize:
+    dest: "{{ web_root }}/{{ ansible_distribution }}"
+    src:  "{{ mnt_pth }}/"
+    recursive: yes
+  when:
+    - "system_name == 'MIP'"

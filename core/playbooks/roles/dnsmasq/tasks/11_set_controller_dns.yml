@@ -4,7 +4,7 @@
 - name: Remove all nameservers from resolv conf
   lineinfile:
     path: "/etc/resolv.conf"
-    regexp: '/^nameserver'
+    regexp: '^nameserver'
     state: absent
 
 - name: Remove all nameservers from resolv conf
