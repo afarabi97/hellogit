@@ -22,8 +22,8 @@
     create: yes
     state: present
   with_items:
-    - 'GRUB_FONT={% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}fonts/unicode2.pf2'
-    - 'GRUB_BACKGROUND={% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}mip2-background.jpg'
+    - 'GRUB_FONT={{ uefi_grub_path }}fonts/unicode2.pf2'
+    - 'GRUB_BACKGROUND={{ uefi_grub_path }}mip2-background.jpg'
     - "GRUB_TERMINAL=gfxterm"
 
 - name: Registering CVA/H release variables
@@ -60,7 +60,7 @@
 - name:    
   copy:
     src: "/root/Files_To_Be_Copied_Over/usr/local/scripts/mip2-background.jpg"
-    dest: '{% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}'
+    dest: '{{ uefi_grub_path }}'
     owner: root
     group: root
     mode: '0700'
@@ -68,10 +68,10 @@
 - name: Update GRUB fonts and remake the GRUB config
   command: "{{ item }} "
   with_items: 
-    - grub2-mkfont --output={% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}fonts/unicode2.pf2 --size=28 /usr/share/fonts/dejavu/DejaVuSansMono-Bold.ttf
-    - grub2-mkconfig -o {% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}grub.cfg
+    - grub2-mkfont --output={{ uefi_grub_path }}fonts/unicode2.pf2 --size=28 /usr/share/fonts/dejavu/DejaVuSansMono-Bold.ttf
+    - grub2-mkconfig -o {{ uefi_grub_path }}grub.cfg
 
 - name: Change file ownership for grub.cfg
   file:
-    path: '{% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}/grub.cfg'
+    path: '{{ uefi_grub_path }}grub.cfg'
     mode: '0600'

@@ -8,4 +8,4 @@
 - name: Remake the GRUB config to account for new timeout choice
   command: "{{ item }} "
   with_items: 
-    - grub2-mkconfig -o {% if MIP_model.msg == "Precision 7730" %}{{ uefi_grub_path }}{% else %}{{legacy_grub_path}}{% endif %}grub.cfg
+    - grub2-mkconfig -o {{ uefi_grub_path }}grub.cfg

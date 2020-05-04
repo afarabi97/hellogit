@@ -5,7 +5,7 @@
 
 - name: remove existing key from the LUKS container
   luks_device:
-    device: '/dev/{% if MIP_model.msg == "Precision 7730" %}nvme0n1p3{% else %}sda2{% endif %}'
+    device: '/dev/{% if MIP_model.msg == "Precision 7730" %}nvme0n1p3{% else %}sda3{% endif %}'
     remove_keyfile: "/etc/mypasswdfile"
 
 - name: delete temporary luks files

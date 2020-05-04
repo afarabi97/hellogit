@@ -10,7 +10,7 @@ all:
     timezone: 'UTC'
 
     default_boot_drive: sda
-    default_root_partition: 2
+    default_root_partition: 3
     server_ip: {{ controller_interface[0] }}
     netmask: {{ netmask }}
     gateway: {{ gateway }}
@@ -23,12 +23,12 @@ all:
         {{ node.hostname }}:
           ip: {{ node.ip_address }}
           mac: {{ node.mac_address }}
-          pxe_type: {{ node.pxe_type|lower() }}
-          {%- if node.pxe_type == "BIOS" %}
+          pxe_type: uefi
+          {%- if node.model == "6800/7720" %}
           boot_drive: sda
-          root_partition: '2'
+          root_partition: '3'
           {%- endif %}
-          {%- if node.pxe_type == "UEFI" %}
+          {%- if node.model == "7730" %}
           boot_drive: nvme0n1
           root_partition: 'p3'
           {%- endif %}    

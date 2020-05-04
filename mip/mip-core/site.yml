@@ -1,6 +1,6 @@
 ---
 - name: Clean up known hosts
-  hosts: mips
+  hosts: localhost
   any_errors_fatal: true
   roles:
     - pre_installation_tasks
@@ -9,7 +9,7 @@
     - MDT
     - CPT
 
-- name: Adding offline repos          ## RHEL repos won't download without RHEL subscription service   ##
+- name: Adding offline repos 
   hosts: mips
   any_errors_fatal: true
   roles: 

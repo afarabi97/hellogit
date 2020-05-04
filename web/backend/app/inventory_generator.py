@@ -134,8 +134,11 @@ class MIPKickstartInventoryGenerator:
     def _map_mip_model(self) -> None:
         for node in self._template_ctx["nodes"]:
             if node['pxe_type'] == "6800/7720":
-                node['pxe_type'] = "BIOS"
+                node['model'] = "6800/7720"
+                node['pxe_type'] = "UEFI"
+
             elif node['pxe_type'] == "7730":
+                node['model'] = "7730"
                 node['pxe_type'] = "UEFI"
 
     def _set_dhcp_range(self):
@@ -149,6 +152,7 @@ class MIPKickstartInventoryGenerator:
         self._map_mip_model()
         self._set_dhcp_range()
         template = JINJA_ENV.get_template('mip_kickstart_inventory.yml')
+        print(self._template_ctx)
         kickstart_template = template.render(self._template_ctx)
 
         if not os.path.exists(str(MIP_KICK_DIR)):

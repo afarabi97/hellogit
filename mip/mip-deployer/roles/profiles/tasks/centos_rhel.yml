@@ -1,17 +1,6 @@
 ---
 - name: "{{ ansible_distribution }} block"
   block:
-    - name: Make default bios {{ ansible_distribution }} {{ kick_cfg }} avail
-      template:
-        src: mip.cfg.j2
-        dest: "{{ ks_template_dir }}/mip.cfg"
-        owner: root
-        group: root
-        mode: 0644
-        setype: httpd_sys_content_t
-      vars:
-        uefi: false
-
     - name: Make default uefi {{ ansible_distribution }} {{ kick_cfg }} avail
       template:
         src: mip.cfg.j2
@@ -22,20 +11,6 @@
         setype: httpd_sys_content_t
       vars:
         uefi: true
-
-    - name: Create {{ ansible_distribution }} bios ks for each server
-      template:
-        src: "mip.cfg.j2"
-        dest: "{{ ks_template_dir }}/{{ item }}.cfg"
-        owner: root
-        group: root
-        mode: 0644
-        setype: httpd_sys_content_t
-      with_items:
-      - "{{ groups['mips'] }}"
-      when: hostvars[item].pxe_type == 'bios'
-      vars:
-        uefi: false
 
     - name: Create {{ ansible_distribution }} uefi ks for each server
       template:
@@ -51,16 +26,6 @@
       vars:
         uefi: true
 
-    - name: Default {{ ansible_distribution }} PXE Menus
-      template:
-        src: "default.j2"
-        dest: "{{ tftp_dir }}/pxelinux.cfg/default"
-        owner: root
-        group: root
-        mode: 0644
-        setype: "cobbler_var_lib_t"
-      register: tftp
-
     - name: UEFI {{ ansible_distribution }} PXE Menus
       template:
         src: "grub.cfg.j2"
@@ -70,21 +35,6 @@
         mode: 0644
         setype: "cobbler_var_lib_t"
       register: tftp
-
-    - name: Create {{ ansible_distribution }} bios pxe menu for each server
-      template:
-        src: "default.j2"
-        # This takes the mac address from the inventory file for each node.
-        # Replaces the colon with a dash and makes it lower case
-        dest: "{{ tftp_dir }}/pxelinux.cfg/01-{{ hostvars[item].mac | regex_replace(':', '-') | lower }}"
-        owner: root
-        group: root
-        mode: 0644
-        setype: "cobbler_var_lib_t"
-      register: tftp
-      with_items:
-      - "{{ groups['mips'] }}"
-      when: hostvars[item].pxe_type == 'bios'
 
     - name: Create {{ ansible_distribution }} uefi pxe menu for each server
       template:

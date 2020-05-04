@@ -54,10 +54,9 @@ bootloader --location=mbr --boot-drive={{ boot_drive }} --password=default
 # Partition clearing information
 zerombr
 clearpart --all --initlabel --drives={{ boot_drive }}
+
 # Disk partitioning information
-{% if boot_drive == "nvme0n1" %}
 part /boot/efi --fstype="vfat" --ondisk={{ boot_drive }} --size=200
-{% endif %}
 part /boot --fstype="xfs" --ondisk={{ boot_drive }} --size=1024
 part pv.238 --fstype="lvmpv" --ondisk={{ boot_drive }} --size=1 --grow --encrypted --passphrase={{ luks_password }}
 volgroup rhel --pesize=4096 pv.238

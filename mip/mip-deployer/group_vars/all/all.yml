@@ -2,5 +2,3 @@
 kick_cfg: mip.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
-
-#root_partition: p3

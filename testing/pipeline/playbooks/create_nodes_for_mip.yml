@@ -56,6 +56,7 @@
         hardware:
           memory_mb: "{{ item.memory }}"
           num_cpus: "{{ item.cpu }}"
+          boot_firmware: "efi"
         disk:
         - size_gb: 350
           type: thin
