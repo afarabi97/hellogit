@@ -21,7 +21,7 @@ all:
     #############################
     # Kubernetes Settings       #
     #############################
-    use_proxy_pool: {{ template_ctx.use_proxy_pool }}
+    use_proxy_pool: {{ template_ctx.use_proxy_pool | default(false) }}
 
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
     # This includes cockpit, Moloch viewer, Kibana, elastichq, and

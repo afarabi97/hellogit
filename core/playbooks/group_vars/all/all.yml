@@ -86,6 +86,4 @@ elastic_disk_discovery_dir: "{{base_discovery_dir}}/elastic"
 dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
 enable_kube_ha: false
 
-use_proxy_pool: false
-
 ...

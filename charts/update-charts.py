@@ -3,6 +3,8 @@
 import os
 import subprocess
 import requests
+import yaml
+import configparser
 
 charts = [
         { "name": "logstash",
@@ -34,15 +36,36 @@ charts = [
         { "name": "cortex",
                 "version": "1.0.0"},
         { "name": "netflow-filebeat",
-                "version": "1.0.0"}
+                "version": "1.0.0"},
+        { "name": "squid",
+                "version": "1.1.0"}
     ]
 
 CHARTMUSEUM_FQDN = "chartmuseum.lan"
 CHARTS_PATH="/opt/tfplenum/charts"
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 
+CHARTS = '../bootstrap/playbooks/group_vars/all/chartmuseum.yml'
+INI = "/etc/tfplenum.ini"
+
+def get_system_name():
+    config = configparser.ConfigParser()
+    config.read(INI)
+    try:
+        return config['tfplenum']['system_name']
+    except KeyError:
+        return None
+
+
+def get_charts(system):
+    with open(CHARTS) as file:
+        charts = yaml.load(file, Loader=yaml.FullLoader)
+    return charts['{}_charts'.format(system.lower())]
+
+
 def get_chartmuseum_uri():
     return "https://" + CHARTMUSEUM_FQDN
+
 
 def delete_chart(chartmuseum_uri, chart_name, chart_version):
     url = chartmuseum_uri + "/api/charts/" + chart_name + "/" + chart_version
@@ -79,7 +102,12 @@ def push_chart(chartmuseum_uri, chart_name, chart_version):
 
 def main():
     chartmuseum_uri = get_chartmuseum_uri()
-    for chart in charts:
+
+    system_name = get_system_name()
+    charts_to_update = get_charts(system_name)
+    filtered_charts = filter(lambda chart: (chart['name'] in charts_to_update), charts)
+
+    for chart in filtered_charts:
         print("Deleting " + chart["name"] + " " + chart["version"])
         delete_chart(chartmuseum_uri, chart["name"], chart["version"])
         is_packaged = package_chart(chart["name"], chart["version"])

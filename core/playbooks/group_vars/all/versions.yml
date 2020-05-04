@@ -92,6 +92,7 @@ kube_images:
   - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/squid:{{squid_version | default('1.1.0')}}", for_dip: false, for_gip: true }
   - { image: "quay.io/external_storage/local-volume-provisioner:v{{storage_provisioner_version}}", for_dip: true, for_gip: true }
 
 helm_charts:

@@ -1,0 +1,31 @@
+---
+dip_charts:
+  - cortex
+  - hive
+  - logstash
+  - mattermost
+  - misp
+  - moloch
+  - moloch-viewer
+  - mongodb
+  - netflow-filebeat
+  - nifi
+  - redmine
+  - rocketchat
+  - suricata
+  - wikijs
+  - zeek
+  - chartmuseum
+
+gip_charts:
+  - squid
+  - cortex
+  - hive
+  - mattermost
+  - misp
+  - mongodb
+  - nifi
+  - redmine
+  - rocketchat
+  - wikijs
+  - chartmuseum

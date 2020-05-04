@@ -26,6 +26,16 @@
     path: "{{ chart_dir }}"
     state: directory
 
+- name: Set the list of charts to put into the offlinerepo (DIP).
+  set_fact:
+    available_charts: "{{ dip_charts }}"
+  when: system_name == 'DIP'
+
+- name: Set the list of charts to put into the offlinerepo (GIP).
+  set_fact:
+    available_charts: "{{ gip_charts }}"
+  when: system_name == 'GIP'
+
 - name: Get list of custom helm charts
   find:
     paths: /opt/tfplenum/charts/
@@ -40,6 +50,7 @@
   register: result
   changed_when: result.rc == 0
   tags: pull-helm-images
+  when: (item.path | basename) in available_charts
 
 - name: Fetch helm charts
   command: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
