@@ -1,3 +1,5 @@
+from celery import utils as celery_utils
+
 from app import app, celery, logger, conn_mng
 from typing import Dict, Tuple, List
 from enum import Enum
@@ -14,10 +16,14 @@ import os
 import socket
 import dns.resolver
 
+hostname = os.getenv('HOSTNAME')
+if not hostname:
+    hostname = celery_utils.nodenames.gethostname()
+domain = '.'.join(hostname.split('.')[1:])
 
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-CHARTMUSEUM_FQDN = "chartmuseum.lan"
+CHARTMUSEUM_FQDN = "chartmuseum.{}".format(domain)
 HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 
