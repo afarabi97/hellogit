@@ -15,12 +15,12 @@
 - name: Install the tftp-server,syslinux, and xinetd packages.
   yum:
     name: tftp-server,syslinux,xinetd
-    state: latest
+    state: present
 
 - name: Install dhcp package.
   yum:
     name: dhcp
-    state: latest
+    state: present
 
 - import_role:
     name: cleanup
