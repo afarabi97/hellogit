@@ -10,6 +10,7 @@
     kubeadm reset -f -v1
   register: kube_reset_result
   changed_when: kube_reset_result.rc == 0
+  failed_when: kube_reset_result.rc != 0
   ignore_errors: yes
   until: kube_reset_result.rc == 0
   retries: 15
@@ -29,6 +30,8 @@
 - name: Install crio
   shell: |
     make uninstall
+  register: result
+  changed_when: result.rc == 0
   args:
     chdir: "{{ crio_dir }}"
 

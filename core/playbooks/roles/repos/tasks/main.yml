@@ -24,21 +24,21 @@
   with_items: "{{ wildcard_files_to_delete.files }}"
 
 - name: Clean repo cache
-  shell: |
-    rm -rf /var/cache/yum
-  args:
-    warn: false
+  file:
+    path: /var/cache/yum
+    state: absent
 
-- get_url:
+
+- name: Get offline_repo url
+  get_url:
     url: "{{ offline_repo_base }}/offline.repo"
     dest: /etc/yum.repos.d/offline.repo
     mode: 0664
 
 - name: Clean repo cache
-  shell: |
-    rm -rf /var/cache/yum
-  args:
-    warn: false
+  file:
+    path: /var/cache/yum
+    state: absent
 
 - name: create pip dir
   file:

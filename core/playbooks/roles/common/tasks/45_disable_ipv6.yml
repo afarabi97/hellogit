@@ -17,7 +17,8 @@
     regexp: localhost6
     state: absent
 
-- set_fact:
+- name: set_fact sysctl_list
+  set_fact:
     sysctl_list:
       - net.ipv6.conf.all.disable_ipv6
       - net.ipv6.conf.default.disable_ipv6
@@ -58,6 +59,9 @@
 #   shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
 #   when: grub_update is defined and grub_update.changed
 #   register: rebuild_grub_result
+#   notify:
+#     - "Reboot to finish off completely"
+#     - "Wait for boot"
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1402961
 # sda / sdb get swapped after reboot wtf!
@@ -65,3 +69,6 @@
 #  shell: "dracut -f"
 #  register: dracut_result
 #  when: sysctl_reload_result is defined and sysctl_reload_result.changed
+#  notify:
+#    - "Reboot ot finish off completely"
+#    - "Wait for boot"

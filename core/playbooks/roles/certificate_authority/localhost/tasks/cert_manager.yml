@@ -22,16 +22,20 @@
     kubectl delete -f {{ cert_manager_dir }}/operator.yml --ignore-not-found=true
   register: results
   changed_when: results.rc == 0
-  ignore_errors: true
+  failed_when: result.rc != 0
+  ignore_errors: yes
 
 - name: "Install Cert Manager Operator ({{ cert_manager_version }})"
   shell: |
     kubectl apply -f {{ cert_manager_dir }}/operator.yml
+  register: result
+  changed_when: result.rc == 0
 
 - name: Wait for Cert Manager to become healthy | This can take a 2.5 minutes
   shell: |
-    kubectl get pods --namespace cert-manager | grep webhook | awk '{ print $3 }'
+    set -o pipefail && kubectl get pods --namespace cert-manager | grep webhook | awk '{ print $3 }'
   register: results_certs
+  changed_when: results_certs.rc == 0
   until: (results_certs.stdout == 'Running')
   retries: 60
   delay: 5
@@ -41,8 +45,12 @@
   delegate_to: localhost
 
 - name: Create Web CA Secret
-  command: "kubectl create secret generic {{ webca_secret }} --from-file=tls.crt={{ cert_manager_dir }}/webCA.crt --from-file=tls.key={{ cert_manager_dir }}/webCA.pem"
+  command: "kubectl create secret generic {{ webca_secret }} --from-file=tls.crt={{ cert_manager_dir }}/webCA.crt --from-file=tls.key={{ cert_manager_dir }}/webCA.pem" # noqa 204
+  register: result
+  changed_when: result.rc == 0
 
 - name: Create Web CA
   shell: |
     kubectl apply -f {{ cert_manager_dir }}/ca_issuer.yml
+  register: result
+  changed_when: result.rc == 0

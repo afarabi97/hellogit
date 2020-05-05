@@ -32,15 +32,29 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Set kit size pre_tasks
+      setup:
   tasks:
     - name: Set Kit Size
       set_fact:
         kit_size: >-
-          {% if system_name == "GIP" %}{% if ansible_processor_vcpus >= 55 and (ansible_memtotal_mb/1024)|round|int >= 95 %}100{% else %}99{% endif %}{% else %}{% if (groups['servers']|length) >= 2 %}{% if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{% elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{% endif %}{% endif %}{% endif %}
+          {%
+          if system_name == "GIP" %}{%
+            if ansible_processor_vcpus >= 55 and (ansible_memtotal_mb/1024)|round|int >= 95 %}100{%
+            else %}99{%
+            endif %}{%
+          else %}{%
+            if (groups['servers']|length) >= 2 %}{%
+              if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{%
+              elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{%
+              elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{%
+              endif %}{%
+            endif %}{%
+          endif
+          %}
         cacheable: yes
     - debug:
-        msg: "Kit size: {{kit_size}}"
+        msg: "Kit size: {{ kit_size }}"
 
 - name: Setup Repos
   hosts:
@@ -49,7 +63,8 @@
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Setup repos pre_tasks
+      setup:
   roles:
     - repos
   tags: repos
@@ -64,11 +79,11 @@
         name: "NetworkManager-glib"
         state: installed
       register: network_manager_result
+
     - name: "Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301"
       systemd:
         name: NetworkManager
         state: restarted
-      when: network_manager_result.changed
   tags:
     - dnsmasq
     - update-networkmanager
@@ -77,7 +92,8 @@
   hosts: localhost
   any_errors_fatal: true
   tasks:
-    - fail:
+    - name: Ansible reqs failure
+      fail:
         msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
       when: "ansible_version.full is version('2.5', '<=')"
   tags: preflight
@@ -88,7 +104,8 @@
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: dnsmasq pre_tasks
+      setup:
     - name: Disable possible existing OpenVPN
       systemd:
         name: openvpn-client.service
@@ -106,7 +123,8 @@
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Update controller interface dns pre_tasks
+      setup:
   tasks:
     - import_role:
         name: dnsmasq
@@ -160,7 +178,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Common setup pre_tasks
+      setup:
   roles:
     - common
     - chrony
@@ -173,7 +192,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Setup chrony on ctrl pre_tasks
+      setup:
   roles:
     - chrony
   tags:
@@ -183,7 +203,8 @@
   hosts: localhost
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Create cert authority pre_tasks
+      setup:
   tasks:
     - import_role:
         name: certificate_authority/localhost
@@ -201,7 +222,8 @@
     - sensors
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Configure CA on all systems pre_tasks
+      setup:
   roles:
     - certificate_authority/common
   tags:
@@ -214,7 +236,8 @@
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: OpenVPN pre_tasks
+      setup:
   tasks:
     - import_role:
         name: openvpn/common
@@ -229,7 +252,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Setup CRI-O pre_tasks
+      setup:
   roles:
     - crio
   tags:
@@ -240,7 +264,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Configure kube master pre_tasks
+      setup:
   roles:
     - kubernetes/master
   tags:
@@ -255,7 +280,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Configure kube nodes pre_tasks
+      setup:
   roles:
     - kubernetes/node
   tags:
@@ -265,7 +291,8 @@
   hosts: localhost
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Install cert manager pre_tasks
+      setup:
   tasks:
     - import_role:
         name: certificate_authority/localhost
@@ -287,7 +314,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Setup Storage pre_tasks
+      setup:
   roles:
     - storage
   tags:
@@ -307,7 +335,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy elasticsearch pre_tasks
+      setup:
   roles:
     - elasticsearch
   tags:
@@ -318,7 +347,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy kibana pre_tasks
+      setup:
   roles:
     - kibana
   tags:
@@ -332,7 +362,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy Auditbeat pre_tasks
+      setup:
   roles:
     - audit
   tags:
@@ -343,7 +374,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy metric services pre_tasks
+      setup:
   roles:
     - metrics
   tags:
@@ -355,7 +387,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy Moloch pre_tasks
+      setup:
   roles:
     - moloch
   tags:
@@ -367,7 +400,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Setup Log Management pre_tasks
+      setup:
   roles:
     - logs
   tags:

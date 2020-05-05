@@ -1,5 +1,6 @@
 ---
-- set_fact:
+- name: set_fact domain
+  set_fact:
     domain: "{{ '.'.join(groups['servers'][0].split('.')[1:]) }}"
 
 - debug:
@@ -7,30 +8,32 @@
 
 - name: change domain
   hostname:
-    name: "controller.{{domain}}"
+    name: "controller.{{ domain }}"
 
 - name: modify /etc/hosts
   lineinfile:
     dest: /etc/hosts
     regexp: '^127\.0\.0\.1[ \t]+localhost'
-    line: '127.0.0.1 localhost controller.{{domain}}'
+    line: '127.0.0.1 localhost controller.{{ domain }}'
     state: present
 
 - name: modify offline yum repo
   lineinfile:
-    dest: '{{item}}'
+    dest: '{{ item }}'
     regexp: 'baseurl=http://controller.*/offlinerepo/tfplenum'
-    line: 'baseurl=http://controller.{{domain}}/offlinerepo/tfplenum'
+    line: 'baseurl=http://controller.{{ domain }}/offlinerepo/tfplenum'
     state: present
   with_items:
     - '/var/www/html/offlinerepo/offline.repo'
     - '/etc/yum.repos.d/offline.repo'
 
-- set_fact:
-    ansible_controller_hostname: "controller.{{domain}}"
+- name: set_fact ansible_controller hostname and ip
+  set_fact:
+    ansible_controller_hostname: "controller.{{ domain }}"
     ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
 
-- set_fact:
+- name: set_fact offline and docker repo
+  set_fact:
     offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
     docker_registry_repo: "{{ ansible_controller_hostname }}"
 

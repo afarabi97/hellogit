@@ -4,11 +4,12 @@
   - name: Install Api Mesh
     import_role:
       name: kubernetes/api-mesh
-  - set_fact:
+  - name: kube_init_command
+    set_fact:
       kube_init_cmd: "{{ kube_init_cmd }} --upload-certs"
   when: enable_kube_ha
 
-- name: Kube | Init Kubernetes cluster
+- name: Kube | Init Kubernetes cluster # noqa 305
   shell: "{{ kube_init_cmd }}"
   register: init_kube_cluster_result
   changed_when: init_kube_cluster_result.stdout == 0
@@ -46,7 +47,9 @@
 
 - name: Create Worker Node Join Script
   shell: |
-    kubeadm token create --ttl 0 --print-join-command 2>/dev/null > "{{ kube_worker_join_file }}"
+    kubeadm token create --ttl 0 --print-join-command 2>/dev/null >"{{ kube_worker_join_file }}"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Kube | Retrieve files
   fetch:
@@ -75,10 +78,12 @@
 
 - name: Install Calico
   command: "kubectl apply -f {{ kube_dir }}/calico.yml"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Wait for Calico CNI to be created
   wait_for:
-    path: "{{item}}"
+    path: "{{ item }}"
   with_items:
     - /etc/cni/net.d/calico-kubeconfig
     - /etc/cni/net.d/10-calico.conflist
@@ -87,7 +92,7 @@
 - name: Restart Crio and Kubelet
   service:
     state: restarted
-    name: "{{item}}"
+    name: "{{ item  }}"
   with_items:
     - crio
     - kubelet

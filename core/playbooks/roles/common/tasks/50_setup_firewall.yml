@@ -95,12 +95,18 @@
     /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
     /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
     /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
+  register: result
+  changed_when: result.rc == 0
   with_items:
     - cni0
 
 - name: Iptables Foward Rule
   shell: |
     /usr/sbin/iptables -P FORWARD ACCEPT
+  register: result
+  changed_when: result.rc == 0
 
 - name: firewalld reload
   command: firewall-cmd --reload
+  register: result
+  changed_when: result.rc == 0

@@ -42,11 +42,12 @@
 # all files in the log_dir directory which is then iterated over by the fetch module.
 
   - name: Create variable containing all file names to copy
-    shell: "find . -maxdepth 1 -type f | cut -d '/' -f 2"
+    shell: "set -o pipefail && find . -maxdepth 1 -type f | cut -d '/' -f 2"
     args:
       executable: /bin/bash
       chdir: "{{ log_dir }}"
     register: log_files
+    changed_when: log_files.rc == 0
 
   - name: Iterate through the files and copy them all to Controller
     fetch:
@@ -59,26 +60,23 @@
 # ansible itself. Places tarball in install_dir.
 
   - name: Create archive of log files on Controller
-    local_action:
-      module: archive
+    delegate_to: localhost
+    archive:
       path: "{{ log_dir }}"
       dest: "{{ install_dir }}/{{ ansible_date_time.date }}_errorLog.tgz"
-
-# Clean up all created files on nodes and controller.
-
-  - name: Clean out log files on nodes
-    shell: "rm -f *.log"
-    args:
-      chdir: "{{ log_dir }}"
-      executable: /bin/bash
-      warn: false
 
 - name: Clean out log files on Controller
   gather_facts: no
   hosts: localhost
   tasks:
-  - shell: "rm -f *.log"
-    args:
-      chdir: "{{ log_dir }}"
-      executable: /bin/bash
-      warn: false
+  - name: Gather log files to delete
+    find:
+      paths: "{{ log_dir }}"
+      patterns: '*.log'
+      recurse: yes
+    register: files_to_delete
+  - name: Remove log files
+    file:
+      path: "{{ item.path }}"
+      state: absent
+    with_items: "{{ files_to_delete }}"

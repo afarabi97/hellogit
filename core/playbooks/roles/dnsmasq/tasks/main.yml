@@ -3,11 +3,14 @@
 - import_tasks: 00_preflight.yml
 
 - name: Set hostname
-  command: "hostnamectl set-hostname {{inventory_hostname}}"
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Check hostname
   command: "hostname -f"
   register: hostname
+  changed_when: hostname.rc == 0
 
 - name: Validate ansible_nodename == inventory_hostname
   assert:

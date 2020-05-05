@@ -15,7 +15,7 @@
     set -o pipefail
     kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
-  changed_when: false
+  changed_when: es_password.rc == 0
   tags:
     - zeek-pipeline
 

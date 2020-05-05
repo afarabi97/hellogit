@@ -9,6 +9,8 @@
 
 - name: Reload CA trust
   command: "/bin/update-ca-trust"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Checking if crio is Installed
   stat:
@@ -27,4 +29,4 @@
     name: crio
     state: restarted
   when: "'localhost' not in inventory_hostname and crio_installed.stat.exists"
-  ignore_errors: true
+  ignore_errors: yes

@@ -20,12 +20,11 @@
     msg: "{{ item }} is not a valid IP range"
   when: item.split('.')[0] | int > 255 or item.split('.')[1] | int > 255 or item.split('.')[2] | int > 255 or item.split('.')[3] | int > 255
   with_items: "{{ management_ipv4 }}"
-  changed_when: false
-
-- name: ping all ips in inventory
-  shell: "ping -c 1 {{ item }}"
-  with_items: "{{ groups['nodes'] }}"
   changed_when: False
 
+- name: ping all ips in inventory
+  command: "ping -c 1 {{ item }}"
+  with_items: "{{ groups['nodes'] }}"
+  changed_when: False
 
 ...

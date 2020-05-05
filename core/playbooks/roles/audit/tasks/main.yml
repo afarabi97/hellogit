@@ -3,6 +3,6 @@
 - import_tasks: "preflight.yml"
 
 - import_tasks: "uninstall.yml"
-  when: auditbeat_installed.stat.exists == True
+  when: auditbeat_installed.stat.exists
 
 - import_tasks: "install.yml"

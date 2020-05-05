@@ -1,4 +1,4 @@
 ---
 - include: uninstall.yml
-  when: helm_installed.stat.exists == True
+  when: helm_installed.stat.exists
 - include: install.yml

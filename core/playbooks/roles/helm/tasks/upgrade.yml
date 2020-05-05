@@ -1,6 +1,7 @@
 - name: Checking Current Helm Version
-  shell: helm version -c | grep '^Client' | cut -d'"' -f2
+  shell: set -o pipefail && helm version -c | grep '^Client' | cut -d'"' -f2
   register: OLD_VERSION
+  changed_when: OLD_VERSION.rc == 0
 - block:
   - debug:
       msg: "Nothing to Upgrade, exiting."

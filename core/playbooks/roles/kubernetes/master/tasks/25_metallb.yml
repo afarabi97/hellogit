@@ -2,12 +2,18 @@
 
 - name: 'Install MetalLB LoadBalancer'
   command: 'kubectl apply -f {{ kube_dir }}/metallb_deployment.yml'
+  register: result
+  changed_when: result.rc == 0
 
 - name: 'Apply MetalLB Config'
   command: 'kubectl apply -f {{ kube_dir }}/metallb_configmap.yml'
+  register: result
+  changed_when: result.rc == 0
 
 - name: 'Create MetaLB memberlist secret'
   command: 'kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"'
+  register: result
+  changed_when: result.rc == 0
 
 - name: Wait for metallb to be ready
   import_role:

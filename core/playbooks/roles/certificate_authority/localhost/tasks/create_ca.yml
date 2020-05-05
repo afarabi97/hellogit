@@ -32,10 +32,11 @@
   register: ca_key_info
   when: "ca_key.stat.exists"
 
-- set_fact:
+- name: Create ca cert info and key
+  set_fact:
     create_ca: false
   when: "ca_cert_info and ca_key_info and ca_cert_info.public_key == ca_key_info.public_key and ca_cert_info.valid_at.one_year"
-  ignore_errors: true
+  ignore_errors: yes
 
 - debug:
     msg: "CA crt and key files exist and not with expiration window ({{ min_ca_life }} days).  Using previous CA"

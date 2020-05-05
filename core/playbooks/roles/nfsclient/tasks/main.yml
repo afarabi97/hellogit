@@ -11,10 +11,12 @@
 - name: "Check mount point {{ backup_mount_point }}"
   command: mountpoint {{ backup_mount_point }}
   register: mount_stat
+  changed_when: mount_stat.rc == 0
 
-- fail:
+- name: Failed to mount the shared folder
+  fail:
     msg: "Failed to mount the shared folder to {{ backup_mount_point }}"
-  when: mount_stat.stdout == "{{ backup_mount_point }} is not a mountpoint"
+  when: mount_stat.rc != 0
 
 - name: Create snapshots folder after mount
   file:

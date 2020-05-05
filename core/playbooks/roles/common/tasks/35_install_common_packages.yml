@@ -1,7 +1,7 @@
 ---
 
 - name: Yum Utils Check
-  shell: rpm -qa yum-utils
+  command: rpm -qa yum-utils
   register: results
   args:
     warn: false
@@ -21,7 +21,7 @@
     name:
     - pip
     - setuptools
-    state: latest
+    state: present
 
 - name: Install PBR Pip Module
   pip:

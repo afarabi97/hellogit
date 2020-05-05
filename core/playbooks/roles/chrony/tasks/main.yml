@@ -9,5 +9,7 @@
 
 - name: 'Force time sync'
   command: "chronyc -a makestep"
+  register: result
+  changed_when: result.rc == 0
 
 - import_tasks: "sync.yml"

@@ -2,7 +2,7 @@
 
 - name: Get Conmon binary from controller
   get_url:
-    url: "{{offline_repo_base}}/conmon-{{conmon_version}}/bin/conmon"
+    url: "{{ offline_repo_base }}/conmon-{{ conmon_version }}/bin/conmon"
     dest: "/usr/bin/conmon"
     mode: 0755
     group: root
@@ -10,7 +10,7 @@
 
 - name: Download crio tar
   unarchive:
-    src: "{{ offline_repo_base }}/crio-{{crio_version}}.tar.gz"
+    src: "{{ offline_repo_base }}/crio-{{ crio_version }}.tar.gz"
     dest: "{{ install_dir  }}"
     creates: "{{ crio_dir }}"
     remote_src: yes
@@ -41,11 +41,9 @@
   shell: |
     make
   register: results
+  changed_when: results.rc == 0
   args:
     chdir: "{{ crio_dir }}"
-
-- debug:
-    msg: "{{ results.stdout }}"
 
 - name: Remove Default CNIs
   file:

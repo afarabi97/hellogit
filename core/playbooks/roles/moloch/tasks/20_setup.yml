@@ -2,10 +2,13 @@
 
 - name: Flush Config
   command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'
+  register: result
+  changed_when: result.rc == 0
 
 - name: Create ConfigMap
-  shell: |
-    kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/config.ini
+  command: "kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/config.ini"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Run bootstrap job
   import_role:
@@ -16,28 +19,34 @@
     file_name: "{{ moloch_dir }}/bootstrap.yml"
 
 - name: Wait for bootstrap to end
-  shell: "kubectl wait job/moloch-bootstrap --for=condition=complete --timeout=-1s"
+  command: "kubectl wait job/moloch-bootstrap --for=condition=complete --timeout=-1s"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Remove Bootstrap
   command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
+  register: result
+  changed_when: result.rc == 0
 
 - name: Flush Config
   command: 'kubectl delete configmap moloch-bootstrap --ignore-not-found=true'
+  register: result
+  changed_when: result.rc == 0
 
 - name: Get ES Password
-  shell: |
-    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
+  changed_when: true
 
 - name: Deploy Moloch Index Template
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}/_template/sessions2_template?include_type_name=true"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_template/sessions2_template?include_type_name=true"
     method: PUT
     validate_certs: no
     user: elastic
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('template', 'templates/sessions2-template.json.j2')}}"
+    body: "{{ lookup('template', 'templates/sessions2-template.json.j2') }}"
     status_code: 200, 201
 
 ...

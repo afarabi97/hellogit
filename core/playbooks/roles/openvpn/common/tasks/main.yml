@@ -19,24 +19,26 @@
 
 - name: Copy easy-rsa executable to /etc/openvpn
   shell: "cp -r /usr/share/easy-rsa/3/* /etc/openvpn/"
+  register: result
+  changed_when: result.rc == 0
 
 - name: Initialize PKI for the server
-  shell: ./easyrsa --batch init-pki
+  command: ./easyrsa --batch init-pki
   args:
     chdir: /etc/openvpn/
   when:
     - inventory_hostname in groups['master_server']
-    - existing_ca.stat.exists == False
+    - not existing_ca.stat.exists
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
 - name: Create a certificate authority
-  shell: ./easyrsa --batch build-ca nopass
+  command: ./easyrsa --batch build-ca nopass
   args:
     chdir: /etc/openvpn/
   when:
     - inventory_hostname in groups['master_server']
-    - existing_ca.stat.exists == False
+    - not existing_ca.stat.exists
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -58,12 +60,12 @@
   when: inventory_hostname in groups['remote_sensors']
 
 - name: Generate certs on all remote sensors
-  shell: ./easyrsa --batch init-pki
+  command: ./easyrsa --batch init-pki
   args:
     chdir: /etc/openvpn/
   when:
     - inventory_hostname in groups['remote_sensors']
-    - existing_pki.stat.exists == False
+    - not existing_pki.stat.exists
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -74,12 +76,12 @@
   when: inventory_hostname in groups['remote_sensors']
 
 - name: Generate a PKI request on all remote sensors
-  shell: "./easyrsa --batch gen-req {{ inventory_hostname }} nopass"
+  command: "./easyrsa --batch gen-req {{ inventory_hostname }} nopass"
   args:
     chdir: /etc/openvpn/
   when:
     - inventory_hostname in groups['remote_sensors']
-    - existing_pki.stat.exists == False
+    - not existing_pki.stat.exists
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -100,7 +102,7 @@
 
 #needs polish
 - name: Import pki requests from all remote sensors
-  shell: '[ -f /etc/openvpn/pki/reqs/{{item.split("/tmp/")[1] }}.req ] || ./easyrsa --batch import-req {{ item }} $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
+  shell: 'set -o pipefail && [ -f /etc/openvpn/pki/reqs/{{ item.split("/tmp/")[1] }}.req ] || ./easyrsa --batch import-req {{ item }} $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)' # noqa 204
   args:
     chdir: /etc/openvpn/
   with_fileglob:
@@ -110,7 +112,7 @@
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
 - name: Sign all pki requests from all remote sensors
-  shell: 'grep {{ item.split("/tmp/")[1].split(".req")[0] }} /etc/openvpn/pki/index.txt || ./easyrsa --batch sign-req client $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)'
+  shell: 'set -o pipefail && grep {{ item.split("/tmp/")[1].split(".req")[0] }} /etc/openvpn/pki/index.txt || ./easyrsa --batch sign-req client $(echo {{ item }} | rev | cut -d "/" -f 1 | rev)' # noqa 204
   args:
     chdir: /etc/openvpn/
   with_fileglob:
@@ -150,12 +152,12 @@
   when: inventory_hostname in groups['master_server']
 
 - name: Generate Diffie Helman parameters on the server (this may take some time, give it up to 5 minutes)
-  shell: "./easyrsa --batch gen-dh"
+  command: "./easyrsa --batch gen-dh"
   args:
     chdir: /etc/openvpn
   when:
     - inventory_hostname in groups['master_server']
-    - existing_dh.stat.exists == False
+    - not existing_dh.stat.exists
   environment:
     EASYRSA_REQ_CN: "{{ inventory_hostname }}"
 
@@ -189,14 +191,18 @@
 #expression used by grep finds o followed by openvpn but also ensures that the
 #regular expression does not match itself! Excluding the grep in the ps grepped search results!
 - name: Obtain process entry for OpenVPN
-  shell: ps -aux | grep [o]penvpn | awk '{print $2}'
-  register: openvpn_server_processes
+  shell: set -o pipefail && ps -aux | grep [o]penvpn | awk '{print $2}'
+  register: openvpn_client_processes
   when: inventory_hostname in groups['master_server']
+  failed_when: openvpn_client_processes.rc != 0
+  ignore_errors: yes
 
 - name: Obtain process entry for OpenVPN
-  shell: ps -aux | grep [o]penvpn | awk '{print $2}'
+  shell: set -o pipefail && ps -aux | grep [o]penvpn | awk '{print $2}'
   register: openvpn_client_processes
   when: inventory_hostname in groups['remote_sensors']
+  failed_when: openvpn_client_processes.rc != 0
+  ignore_errors: yes
 
 - name: Deploy OpenVPN server service to server
   template:
@@ -204,10 +210,12 @@
     dest: "/usr/lib/systemd/system/openvpn-server.service"
   when: inventory_hostname in groups['master_server']
 
-- set_fact:
+- name: Set_fact management_interface ipv4
+  set_fact:
      management_interface: "{{ ansible_default_ipv4.interface }}"
 
-- set_fact:
+- name: Set_fact management_interface br0
+  set_fact:
      management_interface: "{{ ansible_br0.interfaces[0] }}"
   when: management_interface == "br0"
 
@@ -218,12 +226,17 @@
     mode: 0755
   when: inventory_hostname in groups['master_server']
 
-- name: Initialize OpenVPN service on server
-  shell: "systemctl enable -f openvpn-server.service"
+- name: Initialize OpenvPN service on server
+  systemd:
+    name: openvpn-server
+    enabled: yes
+    force: yes
   when: inventory_hostname in groups['master_server']
 
 - name: Start OpenVPN service on server
-  shell: "systemctl start openvpn-server.service"
+  systemd:
+    name: openvpn-server
+    state: started
   when: inventory_hostname in groups['master_server']
 
 - name: Configure iptables rule on the server for tap
@@ -250,7 +263,7 @@
 
 - name: Update dnsmasq conf file on the server to use the new bridge interface
   replace:
-    path: "{{dnsmasq_conf_file}}"
+    path: "{{ dnsmasq_conf_file }}"
     regexp: '^interface=.*'
     replace: 'interface=br0'
   when: inventory_hostname in groups['master_server']
@@ -284,12 +297,18 @@
     value: none
     backup: yes
 
-- name: Turn off dhclient script resolv.conf modifications
-  shell: "sed -i '/change_resolv_conf/s/.*/#Removed to override DNS changes/' /usr/sbin/dhclient-script"
+- name: Disable dhcp client resolv.conf modifications
+  lineinfile:
+    path: /etc/dhcp/dhclient-enter-hooks
+    state: present
+    create: yes
+    line: 'make_resolv_conf(){ : }'
   when: inventory_hostname in groups['remote_sensors']
 
 - name: Restart network manager on clients
-  shell: "systemctl restart NetworkManager"
+  systemd:
+    name: NetworkManager
+    state: restarted
   when: inventory_hostname in groups['remote_sensors']
 
 - name: Add Resolv Conf
@@ -299,7 +318,10 @@
   when: inventory_hostname in groups['master_server']
 
 - name: Initialize OpenVPN service on clients
-  shell: "systemctl enable -f openvpn-client.service"
+  systemd:
+    name: openvpn-client
+    enabled: yes
+    force: yes
   when: inventory_hostname in groups['remote_sensors']
 
 ...

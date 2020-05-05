@@ -25,8 +25,9 @@
       with_items: "{{ groups['nodes_to_remove'] }}"
 
     - name: Get current node list
-      shell: kubectl get nodes --no-headers=true | awk '{ print $1 }'
+      shell: set -o pipefail && kubectl get nodes --no-headers=true | awk '{ print $1 }'
       register: node_list
+      changed_when: node_list.rc == 0
 
     - name: Check if nodes in nodes to remove is in node_list
       fail:
@@ -43,6 +44,8 @@
       failed_when: false
       ignore_errors: yes
       with_items: "{{ groups['nodes_to_remove'] }}"
+      register: result
+      changed_when: result.rc == 0
 
 - name: Delete node from k8s
   hosts: nodes_to_remove
@@ -51,6 +54,8 @@
       shell: |
         kubectl delete node {{ item }}
       with_items: "{{ groups['nodes_to_remove'] }}"
+      register: result
+      changed_when: result.rc == 0
 
 - name: Clean up node
   hosts: nodes_to_remove
@@ -62,7 +67,10 @@
   tasks:
     - name: Reboot system
       command: "/sbin/shutdown -r +1 --no-wall"
+      register: result
+      changed_when: result.rc == 0
       async: 0
       poll: 0
       ignore_errors: yes
+      failed_when: result.rc != 0
 ...

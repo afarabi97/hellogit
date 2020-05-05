@@ -6,7 +6,8 @@
     - Kubelet | reload kubelet
 
 - name: Kubelet | reload systemd
-  command: systemctl daemon-reload
+  systemd:
+    reload_daemon: yes
 
 - name: Kubelet | reload kubelet
   service:

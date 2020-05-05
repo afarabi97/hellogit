@@ -23,32 +23,48 @@
       shell: |
         rpm -qa
       register: rpmlist
+      changed_when: rpmlist.rc == 0
       args:
         warn: false
 
     - name: get repo for each rpm
       shell: |
-        repoquery -i {{ item }} | grep "Repository" | awk '{ print $3 }'
+        set -o pipefail && repoquery -i {{ item }} | grep "Repository" | awk '{ print $3 }'
       with_items: "{{ rpmlist.stdout_lines }}"
       register: repo
+      changed_when: repo.rc == 0
 
-    - name: delete existing file
-      local_action: shell /bin/rm -rf {{ rpm_list_path }}
+    - name: delete existing files
+      delegate_to: localhost
+      file:
+        path {{ rpm_list_path }}
+      state: absent
       with_items: "{{ repo.results }}"
+      register: result
+      changed_when: result.rc == 0
       when: '"anaconda" not in item.stdout'
 
     - name: write to file
-      local_action: shell echo "{{item.item}}" >> {{ rpm_list_path }}
+      delegate_to: localhost
+      command: echo "{{ item.item }}" >> {{ rpm_list_path }}
       with_items: "{{ repo.results }}"
+      register: result
+      changed_when: result.rc == 0
       when: '"anaconda" not in item.stdout'
 
     - name: sort file
-      local_action: shell sort -o {{ rpm_list_path }} {{ rpm_list_path }}
+      delegate_to: localhost
+      command: sort -o {{ rpm_list_path }} {{ rpm_list_path }}
+      register: result
+      changed_when: result.rc == 0
       args:
         warn: false
 
     - name: remove duplicates
-      local_action: shell sed -i '$!N; /^\(.*\)\n\1$/!P; D' {{ rpm_list_path }}
+      delegate_to: localhost
+      command: sed -i '$!N; /^\(.*\)\n\1$/!P; D' {{ rpm_list_path }}
+      register: result
+      changed_when: result.rc == 0
       args:
         warn: false
 
@@ -80,4 +96,6 @@
     - name: download rpms
       shell: |
         yumdownloader {{ item }} --destdir {{ curr_repo_path }}
-      with_lines: "cat {{ rpm_list_path }}"
+      with_lines:  '{{ cat {{ rpm_list_path }}}}'
+      register: result
+      changed_when: result.rc == 0

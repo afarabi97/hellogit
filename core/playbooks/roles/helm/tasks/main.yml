@@ -3,7 +3,7 @@
 - import_tasks: "preflight.yml"
 
 - import_tasks: "uninstall.yml"
-  when: helm_installed.stat.exists == True
+  when: helm_installed.stat.exists
 
 - import_tasks: "install.yml"
 

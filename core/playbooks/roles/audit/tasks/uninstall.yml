@@ -7,7 +7,7 @@
 
 - name: Remove auditbeat
   yum:
-    name: auditbeat-{{elastic_7_version}}
+    name: auditbeat-{{ elastic_7_version }}
     state: absent
 
 - name: Delete install directory

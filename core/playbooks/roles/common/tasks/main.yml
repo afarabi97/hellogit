@@ -18,6 +18,5 @@
   tags:
     - enable-sensor-monitor-interface
     - change-interfaces
-- import_tasks: 95_reboot.yml
 
 ...

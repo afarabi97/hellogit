@@ -15,6 +15,8 @@
 
 - name: Install Calicoctl
   command: "kubectl apply -f calicoctl.yml"
+  register: result
+  changed_when: result.rc == 0
   args:
     chdir: "{{ kube_dir }}"
 
@@ -34,6 +36,7 @@
   args:
     chdir: "{{ kube_dir }}"
   register: result
+  changed_when: True
   until: result.rc == 0
   retries: 5
   delay: 10

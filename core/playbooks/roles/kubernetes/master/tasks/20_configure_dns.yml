@@ -6,17 +6,18 @@
   when: dns_ip is not defined or dns_ip is none
 
 - name: Kube | Get kube-dns IP
-  shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
+  shell: set -o pipefail && kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'
   register: kube_dns_ip
+  changed_when: false
 
 - name: Verify kube_dns is valid
   fail:
-    msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running."
+    msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running." # noqa 204
   when: (kube_dns_ip.stdout | ipv4) != kube_dns_ip.stdout
 
 - name: Kube | Insert kube-dns into dnsmasq
   lineinfile:
-    path: "{{dnsmasq_conf_file}}"
+    path: "{{ dnsmasq_conf_file }}"
     line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
   when: inventory_hostname in groups['master_server']
 
@@ -38,10 +39,19 @@
     - coredns_config_map
 
 - name: Create DNS ConfigMap
-  shell: |
-    kubectl create configmap coredns --from-file Corefile={{ kube_dir }}/coredns_config_map.yml --dry-run -o yaml | kubectl replace --force --namespace=kube-system -f -
+  shell: >
+    set -o pipefail && kubectl create configmap coredns --from-file Corefile={{ kube_dir }}/coredns_config_map.yml
+    --dry-run -o yaml | kubectl replace --force --namespace=kube-system -f -
+  register: result
+  changed_when: result.rc == 0
 
 - name: Update NodeSelector for CoreDNS to only deploy on server nodes
-  shell: |
-    kubectl patch deployment coredns -n kube-system --type='json' -p='[{"op":"remove","path":"/spec/template/spec/nodeSelector"},{"op":"add","path":"/spec/template/spec/nodeSelector","value":{"role":"server"}}]'
+  shell:
+    cmd: >
+      kubectl patch deployment coredns -n kube-system --type='json'
+      -p='[{"op":"remove","path":"/spec/template/spec/nodeSelector"},
+      {"op":"add","path":"/spec/template/spec/nodeSelector","value":{ "role":"server" }}]'
+  register: result
+  changed_when: result.rc == 0
+
 ...

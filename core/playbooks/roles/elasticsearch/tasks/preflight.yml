@@ -9,6 +9,7 @@
     set -o pipefail
     kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum | awk '{ print $1 }'
   register: es_results
+
   failed_when: es_results.rc >= 2
   changed_when: false
 

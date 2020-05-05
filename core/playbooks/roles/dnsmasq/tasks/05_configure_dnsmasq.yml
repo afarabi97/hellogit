@@ -1,205 +1,191 @@
 ---
 
-- name: Get network manager connection name
-  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | cut -d ":" -f 2 | awk '{$1=$1}1'
-  register: nmcli_conn_name
-  with_items: "{{ ansible_interfaces }}"
-  when:
-    - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+  - name: Get network manager connection name  # noqa 306
+    shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | cut -d ":" -f 2 | awk '{$1=$1}1'
+    register: nmcli_conn_name
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - hostvars[inventory_hostname]['ansible_' + item] is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
-- name: Get management interface device id
-  set_fact:
-    management_interface: "{{ item }}"
-  with_items: "{{ ansible_interfaces }}"
-  when:
-    - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
-
-- fail:
-    msg: "For some reason we could not find the management interface on your computer. Check that the management_ipv4 address listed in your inventory file matches the computer it is assigned to."
-  when: management_interface is not defined
-
-- name: interface list
-  set_fact:
-    interface_list: []
-
-- name: interface list
-  set_fact:
-    interface_list: "{{ interface_list + [item.stdout] }}"
-  with_items: "{{ nmcli_conn_name.results }}"
-  when: item.changed and item.stdout is defined
-
-- name: dns list
-  set_fact:
-    dns_list: ["127.0.0.1"]
-
-- name: Check Interface DNS
-  shell: |
-    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
-  register: interface_dns_result
-  with_items: "{{ interface_list }}"
-  when: interface_list is defined
-
-- name: set update interface var
-  set_fact:
-    update_interface: true
-
-- name: set update interface var
-  set_fact:
-    update_interface: false
-  with_items: "{{ interface_dns_result.results }}"
-  when: item.stdout is defined and item.stdout in dns_list
-
-- name: Update DNS records for the management interface
-  nmcli:
-    conn_name: "{{ item }}"
-    type: ethernet
-    autoconnect: yes
-    dns4: "{{ dns_list }}"
-    state: present
-  with_items: "{{ interface_list }}"
-  when: update_interface
-  register: dns_updated_result
-
-- name: Bump the network service
-  systemd:
-    name: network
-    state: restarted
-  when: dns_updated_result.changed
-  register: network_service_result
-
-- name: check if kubelet installed
-  stat:
-    path: "/usr/bin/kubelet"
-  register: kubelet_stat_result
-
-- name: Bump kubelet if network changed
-  service:
-    name: kubelet
-    state: restarted
-  when: network_service_result.changed and kubelet_stat_result.stat.exists
-
-- name: "Remove Host Dir"
-  file:
-    path: "{{ host_dir }}"
-    state: absent
-
-- name: Delete existing files
-  file:
-    state: absent
-    path: "{{ item }}"
-  with_items:
-    - "{{ dnsmasq_conf_file }}"
-
-- name: Remove dnsmasq
-  yum:
-    name: dnsmasq
-    state: absent
-
-- name: Install dnsmasq
-  yum:
-    name: dnsmasq
-    state: installed
-
-- name: Install BIND-Utils
-  yum:
-    name: bind-utils
-    state: installed
-
-- name: create list
-  set_fact:
-    host_list: "{{ groups['servers'] + groups['sensors'] }}"
-
-- name: "Create host dir"
-  file:
-    path: "{{ host_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u+rw,g+rw
-
-- name: Copy over hosts template
-  template:
-    src: templates/hosts.j2
-    dest: "{{ host_file }}"
-  tags: update-dnsmasq-hosts
-
-- name: Create dnsmasq conf
-  template:
-    src: templates/10-dnsmasq.conf.j2
-    dest: "{{dnsmasq_conf_file}}"
-
-- name: Create dnsmasq_kube_hosts file
-  file:
-    path: "{{ kube_host_file }}"
-    state: touch
-
-- name: Configure firewalld
-  firewalld:
-    service: dns
-    permanent: true
-    state: enabled
-    immediate: yes
-
-- name: "Create dnsmasq directory for override"
-  file:
-    path: "/etc/systemd/system/dnsmasq.service.d"
-    state: directory
-    owner: root
-    group: root
-    mode: u+rw,g+rw
-
-- name: override default dnsmasq service
-  copy:
-    src: "files/override.conf"
-    dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
-    group: root
-    owner: root
-    mode: 0644
-
-- block:
-  - name: Override DNS if not provided
+  - name: Get management interface device id
     set_fact:
-      dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
-    when: dns_ip is not defined or dns_ip is none
+      management_interface: "{{ item }}"
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - hostvars[inventory_hostname]['ansible_' + item] is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
-  - name: Kube | Get kube-dns IP
-    shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
-    register: kube_dns_ip
-
-  - name: Verify kube_dns is valid
+  - name: mgmt interface not defined failure
     fail:
-      msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running."
-    when: (kube_dns_ip.stdout | ipv4) != kube_dns_ip.stdout
+      msg: "For some reason we could not find the management interface on your computer. Check that the management_ipv4 address listed in your inventory file matches the computer it is assigned to." # noqa 204
+    when: management_interface is not defined
 
-  - name: Insert kube-dns into dnsmasq
-    lineinfile:
-      path: "{{dnsmasq_conf_file}}"
-      line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
-    when: inventory_hostname in groups['master_server'] and kube_dns_ip.stdout != ''
-  ignore_errors: yes
+  - name: interface list
+    set_fact:
+      interface_list: []
 
-- name: Start dnsmasq and enable it
-  systemd:
-    name: dnsmasq
-    state: restarted
-    enabled: yes
-    daemon-reload: yes
-  tags: update-dnsmasq-hosts
+  - name: interface list # noqa 503
+    set_fact:
+      interface_list: "{{ interface_list + [item.stdout] }}"
+    with_items: "{{ nmcli_conn_name.results }}"
+    when: item.changed and item.stdout is defined
 
-- name: Check if dnsmasq is running
-  command: systemctl status dnsmasq
-  ignore_errors: yes
-  changed_when: false
-  register: service_dnsmasq_status
-  tags: update-dnsmasq-hosts
+  - name: dns list
+    set_fact:
+      dns_list: ["127.0.0.1"]
 
-- name: Confirm dnsmasq is running
-  fail:
-    msg: "dnsmasq is not running for some reason. Log into {{ inventory_hostname }} and check status with 'systemctl status dnsmasq'"
-  when: service_dnsmasq_status is failed
-  tags: update-dnsmasq-hosts
+  - name: Check Interface DNS  # noqa 306
+    shell: nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
+    register: interface_dns_result
+    with_items: "{{ interface_list }}"
+    when: interface_list is defined
+
+  - name: set update interface var
+    set_fact:
+      update_interface: true
+
+  - name: set update interface var
+    set_fact:
+      update_interface: false
+    with_items: "{{ interface_dns_result.results }}"
+    when: item.stdout is defined and item.stdout in dns_list
+
+  - name: Update DNS records for the management interface
+    nmcli:
+      conn_name: "{{ item }}"
+      type: ethernet
+      autoconnect: yes
+      dns4: "{{ dns_list }}"
+      state: present
+    with_items: "{{ interface_list }}"
+    when: update_interface
+    register: dns_updated_result
+    notify:
+      - "Restart Network"
+      - "Bump kubelet if installed"
+
+  - name: "Remove Host Dir"
+    file:
+      path: "{{ host_dir }}"
+      state: absent
+
+  - name: Delete existing files
+    file:
+      state: absent
+      path: "{{ item }}"
+    with_items:
+      - "{{ dnsmasq_conf_file }}"
+
+  - name: Remove dnsmasq
+    yum:
+      name: dnsmasq
+      state: absent
+
+  - name: Install dnsmasq
+    yum:
+      name: dnsmasq
+      state: installed
+
+  - name: Install BIND-Utils
+    yum:
+      name: bind-utils
+      state: installed
+
+  - name: create list
+    set_fact:
+      host_list: "{{ groups['servers'] + groups['sensors'] }}"
+
+  - name: "Create host dir"
+    file:
+      path: "{{ host_dir }}"
+      state: directory
+      owner: root
+      group: root
+      mode: u+rw,g+rw
+
+  - name: Copy over hosts template
+    template:
+      src: templates/hosts.j2
+      dest: "{{ host_file }}"
+    tags: update-dnsmasq-hosts
+
+  - name: Create dnsmasq conf
+    template:
+      src: templates/10-dnsmasq.conf.j2
+      dest: "{{ dnsmasq_conf_file }}"
+
+  - name: Create dnsmasq_kube_hosts file
+    file:
+      path: "{{ kube_host_file }}"
+      state: touch
+
+  - name: Configure firewalld
+    firewalld:
+      service: dns
+      permanent: true
+      state: enabled
+      immediate: yes
+
+  - name: "Create dnsmasq directory for override"
+    file:
+      path: "/etc/systemd/system/dnsmasq.service.d"
+      state: directory
+      owner: root
+      group: root
+      mode: u+rw,g+rw
+
+  - name: override default dnsmasq service
+    copy:
+      src: "files/override.conf"
+      dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
+      group: root
+      owner: root
+      mode: 0644
+
+  - block:
+    - name: Override DNS if not provided
+      set_fact:
+        dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
+      when: dns_ip is not defined or dns_ip is none
+
+    - name: Kube | Get kube-dns IP
+      shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
+      register: kube_dns_ip
+
+    - name: Verify kube_dns is valid
+      fail:
+        msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running." # noqa 204
+      when: (kube_dns_ip.stdout | ipv4) != kube_dns_ip.stdout
+
+    - name: Insert kube-dns into dnsmasq
+      lineinfile:
+        path: "{{ dnsmasq_conf_file }}"
+        line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
+      when: inventory_hostname in groups['master_server'] and kube_dns_ip.stdout
+    ignore_errors: yes
+
+  - name: Start dnsmasq and enable it
+    systemd:
+      name: dnsmasq
+      state: restarted
+      enabled: yes
+      daemon-reload: yes
+    tags: update-dnsmasq-hosts
+
+  - name: Check if dnsmasq is running # noqa 303
+    command: systemctl status dnsmasq
+    ignore_errors: yes
+    changed_when: false
+    register: service_dnsmasq_status
+    tags: update-dnsmasq-hosts
+
+  - name: Confirm dnsmasq is running
+    fail:
+      msg: "dnsmasq is not running for some reason. Log into {{ inventory_hostname }} and check status with 'systemctl status dnsmasq'"
+    when: service_dnsmasq_status is failed
+    tags: update-dnsmasq-hosts
+
 ...

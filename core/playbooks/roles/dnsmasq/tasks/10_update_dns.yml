@@ -1,86 +1,69 @@
 ---
 
-# This task retrieves the connection name of the network device with the management IP designated
-# in the inventory file
-- name: Get network manager connection name
-  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | cut -d ":" -f 2 | awk '{$1=$1}1'
-  register: nmcli_conn_name
-  with_items: "{{ ansible_interfaces }}"
-  when:
-    - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+  # This task retrieves the connection name of the network device with the management IP designated
+  # in the inventory file
+  - name: Get network manager connection name # noqa 306
+    shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | cut -d ":" -f 2 | awk '{$1=$1}1'
+    register: nmcli_conn_name
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - hostvars[inventory_hostname]['ansible_' + item] is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
-- name: Override DNS if not provided
-  set_fact:
-    dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
-  when: dns_ip is not defined or dns_ip is none
+  - name: Override DNS if not provided
+    set_fact:
+      dns_ip: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
+    when: dns_ip is not defined or dns_ip is none
 
-- name: Get management interface device id
-  set_fact:
-    management_interface: "{{ item }}"
-  with_items: "{{ ansible_interfaces }}"
-  when:
-    - hostvars[inventory_hostname]['ansible_' + item] is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+  - name: Get management interface device id
+    set_fact:
+      management_interface: "{{ item }}"
+    with_items: "{{ ansible_interfaces }}"
+    when:
+      - hostvars[inventory_hostname]['ansible_' + item] is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+      - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
-- name: interface list
-  set_fact:
-    interface_list: []
+  - name: interface list
+    set_fact:
+      interface_list: []
 
-- name: interface list
-  set_fact:
-    interface_list: "{{ interface_list + [item.stdout] }}"
-  with_items: "{{ nmcli_conn_name.results }}"
-  when: item.changed and item.stdout is defined
+  - name: interface list # noqa 503
+    set_fact:
+      interface_list: "{{ interface_list + [item.stdout] }}"
+    with_items: "{{ nmcli_conn_name.results }}"
+    when: item.changed and item.stdout is defined
 
-- name: Check Interface DNS
-  shell: |
-    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
-  register: interface_dns_result
-  with_items: "{{ interface_list }}"
-  when: interface_list is defined
+  - name: Check Interface DNS # noqa 306
+    shell: nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
+    register: interface_dns_result
+    with_items: "{{ interface_list }}"
+    when: interface_list is defined
 
-- name: set update interface var
-  set_fact:
-    update_interface: true
+  - name: set update interface var
+    set_fact:
+      update_interface: true
 
-- name: set update interface var
-  set_fact:
-    update_interface: false
-  with_items: "{{ interface_dns_result.results }}"
-  when: item.stdout is defined and item.stdout == dns_ip
+  - name: set update interface var
+    set_fact:
+      update_interface: false
+    with_items: "{{ interface_dns_result.results }}"
+    when: item.stdout is defined and item.stdout == dns_ip
 
-- name: Update DNS records for the management interface
-  nmcli:
-    conn_name: "{{ item }}"
-    type: ethernet
-    autoconnect: yes
-    dns4:
-      - "{{ dns_ip }}"
-    state: present
-  with_items: "{{ interface_list }}"
-  when: update_interface
-  register: dns_updated_result
-
-- name: Bump the network service
-  systemd:
-    name: network
-    state: restarted
-  when: dns_updated_result.changed
-  register: network_service_result
-
-- name: check if kubelet installed
-  stat:
-    path: "/usr/bin/kubelet"
-  register: kubelet_stat_result
-
-- name: Bump kubelet if network changed
-  service:
-    name: kubelet
-    state: restarted
-  when: network_service_result.changed and kubelet_stat_result.stat.exists
-
+  - name: Update DNS records for the management interface
+    nmcli:
+      conn_name: "{{ item }}"
+      type: ethernet
+      autoconnect: yes
+      dns4:
+        - "{{ dns_ip }}"
+      state: present
+    with_items: "{{ interface_list }}"
+    when: update_interface
+    register: dns_updated_result
+    notify:
+      - "Restart Network"
+      - "Bump kubelet if installed"
 
 ...

@@ -3,6 +3,8 @@
   - name: Stop auditd service
     shell: |
       service auditd stop
+    register: result
+    changed_when: result.rc == 0
     args:
       warn: false
 
@@ -18,13 +20,13 @@
 
   - name: install auditbeat
     yum:
-      name: auditbeat-{{elastic_7_version}}
+      name: auditbeat-{{ elastic_7_version }}
       state: installed
 
   - name: Get ES Password
-    shell: |
-      kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+    shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
     register: es_password
+    changed_when: es_password.rc == 0
 
   - name: Copy Audit Template
     template:

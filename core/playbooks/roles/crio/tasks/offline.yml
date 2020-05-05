@@ -1,8 +1,10 @@
 ---
-- set_fact:
+- name: Define image list
+  set_fact:
     image_list: []
 
-- set_fact:
+- name: Build image_list
+  set_fact:
     image_list: "{{ image_list + [item.image] }}"
   with_items:
     - "{{ kube_images }}"

@@ -3,3 +3,21 @@
   service:
     name: sshd
     state: restarted
+
+- name: Reboot to finish off completely
+  command: "/sbin/shutdown -r +1 --no-wall"
+  async: 0
+  poll: 0
+  ignore_errors: yes
+  when: (dracut_result is defined)
+    or (rebuild_grub_result is defined)
+
+- name: Wait for boot
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 120
+    timeout: 300
+  delegate_to: localhost
+  when: (dracut_result is defined)
+    or (rebuild_grub_result is defined)

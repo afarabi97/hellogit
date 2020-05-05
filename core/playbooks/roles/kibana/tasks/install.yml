@@ -21,8 +21,8 @@
 
 - name: Copy files
   copy:
-    src: "files/saved_objects/{{item}}"
-    dest: "{{ kibana_dir }}/{{item}}"
+    src: "files/saved_objects/{{ item }}"
+    dest: "{{ kibana_dir }}/{{ item }}"
   with_items:
     - "config.ndjson"
     - "winlogbeat.ndjson"
@@ -32,15 +32,19 @@
 - name: Install Kibana Certificate
   shell: |
     kubectl apply -f {{ kibana_dir }}/certificate.yml
+  register: result
+  changed_when: result.rc == 0
 
 - name: Install Kibana
   shell: |
     kubectl apply -f {{ kibana_dir }}/kibana.yml
+  register: result
+  changed_when: result.rc == 0
 
 - name: Get ES Password
-  shell: |
-    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
   register: es_password
+  changed_when: es_password.rc == 0
   tags:
     - kibana-saved-objects
     - load-dashboards
@@ -50,7 +54,7 @@
     url: "https://{{ kibana_fqdn }}/api/status"
     return_content: yes
     validate_certs: no
-    user: "{{default_elastic_user}}"
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
   register: results_kibana
@@ -59,14 +63,14 @@
   delay: 10
 
 - name: Load Saved Objects
-  shell:  |
-    curl -k -X POST -u {{default_elastic_user}}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{item}}
+  shell: 'curl -k -X POST -u {{ default_elastic_user }}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{ item }}' # noqa 204
   args:
     warn: false
   retries: 5
   delay: 10
   register: saved_objects_results
   until: saved_objects_results.rc == 0
+  changed_when: save_objects_results is defined
   with_items:
     - "{{ kibana_dir }}/config.ndjson"
   tags:

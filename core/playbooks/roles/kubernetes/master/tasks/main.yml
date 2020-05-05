@@ -7,7 +7,8 @@
   import_role:
     name: kubernetes/common
 
-- set_fact:
+- name: set_fact kube_install_complete
+  set_fact:
     kube_install_complete: true
 - block:
   - import_tasks: 00_preflight.yml
