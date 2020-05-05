@@ -1,10 +1,13 @@
 ---
+- name: Set Default ES Install Variable
+  set_fact:
+    es_installed: false
 
 - import_tasks: "preflight.yml"
   when: inventory_hostname in groups['master_server']
 
 - import_tasks: "uninstall.yml"
-  when: es_installed and inventory_hostname in groups['master_server']
+  when: inventory_hostname in groups['master_server'] and es_installed
 
 - import_tasks: "reset_data.yml"
 - import_tasks: "setup_data_dir.yml"

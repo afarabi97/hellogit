@@ -1,9 +1,5 @@
 ---
 
-- name: Set Default ES Install Variable
-  set_fact:
-    es_installed: false
-
 - name: Checking if Elastic is already deployed
   shell: |
     set -o pipefail

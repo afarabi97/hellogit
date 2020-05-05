@@ -331,7 +331,7 @@
   tags: chartmuseum
 
 - name: Deploy Elasticsearch
-  hosts: master_server
+  hosts: servers
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

@@ -9,7 +9,7 @@
 
 # This will create multiple app data directories under /data/elastic
 # These will be used by the storage provisioner later on.
-- name: Create App Data Directory
+- name: Create Elastic Data Directory
   file:
     path: "{{ es_data_path }}/{{ item }}"
     state: directory
