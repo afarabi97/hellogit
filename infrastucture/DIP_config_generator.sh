@@ -4,7 +4,7 @@
 #	File: generate_config.sh
 #	Details: Generate configuration files for DIP build
 #
-VERSION=1.3
+VERSION=2.0
 # VERSION_NUM='1.0'
 # 	*Version is major.minor format
 # 	*Major is updated when new capability is added
@@ -19,6 +19,8 @@ VERSION=1.3
 #   Added Dell Switch
 # 21 Feb 2019
 #   Reverted back to old style kit numbering
+# 22 Apr 2020
+#   Added MIP switch config build
 #
 # Description ##################################################
 # Generates configuration files for DIP build from baseline
@@ -32,6 +34,7 @@ FIREWALL_BASE_FILE="firewall.base.xml"
 ESX_BASE_FILE="esx.base.conf"
 CISCO_SWITCH_BASE_FILE="switch.base.cisco.conf"
 DELL_SWITCH_BASE_FILE="switch.base.dell.conf"
+MIP_DELL_SWITCH_BASE_FILE="mip.switch.base.dell.conf"
 USER_PROMPTED=
 IP_SECOND_OCTET=
 KIT_NUMBER=
@@ -54,6 +57,7 @@ function debug {
   echo "ESX Base File = " $ESX_BASE_FILE
   echo "Cisco Switch Base File = " $CISCO_SWITCH_BASE_FILE
   echo "Dell Switch Base File = " $DELL_SWITCH_BASE_FILE
+  echo "MIP Dell Switch Base File = " $MIP_DELL_SWITCH_BASE_FILE
   echo "User Prompted for Second IP Octet Already = " $USER_PROMPTED
   echo "User Entered IP Second Octet = " $IP_SECOND_OCTET
   blank_line
@@ -98,6 +102,7 @@ function main_menu {
   echo "3 - Create Cisco Switch configuration"
   echo "4 - Create Dell Switch configuration"
   echo "5 - Create ESXi, Firewall, and Switch configuration"
+  echo "6 - Create MIP Dell Switch configuration"
   echo "X - Exit"
   echo "D - Debug this script"
   blank_line
@@ -108,6 +113,7 @@ function main_menu {
     3 )clear && create_cisco_switch_config && blank_line && main_menu;;
     4 )clear && create_dell_switch_config && blank_line && main_menu;;
     5 )clear && create_all_config && blank_line && main_menu;;
+    6 )clear && create_mip_dell_switch_config && blank_line && main_menu;;
     x|X )exit;;
     d|D )clear && debug && blank_line && main_menu;;
     * ) echo "Invalid Input" && sleep 1 && clear && main_menu;;
@@ -169,6 +175,20 @@ function check_files {
         print_line
       else
         echo "Switch Base file missing - Verify $DELL_SWITCH_BASE_FILE is in the"
+        echo "Switch folder - Exiting Script"
+        blank_line
+        exit
+      fi
+      ;;
+    MIP_SWITCH_DELL )
+      clear
+      menu_header
+      echo "Checking that the file Switch/$iMIP_DELL_SWITCH_BASE_FILE"
+      if [ -e Switch/$MIP_DELL_SWITCH_BASE_FILE ] ; then
+        echo "MIP Switch Base file present"
+        print_line
+      else
+        echo "MIP Switch Base file missing - Verify $MIP_DELL_SWITCH_BASE_FILE is in the"
         echo "Switch folder - Exiting Script"
         blank_line
         exit
@@ -251,6 +271,27 @@ function create_cisco_switch_config {
   sed -i "s/137/"${KIT_NUMBER}"37/g" Kit_${KIT_NUMBER}/switch.conf
   blank_line
   echo "Generated Kit_${KIT_NUMBER}/switch.conf"
+  blank_line
+  any_key
+  clear
+}
+
+# Function to create MIP Dell Switch configuration
+function create_mip_dell_switch_config {
+  check_files MIP_SWITCH_DELL
+  prompt_user
+  echo "Creating MIP Switch configuration"
+  mkdir -p Kit_${KIT_NUMBER}
+  cp Switch/$MIP_DELL_SWITCH_BASE_FILE Kit_${KIT_NUMBER}/mip.switch.conf 2>/dev/null
+  sed -i "s/10\.101/10\.${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/MIP-101/MIP-${IP_SECOND_OCTET}/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/132/"${KIT_NUMBER}"32/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/134/"${KIT_NUMBER}"34/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/135/"${KIT_NUMBER}"35/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/136/"${KIT_NUMBER}"36/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  sed -i "s/137/"${KIT_NUMBER}"37/g" Kit_${KIT_NUMBER}/mip.switch.conf
+  blank_line
+  echo "Generated Kit_${KIT_NUMBER}/mip.switch.conf"
   blank_line
   any_key
   clear
