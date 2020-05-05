@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  name: filebeat
+spec:
+  # Secret names are always required.
+  secretName: filebeat-certificate
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: filebeat
+  subject:
+    organizations:
+    - "CVA/H"
+    countries:
+    - "US"
+  isCA: false
+  keySize: 2048
+  keyAlgorithm: rsa
+  keyEncoding: pkcs8
+  usages:
+    - client auth
+  issuerRef:
+    name: webca-issuer
+    kind: Issuer
+    group: cert-manager.io

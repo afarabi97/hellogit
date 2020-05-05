@@ -1,8 +1,8 @@
 {
-    "name": "Winlogbeat",
+    "name": "Filebeat",
     "form": [
         {
-            "name": "winlog_beat_dest_ip",
+            "name": "file_beat_dest_ip",
             "label": "Traffic Destination",
             "description": "If you have a DIP setup with a PF Sense firewall, please enter the external IP Address or DNS host of that here. If not, please provide the Kuberenetes service IP Address. When entering the PF sense firewall, keep in mind that targets from outside of the DIP must go through this firewall and the administrator of that firewall will need to enable port forwarding to the appropriate kubectl services.",
             "type": "textinput",
@@ -10,7 +10,7 @@
             "default_value": ""
         },
         {
-            "name": "winlog_beat_dest_port",
+            "name": "file_beat_dest_port",
             "label": "Traffic Destination Port",
             "type": "textinput",
             "required": true,

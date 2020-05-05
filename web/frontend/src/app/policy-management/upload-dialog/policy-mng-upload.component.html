@@ -7,7 +7,7 @@
     </mat-form-field>
 
     <span *ngIf="rulesFileToUpload">&nbsp;{{ rulesFileToUpload.name }}</span>
-    <button mat-raised-button color="primary" style="float:right; margin-right: 10px;" (click)="fileInput.click()">Choose Rules File (EX: .rules,.txt,.zip,.bro)</button>
+    <button mat-raised-button color="primary" style="float:right; margin-right: 10px;" (click)="fileInput.click()">Choose Rules File (EX: .rules,.txt,.zip,.zeek)</button>
     <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" accept=".rules,.txt,.zeek,.zip">
 </div>
 <div mat-dialog-actions>

@@ -65,13 +65,14 @@ data:
     }
 
     output {
-      # stdout { codec => rubydebug }
+      # See https://www.elastic.co/guide/en/ecs/current/ecs-agent.html
+      # for details on %{[agent][type]}
       elasticsearch {
         hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
         cacert => '/etc/ssl/certs/webCA.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
-        index => "winlogbeat-%{+YYMMdd'h'HH}"
+        index => "%{[agent][type]}-target-%{+YYMMdd'h'HH}"
         manage_template => false
       }
     }

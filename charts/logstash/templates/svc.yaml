@@ -9,7 +9,7 @@ spec:
   selector:
     component: logstash
   ports:
-  - name: winlogbeat
+  - name: beats
     port: 5045
     protocol: TCP
   type: LoadBalancer
