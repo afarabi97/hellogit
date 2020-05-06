@@ -11,3 +11,5 @@ number_of_kafka_partitions: 20
 external_ip:
 external_fqdn:
 domain: lan
+pipeline_workers: 5
+batch_size: 8192

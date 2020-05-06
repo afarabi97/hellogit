@@ -17,8 +17,8 @@ data:
     xpack.monitoring.elasticsearch.username: "${ELASTICSEARCH_USERNAME}"
     xpack.monitoring.elasticsearch.password: "${ELASTICSEARCH_PASSWORD}"
     xpack.monitoring.elasticsearch.ssl.certificate_authority: /etc/ssl/certs/webCA.crt
-    pipeline.workers: 2
-    pipeline.batch.size: 1024
+    pipeline.workers: {{ .Values.pipeline_workers }}
+    pipeline.batch.size: {{ .Values.batch_size }}
 
 
   pipelines.yml: |
