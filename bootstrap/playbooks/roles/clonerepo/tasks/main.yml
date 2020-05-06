@@ -25,6 +25,11 @@
     - "{{ TFPLENUM_REPO_DIR }}"
     - "{{ TFPLENUM_REPO_DIR }}/Packages"
 
+- name: Create a directory for downloading elasticsearch plugins.
+  file:
+    path: "{{ tfplenumoffline_dir }}/elasticsearch-plugins"
+    state: directory
+
 - import_tasks: 00_httpd.yml
 - import_tasks: 02_isos.yml
 - import_tasks: 05_setup.yml

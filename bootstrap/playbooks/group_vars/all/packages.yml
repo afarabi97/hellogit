@@ -11,6 +11,7 @@ direct_download_package_names:
   - { url: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}" }
   - { url: "https://github.com/cri-o/cri-o/releases/download/{{crio_version}}/crio-{{crio_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}" }
   - { url: "https://github.com/containers/conmon/archive/v{{conmon_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}/conmon-v{{conmon_version}}.tar.gz" }
+  - { url: "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-7.6.2.zip", dest: "{{ tfplenumoffline_dir }}/elasticsearch-plugins" }
 
 direct_download_rpms:
   - { url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", dest: "{{ tfplenumoffline_dir }}/tfplenum/Packages" }

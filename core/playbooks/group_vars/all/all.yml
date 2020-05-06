@@ -86,4 +86,6 @@ elastic_disk_discovery_dir: "{{base_discovery_dir}}/elastic"
 dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
 enable_kube_ha: false
 
+elasticsearch_plugins:
+  - http://{{ ansible_controller_hostname }}/offlinerepo/elasticsearch-plugins/repository-s3-7.6.2.zip
 ...
