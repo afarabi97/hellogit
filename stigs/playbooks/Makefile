@@ -22,6 +22,9 @@ all-stigs:
 dip-controller-stigs:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost --tags "dip-controller-stigs" --skip-tags "all-stigs,sensor-stigs,server-stigs,gip-controller-stigs,gip-service-vm-stigs,mip-controller-stigs"
 
+dip-stigs:
+	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY) --tags "sensor-stigs,server-stigs" --skip-tags "all-stigs,dip-controller-stigs,gip-controller-stigs,gip-service-vm-stigs,mip-controller-stigs"
+
 mip-controller-stigs:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost --tags "mip-controller-stigs" --skip-tags "all-stigs,dip-controller-stigs,server-stigs,sensor-stigs,gip-controller-stigs,gip-service-vm-stigs"
 
@@ -36,5 +39,6 @@ server-stigs:
 
 sensor-stigs:
 	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY) --tags "sensor-stigs" --skip-tags "all-stigs,dip-controller-stigs,server-stigs,gip-controller-stigs,gip-service-vm-stigs,mip-controller-stigs"
+
 
 

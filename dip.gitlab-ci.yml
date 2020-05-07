@@ -1,4 +1,3 @@
-
 Setup DIP Nightly Controller:
   stage: build
   tags:
@@ -159,6 +158,25 @@ DIP Kit:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+
+Perform DIP STIGs:
+  stage: stig-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
+  cache:
+    key: tfplenum-dip-cache-${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - controllersetupsettings_dip.yml
+  only:
+    variables:
+      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-dip"
+      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-all"
+      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-dip-mip"
 
 Perform DIP Security Scans:
   stage: security_scans

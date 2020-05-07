@@ -47,6 +47,7 @@ variables:
   RHEL_ORGANIZATION: "7403688"
   RHEL_ACTIVATIONKEY: "Reposync"
 
+  RUN_DIP_STIGS: "true"
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"
@@ -79,6 +80,7 @@ stages:
   - docs
   - kickstart
   - kit
+  - stig-kit
   - security_scans
   - catalog
   - unit-test

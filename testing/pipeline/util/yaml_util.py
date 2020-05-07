@@ -39,13 +39,13 @@ class YamlManager:
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(GIPKitSettings)
-           
 
     @classmethod
-    def save_to_yaml(cls, some_model: Model, application:str=None):
+    def save_to_yaml(cls, some_model: Model, application: str = None):
         cls._initalize()
         if application:
-            yaml_name = "{}_{}.yml".format(some_model.__class__.__name__.lower(), application.lower())
+            yaml_name = "{}_{}.yml".format(
+                some_model.__class__.__name__.lower(), application.lower())
         else:
             yaml_name = "{}.yml".format(some_model.__class__.__name__.lower())
         with open(yaml_name, 'w') as outfile:
@@ -60,8 +60,9 @@ class YamlManager:
         return some_model
 
     @classmethod
-    def load_ctrl_settings_from_yaml(cls, application:str) -> ControllerSetupSettings:
-        yaml_name = "{}_{}.yml".format(ControllerSetupSettings.__name__.lower(), application.lower())
+    def load_ctrl_settings_from_yaml(cls, application: str) -> ControllerSetupSettings:
+        yaml_name = "{}_{}.yml".format(
+            ControllerSetupSettings.__name__.lower(), application.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
@@ -89,3 +90,7 @@ class YamlManager:
         yaml_name = "{}.yml".format(GIPServiceSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
+    @classmethod
+    def load_kit_settings_from_yaml(cls) -> KitSettings:
+        yaml_name = "{}.yml".format(KitSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)

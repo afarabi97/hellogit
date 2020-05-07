@@ -86,6 +86,7 @@ dip_packages:
   - lsof
   - screen
   - tmux
+  - open-vm-tools
 
 dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
