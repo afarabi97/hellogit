@@ -19,6 +19,7 @@ variables:
   MIP_NETWORK_BLOCK_INDEX: 1
   GIP_NETWORK_BLOCK_INDEX: 2
   GIP_SERVICES_NETWORK_BLOCK_INDEX: 3
+  RHEL_NETWORK_BLOCK_INDEX: 3
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   ACAS_IPADDRESS: "172.16.82.15"
@@ -28,6 +29,8 @@ variables:
   MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
   RUN_ACAS: "false"
   RUN_INTEGRATION: "false"
+  RUN_REPO_SYNC_SERVER: "false"
+  RUN_REPO_SYNC_WORKSTATION: "false"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
@@ -40,6 +43,10 @@ variables:
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
+  RHEL_SUB_METHOD: "standard"
+  RHEL_ORGANIZATION: "7403688"
+  RHEL_ACTIVATIONKEY: "Reposync"
+
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"
@@ -108,3 +115,67 @@ Create Master Drive:
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "true"
+
+Create Reposync Server VM:
+  stage: build
+  timeout: 24 hours
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO create-rhel-repository-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Headless Template" \
+    --subscription "$RHEL_SUB_METHOD" \
+    --orgnumber "$RHEL_ORGANIZATION" \
+    --activationkey "$RHEL_ACTIVATIONKEY"
+
+  only:
+    variables:
+      - $RUN_REPO_SYNC_SERVER == "true"
+
+Create Reposync Workstation VM:
+  stage: build
+  timeout: 24 hours
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO create-workstation-repository-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Workstation Template" \
+    --subscription "$RHEL_SUB_METHOD" \
+    --orgnumber "$RHEL_ORGANIZATION" \
+    --activationkey "$RHEL_ACTIVATIONKEY"
+
+  only:
+    variables:
+      - $RUN_REPO_SYNC_WORKSTATION == "true"

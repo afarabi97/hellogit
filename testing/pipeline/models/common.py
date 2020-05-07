@@ -7,7 +7,7 @@ from typing import Dict
 
 class NodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc")
+    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhelrepo")
     valid_sensor_types = ("remote_sensor", "sensor")
     valid_server_types = ("master_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types

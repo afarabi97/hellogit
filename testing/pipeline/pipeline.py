@@ -12,6 +12,8 @@ from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport, GIPServiceExport
 from jobs.gip_creation import GipCreationJob
+from jobs.rhel_repo_creation import RHELCreationJob
+from jobs.rhel_workstation_creation import WorkstationCreationJob
 
 from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
@@ -25,6 +27,7 @@ from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings
 from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKitSettings
+from models.rhel_repo_vm import RHELRepoSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms
 
@@ -110,14 +113,35 @@ class Runner:
         GIPServiceSettings.add_args(gip_setup_subparsers)
         GIPKitSettings.add_args(gip_setup_subparsers)
 
+        rhel_repo_vm_parser = subparsers.add_parser(SubCmd.create_rhel_repository_vm, help="Creates the RHEL respostiory VM for export.")
+        RHELRepoSettings.add_args(rhel_repo_vm_parser)
+        rhel_repo_vm_parser.set_defaults(which=SubCmd.create_rhel_repository_vm)
+
+        rhel_workstation_vm_parser = subparsers.add_parser(SubCmd.create_workstation_repository_vm, help="Creates the RHEL workstation respository VM for export.")
+        RHELRepoSettings.add_args(rhel_workstation_vm_parser)
+        rhel_workstation_vm_parser.set_defaults(which=SubCmd.create_workstation_repository_vm)
+
+
         parser.add_argument('--system-name', dest='system_name',
-                            choices=['DIP','MIP','GIP'],
+                            choices=['DIP','MIP','GIP','REPO'],
                             help="Selects which component your controller should be built for.")
 
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.export_gip_service_vm:
+            if args.which == SubCmd.create_rhel_repository_vm:
+                repo_settings = RHELRepoSettings()
+                repo_settings.from_namespace(args)
+                executor = RHELCreationJob(repo_settings)
+                executor.execute()
+
+            elif args.which == SubCmd.create_workstation_repository_vm:
+                repo_settings = RHELRepoSettings()
+                repo_settings.from_namespace(args)
+                executor = WorkstationCreationJob(repo_settings)
+                executor.execute()
+
+            elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
