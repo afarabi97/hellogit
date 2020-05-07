@@ -73,12 +73,12 @@ spec:
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: secret
+              name: {{ .Release.Name }}-secret
               key: admin_pass
         - name: ADMIN_EMAIL
           valueFrom:
             secretKeyRef:
-              name: secret
+              name: {{ .Release.Name }}-secret
               key: admin_email
         volumeMounts:
         - name: configmap
@@ -115,9 +115,6 @@ spec:
         configMap:
           name: {{ .Release.Name }}-configmap
           defaultMode: 0444
-      - name: secret
-        secret:
-          secretName: {{ .Release.Name }}-secret
       - name: webca
         secret:
           defaultMode: 420
