@@ -68,7 +68,24 @@ spec:
             privileged: true
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
         - name: install-plugins
-          command: ['sh', '-c', 'bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }}']
+          command:
+            - sh
+            - -c
+            - |
+              ERROR=$(bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 > /dev/null)
+              RESULT=$?
+              echo $ERROR | grep -q "already exists"
+              EXISTS=$?
+              if [[ $RESULT -eq 0 || $EXISTS -eq 0 ]]; then
+                echo "Success"
+                echo $RESULT
+                true
+              else
+                echo "Failure"
+                echo $RESULT
+                echo $OUT > /dev/stderr
+                false
+              fi
           env:
           - name: NODE_NAME
             valueFrom:
@@ -126,6 +143,30 @@ spec:
           securityContext:
             privileged: true
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        - name: install-plugins
+          command:
+            - sh
+            - -c
+            - |
+              ERROR=$(bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 > /dev/null)
+              RESULT=$?
+              echo $ERROR | grep -q "already exists"
+              EXISTS=$?
+              if [[ $RESULT -eq 0 || $EXISTS -eq 0 ]]; then
+                echo "Success"
+                echo $RESULT
+                true
+              else
+                echo "Failure"
+                echo $RESULT
+                echo $OUT > /dev/stderr
+                false
+              fi
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -178,6 +219,30 @@ spec:
           securityContext:
             privileged: true
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        - name: install-plugins
+          command:
+            - sh
+            - -c
+            - |
+              ERROR=$(bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 > /dev/null)
+              RESULT=$?
+              echo $ERROR | grep -q "already exists"
+              EXISTS=$?
+              if [[ $RESULT -eq 0 || $EXISTS -eq 0 ]]; then
+                echo "Success"
+                echo $RESULT
+                true
+              else
+                echo "Failure"
+                echo $RESULT
+                echo $OUT > /dev/stderr
+                false
+              fi
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -229,6 +294,30 @@ spec:
           securityContext:
             privileged: true
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        - name: install-plugins
+          command:
+            - sh
+            - -c
+            - |
+              ERROR=$(bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 > /dev/null)
+              RESULT=$?
+              echo $ERROR | grep -q "already exists"
+              EXISTS=$?
+              if [[ $RESULT -eq 0 || $EXISTS -eq 0 ]]; then
+                echo "Success"
+                echo $RESULT
+                true
+              else
+                echo "Failure"
+                echo $RESULT
+                echo $OUT > /dev/stderr
+                false
+              fi
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
