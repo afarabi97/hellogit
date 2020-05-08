@@ -21,7 +21,7 @@ def main():
     ret_val = create_ruleset_service(ruleset)
     rule_set = conn_mng.mongo_ruleset.find_one({"_id": ret_val.inserted_id})
     for path in pathlist:
-        create_rule_from_file(path, rule_set)
+        create_rule_from_file(path, rule_set, ignore_errors=True)
         print("Completed processing of " + str(path))
 
 if __name__ == '__main__':

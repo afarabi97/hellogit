@@ -89,7 +89,8 @@ def create_rule_service(ruleset_id: int, rule: Dict, projection={"rule": False})
 def create_rule_srv_wrapper(rule_set: Dict,
                 rule_name: str,
                 rule_content: str,
-                is_enabled:bool=True):
+                is_enabled:bool=True,
+                ignore_errors:bool=False):
     rule = {
         "ruleName": rule_name,
         "rule": rule_content,
@@ -107,7 +108,8 @@ def create_rule_srv_wrapper(rule_set: Dict,
     if is_valid:
         return create_rule_service(rule_set_id, rule)
 
-    raise InvalidRuleSyntax(error_output.split('\n'))
+    if not ignore_errors:
+        raise InvalidRuleSyntax(error_output.split('\n'))
 
 
 def _get_file_name(filename: str, count: int) -> str:
@@ -115,7 +117,7 @@ def _get_file_name(filename: str, count: int) -> str:
     return "{}_{}{}".format(filename[0:pos], count, filename[pos:])
 
 
-def create_rule_from_file(path: Path, rule_set: Dict) -> Union[Dict, List[Dict]]:
+def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors:bool=False) -> Union[Dict, List[Dict]]:
     # If the file is greater than 5 MB we need to split up the file into smaller pieces
     if path.stat().st_size > CHUNK_SIZE:
         partial_rule = StringIO()
@@ -126,13 +128,13 @@ def create_rule_from_file(path: Path, rule_set: Dict) -> Union[Dict, List[Dict]]
                 partial_rule.write(line)
                 if partial_rule.tell() >= CHUNK_SIZE:
                     filename = _get_file_name(path.name, count)
-                    ret_val.append(create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue()))
+                    ret_val.append(create_rule_srv_wrapper(rule_set, filename, partial_rule.getvalue(), ignore_errors=ignore_errors))
                     partial_rule = StringIO()
                     count += 1
         return ret_val
     else:
         with path.open() as f:
-            return create_rule_srv_wrapper(rule_set, path.name, f.read())
+            return create_rule_srv_wrapper(rule_set, path.name, f.read(), ignore_errors=ignore_errors)
 
 
 @app.route('/api/create_ruleset', methods=['POST'])
