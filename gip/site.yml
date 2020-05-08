@@ -1,10 +1,17 @@
 ---
-- name: A playbook to setup samba, tftp, chrony.
-  hosts: gipsvc
+- name: A play to setup samba, tftp, chrony.
+  hosts: localhost
+  gather_facts: no
   become_user: root
   roles:
-    - { role: "clean-yum", tags: ["clean-yum"]}
+    - { role: "host-setup", tags: ["host-setup"] }
     - { role: "samba", tags: ["samba"] }
     - { role: "tftp", tags: ["tftp"] }
     - { role: "chrony", tags: ["chrony"] }
-    - { role: "packages", tags: ["packages"] }
+  
+- name: A play to install packages.
+  hosts: gipsvc
+  gather_facts: no
+  become_user: root
+  roles:
+    - { role: "required-packages", tags: ["required-packages"] }

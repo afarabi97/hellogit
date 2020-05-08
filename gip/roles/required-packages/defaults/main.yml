@@ -1,0 +1,12 @@
+packages:
+  - unzip
+  - chrony
+  - ntp 
+  - samba
+  - xinetd
+  - ansible
+  - NetworkManager-glib
+  - libselinux-python
+  - policycoreutils-python
+  - libsemanage-python
+  - tftp-server

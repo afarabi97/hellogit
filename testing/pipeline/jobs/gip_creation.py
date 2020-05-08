@@ -24,7 +24,7 @@ class GipCreationJob:
         execute_playbook([GIP_DIR + 'site.yml'],
                          extra_vars=extra_vars,
                          targets=Target("gipsvc", self.service_settings.node.ipaddress),
-                         tags=['packages'])
+                         tags=['required-packages'], timeout=300)
 
     def _run_stigs_playbook(self):
         pass
@@ -35,13 +35,11 @@ class GipCreationJob:
 
     def execute(self):
         print("Executing gip job")
-        print(self.service_settings.to_dict())
         execute_playbook(
             [PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.service_settings.to_dict())
         test_nodes_up_and_alive([self.service_settings.node], 30)
         self._run_setup_playbook()
         with FabricConnectionWrapper(self.service_settings.node.username, self.service_settings.node.password, self.service_settings.node.ipaddress) as remote_shell:
-          remote_shell.run('mkdir -p /opt/service-vm-playbook')
           self._copy(ROOT_DIR + 'playbooks.zip', '/tmp', remote_shell)
           remote_shell.run('unzip -d /opt /tmp/playbooks.zip'  )
 

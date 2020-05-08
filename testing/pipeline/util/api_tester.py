@@ -170,7 +170,6 @@ class MIPKickstartPayloadGenerator:
         return ret_val
 
     def generate(self) -> Dict:
-        print(str(self._mip_kickstart_settings.node_defaults))
         return {
             "dhcp_range": self._mip_kickstart_settings.dhcp_ip_block,
             "gateway": self._mip_kickstart_settings.node_defaults.gateway,

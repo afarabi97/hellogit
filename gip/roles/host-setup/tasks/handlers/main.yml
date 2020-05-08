@@ -1,0 +1,6 @@
+---
+- name: Restart NetworkManager service and the network service.
+  command: "systemctl restart {{ item }}"
+  with_items:
+    - network
+    - NetworkManager

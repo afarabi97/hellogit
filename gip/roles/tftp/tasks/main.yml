@@ -3,6 +3,7 @@
   yum:
     name: xinetd
     state: present
+  when: download_packages
 
 - name: Set the default SELinux file context for the tftp root dir
   sefcontext:
@@ -11,12 +12,16 @@
     state: present
 
 - name: Setting selinux context for tftp anon write
-  command: setsebool -P tftp_anon_write 1
+  seboolean: 
+    state: yes
+    name: tftp_anon_write
+    persistent: yes
 
 - name: installing tftp service
   yum:
     name: tftp-server
     state: present
+  when: download_packages
 
 - name: Make sure a service is for tfpt to work
   systemd:

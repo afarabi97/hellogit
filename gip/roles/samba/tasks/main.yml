@@ -33,19 +33,25 @@
     group: root
 
 - name: setting up selinux context on sharedrepo directory
-  command: chcon -R -t samba_share_t /sharedrepo
+  file:
+    path: /sharedrepo
+    state: directory
+    setype: samba_share_t
+
 
 - name: adding samba user
   user:
     name: MSSadmin
     password: '!'
-
-- name: Adding password into smb database
-  command: pdbedit --user=MSSadmin
-  failed_when:  not (result.rc == 0 or result.rc == 255)
-  register: result
-
-- name: setup the smb password
-  command: /usr/bin/smbpasswd -s -a MSSadmin
+    
+- name: Create Samba users if they don't exist yet
+  shell: >
+    set -o nounset -o pipefail -o errexit &&
+    (pdbedit --user={{ sambauser }} 2>&1 > /dev/null) \
+    || (echo {{ password }}; echo {{ password }}) \
+    | smbpasswd -s -a {{ sambauser }}
   args:
-    stdin: "1qaz2wsx!QAZ@WSX\n1qaz2wsx!QAZ@WSX\n"
+    executable: /bin/bash
+  no_log: true
+  register: create_user_output
+  changed_when: "'Added user' in create_user_output.stdout"

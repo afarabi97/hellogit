@@ -1,0 +1,52 @@
+---
+- name: Create the server rpm repository.
+  yum_repository:
+    name: rhel-7-server-rpms
+    description: rhel 7 server rpms
+    file: labrepo
+    baseurl: http://yum.labrepo.sil.lab/rhel/rhel-7-server-rpms
+    enabled: yes
+
+- name: Create the extras repository.
+  yum_repository:
+    name: rhel-7-server-extras
+    description: rhel 7 server extras rpms
+    file: labrepo
+    baseurl:  http://yum.labrepo.sil.lab/rhel/rhel-7-server-extras-rpms
+    enabled: yes
+
+- name: Create the optional repository.
+  yum_repository:
+    name: rhel-7-server-optional
+    description: rhel 7 server optional rpms
+    file: labrepo
+    baseurl: http://yum.labrepo.sil.lab/rhel/rhel-7-server-optional-rpms
+    enabled: yes
+
+- name: ensure a list of packages installed
+  yum:
+    name: "{{ packages }}"
+
+- name: yum-clean-all # noqa 301
+  command: yum clean all 
+  args:
+    warn: no
+
+- name: Remove repository from a specific repo file
+  yum_repository:
+    name: rhel-7-server-rpms
+    file: labrepo
+    state: absent
+
+- name: Remove repository from a specific repo file
+  yum_repository:
+    name: rhel-7-server-extras
+    file: labrepo
+    state: absent
+
+- name: Remove repository from a specific repo file
+  yum_repository:
+    name: rhel-7-server-optional
+    file: labrepo
+    state: absent
+
