@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, AbstractControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToolsService } from '../tools.service';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-update-docs-form',
@@ -12,7 +13,10 @@ export class UpdateDocsFormComponent implements OnInit {
 
   zipToUpload: File = null;
   isCardVisible: boolean;
-  constructor(private snackBar: MatSnackBar, private toolSrv: ToolsService){}
+  controllerMaintainer: boolean;
+  constructor(private snackBar: MatSnackBar, private toolSrv: ToolsService, private userService: UserService) {
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
+  }
 
   ngOnInit() { }
 

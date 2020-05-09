@@ -4,6 +4,7 @@ from flask import jsonify, request, Response, send_file
 from typing import Dict, Tuple, List
 from shared.connection_mngs import FabricConnectionWrapper, KitFormNotFound
 from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps
+from app.middleware import Auth, controller_maintainer_required
 import json
 from bson import ObjectId
 import requests
@@ -50,6 +51,7 @@ def get_configured_ifaces(sensor_hostname: str):
 
 
 @app.route('/api/catalog/install', methods=['POST'])
+@controller_maintainer_required
 def install() -> Response:
     """
     Install an application using helm
@@ -73,6 +75,7 @@ def install() -> Response:
 
 
 @app.route('/api/catalog/delete', methods=['POST'])
+@controller_maintainer_required
 def delete() -> Response:
     """
     Delete an application using helm
@@ -95,6 +98,7 @@ def delete() -> Response:
 
 
 @app.route('/api/catalog/reinstall', methods=['POST'])
+@controller_maintainer_required
 def reinstall() -> Response:
     """
     Reinstall an application using helm
@@ -119,6 +123,7 @@ def reinstall() -> Response:
 
 
 @app.route('/api/catalog/generate_values', methods=['POST'])
+@controller_maintainer_required
 def generate_values_file() -> Response:
     """
     Generate values yaml

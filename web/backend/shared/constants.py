@@ -39,3 +39,9 @@ class TargetStates(Enum):
     uninstalled = "Uninstalled"
     installed = "Installed"
     error = "Error"
+
+# Roles
+OPERATOR_ROLE = "operator"
+CONTROLLER_ADMIN_ROLE = "controller-admin"
+CONTROLLER_MAINTAINER_ROLE = "controller-maintainer"
+REALM_ADMIN_ROLE = "realm-admin"

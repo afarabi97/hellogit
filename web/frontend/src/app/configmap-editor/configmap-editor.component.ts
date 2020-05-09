@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ViewChild,
          ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 import { ConfigmapsService } from '../configmaps/configmaps.service';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-configmap-editor',
@@ -34,9 +35,13 @@ export class ConfigmapEditorComponent implements OnInit {
   numbers: Array<number>;
 
   private associatedPods: Array<{podName:string, namespace: string}>;
+  controllerMaintainer: boolean;
+  operator: boolean;
 
-  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService) {
+  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService, private userService: UserService) {
     this.numbers = new Array(1000).fill(true);
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
+    this.operator = this.userService.isOperator();
   }
 
   /**

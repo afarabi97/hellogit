@@ -1,0 +1,110 @@
+{
+  "defaultRoles": [
+    "user"
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "composite": true,
+        "composites": {
+          "client": {
+            "account": [
+              "manage-consent",
+              "manage-account-links",
+              "view-consent",
+              "view-profile",
+              "manage-account",
+              "view-applications"
+            ]
+          }
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "controller-admin",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "controller-maintainer"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "controller-maintainer",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "operator"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "operator",
+        "composite": true,
+        "composites": {
+          "realm": [
+{% if system_name == 'DIP' or system_name == 'GIP' %}
+            "elk-read-only",
+            "misp-operator",
+            "moloch-user"
+{% endif %}
+          ]
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      }{{ ',' if system_name == 'DIP' or system_name == 'GIP' else '' }}
+{% if system_name == 'DIP' or system_name == 'GIP' %}
+      {
+        "name": "misp-admin",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "misp-operator"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "misp-operator",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "moloch-user",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "elk-super-user",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "elk-read-only",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      }
+{% endif %}
+    ]
+  }
+}

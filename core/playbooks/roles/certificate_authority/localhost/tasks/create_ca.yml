@@ -91,7 +91,7 @@
     state: directory
 
 - name: Copy Web CA Scripts to Controller Web root
-  copy:
+  template:
     src: "templates/{{ item }}.j2"
     dest: "/var/www/html/scripts/{{ item }}"
     owner: root

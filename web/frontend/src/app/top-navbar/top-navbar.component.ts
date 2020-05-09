@@ -10,6 +10,7 @@ import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.co
 import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-top-navbar',
@@ -26,6 +27,7 @@ export class TopNavbarComponent implements OnInit {
   public version: string;
   public system_name: string;
   public sideNavigationButtons: Array<NavGroup>;
+  public controllerMaintainer: boolean;
 
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
 
@@ -36,11 +38,14 @@ export class TopNavbarComponent implements OnInit {
   @ViewChild('notifications', { static: false }) notifications: NotificationsComponent;
 
   constructor(private cookieService: CookieService,
-    private navService: NavBarService,
-    private socketSrv: WebsocketService,
-    private sysNameSrv: WeaponSystemNameService,
-    private ref: ChangeDetectorRef,
-    private dialog: MatDialog) { }
+              private navService: NavBarService,
+              private socketSrv: WebsocketService,
+              private sysNameSrv: WeaponSystemNameService,
+              private ref: ChangeDetectorRef,
+              private dialog: MatDialog,
+              private userService: UserService) {
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
+  }
 
   ngOnInit() {
     this.setSystemTheme();
@@ -66,13 +71,13 @@ export class TopNavbarComponent implements OnInit {
     this.sysNameSrv.getSystemName().subscribe(
       data => {
         this.system_name = data['system_name'];
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
         this.emitTheme();
         this.ref.detectChanges();
       },
       err => {
         this.system_name = null;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name);
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
         this.emitTheme();
         this.ref.detectChanges();
       }

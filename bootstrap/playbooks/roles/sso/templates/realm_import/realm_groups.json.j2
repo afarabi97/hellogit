@@ -1,0 +1,114 @@
+{
+  "defaultGroups": [
+    "/Operator",
+    "/All Users"
+  ],
+  "groups": [
+    {
+      "name": "All Users",
+      "path": "/All Users",
+      "attributes": {},
+      "realmRoles": [
+        "user"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Controller Admin",
+      "path": "/Controller Admin",
+      "attributes": {},
+      "realmRoles": [
+        "controller-admin"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Controller Maintainer",
+      "path": "/Controller Maintainer",
+      "attributes": {},
+      "realmRoles": [
+        "controller-maintainer"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Operator",
+      "path": "/Operator",
+      "attributes": {},
+      "realmRoles": [
+        "operator"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Realm Admin",
+      "path": "/Realm Admin",
+      "attributes": {},
+      "realmRoles": [
+        "controller-admin"
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "realm-admin"
+        ]
+      },
+      "subGroups": []
+    }{{ ',' if system_name == 'DIP' or system_name == 'GIP' else '' }}
+{% if system_name == 'DIP' or system_name == 'GIP' %}
+    {
+      "name": "ELK Superuser",
+      "path": "/ELK Superuser",
+      "attributes": {},
+      "realmRoles": [
+        "elk-super-user"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "ELK Readonly",
+      "path": "/ELK Readonly",
+      "attributes": {},
+      "realmRoles": [
+        "elk-read-only"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "MISP Admin",
+      "path": "/MISP Admin",
+      "attributes": {},
+      "realmRoles": [
+        "misp-admin"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "MISP Operator",
+      "path": "/MISP Operator",
+      "attributes": {},
+      "realmRoles": [
+        "misp-operator"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Moloch User",
+      "path": "/Moloch User",
+      "attributes": {},
+      "realmRoles": [
+        "moloch-user"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    }
+{% endif %}
+  ]
+}

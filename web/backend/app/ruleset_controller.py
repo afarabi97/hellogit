@@ -23,6 +23,7 @@ from shared.utils import tar_folder
 from typing import Dict, Tuple, List, Union
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, BadZipFile
+from app.middleware import Auth, operator_required
 
 
 CHUNK_SIZE = 5000000
@@ -135,6 +136,7 @@ def create_rule_from_file(path: Path, rule_set: Dict) -> Union[Dict, List[Dict]]
 
 
 @app.route('/api/create_ruleset', methods=['POST'])
+@operator_required
 def create_ruleset() -> Response:
     ruleset = request.get_json()
     ret_val = create_ruleset_service(ruleset)
@@ -144,6 +146,7 @@ def create_ruleset() -> Response:
 
 
 @app.route('/api/update_ruleset', methods=['PUT'])
+@operator_required
 def update_ruleset() -> Response:
     ruleset = request.get_json()
     ruleset_id = ruleset["_id"]
@@ -249,6 +252,7 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Di
 
 
 @app.route('/api/upload_rule', methods=['POST'])
+@operator_required
 def upload_rule() -> Response:
     rule_set = json.loads(request.form['ruleSetForm'],
                           encoding="utf-8")
@@ -278,6 +282,7 @@ def upload_rule() -> Response:
 
 
 @app.route('/api/create_rule', methods=['POST'])
+@operator_required
 def create_rule() -> Response:
     rule_add = request.get_json()
     ruleset_id = rule_add['rulesetID']
@@ -304,6 +309,7 @@ def create_rule() -> Response:
 
 
 @app.route('/api/update_rule', methods=['PUT'])
+@operator_required
 def update_rule() -> Response:
     update_rule = request.get_json()
     ruleset_id = update_rule["rulesetID"]
@@ -340,6 +346,7 @@ def update_rule() -> Response:
 
 
 @app.route('/api/toggle_rule', methods=['PUT'])
+@operator_required
 def toggle_rule() -> Response:
     """
     Enables or disables a rule without validating the rule for the quick checkboxes.
@@ -368,6 +375,7 @@ def toggle_rule() -> Response:
 
 
 @app.route('/api/delete_rule/<rule_set_id>/<rule_id>', methods=['DELETE'])
+@operator_required
 def delete_rule(rule_set_id: str, rule_id: str) -> Response:
     ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
     if ret_val.deleted_count == 1:
@@ -376,6 +384,7 @@ def delete_rule(rule_set_id: str, rule_id: str) -> Response:
 
 
 @app.route('/api/delete_ruleset/<ruleset_id>', methods=['DELETE'])
+@operator_required
 def delete_ruleset(ruleset_id: str) -> Response:
     rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': int(ruleset_id)})
     if rules_deleted:
@@ -386,12 +395,14 @@ def delete_ruleset(ruleset_id: str) -> Response:
 
 
 @app.route('/api/sync_rulesets', methods=['GET', 'POST'])
+@operator_required
 def sync_rulesets_api() -> Response:
     perform_rulesync.delay()
     return OK_RESPONSE
 
 
 @app.route('/api/validate_rule', methods=['POST'])
+@operator_required
 def validate_rule() -> Response:
     payload = request.get_json()
     rule = payload['ruleToValidate']
@@ -477,6 +488,7 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
 
 
 @app.route('/api/test_rule_against_pcap', methods=['POST'])
+@operator_required
 def test_rule_against_pcap() -> Response:
     payload = request.get_json()
     pcap_name = payload["pcap_name"]

@@ -16,6 +16,7 @@ from app.common import OK_RESPONSE, ERROR_RESPONSE, cursor_to_json_response
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,
                                        build_agent_if_not_exists)
+from app.middleware import Auth, operator_required
 from bson import ObjectId
 from celery import chain, group, chord
 from copy import copy
@@ -60,6 +61,7 @@ def get_app_configs():
 
 
 @app.route('/api/generate_windows_installer', methods=['POST'])
+@operator_required
 def build_installer() -> Response:
     """
     Build the Windows installer for Winlogbeat and Sysmon
@@ -77,6 +79,7 @@ def build_installer() -> Response:
 
 
 @app.route('/api/endgame_sensor_profiles', methods=['POST'])
+@operator_required
 def get_sensor_info() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
@@ -146,6 +149,7 @@ def get_agent_installer_target_lists() -> Response:
 
 
 @app.route('/api/save_agent_installer_target_list', methods=['POST'])
+@operator_required
 def save_agent_installer_target_list() -> Response:
     return replace_record(
         rqst = request,
@@ -155,6 +159,7 @@ def save_agent_installer_target_list() -> Response:
 
 
 @app.route('/api/delete_agent_installer_target_list/<name>', methods=['DELETE'])
+@operator_required
 def delete_agent_installer_target_list(name: str) -> Response:
     win_targets_cnxn.delete_one({'name': name})
     return get_agent_installer_target_lists()
@@ -191,6 +196,7 @@ def _get_unique_hosts_to_add(target_config: Dict, hosts_to_add: Dict) -> List[Di
 
 
 @app.route('/api/add_host/<target_config_id>', methods=['POST'])
+@operator_required
 def add_host_to_target_config(target_config_id: str) -> Response:
     hosts_to_add = request.get_json()
     if hosts_to_add['hostnames'] and len(hosts_to_add['hostnames']) > 0:
@@ -206,6 +212,7 @@ def add_host_to_target_config(target_config_id: str) -> Response:
 
 
 @app.route('/api/delete_host/<target_config_id>', methods=['POST'])
+@operator_required
 def delete_host_from_target_config(target_config_id: str) -> Response:
     host_to_delete = request.get_json()
     ret_val = win_targets_cnxn.update_one({'_id': ObjectId(target_config_id)},
@@ -216,6 +223,7 @@ def delete_host_from_target_config(target_config_id: str) -> Response:
 
 
 @app.route('/api/save_agent_installer_config', methods=['POST'])
+@operator_required
 def save_agent_installer_config() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
@@ -228,6 +236,7 @@ def save_agent_installer_config() -> Response:
 
 
 @app.route('/api/delete_agent_installer_config/<config_id>', methods=['DELETE'])
+@operator_required
 def delete_agent_installer_config(config_id: str) -> Response:
     win_install_cnxn.delete_one({'_id': ObjectId(config_id)})
 
@@ -292,6 +301,7 @@ def _create_and_run_celery_tasks(payload: Dict,
 
 
 @app.route('/api/uninstall_agents', methods=['POST'])
+@operator_required
 def uninstall_agents() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
@@ -306,6 +316,7 @@ def uninstall_agents() -> Response:
 
 
 @app.route('/api/uninstall_agent', methods=['POST'])
+@operator_required
 def uninstall_agent() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
@@ -317,6 +328,7 @@ def uninstall_agent() -> Response:
 
 
 @app.route('/api/install_agents', methods=['POST'])
+@operator_required
 def install_agents() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)
@@ -330,6 +342,7 @@ def install_agents() -> Response:
 
 
 @app.route('/api/reinstall_agent', methods=['POST'])
+@operator_required
 def reinstall_agent() -> Response:
     payload = request.get_json()
     sanitize_dictionary(payload)

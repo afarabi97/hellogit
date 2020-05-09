@@ -17,7 +17,7 @@
       <button mat-raised-button color="warn" (click)="openCloseDialog()">
         Close without Saving
       </button>
-      <button mat-raised-button
+      <button mat-raised-button [disabled]="!controllerMaintainer"
               color="primary" style="float: right;"
               (click)="openSaveDialog()">
         Save and Close

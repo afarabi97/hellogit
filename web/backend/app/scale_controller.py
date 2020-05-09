@@ -1,13 +1,15 @@
 
 from app import app, logger, CORE_DIR
-from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.common import ERROR_RESPONSE, OK_RESPONSE, FORBIDDEN_RESPONSE
 from flask import request, jsonify, Response
 import traceback
 from app.service.scale_service import es_cluster_status, check_scale_status, get_es_nodes, parse_nodes, get_allowable_scale_count
 from app.dao import elastic_deploy
 import yaml, json
+from app.middleware import Auth, controller_maintainer_required
 
 @app.route('/api/scale/elastic', methods=['POST'])
+@controller_maintainer_required
 def scale_es() -> Response:
     """
     Scale elasticsearch
@@ -50,6 +52,7 @@ def scale_es() -> Response:
     return OK_RESPONSE
 
 @app.route('/api/scale/elastic/advanced', methods=['POST'])
+@controller_maintainer_required
 def scale_es_advanced() -> Response:
     """
     Scale elasticsearch

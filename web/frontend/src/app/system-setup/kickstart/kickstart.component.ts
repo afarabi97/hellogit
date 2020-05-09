@@ -14,6 +14,7 @@ import { AllValidationErrors, FormGroupControls, getFormValidationErrors, valida
 import { isIpv4InSubnet } from '../../globals';
 import { SystemSetupService } from '../services/system-setup.service';
 import { WeaponSystemNameService} from '../../services/weapon-system-name.service';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-kickstart-form',
@@ -29,6 +30,7 @@ export class KickstartComponent implements OnInit {
   public kickStartFormGroup: FormGroup;
   public loading: boolean;
   public system_name: string;
+  public controllerAdmin: boolean;
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
@@ -37,9 +39,11 @@ export class KickstartComponent implements OnInit {
     private snackbarWrapper: SnackbarWrapper,
     private title: Title,
     private systemSetupSrv: SystemSetupService,
-    private sysNameSrv: WeaponSystemNameService) {
+    private sysNameSrv: WeaponSystemNameService,
+    private userService: UserService) {
       this.title.setTitle("Kickstart Configuration");
       this.setupKickstartForm();
+      this.controllerAdmin = this.userService.isControllerAdmin();
   }
 
   ngOnInit() {

@@ -1,0 +1,23 @@
+{
+  "username" : "admin",
+  "enabled": true,
+  "email" : "admin@{{ system_name | lower }}.local",
+  "firstName" : "{{ system_name }}",
+  "lastName" : "Admin",
+  "credentials" : [
+      {
+        "type" : "password",
+        "value" : "{{ sso_admin_password }}"
+      }
+  ],
+  "requiredActions" : [
+    "UPDATE_PASSWORD",
+    "UPDATE_PROFILE",
+    "terms_and_conditions"
+  ],
+  "realmRoles": ["manager"],
+  "groups": [
+    "/All Users",
+    "/Realm Admin"
+  ]
+}

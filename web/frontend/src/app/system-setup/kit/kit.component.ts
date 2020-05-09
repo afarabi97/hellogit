@@ -14,6 +14,7 @@ import { DialogFormControl, DialogControlTypes } from '../../modal-dialog-mat/mo
 import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
 import { getCurrentDate } from '../../date-time-picker/date-time.component';
 import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-kit-form',
@@ -29,7 +30,7 @@ export class KitComponent implements OnInit, AfterViewInit {
 
   isGettingDeviceFacts: boolean;
   system_name: string;
-
+  controllerAdmin: boolean;
   constructor(private kickStartSrv: KickstartService,
               private title: Title,
               private router: Router,
@@ -39,10 +40,12 @@ export class KitComponent implements OnInit, AfterViewInit {
               private matDialog: MatDialog,
               private _CatalogService: CatalogService,
               private sysNameSrv: WeaponSystemNameService,
-              private ref: ChangeDetectorRef) {
+              private ref: ChangeDetectorRef,
+              private userService: UserService) {
     this.isGettingDeviceFacts = false;
     this.kitFormGroup = this.kitSrv.newKitFormGroup();
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
+    this.controllerAdmin = this.userService.isControllerAdmin();
   }
 
   ngOnInit() {

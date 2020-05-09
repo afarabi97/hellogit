@@ -14,6 +14,7 @@ from pymongo.results import InsertOneResult, DeleteResult
 from shared.constants import KICKSTART_ID, KIT_ID, DATE_FORMAT_STR
 from typing import Dict
 from pprint import PrettyPrinter
+from app.middleware import Auth, controller_admin_required
 
 
 def _get_mongo_collections(config_id: str):
@@ -61,6 +62,7 @@ def archive_form(page_form_payload: Dict,
 
 
 @app.route('/api/delete_archive/<config_id>/<archive_id>', methods=['DELETE'])
+@controller_admin_required
 def delete_archive(config_id: str, archive_id: str) -> Response:
     """
     Deletes the archive from the database.
@@ -103,6 +105,7 @@ def _is_completed_form(config_id: str, some_form: Dict, some_form2: Dict) -> boo
 
 
 @app.route('/api/archive_form', methods=['POST'])
+@controller_admin_required
 def archive_form_api() -> Response:
     """
     Removes the kickstart inventory from the main collection and then
@@ -127,6 +130,7 @@ def archive_form_api() -> Response:
 
 
 @app.route('/api/restore_archived', methods=['POST'])
+@controller_admin_required
 def restore_archived() -> Response:
     """
     Restores archived form from the archived collection.

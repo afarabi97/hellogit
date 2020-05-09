@@ -13,6 +13,7 @@ from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_pod import V1Pod
 from shared.connection_mngs import KubernetesWrapper, KitFormNotFound, objectify
 from typing import Dict, List
+from app.middleware import Auth, controller_maintainer_required
 
 
 @app.route('/api/get_associated_pods/<config_map_name>', methods=['GET'])
@@ -73,6 +74,7 @@ def get_config_map(namespace: str, config_name:str, data_name: str) -> Response:
 
 
 @app.route('/api/save_config_map', methods=['POST'])
+@controller_maintainer_required
 def save_config_map() -> Response:
     """
     Saves a config map to the Kubernetes cluster.
@@ -103,6 +105,7 @@ def save_config_map() -> Response:
 
 
 @app.route('/api/create_config_map', methods=['POST'])
+@controller_maintainer_required
 def create_config_map() -> Response:
     """
     Creates a config map
@@ -128,6 +131,7 @@ def create_config_map() -> Response:
 
 
 @app.route('/api/delete_config_map/<namespace>/<name>', methods=['DELETE'])
+@controller_maintainer_required
 def delete_config_map(namespace: str, name: str) -> Response:
     """
     Delets a config map based on the name and namespace.

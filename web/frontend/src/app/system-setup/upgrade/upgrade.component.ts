@@ -6,6 +6,7 @@ import { KickstartService } from '../services/kickstart.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from '../../user.service';
 
 
 @Component({
@@ -18,13 +19,16 @@ export class UpgradeComponent implements OnInit {
   upgradePathFormGroup: FormGroup;
   paths: Array<string>;
   ctrlDeviceFacts: Object;
+  controllerAdmin: boolean;
 
   constructor(private upgradeSrv: UpgradeService,
               private formBuilder: FormBuilder,
               private kickStartSrv: KickstartService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private userService: UserService) {
     this.ctrlDeviceFacts = {"interfaces": []};
     this.paths = new Array<string>();
+    this.controllerAdmin = this.userService.isControllerAdmin();
   }
 
   ngOnInit() {
@@ -43,6 +47,10 @@ export class UpgradeComponent implements OnInit {
       username: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
       password: new FormControl('', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)])),
     });
+    if(!this.controllerAdmin) {
+      this.upgradeFormGroup.disable()
+      this.upgradePathFormGroup.disable()
+    }
   }
 
   upgradePaths(stepper: MatStepper) {

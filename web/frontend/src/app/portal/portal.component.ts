@@ -7,6 +7,8 @@ import { DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-typ
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { validateFromArray } from '../validators/generic-validators.validator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from '../user.service';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -31,24 +33,35 @@ export class PortalComponent implements OnInit {
   links: Array<UserLinkInterface>;
   user_links: Array<UserLinkInterface>;
   gonerLink: UserLinkInterface;
+  operator: boolean;
 
   constructor(private portalSrv: PortalService,
               private title: Title,
               private dialog: MatDialog,
-              private fb: FormBuilder)
-  {
+              private fb: FormBuilder,
+              private snackBar: MatSnackBar,
+              private userService: UserService) {
     this.links = new Array();
     this.user_links = new Array();
+    this.operator = this.userService.isOperator();
   }
 
   ngOnInit() {
     this.title.setTitle("Portal");
+    let state = history.state;
+    if(state['action'] && state['action'] == 'unauthorized_route') {
+      this.displaySnackBar("Unauthorized. You do not have access to " + state['route_name']);
+    }
     this.portalSrv.getPortalLinks().subscribe((data: any) => {
       this.links = data;
     });
     this.portalSrv.getUserLinks().subscribe(data => {
       this.user_links = data as Array<UserLinkInterface>;
     });
+  }
+
+  private displaySnackBar(message: string, duration_seconds: number = 60){
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
   saveUserLink(form: any) {

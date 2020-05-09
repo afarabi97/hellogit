@@ -9,18 +9,19 @@
             <div *ngFor="let item of numbers; let i = index">{{ i + 1 }}</div>
         </div>
         <div class="text-area-wrapper">
-          <textarea #editorCard class="text-area" rows="1000" cols="50" [(ngModel)]="text"></textarea>
+          <textarea #editorCard class="text-area" rows="1000" cols="50" [(ngModel)]="text" [disabled]="!controllerMaintainer"></textarea>
         </div>
       </div>
     </mat-card-content>
     <mat-card-footer style="padding: 0em 2em 2em 2em;">
-      <button mat-raised-button color="warn" (click)="openCloseDialog()">
+      <button mat-raised-button color="warn" (click)="openCloseDialog()" *ngIf="controllerMaintainer">
         Close without Saving
       </button>
-      <button mat-raised-button
-              color="primary" style="float: right;"
-              (click)="openSaveDialog()">
+      <button mat-raised-button color="primary" style="float: right;" (click)="openSaveDialog()" *ngIf="controllerMaintainer">
         Save and Close
+      </button>
+      <button mat-raised-button color="primary" (click)="closeWithoutSaving('')" *ngIf="!controllerMaintainer">
+        Close
       </button>
     </mat-card-footer>
   </mat-card>

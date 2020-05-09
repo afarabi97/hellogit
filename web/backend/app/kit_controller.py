@@ -18,6 +18,7 @@ from shared.utils import decode_password
 from typing import Dict, Tuple, Union
 from celery import chain
 from app.service.system_info_service import get_system_name
+from app.middleware import Auth, controller_admin_required
 
 
 def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
@@ -61,6 +62,7 @@ def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
 
 
 @app.route('/api/execute_kit_inventory', methods=['POST'])
+@controller_admin_required
 def execute_kit_inventory() -> Response:
     """
     Generates and executes Kit inventory file which will be used in provisioning the system.
@@ -99,6 +101,7 @@ def execute_kit_inventory() -> Response:
 
 
 @app.route('/api/generate_kit_inventory', methods=['POST'])
+@controller_admin_required
 def generate_kit_inventory() -> Response:
     """
     Generates the kit inventory file which will be used in provisioning the system.
@@ -120,6 +123,7 @@ def generate_kit_inventory() -> Response:
 
 
 @app.route('/api/execute_add_node', methods=['POST'])
+@controller_admin_required
 def execute_add_node() -> Response:
     """
     Generates the kit inventory file and executes the add node routine
@@ -166,6 +170,7 @@ def execute_add_node() -> Response:
 
 
 @app.route('/api/execute_remove_node', methods=['POST'])
+@controller_admin_required
 def execute_remove_node() -> Response:
     """
     Generates the kit inventory file and executes the add node routine

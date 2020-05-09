@@ -7,6 +7,7 @@ import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.co
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
+import { UserService } from '../user.service';
 
 const DIALOG_WIDTH = '800px';
 @Component({
@@ -32,11 +33,15 @@ export class ConfigmapsComponent implements OnInit {
   innerTableColumns = [ "filename", "actions" ]
   outerTableColumns = [ "namespace", "config_name", "creation_date", "actions" ]
 
+  controllerMaintainer: boolean;
+  operator: boolean;
+
   constructor(private configMapSrv: ConfigmapsService, private title: Title,
               private dialog: MatDialog,
               private snackBar: MatSnackBar,
               private formBuilder: FormBuilder,
-              private confirmer: ConfirmActionPopup) {
+              private confirmer: ConfirmActionPopup,
+              private userService: UserService) {
     this.isUserEditing = false;
     this.isConfigMapVisible = new Array();
     this.configMaps = new Array();
@@ -45,6 +50,8 @@ export class ConfigmapsComponent implements OnInit {
     this.activeConfigMapName = "";
     this.activeConfigMapIndex = -1;
     this.isDeleteConfigMap = false;
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
+    this.operator = this.userService.isOperator();
    }
 
   ngOnInit() {
@@ -109,7 +116,7 @@ export class ConfigmapsComponent implements OnInit {
       "Are you sure you want to delete " + configName + "?\nAll data entries will be removed and this could cause your "
       + "system to break if you don't know what you are doing.",
       "Delete",
-      configName + " successfully deleted",
+      "Deleting "+ configName,
       "Could not delete " + configName,
       () => { this.confirmDeleteSubmission() }
     );
@@ -167,7 +174,7 @@ export class ConfigmapsComponent implements OnInit {
     this.confirmer.confirmAction("Delete " + configDataName,
                        "Are you sure you want to remove this data entry from the config map?",
                        "Delete",
-                       configDataName + " successfully deleted.",
+                       "Deleting "+ configDataName,
                        "Could not delete " + configDataName,
                        () => { this.confirmDeleteSubmission() });
   }
@@ -199,9 +206,11 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   private deleteConfigMapData() {
-    delete this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
-    this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex]).subscribe(data => {
+    let copy = JSON.parse(JSON.stringify(this.configMaps));
+    delete copy[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
+    this.configMapSrv.saveConfigMap(copy[this.activeConfigMapIndex]).subscribe(data => {
       if (data) {
+        delete this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
         this.displaySnackBar("Successfully deleted " + this.activeConfigDataKey + " configmap data.");
       }
     }, error => {

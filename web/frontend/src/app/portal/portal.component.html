@@ -3,7 +3,7 @@
     <mat-card-header>
       <mat-card-title>
         <span class="PortalTitle">Portal</span>
-        <button mat-raised-button color="primary" style="float:right;" (click)="addUserLink()">
+        <button mat-raised-button color="primary" style="float:right;" (click)="addUserLink()" [disabled]="!operator">
           <mat-icon>add</mat-icon>Add Link
         </button>
       </mat-card-title>
@@ -77,8 +77,8 @@
               {{link.description}}
             </div>
             <div style="margin-top: 10px;">
-              <button mat-button color="warn" (click)="openConfimRemoveUserLink($event, link)"><em class="material-icons"
-                  style="color: red">delete</em></button>
+              <button mat-button color="warn" (click)="openConfimRemoveUserLink($event, link)" *ngIf="operator">
+                <em class="material-icons" >delete</em></button>
             </div>
             <ng-template #smallDescription>
               <div matTooltip="{{link.description}}">

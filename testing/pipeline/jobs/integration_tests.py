@@ -9,11 +9,12 @@ from models.common import NodeSettings
 from models.constants import SubCmd
 
 from util.connection_mngs import FabricConnectionWrapper
-from util.ssh import test_nodes_up_and_alive
+from util.ssh import test_nodes_up_and_alive, SSH_client
 from util.ansible_util import power_off_vms, power_on_vms
 from invoke.exceptions import UnexpectedExit
 from util.kubernetes_util import wait_for_pods_to_be_alive
-
+import os, logging
+from util.api_tester import get_api_key
 
 class IntegrationTestsJob:
 
@@ -22,16 +23,25 @@ class IntegrationTestsJob:
                  kickstart_settings: KickstartSettings):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings
+        if "CONTROLLER_API_KEY" not in os.environ:
+            try:
+                self._api_key = get_api_key(ctrl_settings)
+                os.environ['CONTROLLER_API_KEY'] = self._api_key
+            except Exception as e:
+                logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+                logging.error(e)
+                exit(1)
 
     def _replay_pcaps(self):
+        headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
         for sensor in self.kickstart_settings.sensors: # type: NodeSettings
             payload = {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
             payload2 = {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
             payload3 = {"pcap":"smb1_transaction_request.pcap", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
 
-            response = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload, verify=False)
-            response2 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload2, verify=False)
-            response3 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload3, verify=False)
+            response = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload, verify=False, headers=headers)
+            response2 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload2, verify=False, headers=headers)
+            response3 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload3, verify=False, headers=headers)
             if response.status_code != 200 or response2.status_code != 200 or response3.status_code != 200:
                 raise Exception("Failed to replay pcap.")
 
@@ -80,7 +90,7 @@ class IntegrationTestsJob:
                                      ctrl_node.password,
                                      ctrl_node.ipaddress) as ctrl_shell:
             with ctrl_shell.cd("/opt/tfplenum/web/backend/tests"):
-                ctrl_shell.run("/opt/tfplenum/web/tfp-env/bin/python controller_test.py")
+                ctrl_shell.run("export CONTROLLER_API_KEY="+os.environ['CONTROLLER_API_KEY']+" && /opt/tfplenum/web/tfp-env/bin/python controller_test.py")
                 ctrl_shell.run("zip -r htmlcov.zip htmlcov/")
                 ctrl_shell.run("mv htmlcov/ /var/www/html/")
 

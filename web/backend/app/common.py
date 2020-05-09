@@ -16,6 +16,9 @@ NOTFOUND_RESPONSE.status_code = 404
 ERROR_RESPONSE = Response()
 ERROR_RESPONSE.status_code = 500
 
+FORBIDDEN_RESPONSE = Response()
+FORBIDDEN_RESPONSE.status_code = 403
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):

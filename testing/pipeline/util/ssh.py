@@ -6,10 +6,14 @@ import sys
 
 from datetime import datetime, timedelta
 from models.common import NodeSettings
+from models.ctrl_setup import ControllerSetupSettings
 from paramiko import SSHException
 from time import sleep
 from typing import List, Dict, Union
 
+class SSHFailure(Exception):
+    """Base class for exceptions in this module."""
+    pass
 
 class SSH_client():
     """
@@ -97,7 +101,6 @@ class SSH_client():
 
         sftp = self.client.open_sftp()
         sftp.put(source, dest)
-
 
 def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings]], minutes_timeout: int) -> None:
     """

@@ -7,6 +7,7 @@
     - pull-helm-images
     - helm
     - conmon
+    - sso
 
 - import_role:
     name: cleanup

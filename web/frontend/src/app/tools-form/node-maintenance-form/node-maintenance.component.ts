@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ToolsService } from '../tools.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-node-maintenance-form',
@@ -11,12 +12,14 @@ export class NodeMaintenanceFormComponent implements OnInit {
   displayedColumns: string[] = ['node', 'interfaces', 'actions'];
   nodes = [];
   isCardVisible: boolean;
+  controllerMaintainer: boolean;
 
   @Input()
   hasTitle: boolean;
 
-  constructor(private toolsSrv: ToolsService){
+  constructor(private toolsSrv: ToolsService, private userService: UserService) {
     this.hasTitle = true;
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   ngOnInit() {

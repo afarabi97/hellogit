@@ -1,0 +1,84 @@
+import os, csv, argparse, subprocess
+
+parser = argparse.ArgumentParser(description='Import users into Keycloak')
+parser.add_argument('--file', help='CSV File to import. Default is /root/import_users.csv')
+parser.add_argument('--realm', help='Realm to import users. Default is {{ realm_name }}')
+parser.add_argument('--auth_user', help='User to authenticate with Keycloak. Default is {{ admin_user }}')
+parser.add_argument('--auth_pass', help='Password to authenticate with Keycloak. Default is stored in /opt/sso-idp/sso_admin_password.txt')
+parser.add_argument('--auth_realm', help='Realm to authenticate against. Default is master')
+parser.add_argument('--inital_pass', help='Initial Password for users. They will be required to change it on first login. Default is 1qaz@WSX')
+args = parser.parse_args()
+
+class ImportUsers:
+    JWT_DIR = "{{ jwt_keys_dir }}/"
+
+    def __init__(self):
+        self._file = "/root/import_users.csv"
+        self._realm = "{{ realm_name }}"
+        self._auth_user = "{{ admin_user }}"
+        self._auth_pass = ''
+        self._auth_realm = "master"
+        self._inital_pass = "1qaz@WSX"
+        self._authed = False
+
+    def parse_args(self, args: dict):
+        if args.file:
+            self._file = args.file
+        if args.realm:
+            self._realm = args.realm
+        if args.auth_user:
+            self._auth_user = args.auth_user
+        if args.auth_pass:
+            self._auth_pass = args.auth_pass
+        else:
+            try:
+                f = open("/opt/sso-idp/sso_admin_password.txt","r")
+                self._auth_pass = f.read().strip()
+                f.close()
+            except Exception as e:
+                print(e)
+                exit()
+        if args.auth_realm:
+            self._auth_realm = args.auth_realm
+        if args.inital_pass:
+            self._inital_pass = args.inital_pass
+
+    def authenticate_keycloak(self):
+        auth_cmd = ["/opt/keycloak/bin/kcadm.sh","config","credentials","--server","http://localhost:8080/auth","--realm",self._auth_realm,"--user",self._auth_user,"--password",self._auth_pass]
+        ret_val = subprocess.call(auth_cmd)
+        self._authed = ret_val == 0
+
+    def format_import_cmd(self, user: dict):
+        cmd = ["/opt/keycloak/bin/kcadm.sh","create","users","-r",self._realm,"-s","enabled=true"]
+        cmd +=  ["-s","username="+user['username']]
+        cmd +=  ["-s","credentials="+'[{"type" : "password","value" : "'+self._inital_pass+'"}]']
+        cmd +=  ["-s","requiredActions="+'["UPDATE_PASSWORD"]']
+        if user['first_name']:
+            cmd +=  ["-s","firstName="+user['first_name']]
+        if user['last_name']:
+            cmd +=  ["-s","lastName="+user['last_name']]
+        if user['email']:
+            cmd +=  ["-s","email="+user['email']]
+        return cmd
+
+    def import_users(self):
+        self.authenticate_keycloak()
+        try:
+            with open(self._file) as csvfile:
+              reader = csv.DictReader(csvfile)
+              line = 1
+              for user in reader:
+                if not user['username'] or user['username'] == "":
+                    print("Username cannot be blank.  Skipping user on line "+line)
+                    continue
+                cmd = self.format_import_cmd(user)
+                subprocess.call(cmd)
+                line += 1
+        except Exception as e:
+            print(e)
+            exit()
+
+if __name__ == '__main__':
+    import_users = ImportUsers()
+    import_users.parse_args(args)
+    import_users.import_users()

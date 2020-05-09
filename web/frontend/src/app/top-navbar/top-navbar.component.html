@@ -2,7 +2,7 @@
     <mat-drawer #drawer mode="side" opened="true">
       <h3 *ngIf="showLinkNames">
         <div id="systemTitle">TFPlenum <span id="sysname">{{ system_name }}</span> Controller</div>
-        <mat-list>
+        <mat-list *ngIf="controllerMaintainer">
           <mat-list-item (click)="selectSystem()">
             <mat-icon mat-list-icon>laptop</mat-icon>
             <h4 mat-line>Select System</h4>
@@ -25,7 +25,7 @@
         </mat-list-item>
         <mat-divider></mat-divider>
         <div *ngFor="let group of sideNavigationButtons">
-          <h3 mat-subheader *ngIf="group.label && showLinkNames">
+          <h3 mat-subheader *ngIf="group.label && group.label != '' && showLinkNames">
             {{ group.label }}
           </h3>
           <ng-container *ngFor="let child of group.children">
@@ -34,7 +34,7 @@
               <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
             </mat-list-item>
 
-            <a mat-list-item class="confluence-link" *ngIf="child.isExternalLink" matTooltip="{{child.label}}" href="{{ child.url }}" target="_blank">
+            <a mat-list-item class="confluence-link" *ngIf="child.isExternalLink" matTooltip="{{child.label}}" href="{{ child.url }}" target="{{child.target}}">
               <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
               <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
             </a>

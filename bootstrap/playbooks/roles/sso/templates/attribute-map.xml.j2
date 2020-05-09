@@ -1,0 +1,29 @@
+<Attributes xmlns="urn:mace:shibboleth:2.0:attribute-map" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!--
+  The mappings are a mix of SAML 1.1 and SAML 2.0 attribute names agreed to within the Shibboleth
+  community. The non-OID URNs are SAML 1.1 names and most of the OIDs are SAML 2.0 names, with a
+  few exceptions for newer attributes where the name is the same for both versions. You will
+  usually want to uncomment or map the names for both SAML versions as a unit.
+  -->
+  <Attribute name="uid" id="uid" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="email" id="email" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="givenName" id="givenName" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="surname" id="surname" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="displayName" id="displayName" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="memberOf" id="memberOf" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+  <Attribute name="roles" id="roles" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+      <AttributeDecoder xsi:type="StringAttributeDecoder" caseSensitive="false"/>
+  </Attribute>
+</Attributes>

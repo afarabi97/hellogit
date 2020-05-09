@@ -1,0 +1,16 @@
+---
+- name: Stop Keycloak
+  systemd:
+    name: keycloak
+    state: stopped
+    force: yes
+  ignore_errors: yes
+
+- name: Delete directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ sso_dir }}"
+    - "{{ keycloak_dir }}"
+    - "{{ root_keycloak_dir }}"

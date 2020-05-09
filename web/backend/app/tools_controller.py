@@ -31,6 +31,7 @@ import io
 import yaml, json
 from app.service.scale_service import es_cluster_status
 from app.dao import elastic_deploy
+from app.middleware import Auth, controller_maintainer_required
 
 
 REGISTRATION_JOB = None # type: AsyncResult
@@ -42,6 +43,7 @@ class AmmendedPasswordNotFound(Exception):
 
 
 @app.route('/api/change_kit_clock', methods=['POST'])
+@controller_maintainer_required
 def change_kit_clock() -> Response:
     payload = request.get_json()
     date_parts = payload['date'].split(' ')[0].split('/')
@@ -84,6 +86,7 @@ def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict
 
 
 @app.route('/api/change_kit_password', methods=['POST'])
+@controller_maintainer_required
 def change_kit_password():
     payload = request.get_json()
     password_form = payload["passwordForm"]
@@ -138,6 +141,7 @@ def change_kit_password():
 
 
 @app.route('/api/update_documentation', methods=['POST'])
+@controller_maintainer_required
 def update_documentation() -> Response:
     if 'upload_file' not in request.files:
         return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
@@ -164,6 +168,7 @@ def update_documentation() -> Response:
 
 
 @app.route('/api/mount_nfs_shares', methods=['POST'])
+@controller_maintainer_required
 def mount_nfs_shares() -> Response:
     payload = request.get_json()
     nfs_host_or_ip = payload['nfs_host'].strip() # type: str
@@ -191,6 +196,7 @@ def retrieve_service_ip_address(service_name: str) -> str:
 
 
 @app.route('/api/restart_elastic_search_and_complete_registration', methods=['POST'])
+@controller_maintainer_required
 def restart_elastic_search() -> Response:
     if es_cluster_status() == "Ready":
         global REGISTRATION_JOB
@@ -248,6 +254,7 @@ def _get_next_snaphot_name(snapshots: List[Dict]) -> str:
 
 
 @app.route('/api/take_elasticsearch_snapshot', methods=['GET'])
+@controller_maintainer_required
 def take_elasticsearch_snapshot():
     service_ip = retrieve_service_ip_address("elasticsearch")
     mng = ElasticsearchManager(service_ip, conn_mng)
@@ -292,6 +299,7 @@ class RemoteNetworkDevice(object):
 
 
 @app.route('/api/<node>/set_interface_state/<device>/<state>', methods=['POST'])
+@controller_maintainer_required
 def change_state_of_remote_network_device(node: str, device: str, state: str):
     device = RemoteNetworkDevice(node, device)
     if state == "up":
@@ -342,6 +350,7 @@ def get_monitoring_interfaces():
 
 
 @app.route('/api/load_elastic_deploy', methods=['GET'])
+@controller_maintainer_required
 def load_es_deploy():
     notification = NotificationMessage(role=_JOB_NAME)
     remote_deploy_path = "/opt/tfplenum/elasticsearch/deploy.yml"
@@ -373,6 +382,7 @@ def load_es_deploy():
 
 
 @app.route('/api/apply_elastic_deploy', methods=['GET'])
+@controller_maintainer_required
 def apply_es_deploy_rest():
 
     if apply_es_deploy():

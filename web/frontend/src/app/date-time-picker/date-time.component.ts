@@ -39,6 +39,7 @@ export function getCurrentDate(timezone: string='UTC') {
           (change)="textChange($event)"
           [formControl]="datetime"
           placeholder="{{placeholder}}"
+
         />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
@@ -76,8 +77,7 @@ export class DateTimeComponent implements OnChanges {
     @Input() mandatoryTime: string;
 
     constructor(
-        private _datePipe: DatePipe
-    ) {
+        private _datePipe: DatePipe) {
     }
 
     ngOnChanges() {

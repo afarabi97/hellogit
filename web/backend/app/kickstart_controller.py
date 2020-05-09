@@ -15,6 +15,7 @@ from pymongo.results import InsertOneResult
 from shared.constants import KICKSTART_ID, ADDNODE_ID
 from shared.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
 from typing import Dict
+from app.middleware import Auth, controller_admin_required
 
 def _is_valid_ip(ip_address: str) -> bool:
     """
@@ -117,6 +118,7 @@ def _handle_add_node(add_node_payload: Dict) -> Dict:
 
 
 @app.route('/api/generate_kickstart_inventory', methods=['POST'])
+@controller_admin_required
 def generate_kickstart_inventory() -> Response:
     """
     Generates the Kickstart inventory file from a JSON object that was posted from the
@@ -124,7 +126,7 @@ def generate_kickstart_inventory() -> Response:
 
     :return:
     """
-    payload = request.get_json()    
+    payload = request.get_json()
 
     if 'nodes' in payload:
         kickstart_form = payload
@@ -158,6 +160,7 @@ def generate_kickstart_inventory() -> Response:
 
 
 @app.route('/api/generate_mip_kickstart_inventory', methods=['POST'])
+@controller_admin_required
 def generate_mip_kickstart_inventory() -> Response:
     kickstart_form = request.get_json()
 
@@ -196,6 +199,7 @@ def generate_mip_kickstart_inventory() -> Response:
     return (jsonify(str(task_id)), 200)
 
 @app.route('/api/update_kickstart_ctrl_ip/<new_ctrl_ip>', methods=['PUT'])
+@controller_admin_required
 def update_kickstart_ctrl_ip(new_ctrl_ip: str) -> Response:
     """
     Updates the Kickstart controller IP address in the mongo form.
@@ -221,14 +225,14 @@ def get_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    
+
     if mongo_document is None:
         return OK_RESPONSE
 
     mongo_document['_id'] = str(mongo_document['_id'])
     mongo_document["form"]["root_password"] = decode_password(mongo_document["form"]["root_password"])
     mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
-    
+
     return jsonify(mongo_document["form"])
 
 @app.route('/api/get_mip_kickstart_form', methods=['GET'])
@@ -240,7 +244,7 @@ def get_mip_kickstart_form() -> Response:
     :return:
     """
     mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    
+
     if mongo_document is None:
         return OK_RESPONSE
 
@@ -249,7 +253,7 @@ def get_mip_kickstart_form() -> Response:
     mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
     mongo_document["form"]["luks_password"] = decode_password(mongo_document["form"]["luks_password"])
     mongo_document["form"]["confirm_luks_password"] = decode_password(mongo_document["form"]["confirm_luks_password"])
-    
+
     return jsonify(mongo_document["form"])
 
 

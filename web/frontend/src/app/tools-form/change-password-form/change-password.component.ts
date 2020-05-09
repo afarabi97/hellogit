@@ -8,6 +8,7 @@ import { COMMON_VALIDATORS } from '../../frontend-constants';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { ModalDialogMatComponent } from 'src/app/modal-dialog-mat/modal-dialog-mat.component';
 import { DialogFormControl, DialogControlTypes } from 'src/app/modal-dialog-mat/modal-dialog-mat-form-types';
+import { UserService } from '../../user.service';
 
 const DIALOG_WIDTH = "800px";
 
@@ -31,13 +32,15 @@ export class ChangePasswordFormComponent implements OnInit {
 
   changePasswordForm: FormGroup;
   isCardVisible: boolean;
+  controllerMaintainer: boolean;
 
   constructor(private toolsSrv: ToolsService,
               private dialog: MatDialog,
               private formBuilder: FormBuilder,
-              private snackBar: MatSnackBar)
-  {
+              private snackBar: MatSnackBar,
+              private userService: UserService) {
     this.isCardVisible = false;
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   toggleCard(){

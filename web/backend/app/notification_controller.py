@@ -4,6 +4,7 @@ from flask import jsonify, Response
 import json
 from bson import ObjectId
 from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.middleware import Auth, controller_maintainer_required
 
 
 @app.route('/api/notifications', methods=['GET'])
@@ -17,6 +18,7 @@ def get_notifications() -> Response:
 
 
 @app.route('/api/notifications', methods=['DELETE'])
+@controller_maintainer_required
 def delete_notifications() -> Response:
     """
     Delete all notifications from mongodb
@@ -27,6 +29,7 @@ def delete_notifications() -> Response:
     return OK_RESPONSE
 
 @app.route('/api/notifications/<notification_id>', methods=['DELETE'])
+@controller_maintainer_required
 def delete_notification(notification_id) -> Response:
     """
     Delete a notification using _id

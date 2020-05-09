@@ -11,6 +11,7 @@ from shared.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
 from shared.utils import hash_file, decode_password
 from werkzeug.utils import secure_filename
 from bson import ObjectId
+from app.middleware import Auth, operator_required
 
 
 @app.route('/api/get_pcaps', methods=['GET'])
@@ -28,6 +29,7 @@ def get_pcaps() -> Response:
 
 
 @app.route('/api/create_pcap', methods=['POST'])
+@operator_required
 def create_pcap() -> Response:
     if 'upload_file' not in request.files:
         return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
@@ -49,6 +51,7 @@ def create_pcap() -> Response:
 
 
 @app.route('/api/delete_pcap/<pcap_name>', methods=['DELETE'])
+@operator_required
 def delete_pcap(pcap_name: str) -> Response:
     pcap_file = Path(PCAP_UPLOAD_DIR + '/' + pcap_name)
     if pcap_file.exists():
@@ -58,6 +61,7 @@ def delete_pcap(pcap_name: str) -> Response:
 
 
 @app.route('/api/replay_pcap', methods=['POST'])
+@operator_required
 def replay_pcap() -> Response:
     payload = request.get_json()
     kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})

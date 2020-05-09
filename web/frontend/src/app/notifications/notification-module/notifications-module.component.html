@@ -10,9 +10,8 @@
     </button>
 
     <button fxFlex="0 1 auto" mat-raised-button
-      color="warn"
-      class="messageList__buttonGroup__button"
-      (click)="clearAll()">
+      color="warn" class="messageList__buttonGroup__button"
+      (click)="clearAll()" [disabled]="!controllerMaintainer">
       Clear All
     </button>
   </mat-card>
@@ -39,12 +38,12 @@
                 <div>{{notification.displayTime}}</div>
               </div>
 
-              <div class="messageCenter__center__outerCard__innerCard__right">
+              <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controllerMaintainer">
                   <mat-icon style="font-size: 24px;cursor: pointer;" (click)="clearNotification(notification._id)">delete</mat-icon>
               </div>
             </mat-card>
           </div>
-  
+
           <div *ngIf="list.notifications.length === 0;" fxLayout="column" fxLayoutAlign="center center">
               <mat-icon style="font-size: 36px;">notifications_none</mat-icon>
               <div style="margin-top: 25px;">There are no new messages</div>

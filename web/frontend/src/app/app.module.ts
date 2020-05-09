@@ -1,7 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+
+import { AppLoadService } from './app-load.service';
+import { UserService, UnauthorizedInterceptor, ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './user.service';
 // import { HttpModule } from '@angular/http';
 import {FlexLayoutModule} from "@angular/flex-layout";
 
@@ -111,6 +114,12 @@ import { MIPConfigNodeComponent } from './mip-config-node/mip-config-node.compon
 import { MIPConfigPasswordComponent } from './mip-config-password/mip-config-password.component';
 import { MIPConfigValidationComponent } from './mip-config-validation/mip-config-validation.component';
 
+export function initializeApp1(appLoadService: AppLoadService) {
+  return (): Promise<any> => {
+    return appLoadService.getCurrentUser();
+  }
+}
+
 @NgModule({
   declarations: [
     MIPConfigNodeComponent,
@@ -188,7 +197,14 @@ import { MIPConfigValidationComponent } from './mip-config-validation/mip-config
   providers: [
     SnackbarWrapper,
     ConfirmActionPopup,
-    CookieService
+    CookieService,
+    AppLoadService,
+    { provide: APP_INITIALIZER,useFactory: initializeApp1, deps: [AppLoadService], multi: true},
+    UserService,
+    { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
+    ControllerAdminRequiredGuard,
+    ControllerMaintainerRequiredGuard,
+    OperatorRequiredGuard
   ],
   bootstrap: [AppComponent],
   entryComponents: [

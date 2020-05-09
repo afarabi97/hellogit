@@ -18,6 +18,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         self.session = requests.Session()
+        self.session.headers.update({ 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] })
         self.base_url = 'http://localhost:5002'
         self.create_rule_url = self.base_url + "/api/create_rule"
         conn_mng.mongo_client.drop_database("tfplenum_database")

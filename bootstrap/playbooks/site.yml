@@ -19,6 +19,13 @@
     - frontend
   tags: frontend
 
+- name: Setup Single Sign On
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - sso
+  tags: sso
+
 - name: Bootstrap DIP/GIP Controller
   hosts: localhost
   any_errors_fatal: true

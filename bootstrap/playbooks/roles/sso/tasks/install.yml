@@ -1,0 +1,288 @@
+---
+- name: Create Keycloak Group
+  group:
+    name: "{{ keycloak_group }}"
+    state: present
+
+- name: Create Keycloak User
+  user:
+    name: "{{ keycloak_user }}"
+    shell: /sbin/nologin
+    groups: "{{ keycloak_group }}"
+    append: yes
+    home: "{{ keycloak_dir }}"
+    state: present
+
+- name: Create install directory
+  file:
+    path: "{{ item }}"
+    group: "{{ keycloak_group }}"
+    owner: "{{ keycloak_user }}"
+    mode: u+rw,g+rw
+    state: directory
+    recurse: true
+  with_items:
+    - "{{ sso_dir }}"
+    - "{{ certs_dir }}"
+    - "{{ keycloak_dir }}"
+
+- name: Generate SSO Keycloak & Portal Private keys
+  openssl_privatekey:
+    path: "{{ certs_dir }}/{{ item }}-saml.key"
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Generate SSO Keycloak & Portal CSRs
+  openssl_csr:
+    path: "{{ certs_dir }}/{{ item }}-saml.csr"
+    privatekey_path: "{{ certs_dir }}/{{ item }}-saml.key"
+    common_name: "{{ item }}-saml"
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Generate SSO Keycloak & Portal Certificates
+  openssl_certificate:
+    path: "{{ certs_dir }}/{{ item }}-saml.crt"
+    privatekey_path: "{{ certs_dir }}/{{ item }}-saml.key"
+    csr_path: "{{ certs_dir }}/{{ item }}-saml.csr"
+    provider: selfsigned
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Remove Headers from SAML certs
+  shell: "tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.crt | sed 's/-----[A-Z ]*-----//g'"
+  register: clean_certs
+  with_items: "{{ saml_apps }}"
+
+- name: Remove Headers from SAML keys
+  shell: "tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.key | sed 's/-----[A-Z ]*-----//g'"
+  register: clean_keys
+  with_items: "{{ saml_apps }}"
+
+- name: Populate SAML Certs with no headers
+  set_fact:
+    saml_certs: "{{ saml_certs|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ clean_certs.results }}"
+
+- name: Populate SAML Keys with no headers
+  set_fact:
+    saml_keys: "{{ saml_keys|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ clean_keys.results }}"
+
+- name: Generate SSO Admin Password
+  set_fact:
+    sso_admin_password: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits,hexdigits,#,%,&,(,),*,+,-,.,:,;,<,=,>,?,@,[,],^,_,{,|,},~') }}"
+
+- debug:
+    msg: "SSO Admin creds: admin/{{ sso_admin_password }}"
+
+- name: Generate Realm JSON
+  set_fact:
+    "{{ item }}": "{{ lookup('template', 'templates/realm_import/' + item + '.json.j2') }}"
+  with_items: "{{ realm_files }}"
+
+- name: Generate Realm JSON
+  set_fact:
+    realm_json: "{{ realm_json | combine(lookup('vars', item)) }}"
+  with_items: "{{ realm_files }}"
+
+- name: Copy Realm User Template
+  template:
+    src: "templates/realm_import/{{ item }}.j2"
+    dest: "{{ sso_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  loop:
+   - realm_user.json
+
+- name: Copy Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ sso_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  loop:
+   - realm_import.json
+   - shibboleth2.xml
+   - attribute-map.xml
+   - gen_api_token.py
+   - import_users.py
+
+- name: Install Keycloak Dependencies
+  yum:
+    name: java
+    state: present
+
+- name: Check if keycloak TAR exists
+  stat:
+    path: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+  register: keycloak_tar
+
+- name: "Download Keycloak TAR"
+  get_url:
+    url: "https://downloads.jboss.org/keycloak/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+  when: not keycloak_tar.stat.exists
+
+- name: Unpacking Keycloak
+  unarchive:
+    src: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: "{{ keycloak_dir }}"
+    extra_opts: [--strip-components=1]
+    group: "{{ keycloak_group }}"
+    owner: "{{ keycloak_user }}"
+
+- name: Configure Keycloak
+  shell: "{{ item }}"
+  register: keycloak_configure
+  changed_when: keycloak_configure.rc == 0
+  failed_when:  keycloak_configure.rc > 0
+  with_items:
+    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding,value=true)'"
+    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/socket-binding-group=standard-sockets/socket-binding=proxy-https:add(port=443)'"
+    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=redirect-socket,value=proxy-https)'"
+
+- name: Add Keycloak Super Admin User
+  shell: |
+    {{ keycloak_dir }}/bin/add-user-keycloak.sh -u "{{ admin_user }}" -p "{{ sso_admin_password }}" -r master
+  register: keycloak_user_create
+  changed_when: keycloak_user_create.rc == 0
+  failed_when:  keycloak_user_create.rc > 0
+
+- name: Re-set Keycloak direcetory ownership
+  file:
+    path: "{{ keycloak_dir }}"
+    group: "{{ keycloak_group }}"
+    owner: "{{ keycloak_user }}"
+    mode: u+rw,g+rw
+    state: directory
+    recurse: true
+
+- name: Update Keycloak Terms and Conditions
+  lineinfile:
+    dest: /opt/keycloak/themes/base/login/messages/messages_en.properties
+    regexp: "^termsText="
+    line: "termsText=<p>{{ terms_and_conditions }}</p>"
+    state: present
+
+- name: Install Keycloak Service
+  template:
+    src: "templates/keycloak.service.j2"
+    dest: "/etc/systemd/system/keycloak.service"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Enable Keycloak
+  systemd:
+    name: keycloak
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    force: yes
+
+- name: Wait for Keycloak to be started and listen on port 8080
+  wait_for:
+    host: 0.0.0.0
+    port: 8080
+    delay: 30
+
+- name: Import realm into Keycloak
+  shell: "{{ item }}"
+  with_items:
+    - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user '{{ admin_user }}' --password '{{ sso_admin_password }}'"
+    - "{{ keycloak_dir }}/bin/kcadm.sh create realms -f {{ sso_dir }}/realm_import.json"
+    - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name }}"
+
+- name: Wait for SSO IdP to become healthy
+  uri:
+    url: "https://{{ ansible_controller }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor"
+    return_content: yes
+    validate_certs: no
+  register: results_sso_meta
+  until: results_sso_meta.status == 200
+  retries: 35
+  delay: 5
+
+- name: Get IdP Metadata
+  get_url:
+    url: https://{{ ansible_controller }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor
+    dest: "{{ sso_dir }}/idp.metadata.xml"
+    validate_certs: no
+
+- name: Copy Shibboleth Files
+  copy:
+    src: "{{ sso_dir }}/{{ item }}"
+    dest: "/etc/shibboleth/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - attribute-map.xml
+    - shibboleth2.xml
+    - idp.metadata.xml
+  notify:
+    - Enable Shibboleth
+    - Restart Shibboleth
+
+- name: Copy Shibboleth Certicate and Private Key
+  copy:
+    src: "{{ certs_dir }}/{{ item }}"
+    dest: "/etc/shibboleth/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - portal-saml.crt
+    - portal-saml.key
+  notify:
+    - Enable Shibboleth
+    - Restart Shibboleth
+
+- name: Validate Shibboleth config
+  shell: "shibd -t"
+  register: shibd
+  changed_when: shibd.rc != 0
+  failed_when:
+  - "shibd.rc != 0"
+
+- name: Write Admin Password to file
+  copy:
+    content: "{{ sso_admin_password }}"
+    dest: "{{ sso_dir }}/sso_admin_password.txt"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create install directory
+  file:
+    path: "{{ jwt_keys_dir }}"
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    state: directory
+
+- name: Create JWT Key ID
+  set_fact:
+    key_id: "{{ 99999999 | random | to_uuid }}"
+
+- name: Generate API JWT Private key
+  openssl_privatekey:
+    path: "{{ jwt_keys_dir }}/{{ key_id }}.key"
+    size: 2048
+    force: yes
+    select_crypto_backend: cryptography
+
+- name: Generate API JWT Public key
+  openssl_publickey:
+    path: "{{ jwt_keys_dir }}/{{ key_id }}.pub"
+    privatekey_path: "{{ jwt_keys_dir }}/{{ key_id }}.key"
+    force: yes
+    select_crypto_backend: cryptography
+
+- name: Remove Certs Directory
+  file:
+    path: "{{ certs_dir }}"
+    state: absent

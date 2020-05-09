@@ -100,20 +100,20 @@ class TestRulesetController(BaseTestCase):
         files = {'upload_file': open(self.sample_rules1,'rb')}
         values = {'ruleSetForm': json.dumps(actual_result)}
 
-        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 1)
 
         files['upload_file'] = open(self.invalid_sample_rules1,'rb')
-        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
         self.assertEqual(200, response.status_code)
         self.assertIsNotNone(response.json()['error_message'])
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 1)
 
         files['upload_file'] = open(self.zip_rules,'rb')
-        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 5)
@@ -127,7 +127,7 @@ class TestRulesetController(BaseTestCase):
 
         files['upload_file'] = open(self.zeek_rules,'rb')
         values = {'ruleSetForm': json.dumps(actual_result)}
-        response = requests.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(2)
         self._verify_rule_count(ruleset_id, 1)

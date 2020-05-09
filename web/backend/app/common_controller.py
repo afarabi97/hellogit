@@ -21,6 +21,7 @@ from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple, Set
 from app.service.system_info_service import get_system_name
+from app.middleware import Auth, controller_admin_required, login_required_roles, controller_maintainer_required
 
 
 @app.route('/api/get_system_name', methods=['GET'])
@@ -33,6 +34,7 @@ def get_system_name_api():
 
 
 @app.route('/api/metrics', methods=['POST'])
+@login_required_roles(['metrics'], all_roles_req=False)
 def replace_metrics():
     data = request.get_json()
     status = 200
@@ -50,6 +52,7 @@ def replace_metrics():
 MIN_MBPS = 1000
 
 @app.route('/api/gather_device_facts', methods=['POST'])
+@controller_admin_required
 def gather_device_facts() -> Response:
     """
     Gathers device facts or sends back a HTTP error to the
@@ -96,6 +99,7 @@ def check_pid(pid):
 
 
 @app.route('/api/kill_job', methods=['POST'])
+@controller_admin_required
 def kill_job() -> Response:
     """
     Kills the job before it finishes processing.
@@ -235,6 +239,7 @@ def get_ip_blocks(controller_ip: str, netmask: str) -> Response:
 
 
 @app.route('/api/archive_configurations_and_clear', methods=['DELETE'])
+@controller_admin_required
 def archive_configurations_and_clear() -> Response:
     """
     Archives both configurations and then clears them.
@@ -279,4 +284,11 @@ def get_sensor_hostinfo() -> Response:
 
     return jsonify(ret_val)
 
-
+@app.route('/api/current_user', methods=['GET'])
+def get_current_user() -> Response:
+    user = Auth.get_user()
+    user['controller_admin'] = Auth.is_controller_admin()
+    user['controller_maintainer'] = Auth.is_controller_maintainer()
+    user['operator'] = Auth.is_operator()
+    user['realm_admin'] = Auth.is_realm_admin()
+    return jsonify(user)

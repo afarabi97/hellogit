@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource, MatPaginator } from '@angular/material';
 import { ConfirmDailogComponent } from 'src/app/confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { UserService } from '../../user.service';
 
 
 const DIALOG_WIDTH = "800px";
@@ -22,16 +23,19 @@ export class SnapShotCreatorComponent implements OnInit {
   snapshots: MatTableDataSource<Object>;
   kibanaLink: string;
   displayColumns = [ 'name', 'state', 'start_time', 'end_time' ];
+  controllerMaintainer: boolean;
 
   @ViewChild('snapshotPaginator', {static: false})
   private paginator: MatPaginator;
 
   constructor(private dialog: MatDialog,
               private toolSrv: ToolsService,
-              private socketSrv: WebsocketService){
+              private socketSrv: WebsocketService,
+              private userService: UserService){
     this.setupProcessState = "notstarted";
     this.isCardVisible = false;
     this.kibanaLink = "";
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   toggleCard(){

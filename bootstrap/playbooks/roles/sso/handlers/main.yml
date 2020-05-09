@@ -1,0 +1,12 @@
+---
+- name: Enable Shibboleth
+  service:
+    name: shibd
+    enabled: yes
+  listen: "Enable Shibboleth"
+
+- name: Restart Shibboleth
+  service:
+    name: shibd
+    state: restarted
+  listen: "Restart Shibboleth"

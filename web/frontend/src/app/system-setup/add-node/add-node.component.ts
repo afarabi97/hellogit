@@ -13,6 +13,7 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { SystemSetupService } from '../services/system-setup.service';
 import { Title } from '@angular/platform-browser';
 import { ValidateServerCpuMem } from '../kit/kit-form';
+import { UserService } from '../../user.service';
 
 
 const add_node_validators = {
@@ -52,6 +53,7 @@ export class AddNodeComponent implements OnInit {
   kitData: Object;
   serverMemCpuError: string;
   cpuMemMisMatch: boolean;
+  controllerAdmin: boolean;
 
   @ViewChild('stepper', {static: false})
   stepper: MatStepper;
@@ -63,7 +65,8 @@ export class AddNodeComponent implements OnInit {
               private kitSrv: KitService,
               private router: Router,
               private systemSetupSrv: SystemSetupService,
-              private title: Title) {
+              private title: Title,
+              private userService: UserService) {
     this.error_text = null;
     this.isKitNodeLoading = true;
     this.hasWizardState = false;
@@ -71,6 +74,7 @@ export class AddNodeComponent implements OnInit {
     this.kitData = null;
     this.serverMemCpuError = "";
     this.cpuMemMisMatch = false;
+    this.controllerAdmin = this.userService.isControllerAdmin();
   }
 
   ngOnInit() {

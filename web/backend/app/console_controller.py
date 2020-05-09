@@ -6,6 +6,7 @@ from app import app, socketio, conn_mng, logger
 from app.common import OK_RESPONSE
 from flask import request, jsonify, Response
 from flask_socketio import emit
+from app.middleware import Auth, controller_admin_required
 
 
 @socketio.on('connect')
@@ -30,6 +31,7 @@ def get_console_logs(job_name: str) -> Response:
 
 
 @app.route('/api/remove_console_output', methods=['POST'])
+@controller_admin_required
 def remove_console_logs() -> Response:
     """
     Removes console logs based on teh jobName.

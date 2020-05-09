@@ -12,6 +12,7 @@ from shared.constants import PORTAL_ID
 from typing import List
 from flask import send_file, Response, request, jsonify
 from bson import ObjectId
+from app.middleware import Auth, operator_required
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
@@ -166,6 +167,7 @@ def get_user_links() -> Response:
     return cursor_to_json_response(user_links, fields = ['name', 'url', 'description'], sort_field = 'name')
 
 @app.route('/api/add_user_link', methods=['POST'])
+@operator_required
 def add_user_link() -> Response:
     """
     Add a new link to mongo_user_links.
@@ -181,6 +183,7 @@ def add_user_link() -> Response:
 
 
 @app.route('/api/remove_user_link/<link_id>', methods=['DELETE'])
+@operator_required
 def remove_user_link(link_id: str) -> Response:
     """
     Remove a user link from mong_user_links.

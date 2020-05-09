@@ -5,6 +5,7 @@ import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.comp
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from '../../user.service';
 
 const DIALOG_WIDTH = "800px";
 
@@ -28,14 +29,16 @@ export class KitClockFormComponent implements OnInit {
 
   resetClock: FormGroup;
   isCardVisible: boolean;
+  controllerMaintainer: boolean;
 
   constructor(private toolsSrv: ToolsService,
               private title: Title,
               private dialog: MatDialog,
               private formBuilder: FormBuilder,
-              private snackBar: MatSnackBar)
-  {
+              private snackBar: MatSnackBar,
+              private userService: UserService) {
     this.isCardVisible = false;
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   toggleCard(){

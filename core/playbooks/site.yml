@@ -330,6 +330,34 @@
     - chartmuseum
   tags: chartmuseum
 
+- name: Setup Controller API Key
+  hosts:
+    - localhost
+  tasks:
+    - name: generate Admin API key
+      script: /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 1.0
+      args:
+        executable: /opt/tfplenum/web/tfp-env/bin/python3
+      register: admin_api_key
+    - name: generate Metrics API key
+      script: /opt/sso-idp/gen_api_token.py --roles "metrics" --exp 87600
+      args:
+        executable: /opt/tfplenum/web/tfp-env/bin/python3
+      register: metrics_api_key
+    - name: Trim output
+      set_fact:
+        admin_api_key: "{{ admin_api_key.stdout | replace('\n', '') }}"
+        metrics_api_key: "{{ metrics_api_key.stdout | replace('\n', '') }}"
+    # - debug:
+    #     msg: "{{ admin_api_key }}"
+    - name: Create API Key Secret
+      command: "kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}"
+      register: api_key_sec
+      changed_when: api_key_sec.rc == 0
+  tags:
+    - elasticsearch
+    - node-health
+
 - name: Deploy Elasticsearch
   hosts: servers
   gather_facts: no

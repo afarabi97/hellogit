@@ -4,6 +4,7 @@ import requests
 import time
 from time import sleep
 import pymongo
+import os
 
 from datetime import datetime, timedelta
 from util.connection_mngs import MongoConnectionManager
@@ -15,7 +16,8 @@ from models.kit import KitSettings
 from models.catalog import MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings, CatalogSettings
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
-
+from util.ssh import SSH_client
+from util.connection_mngs import FabricConnectionWrapper
 
 def zero_pad(num: int) -> str:
     """
@@ -82,7 +84,8 @@ def print_json(something: Union[Dict, List]) -> None:
 
 
 def get_request(url: str) -> Union[List, Dict]:
-    response = requests.get(url, verify=False)
+    headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
+    response = requests.get(url, verify=False, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
@@ -90,12 +93,31 @@ def get_request(url: str) -> Union[List, Dict]:
 
 
 def post_request(url: str, payload: Dict) -> Union[List, Dict]:
-    response = requests.post(url, json=payload, verify=False)
+    headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
+    response = requests.post(url, json=payload, verify=False, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
 
+def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
+    """
+    SSH's to controller and generate JWT API Key
+
+    :param ctrl_settings (ControllerSetupSettings): Controller Node Object
+    :return API Key (str): Returns API key
+    """
+    api_key = ''
+    logging.info('SSHing to controller to get API key.')
+    with FabricConnectionWrapper(ctrl_settings.node.username, ctrl_settings.node.password, ctrl_settings.node.ipaddress) as remote_shell:
+        api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 0.5'
+        ret_val = remote_shell.run(api_gen_cmd)
+        api_key = ret_val.stdout.strip()
+    if api_key != '':
+        logging.info('Retrieved API Key: {}'.format(api_key))
+        return api_key
+    logging.error('API Key is blank or wasn\'t able to be retrieved.')
+    raise APIFailure('API Key is blank or wasn\'t able to be retrieved.')
 
 class KickstartPayloadGenerator:
 
@@ -453,6 +475,14 @@ class APITester:
                  kit_settings: KitSettings=None,
                  catalog_settings: CatalogSettings=None):
         self._controller_ip = ctrl_settings.node.ipaddress
+        api_key = os.environ.get("CONTROLLER_API_KEY")
+        if api_key is None:
+            try:
+                os.environ['CONTROLLER_API_KEY'] = get_api_key(ctrl_settings)
+            except Exception as e:
+                logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+                logging.error(e)
+                exit(1)
         self._url = "https://" + self._controller_ip + "{}"
         self._device_facts_map = {}
         self._kickstart_payload_generator = KickstartPayloadGenerator(ctrl_settings, kickstart_settings)

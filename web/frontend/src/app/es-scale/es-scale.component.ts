@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material';
 import { WebsocketService } from '../services/websocket.service';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { Router } from '@angular/router';
+import { UserService } from '../user.service';
 
 
 class SliderControl {
@@ -66,6 +67,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   public isUserEditing: boolean;
   public elasticConfig: string;
   public loading: boolean;
+  public controllerMaintainer: boolean;
 
   masterSlider: SliderControl;
 
@@ -74,11 +76,13 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
               public dialog: MatDialog,
               public _WebsocketService: WebsocketService,
               private snackbar: SnackbarWrapper,
-              private router: Router) {
+              private router: Router,
+              private userService: UserService) {
     this.elasticPodTypes = new Array<SliderControl>();
     this.isUserEditing = false;
     this.elasticConfig = "";
     this.loading = true;
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   ngOnInit() {

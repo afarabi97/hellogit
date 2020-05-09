@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { NotificationService } from '../services/notification.service';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import {MatSnackBar} from '@angular/material';
+import { UserService } from '../../user.service';
 
 @Component({
   selector: 'app-notifications-module',
@@ -16,6 +17,7 @@ import {MatSnackBar} from '@angular/material';
 export class NotificationsModuleComponent {
   public selectedButton: any = {"name": "All", "selected": true, "title": "All Messages","role": "all"};
   public notification:any = [];
+  public controllerMaintainer: boolean;
 
   /**
    *Creates an instance of NotificationsModuleComponent.
@@ -32,8 +34,9 @@ export class NotificationsModuleComponent {
               public _NotificationService: NotificationService,
               public dialog: MatDialog,
               private snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public buttonList: any,) {
-
+              @Inject(MAT_DIALOG_DATA) public buttonList: any,
+              private userService: UserService,) {
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   /**

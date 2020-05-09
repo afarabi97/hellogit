@@ -17,26 +17,27 @@ import { UpgradeComponent } from './system-setup/upgrade/upgrade.component';
 import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 import { ESScaleComponent } from './es-scale/es-scale.component';
 import { MIPConfigComponent } from './mip-config/mip-config.component';
+import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './user.service';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
   { path: 'health', component:  SystemHealthComponent},
-  { path: 'kickstart', component: KickstartComponent },
-  { path: 'kit_configuration', component: KitComponent },
-  { path: 'configmaps', component: ConfigmapsComponent },
-  { path: 'stdout/:id', component: ServerStdoutComponent },
+  { path: 'kickstart', component: KickstartComponent, canActivate: [ ControllerAdminRequiredGuard ] },
+  { path: 'kit_configuration', component: KitComponent, canActivate: [ ControllerAdminRequiredGuard ] },
+  { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },
+  { path: 'stdout/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ]  },
   { path: 'registry', component: RegistryComponent },
-  { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent },
-  { path: 'rulesets', component: PolicyManagementComponent},
-  { path: 'pcaps', component: PcapFormComponent},
-  { path: 'catalog', component: CatalogComponent},
-  { path: 'tools', component: ToolsFormComponent},
-  { path: 'application/:id', component : CatalogPageComponent},
-  { path: 'upgrade', component: UpgradeComponent},
-  { path: 'add_node', component: AddNodeComponent},
-  { path: 'es_scale', component: ESScaleComponent},
-  { path: 'mip_config', component: MIPConfigComponent}
+  { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent, canActivate: [ OperatorRequiredGuard ] },
+  { path: 'rulesets', component: PolicyManagementComponent, canActivate: [ OperatorRequiredGuard ] },
+  { path: 'pcaps', component: PcapFormComponent, canActivate: [ OperatorRequiredGuard ] },
+  { path: 'catalog', component: CatalogComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
+  { path: 'tools', component: ToolsFormComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
+  { path: 'application/:id', component : CatalogPageComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
+  { path: 'upgrade', component: UpgradeComponent, canActivate: [ ControllerAdminRequiredGuard ]},
+  { path: 'add_node', component: AddNodeComponent, canActivate: [ ControllerAdminRequiredGuard ]},
+  { path: 'es_scale', component: ESScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
+  { path: 'mip_config', component: MIPConfigComponent, canActivate: [ ControllerAdminRequiredGuard ] }
 ];
 
 

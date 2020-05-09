@@ -1,0 +1,80 @@
+import jwt, os, glob, argparse, datetime
+
+
+parser = argparse.ArgumentParser(description='Generate API token for Controller')
+parser.add_argument('--uid', help='User ID. Default api_token')
+parser.add_argument('--displayName', help='Display Name. Default API Key')
+parser.add_argument('--email', help='email')
+parser.add_argument('--roles', help='Comma seperated list of API key case-sensitive roles. Default "operator"')
+parser.add_argument('--exp', help='Life of the API token. Number of hours from NOW. Default 1 hour.', type=float)
+args = parser.parse_args()
+
+JWT_DIR = "{{ jwt_keys_dir }}/"
+class CreateApiToken:
+
+    def __init__(self):
+        self._uid = "api_token"
+        self._displayName = 'API Key'
+        self._email = "api-token@{{ system_name | lower }}.local"
+        self._roles = ["operator"]
+        self._exp = 1
+        self._private_key_file = None
+        self._private_key = ''
+        self._kid = ''
+        self._payload = {}
+
+    def parse_args(self, args: dict):
+        if args.uid:
+            self._uid = args.uid
+        if args.displayName:
+            self._displayName = args.displayName
+        if args.email:
+            self._email = args.email
+        if args.roles:
+            self._roles = args.roles.split(',')
+        if args.exp:
+            self._exp = args.exp
+
+    def get_private_key(self):
+        priv_keys = glob.glob(JWT_DIR+"*.key")
+        if len(priv_keys) > 0:
+            self._private_key_file =  priv_keys[0]
+
+    def generate_jwt_payload(self):
+        nbf = datetime.datetime.utcnow()
+        self._payload = {
+            'nbf': nbf,
+            'exp': nbf+datetime.timedelta(hours=self._exp),
+            'iat': nbf,
+            'sub': self._uid,
+            'uid': self._uid,
+            'displayName': self._displayName,
+            "email": self._email,
+            'roles': self._roles
+        }
+
+    def read_private_key(self):
+        try:
+            f = open(self._private_key_file,"r")
+            self._private_key = f.read().strip()
+            self._kid = os.path.basename(self._private_key_file).replace('.key','')
+            f.close()
+        except Exception as e:
+            print(e)
+            exit()
+
+    def generate_jwt(self):
+        try:
+            return jwt.encode(self._payload, self._private_key, algorithm='RS256', headers={'kid': self._kid}).decode('UTF-8')
+        except Exception as e:
+            print(e)
+            exit()
+
+if __name__ == '__main__':
+    token = CreateApiToken()
+    token.parse_args(args)
+    token.get_private_key()
+    token.read_private_key()
+    token.generate_jwt_payload()
+    token = token.generate_jwt()
+    print(token)

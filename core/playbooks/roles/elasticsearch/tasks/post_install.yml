@@ -108,4 +108,6 @@
     url: "https://{{ ansible_controller_hostname }}/api/load_elastic_deploy?override=1"
     validate_certs: no
     status_code: 200, 201
+    headers:
+      Authorization: "Bearer {{ hostvars['localhost']['admin_api_key'] }}"
 ...

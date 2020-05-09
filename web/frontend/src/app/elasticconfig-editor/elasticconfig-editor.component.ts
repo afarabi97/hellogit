@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ViewChild,
          ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 import { ConfigmapsService } from '../configmaps/configmaps.service';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-elasticconfig-editor',
@@ -26,9 +27,11 @@ export class ElasticEditorComponent implements OnInit {
   closeSaveEvent: EventEmitter<any> = new EventEmitter();
 
   numbers: Array<number>;
+  controllerMaintainer: boolean;
 
-  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService) {
+  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService, private userService: UserService) {
     this.numbers = new Array(500).fill(true);
+    this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   /**
