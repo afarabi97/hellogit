@@ -21,10 +21,12 @@
         <mat-step label="{{ chooseNodeTypeLabel }}" [stepControl]="kitNode">
           <p *ngIf="error_text" style="color:red;">{{ error_text }}</p>
           <mat-progress-bar *ngIf="isKitNodeLoading" mode="indeterminate"></mat-progress-bar>
-          <h2 *ngIf="!isKitNodeLoading" style="margin-bottom: 0px;">{{ hostname }}</h2>
-          <app-kit-node-form *ngIf="!isKitNodeLoading" [node]="kitNode" [disableMasterSelection]="true" (nodeTypeChange)="onNodeTypeChange($event)" ></app-kit-node-form>
-          <p *ngIf="cpuMemMisMatch" style="color:red;">{{ serverMemCpuError }}</p>
-          <button mat-raised-button *ngIf="!isKitNodeLoading"  color="primary" [disabled]="kitNode.invalid || cpuMemMisMatch" (click)="executeAddNode()">Execute Add Node</button>
+          <ng-container *ngIf="!isKitNodeLoading">
+            <h2  style="margin-bottom: 0px;">{{ hostname }}</h2>
+            <app-kit-node-form [node]="kitNode" [disableMasterSelection]="true" (nodeTypeChange)="onNodeTypeChange($event)"></app-kit-node-form>
+            <p *ngIf="cpuMemMisMatch" style="color:red;">{{ serverMemCpuError }}</p>
+            <button mat-raised-button color="primary" [disabled]="kitNode.invalid || cpuMemMisMatch" (click)="executeAddNode()">Execute Add Node</button>
+          </ng-container>
         </mat-step>
       </mat-vertical-stepper>
     </mat-card-content>

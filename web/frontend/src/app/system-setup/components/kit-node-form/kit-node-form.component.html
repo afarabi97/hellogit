@@ -25,7 +25,7 @@
         </mat-card-content>
       </mat-card>
       <div fxFlex fxLayout="column" fxLayoutAlign="start stretch">
-        <ng-container *ngIf="mode === 'dip'">
+        <ng-container *ngIf="isSystemDIP">
           <mat-form-field>
             <mat-label>Select Node Type</mat-label>
             <mat-select formControlName="node_type" matTooltip="{{ getTooltip('node_type') }}" (selectionChange)="onNodeTypeChange($event)">

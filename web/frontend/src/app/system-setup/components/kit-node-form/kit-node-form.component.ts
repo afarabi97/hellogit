@@ -2,7 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, OnChanges, SimpleChanges, Outp
 import { FormGroup } from '@angular/forms';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
 import { MatSelectChange } from '@angular/material';
-
+import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 
 @Component({
   selector: 'app-kit-node-form',
@@ -21,18 +21,22 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
   @Input()
   formArray: Array<FormGroup>;
 
-  @Input()
-  mode: string;
-
-  @Output() 
+  @Output()
   nodeTypeChange: EventEmitter<any> = new EventEmitter();
 
-  constructor() {
+  isSystemDIP: boolean = false;
+  isSystemGIP: boolean = false;
+  isSystemMIP: boolean = false;
+
+  constructor(
+    private weaponSystemNameService: WeaponSystemNameService
+  ) {
     this.disableMasterSelection = false;
     this.formArray = [];
   }
 
   ngOnInit() {
+    this.getSystem();
   }
 
   ngAfterViewInit(){
@@ -44,6 +48,40 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
 
   public getTooltip(inputName: string): string {
     return kickStartTooltips[inputName];
+  }
+
+
+  /**
+   *  Makes an API Call via the WeaponSystemNameService's function getSystemName()
+   *  depending on the output of that call, it sets one of the isSystem*IP variables
+   *  to true. This function is called in @function ngOnInit() and is used to display
+   *  the proper form group options when adding/selecting nodes.
+   *  Please reference ./kit-node-form.compenent.html for clarification
+   *
+   *  Influences the following variables:
+   *    @var isSystemDIP, @var isSystemGIP, @var isSystemMIP
+   *
+   * @private
+   * @memberof KitNodeFormComponent
+   */
+  private getSystem() {
+    let system_name: String = "";
+    this.weaponSystemNameService.getSystemName().subscribe(
+      data => {
+        system_name = data['system_name'];
+        switch (system_name.toLocaleUpperCase().trim()) {
+          case 'DIP':
+            this.isSystemDIP = true;
+            break;
+          case 'GIP':
+            this.isSystemGIP = true;
+            break;
+          case 'MIP':
+            this.isSystemMIP = true;
+            break;
+        }
+      }
+    );
   }
 
 
