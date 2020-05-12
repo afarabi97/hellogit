@@ -7,14 +7,22 @@ data:
   filebeat.yml: |
     filebeat.modules:
 {% for module in filebeat_modules %}
-    - module: {{ module }}
+      - module: {{ module }}
 {% endfor %}
+
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
 
     #==================== Elasticsearch template setting ==========================
 
+    setup.ilm:
+      policy_name: filebeat-external
+      rollover_alias: filebeat-external
+
+    #============================== Dashboards =====================================
+    setup.dashboards.enabled: true
+    setup.dashboards.index: "filebeat-external-index-pattern"
 
     #============================== Kibana =====================================
 
@@ -25,6 +33,8 @@ data:
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
     setup.kibana.space.id: external
+    setup.template.overwrite: false
+    setup.template.enabled: false
 
     #================================ Outputs =====================================
 

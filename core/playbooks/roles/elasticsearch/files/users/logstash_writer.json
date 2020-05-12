@@ -14,7 +14,9 @@
                 "ecs-zeek-*",
                 "metricbeat-*",
                 ".monitoring*",
-                "filebeat-*"
+                "filebeat-*",
+                "auditbeat-*",
+                "winlogbeat-*"
             ],
             "privileges": [
                 "manage",

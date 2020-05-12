@@ -502,3 +502,14 @@
         tasks_from: filebeat_setup
   tags:
     - run-filebeat-setup
+
+- name: Run Winlogbeat Setup
+  hosts: master_server
+  gather_facts: no
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: elasticsearch
+        tasks_from: winlogbeat_setup
+  tags:
+    - run-winlogbeat-setup

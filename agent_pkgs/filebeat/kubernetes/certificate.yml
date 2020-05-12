@@ -1,13 +1,13 @@
 apiVersion: cert-manager.io/v1alpha3
 kind: Certificate
 metadata:
-  name: filebeat
+  name: filebeat-agent
 spec:
   # Secret names are always required.
-  secretName: filebeat-certificate
+  secretName: filebeat-agent-certificate
   duration: 8760h # 365d
   renewBefore: 360h # 15d
-  commonName: filebeat
+  commonName: filebeat-agent
   subject:
     organizations:
     - "CVA/H"

@@ -32,7 +32,7 @@
   retries: 60
   delay: 5
 
-- name: Create logtsash role
+- name: Create logstash role
   uri:
     method: POST
     url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/role/{{ item }}"
@@ -56,7 +56,7 @@
   register: results
   changed_when: results.rc == 0
 
-- name: Create logtsash user
+- name: Create logstash user
   uri:
     method: POST
     url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
@@ -95,7 +95,6 @@
   with_items:
     - filebeat-suricata
     - ecs-zeek
-    - winlogbeat-custom
     - moloch-custom
   register: policy_results
   until: policy_results.status == 200

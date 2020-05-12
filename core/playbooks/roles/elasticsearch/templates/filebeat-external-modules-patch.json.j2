@@ -1,0 +1,502 @@
+{
+  "processors" : [
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-apache-access-default",
+        "if" : "ctx.event.module == 'apache'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-apache-error-pipeline",
+        "if" : "ctx.event.module == 'apache'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-auditd-log-pipeline",
+        "if" : "ctx.event.module == 'auditd'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-haproxy-log-pipeline",
+        "if" : "ctx.event.module == 'haproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-icinga-debug-pipeline",
+        "if" : "ctx.event.module == 'icinga'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-icinga-main-pipeline",
+        "if" : "ctx.event.module == 'icinga'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-icinga-startup-pipeline",
+        "if" : "ctx.event.module == 'icinga'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-iis-access-default",
+        "if" : "ctx.event.module == 'iis'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-iis-error-default",
+        "if" : "ctx.event.module == 'iis'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-kafka-log-pipeline",
+        "if" : "ctx.event.module == 'kafka'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-mongodb-log-pipeline",
+        "if" : "ctx.event.module == 'mongodb'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-mysql-error-pipeline",
+        "if" : "ctx.event.module == 'mysql'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-mysql-slowlog-pipeline",
+        "if" : "ctx.event.module == 'mysql'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-nats-log-pipeline",
+        "if" : "ctx.event.module == 'nats'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-nginx-error-pipeline",
+        "if" : "ctx.event.module == 'nginx'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-nginx-access-default",
+        "if" : "ctx.event.module == 'nginx'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-osquery-result-pipeline",
+        "if" : "ctx.event.module == 'osquery'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-postgresql-log-pipeline",
+        "if" : "ctx.event.module == 'postgresql'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-redis-log-pipeline",
+        "if" : "ctx.event.module == 'redis'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-redis-slowlog-pipeline",
+        "if" : "ctx.event.module == 'redis'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-santa-log-pipeline",
+        "if" : "ctx.event.module == 'santa'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-system-syslog-pipeline",
+        "if" : "ctx.event.module == 'system'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-system-auth-pipeline",
+        "if" : "ctx.event.module == 'system'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-traefik-access-pipeline",
+        "if" : "ctx.event.module == 'traefik'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-activemq-log-pipeline",
+        "if" : "ctx.event.module == 'activemq'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-activemq-audit-pipeline",
+        "if" : "ctx.event.module == 'activemq'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-cef-log-pipeline",
+        "if" : "ctx.event.module == 'cef'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-cisco-ftd-asa-ftd-pipeline",
+        "if" : "ctx.event.module == 'cisco'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-cisco-ios-pipeline",
+        "if" : "ctx.event.module == 'cisco'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-cisco-asa-asa-ftd-pipeline",
+        "if" : "ctx.event.module == 'cisco'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-coredns-log-pipeline-entry",
+        "if" : "ctx.event.module == 'coredns'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-coredns-log-pipeline-plaintext",
+        "if" : "ctx.event.module == 'coredns'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-coredns-log-pipeline-json",
+        "if" : "ctx.event.module == 'coredns'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-geo-as",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-tcp",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-http",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-plaintext",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-entry",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-envoyproxy-log-pipeline-json",
+        "if" : "ctx.event.module == 'envoyproxy'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-ibmmq-errorlog-pipeline",
+        "if" : "ctx.event.module == 'ibmmq'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-iptables-log-pipeline",
+        "if" : "ctx.event.module == 'iptables'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-misp-threat-pipeline",
+        "if" : "ctx.event.module == 'misp'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-mssql-log-pipeline",
+        "if" : "ctx.event.module == 'mssql'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-panw-panos-pipeline",
+        "if" : "ctx.event.module == 'panw'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-rabbitmq-log-pipeline",
+        "if" : "ctx.event.module == 'rabbitmq'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-irc-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-pe-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-x509-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-smb_files-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-intel-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-sip-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-socks-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-kerberos-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-snmp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-connection-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-stats-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-ntlm-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-ocsp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-dpd-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-rdp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-ssl-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-modbus-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-smb_mapping-pipelin",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-dns-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-weird-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-mysql-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-dhcp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-capture_loss-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-smtp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-syslog-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-radius-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-smb_cmd-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-dnp3-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-ssh-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-dce_rpc-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-files-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-traceroute-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-ftp-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-rfb-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-tunnel-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-zeek-http-pipeline",
+        "if" : "ctx.event.module == 'zeek'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-suricata-eve-pipeline",
+        "if" : "ctx.event.module == 'suricata'"
+      }
+    },
+    {
+      "pipeline" : {
+        "name" : "filebeat-{{ elastic_7_version }}-netflow-log-pipeline",
+        "if" : "ctx.event.module == 'netflow'"
+      }
+    }
+  ]
+}

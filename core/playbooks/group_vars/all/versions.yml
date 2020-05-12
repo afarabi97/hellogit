@@ -58,6 +58,7 @@ kube_images:
   - { image: "docker.io/tfplenum/zeek:{{zeek_version}}", for_dip: true, for_gip: false }
   - { image: "docker.elastic.co/beats/metricbeat:{{elastic_7_version}}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/beats/filebeat:{{elastic_7_version}}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/winlogbeat-setup:{{elastic_7_version}}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/elasticsearch/elasticsearch:{{elastic_7_version}}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/kibana/kibana:{{elastic_7_version}}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/logstash/logstash:{{elastic_7_version}}", for_dip: true, for_gip: true }

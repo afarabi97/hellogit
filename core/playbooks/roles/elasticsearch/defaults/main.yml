@@ -41,6 +41,6 @@ filebeat_modules:
   - mssql
   - panw
   - rabbitmq
-  #- zeek
-  #- suricata
-  #- netflow
+  - zeek
+  - suricata
+  - netflow

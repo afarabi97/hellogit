@@ -452,7 +452,7 @@ function execute_bootstrap_playbook(){
 
 function execute_pull_docker_images_playbook(){
     echo "Pulling docker images"
-    pushd "/opt/tfplenum/deployer/playbooks" > /dev/null
+    pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
     run_cmd make pull-docker-images
     popd > /dev/null
 }

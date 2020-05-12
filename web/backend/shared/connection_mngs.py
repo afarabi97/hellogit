@@ -9,12 +9,14 @@ from elasticsearch.exceptions import RequestError, ConflictError
 from fabric import Connection, Config
 from kubernetes import client, config
 from kubernetes.client.models.v1_secret import V1Secret
+from kubernetes.client.rest import ApiException
 from pathlib import Path
 from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo import MongoClient
 from shared.constants import KIT_ID, DATE_FORMAT_STR, KICKSTART_ID, NODE_TYPES
 from shared.utils import decode_password
+from time import sleep
 from typing import Dict, Tuple, List
 
 
@@ -546,8 +548,17 @@ class KubernetesSecret:
 
 def get_kubernetes_secret(conn_mng: MongoConnectionManager,
                           secret_name: str,
-                          namespace: str="default") -> KubernetesSecret:
-    with KubernetesWrapper2(conn_mng) as api:
-        v1 = api.core_V1_API
-        response = v1.read_namespaced_secret(secret_name, namespace)
-        return KubernetesSecret(response)
+                          namespace: str="default",
+                          retries:int=3) -> KubernetesSecret:
+    while retries != 0:
+        try:
+            with KubernetesWrapper2(conn_mng) as api:
+                v1 = api.core_V1_API
+                response = v1.read_namespaced_secret(secret_name, namespace)
+                return KubernetesSecret(response)
+        except ApiException as e:
+            if retries == 0:
+                raise e
+            sleep(10)
+
+        retries -= 1

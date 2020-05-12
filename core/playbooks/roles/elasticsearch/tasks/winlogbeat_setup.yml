@@ -1,0 +1,32 @@
+---
+
+- name: Copy Winlogbeat Job Templates
+  template:
+    src: "templates/winlogbeat.yml.j2"
+    dest: "{{ elastic_dir }}/winlogbeat.yml"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
+    mode: u+rw,g+rw
+
+- name: Delete winlogbeat if it exists
+  shell: |
+    kubectl delete -f {{ elastic_dir }}/winlogbeat.yml --ignore-not-found=true
+  register: results
+  changed_when: results.rc == 0
+
+- name: Run winlogbeat Job
+  shell: |
+    kubectl create -f {{ elastic_dir }}/winlogbeat.yml
+  register: results
+  changed_when: results.rc == 0
+
+- name: Wait for winlogbeat setup to end
+  shell: |
+    kubectl wait job/winlogbeat-setup --for=condition=complete --timeout=-1s
+  changed_when: false
+
+- name: Remove winlogbeat setup
+  shell: |
+    kubectl delete -f {{ elastic_dir }}/winlogbeat.yml --ignore-not-found=true
+  register: results
+  changed_when: results.rc == 0

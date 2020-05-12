@@ -286,8 +286,6 @@ export class AgentBuilderChooserComponent implements OnInit {
         let rawValue = form.getRawValue();
         let credentials = new WindowsCreds(rawValue)
         return callback(credentials);
-      } {
-        return callback(null);
       }
     });
 

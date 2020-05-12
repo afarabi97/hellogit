@@ -58,6 +58,14 @@
   tags:
     - dip_bootstrap
 
+- name: Rerun docker pull
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - registry
+  tags:
+    - pull-docker-images
+
 - name: Bootstrap MIP Controller
   hosts: localhost
   gather_facts: no

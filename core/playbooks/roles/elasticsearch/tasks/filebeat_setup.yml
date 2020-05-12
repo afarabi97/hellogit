@@ -1,5 +1,33 @@
 ---
 
+- name: Get ES Password
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+
+- name: Load ingest pipeline patch for all filebeats modules
+  uri:
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_ingest/pipeline/filebeat-external_modules"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('template', 'templates/filebeat-external-modules-patch.json.j2') }}"
+    status_code: 200, 201
+
+- name: Patch filebeat template
+  uri:
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_template/filebeat-external"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'templates/filebeat-external-template.json') }}"
+    status_code: 200, 201
+    timeout: 200
+
 - name: Copy Filebeat Job Templates
   template:
     src: "templates/filebeat.yml.j2"
@@ -30,3 +58,4 @@
     kubectl delete -f {{ elastic_dir }}/filebeat.yml --ignore-not-found=true
   register: results
   changed_when: results.rc == 0
+

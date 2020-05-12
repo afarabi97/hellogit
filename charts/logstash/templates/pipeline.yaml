@@ -72,7 +72,9 @@ data:
         cacert => '/etc/ssl/certs/webCA.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
-        index => "%{[agent][type]}-target-%{+YYMMdd'h'HH}"
+        ilm_rollover_alias => "%{[agent][type]}-external"
+        ilm_policy => "%{[agent][type]}-external"
+        ilm_enabled => true
         manage_template => false
       }
     }

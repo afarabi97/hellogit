@@ -48,17 +48,6 @@
               </div>
             </div>
           </mat-grid-tile>
-          <mat-grid-tile *ngIf="link.dns.includes('https://kibana')" (click)="onViewUrl(getWinlogbeatDashboard(link.ip))"
-            class="zoom" style="background: rgba(0,0,0,.38);">
-            <div fxLayout="column" fxLayoutAlign="space-around start">
-              <div style="margin-bottom: 10px; font-size: 1.5em;">
-                Winlogbeat Dashboard
-              </div>
-              <div style="margin-bottom: 10px; font-size: 1.2em;">
-                {{link.ip}}
-              </div>
-            </div>
-          </mat-grid-tile>
         </ng-container>
       </mat-grid-list>
 

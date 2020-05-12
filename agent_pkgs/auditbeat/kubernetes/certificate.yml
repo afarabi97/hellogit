@@ -1,13 +1,13 @@
 apiVersion: cert-manager.io/v1alpha3
 kind: Certificate
 metadata:
-  name: winlogbeat-agent
+  name: auditbeat-agent
 spec:
   # Secret names are always required.
-  secretName: winlogbeat-agent-certificate
+  secretName: auditbeat-agent-certificate
   duration: 8760h # 365d
   renewBefore: 360h # 15d
-  commonName: winlogbeat-agent
+  commonName: auditbeat-agent
   subject:
     organizations:
     - "CVA/H"

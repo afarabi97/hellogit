@@ -40,3 +40,6 @@ dip_bootstrap:
 
 mip_bootstrap:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -t execute_pre,frontend,sso,mip_bootstrap
+
+pull-docker-images:
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images

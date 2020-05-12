@@ -28,6 +28,25 @@
     register: es_password
     changed_when: es_password.rc == 0
 
+  - name: Copy Audit External Template
+    template:
+      src: "templates/auditbeat-external.yml.j2"
+      dest: "{{ audit_dir }}/auditbeat.yml"
+      owner: root
+      group: root
+      mode: 0600
+    delegate_to: localhost
+    run_once: true
+
+  - name: Run Audit Beat External Setup
+    shell: "/usr/bin/auditbeat setup -e"
+    delegate_to: localhost
+    register: ret_val
+    run_once: true
+    retries: 3
+    until: ret_val.rc == 0
+    delay: 10
+
   - name: Copy Audit Template
     template:
       src: "templates/auditbeat.yml.j2"

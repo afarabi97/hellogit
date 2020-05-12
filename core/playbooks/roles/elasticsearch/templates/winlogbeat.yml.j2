@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: winlogbeat-job-configs
+data:
+  winlogbeat.yml: |
+    winlogbeat.event_logs:
+      - name: Application
+        ignore_older: 72h
+
+      - name: System
+
+      - name: Security
+        processors:
+          - script:
+              lang: javascript
+              id: security
+              file: /usr/local/module/security/config/winlogbeat-security.js
+
+      - name: Microsoft-Windows-Sysmon/Operational
+        processors:
+          - script:
+              lang: javascript
+              id: sysmon
+              file: /usr/local/module/sysmon/config/winlogbeat-sysmon.js
+
+    setup.template.enabled: true
+    setup.template.overwrite: false
+    setup.template.settings:
+      index.number_of_shards: 2
+
+    setup.dashboards.enabled: true
+    setup.dashboards.index: "winlogbeat-external-index-pattern"
+
+    setup.ilm:
+      policy_name: winlogbeat-external
+      rollover_alias: winlogbeat-external
+
+    #============================== Kibana =====================================
+    setup.kibana:
+      host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
+      ssl.enabled: true
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      space.id: external
+
+    #-------------------------- Elasticsearch output ------------------------------
+    output.elasticsearch:
+      hosts:  ["https://elasticsearch-headless.default.svc.cluster.local:9200"]
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+
+    processors:
+      - add_host_metadata: ~
+      - add_cloud_metadata: ~
+      - add_docker_metadata: ~
+
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: winlogbeat-setup
+  labels:
+    component: winlogbeat-setup
+spec:
+  template:
+    metadata:
+      labels:
+        component: winlogbeat-setup
+    spec:
+      containers:
+      - name: "winlogbeat-setup"
+        image: "tfplenum/winlogbeat-setup:{{elastic_7_version}}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: configs
+          subPath: winlogbeat.yml
+          mountPath: /usr/local/winlogbeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
+        args: ['-e', 'setup', '--path.config', '/usr/local/']
+      volumes:
+      - name: configs
+        configMap:
+          name: winlogbeat-job-configs
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: elasticsearch-certificate
+      nodeSelector:
+        role: server
+      restartPolicy: Never

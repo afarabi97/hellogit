@@ -168,11 +168,11 @@ class AgentBuilder:
                 if ret_val != 0:
                     print("Failed to run kubectl apply command with error code {} and {}".format(ret_val, stdout))
 
-        try:
-            secret = get_kubernetes_secret(conn_mng, '{}-certificate'.format(application_name))
-            secret.write_to_file(folder_to_copy)
-        except ApiException:
-            pass
+            try:
+                secret = get_kubernetes_secret(conn_mng, '{}-agent-certificate'.format(application_name))
+                secret.write_to_file(folder_to_copy)
+            except ApiException:
+                pass
 
     def _process_templates_dir(self, tpl_dir: Path, tpl_context: Dict):
         if tpl_dir.exists() and tpl_dir.is_dir():
