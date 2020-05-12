@@ -38,5 +38,5 @@
   register: result
   changed_when: True
   until: result.rc == 0
-  retries: 5
+  retries: 60
   delay: 10
