@@ -12,11 +12,11 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "https://{{ ansible_controller }}/*",
-        "https://controller.lan/*"
+        "https://{{ ansible_default_ipv4.address }}/*"
       ],
       "webOrigins": [
         "https://{{ ansible_controller }}",
-        "https://controller.lan"
+        "https://{{ ansible_default_ipv4.address }}/*"
       ],
       "notBefore": 0,
       "bearerOnly": false,

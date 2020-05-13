@@ -1,0 +1,119 @@
+import os, json, argparse, subprocess, socket, requests
+import xml.etree.ElementTree as ET
+
+parser = argparse.ArgumentParser(description='Import users into Keycloak')
+parser.add_argument('--realm', help='Realm to import users. Default is {{ realm_name }}')
+parser.add_argument('--auth_user', help='User to authenticate with Keycloak. Default is {{ admin_user }}')
+parser.add_argument('--auth_pass', help='Password to authenticate with Keycloak. Default is stored in /opt/sso-idp/sso_admin_password.txt')
+parser.add_argument('--auth_realm', help='Realm to authenticate against. Default is master')
+parser.add_argument('--new_hostname', help='New Controller hostname. Default is current hostname')
+parser.add_argument('--new_ip', help='New Controller IP. Default is current IP for ens192')
+args = parser.parse_args()
+
+class UpdateKeycloakClient:
+    JWT_DIR = "{{ jwt_keys_dir }}/"
+
+    def __init__(self):
+        self._realm = "{{ realm_name }}"
+        self._auth_user = "{{ admin_user }}"
+        self._auth_pass = ''
+        self._auth_realm = "master"
+        self._authed = False
+        self._client_id = None
+        self._controller_ip = None
+        self._controller_hostname = None
+
+    def parse_args(self, args: dict):
+        if args.realm:
+            self._realm = args.realm
+        if args.auth_user:
+            self._auth_user = args.auth_user
+        if args.auth_pass:
+            self._auth_pass = args.auth_pass
+        else:
+            try:
+                f = open("/opt/sso-idp/sso_admin_password.txt","r")
+                self._auth_pass = f.read().strip()
+                f.close()
+            except Exception as e:
+                print(e)
+                exit()
+        if args.auth_realm:
+            self._auth_realm = args.auth_realm
+        if args.new_hostname:
+            self._controller_hostname = args.new_hostname
+        if args.new_ip:
+            self._controller_ip = args.new_ip
+
+    def authenticate_keycloak(self):
+        auth_cmd = ["/opt/keycloak/bin/kcadm.sh","config","credentials","--server","http://localhost:8080/auth","--realm",self._auth_realm,"--user",self._auth_user,"--password",self._auth_pass]
+        ret_val = subprocess.call(auth_cmd)
+        self._authed = ret_val == 0
+
+    def get_client_id(self):
+        get_clients_cmd = ["/opt/keycloak/bin/kcadm.sh","get","clients","-r",self._realm,"--fields","id,clientId"]
+        ret_val = subprocess.check_output(get_clients_cmd)
+        clients = json.loads(ret_val.strip())
+        for client in clients:
+            if "https://controller." in client["clientId"]:
+                self._client_id = client["id"]
+                print("Controller Keycloak CLient ID: "+self._client_id)
+                break
+
+    def get_controller_ip(self):
+        cmd = "ifconfig ens192 | grep 'inet ' | tr -s ' ' | cut -d' ' -f3"
+        ret_val = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        self._controller_ip = ret_val.strip().decode('UTF-8')
+
+    def get_controller_hostname(self):
+        self._controller_hostname = socket.gethostname()
+
+    def run_keycloak_update(self):
+        cmd = ["/opt/keycloak/bin/kcadm.sh","update","clients/"+self._client_id,"-r",self._realm]
+        # Update Client ID
+        clientId = "https://"+self._controller_hostname+"/shibboleth"
+        cmd +=  ["-s","clientId="+clientId]
+        # Update Root URL
+        rootUrl = "https://"+self._controller_hostname+"/"
+        cmd +=  ["-s","rootUrl="+rootUrl]
+        # Update Redirect URLs
+        redirectUris = [ "https://"+self._controller_ip+"/*", "https://"+self._controller_hostname+"/*" ]
+        cmd +=  ["-s","redirectUris="+json.dumps(redirectUris)]
+        # Update Web Origin URLs
+        webOrigins = [ "https://"+self._controller_ip+"/", "https://"+self._controller_hostname+"/" ]
+        cmd +=  ["-s","webOrigins="+json.dumps(webOrigins)]
+        attributes = {
+            "saml_single_logout_service_url_post" : "https://"+self._controller_hostname+"/Shibboleth.sso/SLO/POST",
+            "saml_assertion_consumer_url_post" : "https://"+self._controller_hostname+"/Shibboleth.sso/SAML2/POST"
+        }
+        cmd +=  ["-s","attributes="+json.dumps(attributes)]
+        subprocess.call(cmd)
+
+    def update_shibboleth_files(self):
+        metadata_url = "https://"+self._controller_hostname+"/auth/realms/"+self._realm+"/protocol/saml/descriptor"
+        r = requests.get(metadata_url, allow_redirects=True, verify=False)
+        open('/etc/shibboleth/idp.metadata.xml', 'wb').write(r.content)
+        tree = ET.parse('/etc/shibboleth/shibboleth2.xml')
+        root = tree.getroot()
+        if "ApplicationDefaults" in root[1].tag:
+            root[1].attrib['entityID'] = "https://"+self._controller_hostname+"/shibboleth"
+        if "SSO" in root[1][0][0].tag:
+            root[1][0][0].attrib['entityID'] = "https://"+self._controller_hostname+"/auth/realms/"+self._realm
+        tree.write('/etc/shibboleth/shibboleth2.xml')
+        cmd = ["service","shibd","restart"]
+        subprocess.call(cmd)
+        cmd = ["service","httpd","reload"]
+        subprocess.call(cmd)
+
+
+if __name__ == '__main__':
+    update_keycloak = UpdateKeycloakClient()
+    update_keycloak.parse_args(args)
+    update_keycloak.authenticate_keycloak()
+    update_keycloak.get_client_id()
+    if not update_keycloak._controller_ip:
+        update_keycloak.get_controller_ip()
+    if not update_keycloak._controller_hostname:
+        update_keycloak.get_controller_hostname()
+    update_keycloak.run_keycloak_update()
+    update_keycloak.update_shibboleth_files()

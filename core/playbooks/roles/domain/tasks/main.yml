@@ -50,3 +50,8 @@
   with_items:
     - "{{ groups['servers'] }}"
     - "{{ groups['sensors'] }}"
+
+- name: Update Keycloak and Controller Shibboleth Configs
+  script: "/opt/sso-idp/update_portal_client.py --new_hostname {{ ansible_controller_hostname }} --new_ip {{ ansible_controller_ip }}"
+  args:
+    executable: /opt/tfplenum/web/tfp-env/bin/python3

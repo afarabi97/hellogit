@@ -50,13 +50,17 @@
   with_items: "{{ saml_apps }}"
 
 - name: Remove Headers from SAML certs
-  shell: "tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.crt | sed 's/-----[A-Z ]*-----//g'"
+  shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.crt | sed 's/-----[A-Z ]*-----//g'"
   register: clean_certs
+  changed_when: clean_certs.rc == 0
+  failed_when:  clean_certs.rc > 0
   with_items: "{{ saml_apps }}"
 
 - name: Remove Headers from SAML keys
-  shell: "tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.key | sed 's/-----[A-Z ]*-----//g'"
+  shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.key | sed 's/-----[A-Z ]*-----//g'"
   register: clean_keys
+  changed_when: clean_keys.rc == 0
+  failed_when:  clean_keys.rc > 0
   with_items: "{{ saml_apps }}"
 
 - name: Populate SAML Certs with no headers
@@ -109,6 +113,7 @@
    - attribute-map.xml
    - gen_api_token.py
    - import_users.py
+   - update_portal_client.py
 
 - name: Install Keycloak Dependencies
   yum:
@@ -117,32 +122,29 @@
 
 - name: Check if keycloak TAR exists
   stat:
-    path: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+    path: "/opt/keycloak-{{ keycloak_version }}.tar.gz"
   register: keycloak_tar
 
 - name: "Download Keycloak TAR"
   get_url:
     url: "https://downloads.jboss.org/keycloak/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
-    dest: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: "/opt/keycloak-{{ keycloak_version }}.tar.gz"
   when: not keycloak_tar.stat.exists
 
 - name: Unpacking Keycloak
   unarchive:
-    src: "{{ sso_dir }}/keycloak-{{ keycloak_version }}.tar.gz"
+    src: "/opt/keycloak-{{ keycloak_version }}.tar.gz"
     dest: "{{ keycloak_dir }}"
     extra_opts: [--strip-components=1]
     group: "{{ keycloak_group }}"
     owner: "{{ keycloak_user }}"
 
 - name: Configure Keycloak
-  shell: "{{ item }}"
+  command: "{{ item }}"
   register: keycloak_configure
   changed_when: keycloak_configure.rc == 0
   failed_when:  keycloak_configure.rc > 0
-  with_items:
-    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding,value=true)'"
-    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/socket-binding-group=standard-sockets/socket-binding=proxy-https:add(port=443)'"
-    - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=redirect-socket,value=proxy-https)'"
+  with_items: "{{ keycloak_setup_cmds }}"
 
 - name: Add Keycloak Super Admin User
   shell: |
@@ -190,11 +192,11 @@
     delay: 30
 
 - name: Import realm into Keycloak
-  shell: "{{ item }}"
-  with_items:
-    - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user '{{ admin_user }}' --password '{{ sso_admin_password }}'"
-    - "{{ keycloak_dir }}/bin/kcadm.sh create realms -f {{ sso_dir }}/realm_import.json"
-    - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name }}"
+  command: "{{ item }}"
+  with_items: "{{ keycloak_realm_import_cmds }}"
+  register: keycloak_import
+  changed_when: keycloak_import.rc == 0
+  failed_when:  keycloak_import.rc > 0
 
 - name: Wait for SSO IdP to become healthy
   uri:
@@ -242,11 +244,10 @@
     - Restart Shibboleth
 
 - name: Validate Shibboleth config
-  shell: "shibd -t"
+  command: "shibd -t"
   register: shibd
   changed_when: shibd.rc != 0
-  failed_when:
-  - "shibd.rc != 0"
+  failed_when: "shibd.rc != 0"
 
 - name: Write Admin Password to file
   copy:

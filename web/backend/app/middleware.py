@@ -2,7 +2,7 @@ from werkzeug.wrappers import Request, Response, ResponseStream
 from functools import wraps
 from app.common import ERROR_RESPONSE, OK_RESPONSE, FORBIDDEN_RESPONSE
 from shared.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMIN_ROLE, CONTROLLER_MAINTAINER_ROLE
-import jwt, os, glob
+import jwt, os, glob, yaml
 
 JWT_DIR = "/opt/sso-idp/jwt/"
 MIME_TYPE = 'application/json'

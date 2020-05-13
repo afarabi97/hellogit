@@ -9,7 +9,7 @@ admin_user: superadmin
 realm_name: CVAH-SSO
 realm_id: CVA/H SSO
 realm_json: {}
-ansible_controller: "{{ ansible_default_ipv4.address }}" # {{ ansible_controller_hostname }}
+ansible_controller: "{{ ansible_controller_hostname }}" # "{{ ansible_default_ipv4.address }}" # {{ ansible_controller_hostname }}
 realm_files:
   - realm
   - realm_roles
@@ -25,3 +25,13 @@ keycloak_user: keycloak
 keycloak_group: keycloak
 
 terms_and_conditions: You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.<br><br>By using this IS (which includes any device attached to this IS), you consent to the following conditions:<br><br>The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.<br><br>At any time, the USG may inspect and seize data stored on this IS.<br><br>Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.<br><br>This IS includes security measures (e.g., authentication and access controls) to protect USG interests-not for your personal benefit or privacy.<br><br>Notwithstanding the above, using this IS does not constitute consent to PM, LE, or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+
+keycloak_setup_cmds:
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding,value=true)'"
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/socket-binding-group=standard-sockets/socket-binding=proxy-https:add(port=443)'"
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=redirect-socket,value=proxy-https)'"
+
+keycloak_realm_import_cmds:
+  - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user '{{ admin_user }}' --password '{{ sso_admin_password }}'"
+  - "{{ keycloak_dir }}/bin/kcadm.sh create realms -f {{ sso_dir }}/realm_import.json"
+  - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name }}"
