@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}
   labels:
-    component: wikijs
+    component: {{ .Release.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: wikijs
+      component: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        component: wikijs
+        component: {{ .Release.Name }}
     spec:
       initContainers:
       - name: wikijs-init

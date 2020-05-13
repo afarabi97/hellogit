@@ -218,6 +218,7 @@ CVAH Catalog:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-viewer
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog zeek
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog logstash
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog wikijs
   cache:
     key: tfplenum-dip-cache-${CI_PIPELINE_ID}
     paths:

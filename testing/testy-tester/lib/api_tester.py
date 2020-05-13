@@ -240,7 +240,7 @@ class CatalogPayloadGenerator:
         elif role == 'moloch-viewer':
             return node.moloch_viewer_catalog.deployment_name
         elif role == 'moloch':
-            return node.moloch_capture_catalog.deployment_name        
+            return node.moloch_capture_catalog.deployment_name
         elif role == 'zeek':
             return node.zeek_catalog.deployment_name
         elif role == 'logstash':
@@ -356,6 +356,9 @@ class APITester:
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
         payload = self._catalog_payload_generator.generate("logstash","install","Server - Any")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("wikijs","install","Server - Any")
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 

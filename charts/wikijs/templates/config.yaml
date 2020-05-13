@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
   labels:
-    component: wikijs
+    component: {{ .Release.Name }}
 data:
   config.yml: |
     port: 3000

@@ -93,6 +93,13 @@ class LogstashSettings(Model):
             self.kafka_clusters.append(sensor.hostname.replace(".lan", "-zeek") + ".default.svc.cluster.local:9092")
 
 
+class WikijsSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "wikijs"
+
+
 class CatalogSettings(Model):
 
     def __init__(self):
@@ -101,6 +108,7 @@ class CatalogSettings(Model):
         self.zeek_settings = dict()
         self.moloch_viewer_settings = None # type: MolochViewerSettings
         self.logstash_settings = None # type: LogstashSettings
+        self.wikijs_settings = dict()
 
     def set_from_kickstart(self,
                            kickstart_settings: KickstartSettings,
@@ -134,6 +142,12 @@ class CatalogSettings(Model):
                 logstash_settings.from_namespace(namespace)
                 self.logstash_settings = logstash_settings
 
+        server = kickstart_settings.get_master_kubernetes_server()
+        if server:
+            if namespace.which == SubCmd.wikijs:
+                self.wikijs_settings = WikijsSettings()
+                self.wikijs_settings.from_namespace(namespace)
+
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -159,6 +173,11 @@ class CatalogSettings(Model):
         zeek_parser.set_defaults(which=SubCmd.zeek)
 
         logstash_parser = subparsers.add_parser(SubCmd.logstash,
-                                                help="This subcommand can be used to install zeek on your Kit's sensors.")
+                                                help="This subcommand can be used to install logstash on your Kit's sensors.")
         add_args_from_instance(logstash_parser, LogstashSettings())
         logstash_parser.set_defaults(which=SubCmd.logstash)
+
+        wikijs_parser = subparsers.add_parser(SubCmd.wikijs,
+                                                help="This subcommand can be used to install wikijs on your Kit's servers.")
+        add_args_from_instance(wikijs_parser, WikijsSettings())
+        wikijs_parser.set_defaults(which=SubCmd.wikijs)

@@ -18,6 +18,7 @@ class CatalogJob:
                                 catalog_settings=self.catalog_settings)
 
     def run_catalog(self, application: str):
+        print("Installing ", application)
         if application == SubCmd.suricata:
             self.runner.install_suricata()
         elif application == SubCmd.moloch_viewer:
@@ -28,3 +29,5 @@ class CatalogJob:
             self.runner.install_zeek()
         elif application == SubCmd.logstash:
             self.runner.install_logstash()
+        elif application == SubCmd.wikijs:
+            self.runner.install_wikijs()

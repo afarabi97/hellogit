@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: wikijs
+  name: {{ .Release.Name }}
   labels:
-    component: wikijs
+    component: {{ .Release.Name }}
 spec:
   selector:
     component: {{ .Release.Name }}
   ports:
-  - name: wikijs-https
+  - name: {{ .Release.Name }}-https
     port: 443
     targetPort: 3443
     protocol: TCP

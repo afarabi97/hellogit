@@ -9,7 +9,7 @@ from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKicksta
 from models.gip_settings import GIPControllerSettings, GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
-                            LogstashSettings, SuricataSettings)
+                            LogstashSettings, SuricataSettings, WikijsSettings)
 from models.mip_config import MIPConfigSettings
 from typing import Union
 
@@ -33,12 +33,14 @@ class YamlManager:
             cls.yaml.register_class(MolochViewerSettings)
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
+            cls.yaml.register_class(WikijsSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
             cls.yaml.register_class(GIPControllerSettings)
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(GIPKitSettings)
+
 
     @classmethod
     def save_to_yaml(cls, some_model: Model, application: str = None):

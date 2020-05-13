@@ -13,7 +13,7 @@ from typing import Union, List, Dict
 from models.ctrl_setup import ControllerSetupSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
 from models.kit import KitSettings
-from models.catalog import MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings, CatalogSettings
+from models.catalog import MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings, WikijsSettings, CatalogSettings
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
 from util.ssh import SSH_client
@@ -381,6 +381,8 @@ class CatalogPayloadGenerator:
             return zeek_settings.deployment_name
         elif role == 'logstash':
             return self._catalog_settings.logstash_settings.deployment_name
+        elif role == 'wikijs':
+            return self._catalog_settings.wikijs_settings.deployment_name # type: WikijsSettings
 
     def _get_catalog_dict(self, role: str, node: NodeSettings) -> Dict:
         if role == 'suricata':
@@ -393,6 +395,8 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.zeek_settings.get(node.hostname).to_dict()
         elif role == 'logstash':
             return self._catalog_settings.logstash_settings.to_dict()
+        elif role == 'wikijs':
+            return self._catalog_settings.wikijs_settings.to_dict()
 
     def _construct_selectedNode_part(self, node_affinity: str, role: str) -> List[Dict]:
         all_parts = []
@@ -511,6 +515,11 @@ class APITester:
 
     def install_zeek(self):
         payload = self._catalog_payload_generator.generate("zeek", "install", "Sensor")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+
+    def install_wikijs(self) -> None:
+        payload = self._catalog_payload_generator.generate("wikijs", "install", "Server - Any")
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 
