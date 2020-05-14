@@ -286,7 +286,6 @@ spec:
           defaultMode: 0444
       - name: api-cache
         emptyDir: {}
-          name: hiveconfig
       - name: data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
