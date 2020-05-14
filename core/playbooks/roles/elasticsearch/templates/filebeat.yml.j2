@@ -5,6 +5,10 @@ metadata:
   name: filebeat-job-configs
 data:
   filebeat.yml: |
+    filebeat.modules:
+{% for module in filebeat_modules %}
+    - module: {{ module }}
+{% endfor %}
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
@@ -20,6 +24,7 @@ data:
     setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+    setup.kibana.space.id: external
 
     #================================ Outputs =====================================
 

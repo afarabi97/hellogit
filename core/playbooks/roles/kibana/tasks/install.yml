@@ -25,6 +25,7 @@
     dest: "{{ kibana_dir }}/{{ item }}"
   with_items:
     - "config.ndjson"
+    - "auditbeat.ndjson"
     - "winlogbeat.ndjson"
   tags:
     - kibana-saved-objects
@@ -48,6 +49,7 @@
   tags:
     - kibana-saved-objects
     - load-dashboards
+    - create-kibana-space
 
 - name: Wait for Kibana to become healthy
   uri:
@@ -62,8 +64,65 @@
   retries: 60
   delay: 10
 
+- name: Delete all spaces
+  uri:
+    method: DELETE
+    url: "https://{{ kibana_fqdn }}/api/spaces/space/{{ item }}"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    body: "{{ item }}"
+    status_code: 204, 404, 400
+  with_items:
+    - hunt
+    - audit
+    - external
+  tags: create-kibana-space
+
+- name: Update Default to Hunt Space
+  uri:
+    method: PUT
+    url: "https://{{ kibana_fqdn }}/api/spaces/space/default"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    body: "{{ item }}"
+    status_code: 200, 201
+  with_items:
+    - "{\"id\": \"default\", \"name\": \"Hunt\", \"description\" : \"Default hunt space\", \"color\": \"#00BFB3\", \"initials\": \"H\" }"
+  tags: create-kibana-space
+
+- name: Create External Kibana Space
+  uri:
+    method: POST
+    url: "https://{{ kibana_fqdn }}/api/spaces/space"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    body: "{{ item }}"
+    status_code: 200, 201
+  with_items:
+    - "{\"id\": \"external\", \"name\": \"External\", \"description\" : \"External Clients Space\", \"color\": \"#aabbcc\", \"initials\": \"EX\" }"
+    - "{\"id\": \"audit\", \"name\": \"Auditing\", \"description\" : \"Kit Auditbeat Space\", \"color\": \"#6092C0\", \"initials\": \"AB\" }"
+  tags: create-kibana-space
+
 - name: Load Saved Objects
-  shell: 'curl -k -X POST -u {{ default_elastic_user }}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{ item }}' # noqa 204
+  shell: 'curl -k -X POST -u {{ default_elastic_user }}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}{{ item.space }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{ item.file }}' # noqa 204
   args:
     warn: false
   retries: 5
@@ -72,6 +131,8 @@
   until: saved_objects_results.rc == 0
   changed_when: save_objects_results is defined
   with_items:
-    - "{{ kibana_dir }}/config.ndjson"
+    - { file: "{{ kibana_dir }}/config.ndjson", space: "" }
+    - { file: "{{ kibana_dir }}/auditbeat.ndjson", space: "/s/audit" }
   tags:
     - kibana-saved-objects
+    - create-kibana-space

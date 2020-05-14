@@ -13,3 +13,34 @@ logstash_user: "logstash_internal"
 default_elastic_user: elastic
 default_data_dir_per_server: 3
 
+filebeat_modules:
+  - apache
+  - auditd
+  - haproxy
+  - icinga
+  - iis
+  - kafka
+  - mongodb
+  - mysql
+  - nats
+  - nginx
+  - osquery
+  - postgresql
+  - redis
+  - santa
+  - system
+  - traefik
+  - activemq
+  - cef
+  - cisco
+  - coredns
+  - envoyproxy
+  - ibmmq
+  - iptables
+  - misp
+  - mssql
+  - panw
+  - rabbitmq
+  #- zeek
+  #- suricata
+  #- netflow

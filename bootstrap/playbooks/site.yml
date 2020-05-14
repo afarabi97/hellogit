@@ -15,9 +15,9 @@
           iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
           iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
           iso_rhel_path: "{{ iso_rhel_server_path }}"
-    - name: Import DIP/GIP variables
-      include_vars:
-        file: "{{ dip_core_vars }}"
+      - name: Import DIP/GIP variables
+        include_vars:
+          file: "{{ dip_core_vars }}"
       when:
         - "system_name == 'DIP' or system_name == 'GIP'"
     - name: Set RHEL ISO To workstation for MIP bootstrap
