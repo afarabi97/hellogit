@@ -13,7 +13,8 @@ from typing import Union, List, Dict
 from models.ctrl_setup import ControllerSetupSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
 from models.kit import KitSettings
-from models.catalog import MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings, WikijsSettings, CatalogSettings
+from models.catalog import (MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings,
+WikijsSettings, MispSettings, HiveSettings, CortexSettings, CatalogSettings)
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
 from util.ssh import SSH_client
@@ -383,6 +384,12 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.logstash_settings.deployment_name
         elif role == 'wikijs':
             return self._catalog_settings.wikijs_settings.deployment_name # type: WikijsSettings
+        elif role == 'misp':
+            return self._catalog_settings.misp_settings.deployment_name
+        elif role == 'hive':
+            return self._catalog_settings.hive_settings.deployment_name
+        elif role == 'cortex':
+            return self._catalog_settings.cortex_settings.deployment_name
 
     def _get_catalog_dict(self, role: str, node: NodeSettings) -> Dict:
         if role == 'suricata':
@@ -397,6 +404,12 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.logstash_settings.to_dict()
         elif role == 'wikijs':
             return self._catalog_settings.wikijs_settings.to_dict()
+        elif role == 'misp':
+            return self._catalog_settings.misp_settings.to_dict()
+        elif role == 'hive':
+            return self._catalog_settings.hive_settings.to_dict()
+        elif role == 'cortex':
+            return self._catalog_settings.cortex_settings.to_dict()
 
     def _construct_selectedNode_part(self, node_affinity: str, role: str) -> List[Dict]:
         all_parts = []
@@ -520,6 +533,21 @@ class APITester:
 
     def install_wikijs(self) -> None:
         payload = self._catalog_payload_generator.generate("wikijs", "install", "Server - Any")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+
+    def install_misp(self) -> None:
+        payload = self._catalog_payload_generator.generate("misp", "install", "Server - Any")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+
+    def install_hive(self):
+        payload = self._catalog_payload_generator.generate("hive", "install", "Server - Any")
+        response = post_request(self._url.format("/api/catalog/install"), payload)
+        time.sleep(60)
+
+    def install_cortex(self):
+        payload = self._catalog_payload_generator.generate("cortex", "install", "Server - Any")
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 

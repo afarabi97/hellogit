@@ -31,3 +31,9 @@ class CatalogJob:
             self.runner.install_logstash()
         elif application == SubCmd.wikijs:
             self.runner.install_wikijs()
+        elif application == SubCmd.misp:
+            self.runner.install_misp()
+        elif application == SubCmd.hive:
+            self.runner.install_hive()
+        elif application == SubCmd.cortex:
+            self.runner.install_cortex()

@@ -99,6 +99,25 @@ class WikijsSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "wikijs"
 
+class MispSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "misp"
+
+class HiveSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "hive"
+
+
+class CortexSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "cortex"
+
 
 class CatalogSettings(Model):
 
@@ -109,6 +128,9 @@ class CatalogSettings(Model):
         self.moloch_viewer_settings = None # type: MolochViewerSettings
         self.logstash_settings = None # type: LogstashSettings
         self.wikijs_settings = dict()
+        self.misp_settings = dict()
+        self.hive_settings = dict()
+        self.cortex_settings = dict()
 
     def set_from_kickstart(self,
                            kickstart_settings: KickstartSettings,
@@ -147,7 +169,15 @@ class CatalogSettings(Model):
             if namespace.which == SubCmd.wikijs:
                 self.wikijs_settings = WikijsSettings()
                 self.wikijs_settings.from_namespace(namespace)
-
+            elif namespace.which == SubCmd.misp:
+                self.misp_settings = MispSettings()
+                self.misp_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.cortex:
+                self.cortex_settings = CortexSettings()
+                self.cortex_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.hive:
+                self.hive_settings = HiveSettings()
+                self.hive_settings.from_namespace(namespace)
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -181,3 +211,18 @@ class CatalogSettings(Model):
                                                 help="This subcommand can be used to install wikijs on your Kit's servers.")
         add_args_from_instance(wikijs_parser, WikijsSettings())
         wikijs_parser.set_defaults(which=SubCmd.wikijs)
+
+        misp_parser = subparsers.add_parser(SubCmd.misp,
+                                                help="This subcommand can be used to install misp on your Kit's servers.")
+        add_args_from_instance(misp_parser, MispSettings())
+        misp_parser.set_defaults(which=SubCmd.misp)
+
+        hive_parser = subparsers.add_parser(SubCmd.hive,
+                                                help="This subcommand can be used to install hive on your Kit's sensors.")
+        add_args_from_instance(hive_parser, HiveSettings())
+        hive_parser.set_defaults(which=SubCmd.hive)
+
+        cortex_parser = subparsers.add_parser(SubCmd.cortex,
+                                                help="This subcommand can be used to install cortex on your Kit's sensors.")
+        add_args_from_instance(cortex_parser, CortexSettings())
+        cortex_parser.set_defaults(which=SubCmd.cortex)

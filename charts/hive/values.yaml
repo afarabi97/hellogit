@@ -8,6 +8,7 @@ nginx_image: nginx:1.17.9
 hive_port: 9000
 hive_https_port: 9443
 cortexIntegration: true
+mispIntegration: true
 esUri: http://cortex-elastic.default.svc.cluster.local:9200
 superadmin_username: admin
 superadmin_password: password!

@@ -25,6 +25,9 @@ class SubCmd:
     zeek = "zeek"
     logstash = "logstash"
     wikijs = "wikijs"
+    misp = "misp"
+    hive = "hive"
+    cortex = "cortex"
 
     # run-export subcommands
     export_html_docs = 'export-html-docs'

@@ -9,7 +9,8 @@ from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKicksta
 from models.gip_settings import GIPControllerSettings, GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
-                            LogstashSettings, SuricataSettings, WikijsSettings)
+                            LogstashSettings, SuricataSettings,
+                            WikijsSettings, MispSettings, HiveSettings, CortexSettings)
 from models.mip_config import MIPConfigSettings
 from typing import Union
 
@@ -34,6 +35,9 @@ class YamlManager:
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
             cls.yaml.register_class(WikijsSettings)
+            cls.yaml.register_class(MispSettings)
+            cls.yaml.register_class(HiveSettings)
+            cls.yaml.register_class(CortexSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
             cls.yaml.register_class(GIPControllerSettings)
