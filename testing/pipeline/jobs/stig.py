@@ -18,6 +18,18 @@ class StigJob:
                                          self.ctrl_settings.node.ipaddress) as client:
                 with client.cd("/opt/tfplenum/stigs/playbooks"):
                     client.run("make dip-stigs", shell=True)
-
+        elif self.ctrl_settings.system_name == "MIP":
+            with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                         self.ctrl_settings.node.password,
+                                         self.ctrl_settings.node.ipaddress) as client:
+                with client.cd("/opt/tfplenum/stigs/playbooks"):
+                    client.run("make mip-stigs", shell=True)
+        elif self.ctrl_settings.system_name == "GIP":
+            # with FabricConnectionWrapper(self.ctrl_settings.node.username,
+            #                              self.ctrl_settings.node.password,
+            #                              self.ctrl_settings.node.ipaddress) as client:
+            #     with client.cd("/opt/tfplenum/stigs/playbooks"):
+            #         client.run("make gip-stigs", shell=True)
+            pass
     def run_stig(self):
         self._execute_stigs()

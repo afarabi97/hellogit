@@ -48,6 +48,9 @@ variables:
   RHEL_ACTIVATIONKEY: "Reposync"
 
   RUN_DIP_STIGS: "true"
+  RUN_MIP_STIGS: "true"
+  RUN_GIP_STIGS: "true"
+  RUN_GIPSVC_STIGS: "true"
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"

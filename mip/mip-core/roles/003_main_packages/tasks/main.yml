@@ -21,10 +21,10 @@
   command: uname -r
   register: kernel_results
 
-- name: Reboot system and utilize new kernel 
+- name: Reboot system and utilize new kernel
   reboot:
     reboot_timeout: 2000
     test_command: "whoami"
   when: kernel_results.stdout != "{{ kernel_version }}"
-  
+
 ...

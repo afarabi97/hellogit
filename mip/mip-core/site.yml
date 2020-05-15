@@ -9,10 +9,10 @@
     - MDT
     - CPT
 
-- name: Adding offline repos 
+- name: Adding offline repos
   hosts: mips
   any_errors_fatal: true
-  roles: 
+  roles:
     - 002_adding-repos
   tags:
     - repos
@@ -30,7 +30,7 @@
 
 - name: Install and download packages for CPT only
   hosts: mips
-  roles: 
+  roles:
     - 004_CPT_packages
   tags:
     - CPT
@@ -38,7 +38,7 @@
 - name: Version lock kernel, kernel headers, kernel-devel
   hosts: mips
   gather_facts: no
-  roles: 
+  roles:
     - 005_versionlock
   tags:
     - CPT
@@ -54,11 +54,11 @@
     - MDT
     - CPT
 
-- name: CVAH folder 
+- name: CVAH folder
   hosts: mips
-  roles: 
+  roles:
     - 021_CVAH_copy
-    
+
 - name: Copy over the scripts used by the MIP
   hosts: mips
   any_errors_fatal: true
@@ -72,14 +72,14 @@
 - name: CPT release file and notes
   hosts: mips
   gather_facts: no
-  roles: 
+  roles:
     - 023_CPT_release
   tags:
     - CPT
 
 - name: MDT release file and notes
   hosts: mips
-  roles: 
+  roles:
     - 024_MDT_release
   tags:
     - MDT
@@ -89,7 +89,7 @@
   any_errors_fatal: true
   roles:
     - 027_mip_firewall-config
-  tags: 
+  tags:
     - firewall
     - MDT
     - CPT
@@ -99,7 +99,7 @@
   any_errors_fatal: true
   roles:
     - 034_mip_grub-configuration
-  tags: 
+  tags:
     - grub
     - MDT
     - CPT
@@ -109,7 +109,7 @@
   any_errors_fatal: true
   roles:
     - 041_mip_login-env
-  tags: 
+  tags:
     - login
     - MDT
     - CPT
@@ -119,7 +119,7 @@
   any_errors_fatal: true
   roles:
     - 042_mip_classification_banner
-  tags: 
+  tags:
     - banner
     - MDT
     - CPT
@@ -140,7 +140,7 @@
   hosts: mips
   roles:
     - 100_mcafee
-    
+
 - name: Install third party software CPT only
   hosts: mips
   roles:
@@ -150,13 +150,37 @@
   tags:
     - CPT
 
+- name: Configure SSH
+  hosts:
+    - localhost
+    - mips
+  any_errors_fatal: true
+  roles:
+    - 028_SSH
+  tags:
+    - MDT
+    - CPT
+    - 028-SSH
+
+- name: Host config
+  hosts:
+    - localhost
+    - mips
+  gather_facts: yes
+  roles:
+    - 029_hosts
+  tags:
+    - 029-hosts
+    - MDT
+    - CPT
+
 - name: Common STIG remediations
   hosts: mips
   any_errors_fatal: true
   roles:
     - 901_common_STIG-remediation
-  tags: 
-    - stigs    
+  tags:
+    - stigs
     - MDT
     - CPT
 
@@ -165,7 +189,8 @@
   any_errors_fatal: true
   roles:
     - post_installation_tasks
-  tags: 
+  tags:
     - post
     - MDT
     - CPT
+

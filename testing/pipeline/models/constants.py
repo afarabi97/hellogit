@@ -13,7 +13,10 @@ class SubCmd:
     gip_setup = 'gip-setup'
     create_rhel_repository_vm = 'create-rhel-repository-vm'
     create_workstation_repository_vm = 'create-workstation-repository-vm'
+
+    # STIG Commands
     run_stigs = 'run-stigs'
+    run_gip_svc_stigs = 'run-gip-svc-stigs'
 
     # run-catalog subcommands
     suricata = "suricata"

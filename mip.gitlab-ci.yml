@@ -134,6 +134,25 @@ Configure MIPs:
       - mipconfigsettings.yml
       - mipnodestoscan.txt
 
+Perform MIP STIGs:
+  stage: stig-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "MIP" run-stigs
+  cache:
+    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - controllersetupsettings_mip.yml
+  only:
+    variables:
+      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-mip"
+      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-all"
+      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-dip-mip"
+
 Perform MIP Security Scans:
   stage: security_scans
   tags:

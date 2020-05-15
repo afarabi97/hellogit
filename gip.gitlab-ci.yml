@@ -182,3 +182,22 @@ GIP Kit:
   only:
     variables:
       - $PIPELINE == "developer-gip"
+      - $PIPELINE == "developer-all"
+
+# Perform GIP STIGs:
+#   stage: stig-kit
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I)"
+#     echo "Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs
+#   cache:
+#     key: tfplenum-gip-cache-${CI_PIPELINE_ID}
+#     policy: pull
+#     paths:
+#       - gipcontrollersettings.yml
+#   only:
+#     variables:
+#       - $PIPELINE == "developer-gip"
+#       - $PIPELINE == "developer-all"

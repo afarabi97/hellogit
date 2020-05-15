@@ -54,7 +54,7 @@ export function getSideNavigationButtons(system_name: string, userService) {
     { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: ['DIP'], privs: operator },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer },
     { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank" },
-    { label: 'MIP Configuration', url: 'MIP_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin }
+    { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin }
   ]
   let navigationButtons: Array<NavGroup> = [];
   allSections.forEach((section) => {

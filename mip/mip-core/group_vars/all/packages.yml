@@ -6,17 +6,17 @@ packages:
   - kernel-devel-3.10.0-1062.12.1.el7.x86_64
   - gcc
   #Wireshark packages
-  - gcc-c++ 
-  - bison 
-  - flex 
-  - qt-devel 
-  - gtk3-devel 
-  - rpm-build 
-  - libtool 
-  - c-ares-devel 
-  - qt5-qtbase-devel 
-  - qt5-qtmultimedia-devel 
-  - qt5-linguist 
+  - gcc-c++
+  - bison
+  - flex
+  - qt-devel
+  - gtk3-devel
+  - rpm-build
+  - libtool
+  - c-ares-devel
+  - qt5-qtbase-devel
+  - qt5-qtmultimedia-devel
+  - qt5-linguist
   - desktop-file-utils
   - libgcrypt
   - libgcrypt-devel
@@ -24,13 +24,13 @@ packages:
   - libpcap-devel
 #Other
   - libvirt*
-  - iptables-services  
-  - nmap               
+  - iptables-services
+  - nmap
   - nmap-frontend
-  - wget                              
-  - mlocate            
-  - yum-utils          
-  - bind-utils         
+  - wget
+  - mlocate
+  - yum-utils
+  - bind-utils
   - fping
   - aide
   - openvpn
@@ -39,31 +39,33 @@ packages:
   - ntp
   - p7zip
   - tftp-server
-  - tftp                
+  - tftp
   - terminator
   - fuse-sshfs
-  - tofrodos  
-  - opensc  
+  - tofrodos
+  - opensc
   - chrony
-  - scap-workbench 
+  - scap-workbench
   - screen
   - yum-plugin-versionlock
   - python3
   - vim
-  - srm.x86_64 
+  - srm.x86_64
   - tmux
   - git
   - nload
-  - putty 
-  - libXScrnSaver           
-  - libappindicator-gtk3 
-  - libdbusmenu            
-  - libdbusmenu-gtk3     
-  - liberation-fonts   
+  - putty
+  - libXScrnSaver
+  - libappindicator-gtk3
+  - libdbusmenu
+  - libdbusmenu-gtk3
+  - liberation-fonts
   - liberation-narrow-fonts
   - libindicator-gtk3
   - libsmi
   - wireshark
+  - sshpass
+  - bind-utils
 
 dependent_packages:
   - gtk3-immodule-xim
@@ -97,7 +99,7 @@ vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
 wireshark_file: wireshark-2.6.13.tar.xz
 McAfee_gip_file: CPT_McAfee_Update.tar
 
-software: 
+software:
   - "{{ web_server }}{{ vmware_file }}"
   - "{{ web_server }}{{ vscode_file }}"
   - "{{ web_server }}{{ gitkraken_file }}"
