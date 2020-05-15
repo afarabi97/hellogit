@@ -5,9 +5,8 @@ import zipfile
 from app import app, logger, conn_mng, CORE_DIR
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.configmap_service import bounce_pods
-from app.service.elastic_service import finish_repository_registration, apply_es_deploy
+from app.service.elastic_service import apply_es_deploy, setup_s3_repository, wait_for_elastic_cluster_ready, Timeout
 from app.service.job_service import run_command, run_command2
-from app.service.snapshot_service import check_snapshot_status
 from app.service.time_service import change_time_on_kit, TimeChangeFailure
 from celery import chain
 from celery.result import AsyncResult
@@ -167,20 +166,6 @@ def update_documentation() -> Response:
         return jsonify({"success_message": "Successfully updated confluence documentation!"})
 
 
-@app.route('/api/mount_nfs_shares', methods=['POST'])
-@controller_maintainer_required
-def mount_nfs_shares() -> Response:
-    payload = request.get_json()
-    nfs_host_or_ip = payload['nfs_host'].strip() # type: str
-    cmd = 'ansible-playbook nfsclient.yml -i inventory.yml -t nfsclient --extra-vars "nfs_server_host={}"'.format(nfs_host_or_ip)
-    stdout, ret_val = run_command2(cmd, str(CORE_DIR / "playbooks/"))
-    print(stdout)
-    if ret_val != 0:
-        return jsonify({"error_message": "Failed to mount one or more share drives."})
-
-    return jsonify({"success_message": "Successfully mounted share drives on all nodes!"})
-
-
 class KubernetesError(Exception):
     pass
 
@@ -194,75 +179,6 @@ def retrieve_service_ip_address(service_name: str) -> str:
 
     raise KubernetesError("Failed to find passed in Kubernetes service ip.")
 
-
-@app.route('/api/restart_elastic_search_and_complete_registration', methods=['POST'])
-@controller_maintainer_required
-def restart_elastic_search() -> Response:
-    if es_cluster_status() == "Ready":
-        global REGISTRATION_JOB
-        service_ip = retrieve_service_ip_address("elasticsearch")
-        REGISTRATION_JOB = finish_repository_registration.delay(service_ip)
-        return OK_RESPONSE
-    return (jsonify("Elastic cluster is not in a ready state. Please wait and try again..."), 500)
-
-@app.route('/api/elk_snapshot_state', methods=['GET'])
-def is_elk_snapshot_repo_setup():
-    global REGISTRATION_JOB
-    service_ip = retrieve_service_ip_address("elasticsearch")
-    if REGISTRATION_JOB:
-        if REGISTRATION_JOB.state != "SUCCESS":
-            return jsonify({"is_setup": "inprogress"})
-        else:
-            REGISTRATION_JOB = None
-
-    try:
-        mng = ElasticsearchManager(service_ip, conn_mng)
-        mng.get_repository()
-        return jsonify({"is_setup": "complete"})
-    except (NotFoundError, ConnectionError):
-        return jsonify({"is_setup": "notstarted"})
-
-
-@app.route('/api/get_elasticsearch_snapshots', methods=['GET'])
-def get_elasticsearch_snapshots():
-    """
-    [{'snapshot': 'snapshot_1', 'uuid': 'ml0vWrkmRymKZbFI1EDeHQ', 'version_id': 7030199, 'version': '7.3.1',
-    'indices': ['ecs-zeek-2019.11.18-000001', 'ecs-zeek-2019.11.21-000004', 'filebeat-suricata-2019.11.18-000001',
-    'ecs-zeek-2019.11.19-000002', 'ecs-zeek-2019.11.20-000003'], 'include_global_state': False,
-    'metadata': {'taken_by': 'tfplenum_ctrl',
-    'taken_because': 'Backup of all related tfplenum indices which includes ecs-*,endgame-*,filebeat-*, and winlogbeat-*.'},
-    'state': 'SUCCESS', 'start_time': '2019-11-22T21:12:17.561Z', 'start_time_in_millis': 1574457137561, 'end_time': '2019-11-22T21:12:28.532Z',
-    'end_time_in_millis': 1574457148532, 'duration_in_millis': 10971, 'failures': [], 'shards': {'total': 21, 'failed': 0, 'successful': 21}}]
-    """
-    service_ip = retrieve_service_ip_address("elasticsearch")
-    mng = ElasticsearchManager(service_ip, conn_mng)
-    return jsonify(mng.get_snapshots())
-
-
-def _get_next_snaphot_name(snapshots: List[Dict]) -> str:
-    if len(snapshots) == 0:
-        return "tfplenum_1"
-
-    count = 0
-    for snapshot in snapshots:
-        tokens = snapshot['snapshot'].split("_")
-        if tokens[0] == "tfplenum":
-            number = int(tokens[1])
-            if number > count:
-                count = number
-    return "tfplenum_{}".format(count + 1)
-
-
-@app.route('/api/take_elasticsearch_snapshot', methods=['GET'])
-@controller_maintainer_required
-def take_elasticsearch_snapshot():
-    service_ip = retrieve_service_ip_address("elasticsearch")
-    mng = ElasticsearchManager(service_ip, conn_mng)
-    ret_val = mng.get_snapshots()
-    snapshot_name = _get_next_snaphot_name(ret_val)
-    snapshot = mng.take_snapshot(snapshot_name)
-    check_snapshot_status.delay(service_ip, snapshot_name)
-    return jsonify(snapshot)
 
 class RemoteNetworkDevice(object):
     def __init__(self, node, device):
@@ -384,8 +300,23 @@ def load_es_deploy():
 @app.route('/api/apply_elastic_deploy', methods=['GET'])
 @controller_maintainer_required
 def apply_es_deploy_rest():
-
     if apply_es_deploy():
         return OK_RESPONSE
 
     return ERROR_RESPONSE
+
+@app.route('/api/snapshot', methods=['POST'])
+@controller_maintainer_required
+def snapshot():
+    try:
+        wait_for_elastic_cluster_ready(minutes=0)
+    except Timeout as e:
+        return (jsonify("Elastic cluster is not in a ready state."), 500)
+    except Exception as e:
+        logger.exception(e)
+        return (jsonify(str(e)), 500)
+    else:
+        repository_settings = request.get_json()
+        elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
+        setup_s3_repository.delay(elasticsearch_ip, repository_settings)
+        return OK_RESPONSE

@@ -1,0 +1,49 @@
+<mat-card>
+    <mat-card-header *ngIf="hasTitle">
+      <mat-card-title>
+        <a (click)="toggleCard()">
+          <span class="material-icons" *ngIf="!isCardVisible">chevron_right</span>
+          <span class="material-icons" *ngIf="isCardVisible">expand_more</span>
+          <span style="vertical-align: top;">Elastic S3 Repository Settings</span>
+        </a>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content *ngIf="isCardVisible || !hasTitle" fxLayout="column" fxLayoutAlign="space-around stretch">
+        <ng-container *ngIf="repositorySettings">
+            <form [formGroup]="repositorySettings">
+                <div fxLayout="column" fxLayoutAlign="start stretch">
+                    <mat-form-field>
+                        <mat-label>Endpoint</mat-label>
+                        <input matInput formControlName="endpoint">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <mat-label>Protocol</mat-label>
+                        <mat-select formControlName="protocol">
+                          <mat-option value="http">HTTP</mat-option>
+                          <mat-option value="https">HTTPS</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+        
+                    <mat-form-field>
+                        <mat-label>Bucket</mat-label>
+                        <input matInput formControlName="bucket">
+                    </mat-form-field>
+        
+                    <mat-form-field>
+                        <mat-label>Access Key</mat-label>
+                        <input matInput formControlName="access_key">
+                    </mat-form-field>
+        
+                    <mat-form-field>
+                        <mat-label>Secret Key</mat-label>
+                        <input matInput type="password" formControlName="secret_key">
+                    </mat-form-field>
+                </div>
+            </form>
+        </ng-container>
+    </mat-card-content>
+    <mat-card-actions *ngIf="isCardVisible">
+        <button mat-raised-button color="primary" (click)="update($event)" [disabled]="repositorySettings.invalid || (allowUpdate ? false : true)">Update</button>
+    </mat-card-actions>
+</mat-card>

@@ -417,19 +417,12 @@ class ElasticsearchManager:
         self._cluster_client = ClusterClient(self._es)
         self._indicies_client = IndicesClient(self._es)
 
-    def register_repository(self, repo_name: str=default_repo) -> Dict:
+    def register_repository(self, snap_body: Dict, repo_name: str=default_repo) -> Dict:
         """
         Registers the repository so snapshots can be made.
 
         :return: {'acknowledged': True}
         """
-        snap_body = {
-            "type": "fs",
-            "settings": {
-                "location": "/mnt/elastic_snapshots",
-                "compress": True
-            }
-        }
         ret_val = self._snapper.create_repository(repository=repo_name, body=snap_body)
         return ret_val
 

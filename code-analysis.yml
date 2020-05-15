@@ -56,7 +56,6 @@ analyze ansible core playbooks:
     echo "Current working directory is $(pwd)"
     ansible-lint core/playbooks/site.yml
     ansible-lint core/playbooks/remove-node.yml
-    ansible-lint core/playbooks/nfsclient.yml
   allow_failure: true
   only:
     variables:

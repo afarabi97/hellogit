@@ -15,12 +15,24 @@ from app.service.scale_service import es_cluster_status, check_scale_status
 from kubernetes import client, config, utils
 from app.dao import elastic_deploy
 
+from kubernetes.client.rest import ApiException
+from pprint import pprint
+import base64
+import os
+
 _JOB_NAME = "tools"
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
 ELASTIC_OP_VERSION = "v1"
 ELASTIC_OP_NAMESPACE = "default"
 ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
+KUBE_CONFIG_LOCATION = "/root/.kube/config"
+
+class ConfigNotFound(Exception):
+    pass
+
+class Timeout(Exception):
+    pass
 
 def apply_es_deploy(run_check_scale_status: bool=True):
     notification = NotificationMessage(role=_JOB_NAME)
@@ -47,110 +59,125 @@ def apply_es_deploy(run_check_scale_status: bool=True):
         notification.post_to_websocket_api()
     return False
 
-class KubernetesDeploymentYamlModifier:
-    repo_path = "/mnt/elastic_snapshots"
-    snapshot_volume_name = "elk-snapshot"
+def string_to_base64(message):
+    message_bytes = message.encode('utf-8')
+    base64_bytes = base64.b64encode(message_bytes)
+    base64_message = base64_bytes.decode('utf-8')
+    return base64_message
 
-    def __init__(self, elk_deployment: Dict):
-        self._elk_deployment = elk_deployment # type: Dict
+def get_secret(name, namespace='default'):
+    if not os.path.isfile(KUBE_CONFIG_LOCATION):
+        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
+    api_instance = client.CoreV1Api() 
+    api_response = api_instance.read_namespaced_secret(name, namespace)
+    return api_response
 
-    def _process_container(self, container: Dict):
-        if 'volumeMounts' not in container:
-            container['volumeMounts'] = []
+def patch_secret(name, body, namespace='default'):
+    if not os.path.isfile(KUBE_CONFIG_LOCATION):
+        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
+    api_instance = client.CoreV1Api()
+    api_response = api_instance.patch_namespaced_secret(name, namespace, body)
+    return api_response
 
-        for v in container['volumeMounts']:
-            if 'name' in v and v['name'] == self.snapshot_volume_name:
-                container['volumeMounts'].remove(v)
+def create_s3_repository_settings(bucket, endpoint, protocol):
+    return {
+        "type": "s3",
+        "settings": {
+            "bucket": bucket,
+            "client": "default",
+            "endpoint": endpoint,
+            "protocol": protocol
+        }
+    }
 
-        if self.snapshot_volume_name not in container['volumeMounts']:
-            container['volumeMounts'].append({'mountPath': self.repo_path, 'name': self.snapshot_volume_name})
+def get_elasticsearch_status():
+    if not os.path.isfile(KUBE_CONFIG_LOCATION):
+        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
+    api_instance = client.CustomObjectsApi()
+    api_response = api_instance.get_namespaced_custom_object_status(group=ELASTIC_OP_GROUP,
+        version=ELASTIC_OP_VERSION,
+        plural=ELASTIC_OP_PLURAL,
+        namespace=ELASTIC_OP_NAMESPACE,
+        name=ELASTIC_OP_NAME)
+    return api_response
 
-    def _process_pod_template_spec(self, pod_template: Dict):
-        if 'volumes' not in pod_template:
-            pod_template['volumes'] = []
+def get_number_of_elasticsearch_nodes():
+    elasticsearch = get_elasticsearch_status()
+    spec = elasticsearch['spec']
+    node_sets = spec['nodeSets']
 
-        for p in pod_template['volumes']:
-            if 'name' in p and p['name'] == self.snapshot_volume_name:
-                pod_template['volumes'].remove(p)
+    total = 0
+    for node in node_sets:
+        count = node['count']
+        total += count
+    
+    return total
 
-        if self.snapshot_volume_name not in pod_template['volumes']:
-            pod_template['volumes'].append({
-                                                "hostPath": {
-                                                    "path": "/mnt/tfplenum_backup/elastic_snapshots",
-                                                    "type": "DirectoryOrCreate"
-                                                },
-                                                "name": self.snapshot_volume_name
-                                        })
+def wait_for_elastic_cluster_ready(minutes=10):
+    total_nodes = get_number_of_elasticsearch_nodes()
 
-    def _process_node_set(self, node_set: Dict):
-        if 'config' in node_set:
-            node_set['config']['path.repo'] = [self.repo_path]
-            if 'podTemplate' in node_set and 'spec' in node_set['podTemplate'] and 'containers' in node_set['podTemplate']['spec']:
-                self._process_pod_template_spec(node_set['podTemplate']['spec'])
-                for container in node_set['podTemplate']['spec']['containers']:
-                    self._process_container(container)
+    if minutes > 0:
+        # The operator doesn't work instantaneously.
+        sleep(30)
 
-    def modify_configuration(self) -> Dict:
-        if 'spec'in self._elk_deployment and 'nodeSets' in self._elk_deployment['spec']:
-            for node_set in self._elk_deployment['spec']['nodeSets']:
-                self._process_node_set(node_set)
-        return self._elk_deployment
+    future_time = datetime.utcnow() + timedelta(minutes=minutes)
 
+    check_cluster_status = True
+    while check_cluster_status:
+        elasticsearch = get_elasticsearch_status()
+        status = elasticsearch['status']
+        available_nodes = status['availableNodes']
+        health = status['health']
+        phase = status['phase']
+
+        if phase == "Ready" and health == "green" and available_nodes == total_nodes:
+            check_cluster_status = False
+        elif future_time <= datetime.utcnow():
+            raise Timeout("The Elastic cluster took longer to start than expected.")
+        else:
+            sleep(10)
 
 @celery.task
-def finish_repository_registration(service_ip: str):
+def setup_s3_repository(service_ip: str, repository_settings: Dict):
     notification = NotificationMessage(role=_JOB_NAME)
-    notification.set_status(status=NotificationCode.STARTED.name)
-    notification.set_message("Started repository registration routine.")
+    notification.set_message("Updating the Elastic S3 repository settings.")
+    notification.set_status(NotificationCode.IN_PROGRESS.name)
     notification.post_to_websocket_api()
-
     try:
-        if es_cluster_status() != "Ready":
-            failure_msg = "Cluster status is not ready unable to continue."
-            notification.set_status(status=NotificationCode.ERROR.name)
-            notification.set_message(failure_msg)
-            notification.post_to_websocket_api()
-            return
+        base64_s3_access_key = get_secret("s3-access-key").data["s3.client.default.access_key"]
+        base64_s3_secret_key = get_secret("s3-secret-key").data["s3.client.default.secret_key"]
 
-        deploy_config = elastic_deploy.read()
-        modifier = KubernetesDeploymentYamlModifier(deploy_config)
-        modified_config = modifier.modify_configuration()
-        elastic_deploy.update(data=modified_config)
+        s3_access_key = repository_settings['access_key']
+        s3_secret_key = repository_settings['secret_key']
 
-        apply_es_deployment = apply_es_deploy(run_check_scale_status=False)
+        secrets_changed = False
 
-        if apply_es_deployment == False:
-            failure_msg = "Error appling changes to es cluster"
-            notification.set_status(status=NotificationCode.ERROR.name)
-            notification.set_message(failure_msg)
-            notification.post_to_websocket_api()
-            return
+        if base64_s3_access_key != string_to_base64(s3_access_key):
+            body = {"data":{"s3.client.default.access_key": string_to_base64(s3_access_key)}}
+            patch_secret("s3-access-key", body)
+            secrets_changed = True
 
-        future_time = datetime.utcnow() + timedelta(hours=1)
-        failure_msg = "Failed to register repository for an unknown reason."
-        mng = ElasticsearchManager(service_ip, conn_mng)
-        ret_val = {}
-        while True:
-            if future_time <= datetime.utcnow():
-                failure_msg = "Failed to register repository because ELK cluster never came back up after 60 minutes."
-                break
+        if base64_s3_secret_key != string_to_base64(s3_secret_key):
+            body = {"data":{"s3.client.default.secret_key": string_to_base64(s3_secret_key)}}
+            patch_secret("s3-secret-key", body)
+            secrets_changed = True
 
-            try:
-                sleep(5)
-                if es_cluster_status() == "Ready":
-                    ret_val = mng.register_repository()
-                    break
-            except TransportError as e:
-                pass
+        if secrets_changed:
+            wait_for_elastic_cluster_ready()
 
-        if ret_val['acknowledged']:
-            notification.set_status(status=NotificationCode.COMPLETED.name)
-            notification.set_message("Completed Elasticsearch repository registration.")
-            notification.post_to_websocket_api()
-        else:
-            notification.set_status(status=NotificationCode.ERROR.name)
-            notification.set_message(failure_msg)
-            notification.post_to_websocket_api()
+        elasticsearch_manager = ElasticsearchManager(service_ip, conn_mng)
+        body = create_s3_repository_settings(repository_settings['bucket'], repository_settings['endpoint'], repository_settings['protocol'])
+        elasticsearch_manager.register_repository(body)
+
+        notification.set_message("Updated Elastic S3 repository settings.")
+        notification.set_status(NotificationCode.COMPLETED.name)
+        notification.post_to_websocket_api()
     except Exception as e:
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)

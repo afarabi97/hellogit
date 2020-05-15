@@ -31,8 +31,7 @@ import { ChangePasswordFormComponent } from './tools-form/change-password-form/c
 import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
 import { KitClockFormComponent } from './tools-form/change-kit-clock-form/change-kitclock.component';
 import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form/node-maintenance.component';
-import { SnapShotCreatorComponent } from './tools-form/snapshot-creator/snapshot-creator.component';
-import { SnapShotSetupComponent } from './tools-form/snapshot-creator/setup-wizard/snap-setup-wizard.component';
+import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
 
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
@@ -141,7 +140,6 @@ export function initializeApp1(appLoadService: AppLoadService) {
     ToolsFormComponent,
     KitClockFormComponent,
     ChangePasswordFormComponent,
-    SnapShotCreatorComponent,
     UpdateDocsFormComponent,
     NodeMaintenanceFormComponent,
     SystemHealthComponent,
@@ -158,7 +156,6 @@ export function initializeApp1(appLoadService: AppLoadService) {
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
     AgentTargetDialogComponent,
-    SnapShotSetupComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     CapitalizeFirstPipe,
@@ -178,7 +175,8 @@ export function initializeApp1(appLoadService: AppLoadService) {
     KitNodeFormComponent,
     ESScaleComponent,
     PodLogModalDialogComponent,
-    ElasticEditorComponent
+    ElasticEditorComponent,
+    RepositorySettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -220,7 +218,6 @@ export function initializeApp1(appLoadService: AppLoadService) {
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
     AgentTargetDialogComponent,
-    SnapShotSetupComponent,
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     ReplayPcapDialog,

@@ -121,7 +121,3 @@ def notify_clock_refresh():
 
 def notify_ruleset_refresh():
     socketio.emit('rulesetchange', 'doit', broadcast=True)
-
-
-def notify_snapshot_refresh():
-    socketio.emit('snap_refresh', 'doit', broadcast=True)

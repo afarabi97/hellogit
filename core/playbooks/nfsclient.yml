@@ -1,8 +1,0 @@
-
-- name: Mount nfs share
-  any_errors_fatal: true
-  hosts:
-    - servers
-  roles:
-    - nfsclient
-  tags: nfsclient
