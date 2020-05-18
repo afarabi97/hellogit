@@ -56,7 +56,7 @@ volumeClaimTemplates:
     storageClassName: elastic-disks
     resources:
       requests:
-      storage: 1Gi
+        storage: 1Gi
 {% endmacro %}
 
 {% macro node_set(name, count, config, spec, elasticsearch_plugins) %}
