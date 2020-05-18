@@ -32,6 +32,8 @@ class SubCmd:
     misp = "misp"
     hive = "hive"
     cortex = "cortex"
+    mongodb = "mongodb"
+    rocketchat = "rocketchat"
 
     # run-export subcommands
     export_html_docs = 'export-html-docs'

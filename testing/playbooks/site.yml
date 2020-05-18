@@ -140,4 +140,20 @@
   roles:
     - misp
   tags: misp
+
+- name: Validate mongodb
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - mongodb
+  tags: mongodb
+
+- name: Validate rocketchat
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - rocketchat
+  tags: rocketchat
 ...

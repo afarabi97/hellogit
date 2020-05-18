@@ -15,7 +15,7 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
 from models.kit import KitSettings
 from models.catalog import (MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings,
-WikijsSettings, MispSettings, HiveSettings, CortexSettings, CatalogSettings)
+WikijsSettings, MispSettings, HiveSettings, CortexSettings, MongodbSettings, RocketchatSettings, CatalogSettings)
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
 from util.connection_mngs import FabricConnectionWrapper
@@ -430,6 +430,10 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.hive_settings.deployment_name
         elif role == 'cortex':
             return self._catalog_settings.cortex_settings.deployment_name
+        elif role == 'mongodb':
+            return self._catalog_settings.mongodb_settings.deployment_name
+        elif role == 'rocketchat':
+            return self._catalog_settings.rocketchat_settings.deployment_name
 
     def _get_catalog_dict(self, role: str, node: NodeSettings) -> Dict:
         if role == 'suricata':
@@ -450,6 +454,10 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.hive_settings.to_dict()
         elif role == 'cortex':
             return self._catalog_settings.cortex_settings.to_dict()
+        elif role == 'mongodb':
+            return self._catalog_settings.mongodb_settings.to_dict()
+        elif role == 'rocketchat':
+            return self._catalog_settings.rocketchat_settings.to_dict()
 
     def _construct_selected_node_part(self, node_affinity: str, role: str) -> List[Dict]:
         all_parts = []
@@ -605,18 +613,13 @@ class APITester:
         post_request(self._catlog_install_url, payload)
         _clean_up(wait = 60)
 
-    def install_misp(self) -> None:
-        payload = self._catalog_payload_generator.generate("misp", "install", "Server - Any")
+    def install_mongodb(self):
+        payload = self._catalog_payload_generator.generate("mongodb", INSTALL, SERVER_ANY)
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 
-    def install_hive(self):
-        payload = self._catalog_payload_generator.generate("hive", "install", "Server - Any")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
-
-    def install_cortex(self):
-        payload = self._catalog_payload_generator.generate("cortex", "install", "Server - Any")
+    def install_rocketchat(self):
+        payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
         response = post_request(self._url.format("/api/catalog/install"), payload)
         time.sleep(60)
 

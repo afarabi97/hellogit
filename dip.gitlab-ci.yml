@@ -222,6 +222,8 @@ CVAH Catalog:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog misp
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog cortex
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog hive
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog mongodb
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog rocketchat
     # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall wikijs
     # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall suricata
   cache:
