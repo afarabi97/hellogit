@@ -1,0 +1,192 @@
+#jinja2: lstrip_blocks: True
+
+{% if system_name == "DIP" %}
+  # DIP Defaults for minimal VM Setup
+  {% set mdi = true %}
+  {% set master_java_memory = 1 %}
+  {% set master_memory = 1 %}
+  {% set master_num_procs = "1000m" %}
+  {% set master_count = 3 %}
+  {% set data_java_memory = 1 %}
+  {% set data_memory = 1 %}
+  {% set data_num_procs = "1000m" %}
+  {% set data_count = 2 %}
+  {% set coordinating_java_memory = 1 %}
+  {% set coordinating_memory = 1 %}
+  {% set coordinating_num_procs = "1000m" %}
+  {% set coordinating_count = groups['servers']|length %}
+  {% set enable_ml = false %}
+  {% set ml_count = 1 %}
+  {% set ml_memory = 1 %}
+  {% set ml_java_memory = 1 %}
+  {% set ml_num_procs = "1000m" %}
+  {% if kit_size == 3 %}
+    # R440 Common Node Kit
+    {% set enable_ml = true %}
+    {% set mdi = false %}
+    {% set master_java_memory = 15 %}
+    {% set master_memory = 15 %}
+    {% set master_num_procs = "3000m" %}
+    {% set master_count = 3 %}
+    {% set data_java_memory = 30 %}
+    {% set data_memory = 64 %}
+    {% set data_num_procs = "6000m" %}
+    {% set data_count = 6 %}
+    {% set coordinating_java_memory = 30 %}
+    {% set coordinating_memory = 45 %}
+    {% set coordinating_num_procs = "3000m" %}
+    {% set coordinating_count = groups['servers']|length %}
+    {% set ml_count = 2 %}
+    {% set ml_memory = 64 %}
+    {% set ml_java_memory = 24 %}
+    {% set ml_num_procs = "8000m" %}
+  {% elif kit_size == 2 %}
+    # R440 Kit
+    {% set enable_ml = true %}
+    {% set mdi = false %}
+    {% set master_java_memory = 15 %}
+    {% set master_memory = 15 %}
+    {% set master_num_procs = "3000m" %}
+    {% set master_count = 3 %}
+    {% set data_java_memory = 30 %}
+    {% set data_memory = 64 %}
+    {% set data_num_procs = "6000m" %}
+    {% set data_count = 6 %}
+    {% set coordinating_java_memory = 30 %}
+    {% set coordinating_memory = 45 %}
+    {% set coordinating_num_procs = "3000m" %}
+    {% set coordinating_count = groups['servers']|length %}
+    {% set ml_count = 1 %}
+    {% set ml_memory = 64 %}
+    {% set ml_java_memory = 24 %}
+    {% set ml_num_procs = "4000m" %}
+  {% elif kit_size == 1 %}
+    # Small DL160 Kit
+    {% set enable_ml = false %}
+    {% set mdi = true %}
+    {% set master_java_memory = 20 %}
+    {% set master_memory = 30 %}
+    {% set master_num_procs = "8000m" %}
+    {% set master_count = 3 %}
+    {% set coordinating_java_memory = 30 %}
+    {% set coordinating_memory = 45 %}
+    {% set coordinating_num_procs = "3000m" %}
+    {% set coordinating_count = groups['servers']|length %}
+  {% elif kit_size == 0 %}
+  # Tiny DL160 Kit
+    {% set enable_ml = false %}
+    {% set mdi = true %}
+    {% set master_java_memory = 20 %}
+    {% set master_memory = 20 %}
+    {% set master_num_procs = "8000m" %}
+    {% set master_count = 3 %}
+    {% set coordinating_java_memory = 8 %}
+    {% set coordinating_memory = 9 %}
+    {% set coordinating_num_procs = "4000m" %}
+    {% set coordinating_count = groups['servers']|length %}
+  {% endif %}
+{% elif system_name == "GIP" %}
+  # GIP Defaults for minimal VM Setup
+  {% set mdi = false %}
+  {% set enable_ml = true %}
+  {% set master_count = 3 %}
+  {% set master_memory = 4 %}
+  {% set master_java_memory = 2 %}
+  {% set master_num_procs = "2000m" %}
+  {% set data_count = 6 %}
+  {% set data_memory = 4 %}
+  {% set data_java_memory = 2 %}
+  {% set data_num_procs = "4000m" %}
+  {% set coordinating_count = 2 %}
+  {% set coordinating_memory = 2 %}
+  {% set coordinating_java_memory = 1 %}
+  {% set coordinating_num_procs = "2000m" %}
+  {% set ml_memory = 2 %}
+  {% set ml_java_memory = 1 %}
+  {% set ml_num_procs = "2000m" %}
+  {% set ml_count = 2 %}
+  {% if kit_size == 100 %}
+    # GIP Hardware Settings
+    {% set master_count = 3 %}
+    {% set master_memory = 24 %}
+    {% set master_java_memory = 24 %}
+    {% set master_num_procs = "4000m" %}
+    {% set data_count = 6 %}
+    {% set data_memory = 24 %}
+    {% set data_java_memory = 24 %}
+    {% set data_num_procs = "8000m" %}
+    {% set coordinating_count = 2 %}
+    {% set coordinating_memory = 24 %}
+    {% set coordinating_java_memory = 24 %}
+    {% set coordinating_num_procs = "4000m" %}
+    {% set ml_memory = 64 %}
+    {% set ml_java_memory = 30 %}
+    {% set ml_num_procs = "8000m" %}
+    {% set ml_count = 4 %}
+  {% endif %}
+{% endif %}
+
+{% import 'templates/node_set.yml.j2' as node_set %}
+
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: tfplenum
+spec:
+  version: {{elastic_7_version}}
+  image: elasticsearch/elasticsearch:{{elastic_7_version}}
+  http:
+    tls:
+      certificate:
+        secretName: elasticsearch-certificate
+  secureSettings:
+  - secretName: s3-access-key
+  - secretName: s3-secret-key
+  nodeSets:
+{{ node_set.master(mdi, master_count, master_memory, master_num_procs, master_java_memory, elasticsearch_plugins, enable_ml)| indent(width=2,first=True) -}}
+{% if mdi == false -%}
+{{ node_set.data(data_count, data_memory, data_num_procs, data_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{%- endif %}
+{{ node_set.coordinating(coordinating_count, coordinating_memory, coordinating_num_procs, coordinating_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{% if enable_ml -%}
+{{ node_set.ml(ml_count, ml_memory, ml_num_procs, ml_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{%- endif %}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  labels:
+    component: elasticsearch
+spec:
+  selector:
+    common.k8s.elastic.co/type: elasticsearch
+    elasticsearch.k8s.elastic.co/cluster-name: tfplenum
+    elasticsearch.k8s.elastic.co/statefulset-name: tfplenum-es-coordinating
+  ports:
+  - name: http
+    port: {{elastic_port}}
+    targetPort: http
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-headless
+  labels:
+    component: elasticsearch-headless
+spec:
+  selector:
+    common.k8s.elastic.co/type: elasticsearch
+    elasticsearch.k8s.elastic.co/cluster-name: tfplenum
+    elasticsearch.k8s.elastic.co/statefulset-name: tfplenum-es-coordinating
+  ports:
+  - name: http
+    port: {{elastic_port}}
+    targetPort: http
+  clusterIP: None
+
+...

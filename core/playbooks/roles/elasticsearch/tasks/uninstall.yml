@@ -15,10 +15,12 @@
   changed_when: results.rc == 0
 
 - name: Delete Additional ES Secrets
-  command: "kubectl delete secret {{ item }} --ignore-not-found"
+  command: "kubectl delete secret {{ item.name }} --ignore-not-found"
   with_items:
-    - "-n default tfplenum-logstash-user"
-    - "-n default kibana-secret-settings"
+    - { name: "tfplenum-logstash-user" }
+    - { name: "kibana-secret-settings" }
+    - { name: "s3-access-key" }
+    - { name: "s3-secret-key" }
   register: results
   changed_when: results.rc == 0
 

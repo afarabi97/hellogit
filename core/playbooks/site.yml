@@ -58,12 +58,13 @@
         kit_size: >-
           {%
           if system_name == "GIP" %}{%
-            if ansible_processor_vcpus >= 55 and (ansible_memtotal_mb/1024)|round|int >= 95 %}100{%
+            if ansible_processor_vcpus >= 55 and (ansible_memtotal_mb/1024)|round|int >= 90 %}100{%
             else %}99{%
             endif %}{%
           else %}{%
             if (groups['servers']|length) >= 2 %}{%
-              if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{%
+              if ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 999 %}3{%
+              elif ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{%
               elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{%
               elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{%
               endif %}{%

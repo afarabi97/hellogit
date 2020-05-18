@@ -25,18 +25,13 @@
     - operator.yml
     - license.yml
     - certificate.yml
+    - deploy.yml
 
 - name: Install Elasticsearch Certificate
   shell: |
     kubectl apply -f {{ elastic_dir }}/certificate.yml
   register: results
   changed_when: results.rc == 0
-
-- name: Copy Deploy Template
-  template:
-    src: "templates/deploy_{{ system_name|lower }}.yml.j2"
-    dest: "{{ elastic_dir }}/deploy.yml"
-    mode: u+rw,g+rw
 
 - name: Delete S3 repository secrets.
   shell: |

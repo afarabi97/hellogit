@@ -1,21 +1,11 @@
-{% macro node_type(is_master, is_data, is_injest) %}
+{% macro node_type(is_master, is_data, is_ingest, is_ml) %}
 node.master: {{ is_master | string }}
 node.data: {{ is_data | string }}
-node.ingest: {{ is_injest | string }}
-{% endmacro %}
-
-{% macro gip_node_type(is_master, is_data, is_injest, is_ml) %}
-node.master: {{ is_master | string }}
-node.data: {{ is_data | string }}
-node.ingest: {{ is_injest | string }}
+node.ingest: {{ is_ingest | string }}
 node.ml: {{ is_ml | string }}
-{% endmacro %}
+{%- endmacro %}
 
-{% macro gip_machine_learning(enabled) %}
-xpack.ml.enabled: {{ enabled | string }}
-{% endmacro %}
-
-{% macro containers(memory, cpu, java_memory) %}
+{% macro containers(memory, cpu, java_memory) -%}
 containers:
 - name: elasticsearch
   # specify resource limits and requests
@@ -30,7 +20,7 @@ containers:
     valueFrom:
       fieldRef:
         fieldPath: spec.nodeName
-{% endmacro %}
+{%- endmacro %}
 
 {% macro volumes_empty_dir() %}
 volumes:
@@ -59,139 +49,119 @@ volumeClaimTemplates:
         storage: 1Gi
 {% endmacro %}
 
-{% macro node_set(name, count, config, spec, elasticsearch_plugins) %}
-name: {{ name }}
-count: {{ count | string }}
-config:
-  {{ config | indent(width=2) }}
-  node.max_local_storage_nodes: "25"
-  xpack.monitoring.collection.enabled: "true"
-  node.attr.node_name: ${NODE_NAME}
-  cluster.routing.allocation.awareness.attributes: node_name
-  script.cache.max_size: "500"
-  script.max_compilations_rate: "256/1m"
-podTemplate:
-  metadata:
-    labels:
-      # additional labels for pods
-      component: elasticsearch
-  spec:
-    initContainers:
-    - name: sysctl
-      securityContext:
-        privileged: true
-      command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
-    - name: install-plugins
-      command:
-      - sh
-      - -c
-      - |
-        set -o pipefail
-        TEMPORARY_FILE=$(mktemp)
-        bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 | tee $TEMPORARY_FILE
-        RETURN_CODE=$?
-        grep -q "already exists" $TEMPORARY_FILE
-        ALREADY_EXISTS=$?
-        if [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then
-          echo "Success: RC: $RETURN_CODE"
-          exit 0
-        else
-          echo "Failure: RC: $RETURN_CODE"
-          exit 1
-        fi
-      env:
-      - name: NODE_NAME
-        valueFrom:
-          fieldRef:
-            fieldPath: spec.nodeName
-    - name: elastic-internal-init-keystore
-      imagePullPolicy: IfNotPresent
-      securityContext:
-        privileged: false
-      command:
-      - /usr/bin/env
-      - bash
-      - -c
-      - "#!/usr/bin/env bash\n\nset -eux\n\necho \"Initializing keystore.\"\n\n# create
-        a keystore in the default data path\necho N | /usr/share/elasticsearch/bin/elasticsearch-keystore
-        create\n\n# add all existing secret entries into it\nfor filename in  /mnt/elastic-internal/secure-settings/*;
-        do\n\t[[ -e \"$filename\" ]] || continue # glob does not match\n\tkey=$(basename
-        \"$filename\")\n\techo \"Adding \"$key\" to the keystore.\"\n\techo y | /usr/share/elasticsearch/bin/elasticsearch-keystore
-        add-file \"$key\" \"$filename\"\ndone\n\necho \"Keystore initialization successful.\"\n"
-      volumeMounts:
-      - mountPath: /mnt/elastic-internal/secure-settings
-        name: elastic-internal-secure-settings
-        readOnly: true
-      env:
-      - name: NODE_NAME
-        valueFrom:
-          fieldRef:
-            fieldPath: spec.nodeName
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: role
-              operator: In
-              values:
-              - server
-    {{ spec | indent(width=4) }}
+{% macro node_set(name, count, config, spec, elasticsearch_plugins, enable_ml, storage) %}
+- name: {{ name }}
+  count: {{ count | string }}
+  config:
+{{ config | indent(width=4,first=True) }}
+    node.max_local_storage_nodes: "25"
+    xpack.monitoring.collection.enabled: "true"
+    node.attr.node_name: ${NODE_NAME}
+    cluster.routing.allocation.awareness.attributes: node_name
+    script.cache.max_size: "500"
+    script.max_compilations_rate: "256/1m"
+    xpack.ml.enabled: {{ enable_ml | string }}
+{% if storage %}{{ storage | indent(width=2,first=True) }}{% endif %}
+  podTemplate:
+    metadata:
+      labels:
+        # additional labels for pods
+        component: elasticsearch
+    spec:
+      initContainers:
+      - name: sysctl
+        securityContext:
+          privileged: true
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+      - name: install-plugins
+        command:
+        - sh
+        - -c
+        - |
+          set -o pipefail
+          TEMPORARY_FILE=$(mktemp)
+          bin/elasticsearch-plugin install --batch {{ ' '.join(elasticsearch_plugins) }} 2>&1 | tee $TEMPORARY_FILE
+          RETURN_CODE=$?
+          grep -q "already exists" $TEMPORARY_FILE
+          ALREADY_EXISTS=$?
+          if [[ $RETURN_CODE -eq 0 || $ALREADY_EXISTS -eq 0 ]]; then
+            echo "Success: RC: $RETURN_CODE"
+            exit 0
+          else
+            echo "Failure: RC: $RETURN_CODE"
+            exit 1
+          fi
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      - name: elastic-internal-init-keystore
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: false
+        command:
+        - /usr/bin/env
+        - bash
+        - -c
+        - "#!/usr/bin/env bash\n\nset -eux\n\necho \"Initializing keystore.\"\n\n# create
+          a keystore in the default data path\necho N | /usr/share/elasticsearch/bin/elasticsearch-keystore
+          create\n\n# add all existing secret entries into it\nfor filename in  /mnt/elastic-internal/secure-settings/*;
+          do\n\t[[ -e \"$filename\" ]] || continue # glob does not match\n\tkey=$(basename
+          \"$filename\")\n\techo \"Adding \"$key\" to the keystore.\"\n\techo y | /usr/share/elasticsearch/bin/elasticsearch-keystore
+          add-file \"$key\" \"$filename\"\ndone\n\necho \"Keystore initialization successful.\"\n"
+        volumeMounts:
+        - mountPath: /mnt/elastic-internal/secure-settings
+          name: elastic-internal-secure-settings
+          readOnly: true
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - server
+{{ spec | indent(width=6,first=True) }}
 {% endmacro %}
 
 {% set config = None %}
 {% set spec = None %}
+{% set storage = None %}
 
-{% macro dip_master(mdi, count, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- if mdi %}
-    {%- set config = node_type(true, true, true) %}
-    {%- set spec = containers(memory, cpu, java_memory) + volume_claim_templates() %}
-  {%- else %}
-    {%- set config = node_type(true, false, true) %}
-    {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() %}
-  {%- endif -%}
-
-  {{- node_set('master', count, config, spec, elasticsearch_plugins) }}
+{% macro master(mdi, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+  {% if mdi %}
+    {% set config = node_type(true, true, true, false) %}
+    {% set storage = volume_claim_templates() %}
+    {% set spec = containers(memory, cpu, java_memory) %}
+  {% else %}
+    {% set config = node_type(true, false, true, false) %}
+    {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
+  {% endif %}
+{{ node_set('master', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro dip_data(count, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = node_type(false, true, true) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volume_claim_templates() -%}
-
-  {{- node_set('data', count, config, spec, elasticsearch_plugins) }}
+{% macro data(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+  {% set config = node_type(false, true, true, false) %}
+  {% set storage = volume_claim_templates() %}
+  {% set spec = containers(memory, cpu, java_memory) %}
+{{ node_set('data', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro dip_coordinating(count, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = node_type(false, false, true) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
-
-  {{- node_set('coordinating', count, config, spec, elasticsearch_plugins) }}
+{% macro coordinating(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+  {% set config = node_type(false, false, true, false) %}
+  {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
+{{ node_set('coordinating', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro gip_master(count, host_path, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = gip_node_type(true, false, false, false) + gip_machine_learning(true) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
-
-  {{- node_set('master', count, config, spec, elasticsearch_plugins) }}
-{% endmacro %}
-
-{% macro gip_data(count, host_path, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = gip_node_type(false, true, true, false) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volume_claim_templates() -%}
-
-  {{- node_set('data', count, config, spec, elasticsearch_plugins) }}
-{% endmacro %}
-
-{% macro gip_coordinating(count, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = gip_node_type(false, false, true, false) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
-
-  {{- node_set('coordinating', count, config, spec, elasticsearch_plugins) }}
-{% endmacro %}
-
-{% macro gip_ml(count, memory, cpu, java_memory, elasticsearch_plugins) %}
-  {%- set config = gip_node_type(false, false, false, true) + gip_machine_learning(true) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
-
-  {{- node_set('ml', count, config, spec, elasticsearch_plugins) }}
+{% macro ml(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+  {% set config = node_type(false, false, false, true) %}
+  {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
+{{ node_set('ml', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
