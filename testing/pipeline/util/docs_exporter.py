@@ -6,6 +6,11 @@ from datetime import datetime, timedelta
 from time import sleep
 from typing import List, Union, Dict
 
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+ACCEPT_ENCODING = 'gzip, deflate, br'
+ACCEPT_LANG = 'en-US,en;q=0.9'
+HOST = 'confluence.di2e.net'
+ORIGIN = 'https://confluence.di2e.net'
 
 class PageNotFound(Exception):
     pass
@@ -18,13 +23,13 @@ class MyConfluenceExporter(Confluence):
                             page_id: int,
                             export_hash: str) -> bool:
         headers = {'Accept': 'text/html, */*; q=0.01',
-                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36',
+                   'User-Agent': USER_AGENT,
                    'X-Requested-With': 'XMLHttpRequest',
                    'X-Atlassian-Token': 'no-check'}
         time_submitted = int(time.time() * 1000)
         poll_url = self.url + ("/plugins/contentexporter/"
-                               "poll.action?pageId={pageId}&hash={pdfHash}&_={timeSubmitted}"
-                                .format(pageId=page_id,
+                               "poll.action?pageId={page_id}&hash={pdfHash}&_={timeSubmitted}"
+                                .format(page_id=page_id,
                                         pdfHash=export_hash,
                                         timeSubmitted=time_submitted))
         response = self._session.request(
@@ -49,11 +54,11 @@ class MyConfluenceExporter(Confluence):
                              export_job_id: str) -> str:
         headers = {
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': ACCEPT_ENCODING,
+            'Accept-Language': ACCEPT_LANG,
             'Connection': 'keep-alive',
-            'Host': 'confluence.di2e.net',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+            'Host': HOST,
+            'User-Agent': USER_AGENT
         }
 
         poll_url = self.url + ("/plugins/servlet/scroll-pdf/api/exports/"
@@ -109,20 +114,20 @@ class MyConfluenceExporter(Confluence):
                 break
         return None
 
-    def _download_pdf(self, pageId: int, export_hash: str, export_path: str, export_version: str, export_format: str):
+    def _download_pdf(self, page_id: int, export_hash: str, export_path: str, export_version: str, export_format: str):
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': ACCEPT_ENCODING,
+            'Accept-Language': ACCEPT_LANG,
             'Connection': 'keep-alive',
-            'Host': 'confluence.di2e.net',
+            'Host': HOST,
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36',
+            'User-Agent': USER_AGENT,
             'X-Atlassian-Token': 'no-check'
         }
         download_url = self.url + ("/plugins/contentexporter/download.action"
-                                   "?pageId={pageId}&hash={exportHash}"
-                                   .format(pageId=pageId, exportHash=export_hash))
+                                   "?pageId={page_id}&hash={exportHash}"
+                                   .format(page_id=page_id, exportHash=export_hash))
         with self._session.request(
             method='GET',
             url=download_url,
@@ -144,20 +149,20 @@ class MyConfluenceExporter(Confluence):
 
             print("Successfully exported documentation to {}".format(file_to_save))
 
-    def _download_pdf2(self, pageId: int, export_path: str, export_version: str, timeout_min: int, title: str):
+    def _download_pdf2(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str):
         headers = {
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': ACCEPT_ENCODING,
+            'Accept-Language': ACCEPT_LANG,
             'Connection': 'keep-alive',
             'Content-Type': 'application/json;charset=UTF-8',
-            'Host': 'confluence.di2e.net',
-            'Origin': 'https://confluence.di2e.net',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+            'Host': HOST,
+            'ORIGIN': ORIGIN,
+            'User-Agent': USER_AGENT
         }
 
         payload = {
-            "pageId": str(pageId),
+            "pageId": str(page_id),
             "pageSet":"current",
             "pageOptions":{
 
@@ -253,12 +258,12 @@ class MyConfluenceExporter(Confluence):
             download_url = self._wait_for_pdf2(payload["exportJobId"], timeout_min)
             headers = {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': ACCEPT_ENCODING,
+                'Accept-Language': ACCEPT_LANG,
                 'Connection': 'keep-alive',
-                'Host': 'confluence.di2e.net',
+                'Host': HOST,
                 'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+                'User-Agent': USER_AGENT
             }
 
             with self._session.request(
@@ -313,9 +318,9 @@ class MyConfluenceExporter(Confluence):
         headers = {
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://confluence.di2e.net',
+            'ORIGIN': ORIGIN,
             'X-Atlassian-Token': 'no-check',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36',
+            'User-Agent': USER_AGENT,
             'X-Requested-With': 'XMLHttpRequest'
         }
 
@@ -390,14 +395,14 @@ class MyConfluenceExporter(Confluence):
         page_ids = self._get_content_page_ids(space, title)
         headers = {
             'Accept': 'application/json, text/javascript, */*; q=0.01',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': ACCEPT_ENCODING,
+            'Accept-Language': ACCEPT_LANG,
             'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Host': 'confluence.di2e.net',
-            'Origin': 'https://confluence.di2e.net',
+            'Host': HOST,
+            'ORIGIN': ORIGIN,
             'X-Atlassian-Token': 'no-check',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36',
+            'User-Agent': USER_AGENT,
             'X-Requested-With': 'XMLHttpRequest'
         }
 

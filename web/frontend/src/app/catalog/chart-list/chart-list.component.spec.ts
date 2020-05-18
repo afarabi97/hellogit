@@ -48,7 +48,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "5.21.0",
+          "appVersion": "5.22.3",
           "application": "mattermost",
           "description": "Mattermost is a chat and file sharing platform",
           "pmoSupported": false
@@ -66,7 +66,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "4.2.5",
+          "appVersion": "4.2.6",
           "application": "mongodb",
           "description": "NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications.",
           "pmoSupported": true
@@ -84,7 +84,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": false
         },
         {
-          "appVersion": "3.0.9",
+          "appVersion": "3.2.2",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
           "pmoSupported": true
@@ -102,7 +102,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "2.2.51",
+          "appVersion": "2.3.81",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true

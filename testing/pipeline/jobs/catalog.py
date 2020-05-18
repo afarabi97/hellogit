@@ -3,6 +3,7 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.catalog import CatalogSettings
 from models.constants import SubCmd
 from util.api_tester import APITester
+import logging
 
 class CatalogJob:
 
@@ -17,23 +18,34 @@ class CatalogJob:
                                 self.kickstart_settings,
                                 catalog_settings=self.catalog_settings)
 
-    def run_catalog(self, application: str):
-        print("Installing ", application)
-        if application == SubCmd.suricata:
-            self.runner.install_suricata()
-        elif application == SubCmd.moloch_viewer:
-            self.runner.install_moloch_viewer()
-        elif application == SubCmd.moloch_capture:
-            self.runner.install_moloch_capture()
-        elif application == SubCmd.zeek:
-            self.runner.install_zeek()
-        elif application == SubCmd.logstash:
-            self.runner.install_logstash()
-        elif application == SubCmd.wikijs:
-            self.runner.install_wikijs()
-        elif application == SubCmd.misp:
-            self.runner.install_misp()
-        elif application == SubCmd.hive:
-            self.runner.install_hive()
-        elif application == SubCmd.cortex:
-            self.runner.install_cortex()
+    def run_catalog(self, application: str, process: str):
+        if process == SubCmd.install:
+            logging.info("Installing "+application.title())
+            if application == SubCmd.suricata:
+                self.runner.install_suricata()
+            elif application == SubCmd.moloch_viewer:
+                self.runner.install_moloch_viewer()
+            elif application == SubCmd.moloch_capture:
+                self.runner.install_moloch_capture()
+            elif application == SubCmd.zeek:
+                self.runner.install_zeek()
+            elif application == SubCmd.logstash:
+                self.runner.install_logstash()
+            elif application == SubCmd.wikijs:
+                self.runner.install_wikijs()
+            elif application == SubCmd.misp:
+                self.runner.install_misp()
+            elif application == SubCmd.hive:
+                self.runner.install_hive()
+            elif application == SubCmd.cortex:
+                self.runner.install_cortex()
+            else:
+                logging.info("Cannot install "+application.title()+". The function has not been coded")
+        elif process == SubCmd.reinstall:
+            logging.info("Reinstalling "+application.title())
+            if application == SubCmd.wikijs:
+                self.runner.reinstall_wikijs()
+            elif application == SubCmd.suricata:
+                self.runner.reinstall_suricata()
+            else:
+                logging.info("Cannot reinstall "+application.title()+". The function has not been coded")

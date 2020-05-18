@@ -1,5 +1,5 @@
 # Default values for mattermost
-mattermostImage: mattermost/mattermost-prod-app:5.21.0
+mattermostImage: mattermost/mattermost-prod-app:5.22.3
 domain: lan
 
 # database variables

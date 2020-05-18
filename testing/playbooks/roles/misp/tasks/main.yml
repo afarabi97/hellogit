@@ -1,0 +1,59 @@
+---
+
+- set_fact:
+    app_deployed: false
+    releases: ""
+
+- name: check if misp is installed
+  shell: helm list --filter 'misp$' --output json
+  register: app_installed
+  changed_when: app_installed.rc != 0
+
+- name: update installed variable
+  set_fact:
+    releases: "{{ (app_installed.stdout | from_json).Releases }}"
+  when:
+    - "'Releases' in app_installed.stdout"
+
+- name: update installed variable
+  set_fact:
+    app_deployed: true
+  when:
+    - app_installed is defined
+    - releases is defined and releases != ""
+    - "'DEPLOYED' in item.Status"
+  with_items: "{{ releases }}"
+
+- name: Test | Check misp Helm Deployed
+  assert:
+    that: "'DEPLOYED' in item.Status"
+    msg: "Failed to determine if misp is installed"
+  when: releases is defined and releases != ""
+  with_items:
+    - "{{ releases }}"
+
+- block:
+  - set_fact:
+          cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+
+  - name: get misp pods
+    shell: |
+      {{ cmd }} | grep 'misp-'
+    register: get_pods
+    changed_when: get_pods.failed
+
+  - name: Get pod status
+    shell: |
+      kubectl get pod {{item}} --no-headers | awk '{ print $3 }'
+    with_items: "{{ get_pods.stdout_lines }}"
+    register: pod_status
+    changed_when: pod_status.failed
+    ignore_errors: yes
+
+  - name: Test | Check Pod Status
+    assert:
+      that: item.stdout == 'Running'
+      msg: "Failed it appears misp pod status is {{ item.stdout }}"
+    with_items: "{{ pod_status.results }}"
+  when: app_deployed|bool
+...

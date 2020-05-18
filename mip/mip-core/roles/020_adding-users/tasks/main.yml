@@ -1,6 +1,6 @@
 ---
 - name: Create a group for the operation role.
-  group: 
+  group:
     name: operators
     state: present
 

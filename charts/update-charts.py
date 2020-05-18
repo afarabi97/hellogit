@@ -49,7 +49,7 @@ CHARTMUSEUM_FQDN = "chartmuseum.{}".format(domain)
 CHARTS_PATH="/opt/tfplenum/charts"
 os.environ['REQUESTS_CA_BUNDLE'] = "/etc/pki/tls/certs/ca-bundle.crt"
 
-CHARTS = '../bootstrap/playbooks/group_vars/all/chartmuseum.yml'
+CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
 INI = "/etc/tfplenum.ini"
 
 def get_system_name():

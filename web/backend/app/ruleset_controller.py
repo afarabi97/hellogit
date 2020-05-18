@@ -258,7 +258,6 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Di
 def upload_rule() -> Response:
     rule_set = json.loads(request.form['ruleSetForm'],
                           encoding="utf-8")
-    rule = None
     if 'upload_file' not in request.files:
         return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
 

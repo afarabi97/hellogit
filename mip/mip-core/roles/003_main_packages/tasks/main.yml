@@ -20,11 +20,12 @@
 - name: Find and register kernel version
   command: uname -r
   register: kernel_results
+  changed_when: kernel_results.rc == 0
+  failed_when:  kernel_results.rc > 0
 
 - name: Reboot system and utilize new kernel
   reboot:
     reboot_timeout: 2000
     test_command: "whoami"
-  when: kernel_results.stdout != "{{ kernel_version }}"
-
+  when: kernel_results.stdout != kernel_version
 ...

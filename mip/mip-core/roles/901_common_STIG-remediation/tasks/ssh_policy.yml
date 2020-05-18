@@ -1,5 +1,5 @@
 ---
-- name: Disabling root login for ssh   
+- name: Disabling root login for ssh
   replace:
     path: /etc/ssh/sshd_config
     regexp: '#PermitRootLogin yes'

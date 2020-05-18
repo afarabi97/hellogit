@@ -14,6 +14,7 @@ from models.catalog import (CatalogSettings, MolochCaptureSettings,
 from models.mip_config import MIPConfigSettings
 from typing import Union
 
+YAML_FILE = "{}.yml"
 
 class YamlManager:
     yaml = None
@@ -53,7 +54,7 @@ class YamlManager:
             yaml_name = "{}_{}.yml".format(
                 some_model.__class__.__name__.lower(), application.lower())
         else:
-            yaml_name = "{}.yml".format(some_model.__class__.__name__.lower())
+            yaml_name = YAML_FILE.format(some_model.__class__.__name__.lower())
         with open(yaml_name, 'w') as outfile:
             cls.yaml.dump(some_model, outfile)
 
@@ -73,30 +74,30 @@ class YamlManager:
 
     @classmethod
     def load_gip_ctrl_settings_from_yaml(cls) -> GIPControllerSettings:
-        yaml_name = "{}.yml".format(GIPControllerSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(GIPControllerSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
     def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
-        yaml_name = "{}.yml".format(KickstartSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(KickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
     def load_gip_kickstart_settings_from_yaml(cls) -> GIPKickstartSettings:
-        yaml_name = "{}.yml".format(GIPKickstartSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(GIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
     def load_mip_kickstart_settings_from_yaml(cls) -> KickstartSettings:
-        yaml_name = "{}.yml".format(MIPKickstartSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(MIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
     def load_gip_service_settings_from_yaml(cls) -> GIPServiceSettings:
-        yaml_name = "{}.yml".format(GIPServiceSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(GIPServiceSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
     def load_kit_settings_from_yaml(cls) -> KitSettings:
-        yaml_name = "{}.yml".format(KitSettings.__name__.lower())
+        yaml_name = YAML_FILE.format(KitSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)

@@ -22,7 +22,7 @@ from logging import Logger
 from pathlib import Path
 from random import randint
 from celery import Celery
-from app.middleware import auth_middleware, Auth
+from app.middleware import AuthMiddleware, Auth
 import pymongo
 
 APP_DIR = Path(__file__).parent  # type: Path
@@ -87,7 +87,7 @@ app.config['CELERY_BROKER_URL'] = REDIS
 app.config['CELERY_RESULT_BACKEND'] = REDIS
 
 # calling our middleware
-app.wsgi_app = auth_middleware(app.wsgi_app)
+app.wsgi_app = AuthMiddleware(app.wsgi_app)
 
 CORS(app)
 socketio = SocketIO(app, message_queue=app.config['CELERY_BROKER_URL'])

@@ -15,7 +15,7 @@ class SSHFailure(Exception):
     """Base class for exceptions in this module."""
     pass
 
-class SSH_client():
+class SSHClient():
     """
     Represents an SSH connection to a remote server
 
@@ -128,7 +128,7 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings
             logging.info("Machines remaining:")
             logging.info([node.hostname for node in nodes_to_test])
             logging.info("Testing " + node.hostname + " (" + node.ipaddress + ")")
-            result = SSH_client.test_connection(
+            result = SSHClient.test_connection(
                 node.ipaddress,
                 node.username,
                 node.password,

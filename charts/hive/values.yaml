@@ -4,7 +4,7 @@ elastic_image: elasticsearch:6.8.0
 cortex_image: thehiveproject/cortex:3.0.0
 corex_port: 9001
 hive_image: tfplenum/thehive:3.4.0
-nginx_image: nginx:1.17.9
+nginx_image: nginx:1.18.0
 hive_port: 9000
 hive_https_port: 9443
 cortexIntegration: true

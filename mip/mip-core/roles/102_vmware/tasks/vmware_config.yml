@@ -5,7 +5,7 @@
     path: "{{ vmware_home_dir }}"
     owner: "{{ user }}"
     group: "{{ user }}"
-    state: directory 
+    state: directory
 
   # template automatically adds vms to library
 - name: Template vmware inventory.vmls to /home/assessor/.vmware

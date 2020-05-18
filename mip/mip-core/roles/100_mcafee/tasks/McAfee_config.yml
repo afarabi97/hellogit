@@ -8,7 +8,7 @@
     - CPT
     - MDT
 
-- name: Unpack dat tar file 
+- name: Unpack dat tar file
   unarchive:
     src: "{{ tmp_apps }}/{{ dat_file }}"
     dest: "{{ dat_path }}"
@@ -17,7 +17,7 @@
     - CPT
     - MDT
 
-- name: Unpack engine tar file 
+- name: Unpack engine tar file
   unarchive:
     src: "{{ tmp_apps }}/{{ engine_file }}"
     dest: "{{ engine_path }}"
@@ -34,7 +34,7 @@
   tags:
     - CPT
 
-- name: Copy McAfee desktop application 
+- name: Copy McAfee desktop application
   copy:
     src: "{{ McAfee_tmp_dir }}/{{ McAfee_desktop }}"
     dest: "{{ user_desktop }}"
@@ -69,10 +69,12 @@
     - CPT
 
 - name: Trust McAfee desktop application
-  become: yes 
+  become: yes
   become_user: "{{ user }}"
-  shell:
-    cmd: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ McAfee_desktop }}" 'metadata::trusted' yes
+  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ McAfee_desktop }}" 'metadata::trusted' yes
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
   tags:
     - CPT
 

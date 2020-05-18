@@ -14,7 +14,7 @@ from models.common import NodeSettings, VCenterSettings
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
-
+POWER_CONTROL_NODES = PIPELINE_DIR + "playbooks/power_control_nodes.yml"
 
 class Target:
     def __init__(self, name: str, ipaddress: str, port:int=22):
@@ -64,7 +64,7 @@ def power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeS
 
     nodes_ary = [node.to_dict() for node in nodes]
     extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'state': 'poweredon', 'vcenter': vcenter}
-    execute_playbook([PIPELINE_DIR + "playbooks/power_control_nodes.yml"], extra_vars)
+    execute_playbook([POWER_CONTROL_NODES], extra_vars)
 
 
 def power_off_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
@@ -73,7 +73,7 @@ def power_off_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[Node
 
     nodes_ary = [node.to_dict() for node in nodes]
     extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'state': 'poweredoff', 'vcenter': vcenter}
-    execute_playbook([PIPELINE_DIR + "playbooks/power_control_nodes.yml"], extra_vars)
+    execute_playbook([POWER_CONTROL_NODES], extra_vars)
 
 
 def power_off_vms_gracefully(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):
@@ -92,7 +92,7 @@ def delete_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSet
     power_off_vms(vcenter, nodes)
     nodes_ary = [node.to_dict() for node in nodes]
     extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'state': 'absent', 'vcenter': vcenter}
-    execute_playbook([PIPELINE_DIR + "playbooks/power_control_nodes.yml"], extra_vars)
+    execute_playbook([POWER_CONTROL_NODES], extra_vars)
 
 
 def take_snapshot(vcenter: VCenterSettings, node: NodeSettings, snapshot_name: str="baseline"):

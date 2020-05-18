@@ -12,7 +12,7 @@
     url: "{{ cpt_cvah_tar }}"
     dest: /root
     timeout: 120
-  when: cvah_file.stat.exists == False
+  when: not cvah_file.stat.exists
   tags:
     - CPT
 
@@ -21,7 +21,7 @@
     url: "{{ mdt_cvah_tar }}"
     dest: /root
     timeout: 120
-  when: cvah_file.stat.exists == False
+  when: not cvah_file.stat.exists
   tags:
     - MDT
 
@@ -34,20 +34,25 @@
     - CPT
     - MDT
 
-- set_fact:
+- name: Set TAR file
+  set_fact:
     tar_file: "{{ tar_file.files[0].path.split('/')[-1] }}"
-  when: cvah_file.stat.exists == False
+  when: not cvah_file.stat.exists
   tags:
     - CPT
     - MDT
 
 - name: Unpack cvah folder tar
-  command: tar -xvzf /root/"{{ tar_file }}" -C /
-  when: cvah_file.stat.exists == False
+# command: tar -xvzf /root/"{{ tar_file }}" -C /
+  unarchive:
+    src: "/root/{{ tar_file }}"
+    dest: /
+    remote_src: yes
+  when: not cvah_file.stat.exists
   tags:
     - CPT
     - MDT
-  
+
 - name: Create hidden file in ansible to ensure cvah folder is complete
   file:
     path: "/cvah/.cvah_file"
@@ -57,7 +62,7 @@
     - MDT
 
 - name: Remove tar file
-  file: 
+  file:
     path: "/root/{{ tar_file }}"
     state: absent
   tags:

@@ -19,6 +19,10 @@ class SubCmd:
     run_gip_svc_stigs = 'run-gip-svc-stigs'
 
     # run-catalog subcommands
+    install = "install"
+    uninstall = "uninstall"
+    reinstall = "reinstall"
+
     suricata = "suricata"
     moloch_capture = "moloch-capture"
     moloch_viewer = "moloch-viewer"

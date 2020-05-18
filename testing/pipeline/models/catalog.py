@@ -49,7 +49,7 @@ class MolochViewerSettings(Model):
         self.node_hostname = "server"
         self.user = "assessor"
         self.password = "password"
-        self.deployment_name = "server-moloch-viewer"
+        self.deployment_name = "moloch-viewer"
 
     def to_dict(self) -> Dict:
         moloch_dict = super().to_dict()
@@ -82,7 +82,7 @@ class LogstashSettings(Model):
         self.kafka_clusters = []
         self.replicas = 2
         self.heap_size = 4
-        self.deployment_name = "server-logstash"
+        self.deployment_name = "logstash"
         self.external_fqdn = ""
         self.external_ip = ""
 
@@ -181,6 +181,10 @@ class CatalogSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
+        parser.add_argument('--process', dest='process',
+                            choices=[SubCmd.install,SubCmd.uninstall,SubCmd.reinstall], default=SubCmd.install,
+                            help="Selects which catalog process to perform")
+
         subparsers = parser.add_subparsers()
         suricata_parser = subparsers.add_parser(SubCmd.suricata,
                                                 help="This subcommand can be used to install suricata on your Kit's sensors.")

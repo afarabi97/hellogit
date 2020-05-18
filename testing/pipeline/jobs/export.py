@@ -20,7 +20,7 @@ from util.ssh import test_nodes_up_and_alive
 from models.gip_settings import GIPServiceSettings
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
-
+CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
 
 def validate_export_location(export_loc: ExportLocSettings):
     if os.path.exists(export_loc.export_path) and os.path.isdir(export_loc.export_path):
@@ -172,7 +172,7 @@ class ControllerExport:
         ctrl_hostname = self.ctrl_settings.node.hostname
         version = self.export_loc.export_version
         payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+        execute_playbook([CTRL_EXPORT_PREP], payload)
         destination_path = "{}/DIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
 
@@ -195,7 +195,7 @@ class MIPControllerExport(ControllerExport):
         ctrl_hostname = self.ctrl_settings.node.hostname
         version = self.export_loc.export_version
         payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+        execute_playbook([CTRL_EXPORT_PREP], payload)
 
         destination_path = "{}/MIP_{}_Controller.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
@@ -207,7 +207,7 @@ class GIPServiceExport(ControllerExport):
         controller_settings.vcenter = gip_service_settings.vcenter
 
         super().__init__(controller_settings, export_loc)
-    
+
     def export_gip_service_vm(self):
         logging.info("Exporting the service vm to OVA.")
         validate_export_location(self.export_loc)
@@ -223,10 +223,10 @@ class GIPServiceExport(ControllerExport):
         ctrl_hostname = self.ctrl_settings.node.hostname
         version = self.export_loc.export_version
         payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+        execute_playbook([CTRL_EXPORT_PREP], payload)
 
         destination_path = "{}/GIP_{}_Service.ova".format(str(path_to_export), self.export_loc.export_version)
-        self._export(destination_path)  
+        self._export(destination_path)
 
 
 class ConfluenceExport:

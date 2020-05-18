@@ -46,7 +46,7 @@ class Runner:
         ch.setFormatter(formatter)
         kit_builder.addHandler(ch)
 
-    def _run_catalog(self, application: str, args: Namespace):
+    def _run_catalog(self, application: str, process: str, args: Namespace):
         ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
             args.system_name)
         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
@@ -56,7 +56,7 @@ class Runner:
 
         executor = CatalogJob(
             ctrl_settings, kickstart_settings, catalog_settings)
-        executor.run_catalog(application)
+        executor.run_catalog(application, process)
 
     def _setup_args(self):
         parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
@@ -339,9 +339,9 @@ class Runner:
                         args.system_name)
                     try:
                         kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
-                        kickstart_settings.nodes.append(ctrl_settings.node)
+                        kickstart_settings.mips.append(ctrl_settings.node)
                         delete_vms(ctrl_settings.vcenter,
-                                   kickstart_settings.nodes)
+                                   kickstart_settings.mips)
                     except FileNotFoundError:
                         delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
                 elif args.system_name == "GIP":
@@ -378,7 +378,7 @@ class Runner:
                     ctrl_settings, kickstart_settings, mip_config_settings)
                 executor.run_mip_config()
             else:
-                self._run_catalog(args.which, args)
+                self._run_catalog(args.which, args.process, args)
         except ValueError as e:
             logging.exception(e)
             exit(1)

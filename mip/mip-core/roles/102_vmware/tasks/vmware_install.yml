@@ -8,10 +8,15 @@
     --set-setting=vmware-workstation-server datastore {{ vmware_dir }}
     --set-setting=vmware-workstation-server httpsPort 443
     --set-setting vmware-workstation serialNumber {{ vmware_license }}
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 
 - name: Install additional VMware modules
-  shell:
-    cmd: vmware-modconfig --console --install-all
+  command: vmware-modconfig --console --install-all
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 
 - name: Copy vmware shorcut to desktop
   copy:
@@ -19,7 +24,7 @@
     dest: "{{ user_desktop }}"
     remote_src: yes
 
-- name: Change vmware desktop permissions 
+- name: Change vmware desktop permissions
   file:
     path: "{{ user_desktop }}/{{ vmware_desktop_app }}"
     owner: "{{ user }}"
@@ -27,8 +32,10 @@
     mode: '0774'
 
 - name: Trust vmware desktop application
-  become: yes 
+  become: yes
   become_user: "{{ user }}"
-  shell:
-    cmd: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' yes
+  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' yes
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 ...

@@ -5,6 +5,7 @@ import time
 from time import sleep
 import pymongo
 import os
+import tempfile
 
 from datetime import datetime, timedelta
 from util.connection_mngs import MongoConnectionManager
@@ -17,8 +18,13 @@ from models.catalog import (MolochCaptureSettings, MolochViewerSettings, ZeekSet
 WikijsSettings, MispSettings, HiveSettings, CortexSettings, CatalogSettings)
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
-from util.ssh import SSH_client
 from util.connection_mngs import FabricConnectionWrapper
+
+SERVER_ANY = "Server - Any"
+SENSOR = "Sensor"
+INSTALL = "install"
+REINSTALL = "reinstall"
+UNINSTALL = "uninstall"
 
 def zero_pad(num: int) -> str:
     """
@@ -86,7 +92,8 @@ def print_json(something: Union[Dict, List]) -> None:
 
 def get_request(url: str) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
-    response = requests.get(url, verify=False, headers=headers)
+    root_ca = check_web_ca()
+    response = requests.get(url, verify=root_ca, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
@@ -95,7 +102,8 @@ def get_request(url: str) -> Union[List, Dict]:
 
 def post_request(url: str, payload: Dict) -> Union[List, Dict]:
     headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
-    response = requests.post(url, json=payload, verify=False, headers=headers)
+    root_ca = check_web_ca()
+    response = requests.post(url, json=payload, verify=root_ca, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
@@ -112,13 +120,52 @@ def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
     logging.info('SSHing to controller to get API key.')
     with FabricConnectionWrapper(ctrl_settings.node.username, ctrl_settings.node.password, ctrl_settings.node.ipaddress) as remote_shell:
         api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 0.5'
-        ret_val = remote_shell.run(api_gen_cmd)
+        ret_val = remote_shell.run(api_gen_cmd,hide=True)
         api_key = ret_val.stdout.strip()
     if api_key != '':
-        logging.info('Retrieved API Key: {}'.format(api_key))
+        logging.info('Retrieved API Key')
+        os.environ['CONTROLLER_API_KEY'] = api_key
         return api_key
     logging.error('API Key is blank or wasn\'t able to be retrieved.')
     raise APIFailure('API Key is blank or wasn\'t able to be retrieved.')
+
+def get_web_ca(ctrl_settings: ControllerSetupSettings) -> str:
+    """
+    SSH's to controller and generate JWT API Key
+
+    :param ctrl_settings (ControllerSetupSettings): Controller Node Object
+    :return API Key (str): Returns API key
+    """
+    root_ca = False
+    logging.info('SSHing to controller to get the Web Root CA.')
+    with FabricConnectionWrapper(ctrl_settings.node.username, ctrl_settings.node.password, ctrl_settings.node.ipaddress) as remote_shell:
+        try:
+            tf = tempfile.NamedTemporaryFile(delete=False)
+            ca_file = '/etc/pki/ca-trust/source/anchors/webCA.crt'
+            ca_exists = remote_shell.get(ca_file,tf.name)
+            tf.close()
+            root_ca = True
+        except Exception as e:
+            root_ca = False
+            logging.error(e)
+    if root_ca:
+        logging.info('Retrieved Root CA')
+        os.environ['WEB_ROOT_CA_PATH'] = tf.name
+        return root_ca
+    raise APIFailure('Root CA is blank or wasn\'t able to be retrieved.')
+
+def check_web_ca():
+    root_ca = False
+    if 'WEB_ROOT_CA_PATH' in os.environ and os.path.isfile(os.environ['WEB_ROOT_CA_PATH']):
+        root_ca = os.environ['WEB_ROOT_CA_PATH']
+    return root_ca
+
+
+def _clean_up(wait: int = 60):
+    if 'WEB_ROOT_CA_PATH' in os.environ and os.path.isfile(os.environ['WEB_ROOT_CA_PATH']):
+        os.remove(os.environ['WEB_ROOT_CA_PATH'])
+    if wait > 0:
+        time.sleep(wait)
 
 class KickstartPayloadGenerator:
 
@@ -127,15 +174,9 @@ class KickstartPayloadGenerator:
         self._kickstart_settings = kickstart_settings
 
     def _construct_node_part(self, node: NodeSettings) -> Dict:
-        mac_address = node.mng_mac
-        #boot_mode = node.management_interface.boot_mode or "BIOS"
         boot_mode = "BIOS"
         boot_drive = "sda"
         data_drive = "sdb"
-        # if node.es_drives:
-        #     data_drive = node.es_drives[0]
-        # elif node.pcap_drives:
-        #     data_drive = node.pcap_drives[0]
         return {
             "hostname": node.hostname,
             "ip_address": node.ipaddress,
@@ -177,7 +218,6 @@ class MIPKickstartPayloadGenerator:
         self._mip_kickstart_settings = mip_kickstart_settings
 
     def _construct_node_part(self, node: NodeSettings) -> Dict:
-        mac_address = node.mng_mac
         boot_mode = "6800/7720"
         return {
             "hostname": node.hostname,
@@ -261,7 +301,7 @@ class KitPayloadGenerator:
     def _construct_server_part(self, node: NodeSettings) -> Dict:
         if node.node_type not in NodeSettings.valid_server_types:
             raise ValueError("You passed an invalid node type inot this methods. "
-                             "It must be %s" % str(Node.valid_server_types))
+                             "It must be %s" % str(NodeSettings.valid_server_types))
 
         is_master = node.node_type == NodeSettings.valid_node_types[0]
         return {
@@ -275,11 +315,11 @@ class KitPayloadGenerator:
     def _construct_sensor_part(self, node: NodeSettings) -> Dict:
         if node.node_type not in NodeSettings.valid_sensor_types:
             raise ValueError("You passed an invalid node type inot this methods. "
-                             "It must be %s" % str(Node.valid_sensor_types))
+                             "It must be %s" % str(NodeSettings.valid_sensor_types))
 
         is_remote = node.node_type == NodeSettings.valid_node_types[1]
         return {
-            "node_type": "Sensor",
+            "node_type": SENSOR,
             "hostname": node.hostname,
             "management_ip_address": node.ipaddress,
             "is_remote": is_remote,
@@ -411,7 +451,7 @@ class CatalogPayloadGenerator:
         elif role == 'cortex':
             return self._catalog_settings.cortex_settings.to_dict()
 
-    def _construct_selectedNode_part(self, node_affinity: str, role: str) -> List[Dict]:
+    def _construct_selected_node_part(self, node_affinity: str, role: str) -> List[Dict]:
         all_parts = []
         if node_affinity == 'Server - Any':
             for server in self._kickstart_settings.servers: # type: NodeSettings
@@ -419,23 +459,23 @@ class CatalogPayloadGenerator:
                 if is_master:
                     srv_part = self._device_facts_map[server.ipaddress]
                     deployment_name = self._get_deployment_name(role, server)
-                    deviceFacts = { "deviceFacts": srv_part,
+                    device_facts = { "deviceFacts": srv_part,
                                     "hostname" : "server",
                                     "node_type" : "Server",
                                     "deployment_name": deployment_name,
                                     "management_ip_address": server.ipaddress}
-                    all_parts.append(deviceFacts)
+                    all_parts.append(device_facts)
         if node_affinity == 'Sensor':
             for sensor in self._kickstart_settings.sensors: # type: NodeSettings
                 ses_part = self._device_facts_map[sensor.ipaddress]
                 deployment_name = self._get_deployment_name(role, sensor)
-                deviceFacts = { "deviceFacts": ses_part,
+                device_facts = { "deviceFacts": ses_part,
                                 "hostname" : sensor.hostname,
                                 "node_type" : node_affinity,
                                 "deployment_name": deployment_name,
                                 "management_ip_address": sensor.ipaddress,
                                 "is_remote": False}
-                all_parts.append(deviceFacts)
+                all_parts.append(device_facts)
 
         return all_parts
 
@@ -463,26 +503,25 @@ class CatalogPayloadGenerator:
             "role": role,
             "process": {
                 "selectedProcess":  process,
-                "selectedNodes": self._construct_selectedNode_part(node_affinity, role),
+                "selectedNodes": self._construct_selected_node_part(node_affinity, role),
             },
             "configs": self._construct_config_part(node_affinity, role)
         }
         ret_val = post_request(self._url.format("/api/catalog/generate_values"), payload)
-        valuesPayload = {
+        values_payload = {
             "role": role,
             "process": {
                 "selectedProcess":  process,
-                "selectedNodes": self._construct_selectedNode_part(node_affinity, role),
+                "selectedNodes": self._construct_selected_node_part(node_affinity, role),
                 "node_affinity": node_affinity
             },
             "values": ret_val
         }
-        return valuesPayload
+        return values_payload
 
     def generate(self, role: str, process: str, node_affinity: str) -> Dict:
         self._set_device_facts_ip_map()
         return self._construct_catalog_part(role, process, node_affinity)
-
 
 class APITester:
 
@@ -492,49 +531,79 @@ class APITester:
                  kit_settings: KitSettings=None,
                  catalog_settings: CatalogSettings=None):
         self._controller_ip = ctrl_settings.node.ipaddress
-        api_key = os.environ.get("CONTROLLER_API_KEY")
-        if api_key is None:
-            try:
-                os.environ['CONTROLLER_API_KEY'] = get_api_key(ctrl_settings)
-            except Exception as e:
-                logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
-                logging.error(e)
-                exit(1)
+        try:
+            api_key = get_api_key(ctrl_settings)
+        except Exception as e:
+            logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+            logging.error(e)
+            exit(1)
+        try:
+            root_ca = get_web_ca(ctrl_settings)
+        except Exception as e:
+            logging.error(e)
+            logging.error('Falling back to verify=False.')
         self._url = "https://" + self._controller_ip + "{}"
+        self._catlog_install_url = self._url.format("/api/catalog/install")
+        self._catlog_reinstall_url = self._url.format("/api/catalog/reinstall")
         self._device_facts_map = {}
         self._kickstart_payload_generator = KickstartPayloadGenerator(ctrl_settings, kickstart_settings)
         self._kit_payload_generator = KitPayloadGenerator(ctrl_settings, kickstart_settings, kit_settings)
         self._catalog_payload_generator = CatalogPayloadGenerator(self._controller_ip, kickstart_settings, catalog_settings)
 
     def install_logstash(self) -> None:
-        payload = self._catalog_payload_generator.generate("logstash", "install", "Server - Any")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("logstash", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_suricata(self) -> None:
-        payload = self._catalog_payload_generator.generate("suricata", "install", "Sensor")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("suricata", INSTALL, SENSOR)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
+
+    def reinstall_suricata(self) -> None:
+        payload = self._catalog_payload_generator.generate("suricata", REINSTALL, SENSOR)
+        post_request(self._catlog_reinstall_url, payload)
+        _clean_up(wait = 60)
 
     def install_moloch_viewer(self):
-        payload = self._catalog_payload_generator.generate("moloch-viewer", "install", "Server - Any")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("moloch-viewer", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_moloch_capture(self):
-        payload = self._catalog_payload_generator.generate("moloch", "install", "Sensor")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("moloch", INSTALL, SENSOR)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_zeek(self):
-        payload = self._catalog_payload_generator.generate("zeek", "install", "Sensor")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("zeek", INSTALL, SENSOR)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_wikijs(self) -> None:
-        payload = self._catalog_payload_generator.generate("wikijs", "install", "Server - Any")
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        payload = self._catalog_payload_generator.generate("wikijs", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
+
+    def reinstall_wikijs(self) -> None:
+        payload = self._catalog_payload_generator.generate("wikijs", REINSTALL, SERVER_ANY)
+        post_request(self._catlog_reinstall_url, payload)
+        _clean_up(wait = 60)
+
+    def install_misp(self) -> None:
+        payload = self._catalog_payload_generator.generate("misp", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
+
+    def install_hive(self):
+        payload = self._catalog_payload_generator.generate("hive", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
+
+    def install_cortex(self):
+        payload = self._catalog_payload_generator.generate("cortex", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_misp(self) -> None:
         payload = self._catalog_payload_generator.generate("misp", "install", "Server - Any")
@@ -557,8 +626,9 @@ class APITester:
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kit_payload_generator.generate()
-        response = post_request(self._url.format("/api/execute_kit_inventory"), payload)
+        post_request(self._url.format("/api/execute_kit_inventory"), payload)
         wait_for_mongo_job("Kit", self._controller_ip, 60)
+        _clean_up(wait = 0)
 
     def run_kickstart_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -566,8 +636,10 @@ class APITester:
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kickstart_payload_generator.generate()
-        response = post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
+        post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+        _clean_up(wait = 0)
+
 
 
 class MIPAPITester(APITester):
@@ -583,8 +655,9 @@ class MIPAPITester(APITester):
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kickstart_payload_generator.generate()
-        response = post_request(self._url.format("/api/generate_mip_kickstart_inventory"), payload)
+        post_request(self._url.format("/api/generate_mip_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+        _clean_up(wait = 0)
 
     def run_mip_config_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -592,5 +665,6 @@ class MIPAPITester(APITester):
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._mip_config_payload_generator.generate()
-        response = post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
+        post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
         wait_for_mongo_job("Mipconfig", self._controller_ip, 180)
+        _clean_up(wait = 0)

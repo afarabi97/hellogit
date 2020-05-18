@@ -6,9 +6,9 @@ nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current
 path: '/data/nifi'
 ### Nginx Config
-nginx_image: nginx:1.17.9
+nginx_image: nginx:1.18.0
 ### Zoo Keeper ###
 zk_image: 'bitnami/zookeeper'
-zk_version: '3.5.5-r96'
+zk_version: '3.6.1'
 zk_replicas: 1
 domain: lan

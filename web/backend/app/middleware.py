@@ -37,7 +37,7 @@ def get_public_key_from_kid(kid):
                 break
     return key
 
-class auth_middleware():
+class AuthMiddleware():
     '''
     Simple WSGI middleware
     '''
@@ -160,16 +160,6 @@ class Auth():
         elif Auth.api_token != None:
             return True
         return False
-
-# def login_required(f):
-#     @wraps(f)
-#     def wrap(*args, **kwargs):
-#         user = Auth.get_user()
-#         # if user is not logged in, redirect to login page
-#         if "uid" not in user or user["uid"] == "":
-#             return FORBIDDEN_RESPONSE
-#         return f(*args, **kwargs)
-#     return wrap
 
 def controller_admin_required(f):
     @wraps(f)

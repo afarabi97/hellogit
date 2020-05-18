@@ -15,6 +15,9 @@ from pathlib import Path
 from tests.integration.base_test_setup import BaseTestCase
 from typing import Dict, List
 
+SENSOR_HOST_INFO_URL = "/api/get_sensor_hostinfo"
+CREATE_RULESET_URL = "/api/create_ruleset"
+UPLOAD_RULE_URL = "/api/upload_rule"
 
 class TestRulesetController(BaseTestCase):
 
@@ -54,7 +57,7 @@ class TestRulesetController(BaseTestCase):
         self.assertIsNotNone(actual["_id"])
 
     def test_get_sensor_hostinfo(self):
-        response = self.session.get(self.base_url + "/api/get_sensor_hostinfo")
+        response = self.session.get(self.base_url + SENSOR_HOST_INFO_URL)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [])
 
@@ -63,7 +66,7 @@ class TestRulesetController(BaseTestCase):
         is_successful, _ = _replace_kit_inventory(self.kit_form3)
         self.assertTrue(is_successful)
 
-        response = self.session.get(self.base_url + "/api/get_sensor_hostinfo")
+        response = self.session.get(self.base_url + SENSOR_HOST_INFO_URL)
         self.assertEqual(response.status_code, 200)
 
         host_info = response.json() # type: List
@@ -90,7 +93,7 @@ class TestRulesetController(BaseTestCase):
             "isEnabled": True
         }
 
-        response = self.session.post(self.base_url + "/api/create_ruleset", json=ruleset)
+        response = self.session.post(self.base_url + CREATE_RULESET_URL, json=ruleset)
         self.assertEqual(response.status_code, 200)
         actual_result = response.json() # type: Dict
         self.assertIsNotNone(actual_result['_id'])
@@ -100,25 +103,25 @@ class TestRulesetController(BaseTestCase):
         files = {'upload_file': open(self.sample_rules1,'rb')}
         values = {'ruleSetForm': json.dumps(actual_result)}
 
-        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + UPLOAD_RULE_URL, files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 1)
 
         files['upload_file'] = open(self.invalid_sample_rules1,'rb')
-        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + UPLOAD_RULE_URL, files=files, data=values)
         self.assertEqual(200, response.status_code)
         self.assertIsNotNone(response.json()['error_message'])
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 1)
 
         files['upload_file'] = open(self.zip_rules,'rb')
-        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + UPLOAD_RULE_URL, files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(1)
         self._verify_rule_count(ruleset_id, 5)
 
-        response = self.session.post(self.base_url + "/api/create_ruleset", json=bro_ruleset)
+        response = self.session.post(self.base_url + CREATE_RULESET_URL, json=bro_ruleset)
         self.assertEqual(response.status_code, 200)
         actual_result = response.json() # type: Dict
         self.assertIsNotNone(actual_result['_id'])
@@ -127,7 +130,7 @@ class TestRulesetController(BaseTestCase):
 
         files['upload_file'] = open(self.zeek_rules,'rb')
         values = {'ruleSetForm': json.dumps(actual_result)}
-        response = self.session.post(self.base_url + "/api/upload_rule", files=files, data=values)
+        response = self.session.post(self.base_url + UPLOAD_RULE_URL, files=files, data=values)
         self.assertEqual(200, response.status_code)
         self._verify_ruleset_count(2)
         self._verify_rule_count(ruleset_id, 1)
@@ -169,7 +172,7 @@ class TestRulesetController(BaseTestCase):
         self._verify_ruleset_count(0)
         # Test save new ruleset
         # Verify that the new ruleset is and its rules are set to the created state.
-        response = self.session.post(self.base_url + "/api/create_ruleset", json=ruleset)
+        response = self.session.post(self.base_url + CREATE_RULESET_URL, json=ruleset)
         self.assertEqual(response.status_code, 200)
         actual_result = response.json() # type: Dict
         self.assertIsNotNone(actual_result['_id'])
@@ -261,7 +264,7 @@ class TestRulesetController(BaseTestCase):
 
         for i in range(10):
             ruleset["name"] = "ruleset" + str(i)
-            response = self.session.post(self.base_url + "/api/create_ruleset", json=ruleset)
+            response = self.session.post(self.base_url + CREATE_RULESET_URL, json=ruleset)
             self.assertEqual(response.status_code, 200)
             rule_set_id = response.json()['_id']
             for x in range(5):

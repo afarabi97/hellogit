@@ -4,9 +4,9 @@
     src: /dev/null
     dest: /etc/systemd/system/ctrl-alt-del.target
     state: link
-   
+
 - name: Globally masking ctrl-alt-del
-  systemd: 
+  systemd:
     name: ctrl-alt-del.target
     masked: yes
 
@@ -22,3 +22,6 @@
 
 - name: Updating dconf
   command: dconf update
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0

@@ -4,7 +4,7 @@ from app import app, celery, logger, conn_mng
 from typing import Dict, Tuple, List
 from enum import Enum
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.connection_mngs import FabricConnectionWrapper
+from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper
 from app.node_facts import get_system_info
 from shared.utils import decode_password
 import re
@@ -425,6 +425,9 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                 stdout, ret_code = run_command2(command="helm delete " + deployment_to_uninstall,
                         working_dir=WORKING_DIR, use_shell=True)
                 if ret_code == 0 and stdout != '':
+                    # PVC deletion takes significatly longer than the other Resources and is the final thing to be removed
+                    # Thus, once the PVC is gone, It has been completely removed
+                    check_deployment_pvc_deletetion(deployment_to_uninstall)
                     results = stdout.strip()
                     # Remove old saved values
                     conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_to_uninstall})
@@ -461,3 +464,13 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
     notification.set_status(status=NotificationCode.COMPLETED.name)
     notification.post_to_websocket_api()
     return response
+
+def check_deployment_pvc_deletetion(deployment_name: str):
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        while True:
+            try:
+                pvc = kube_apiv1.read_namespaced_persistent_volume_claim_status(deployment_name+'-pvc','default',pretty=False)
+                sleep(5)
+            except Exception as e:
+                break
+    return True

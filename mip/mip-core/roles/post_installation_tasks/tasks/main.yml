@@ -1,5 +1,5 @@
 ---
-- name: Rebooting mips 
+- name: Rebooting mips
   reboot:
     test_command: "whoami"
     reboot_timeout: 2000

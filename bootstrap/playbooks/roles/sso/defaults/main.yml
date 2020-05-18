@@ -32,6 +32,6 @@ keycloak_setup_cmds:
   - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=redirect-socket,value=proxy-https)'"
 
 keycloak_realm_import_cmds:
-  - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user '{{ admin_user }}' --password '{{ sso_admin_password }}'"
+  - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}"
   - "{{ keycloak_dir }}/bin/kcadm.sh create realms -f {{ sso_dir }}/realm_import.json"
-  - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name }}"
+  - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name | quote }}"

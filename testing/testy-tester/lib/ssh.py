@@ -6,7 +6,7 @@ import paramiko
 import socket
 from paramiko import SSHException
 
-class SSH_client():
+class SSHClient():
     """
     Represents an SSH connection to a remote server
 

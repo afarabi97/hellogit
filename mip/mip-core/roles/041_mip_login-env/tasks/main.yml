@@ -1,5 +1,5 @@
 ---
-- name: Copying login/ssh banner message and CVA/H Logo to MIP    
+- name: Copying login/ssh banner message and CVA/H Logo to MIP
   copy:
     src: "{{ item['src'] }}"
     dest: "{{ item['dest'] }}"
@@ -13,9 +13,12 @@
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/share/pixmaps/cvah-logo.png', dest: '/usr/local/share/pixmaps/'}
 
 - name: Setting desktop icon size
-  become: yes 
+  become: yes
   become_user: "{{ item }}"
   command: dbus-launch dconf write /org/gnome/nautilus/icon-view/default-zoom-level "'standard'"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
   loop:
     - assessor
     - root
@@ -25,28 +28,34 @@
     - auditor
 
 - name: Setting screen lock when idle/inactive to off
-  become: yes 
+  become: yes
   become_user: "{{ item }}"
   command: dbus-launch dconf write /org/gnome/settings-daemon/plugins/power/idle-dim false
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
   loop:
     - assessor
     - root
     - maintainer
     - usaf_admin
     - 911admin
-    - auditor  
+    - auditor
 
 - name: Setting screen timeout delay to never
-  become: yes 
+  become: yes
   become_user: "{{ item }}"
   command: dbus-launch dconf write /org/gnome/desktop/session/idle-delay 'uint32 0'
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
   loop:
     - assessor
     - root
     - maintainer
     - usaf_admin
     - 911admin
-    - auditor  
+    - auditor
 
 - name: Updating ssh banner path
   replace:

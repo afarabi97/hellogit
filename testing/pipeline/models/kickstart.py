@@ -7,6 +7,7 @@ from randmac import RandMac
 from typing import Dict
 from models.constants import SubCmd
 
+MEM_ERROR = "The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536"
 
 class NodeNotFoundError(Exception):
     pass
@@ -30,10 +31,10 @@ class KickstartSettings(Model):
 
     def _validate_params(self):
         if self.server_mem < 1024 or self.server_mem > 65536:
-            raise ValueError("The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536".format(self.server_mem))
+            raise ValueError(MEM_ERROR.format(self.server_mem))
 
         if self.sensor_mem < 1024 or self.sensor_mem > 65536:
-            raise ValueError("The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536".format(self.sensor_mem))
+            raise ValueError(MEM_ERROR.format(self.sensor_mem))
 
     def from_namespace(self, namespace: Namespace):
         self.num_servers = namespace.num_servers
@@ -115,7 +116,7 @@ class GIPKickstartSettings(KickstartSettings):
 
     def _validate_params(self):
         if self.server_mem < 1024 or self.server_mem > 65536:
-            raise ValueError("The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536".format(self.server_mem))
+            raise ValueError(MEM_ERROR.format(self.server_mem))
 
     def from_namespace(self, namespace: Namespace):
         self.num_servers = namespace.num_servers

@@ -4,12 +4,12 @@
 domain: lan
 image:
   repository: rocketchat/rocket.chat
-  tag: 3.0.9
+  tag: 3.2.2
   pullPolicy: IfNotPresent
 
 nginxImage:
   repository: nginx
-  tag: 1.17.9
+  tag: 1.18.0
   pullPolicy: IfNotPresent
 ## Host for the application
 ##
@@ -84,7 +84,7 @@ mongodb:
   image:
     registry: bitnami
     repository: mongodb
-    tag: 4.2.5
+    tag: 4.2.6
     pullPolicy: IfNotPresent
 
   nodeAffinity:

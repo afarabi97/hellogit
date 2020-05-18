@@ -1,47 +1,55 @@
 ---
-- name: Unpack wireshark tar file 
+- name: Unpack wireshark tar file
   unarchive:
     src: "{{ wireshark_path }}"
     dest: "{{ tmp_apps }}"
     remote_src: yes
   register: wireshark_source
-  
+
 - name:  Generate configure file with autogen
-  command: ./autogen.sh 
+  command: ./autogen.sh
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 
 - name:  Configure file wireshark source code
   command: "./configure --prefix={{ wireshark_install_dir }}"
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
   register: wireshark_conf
+  changed_when: wireshark_conf.rc == 0
+  failed_when:  wireshark_conf.rc > 0
   when: wireshark_source.changed
 
 - name: Clean build before compiling code
-  command: make clean 
+  command: make clean
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
   register: wireshark_clean
+  changed_when: wireshark_clean.rc == 0
+  failed_when:  wireshark_clean.rc > 0
   when: wireshark_conf.changed
 
 - name: Make sources and install source code
   command: "{{ item }}"
   loop:
-    - make -j7 
+    - make -j7
     - make install
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
   when: wireshark_clean.changed
 
 - name: Find file names
-  find: 
+  find:
     paths: "{{ wireshark_install_dir }}/bin/"
     recurse: yes
   register: wireshark_bins
 
-- set_fact:
-    wireshark_files: "{{ wireshark_bins['files'] | map(attribute='path') | list}}"
+- name: Set Wireshark files
+  set_fact:
+    wireshark_files: "{{ wireshark_bins['files'] | map(attribute='path') | list }}"
 
 - name: Create symbolic links to /usr/bin for wireshark applications
   file:
@@ -51,13 +59,13 @@
     force: yes
   loop: "{{ wireshark_files }}"
 
-- name: Create symbolic link for wireshark desktop 
+- name: Create symbolic link for wireshark desktop
   file:
     src: "{{ wireshark_desktop_dir }}"
     dest: "{{ wireshark_desktop_application }}"
     state: link
 
-- name: Replace path to wireshark icon 
+- name: Replace path to wireshark icon
   replace:
     path: "{{ wireshark_desktop_dir }}"
     regexp: 'Icon=wireshark'

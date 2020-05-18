@@ -37,13 +37,12 @@ class KickstartJob:
         master_server = None # type: NodeSettings
         sensor_node = None # type: NodeSettings
         for node in self.kickstart_settings.nodes: # type: NodeSettings
-            if master_server is None:
-                if node.node_type == NodeSettings.valid_node_types[0]:
+            if master_server is None and node.node_type == NodeSettings.valid_node_types[0]:
                     master_server = node
 
-            if sensor_node is None:
-                if node.node_type == NodeSettings.valid_node_types[3]:
+            if sensor_node is None and node.node_type == NodeSettings.valid_node_types[3]:
                     sensor_node = node
+
             if sensor_node and master_server:
                 break
 
@@ -71,8 +70,7 @@ class GIPKickstartJob(KickstartJob):
         server = None # type: NodeSettings
         for node in self.kickstart_settings.nodes: # type: NodeSettings
 
-            if server == None:
-                if node.node_type == NodeSettings.valid_node_types[4]:
+            if server == None and node.node_type == NodeSettings.valid_node_types[4]:
                     server = node
 
             if server:
@@ -100,7 +98,7 @@ class MIPKickstartJob(KickstartJob):
         self._write_acas_mips_file()
 
     def _write_acas_mips_file(self):
-        ipList = [self.ctrl_settings.node.ipaddress]
+        ip_list = [self.ctrl_settings.node.ipaddress]
         if len(self.mip_kickstart_settings.mips) > 0:
-            ipList.append(self.mip_kickstart_settings.mips[0].ipaddress)
-        write_to_file(ipList, "mipnodestoscan.txt")
+            ip_list.append(self.mip_kickstart_settings.mips[0].ipaddress)
+        write_to_file(ip_list, "mipnodestoscan.txt")

@@ -109,4 +109,35 @@
     - moloch
   tags: moloch
 
+- name: Validate WikiJS
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - wikijs
+  tags: wikijs
+
+- name: Validate Hive
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - hive
+  tags: hive
+
+- name: Validate Cortex
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - cortex
+  tags: cortex
+
+- name: Validate MISP
+  hosts:
+  - master_server
+  gather_facts: no
+  roles:
+    - misp
+  tags: misp
 ...

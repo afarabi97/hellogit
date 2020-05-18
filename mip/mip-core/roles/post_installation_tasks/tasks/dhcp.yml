@@ -2,7 +2,7 @@
 - name: Updating from static assigned IP to DHCP
   replace:
     path: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
-    regexp: "{{ item['remove'] }}"    
+    regexp: "{{ item['remove'] }}"
     replace: "{{ item['replace_with'] }}"
   loop:
     - { remove: 'BOOTPROTO="none"', replace_with: 'BOOTPROTO="dhcp"'}

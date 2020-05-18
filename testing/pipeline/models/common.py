@@ -4,6 +4,7 @@ from util.network import IPAddressManager
 from randmac import RandMac
 from typing import Dict
 
+MAC_BASE = "00:0a:29:00:00:00"
 
 class NodeSettings(Model):
     unused_ips = None
@@ -73,15 +74,15 @@ class NodeSettings(Model):
         self.network_block_index = namespace.network_block_index
         self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
 
-        self.mng_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")
-        self.sensing_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")
+        self.mng_mac = str(RandMac(MAC_BASE)).strip("'")
+        self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
         self.disk_size = namespace.disk_size
 
     def set_for_kickstart(self, cpu: int, memory: int, node_type: str):
         self.cpu = cpu
         self.memory = memory
-        self.mng_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")
-        self.sensing_mac = str(RandMac("00:0a:29:00:00:00")).strip("'")
+        self.mng_mac = str(RandMac(MAC_BASE)).strip("'")
+        self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
         self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
         self.node_type = node_type
 

@@ -9,12 +9,12 @@ from models.common import NodeSettings
 from models.constants import SubCmd
 
 from util.connection_mngs import FabricConnectionWrapper
-from util.ssh import test_nodes_up_and_alive, SSH_client
+from util.ssh import test_nodes_up_and_alive
 from util.ansible_util import power_off_vms, power_on_vms
 from invoke.exceptions import UnexpectedExit
 from util.kubernetes_util import wait_for_pods_to_be_alive
 import os, logging
-from util.api_tester import get_api_key
+from util.api_tester import get_api_key, get_web_ca, check_web_ca, _clean_up
 
 class IntegrationTestsJob:
 
@@ -23,31 +23,36 @@ class IntegrationTestsJob:
                  kickstart_settings: KickstartSettings):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings
-        if "CONTROLLER_API_KEY" not in os.environ:
-            try:
-                self._api_key = get_api_key(ctrl_settings)
-                os.environ['CONTROLLER_API_KEY'] = self._api_key
-            except Exception as e:
-                logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
-                logging.error(e)
-                exit(1)
+        try:
+            api_key = get_api_key(ctrl_settings)
+        except Exception as e:
+            logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+            logging.error(e)
+            exit(1)
+        try:
+            root_ca = get_web_ca(ctrl_settings)
+        except Exception as e:
+            logging.error(e)
+            logging.error('Falling back to verify=False.')
 
     def _replay_pcaps(self):
         headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
+        root_ca = check_web_ca()
+        REPLAY_PACAP_URL = 'https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress)
         for sensor in self.kickstart_settings.sensors: # type: NodeSettings
             payload = {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
             payload2 = {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
             payload3 = {"pcap":"smb1_transaction_request.pcap", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
-
-            response = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload, verify=False, headers=headers)
-            response2 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload2, verify=False, headers=headers)
-            response3 = requests.post('https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress), json=payload3, verify=False, headers=headers)
+            response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
+            response2 = requests.post(REPLAY_PACAP_URL, json=payload2, verify=root_ca, headers=headers)
+            response3 = requests.post(REPLAY_PACAP_URL, json=payload3, verify=root_ca, headers=headers)
             if response.status_code != 200 or response2.status_code != 200 or response3.status_code != 200:
                 raise Exception("Failed to replay pcap.")
 
     def run_integration_tests(self):
         wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
         self._replay_pcaps()
+        _clean_up(wait = 0)
         current_path=os.getcwd()
         reports_destination="reports/"
         if "jenkins" not in current_path and "workspace" not in current_path:
@@ -77,7 +82,7 @@ class IntegrationTestsJob:
             reports = reports_string_.replace("\r","").split("\n")
             for report in reports:
                 filename = report.replace(reports_source + "/", "")
-                results = ctrl_cmd.get(report, reports_destination + filename)
+                ctrl_cmd.get(report, reports_destination + filename)
 
         if error:
             raise Exception("Tests failed.")
@@ -97,6 +102,7 @@ class IntegrationTestsJob:
             ctrl_shell.get("/opt/tfplenum/web/backend/tests/htmlcov.zip", "./htmlcov.zip")
 
         print("Navigate to http://{}/htmlcov/ to see full unit test coverage report.".format(ctrl_node.ipaddress))
+        _clean_up(wait = 0)
 
 
 class PowerFailureJob:

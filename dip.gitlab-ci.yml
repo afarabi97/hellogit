@@ -222,6 +222,8 @@ CVAH Catalog:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog misp
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog cortex
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog hive
+    # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall wikijs
+    # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall suricata
   cache:
     key: tfplenum-dip-cache-${CI_PIPELINE_ID}
     paths:
@@ -242,7 +244,7 @@ System Function Testing:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py run-integration-tests
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
   only:
     variables:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"

@@ -51,12 +51,12 @@ class ControllerSetupJob:
             self._set_hostname(client)
             ret_val = client.run(curl_cmd, shell=True)
             if ret_val.return_code != 0:
-                eprint("Failed to fetch the bootstrap script from bitbucket.")
+                print("Failed to fetch the bootstrap script from bitbucket.")
                 exit(ret_val.return_code)
 
             ret_val = client.run(bootstrap_cmd, shell=True)
             if ret_val.return_code != 0:
-                eprint("Failed to execute bootstrap.")
+                print("Failed to execute bootstrap.")
                 exit(ret_val.return_code)
 
     @retry()

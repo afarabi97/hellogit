@@ -147,8 +147,7 @@
   with_items: "{{ keycloak_setup_cmds }}"
 
 - name: Add Keycloak Super Admin User
-  shell: |
-    {{ keycloak_dir }}/bin/add-user-keycloak.sh -u "{{ admin_user }}" -p "{{ sso_admin_password }}" -r master
+  command: "{{ keycloak_dir }}/bin/add-user-keycloak.sh -u {{ admin_user | quote }} -p {{ sso_admin_password | quote }} -r master"
   register: keycloak_user_create
   changed_when: keycloak_user_create.rc == 0
   failed_when:  keycloak_user_create.rc > 0

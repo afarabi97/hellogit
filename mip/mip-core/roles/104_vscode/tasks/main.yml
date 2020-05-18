@@ -7,7 +7,7 @@
 - name: Copy vscode to desktop
   copy:
     src: "{{ application_path }}/{{ vscode_desktop_app }}"
-    dest: "{{user_desktop}}"
+    dest: "{{ user_desktop }}"
     remote_src: yes
 
 - name: Change vscode permissions
@@ -17,9 +17,11 @@
     group: "{{ user }}"
     mode: '0774'
 
-- name: Trust vscode application 
+- name: Trust vscode application
   become: yes
   become_user: "{{ user }}"
-  shell:
-    cmd: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vscode_desktop_app }}" 'metadata::trusted' yes
+  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vscode_desktop_app }}" 'metadata::trusted' yes
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 ...

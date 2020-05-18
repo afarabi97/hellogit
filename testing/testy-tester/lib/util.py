@@ -16,7 +16,7 @@ import pymongo
 from lib.model.kit import Kit
 from lib.model.kickstart_configuration import KickstartConfiguration
 from lib.model.node import Node, Interface, NodeDisk
-from lib.ssh import SSH_client
+from lib.ssh import SSHClient
 from pathlib import Path
 from time import sleep
 from typing import List, Dict, Union
@@ -257,7 +257,7 @@ def test_vms_up_and_alive(kit: Kit, vms_to_test: List[Node], minutes_timeout: in
             logging.info([node.hostname for node in vms_to_test])
 
             logging.info("Testing " + vm.hostname + " (" + vm.management_interface.ip_address + ")")
-            result = SSH_client.test_connection(
+            result = SSHClient.test_connection(
                 vm.management_interface.ip_address,
                 kit.username,
                 kit.password,

@@ -46,6 +46,8 @@ analyze ansible bootstrap playbooks:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "static_analysis_only"
       - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+      - $PIPELINE == "developer-mip"
 
 analyze ansible core playbooks:
   tags:
@@ -103,7 +105,6 @@ analyze ansible mip playbooks:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    ansible-lint bootstrap/playbooks/site.yml
     ansible-lint mip/mip-core/site.yml
     ansible-lint mip/mip-deployer/site.yml
   allow_failure: true

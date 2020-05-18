@@ -8,7 +8,7 @@
     - CPT
     - MDT
 
-- name: unpack McAfee tar file 
+- name: unpack McAfee tar file
   unarchive:
     src: "{{ tmp_apps }}/{{ McAfee_file }}"
     dest: "{{ tmp_apps }}"
@@ -34,11 +34,11 @@
     - CPT
     - MDT
 
-- name: excute McAfee installer 
+- name: excute McAfee installer
   command: "bash {{ McAfee_installer }}"
   args:
     chdir: "{{ tmp_apps }}/{{ McAfee_dir }}"
-  when: stat_result.stat.exists == False
+  when: not stat_result.stat.exists
   tags:
     - CPT
     - MDT

@@ -1,5 +1,6 @@
 ---
-- firewalld:
+- name: Set Firewall State
+  firewalld:
    zone: public
    interface: "{{ ansible_default_ipv4.interface }}"
    permanent: yes
@@ -7,8 +8,11 @@
 
 - name: Set public as default policy
   command: firewall-cmd --set-default-zone=public
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
 
-- name:
+- name: Restart Firewall
   systemd:
     name: firewalld
-    state: restarted 
+    state: restarted

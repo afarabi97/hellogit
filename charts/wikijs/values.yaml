@@ -1,5 +1,5 @@
 # Default values for mattermost
-wikijsImage: requarks/wiki:2.2.51
+wikijsImage: requarks/wiki:2.3.81
 domain: lan
 
 # database variables

@@ -1,16 +1,16 @@
 ---
 - name: Execute nexpose script
   shell: >
-     bash {{ nexpose_path }} -q -overwrite 
+     bash {{ nexpose_path }} -q -overwrite
      -Vfirstname={{ nexpose_first_name }}
-     -Vlastname={{ nexpose_last_name }} 
+     -Vlastname={{ nexpose_last_name }}
      -Vcompany={{ nexpose_company_name }}
-     -Vusername={{ nexpose_username }} 
+     -Vusername={{ nexpose_username }}
      -Vpassword1={{ nexpose_password }}
      -Vpassword2={{ nexpose_password }}
      -Vsys.installationDir={{ nexpose_install_dir }}
-     -Vsys.component.typical\$Boolean={{ nexpose_component_typical }} 
-     -Vsys.component.engine\$Boolean={{ nexpose_engine }} 
+     -Vsys.component.typical\$Boolean={{ nexpose_component_typical }}
+     -Vsys.component.engine\$Boolean={{ nexpose_engine }}
      -VinitService\$Boolean={{ nexpose_init_service }}
   args:
     creates: "{{ nexpose_install_dir }}"

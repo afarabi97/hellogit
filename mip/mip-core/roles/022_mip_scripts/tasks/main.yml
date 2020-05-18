@@ -1,5 +1,5 @@
 ---
-- name: Copying all the scripts over to the MIP   
+- name: Copying all the scripts over to the MIP
   copy:
     src: "{{ item['src'] }}"
     dest: "{{ item['dest'] }}"
@@ -21,9 +21,12 @@
     force: yes
 
 - name: Set background image
-  become: yes 
+  become: yes
   become_user: "{{ item }}"
   command: dbus-launch dconf write /org/gnome/desktop/background/picture-uri "'file:///usr/share/backgrounds/mip2-background.jpg'"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
   loop:
     - assessor
     - root

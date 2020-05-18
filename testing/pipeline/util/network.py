@@ -4,7 +4,7 @@ import subprocess
 from functools import wraps
 from time import sleep
 from typing import List
-
+import shlex
 
 def retry(count=5, time_to_sleep_between_retries=20):
     """
@@ -52,8 +52,6 @@ def is_ipv4_address(s: str) -> bool:
 def _open_proc(command: str,
                working_dir: str=None,
                use_shell:bool=False):
-    sout = None
-    serr = None
     proc = None
 
     if use_shell:
