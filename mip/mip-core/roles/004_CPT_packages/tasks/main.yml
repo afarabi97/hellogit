@@ -5,7 +5,7 @@
     state: present
   loop: "{{ cpt_packages }}"
 
-- name: Download cpt software from labrepo into tmp dir
+- name: Download CPT software from labrepo into tmp dir
   get_url:
     url: "{{ item }}"
     dest: "{{ tmp_apps }}"

@@ -1,5 +1,5 @@
 ---
-- name: Template mdt cvah-release file to etc
+- name: Template MDT cvah-release file to etc
   template:
     src: mdt.j2
     dest: /etc/cvah-release
@@ -7,7 +7,7 @@
     group: root
     mode: '0664'
 
-- name: Template mdt release notes file to cvah
+- name: Template MDT release notes file to cvah
   template:
     src: mdt_notes.j2
     dest: /cvah/docs/release-notes/"{{ cvah_notes }}"

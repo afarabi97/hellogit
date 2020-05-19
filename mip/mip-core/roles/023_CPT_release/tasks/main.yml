@@ -1,5 +1,5 @@
 ---
-- name: Template cpt cvah-release file to etc
+- name: Template CPT cvah-release file to etc
   template:
     src: cpt.j2
     dest: /etc/cvah-release
@@ -7,7 +7,7 @@
     group: root
     mode: '0664'
 
-- name: Template cpt release notes file to cvah
+- name: Template CPT release notes file to cvah
   template:
     src: cpt_notes.j2
     dest: "/cvah/docs/release-notes/{{ cvah_notes }}"

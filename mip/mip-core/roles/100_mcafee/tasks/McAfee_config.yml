@@ -1,13 +1,4 @@
 ---
-- name: Template cronjob for automatic dat file update
-  template:
-    src: dat_cronjob.j2
-    dest: /var/spool/cron/root
-    mode: '0600'
-  tags:
-    - CPT
-    - MDT
-
 - name: Unpack dat tar file
   unarchive:
     src: "{{ tmp_apps }}/{{ dat_file }}"

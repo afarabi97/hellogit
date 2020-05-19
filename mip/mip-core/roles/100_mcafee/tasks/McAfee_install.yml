@@ -1,5 +1,5 @@
 ---
-- name: template McAffee nails.option file for silent installation
+- name: Template McAffee nails.option file for silent installation
   template:
     src: nails.j2
     dest: /root/nails.options
@@ -8,7 +8,7 @@
     - CPT
     - MDT
 
-- name: unpack McAfee tar file
+- name: Unpack McAfee tar file
   unarchive:
     src: "{{ tmp_apps }}/{{ McAfee_file }}"
     dest: "{{ tmp_apps }}"
@@ -17,7 +17,7 @@
     - CPT
     - MDT
 
-- name: install rpms required for McAfee
+- name: Install rpms required for McAfee
   yum:
     name: "{{ item }}"
     state: present
@@ -34,11 +34,19 @@
     - CPT
     - MDT
 
-- name: excute McAfee installer
+- name: Execute McAfee installer
   command: "bash {{ McAfee_installer }}"
   args:
     chdir: "{{ tmp_apps }}/{{ McAfee_dir }}"
   when: not stat_result.stat.exists
+  tags:
+    - CPT
+    - MDT
+
+- name: Remove nails.options file
+  file:
+    path: /root/nails.options
+    state: absent
   tags:
     - CPT
     - MDT
