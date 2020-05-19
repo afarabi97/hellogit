@@ -1,0 +1,130 @@
+Test Reposync Server VM:
+  stage: build
+  timeout: 24 hours
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO test-server-repository-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Headless Template" \
+    --subscription "$RHEL_SUB_METHOD" \
+    --orgnumber "$RHEL_ORGANIZATION" \
+    --activationkey "$RHEL_ACTIVATIONKEY"
+
+  only:
+    variables:
+      - $PIPELINE == "test-reposync-server"
+
+Test Reposync Workstation VM:
+  stage: build
+  timeout: 24 hours
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO test-workstation-repository-vm \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Workstation Template" \
+    --subscription "$RHEL_SUB_METHOD" \
+    --orgnumber "$RHEL_ORGANIZATION" \
+    --activationkey "$RHEL_ACTIVATIONKEY"
+
+  only:
+    variables:
+      - $PIPELINE == "test-reposync-workstation"
+
+Build Server Reposync VM for Export:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO build-server-for-export \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Headless Template"
+  cache:
+    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
+    paths:
+      - rhelreposettings_server.yml
+      - rhelreposettings_workstation.yml
+  only:
+    variables:
+      - $PIPELINE == "export-reposync-server"
+      - $PIPELINE == "export-all"
+
+
+Build Workstation Reposync VM for Export:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"echo
+
+    python3 testing/pipeline/pipeline.py --system-name REPO build-workstation-for-export \
+    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
+    --vcenter-username "$VCENTER_USERNAME" \
+    --vcenter-password "$VCENTER_PASSWORD" \
+    --vcenter-datacenter "$VCENTER_DATACENTER" \
+    --vm-folder "$VMWARE_FOLDER" \
+    --portgroup "$VCENTER_PORTGROUP" \
+    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
+    --gateway "$VM_GATEWAY" \
+    --dns-servers $DNS_SERVERS \
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --network-id "$NETWORK_ID" \
+    --vm-prefix "$VM_PREFIX" \
+    --disk-size "1100" \
+    --vm-template "RHEL7.7 Workstation Template"
+  cache:
+    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
+    paths:
+      - rhelreposettings_server.yml
+      - rhelreposettings_workstation.yml
+  only:
+    variables:
+      - $PIPELINE == "export-reposync-workstation"
+      - $PIPELINE == "export-all"

@@ -30,3 +30,20 @@ class WorkstationCreationJob:
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
         test_nodes_up_and_alive([self.repo_settings.node], 10)
         self._run_repo_script()
+
+class WorkstationExportJob(WorkstationCreationJob):
+
+    def __init__(self, repo_settings: RHELRepoSettings):
+        self.repo_settings = repo_settings
+
+    def _workstation_export(self):
+        with FabricConnectionWrapper(self.repo_settings.node.username,
+                                     self.repo_settings.node.password,
+                                     self.repo_settings.node.ipaddress) as remote_shell:
+            remote_shell.put(TESTING_DIR + 'reposync_workstation.sh', '/root/reposync_workstation.sh')
+
+    def build_export(self):
+        print("Building RHEL workstation for export")
+        execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
+        test_nodes_up_and_alive([self.repo_settings.node], 10)
+        self._workstation_export()

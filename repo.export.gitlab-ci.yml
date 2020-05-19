@@ -1,0 +1,43 @@
+Export Reposync Server:
+  stage: export
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "REPO" \
+    run-export export-reposync-server \
+    --export-path "$REPO_EXPORT_LOC" \
+  only:
+    variables:
+      - $PIPELINE == "export-reposync-server"
+      - $PIPELINE == "export-all"
+  cache:
+    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
+    paths:
+      - rhelreposettings_server.yml
+      - rhelreposettings_workstation.yml
+    policy: pull
+
+Export Reposync Workstation:
+  stage: export
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "REPO" \
+    run-export export-reposync-workstation \
+    --export-path "$REPO_EXPORT_LOC" \
+  only:
+    variables:
+      - $PIPELINE == "export-reposync-workstation"
+      - $PIPELINE == "export-all"
+  cache:
+    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
+    paths:
+      - rhelreposettings_server.yml
+      - rhelreposettings_workstation.yml
+    policy: pull

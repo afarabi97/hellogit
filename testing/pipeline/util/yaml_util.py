@@ -13,6 +13,7 @@ from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             WikijsSettings, MispSettings, HiveSettings,
                             MongodbSettings, RocketchatSettings, CortexSettings)
 from models.mip_config import MIPConfigSettings
+from models.rhel_repo_vm import RHELRepoSettings
 from typing import Union
 
 YAML_FILE = "{}.yml"
@@ -48,6 +49,7 @@ class YamlManager:
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(GIPKitSettings)
+            cls.yaml.register_class(RHELRepoSettings)
 
 
     @classmethod
@@ -103,4 +105,9 @@ class YamlManager:
     @classmethod
     def load_kit_settings_from_yaml(cls) -> KitSettings:
         yaml_name = YAML_FILE.format(KitSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+
+    @classmethod
+    def load_reposync_settings_from_yaml(cls, application: str) -> RHELRepoSettings:
+        yaml_name = "{}_{}.yml".format(RHELRepoSettings.__name__.lower(), application.lower())
         return cls._load_from_yaml(yaml_name)

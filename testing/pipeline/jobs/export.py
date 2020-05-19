@@ -9,6 +9,7 @@ from invoke.exceptions import UnexpectedExit
 from util.ansible_util import execute_playbook
 from util.connection_mngs import FabricConnectionWrapper
 from util.hash_util import hash_file
+from models import Model
 from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.common import BasicNodeCreds
@@ -18,9 +19,11 @@ from util.ansible_util import power_on_vms, power_off_vms
 from util.docs_exporter import MyConfluenceExporter
 from util.ssh import test_nodes_up_and_alive
 from models.gip_settings import GIPServiceSettings
+from models.rhel_repo_vm import RHELRepoSettings
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
+TESTING_DIR = PIPELINE_DIR + "/../"
 
 def validate_export_location(export_loc: ExportLocSettings):
     if os.path.exists(export_loc.export_path) and os.path.isdir(export_loc.export_path):
@@ -56,7 +59,7 @@ def generate_versions_file(export_loc: ExportLocSettings):
 
 class ControllerExport:
 
-    def __init__(self, ctrl_settings: ControllerSetupSettings, export_loc: ExportLocSettings):
+    def __init__(self, ctrl_settings: Model, export_loc: ExportLocSettings):
         self.ctrl_settings = ctrl_settings
         self.vcenter_settings = ctrl_settings.vcenter
         self.export_loc = export_loc
@@ -124,7 +127,9 @@ class ControllerExport:
             self._update_network_scripts("ens192", remote_shell)
             self._remove_extra_files(remote_shell)
             self._change_password(remote_shell)
-            self._run_reclaim_disk_space(remote_shell)
+            # Commented out reclaim disk space because OVA exports were becoming 170+GB
+            # self._run_reclaim_disk_space(remote_shell)
+            # TODO: Fix _run_reclaim_disk_space
             self._clear_history(remote_shell)
 
     def _export(self, destination: str):
@@ -228,6 +233,54 @@ class GIPServiceExport(ControllerExport):
         destination_path = "{}/GIP_{}_Service.ova".format(str(path_to_export), self.export_loc.export_version)
         self._export(destination_path)
 
+
+class ReposyncServerExport(ControllerExport):
+    def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
+        super().__init__(repo_settings, export_loc)
+
+    def export_reposync_server(self):
+        logging.info("Exporting the Reposync server VM to OVA.")
+        validate_export_location(self.export_loc)
+        path_to_export = create_export_path(self.export_loc)
+
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        self._prepare_for_export(self.ctrl_settings.node.username,
+                                 self.ctrl_settings.node.password,
+                                 self.ctrl_settings.node.ipaddress)
+
+        payload = self.ctrl_settings.to_dict()
+        ctrl_hostname = self.ctrl_settings.node.hostname
+        version = self.export_loc.export_version
+        payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
+        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+
+        destination_path = "{}/Reposync_Server.ova".format(str(path_to_export))
+        self._export(destination_path)
+
+class ReposyncWorkstationExport(ControllerExport):
+    def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
+        super().__init__(repo_settings, export_loc)
+
+    def export_reposync_workstation(self):
+        logging.info("Exporting the Reposync workstation VM to OVA.")
+        validate_export_location(self.export_loc)
+        path_to_export = create_export_path(self.export_loc)
+
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        self._prepare_for_export(self.ctrl_settings.node.username,
+                                 self.ctrl_settings.node.password,
+                                 self.ctrl_settings.node.ipaddress)
+
+        payload = self.ctrl_settings.to_dict()
+        ctrl_hostname = self.ctrl_settings.node.hostname
+        version = self.export_loc.export_version
+        payload["release_template_name"] = ctrl_hostname.replace('-', '-' + version + '-', 1)
+        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
+
+        destination_path = "{}/Reposync_Workstation.ova".format(str(path_to_export))
+        self._export(destination_path)
 
 class ConfluenceExport:
 

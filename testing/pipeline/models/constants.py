@@ -11,10 +11,10 @@ class SubCmd:
     run_export = 'run-export'
     run_cleanup = 'run-cleanup'
     gip_setup = 'gip-setup'
-    create_rhel_repository_vm = 'create-rhel-repository-vm'
-    create_workstation_repository_vm = 'create-workstation-repository-vm'
-
-    # STIG Commands
+    test_server_repository_vm = 'test-server-repository-vm'
+    test_workstation_repository_vm = 'test-workstation-repository-vm'
+    build_server_for_export = 'build-server-for-export'
+    build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
     run_gip_svc_stigs = 'run-gip-svc-stigs'
 
@@ -46,6 +46,8 @@ class SubCmd:
     create_master_drive = 'create-master-drive'
     export_mip_ctrl = 'export-mip-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
+    export_reposync_server = 'export-reposync-server'
+    export_reposync_workstation = 'export-reposync-workstation'
 
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'

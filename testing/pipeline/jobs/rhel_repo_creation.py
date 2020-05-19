@@ -30,3 +30,20 @@ class RHELCreationJob:
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
         test_nodes_up_and_alive([self.repo_settings.node], 10)
         self._run_repo_script()
+
+class RHELExportJob(RHELCreationJob):
+
+    def __init__(self, repo_settings: RHELRepoSettings):
+        self.repo_settings = repo_settings
+
+    def _rhel_export(self):
+        with FabricConnectionWrapper(self.repo_settings.node.username,
+                                     self.repo_settings.node.password,
+                                     self.repo_settings.node.ipaddress) as remote_shell:
+            remote_shell.put(TESTING_DIR + 'reposync_server.sh', '/root/reposync_server.sh')
+
+    def build_export(self):
+        print("Building RHEL server for export")
+        execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
+        test_nodes_up_and_alive([self.repo_settings.node], 10)
+        self._rhel_export()

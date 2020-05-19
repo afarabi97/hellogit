@@ -65,6 +65,12 @@ class ExportSettings(Model):
         if SubCmd.export_gip_service_vm == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
 
+        if SubCmd.export_reposync_server == namespace.which:
+            populate_model_from_namespace(self.export_loc, namespace)
+
+        if SubCmd.export_reposync_workstation == namespace.which:
+            populate_model_from_namespace(self.export_loc, namespace)
+
     @staticmethod
     def add_args(parser: ArgumentParser):
         subparsers = parser.add_subparsers()
@@ -99,7 +105,7 @@ class ExportSettings(Model):
         export_ctrl_parser.set_defaults(which=SubCmd.export_ctrl)
 
         export_ver_parser = subparsers.add_parser(SubCmd.generate_versions_file,
-                                                   help="This subcommand will hash all the files in the specified export location direcotry and generated a versions.txt files.")
+                                                   help="This subcommand will hash all the files in the specified export location directory and generated a versions.txt files.")
         add_args_from_instance(export_ver_parser, ExportLocSettings(), True)
         export_ver_parser.set_defaults(which=SubCmd.generate_versions_file)
 
@@ -109,6 +115,16 @@ class ExportSettings(Model):
         export_mip_ctrl_parser.set_defaults(which=SubCmd.export_mip_ctrl)
 
         export_gip_service_parser = subparsers.add_parser(SubCmd.export_gip_service_vm,
-                                                   help="This subcommand will prep and export your MIP controller to the provided location.")
+                                                   help="This subcommand will prep and export your GIP controller to the provided location.")
         add_args_from_instance(export_gip_service_parser, ExportLocSettings(), True)
         export_gip_service_parser.set_defaults(which=SubCmd.export_gip_service_vm)
+
+        export_reposync_server_parser = subparsers.add_parser(SubCmd.export_reposync_server,
+                                                   help="This subcommand will prep and export your Reposync server VM to the provided location.")
+        add_args_from_instance(export_reposync_server_parser, ExportLocSettings(), True)
+        export_reposync_server_parser.set_defaults(which=SubCmd.export_reposync_server)
+
+        export_reposync_workstation_parser = subparsers.add_parser(SubCmd.export_reposync_workstation,
+                                                   help="This subcommand will prep and export your Reposync workstation VM to the provided location.")
+        add_args_from_instance(export_reposync_workstation_parser, ExportLocSettings(), True)
+        export_reposync_workstation_parser.set_defaults(which=SubCmd.export_reposync_workstation)
