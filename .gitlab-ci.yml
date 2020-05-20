@@ -6,7 +6,7 @@ variables:
   DIP_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_EXPORT_LOC: "/mnt/drive_creation/mip"
   GIP_EXPORT_LOC: "/mnt/drive_creation/gip"
-  REPO_EXPORT_LOC: "/mnt/drive_creation/repo"
+  REPO_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH 3.4/Software/VMs/RhelRepo"
   DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
   TFPLENUM_EXPORT_VERSION: RC
