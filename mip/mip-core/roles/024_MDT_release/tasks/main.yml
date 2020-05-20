@@ -1,15 +1,15 @@
 ---
-- name: Template MDT cvah-release file to etc
-  template:
-    src: mdt.j2
+- name: Copy MDT cvah-release file to etc
+  copy:
+    src: mdt
     dest: /etc/cvah-release
     owner: root
     group: root
     mode: '0664'
 
-- name: Template MDT release notes file to cvah
-  template:
-    src: mdt_notes.j2
+- name: Copy MDT release notes file to cvah
+  copy:
+    src: mdt_notes
     dest: /cvah/docs/release-notes/"{{ cvah_notes }}"
     owner: "{{ user }}"
     group: "{{ user }}"

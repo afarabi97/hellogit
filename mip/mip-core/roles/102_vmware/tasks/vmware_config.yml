@@ -7,10 +7,10 @@
     group: "{{ user }}"
     state: directory
 
-  # template automatically adds vms to library
-- name: Template vmware inventory.vmls to /home/assessor/.vmware
-  template:
-    src: vmware_inventory.j2
+  # automatically adds vms to library
+- name: Copy vmware inventory.vmls to /home/assessor/.vmware
+  copy:
+    src: vmware_inventory
     dest: "{{ vmware_home_dir }}/inventory.vmls"
     owner: "{{ user }}"
     group: "{{ user }}"

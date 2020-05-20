@@ -1,7 +1,7 @@
 ---
-- name: Template McAffee nails.option file for silent installation
-  template:
-    src: nails.j2
+- name: Copy McAfee nails.option file for silent installation
+  copy:
+    src: nails
     dest: /root/nails.options
     mode: '0664'
   tags:
@@ -47,6 +47,15 @@
   file:
     path: /root/nails.options
     state: absent
+  tags:
+    - CPT
+    - MDT
+
+- name: Copy cronjob for automatic dat file update
+  copy:
+    src: dat_cronjob
+    dest: /var/spool/cron/root
+    mode: '0600'
   tags:
     - CPT
     - MDT

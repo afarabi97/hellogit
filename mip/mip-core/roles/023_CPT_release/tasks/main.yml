@@ -1,15 +1,15 @@
 ---
-- name: Template CPT cvah-release file to etc
-  template:
-    src: cpt.j2
+- name: Copy CPT cvah-release file to etc
+  copy:
+    src: cpt
     dest: /etc/cvah-release
     owner: root
     group: root
     mode: '0664'
 
-- name: Template CPT release notes file to cvah
-  template:
-    src: cpt_notes.j2
+- name: Copy release notes file to cvah
+  copy:
+    src: cpt_notes
     dest: "/cvah/docs/release-notes/{{ cvah_notes }}"
     owner: "{{ user }}"
     group: "{{ user }}"

@@ -1,7 +1,7 @@
 ---
-- name: Template versionlock.list /etc/yum/pluginconf.d
-  template:
-    src: versionlock.j2
+- name: Copy versionlock.list 
+  copy:
+    src: versionlock
     dest: /etc/yum/pluginconf.d/versionlock.list
     owner: root
     group: root
