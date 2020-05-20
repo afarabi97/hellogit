@@ -41,7 +41,7 @@ data:
       # stdout { codec => rubydebug }
       elasticsearch {
         hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        cacert => '/etc/ssl/certs/container/container/ca.crt'
+        cacert => '/etc/ssl/certs/container/ca.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
         ilm_rollover_alias => "ecs-zeek"
