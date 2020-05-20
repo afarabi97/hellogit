@@ -24,7 +24,7 @@
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', 'templates/filebeat-external-template.json') }}"
+    body: "{{ lookup('file', 'files/filebeat-external-template.json') }}"
     status_code: 200, 201
     timeout: 200
 
@@ -58,4 +58,3 @@
     kubectl delete -f {{ elastic_dir }}/filebeat.yml --ignore-not-found=true
   register: results
   changed_when: results.rc == 0
-

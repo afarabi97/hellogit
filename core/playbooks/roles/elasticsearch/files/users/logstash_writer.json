@@ -1,31 +1,48 @@
 {
-    "cluster": [
-        "manage_index_templates",
-        "monitor",
+  "cluster": [
+    "manage_index_templates",
+    "monitor",
+    "manage_ilm",
+    "manage_ml",
+    "monitor_ml",
+    "read_ilm",
+    "manage_ingest_pipelines"
+  ],
+  "indices": [
+    {
+      "names": [
+        "logstash-*",
+        "ecs*",
+        "ecs-zeek*",
+        "*beat*",
+        ".monitoring-*"
+      ],
+      "privileges": [
+        "write",
+        "create",
+        "delete",
+        "create_index",
+        "manage",
         "manage_ilm",
-        "manage_ml",
-        "read_ilm",
-        "manage_ingest_pipelines"
-    ],
-    "indices": [
-        {
-            "names": [
-                "logstash-*",
-                "ecs-zeek-*",
-                "metricbeat-*",
-                ".monitoring*",
-                "filebeat-*",
-                "auditbeat-*",
-                "winlogbeat-*"
-            ],
-            "privileges": [
-                "manage",
-                "read",
-                "create_index",
-                "create_doc",
-                "view_index_metadata",
-                "create"
-            ]
-        }
-    ]
+        "monitor"
+      ],
+      "allow_restricted_indices": false
+    }
+  ],
+  "applications": [
+    {
+      "application": "kibana-.kibana",
+      "privileges": [
+        "all"
+      ],
+      "resources": [
+        "*"
+      ]
+    }
+  ],
+  "run_as": [],
+  "metadata": {},
+  "transient_metadata": {
+    "enabled": true
+  }
 }

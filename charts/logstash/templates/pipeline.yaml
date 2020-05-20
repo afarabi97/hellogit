@@ -42,6 +42,7 @@ data:
       elasticsearch {
         hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
         cacert => '/etc/ssl/certs/container/ca.crt'
+        ssl_certificate_verification => true
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
         ilm_rollover_alias => "ecs-zeek"
@@ -64,17 +65,45 @@ data:
       }
     }
 
+
     output {
-      # See https://www.elastic.co/guide/en/ecs/current/ecs-agent.html
-      # for details on %{[agent][type]}
-      elasticsearch {
-        hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        cacert => '/etc/ssl/certs/container/ca.crt'
-        user => "${ELASTICSEARCH_USERNAME}"
-        password => "${ELASTICSEARCH_PASSWORD}"
-        ilm_rollover_alias => "%{[agent][type]}-external"
-        ilm_policy => "%{[agent][type]}-external"
-        ilm_enabled => true
-        manage_template => false
+      if [@metadata][beat] == "filebeat" {
+        elasticsearch {
+          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+          cacert => '/etc/ssl/certs/container/ca.crt'
+          ssl_certificate_verification => true
+          user => "${ELASTICSEARCH_USERNAME}"
+          password => "${ELASTICSEARCH_PASSWORD}"
+          ilm_rollover_alias => "filebeat-external"
+          ilm_policy => "filebeat-external"
+          ilm_enabled => true
+          manage_template => false
+        }
+      }
+      if [@metadata][beat] == "winlogbeat" {
+        elasticsearch {
+          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+          cacert => '/etc/ssl/certs/container/ca.crt'
+          ssl_certificate_verification => true
+          user => "${ELASTICSEARCH_USERNAME}"
+          password => "${ELASTICSEARCH_PASSWORD}"
+          ilm_rollover_alias => "winlogbeat"
+          ilm_policy => "winlogbeat"
+          ilm_enabled => true
+          manage_template => false
+        }
+      }
+      if [@metadata][beat] == "auditbeat" {
+        elasticsearch {
+          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+          cacert => '/etc/ssl/certs/container/ca.crt'
+          ssl_certificate_verification => true
+          user => "${ELASTICSEARCH_USERNAME}"
+          password => "${ELASTICSEARCH_PASSWORD}"
+          ilm_rollover_alias => "auditbeat-external"
+          ilm_policy => "auditbeat-external"
+          ilm_enabled => true
+          manage_template => false
+        }
       }
     }

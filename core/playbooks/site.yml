@@ -67,6 +67,7 @@
               elif ansible_processor_vcpus >= 45 and (ansible_memtotal_mb/1024)|round|int >= 500 %}2{%
               elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 500 %}1{%
               elif ansible_processor_vcpus >= 30 and (ansible_memtotal_mb/1024)|round|int >= 60 %}0{%
+              else %}-1{%
               endif %}{%
             endif %}{%
           endif

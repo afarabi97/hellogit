@@ -18,6 +18,7 @@
   command: "kubectl delete secret {{ item.name }} --ignore-not-found"
   with_items:
     - { name: "tfplenum-logstash-user" }
+    - { name: "tfplenum-logstash-monitor-user" }
     - { name: "kibana-secret-settings" }
     - { name: "s3-access-key" }
     - { name: "s3-secret-key" }

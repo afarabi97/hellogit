@@ -27,7 +27,7 @@
     daemon_reload: yes
   tags: pull-docker-images
 
-- name: Restart docker-dist
+- name: Restart docker-dist # noqa 503
   service:
     name: docker-distribution
     state: restarted
@@ -99,7 +99,7 @@
   when: "'docker.io' not in item"
   tags: pull-docker-images
 
-- name: Download docker container images from docker hub
+- name: Download docker container images from docker hub # noqa 301
   command: "docker pull {{ item }}"
   with_items:
     - "{{ dockerio_images }}"
@@ -130,7 +130,7 @@
   register: docker_dist_config_result
   tags: pull-docker-images
 
-- name: Restart docker-dist
+- name: Restart docker-dist # noqa 503
   service:
     name: docker-distribution
     state: restarted
@@ -138,7 +138,7 @@
   when: docker_dist_config_result.changed
   tags: pull-docker-images
 
-- name: Download docker container images from internet
+- name: Download docker container images from internet # noqa 301
   command: "docker pull {{ item }}"
   with_items:
     - "{{ not_dockerio_images }}"
@@ -166,7 +166,7 @@
     - "{{ image_list }}"
   tags: pull-docker-images
 
-- name: Upload local images to registry
+- name: Upload local images to registry # noqa 301
   command: "docker push localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}"
   register: docker_push_results
   with_items:

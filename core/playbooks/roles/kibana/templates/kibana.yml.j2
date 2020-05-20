@@ -43,6 +43,9 @@ spec:
     elasticsearch.shardTimeout: 0
   elasticsearchRef:
     name: "tfplenum"
+  secureSettings:
+  - secretName: kibana-key-secret-settings
+  - secretName: kibana-alert-secret-settings
   podTemplate:
     spec:
       containers:

@@ -1,5 +1,10 @@
 ---
 
+- name: Set Emerging Rules Tar Url
+  set_fact:
+    emerging_rules_url: "http://misc.labrepo.sil.lab/emerging.rules.tar.gz"
+  when: labrepo_check
+
 - name: rules | Create Directory
   file:
     path: "{{ web_install_dir }}/backend/rules"
@@ -7,13 +12,13 @@
 
 - name: rules | Download Tar (just for backup)
   get_url:
-    url: "https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz"
+    url: "{{ emerging_rules_url }}"
     dest: "{{ web_install_dir }}/backend/rules"
 
 - name: rules | Download
   unarchive:
     remote_src: yes
-    src: "https://rules.emergingthreats.net/open/suricata-4.0/emerging.rules.tar.gz"
+    src: "{{ emerging_rules_url }}"
     dest: "{{ web_install_dir }}/backend/rules"
 
 - name: rules | Upload

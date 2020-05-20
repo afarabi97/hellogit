@@ -11,7 +11,7 @@ elastic_group: "1000"
 es_data_path: "{{ data_path }}/elastic"
 logstash_user: "logstash_internal"
 default_elastic_user: elastic
-default_data_dir_per_server: 3
+default_data_dir_per_server: 10
 
 filebeat_modules:
   - apache
@@ -44,3 +44,6 @@ filebeat_modules:
   - zeek
   - suricata
   - netflow
+
+elasticsearch_plugins:
+  - http://{{ ansible_controller_hostname }}/offlinerepo/elasticsearch-plugins/repository-s3-{{ elastic_7_version }}.zip

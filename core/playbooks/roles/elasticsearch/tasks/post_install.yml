@@ -49,14 +49,18 @@
 - name: Set Logstash User Password
   set_fact:
     logstash_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+    logstash_monitor_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
 
 - name: Create logstash user secret
   shell: |
-    kubectl create secret generic tfplenum-logstash-user --from-literal=username={{ logstash_user }} --from-literal=password={{ logstash_password }}
+    kubectl create secret generic {{ item.secret }} --from-literal=username={{ item.user }} --from-literal=password={{ item.password }}
   register: results
   changed_when: results.rc == 0
+  with_items:
+    - { secret: tfplenum-logstash-user, user: "{{ logstash_user }}", password: "{{ logstash_password }}" }
+    - { secret: tfplenum-logstash-monitor-user, user: "logstash_monitor", password: "{{ logstash_monitor_password }}" }
 
-- name: Create logstash user
+- name: Create users
   uri:
     method: POST
     url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
@@ -68,18 +72,6 @@
     status_code: 200, 201
   with_items:
     - "{{ logstash_user }}"
-
-- name: Create users
-  uri:
-    method: POST
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    body: "{{ lookup('file', 'files/users/{{ item }}.json') }}"
-    status_code: 200, 201
-  with_items:
     - moloch
 
 - name: Load Index Policies

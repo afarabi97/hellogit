@@ -8,34 +8,12 @@ data:
     winlogbeat.event_logs:
       - name: Application
         ignore_older: 72h
-
-      - name: System
-
-      - name: Security
-        processors:
-          - script:
-              lang: javascript
-              id: security
-              file: /usr/local/module/security/config/winlogbeat-security.js
-
-      - name: Microsoft-Windows-Sysmon/Operational
-        processors:
-          - script:
-              lang: javascript
-              id: sysmon
-              file: /usr/local/module/sysmon/config/winlogbeat-sysmon.js
-
     setup.template.enabled: true
     setup.template.overwrite: false
     setup.template.settings:
       index.number_of_shards: 2
 
     setup.dashboards.enabled: true
-    setup.dashboards.index: "winlogbeat-external-index-pattern"
-
-    setup.ilm:
-      policy_name: winlogbeat-external
-      rollover_alias: winlogbeat-external
 
     #============================== Kibana =====================================
     setup.kibana:
@@ -52,12 +30,6 @@ data:
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-
-    processors:
-      - add_host_metadata: ~
-      - add_cloud_metadata: ~
-      - add_docker_metadata: ~
-
 
 ---
 apiVersion: batch/v1

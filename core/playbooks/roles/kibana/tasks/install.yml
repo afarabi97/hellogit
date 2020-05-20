@@ -8,6 +8,20 @@
     mode: u+rw,g+rw
     state: directory
 
+- name: Kibana Encryption Keys
+  set_fact:
+    encryption_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+    alert_encryption_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+
+- name: Create Kibana Encryption Keys
+  shell: |
+    kubectl create secret generic {{ item.name }} --from-literal={{ item.literal }}={{ item.key }}
+  register: results
+  changed_when: results.rc == 0
+  with_items:
+    - { name: "kibana-key-secret-settings", literal: "xpack.security.encryptionKey", key: "{{ encryption_key }}" }
+    - { name: "kibana-alert-secret-settings", literal: "xpack.encryptedSavedObjects.encryptionKey", key: "{{ alert_encryption_key }}" }
+
 - name: Copy Kibana Templates
   template:
     src: "templates/{{ item }}.j2"
@@ -25,10 +39,8 @@
     dest: "{{ kibana_dir }}/{{ item }}"
   with_items:
     - "config.ndjson"
-    - "auditbeat-internal-index.ndjson"
-    - "winlogbeat-external-index.ndjson"
-    - "auditbeat-external-index.ndjson"
-    - "filebeat-external-index.ndjson"
+    - "internal-config.ndjson"
+    - "external-config.ndjson"
   tags:
     - kibana-saved-objects
 
@@ -134,10 +146,8 @@
   changed_when: save_objects_results is defined
   with_items:
     - { file: "{{ kibana_dir }}/config.ndjson", space: "" }
-    - { file: "{{ kibana_dir }}/auditbeat-internal-index.ndjson", space: "/s/audit" }
-    - { file: "{{ kibana_dir }}/winlogbeat-external-index.ndjson", space: "/s/external" }
-    - { file: "{{ kibana_dir }}/auditbeat-external-index.ndjson", space: "/s/external" }
-    - { file: "{{ kibana_dir }}/filebeat-external-index.ndjson", space: "/s/external" }
+    - { file: "{{ kibana_dir }}/internal-config.ndjson", space: "/s/audit" }
+    - { file: "{{ kibana_dir }}/external-config.ndjson", space: "/s/external" }
   tags:
     - kibana-saved-objects
     - create-kibana-space

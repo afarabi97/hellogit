@@ -22,7 +22,7 @@ data:
 
     #============================== Dashboards =====================================
     setup.dashboards.enabled: true
-    setup.dashboards.index: "filebeat-external-index-pattern"
+    setup.dashboards.index: "filebeat-external-*"
 
     #============================== Kibana =====================================
 
@@ -35,6 +35,44 @@ data:
     setup.kibana.space.id: external
     setup.template.overwrite: false
     setup.template.enabled: false
+    setup.template.pattern: "filebeat-external-*"
+
+    #================================ Outputs =====================================
+
+    #-------------------------- Elasticsearch output ------------------------------
+    output.elasticsearch:
+      hosts: ["https://{{ elastic_headless_fqdn }}:{{ elastic_port }}"]
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+
+    queue.mem:
+      events: 65536
+      flush.min_events: 4096
+      flush.timeout: 30s
+
+    monitoring:
+      enabled: true
+      elasticsearch:
+        username: ${ELASTICSEARCH_USERNAME}
+        password: ${ELASTICSEARCH_PASSWORD}
+
+  filebeat-default.yml: |
+    filebeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+
+    #==================== Elasticsearch template setting ==========================
+
+    #============================== Kibana =====================================
+
+    setup.dashboards.enabled: true
+    setup.kibana.host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
+    setup.kibana.ssl.enabled: true
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    setup.kibana.username: ${ELASTICSEARCH_USERNAME}
+    setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
+    setup.kibana.space.id: external
 
     #================================ Outputs =====================================
 
@@ -70,6 +108,29 @@ spec:
         component: filebeat
     spec:
       containers:
+      - name: "filebeat-default-setup"
+        image: "beats/filebeat:{{elastic_7_version}}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: configs
+          subPath: filebeat-default.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', 'setup']
       - name: "filebeat-setup"
         image: "beats/filebeat:{{elastic_7_version}}"
         imagePullPolicy: IfNotPresent

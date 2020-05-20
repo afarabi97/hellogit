@@ -1,13 +1,15 @@
 ---
 
 - name: Uninstall Kibana
-  command: "{{ item }} --ignore-not-found"
+  command: "kubectl delete {{ item }} --ignore-not-found"
   ignore_errors: yes
   with_items:
-    - "kubectl delete kibana.kibana.k8s.elastic.co/tfplenum"
-    - "kubectl delete svc -l component=kibana"
-    - "kubectl delete certificate kibana"
-    - "kubectl delete secret kibana-certificate"
+    - "kibana.kibana.k8s.elastic.co/tfplenum"
+    - "svc -l component=kibana"
+    - "certificate kibana"
+    - "secret kibana-certificate"
+    - "secret kibana-key-secret-settings"
+    - "secret kibana-alert-secret-settings"
   register: result
   changed_when: result.rc == 0
 

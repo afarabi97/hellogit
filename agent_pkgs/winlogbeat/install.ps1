@@ -1,6 +1,6 @@
 $return_value = 0x00
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
-$winlog_beat_version = "7.6.2"
+$winlog_beat_version = "7.7.1"
 
 function _unzip() {
    param([string]$zipfile, [string]$outpath)

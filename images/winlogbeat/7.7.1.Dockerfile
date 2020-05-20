@@ -1,5 +1,5 @@
 FROM golang:1.13 as builder
-ARG version=7.7.0
+ARG version=7.7.1
 
 # Install virtualenv. Required for beats build processes.
 RUN apt-get update
@@ -12,6 +12,12 @@ WORKDIR $GOPATH/src/github.com/elastic/beats
 
 # Target winlogbeat
 WORKDIR $GOPATH/src/github.com/elastic/beats/winlogbeat
+
+# Patch out the `init` function in winlogbeat to avoid this error on non-Windows systems:
+#   Exiting: Failed to create new event log. No event log API is available on this system
+#
+# This allows us to run `winlogbeat setup` on linux systems.
+RUN sed -i -e 's/^\(func .* \)\(init(.*) error {.*\)$/\1\2 return nil }\n\1_\2/' beater/winlogbeat.go
 
 # Compile winlogbeat
 RUN make

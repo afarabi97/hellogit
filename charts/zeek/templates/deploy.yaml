@@ -215,9 +215,6 @@ tries to restart.
           mountPath: /usr/share/metricbeat/metricbeat.yml
           subPath: metricbeat.yml
           readOnly: true
-        - name: beats-modules
-          mountPath: /usr/share/metricbeat/modules.d
-          readOnly: true
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
@@ -245,9 +242,6 @@ tries to restart.
         hostPath:
           path: {{ .Values.kafka_path }}
           type: DirectoryOrCreate
-      - name: beats-modules
-        configMap:
-          name: {{ .Release.Name }}-beats-modules
       - name: beats-config
         configMap:
           name: {{ .Release.Name }}-beats-config

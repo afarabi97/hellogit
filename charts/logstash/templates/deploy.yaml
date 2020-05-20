@@ -53,6 +53,45 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
+      - name: metricbeat
+        image: "{{ .Values.metricbeat_image_name }}:{{ .Values.metricbeat_image_tag }}"
+        args: ["-e"]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Values.elastic_fqdn | quote }}
+        - name: ELASTICSEARCH_PORT
+          value: {{ .Values.elastic_port | quote }}
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        - name: LOGSTASH_MONITOR_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-monitor-user
+              key: username
+        - name: LOGSTASH_MONITOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-monitor-user
+              key: password
+        resources:
+          limits:
+            memory: 200Mi
+        volumeMounts:
+        - name: logstash
+          mountPath: /usr/share/metricbeat/metricbeat.yml
+          subPath: metricbeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
       nodeSelector:
         role: "server"
       volumes:

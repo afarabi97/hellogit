@@ -53,6 +53,7 @@ auditbeat.modules:
   state.period: 12h
 
 #==================== Elasticsearch template setting ==========================
+setup.template.pattern: "auditbeat-internal-*"
 setup.template.settings:
   index.number_of_shards: 1
   #index.codec: best_compression
@@ -64,7 +65,7 @@ setup.ilm:
 
 #============================== Dashboards =====================================
 setup.dashboards.enabled: true
-setup.dashboards.index: "auditbeat-internal-index-pattern"
+setup.dashboards.index: "auditbeat-internal-*"
 
 #============================== Kibana =====================================
 setup.kibana:

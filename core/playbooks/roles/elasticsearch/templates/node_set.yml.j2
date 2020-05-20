@@ -138,12 +138,11 @@ volumeClaimTemplates:
 {% macro master(mdi, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% if mdi %}
     {% set config = node_type(true, true, true, false) %}
+  {% else %}
+    {% set config = node_type(true, false, false, false) %}
+  {% endif %}
     {% set storage = volume_claim_templates() %}
     {% set spec = containers(memory, cpu, java_memory) %}
-  {% else %}
-    {% set config = node_type(true, false, true, false) %}
-    {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
-  {% endif %}
 {{ node_set('master', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
