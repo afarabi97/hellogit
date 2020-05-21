@@ -81,17 +81,8 @@ spec:
           mountPath: /etc/apache2/sites-enabled/misp.conf
           subPath: misp.conf
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/misp.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/misp.key
-          readOnly: true
-          subPath: tls.key
       - name: misp-modules
         image: {{ .Values.mispModulesImage }}
         imagePullPolicy: IfNotPresent

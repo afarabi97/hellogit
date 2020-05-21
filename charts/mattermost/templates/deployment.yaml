@@ -101,17 +101,8 @@ spec:
           mountPath: /mattermost/config_file.sh
           subPath: config_file.sh
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/mattermost.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/mattermost.key
-          readOnly: true
-          subPath: tls.key
       nodeSelector:
         role: "server"
       volumes:

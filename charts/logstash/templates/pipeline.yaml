@@ -41,7 +41,7 @@ data:
       # stdout { codec => rubydebug }
       elasticsearch {
         hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        cacert => '/etc/ssl/certs/webCA.crt'
+        cacert => '/etc/ssl/certs/container/container/ca.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
         ilm_rollover_alias => "ecs-zeek"
@@ -57,9 +57,9 @@ data:
       beats {
         port => 5045
         ssl => true
-        ssl_certificate_authorities => ["/etc/ssl/certs/webCA.crt"]
-        ssl_certificate => '/etc/ssl/certs/logstash.crt'
-        ssl_key => '/etc/ssl/certs/logstash.key'
+        ssl_certificate_authorities => ["/etc/ssl/certs/container/ca.crt"]
+        ssl_certificate => '/etc/ssl/certs/container/tls.crt'
+        ssl_key => '/etc/ssl/certs/container/tls.key'
         ssl_verify_mode => "peer"
       }
     }
@@ -69,7 +69,7 @@ data:
       # for details on %{[agent][type]}
       elasticsearch {
         hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        cacert => '/etc/ssl/certs/webCA.crt'
+        cacert => '/etc/ssl/certs/container/ca.crt'
         user => "${ELASTICSEARCH_USERNAME}"
         password => "${ELASTICSEARCH_PASSWORD}"
         ilm_rollover_alias => "%{[agent][type]}-external"

@@ -19,9 +19,9 @@ data:
       </Directory>
 
       SSLEngine On
-      SSLCertificateFile /etc/ssl/certs/misp.crt
-      SSLCertificateKeyFile /etc/ssl/certs/misp.key
-      SSLCertificateChainFile /etc/ssl/certs/webCA.crt
+      SSLCertificateFile /etc/ssl/certs/container/tls.crt
+      SSLCertificateKeyFile /etc/ssl/certs/container/tls.key
+      SSLCertificateChainFile /etc/ssl/certs/container/ca.crt
 
       LogLevel warn
       ErrorLog /var/log/apache2/misp.local_error.log

@@ -77,6 +77,7 @@ EOF
         client.run('git config --global --unset credential.helper', warn=True)
         # TODO make this more efficient we do not need to run redeploy if there were not code changes.
         client.run('/opt/tfplenum/web/setup/redeploy.sh')
+        client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
         client.run('/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/update_portal_client.py')
 
     def _update_nightly_controller(self):

@@ -16,5 +16,5 @@ data:
     echo "Configuring TLS Settings"
     cat /mattermost/config/config.json.tmp | jq '.ServiceSettings.SiteURL = "https://mattermost.{{ .Values.domain }}"' |
                                              jq '.ServiceSettings.ConnectionSecurity = "TLS"' |
-                                             jq '.ServiceSettings.TLSCertFile = "/etc/ssl/certs/mattermost.crt"' |
-                                             jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/mattermost.key"' > /mattermost/config/config.json
+                                             jq '.ServiceSettings.TLSCertFile = "/etc/ssl/certs/container/tls.crt"' |
+                                             jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/container/tls.key"' > /mattermost/config/config.json

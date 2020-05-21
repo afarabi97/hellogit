@@ -34,9 +34,8 @@ spec:
           subPath: config.ini
           mountPath: {{ moloch_path }}/etc/config.ini
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
       volumes:
       - name: configini
         configMap:
@@ -45,7 +44,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: elasticsearch-certificate
+          secretName: webca-certificate
       nodeSelector:
         role: server
       restartPolicy: Never

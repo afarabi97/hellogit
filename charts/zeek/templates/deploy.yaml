@@ -219,9 +219,8 @@ tries to restart.
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
       restartPolicy: Always
       volumes:
       - name: logs
@@ -256,7 +255,7 @@ tries to restart.
         secret:
           defaultMode: 420
           optional: false
-          secretName: {{ .Release.Name }}-metricbeat-certificate
+          secretName: webca-certificate
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

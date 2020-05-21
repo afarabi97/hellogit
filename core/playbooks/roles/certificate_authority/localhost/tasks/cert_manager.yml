@@ -1,10 +1,12 @@
 ---
 - name: Delete Web CA secret
-  shell: |
-    kubectl delete secret {{ webca_secret }} --ignore-not-found=true
+  command: "kubectl delete secret {{ item }} --ignore-not-found=true"
   register: results
   changed_when: results.rc == 0
   ignore_errors: true
+  with_items:
+    - "{{ webca_keypair_secret }}"
+    - "{{ webca_cert_secret }}"
 
 - name: Copy Templates
   template:
@@ -45,9 +47,12 @@
   delegate_to: localhost
 
 - name: Create Web CA Secret
-  command: "kubectl create secret generic {{ webca_secret }} --from-file=tls.crt={{ cert_manager_dir }}/webCA.crt --from-file=tls.key={{ cert_manager_dir }}/webCA.pem" # noqa 204
+  command: "{{ item }}"
   register: result
   changed_when: result.rc == 0
+  with_items:
+    - "kubectl create secret generic {{ webca_keypair_secret }} --from-file=tls.crt={{ cert_manager_dir }}/webCA.crt --from-file=tls.key={{ cert_manager_dir }}/webCA.pem" # noqa 204
+    - "kubectl create secret generic {{ webca_cert_secret }} --from-file=ca.crt={{ cert_manager_dir }}/webCA.crt"
 
 - name: Create Web CA
   shell: |

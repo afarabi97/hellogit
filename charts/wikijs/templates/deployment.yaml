@@ -97,17 +97,8 @@ spec:
           mountPath: /wiki/data
           subPath: content
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/wikijs.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/wikijs.key
-          readOnly: true
-          subPath: tls.key
       nodeSelector:
         role: "server"
       volumes:

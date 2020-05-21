@@ -1,12 +1,4 @@
 ---
-- name: Delete Metricbeat Certificate and Secret
-  command: "{{ item }}"
-  ignore_errors: yes
-  changed_when: False
-  with_items:
-    - "kubectl delete certificate metricbeat-cluster --ignore-not-found=true"
-    - "kubectl delete secret metricbeat-cluster-certificate --ignore-not-found=true"
-
 - name: "Create config directory"
   file:
     path: "{{ metrics_dir }}"
@@ -25,15 +17,9 @@
   loop:
     - kube-state-metrics.yaml
     - metricbeat-kubernetes.yaml
-    - certificate.yml
 
 - name: Flush services
   command: "kubectl delete -f {{ metrics_dir }}/kube-state-metrics.yaml -f {{ metrics_dir }}/metricbeat-kubernetes.yaml --ignore-not-found=true"
-  register: result
-  changed_when: result.rc == 0
-
-- name: Install Metricbeat Certificate
-  command: "kubectl apply -f {{ metrics_dir }}/certificate.yml"
   register: result
   changed_when: result.rc == 0
 

@@ -105,7 +105,7 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
-    elif short_dns == "niagra-files":
+    elif short_dns == "nifi":
         logins = ''
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR +  dns, 'logins': logins})

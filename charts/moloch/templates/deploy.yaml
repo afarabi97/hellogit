@@ -53,9 +53,8 @@ spec:
         - name: data
           mountPath: {{ .Values.pcap_path }}
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
       - name: viewer
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
@@ -73,9 +72,8 @@ spec:
         - name: data
           mountPath: {{ .Values.pcap_path }}
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
       restartPolicy: Always
       volumes:
       - name: configini
@@ -89,7 +87,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: elasticsearch-certificate
+          secretName: webca-certificate
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

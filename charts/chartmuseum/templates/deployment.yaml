@@ -64,18 +64,9 @@ spec:
         - mountPath: {{ .Values.persistence.path }}
           name: storage-volume
 {{- end }}
-        - mountPath: /etc/ssl/certs/chartmuseum.crt
-          name: webca
+        - name: webca
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: tls.crt
-        - mountPath: /etc/ssl/certs/chartmuseum.key
-          name: webca
-          readOnly: true
-          subPath: tls.key
-        - mountPath: /etc/ssl/certs/webCA.crt
-          name: webca
-          readOnly: true
-          subPath: ca.crt
       {{- with .Values.resources }}
         resources:
 {{ toYaml . | indent 10 }}
@@ -96,4 +87,4 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: chartmuseum-certificate
+          secretName: {{ .Release.Name }}-certificate

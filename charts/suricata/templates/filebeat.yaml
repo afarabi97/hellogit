@@ -43,17 +43,8 @@ spec:
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/filebeat.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/filebeat.key
-          readOnly: true
-          subPath: tls.key
         args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-*.json]']
       volumes:
       - name: data
@@ -67,7 +58,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: {{ .Release.Name }}-filebeat-certificate
+          secretName: webca-certificate
       affinity:
         nodeAffinity: # Only schedule on the intended host
           requiredDuringSchedulingIgnoredDuringExecution:

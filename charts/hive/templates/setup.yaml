@@ -10,7 +10,7 @@ data:
 
   init-cortex1.sh: |
     #!/bin/bash
-    curl -o /tmp/api/cortex_api.txt -XGET -u ${CORTEX_SUPERADMIN_USERNAME}:${CORTEX_SUPERADMIN_PASSWORD} --cacert /etc/ssl/certs/webCA.crt https://cortex.default.svc.cluster.local/api/user/${CORTEX_USER_USERNAME}/key
+    curl -o /tmp/api/cortex_api.txt -XGET -u ${CORTEX_SUPERADMIN_USERNAME}:${CORTEX_SUPERADMIN_PASSWORD} --cacert /etc/ssl/certs/container/ca.crt https://cortex.default.svc.cluster.local/api/user/${CORTEX_USER_USERNAME}/key
 
   init-cortex2.sh: |
     #!/bin/sh
@@ -30,7 +30,7 @@ data:
     #!/bin/bash
 
     #WebCA truststore
-    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/webCA.crt -alias webCA -keystore /opt/thehive/keystore/webCA.jks -storepass ${KEYSTORE_PASSWORD}
+    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/container/ca.crt -alias webCA -keystore /opt/thehive/keystore/webCA.jks -storepass ${KEYSTORE_PASSWORD}
     if [ ! -f /tmp/hive/application.conf ]; then
       cp /data/config.conf /tmp/hive/application.conf
     fi

@@ -51,17 +51,8 @@ spec:
         - name: pipeline
           mountPath: "/usr/share/logstash/pipeline"
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/logstash.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/logstash.key
-          readOnly: true
-          subPath: tls.key
       nodeSelector:
         role: "server"
       volumes:

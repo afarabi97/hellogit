@@ -16,8 +16,8 @@ data:
       provider: custom
 
       format: pem
-      key: /etc/ssl/certs/wikijs.key
-      cert: /etc/ssl/certs/wikijs.crt
+      key: /etc/ssl/certs/container/tls.key
+      cert: /etc/ssl/certs/container/tls.crt
       passphrase: null
       dhparam: null
     db:

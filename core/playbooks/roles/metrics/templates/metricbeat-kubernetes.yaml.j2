@@ -31,9 +31,9 @@ data:
       hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
-    # ssl.certificate: "/etc/ssl/certs/metricbeat.crt"
-    # ssl.key: "/etc/ssl/certs/metricbeat.key"
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+    # ssl.key: "/etc/ssl/certs/container/tls.key"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -167,17 +167,8 @@ spec:
           mountPath: /hostfs/sys/fs/cgroup
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/metricbeat.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/metricbeat.key
-          readOnly: true
-          subPath: tls.key
       volumes:
       - name: proc
         hostPath:
@@ -204,7 +195,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: metricbeat-cluster-certificate
+          secretName: webca-certificate
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -230,7 +221,7 @@ data:
     setup.dashboards.enabled: true
     setup.kibana.host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
     setup.kibana.ssl.enabled: true
-    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
 
@@ -238,9 +229,9 @@ data:
       hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
-    # ssl.certificate: "/etc/ssl/certs/metricbeat.crt"
-    # ssl.key: "/etc/ssl/certs/metricbeat.key"
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+    # ssl.key: "/etc/ssl/certs/container/tls.key"
 
 ---
 apiVersion: v1
@@ -332,17 +323,8 @@ spec:
           mountPath: /usr/share/metricbeat/modules.d
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/metricbeat.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/metricbeat.key
-          readOnly: true
-          subPath: tls.key
       volumes:
       - name: config
         configMap:
@@ -356,7 +338,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: metricbeat-cluster-certificate
+          secretName: webca-certificate
       nodeSelector:
         role: server
 ---

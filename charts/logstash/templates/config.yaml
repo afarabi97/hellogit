@@ -16,7 +16,7 @@ data:
     xpack.monitoring.elasticsearch.hosts: https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
     xpack.monitoring.elasticsearch.username: "${ELASTICSEARCH_USERNAME}"
     xpack.monitoring.elasticsearch.password: "${ELASTICSEARCH_PASSWORD}"
-    xpack.monitoring.elasticsearch.ssl.certificate_authority: /etc/ssl/certs/webCA.crt
+    xpack.monitoring.elasticsearch.ssl.certificate_authority: /etc/ssl/certs/container/ca.crt
     pipeline.workers: {{ .Values.pipeline_workers }}
     pipeline.batch.size: {{ .Values.batch_size }}
 

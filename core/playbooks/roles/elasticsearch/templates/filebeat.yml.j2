@@ -29,7 +29,7 @@ data:
     setup.dashboards.enabled: true
     setup.kibana.host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
     setup.kibana.ssl.enabled: true
-    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+    setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
     setup.kibana.space.id: external
@@ -43,7 +43,7 @@ data:
       hosts: ["https://{{ elastic_headless_fqdn }}:{{ elastic_port }}"]
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
 
     queue.mem:
       events: 65536
@@ -90,9 +90,8 @@ spec:
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
         args: ['-e', 'setup']
       volumes:
       - name: configs
@@ -102,7 +101,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: elasticsearch-certificate
+          secretName: webca-certificate
       nodeSelector:
         role: server
       restartPolicy: Never

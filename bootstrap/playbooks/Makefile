@@ -5,7 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre,frontend,bootstrap,sso
+.PHONY: execute_pre, frontend, install_angular, build_deploy_frontend, dip_bootstrap, sso, build_helm_charts, mip_bootstrap
 
 # Default target, build *and* run tests
 all:
@@ -25,6 +25,12 @@ install_angular:
 
 build_deploy_frontend:
 	ansible-playbook $(PLAYBOOK) -i localhost -t build_frontend,restart_frontend_services
+
+build_helm_charts:
+	ansible-playbook $(PLAYBOOK) -i localhost -t helm
+
+pull_docker_images:
+	ansible-playbook $(PLAYBOOK) -i localhost -t pull-docker-images
 
 sso:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t sso

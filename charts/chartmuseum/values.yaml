@@ -44,8 +44,8 @@ env:
     CACHE_REDIS_ADDR:
     # Redis database to be selected after connect
     CACHE_REDIS_DB: 0
-    TLS_CERT: /etc/ssl/certs/chartmuseum.crt
-    TLS_KEY: /etc/ssl/certs/chartmuseum.key
+    TLS_CERT: /etc/ssl/certs/container/tls.crt
+    TLS_KEY: /etc/ssl/certs/container/tls.key
   field:
     # POD_IP: status.podIP
 deployment:

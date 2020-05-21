@@ -53,17 +53,8 @@ spec:
           subPath: config.ini
           mountPath: {{ .Values.path }}/etc/config.ini
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/moloch.crt
-          readOnly: true
-          subPath: tls.crt
-        - name: webca
-          mountPath: /etc/ssl/certs/moloch.key
-          readOnly: true
-          subPath: tls.key
       restartPolicy: Always
       volumes:
       - name: configini
