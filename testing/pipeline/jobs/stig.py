@@ -6,6 +6,9 @@ from models.ctrl_setup import ControllerSetupSettings
 from util.api_tester import APITester
 from util.connection_mngs import FabricConnectionWrapper
 
+from util.ansible_util import execute_playbook, Target
+PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
+STIGS_PLAYBOOK_DIR = PIPELINE_DIR + "/../../stigs/playbooks/"
 
 class StigJob:
     def __init__(self, ctrl_settings: ControllerSetupSettings):
@@ -33,3 +36,17 @@ class StigJob:
             pass
     def run_stig(self):
         self._execute_stigs()
+
+class STIGServicesJob:
+    def __init__(self, username, password, ipaddress):
+        self.username = username
+        self.password = password
+        self.ipaddress = ipaddress
+    
+    def run(self):
+        extra_vars = {"ansible_ssh_pass": self.password,
+                      "ansible_user": self.username}
+        execute_playbook([STIGS_PLAYBOOK_DIR + 'site.yml'],
+                         extra_vars=extra_vars,
+                         targets=Target("gip-service-vms", self.ipaddress),
+                         tags=['gip-service-vm-stigs'], timeout=300)

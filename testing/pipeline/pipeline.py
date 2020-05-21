@@ -14,7 +14,7 @@ from jobs.export import ConfluenceExport, ControllerExport, generate_versions_fi
 from jobs.gip_creation import GipCreationJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
-from jobs.stig import StigJob
+from jobs.stig import StigJob, STIGServicesJob
 
 from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
@@ -145,6 +145,9 @@ class Runner:
         RHELRepoSettings.add_args(build_server_for_export_parser)
         build_server_for_export_parser.set_defaults(which=SubCmd.build_server_for_export)
 
+        gip_services_parser = subparsers.add_parser(SubCmd.run_gip_services_stigs, help="STIGS the GIP Services VM.")
+        gip_services_parser.set_defaults(which=SubCmd.run_gip_services_stigs)
+        
         build_workstation_for_export_parser = subparsers.add_parser(SubCmd.build_workstation_for_export, help="Builds the reposync workstation for export.")
         RHELRepoSettings.add_args(build_workstation_for_export_parser)
         build_workstation_for_export_parser.set_defaults(which=SubCmd.build_workstation_for_export)
@@ -157,7 +160,14 @@ class Runner:
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.test_server_repository_vm:
+            if args.which == SubCmd.run_gip_services_stigs:
+                settings = YamlManager.load_gip_service_settings_from_yaml()
+                username = settings.node.username
+                password = settings.node.password
+                ipaddress = settings.node.ipaddress
+                job = STIGServicesJob(username, password, ipaddress)
+                job.run()
+            elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args, True)
                 executor = RHELCreationJob(repo_settings)

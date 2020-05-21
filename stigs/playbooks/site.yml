@@ -191,14 +191,14 @@
     - 010_RHEL_07_010090
     - 011_RHEL_07_020310
     - 012_RHEL_07_010300
-    # - 013_RHEL_07_010450 unsure about gui
-    - 014_RHEL_07_020000
-    - 015_RHEL_07_020010
+    # - 013_RHEL_07_010450 this file does not exist and this system does not use /etc/gdm/custom.conf this is a headless server.
+    # - 014_RHEL_07_020000  service vm does not use
+    # - 015_RHEL_07_020010  service vm does not use
     - 016_RHEL_07_020210_020220
-    # - 017_RHEL_07_020231 unsure about gui
-    - 018_RHEL_07_021710
+    # - 017_RHEL_07_020231 No GUI
+    # - 018_RHEL_07_021710 no telnet
     - 019_RHEL_07_040390
-    - 020_RHEL_07_010020
+    # - 020_RHEL_07_010020 This system does not use a repository connection.
   tags:
     - gip-controller-stigs
 
@@ -209,16 +209,24 @@
   any_errors_fatal: true
   roles:
     - 001_RHEL_07_020230
+    - 002_RHEL_07_010430
     - 003_RHEL_07_010320_010330
+    - 004_RHEL_07_010050
+    - 005_RHEL_07_040170
     - 006_RHEL_07_010290
+    - 007_RHEL_07_010010
+    - 008_RHEL_07_010460
+    - 009_RHEL_07_010470
+    # - 010_RHEL_07_010090 no reposistory for screen
     - 011_RHEL_07_020310
     - 012_RHEL_07_010300
-    - 013_RHEL_07_010450
-    - 014_RHEL_07_020000
-    - 015_RHEL_07_020010
-    - 018_RHEL_07_021710
+    # - 013_RHEL_07_010450 this file does not exist and this system does not use /etc/gdm/custom.conf this is a headless server.
+    # - 014_RHEL_07_020000  service vm does not use
+    # - 015_RHEL_07_020010  service vm does not use
     - 016_RHEL_07_020210_020220
+    # - 017_RHEL_07_020231 No GUI
+    # - 018_RHEL_07_021710 no telnet
     - 019_RHEL_07_040390
-    - 020_RHEL_07_010020
+    # - 020_RHEL_07_010020 This system does not use a repository connection.
   tags: gip-service-vm-stigs
 

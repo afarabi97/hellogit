@@ -35,6 +35,23 @@ Setup GIP Services VM:
       - $PIPELINE == "developer-gip-service"
       - $PIPELINE == "export-gip-service"
 
+Perform GIP Servives STIGs:
+  stage: stig-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-gip-services-stigs
+  cache:
+    key: tfplenum-services-cache-${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - gipservicesettings.yml
+  only:
+    variables:
+      - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "true"
+
 GIP Cleanup:
   stage: cleanup
   tags:
@@ -183,21 +200,3 @@ GIP Kit:
     variables:
       - $PIPELINE == "developer-gip"
       - $PIPELINE == "developer-all"
-
-# Perform GIP STIGs:
-#   stage: stig-kit
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs
-#   cache:
-#     key: tfplenum-gip-cache-${CI_PIPELINE_ID}
-#     policy: pull
-#     paths:
-#       - gipcontrollersettings.yml
-#   only:
-#     variables:
-#       - $PIPELINE == "developer-gip"
-#       - $PIPELINE == "developer-all"

@@ -16,7 +16,7 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
-    run_gip_svc_stigs = 'run-gip-svc-stigs'
+    run_gip_services_stigs = 'run-gip-services-stigs'
 
     # run-catalog subcommands
     install = "install"
