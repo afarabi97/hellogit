@@ -6,7 +6,7 @@ from models.constants import SubCmd
 
 class ControllerSetupSettings(Model):
     valid_run_types = ("build_from_scratch", "clone_from_nightly")
-    valid_system_names = ('DIP', 'MIP', 'GIP')
+    valid_system_names = ('DIP', 'MIP', 'GIP', 'REPO')
 
     def __init__(self):
         super().__init__()

@@ -11,6 +11,7 @@ class RHELRepoSettings(Model):
         super().__init__()
         self.vcenter = None # type: VCenterSettings
         self.node = None # type: NodeSettings
+        self.system_name = None # type: str
         self.subscription = None
         self.orgnumber = None
         self.activationkey = None
@@ -29,6 +30,8 @@ class RHELRepoSettings(Model):
     def from_namespace(self, namespace: Namespace, is_server: bool):
         self.vcenter = VCenterSettings()
         self.vcenter.from_namespace(namespace)
+
+        self.system_name = namespace.system_name
 
         self.node = NodeSettings()
         self.node.from_namespace(namespace, NodeSettings.valid_node_types[7])

@@ -60,8 +60,18 @@ class STIGSettings(Model):
                 self.system_name)
             self._setup_username_password_ip(self.model_settings)
             self._setup_make_execution_vars('mip-stigs')
-        elif self.system_name == 'REPO':
-            pass
+        elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER:
+            self.model_settings = YamlManager.load_reposync_settings_from_yaml(
+                self.sub_system_name)
+            self._setup_username_password_ip(self.model_settings)
+            self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-server-stigs',
+                                            play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
+        elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_WORKSTATION:
+            self.model_settings = YamlManager.load_reposync_settings_from_yaml(
+                self.sub_system_name)
+            self._setup_username_password_ip(self.model_settings)
+            self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-workstation-stigs',
+                                            play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
 
     def _setup_username_password_ip(self, model: Model):
         self.username = model.node.username

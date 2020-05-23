@@ -6,7 +6,7 @@ variables:
   DIP_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_EXPORT_LOC: "/mnt/drive_creation/mip"
   GIP_EXPORT_LOC: "/mnt/drive_creation/gip"
-  REPO_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH 3.4/Software/VMs/RhelRepo"
+  REPO_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH\ 3.4/Software/VMs/RhelRepo"
   DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
   APP_STORE_CPT_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH\ 3.4/Software/AppStore"
@@ -52,6 +52,9 @@ variables:
   RUN_MIP_STIGS: "true"
   RUN_GIP_STIGS: "true"
   RUN_GIPSVC_STIGS: "true"
+  RUN_REPOSYNC_SERVER_STIGS: "true"
+  RUN_REPOSYNC_WORKSTATION_STIGS: "true"
+
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"
