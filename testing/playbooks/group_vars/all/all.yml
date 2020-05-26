@@ -3,4 +3,5 @@ elastic_uri: "https://elasticsearch:9200"
 moloch_uri: "http://moloch.lan"
 install_dir: /opt/tfplenum/testing
 deployer_dir: /opt/tfplenum/deployer
+kubectl_get_pods_cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
 ...

@@ -1,7 +1,7 @@
 ---
 
 - name: Get {{ app_name }} status
-  shell: |
+  command: |
     kubectl exec {{ pod_name }} -- systemctl is-active {{ process_name }}
   register: pod_status
   changed_when: pod_status.failed
@@ -14,6 +14,4 @@
   assert:
     that: "'active' in pod_status.stdout"
     msg: "{{ process_name }} service is reporting  {{ pod_status.stdout }}"
-
-    
 ...

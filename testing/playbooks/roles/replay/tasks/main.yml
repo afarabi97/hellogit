@@ -18,7 +18,7 @@
   when: test_interface is not defined
 
 - name: Replay PCAPs
-  shell: |
+  command: |
     /usr/bin/tcpreplay --loop=5 --loopdelay-ms=3000 --intf1={{ test_interface }} {{ item }}
   loop:
     - "{{ pcap_dir }}/get.trace"

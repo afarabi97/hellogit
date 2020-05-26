@@ -10,16 +10,17 @@
     force_basic_auth: yes
   register: elasticsearch_indices
 
-- set_fact:
+- name: Set Index Facts
+  set_fact:
     indices_json: "{{ elasticsearch_indices.json }}"
 
-- set_fact:
+- name: Set Index Facts
+  set_fact:
     indices: "{{ indices_json | map(attribute='index') | map('regex_search',index_regex) | select('string') | list }}"
-
-- set_fact:
     index_data: []
 
-- set_fact:
+- name: Set Index Data
+  set_fact:
     index_data: "{{ index_data }} + [ {{ item }} ]"
   with_items: "{{ indices_json }}"
   when: item.index in indices

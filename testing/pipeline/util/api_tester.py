@@ -615,13 +615,13 @@ class APITester:
 
     def install_mongodb(self):
         payload = self._catalog_payload_generator.generate("mongodb", INSTALL, SERVER_ANY)
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def install_rocketchat(self):
         payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
-        response = post_request(self._url.format("/api/catalog/install"), payload)
-        time.sleep(60)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait = 60)
 
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:

@@ -10,7 +10,8 @@
   hosts: localhost
   tags: always
   tasks:
-    - add_host:
+    - name: Set Master Server
+      add_host:
         hostname: "{{ item }}"
         groups: master_server
       when: hostvars[item].is_master | default(false)
@@ -21,7 +22,8 @@
   hosts: localhost
   tags: always
   tasks:
-    - add_host:
+    - name: Set Remote Sensors
+      add_host:
         hostname: "{{ item }}"
         groups: remote_sensors
       when: hostvars[item].is_remote | default(false)
@@ -60,10 +62,11 @@
   tasks:
     - name: Get ES Password
       shell: |
-        kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+        set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
       register: es_password_results
       changed_when: false
-    - set_fact:
+    - name: Set ES Creds
+      set_fact:
         elastic_password: "{{ es_password_results.stdout }}"
         elastic_username: "elastic"
         cacheable: yes
@@ -84,13 +87,13 @@
     - kibana
   tags: kibana
 
-- name: Validate Bro
+- name: Validate Zeek
   hosts:
   - master_server
   gather_facts: no
   roles:
-    - bro
-  tags: bro
+    - zeek
+  tags: zeek
 
 - name: Validate Suricata
   hosts:
@@ -141,7 +144,7 @@
     - misp
   tags: misp
 
-- name: Validate mongodb
+- name: Validate MongoDB
   hosts:
   - master_server
   gather_facts: no
@@ -149,7 +152,7 @@
     - mongodb
   tags: mongodb
 
-- name: Validate rocketchat
+- name: Validate RocketChat
   hosts:
   - master_server
   gather_facts: no

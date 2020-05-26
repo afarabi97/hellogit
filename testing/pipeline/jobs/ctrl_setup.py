@@ -72,12 +72,14 @@ EOF
         self._set_hostname(client)
         client.run('git config --global credential.helper "/bin/bash ~/credential-helper.sh"')
         client.run('cd /opt/tfplenum && git fetch', warn=True)
-        client.run('cd /opt/tfplenum && git checkout {}'.format(self.ctrl_settings.repo.branch_name))
+        client.run('cd /opt/tfplenum && git checkout {} --force'.format(self.ctrl_settings.repo.branch_name))
+        #client.run('cd /opt/tfplenum && git reset --hard origin/{}'.format(self.ctrl_settings.repo.branch_name))
         client.run('cd /opt/tfplenum && git pull --rebase')
         client.run('git config --global --unset credential.helper', warn=True)
         # TODO make this more efficient we do not need to run redeploy if there were not code changes.
+        if self.ctrl_settings.system_name in ["DIP", "GIP"]:
+            client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
         client.run('/opt/tfplenum/web/setup/redeploy.sh')
-        client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
         client.run('/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/update_portal_client.py')
 
     def _update_nightly_controller(self):

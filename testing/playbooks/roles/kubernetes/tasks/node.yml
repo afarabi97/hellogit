@@ -1,11 +1,12 @@
 ---
 
 # Check for Node Status Condition Ready
-- set_fact:
+- name: Set Template Fact
+  set_fact:
     template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"Ready\") }}{{ .status }}{{end}}{{end}}'"
 
 - name: Get node ready status
-  shell: |
+  command: |
     kubectl get node {{ item }} -o go-template --template={{ template }}
   register: node_results
   changed_when: node_results.failed
@@ -27,7 +28,7 @@
     template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"DiskPressure\") }}{{ .status }}{{end}}{{end}}'"
 
 - name: Get nodes DiskPressure status
-  shell: |
+  command: |
     kubectl get node {{ item }} -o go-template --template={{ template }}
   register: node_results
   changed_when: node_results.failed
@@ -44,11 +45,12 @@
   with_items: "{{ node_results.results }}"
 
 # Check for MemoryPressure Status Condition
-- set_fact:
+- name: Set Template Fact
+  set_fact:
     template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"MemoryPressure\") }}{{ .status }}{{end}}{{end}}'"
 
 - name: Get nodes MemoryPressure status
-  shell: |
+  command: |
     kubectl get node {{ item }} -o go-template --template={{ template }}
   register: node_results
   changed_when: node_results.failed

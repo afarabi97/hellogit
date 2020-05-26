@@ -2,7 +2,7 @@
 
 - name: Check Elasticsearch endpoint is ready
   uri:
-    url: "https://{{elastic_fqdn}}:{{elastic_port}}"
+    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
     return_content: yes
     validate_certs: no
     user: "{{ elastic_username }}"

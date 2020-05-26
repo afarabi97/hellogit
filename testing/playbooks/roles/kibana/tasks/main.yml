@@ -1,11 +1,8 @@
 ---
 
-- set_fact:
-        cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
-
 - name: get kibana pods
   shell: |
-    {{ cmd }} | grep 'tfplenum-kb-'
+    set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'tfplenum-kb-'
   register: get_pods
   changed_when: get_pods.failed
 

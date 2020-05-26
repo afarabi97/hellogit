@@ -1,50 +1,49 @@
 ---
 
-- set_fact:
+- name: Set Initial Facts
+  set_fact:
     app_deployed: false
     releases: ""
 
 - name: check if cortex is installed
-  shell: helm list --filter 'cortex$' --output json
+  command: helm list --filter 'cortex$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
 
 - name: update installed variable
   set_fact:
-    releases: "{{ (app_installed.stdout | from_json).Releases }}"
+    releases: "{{ (app_installed.stdout | from_json) }}"
   when:
-    - "'Releases' in app_installed.stdout"
+    - app_installed.stdout
 
 - name: update installed variable
   set_fact:
     app_deployed: true
   when:
     - app_installed is defined
-    - releases is defined and releases != ""
-    - "'DEPLOYED' in item.Status"
+    - releases is defined and releases
+    - "'deployed' in item.status"
   with_items: "{{ releases }}"
 
-- name: Test | Check cortex Helm Deployed
+- name: Test | Check Cortex Helm Deployed
   assert:
-    that: "'DEPLOYED' in item.Status"
-    msg: "Failed to determine if cortex is installed"
-  when: releases is defined and releases != ""
+    that: "'deployed' in item.status"
+    msg: "Failed to determine if Cortex is installed"
+  when: releases is defined and releases
   with_items:
     - "{{ releases }}"
 
-- block:
-  - set_fact:
-          cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
-
+- name: Check Cortex Pods
+  block:
   - name: get cortex pods
     shell: |
-      {{ cmd }} | grep 'cortex-'
+      set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'cortex-'
     register: get_pods
     changed_when: get_pods.failed
 
   - name: Get pod status
     shell: |
-      kubectl get pod {{item}} --no-headers | awk '{ print $3 }'
+      set -o pipefail && kubectl get pod {{ item }} --no-headers | awk '{ print $3 }'
     with_items: "{{ get_pods.stdout_lines }}"
     register: pod_status
     changed_when: pod_status.failed
@@ -55,5 +54,5 @@
       that: item.stdout == 'Running'
       msg: "Failed it appears cortex pod status is {{ item.stdout }}"
     with_items: "{{ pod_status.results }}"
-  when: app_deployed|bool
+  when: app_deployed
 ...

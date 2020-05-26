@@ -41,7 +41,7 @@ data:
     setup.kibana:
       host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
       ssl.enabled: true
-      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       space.id: external
@@ -51,7 +51,7 @@ data:
       hosts:  ["https://elasticsearch-headless.default.svc.cluster.local:9200"]
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/webCA.crt"]
+      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
 
     processors:
       - add_host_metadata: ~
@@ -93,9 +93,8 @@ spec:
           mountPath: /usr/local/winlogbeat.yml
           readOnly: true
         - name: webca
-          mountPath: /etc/ssl/certs/webCA.crt
+          mountPath: /etc/ssl/certs/container
           readOnly: true
-          subPath: ca.crt
         args: ['-e', 'setup', '--path.config', '/usr/local/']
       volumes:
       - name: configs
@@ -105,7 +104,7 @@ spec:
         secret:
           defaultMode: 420
           optional: false
-          secretName: elasticsearch-certificate
+          secretName: webca-certificate
       nodeSelector:
         role: server
       restartPolicy: Never

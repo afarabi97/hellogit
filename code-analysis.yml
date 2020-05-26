@@ -32,6 +32,23 @@ sonarqube analyze test code:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
 
+analyze ansible test playbooks:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    ansible-lint testing/playbooks/site.yml
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+      - $PIPELINE == "developer-mip"
+
 analyze ansible bootstrap playbooks:
   tags:
     - tfplenum-buildv2

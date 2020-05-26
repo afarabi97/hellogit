@@ -39,9 +39,10 @@
     run_once: true
 
   - name: Run Audit Beat External Setup
-    shell: "/usr/bin/auditbeat setup -e"
+    command: "/usr/bin/auditbeat setup -e"
     delegate_to: localhost
     register: ret_val
+    changed_when: ret_val.rc == 0
     run_once: true
     retries: 3
     until: ret_val.rc == 0

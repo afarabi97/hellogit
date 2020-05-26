@@ -1,5 +1,5 @@
 ---
-- name: Copy versionlock.list 
+- name: Copy versionlock.list
   copy:
     src: versionlock
     dest: /etc/yum/pluginconf.d/versionlock.list

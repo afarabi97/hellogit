@@ -5,8 +5,8 @@
     app_deployed: false
     releases: ""
 
-- name: check if misp is installed
-  command: helm list --filter 'misp$' --output json
+- name: check if mongodb is installed
+  command: helm list --filter 'mongodb$' --output json
   register: app_installed
   changed_when: app_installed.rc != 0
 
@@ -25,19 +25,18 @@
     - "'deployed' in item.status"
   with_items: "{{ releases }}"
 
-- name: Test | Check MISP Helm Deployed
+- name: Test | Check MongoDB Helm Deployed
   assert:
     that: "'deployed' in item.status"
-    msg: "Failed to determine if MISP is installed"
+    msg: "Failed to determine if MongoDB is installed"
   when: releases is defined and releases
   with_items:
     - "{{ releases }}"
 
-- name: Check Pod Status
-  block:
-  - name: get misp pods
+- block:
+  - name: get mongodb pods
     shell: |
-      set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'misp-'
+      set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'mongodb-'
     register: get_pods
     changed_when: get_pods.failed
 
@@ -52,7 +51,7 @@
   - name: Test | Check Pod Status
     assert:
       that: item.stdout == 'Running'
-      msg: "Failed it appears misp pod status is {{ item.stdout }}"
+      msg: "Failed it appears mongodb pod status is {{ item.stdout }}"
     with_items: "{{ pod_status.results }}"
   when: app_deployed
 ...
