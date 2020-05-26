@@ -9,6 +9,8 @@ variables:
   REPO_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH 3.4/Software/VMs/RhelRepo"
   DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
   MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
+  APP_STORE_CPT_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH\ 3.4/Software/AppStore"
+  APP_STORE_MDT_EXPORT_LOC: "/mnt/drive_creation/v3.4/MDT/Data/CVAH\ 3.4/Software/AppStore"
   TFPLENUM_EXPORT_VERSION: RC
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
   PIPELINE: "developer-dip"
@@ -103,6 +105,7 @@ include:
   - local: mip.export.gitlab-ci.yml
   - local: gip.export.gitlab-ci.yml
   - local: repo.gitlab-ci.yml
+  - local: powershell.gitlab-export.yml
   - local: repo.export.gitlab-ci.yml
 
 Create Master Drive:

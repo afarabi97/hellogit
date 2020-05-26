@@ -73,6 +73,19 @@ function install_nodejs(){
     run_cmd npm -v
 }
 
+function install_powershell(){
+    # Download the Microsoft repository GPG keys
+    run_cmd wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+    # Register the Microsoft repository GPG keys
+    run_cmd dpkg -i packages-microsoft-prod.deb
+    # Update the list of products
+    run_cmd apt-get update
+    # Enable the "universe" repositories
+    run_cmd add-apt-repository universe
+    # Install PowerShell
+    run_cmd apt-get install -y powershell
+}
+
 disable_host_key_checking
 update_system_pkgs
 install_nodejs
@@ -80,5 +93,6 @@ setup_gitlab_runner
 install_requirements
 install_ovftool
 install_sonarscanner
+install_powershell
 
 popd > /dev/null
