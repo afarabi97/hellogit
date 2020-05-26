@@ -106,7 +106,6 @@
   async: 2500
   poll: 0
   register: dockerio_pull_results
-  changed_when: dockerio_pull_results.rc == 0
   tags: pull-docker-images
 
 - name: Waiting for docker hub images to download
@@ -146,7 +145,6 @@
   async: 2500
   poll: 0
   register: docker_pull_results
-  changed_when: docker_pull_results.rc == 0
   tags: pull-docker-images
 
 - name: Waiting for docker images to download
@@ -171,7 +169,6 @@
 - name: Upload local images to registry
   command: "docker push localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}"
   register: docker_push_results
-  changed_when: docker_push_results.rc == 0
   with_items:
     - "{{ image_list }}"
   async: 2500
