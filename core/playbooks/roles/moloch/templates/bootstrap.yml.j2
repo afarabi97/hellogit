@@ -1,3 +1,7 @@
+{% set number_of_shards = 2 %}
+{% if kit_size > 1 %}
+  {% set number_of_shards = 4 %}
+{% endif %}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -25,9 +29,19 @@ spec:
           value: "{{ elastic_fqdn }}"
         - name: ELASTICSEARCH_PORT
           value: "{{ elastic_port }}"
+        - name: NUM_OF_SHARDS
+          value: "{{ number_of_shards }}"
         - name: NUM_OF_REPLICAS
           value: "1"
         - name: SHARDS_PER_NODE
+          value: "1"
+        - name: FORCE_MERGE
+          value: "25h"
+        - name: DELETE
+          value: "60d"
+        - name: HISTORY
+          value: "30"
+        - name: ILM_REPLICAS
           value: "1"
         volumeMounts:
         - name: configini

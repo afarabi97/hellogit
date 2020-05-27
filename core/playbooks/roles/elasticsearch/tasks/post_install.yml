@@ -87,7 +87,6 @@
   with_items:
     - filebeat-suricata
     - ecs-zeek
-    - moloch-custom
   register: policy_results
   until: policy_results.status == 200
   retries: 10
