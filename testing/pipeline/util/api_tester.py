@@ -202,6 +202,7 @@ class KickstartPayloadGenerator:
             "netmask": self._kickstart_settings.node_defaults.netmask,
             "root_password": self._kickstart_settings.node_defaults.password,
             "re_password": self._kickstart_settings.node_defaults.password,
+            "timezone": self._kickstart_settings.timezone,
             "controller_interface": [
                 self._ctrl_settings.node.ipaddress
             ],

@@ -46,7 +46,7 @@ all:
     root_password: "{{ template_ctx.root_password }}"
     # timezone: Set the timezone for each node.
     # Define: America/Chicago
-    timezone: 'UTC'
+    timezone: "{{ template_ctx.timezone | default('UTC') }}"
 
     # default_boot_drive: This is the default drive used for operating system installation.
     # Default: sda

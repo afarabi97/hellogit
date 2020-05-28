@@ -28,6 +28,7 @@ class KickstartSettings(Model):
         self.server_mem = 0
         self.sensor_mem = 0
         self.dhcp_ip_block = ''
+        self.timezone = 'UTC'
 
     def _validate_params(self):
         if self.server_mem < 1024 or self.server_mem > 65536:
@@ -37,6 +38,7 @@ class KickstartSettings(Model):
             raise ValueError(MEM_ERROR.format(self.sensor_mem))
 
     def from_namespace(self, namespace: Namespace):
+        self.timezone = namespace.timezone
         self.num_servers = namespace.num_servers
         self.num_sensors = namespace.num_sensors
         self.server_cpu = namespace.server_cpu
@@ -90,6 +92,8 @@ class KickstartSettings(Model):
                             help="The default CPUs assigned to each sensor.")
         parser.add_argument('--sensor-mem', type=int, dest="sensor_mem", required=True,
                             help="The default amount of memory in mb assigned to each sensor.")
+        parser.add_argument('--timezone', type=str, dest="timezone", required=False, default="UTC",
+                            help="The timezone for each node.")
 
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, False)

@@ -167,6 +167,15 @@
               kickStartFormGroup.get('re_password').touched" matSuffix color="warn">error</mat-icon>
           <mat-error>{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
         </mat-form-field>
+        <ng-container *ngIf="system_name == 'DIP'">
+          <mat-form-field>
+            <mat-label>Time Zone</mat-label>
+            <mat-select formControlName="timezone" matTooltip="{{ getTooltip('timezone') }}" [disabled]="kickStartFormGroup.get('timezone').disabled">
+                <mat-option value="{{ timezone }}" *ngFor="let timezone of timeZones">{{ timezone }}</mat-option>
+            </mat-select>
+            <mat-error>{{getErrorMessage(kickStartFormGroup.get("timezone"))}}</mat-error>
+          </mat-form-field>
+        </ng-container>
         <unused-ipaddress-autocomplete-ctrl [formControlInput]="kickStartFormGroup.get('dhcp_range')"
           matTooltip="{{ getTooltip('dhcp_range') }}" [options]="dhcp_range_options"
           inputPlaceHolder='DHCP Range Start' [matError]="getErrorMessage(kickStartFormGroup.get('dhcp_range'))">

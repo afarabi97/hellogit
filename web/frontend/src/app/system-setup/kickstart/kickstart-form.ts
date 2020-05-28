@@ -127,6 +127,7 @@ export const kickstart_validators = {
     { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
     { error_message: 'Retyping luks password is required', validatorFn: 'required' }
   ],
+  timezone: [{ error_message: 'Timezone is required.', validatorFn: 'required' }],
 }
 
 export const kickStartTooltips = {
@@ -158,5 +159,6 @@ export const kickStartTooltips = {
   dns: 'The DNS Server that MIPs use to resolve queries.',
   mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
   luks_password: 'This is the password you will use to decrypt the disk.',
-  confirm_luks_password: 'This is the password you will use to decrypt the disk.'
+  confirm_luks_password: 'This is the password you will use to decrypt the disk.',
+  timezone: 'The timezone set during Kickstart.'
 }

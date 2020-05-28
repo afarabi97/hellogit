@@ -15,6 +15,7 @@ import { isIpv4InSubnet } from '../../globals';
 import { SystemSetupService } from '../services/system-setup.service';
 import { WeaponSystemNameService} from '../../services/weapon-system-name.service';
 import { UserService } from '../../user.service';
+import { TIMEZONES2 } from '../../date-time-picker/date-time.component';
 
 @Component({
   selector: 'app-kickstart-form',
@@ -31,6 +32,7 @@ export class KickstartComponent implements OnInit {
   public loading: boolean;
   public system_name: string;
   public controllerAdmin: boolean;
+  public timeZones = TIMEZONES2;
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
@@ -219,12 +221,16 @@ export class KickstartComponent implements OnInit {
 
     const kickstartFormGroup = this.fb.group({
       controller_interface: this.fb.array([new FormControl(kickstartForm ? kickstartForm.controller_interface[0] : '', Validators.compose([validateFromArray(kickstart_validators.controller_interface)]))]),
-      root_password,
-      re_password,
+      root_password: root_password,
+      re_password: re_password,
       nodes: this.fb.array([]),
       netmask: new FormControl(kickstartForm ? kickstartForm.netmask : '255.255.255.0', Validators.compose([validateFromArray(kickstart_validators.netmask)])),
       gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
     });
+
+    if (this.system_name === "DIP") {
+      kickstartFormGroup.addControl('timezone', new FormControl(kickstartForm ? kickstartForm.timezone : 'UTC', Validators.compose([validateFromArray(kickstart_validators.timezone)])));
+    }
 
     if (this.system_name === "MIP") {
       let luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.luks_password)]));

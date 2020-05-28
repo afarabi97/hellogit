@@ -14,6 +14,15 @@ export const TIMEZONES = [
   'America/New_York'
 ];
 
+export const TIMEZONES2 = [
+    'UTC',
+    'America/Chicago',
+    'America/Denver',
+    'America/Detroit',
+    'America/Los_Angeles',
+    'America/New_York'
+];
+
 export function getCurrentDate(timezone: string='UTC') {
   const date = new Date();
   const year = date.toLocaleString('en-US', {year: 'numeric', timeZone: timezone });

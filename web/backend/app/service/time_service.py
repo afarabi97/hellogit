@@ -14,6 +14,7 @@ from shared.constants import KIT_ID, KICKSTART_ID
 from shared.connection_mngs import FabricConnectionManager
 from shared.utils import decode_password
 from typing import Dict, Tuple, Union, List
+from pymongo import ReturnDocument
 
 
 FAILURE_MSG = "Failed to run {} on {}"
@@ -239,9 +240,13 @@ def change_time_on_nodes(payload: Dict, password: str) -> None:
     dt_srv.set_controller_clock(True)
     notify_clock_refresh()
 
-
 def change_time_on_kit(time_form: Dict):
     kickstart = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    kickstart['form']['timezone'] = time_form['timezone']
+    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                        {"_id": KICKSTART_ID, "form": kickstart["form"]},
+                                        upsert=False,
+                                        return_document=ReturnDocument.AFTER)
     kit = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if kit and kickstart:
         if get_system_name() == "DIP":
