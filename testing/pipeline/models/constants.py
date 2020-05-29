@@ -16,7 +16,6 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
-    run_gip_services_stigs = 'run-gip-services-stigs'
 
     # run-catalog subcommands
     install = "install"
@@ -58,3 +57,14 @@ class SubCmd:
     setup_gip_ctrl = 'setup-gip-controller'
     run_gip_kickstart = 'run-gip-kickstart'
     run_gip_kit = 'run-gip-kit'
+
+
+class StigSubCmd:
+    # Ran when system_name is GIP but we want
+    # to Secure The  GIP Services VM
+    GIPSVC = 'SERVICES'
+
+    # Ran when system_name is REPO but we want
+    # to secure either the Workstation or Server
+    RHEL_REPO_WORKSTATION = 'WORKSTATION'
+    RHEL_REPO_SERVER = 'SERVER'

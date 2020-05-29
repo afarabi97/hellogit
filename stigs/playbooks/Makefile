@@ -49,8 +49,8 @@ mip-stigs:
 gip-controller-stigs:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "gip-controller-stigs"
 
-# gip-service-vm-stigs:
-#  	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "gip-service-vm-stigs"
+gip-service-vm-stigs:
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "gip-service-vm-stigs"
 
 
 

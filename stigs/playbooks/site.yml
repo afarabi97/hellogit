@@ -205,7 +205,7 @@
 - name: Deploy STIGs for GIP Service VMs
   hosts:
     - gip-service-vms
-  gather_facts: no
+  gather_facts: yes
   any_errors_fatal: true
   roles:
     - 001_RHEL_07_020230

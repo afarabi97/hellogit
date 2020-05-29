@@ -14,8 +14,7 @@ from jobs.export import ConfluenceExport, ControllerExport, generate_versions_fi
 from jobs.gip_creation import GipCreationJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
-from jobs.stig import StigJob, STIGServicesJob
-
+from jobs.stig import StigJob
 from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
@@ -83,11 +82,6 @@ class Runner:
         KitSettings.add_args(kit_ctrl_parser)
         kit_ctrl_parser.set_defaults(which=SubCmd.run_kit)
 
-        stig_ctrl_parser = subparsers.add_parser(
-            SubCmd.run_stigs, help="This command is used to apply STIGs to the nodes for a given system.")
-        STIGSettings.add_args(stig_ctrl_parser)
-        stig_ctrl_parser.set_defaults(which=SubCmd.run_stigs)
-
         integration_tests_parser = subparsers.add_parser(
             SubCmd.run_integration_tests, help="This command is used to run integration tests.")
         integration_tests_parser.set_defaults(
@@ -133,41 +127,43 @@ class Runner:
         GIPServiceSettings.add_args(gip_setup_subparsers)
         GIPKitSettings.add_args(gip_setup_subparsers)
 
-        test_server_vm_parser = subparsers.add_parser(SubCmd.test_server_repository_vm, help="Tests the reposync server repository VM.")
+        test_server_vm_parser = subparsers.add_parser(
+            SubCmd.test_server_repository_vm, help="Tests the reposync server repository VM.")
         RHELRepoSettings.add_args(test_server_vm_parser)
-        test_server_vm_parser.set_defaults(which=SubCmd.test_server_repository_vm)
+        test_server_vm_parser.set_defaults(
+            which=SubCmd.test_server_repository_vm)
 
-        test_workstation_vm_parser = subparsers.add_parser(SubCmd.test_workstation_repository_vm, help="Tests the reposync workstation respository VM.")
+        test_workstation_vm_parser = subparsers.add_parser(
+            SubCmd.test_workstation_repository_vm, help="Tests the reposync workstation respository VM.")
         RHELRepoSettings.add_args(test_workstation_vm_parser)
-        test_workstation_vm_parser.set_defaults(which=SubCmd.test_workstation_repository_vm)
+        test_workstation_vm_parser.set_defaults(
+            which=SubCmd.test_workstation_repository_vm)
 
-        build_server_for_export_parser = subparsers.add_parser(SubCmd.build_server_for_export, help="Builds the reposync server for export.")
+        build_server_for_export_parser = subparsers.add_parser(
+            SubCmd.build_server_for_export, help="Builds the reposync server for export.")
         RHELRepoSettings.add_args(build_server_for_export_parser)
-        build_server_for_export_parser.set_defaults(which=SubCmd.build_server_for_export)
+        build_server_for_export_parser.set_defaults(
+            which=SubCmd.build_server_for_export)
 
-        gip_services_parser = subparsers.add_parser(SubCmd.run_gip_services_stigs, help="STIGS the GIP Services VM.")
-        gip_services_parser.set_defaults(which=SubCmd.run_gip_services_stigs)
-        
-        build_workstation_for_export_parser = subparsers.add_parser(SubCmd.build_workstation_for_export, help="Builds the reposync workstation for export.")
+        build_workstation_for_export_parser = subparsers.add_parser(
+            SubCmd.build_workstation_for_export, help="Builds the reposync workstation for export.")
         RHELRepoSettings.add_args(build_workstation_for_export_parser)
-        build_workstation_for_export_parser.set_defaults(which=SubCmd.build_workstation_for_export)
+        build_workstation_for_export_parser.set_defaults(
+            which=SubCmd.build_workstation_for_export)
 
+        stig_ctrl_parser = subparsers.add_parser(
+            SubCmd.run_stigs, help="This command is used to apply STIGs to the nodes for a given system.")
+        STIGSettings.add_args(stig_ctrl_parser)
+        stig_ctrl_parser.set_defaults(which=SubCmd.run_stigs)
 
         parser.add_argument('--system-name', dest='system_name',
-                            choices=['DIP','MIP','GIP','REPO'],
+                            choices=['DIP', 'MIP', 'GIP', 'REPO'],
                             help="Selects which component your controller should be built for.")
 
         args = parser.parse_args()
 
         try:
-            if args.which == SubCmd.run_gip_services_stigs:
-                settings = YamlManager.load_gip_service_settings_from_yaml()
-                username = settings.node.username
-                password = settings.node.password
-                ipaddress = settings.node.ipaddress
-                job = STIGServicesJob(username, password, ipaddress)
-                job.run()
-            elif args.which == SubCmd.test_server_repository_vm:
+            if args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args, True)
                 executor = RHELCreationJob(repo_settings)
@@ -190,16 +186,20 @@ class Runner:
                 executor = WorkstationExportJob(repo_settings)
                 executor.build_export()
             elif args.which == SubCmd.export_reposync_server:
-                server_repo_settings = YamlManager.load_reposync_settings_from_yaml("server")
+                server_repo_settings = YamlManager.load_reposync_settings_from_yaml(
+                    "server")
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_server = ReposyncServerExport(server_repo_settings, export_settings.export_loc)
+                executor_server = ReposyncServerExport(
+                    server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
             elif args.which == SubCmd.export_reposync_workstation:
-                workstation_repo_settings = YamlManager.load_reposync_settings_from_yaml("workstation")
+                workstation_repo_settings = YamlManager.load_reposync_settings_from_yaml(
+                    "workstation")
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_workstation = ReposyncWorkstationExport(workstation_repo_settings, export_settings.export_loc)
+                executor_workstation = ReposyncWorkstationExport(
+                    workstation_repo_settings, export_settings.export_loc)
                 executor_workstation.export_reposync_workstation()
 
             elif args.which == SubCmd.export_gip_service_vm:
@@ -280,9 +280,9 @@ class Runner:
                     ctrl_settings, kickstart_settings, kit_settings)
                 executor.run_kit()
             elif args.which == SubCmd.run_stigs:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
-                executor = StigJob(ctrl_settings)
+                stig_settings = STIGSettings()
+                stig_settings.from_namespace(args)
+                executor = StigJob(stig_settings)
                 executor.run_stig()
             elif args.which == SubCmd.run_unit_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(

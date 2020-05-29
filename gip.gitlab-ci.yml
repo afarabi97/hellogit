@@ -42,7 +42,7 @@ Perform GIP Servives STIGs:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "GIP" run-gip-services-stigs
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs --sub-system-name "SERVICES"
   cache:
     key: tfplenum-services-cache-${CI_PIPELINE_ID}
     policy: pull
