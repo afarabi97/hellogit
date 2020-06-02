@@ -16,6 +16,12 @@
   delegate_to: "{{ item }}"
   loop: "{{ groups['servers'] }}"
 
+- name: Copy License
+  copy:
+    src: "files/license.yml"
+    dest: "{{ elastic_dir }}/license.yml"
+    mode: u+rw,g+rw
+
 - name: Copy Templates
   template:
     src: "templates/{{ item }}.j2"
@@ -23,7 +29,6 @@
     mode: u+rw,g+rw
   with_items:
     - operator.yml
-    - license.yml
     - certificate.yml
     - deploy.yml
 
