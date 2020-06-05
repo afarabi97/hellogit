@@ -230,6 +230,17 @@ function setup_ansible(){
     popd > /dev/null
 }
 
+function add_nexus_laprepo() {
+    if [ "$RHEL_SOURCE_REPO" == "labrepo" ]; then
+        mkdir =p /root/.pip
+        cat <<EOF > /root/.pip/pip.conf
+[global]
+index-url = https://nexus.sil.lab/repository/pypi/simple
+trusted-host = nexus.sil.lab
+EOF
+    fi
+}
+
 function add_workstation_repositories() {
     if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
         cat <<EOF > /etc/yum.repos.d/labrepo-workstation-rhel.repo
@@ -524,6 +535,7 @@ fi
 
 if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     execute_pre
+    add_nexus_laprepo
     setup_ansible
     if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
         execute_bootstrap_playbook

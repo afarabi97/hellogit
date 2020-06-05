@@ -1,7 +1,7 @@
 ---
 - name: Set Node Tar Url
   set_fact:
-    node_install_url: "http://misc.labrepo.sil.lab/node-{{ node_version }}-linux-x64.tar.xz"
+    node_install_url: "{{ misc_server }}/node-{{ node_version }}-linux-x64.tar.xz"
   when: labrepo_check
 
 - name: node | Download

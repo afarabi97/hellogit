@@ -1,0 +1,26 @@
+---
+- name: Add pip index url
+  ini_file:
+    path: /root/.pip/pip.conf
+    state: present
+    no_extra_spaces: yes
+    section: global
+    option: index-url
+    value: "https://{{ nexus_url }}/repository/pypi/simple"
+  when: labrepo_check
+
+- name: Add pip trusted host
+  ini_file:
+    path: /root/.pip/pip.conf
+    state: present
+    no_extra_spaces: yes
+    section: global
+    option: trusted-host
+    value: "{{ nexus_url }}"
+  when: labrepo_check
+
+- name: Remove .pip config from root
+  file:
+    path: /root/.pip
+    state: absent
+  when: labrepo_check == false

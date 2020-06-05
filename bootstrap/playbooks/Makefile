@@ -29,9 +29,6 @@ build_deploy_frontend:
 build_helm_charts:
 	ansible-playbook $(PLAYBOOK) -i localhost -t helm
 
-pull_docker_images:
-	ansible-playbook $(PLAYBOOK) -i localhost -t pull-docker-images
-
 sso:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t sso
 
@@ -47,5 +44,5 @@ dip_bootstrap:
 mip_bootstrap:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -t execute_pre,frontend,sso,mip_bootstrap
 
-pull-docker-images:
+pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images

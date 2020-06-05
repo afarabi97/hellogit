@@ -17,12 +17,13 @@
     state: absent
   with_items: "{{ repo.files }}"
 
-- name: Remove the /var/cache/yum directory.
+- name: Clean up build files
   file:
-    path: /var/cache/yum
+    path: "{{ item }}"
     state: absent
-
-- name: Remove the ~/.pip directory.
-  file:
-    path: "~/.pip"
-    state: absent
+  with_items:
+    - "/etc/docker/certs.d/{{ nexus_url }}.crt"
+    - "/root/{{ nexus_url }}.crt"
+    - /root/.pip
+    - /root/.npmrc
+    - /var/cache/yum

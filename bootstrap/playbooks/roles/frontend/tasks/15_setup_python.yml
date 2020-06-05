@@ -1,8 +1,9 @@
 ---
-- name: Remove .pip dir
-  file:
-    path: /root/.pip
-    state: absent
+
+- name: Include Pip Setup
+  include_role:
+    name: common
+    tasks_from: pip
 
 - name: Stop tfplenum-frontend service
   systemd:

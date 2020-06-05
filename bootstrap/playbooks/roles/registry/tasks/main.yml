@@ -48,6 +48,23 @@
     group: root
     mode: 0755
 
+- name: Create Docker Certs Dir
+  file:
+    path: "/etc/docker/certs.d/{{ nexus_url }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: labrepo_check
+  tags: pull-docker-images
+
+- name: Get Nexus Cert
+  get_url:
+    url: "{{ misc_server }}/nexus.sil.lab.crt"
+    dest: "/etc/docker/certs.d/{{ nexus_url }}.crt"
+  when: labrepo_check
+  tags: pull-docker-images
+
 - name: docker daemon conf
   template:
     backup: yes
@@ -68,11 +85,11 @@
 
 - name: Initialize Image Lists Facts
   set_fact:
-    dockerio_images: []
-    not_dockerio_images: []
     image_list: []
+    local_image_list: []
   tags: pull-docker-images
-
+- debug:
+    msg: "{{ kube_images }}"
 - name: Set Image List
   set_fact:
     image_list: "{{ image_list }} + ['{{ item.image }}']"
@@ -83,27 +100,24 @@
         (system_name == "MIP")
   tags: pull-docker-images
 
-- name: Set DockerIO Images Fact
+- name: Set local image List
   set_fact:
-    dockerio_images: "{{ dockerio_images }} + ['{{ item }}']"
-  with_items:
-    - "{{ image_list }}"
-  when: "'docker.io' in item"
+    local_image_list: "{{ local_image_list }} + ['{{ nexus_url }}/{{ item[item.find('/')+1:] }}']"
+  with_items: "{{ image_list }}"
   tags: pull-docker-images
 
-- name: Set Other Images Fact
+- name: Overwrite Image List
   set_fact:
-    not_dockerio_images: "{{ not_dockerio_images }} + ['{{ item }}']"
-  with_items:
-    - "{{ image_list }}"
-  when: "'docker.io' not in item"
+    image_list: "{{ local_image_list }}"
+  when: labrepo_check
   tags: pull-docker-images
+
 
 - name: Download docker container images from docker hub # noqa 301
   command: "docker pull {{ item }}"
   with_items:
-    - "{{ dockerio_images }}"
-  async: 2500
+    - "{{ image_list }}"
+  async: 3000
   poll: 0
   register: dockerio_pull_results
   tags: pull-docker-images
@@ -116,46 +130,7 @@
     loop_var: "async_result_item"
   register: job_results
   until: job_results.finished is defined and job_results.finished
-  retries: 120
-  tags: pull-docker-images
-
-- name: Remove Proxy from docker registry
-  lineinfile:
-    path: "{{ registry_config }}"
-    state: absent
-    line: "{{ item }}"
-  with_items:
-    - "proxy:"
-    - "  remoteurl: https://registry-1.docker.io"
-  register: docker_dist_config_result
-  tags: pull-docker-images
-
-- name: Restart docker-dist # noqa 503
-  service:
-    name: docker-distribution
-    state: restarted
-    enabled: yes
-  when: docker_dist_config_result.changed
-  tags: pull-docker-images
-
-- name: Download docker container images from internet # noqa 301
-  command: "docker pull {{ item }}"
-  with_items:
-    - "{{ not_dockerio_images }}"
-  async: 2500
-  poll: 0
-  register: docker_pull_results
-  tags: pull-docker-images
-
-- name: Waiting for docker images to download
-  async_status:
-    jid: "{{ async_result_item.ansible_job_id }}"
-  loop: "{{ docker_pull_results.results }}"
-  loop_control:
-    loop_var: "async_result_item"
-  register: job_results
-  until: job_results.finished is defined and job_results.finished
-  retries: 120
+  retries: 240
   tags: pull-docker-images
 
 - name: Tag local images for upload to registry
@@ -171,7 +146,7 @@
   register: docker_push_results
   with_items:
     - "{{ image_list }}"
-  async: 2500
+  async: 3000
   poll: 0
   tags: pull-docker-images
 
@@ -183,7 +158,7 @@
     loop_var: "async_result_item"
   register: job_push_results
   until: job_push_results.finished is defined and job_push_results.finished
-  retries: 120
+  retries: 240
   tags: pull-docker-images
 
 ...

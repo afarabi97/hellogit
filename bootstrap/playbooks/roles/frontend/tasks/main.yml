@@ -27,7 +27,7 @@
 - import_tasks: 45_restart_services.yml
   tags: restart_frontend_services
 - import_tasks: 55_preload_pcaps.yml
-  when: system_name == 'DIP'
+  when: system_name == 'DIP' and labrepo_check
 
 - name: Clean repo cache
   file:

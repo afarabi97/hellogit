@@ -1,13 +1,26 @@
 ---
 - import_tasks: install_packages.yml
 
-- name: "Make pip dir"
-  file:
-    path: /root/.pip/
-    state: directory
+- name: Get Nexus Cert
+  get_url:
+    url: "{{ misc_server }}/nexus-ca.crt"
+    dest: "/etc/pki/ca-trust/source/anchors/"
+  when: labrepo_check
 
-- name: "Remove npmrc"
-  file:
-    path: ~/.npmrc
-    state: absent
+- name: Use labrepo nexus npm proxy
+  command: "/usr/bin/update-ca-trust"
+  register: results
+  changed_when: results.rc == 0
+  when: labrepo_check
+
+- name: Include Pip Setup
+  include_role:
+    name: common
+    tasks_from: pip
+
+- name: Include Npm Setup
+  include_role:
+    name: common
+    tasks_from: npm
+
 ...

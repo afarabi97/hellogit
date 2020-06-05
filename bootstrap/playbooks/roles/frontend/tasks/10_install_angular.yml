@@ -1,4 +1,8 @@
 ---
+- name: Include Npm Setup
+  include_role:
+    name: common
+    tasks_from: npm
 
 - name: npm | Force Cache Clean
   shell: |

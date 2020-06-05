@@ -95,7 +95,7 @@ dip_packages:
 dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
   - "kubectl-{{ k8s_version }}"
-  - kubernetes-cni-0.6.0
+  - kubernetes-cni-0.7.5
 
 dip_packages_to_remove:
   - containerd.io

@@ -22,8 +22,11 @@ workstation_repos:
   - rhel-7-workstation-extras-rpms
   - rhel-7-workstation-source-rpms
 
-misc_server: http://misc.labrepo.sil.lab
-isos_server: http://isos.labrepo.sil.lab
+labrepo_url: labrepo.sil.lab
+nexus_url: nexus.sil.lab
+
+misc_server: http://misc.{{ labrepo_url }}
+isos_server: http://isos.{{ labrepo_url }}
 
 additional_repo_info:
   kube:

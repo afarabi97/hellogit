@@ -2,7 +2,7 @@
 
 - name: Set Emerging Rules Tar Url
   set_fact:
-    emerging_rules_url: "http://misc.labrepo.sil.lab/emerging.rules.tar.gz"
+    emerging_rules_url: "{{ misc_server }}/emerging.rules.tar.gz"
   when: labrepo_check
 
 - name: rules | Create Directory
