@@ -3,14 +3,16 @@ import traceback
 import logging
 
 from argparse import ArgumentParser, Namespace
-from jobs.ctrl_setup import ControllerSetupJob
-from jobs.drive_creation import DriveCreationJob
+from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
+from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
 from jobs.kickstart import KickstartJob, MIPKickstartJob, GIPKickstartJob
 from jobs.mip_config import MIPConfigJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.export import ConfluenceExport, ControllerExport, generate_versions_file, MIPControllerExport, GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport
+from jobs.export import (ConfluenceExport, ControllerExport,
+                         generate_versions_file, MIPControllerExport,
+                         GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
@@ -24,7 +26,7 @@ from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKicksta
 from models.mip_config import MIPConfigSettings
 
 from models.export import ExportSettings, ExportLocSettings
-from models.drive_creation import DriveCreationSettings
+from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
 from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKitSettings
 from models.rhel_repo_vm import RHELRepoSettings
@@ -109,11 +111,6 @@ class Runner:
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
 
-        drive_parser = subparsers.add_parser(
-            SubCmd.create_master_drive, help="This subcommand will create a master drive.  Before running this subcommand please make sure you have an external USB drive plugged into a Ubuntu server or desktop.")
-        drive_parser.set_defaults(which=SubCmd.create_master_drive)
-        add_args_from_instance(drive_parser, DriveCreationSettings(), True)
-
         mip_config_parser = subparsers.add_parser(
             SubCmd.run_mip_config, help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
         MIPConfigSettings.add_args(mip_config_parser)
@@ -161,6 +158,12 @@ class Runner:
                             help="Selects which component your controller should be built for.")
 
         args = parser.parse_args()
+
+        try:
+            ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+            checkout_latest_code(ctrl_settings)
+        except Exception as e:
+            traceback.print_exc()
 
         try:
             if args.which == SubCmd.test_server_repository_vm:
@@ -284,6 +287,7 @@ class Runner:
                 stig_settings.from_namespace(args)
                 executor = StigJob(stig_settings)
                 executor.run_stig()
+                stig_settings.take_snapshot_for_certain_systems()
             elif args.which == SubCmd.run_unit_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name)
@@ -349,6 +353,16 @@ class Runner:
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
                 generate_versions_file(export_settings.export_loc)
+            elif args.which == SubCmd.create_master_drive_hashes:
+                drive_hash_settings = DriveCreationHashSettings()
+                drive_hash_settings.from_namespace(args)
+                executor = DriveHashCreationJob(drive_hash_settings)
+                executor.execute()
+            elif args.which == SubCmd.check_master_drive_hashes:
+                drive_hash_settings = DriveCreationHashSettings()
+                drive_hash_settings.from_namespace(args)
+                executor = DriveHashCreationJob(drive_hash_settings)
+                executor.create_verification_script_and_validate()
             elif args.which == SubCmd.create_master_drive:
                 drive_settings = DriveCreationSettings()
                 drive_settings.from_namespace(args)

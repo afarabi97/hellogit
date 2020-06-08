@@ -4,6 +4,7 @@ from argparse import Namespace, ArgumentParser
 from models import Model
 from models.constants import StigSubCmd
 from util.yaml_util import YamlManager
+from util.ansible_util import power_on_vms, take_snapshot
 from enum import Enum, auto
 from typing import List, Dict, Union
 from util.ansible_util import Target
@@ -63,15 +64,22 @@ class STIGSettings(Model):
         elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER:
             self.model_settings = YamlManager.load_reposync_settings_from_yaml(
                 self.sub_system_name)
+            power_on_vms(self.model_settings.vcenter, self.model_settings.node)
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-server-stigs',
                                             play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
         elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_WORKSTATION:
             self.model_settings = YamlManager.load_reposync_settings_from_yaml(
                 self.sub_system_name)
+            power_on_vms(self.model_settings.vcenter, self.model_settings.node)
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-workstation-stigs',
                                             play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
+
+    def take_snapshot_for_certain_systems(self):
+        if ((self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER) or
+            (self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_WORKSTATION)):
+            take_snapshot(self.model_settings.vcenter, self.model_settings.node)
 
     def _setup_username_password_ip(self, model: Model):
         self.username = model.node.username

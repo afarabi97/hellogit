@@ -1,0 +1,51 @@
+---
+- name: Revert snapshot and poweron ctrl VMs
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Setting poweredoff state on nodes"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ item.hostname }}"
+        folder: "{{ item.folder }}"
+        state: "poweredoff"
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ nodes }}"
+
+    - name: Revert to baseline snapshot
+      vmware_guest_snapshot:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ item.hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ item.folder }}"
+        state: revert
+        snapshot_name: "{{ snapshot_name }}"
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ nodes }}"
+
+    - name: "Setting poweredon state on nodes"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ item.hostname }}"
+        folder: "{{ item.folder }}"
+        state: "poweredon"
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ nodes }}"

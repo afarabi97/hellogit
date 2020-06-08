@@ -8,13 +8,12 @@ Export GIP Service VM:
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
     run-export export-gip-service-vm \
-    --export-path "$GIP_EXPORT_LOC" \
-    --export-version "$TFPLENUM_EXPORT_VERSION"
+    --cpt-export-path "$GIP_EXPORT_LOC" \
+    --mdt-export-path "$GIP_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
       - $PIPELINE == "export-gip-service"
-      - $PIPELINE == "export-all"
-  cache:
-    key: tfplenum-services-cache-${CI_PIPELINE_ID}
-    paths:
-      - gipservicesettings.yml
+  artifacts:
+    untracked: true

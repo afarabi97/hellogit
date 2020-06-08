@@ -1,6 +1,8 @@
 from argparse import Namespace, ArgumentParser
+from datetime import datetime
 from models import Model, populate_model_from_namespace, add_args_from_instance
 from models.constants import SubCmd
+from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
 
 
 class ConfluenceSettings(Model):
@@ -12,10 +14,24 @@ class ConfluenceSettings(Model):
 
 
 class ExportLocSettings(Model):
+    export_date_str = None
 
     def __init__(self):
-        self.export_path = './'
+        self.cpt_export_path = './'
+        self.mdt_export_path = './'
         self.export_version = 'RC'
+        self.export_hash = ''
+
+    @property
+    def export_date(self) -> str:
+        if self.export_date_str is None:
+            self.export_date_str = datetime.now()
+
+        return self.export_date_str.strftime("%m-%d-%Y")
+
+    def render_export_name(self, export_prefix: str, export_suffix: str=".ova") -> str:
+        return (export_prefix + "_" + self.export_version + "_" +
+                self.export_date + "_" + self.export_hash + export_suffix)
 
 
 class HtmlExportSettings(Model):
@@ -31,7 +47,12 @@ class PDFExportSettings(Model):
     def __init__(self):
         self.confluence = ConfluenceSettings()
         self.export_loc = ExportLocSettings()
-        self.page_titles = []
+        self.page_titles = ''
+
+    @property
+    def page_titles_ary(self):
+        result = self.page_titles.split(',')
+        return [i.strip() for i in result]
 
 
 class ExportSettings(Model):
@@ -61,7 +82,7 @@ class ExportSettings(Model):
 
         if SubCmd.export_mip_ctrl == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
-        
+
         if SubCmd.export_gip_service_vm == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
 
@@ -128,3 +149,18 @@ class ExportSettings(Model):
                                                    help="This subcommand will prep and export your Reposync workstation VM to the provided location.")
         add_args_from_instance(export_reposync_workstation_parser, ExportLocSettings(), True)
         export_reposync_workstation_parser.set_defaults(which=SubCmd.export_reposync_workstation)
+
+        drive_hash_parser = subparsers.add_parser(
+            SubCmd.create_master_drive_hashes, help="This subcommand will create the hashes file needed for the master drive.")
+        drive_hash_parser.set_defaults(which=SubCmd.create_master_drive_hashes)
+        add_args_from_instance(drive_hash_parser, DriveCreationHashSettings(), True)
+
+        drive_check_parser = subparsers.add_parser(
+            SubCmd.check_master_drive_hashes, help="This subcommand will create a shell script which can then be used to validate the drive.")
+        drive_check_parser.set_defaults(which=SubCmd.check_master_drive_hashes)
+        add_args_from_instance(drive_check_parser, DriveCreationHashSettings(), True)
+
+        drive_parser = subparsers.add_parser(
+            SubCmd.create_master_drive, help="This subcommand will create a master drive.  Before running this subcommand please make sure you have an external USB drive plugged into a Ubuntu server or desktop.")
+        drive_parser.set_defaults(which=SubCmd.create_master_drive)
+        add_args_from_instance(drive_parser, DriveCreationSettings(), True)

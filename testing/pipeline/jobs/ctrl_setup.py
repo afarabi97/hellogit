@@ -1,7 +1,10 @@
 import os
 import sys
+import subprocess
 
+from invoke.exceptions import UnexpectedExit
 from models.ctrl_setup import ControllerSetupSettings
+from time import sleep
 from typing import Dict
 from util.connection_mngs import FabricConnectionWrapper
 from util.ssh import test_nodes_up_and_alive
@@ -10,6 +13,31 @@ from util.network import retry
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
+
+
+def checkout_latest_code(ctrl_settings):
+    cred_file_cmd = """
+cat <<EOF > ~/credential-helper.sh
+#!/bin/bash
+echo username="{}"
+echo password="{}"
+EOF
+    """.format(ctrl_settings.repo.username, ctrl_settings.repo.password)
+
+    commands = ['git config --global --unset credential.helper',
+                cred_file_cmd,
+                'git config --global credential.helper "/bin/bash ~/credential-helper.sh"',
+                'git fetch',
+                'git checkout {} --force'.format(ctrl_settings.repo.branch_name),
+                'git pull --rebase',
+                'git config --global --unset credential.helper',
+                'git rev-parse HEAD']
+
+    for index, cmd in enumerate(commands):
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, _ = proc.communicate()
+        if index == len(commands) - 1:
+            print("CHECKED OUT COMMIT HASH: {}".format(stdout.decode('utf-8')))
 
 
 class ControllerSetupJob:
@@ -49,12 +77,20 @@ class ControllerSetupJob:
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
             self._set_hostname(client)
-            ret_val = client.run(curl_cmd, shell=True)
+
+            pos = self.ctrl_settings.node.network_id.rfind(".")
+
+            #This is hack to get around some weird layer 2 issues we have to live with on the SILs network
+            hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
+            client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
+            client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
+            client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
+            ret_val = client.run(curl_cmd, shell=True, warn=True)
             if ret_val.return_code != 0:
-                print("Failed to fetch the bootstrap script from bitbucket.")
+                print("Failed to fetch the bootstrap script from bitbucket with {}.".format(curl_cmd))
                 exit(ret_val.return_code)
 
-            ret_val = client.run(bootstrap_cmd, shell=True)
+            ret_val = client.run(bootstrap_cmd, shell=True, warn=True)
             if ret_val.return_code != 0:
                 print("Failed to execute bootstrap.")
                 exit(ret_val.return_code)

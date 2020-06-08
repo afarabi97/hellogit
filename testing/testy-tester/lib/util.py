@@ -22,7 +22,6 @@ from time import sleep
 from typing import List, Dict, Union
 from urllib.parse import quote
 
-from invoke.exceptions import UnexpectedExit
 
 #/opt/tfplenum/testing/playbooks/reports
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))

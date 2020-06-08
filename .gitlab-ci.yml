@@ -3,16 +3,32 @@
 
 variables:
   LABREPO_HOST: "labrepo.sil.lab"
-  DIP_EXPORT_LOC: "/mnt/drive_creation/dip"
-  MIP_EXPORT_LOC: "/mnt/drive_creation/mip"
+
+  #EXPORT Variables
+  MAIN_FOLDER_VERSION: "3.4"
   GIP_EXPORT_LOC: "/mnt/drive_creation/gip"
-  REPO_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH\ 3.4/Software/VMs/RhelRepo"
-  DIP_DOC_EXPORT_LOC: "/mnt/drive_creation/dip"
-  MIP_DOC_EXPORT_LOC: "/mnt/drive_creation/mip"
-  APP_STORE_CPT_EXPORT_LOC: "/mnt/drive_creation/v3.4/CPT/Data/CVAH\ 3.4/Software/AppStore"
-  APP_STORE_MDT_EXPORT_LOC: "/mnt/drive_creation/v3.4/MDT/Data/CVAH\ 3.4/Software/AppStore"
-  TFPLENUM_EXPORT_VERSION: RC
+  TFPLENUM_EXPORT_VERSION: "$MAIN_FOLDER_VERSION"
+  TFPLENUM_EXPORT_HASH: "$CI_COMMIT_SHORT_SHA"
   TFPLENUM_CONFLUENCE_PAGE: "6.8 CVAH 3.3"
+  DIP_CONFLUENCE_SETUP_DOCS: "6.8.1.2 DIP System Setup, 6.8.9.2 Setup Controller"
+  DIP_CONFLUENCE_USER_DOCS: "6.8.2.1 DIP System Operation"
+  DIP_CONFLUENCE_TRAINING_DOCS: "6.8.9.5 Helm Integration"
+  DIP_CONFLUENCE_ARCH_DOCS: "6.8.9.5 Helm Integration"
+  DIP_CONFLUENCE_MAIN_DOCS: "6.8.9.5 Helm Integration"
+  DIP_CONFLUENCE_TROUBLE_DOCS: "6.8.9.5 Helm Integration"
+  DIP_CONFLUENCE_VDD_DOCS: "6.8.9.5 Helm Integration"
+
+  MIP_CONFLUENCE_SETUP_DOCS: "6.8.1.1 MIP System Setup, 6.8.2.2 MIP System Operation, 6.8.9.2 Setup Controller"
+  MIP_CONFLUENCE_USER_DOCS: "6.8.9.5 Helm Integration"
+  MIP_CONFLUENCE_TRAINING_DOCS: "6.8.9.5 Helm Integration"
+  MIP_CONFLUENCE_ARCH_DOCS: "6.8.9.5 Helm Integration"
+  MIP_CONFLUENCE_MAIN_DOCS: "6.8.9.5 Helm Integration"
+  MIP_CONFLUENCE_TROUBLE_DOCS: "6.8.9.5 Helm Integration"
+  MIP_CONFLUENCE_VDD_DOCS: "6.8.9.5 Helm Integration"
+  LINKED_CLONE: "no"
+
+  #END EXPORT Variables
+
   PIPELINE: "developer-dip"
   BUILD_TYPE: "clone_from_nightly"
   IS_CLEANUP: "false"
@@ -21,7 +37,7 @@ variables:
   DIP_NETWORK_BLOCK_INDEX: 0
   MIP_NETWORK_BLOCK_INDEX: 1
   GIP_NETWORK_BLOCK_INDEX: 2
-  GIP_SERVICES_NETWORK_BLOCK_INDEX: 3
+  GIP_SERVICES_NETWORK_BLOCK_INDEX: 4
   RHEL_NETWORK_BLOCK_INDEX: 3
   SONAR_TOKEN: "88288e09065a3d865d20a10c05563b3225566490"
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
@@ -58,12 +74,15 @@ variables:
 
 
   #Master Drive Creation Variables
-  MASTER_DRIVE_CREATION_USERNAME: "davidnavarro"
-  MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.179"
-  MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH: "/mnt/drive_creation/MULTIBOOT_20200110.IMG"
-  MASTER_DRIVE_CREATION_EXTERNAL_DRIVE: "/dev/sdb"
-  MASTER_DRIVE_CREATION_MOUNT_POINT: "/mnt/Data"
-  MASTER_DRIVE_CREATION_RSYNC_SOURCE: "/mnt/drive_creation/v3.3/CPT/Data/"
+  MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
+  MASTER_DRIVE_CREATION_IPADDRESS: "10.10.102.10"
+  MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH: "/mnt/drive_creation/v3.4/MULTIBOOT/MULTIBOOT_20200303.img"
+  MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE: "/dev/sdb"
+  MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE: "/dev/sdc"
+  MASTER_DRIVE_CREATION_CPT_MOUNT_POINT: "/mnt/CPTData"
+  MASTER_DRIVE_CREATION_MDT_MOUNT_POINT: "/mnt/MDTData"
+  MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE: "/mnt/drive_creation/v3.3/CPT/Data/"
+  MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE: "/mnt/drive_creation/v3.3/MDT/Data/"
   RUN_CREATE_MASTER_DRIVE: "false"
   #End
 
@@ -81,6 +100,36 @@ variables:
   GIP_SERVER_CPU: 32
   GIP_SERVER_MEM: 65536
 
+  #THE VARIBALES IN THIS SECTION DO NOT NEED TO BE OVERWRITTEN IN SCHEDULES.
+  SOFTWARE_CPT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Software"
+  SOFTWARE_MDT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Software"
+  REPO_CPT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Software/VMs/RhelRepo"
+  REPO_MDT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Software/VMs/RhelRepo"
+  MIP_CPT_DOC_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/MIP"
+  MIP_MDT_DOC_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/MIP"
+  DIP_CPT_DOC_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/DIP"
+  DIP_MDT_DOC_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/DIP"
+  APP_STORE_CPT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
+  APP_STORE_MDT_EXPORT_LOC: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
+
+  APP_STORE_DIRECTORY: "PowerShell_Modules"
+  DOCS_ARCH_FOLDER: "Architecture"
+  DOCS_SETUP_FOLDER: "Setup"
+  DOCS_TRAINING_FOLDER: "Training"
+  DOCS_USER_FOLDER: "User"
+  DOCS_VDD_FOLDER: "VDD"
+  DOCS_MAINTENANCE_FOLDER: "Maintenance"
+  DOCS_TROUBLESHOOTING_FOLDER: "TroubleShooting"
+  DOCS_FOLDERS: "$DOCS_ARCH_FOLDER $DOCS_SETUP_FOLDER $DOCS_TRAINING_FOLDER $DOCS_USER_FOLDER $DOCS_VDD_FOLDER $DOCS_MAINTENANCE_FOLDER $DOCS_TROUBLESHOOTING_FOLDER"
+
+  STACK_SOFTWARE_FOLDER: "Physical_Stack_Build"
+  DIP_SOFTWARE_FOLDER: "DIP"
+  MIP_SOFTWARE_FOLDER: "MIP"
+
+  DIP_SOFTWARE_FOLDERS: "$STACK_SOFTWARE_FOLDER $DIP_SOFTWARE_FOLDER"
+  MIP_SOFTWARE_FOLDERS: "$MIP_SOFTWARE_FOLDER"
+
+
 stages:
   - code-analysis
   - pre-build
@@ -95,36 +144,23 @@ stages:
   - integration-test
   - test-powerfailure
   - rerun-integration-test
-  - cleanup
   - export
+  - cleanup
   - hashfiles
+  - checkhash
   - publish
 
 include:
-  - local: code-analysis.yml
-  - local: dip.gitlab-ci.yml
-  - local: mip.gitlab-ci.yml
-  - local: dip.export.gitlab-ci.yml
-  - local: gip.gitlab-ci.yml
-  - local: mip.export.gitlab-ci.yml
-  - local: gip.export.gitlab-ci.yml
-  - local: repo.gitlab-ci.yml
-  - local: powershell.gitlab-export.yml
-  - local: repo.export.gitlab-ci.yml
-
-Create Master Drive:
-  stage: publish
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py create-master-drive \
-    --multi-boot-img-path "$MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH" \
-    --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_DRIVE" \
-    --mount-point "$MASTER_DRIVE_CREATION_MOUNT_POINT" \
-    --rsync-source "$MASTER_DRIVE_CREATION_RSYNC_SOURCE" \
-    --username "$MASTER_DRIVE_CREATION_USERNAME" \
-    --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
-  only:
-    variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+  - local: gitlab/code-analysis.yml
+  - local: gitlab/DIP/dip.gitlab-ci.yml
+  - local: gitlab/DIP/dip.export.gitlab-ci.yml
+  - local: gitlab/DIP/dip.docs.gitlab-ci.yml
+  - local: gitlab/MIP/mip.gitlab-ci.yml
+  - local: gitlab/MIP/mip.export.gitlab-ci.yml
+  - local: gitlab/MIP/mip.docs.gitlab-ci.yml
+  - local: gitlab/GIP/gip.gitlab-ci.yml
+  - local: gitlab/GIP/gip.export.gitlab-ci.yml
+  - local: gitlab/Drive/repo.gitlab-ci.yml
+  - local: gitlab/Drive/repo.export.gitlab-ci.yml
+  - local: gitlab/Drive/powershell.gitlab-export.yml
+  - local: gitlab/Drive/drive.create.gitlab-ci.yml

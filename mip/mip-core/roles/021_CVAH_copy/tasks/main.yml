@@ -42,13 +42,8 @@
     - CPT
     - MDT
 
-- name: Unpack cvah folder tar
-# command: tar -xvzf /root/"{{ tar_file }}" -C /
-  unarchive:
-    src: "/root/{{ tar_file }}"
-    dest: /
-    remote_src: yes
-  when: not cvah_file.stat.exists
+- name: Unpack cvah folder tar # noqa 303
+  command: tar -xvzf /root/"{{ tar_file }}" -C /
   tags:
     - CPT
     - MDT

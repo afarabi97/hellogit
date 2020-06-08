@@ -6,19 +6,17 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
-    - name: "Power off the VM {{ node.hostname }}"
-      ignore_errors: yes
-      vmware_guest:
-        datacenter: "{{ vcenter.datacenter }}"
-        cluster: "{{ vcenter.cluster }}"
+    - name: Wait for the virtual machine to shutdown
+      vmware_guest_powerstate:
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         name: "{{ node.hostname }}"
-        folder: "{{ node.folder }}"
-        state: poweredoff
-        validate_certs: False
-      delegate_to: localhost
+        state: shutdown-guest
+        validate_certs: no
+        state_change_timeout: 300
+      retries: 3
+      delay: 5
 
     - name: "Prepping the controller"
       vmware_guest:
@@ -65,9 +63,9 @@
         template: "{{ node.hostname }}"
         datacenter: "{{ vcenter.datacenter }}"
         cluster: "{{ vcenter.cluster }}"
-        folder: "{{ node.folder }}"
+        folder: "Releases"
         state: present
-        is_template: yes
+        is_template: no
         networks:
           - name: Internal
             type: dhcp
@@ -82,3 +80,27 @@
             type: thin
             datastore: "dev-vol02"
       delegate_to: localhost
+
+    - name: Create a VM snapshot
+      vmware_guest_snapshot:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        name: "{{ release_template_name }}"
+        validate_certs: False
+        state: present
+        snapshot_name: "baseline"
+
+    - name: Create a VM Template
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        name: "{{ release_template_name }}"
+        validate_certs: False
+        state: present
+        is_template: yes

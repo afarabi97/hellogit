@@ -1,0 +1,86 @@
+Clear DIP Software Folders:
+  stage: pre-build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+
+    for folder in $DIP_SOFTWARE_FOLDERS
+    do
+      rm -rf "$SOFTWARE_CPT_EXPORT_LOC/$folder"/*
+      mkdir -p "$SOFTWARE_CPT_EXPORT_LOC/$folder/"
+
+      rm -rf "$SOFTWARE_MDT_EXPORT_LOC/$folder"/*
+      mkdir -p "$SOFTWARE_MDT_EXPORT_LOC/$folder/"
+    done
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"
+
+
+Ship Phyical Stack Build:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip infrastructure/
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    unzip "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" -d "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
+    unzip "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" -d "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"
+
+
+Add Docs to DIP Controller:
+  stage: docs
+  needs: ["Build DIP Offline Documentation", "Setup DIP Controller"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export add-docs-to-controller \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --export-hash "$TFPLENUM_EXPORT_HASH" \
+    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"
+  retry: 2
+  artifacts:
+    untracked: true
+
+
+Export DIP Controller:
+  stage: export
+  needs: ["Add Docs to DIP Controller", "Setup DIP Controller"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export export-ctrl \
+    --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --export-hash "$TFPLENUM_EXPORT_HASH"
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"

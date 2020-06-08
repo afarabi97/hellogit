@@ -4,6 +4,7 @@ Setup MIP Controller:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "Changing to the testing/pipeline directory."
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "MIP" \
@@ -26,20 +27,18 @@ Setup MIP Controller:
     --run-type "$BUILD_TYPE" \
     --vm-template "$MIP_TEMPLATE_TO_CLONE" \
     --disk-size "250" \
-    --vm-prefix "$VM_PREFIX-mip"
+    --vm-prefix "$VM_PREFIX-mip" \
+    --linked-clone "$LINKED_CLONE"
   only:
     variables:
+      - $PIPELINE == "nightly_build"
       - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
-      - $PIPELINE == "nightly_build"
-      - $PIPELINE == "nightly_build_mip"
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings_mip.yml
+  artifacts:
+    untracked: true
 
 MIP Kickstart:
   needs: ["Setup MIP Controller"]
@@ -75,12 +74,8 @@ MIP Kickstart:
       - $PIPELINE == "developer-dip-mip"
       - $PIPELINE == "nightly_build"
       - $PIPELINE == "nightly_build_mip"
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings_mip.yml
-      - mipkickstartsettings.yml
-      - mipnodestoscan.txt
+  artifacts:
+    untracked: true
 
 Configure MIPs:
   stage: kit
@@ -99,14 +94,8 @@ Configure MIPs:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
       - $PIPELINE == "nightly_build"
-      - $PIPELINE == "nightly_build_mip"
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings_mip.yml
-      - mipkickstartsettings.yml
-      - mipconfigsettings.yml
-      - mipnodestoscan.txt
+  artifacts:
+    untracked: true
 
 Perform MIP STIGs:
   stage: stig-kit
@@ -116,11 +105,6 @@ Perform MIP STIGs:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-stigs
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    policy: pull
-    paths:
-      - controllersetupsettings_mip.yml
   only:
     variables:
       - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-mip"
@@ -141,19 +125,13 @@ Perform MIP Security Scans:
     --scan_name "$MIP_ACAS_SCAN_TO_RUN" \
     --report-name "MIP_ACAS_Report.pdf" \
     --nodes-to-scan $(cat mipnodestoscan.txt)
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    paths:
-      - mipnodestoscan.txt
-    policy: pull
   only:
     variables:
       - $RUN_ACAS == "true" && $PIPELINE == "developer-mip"
       - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
       - $RUN_ACAS == "true" && $PIPELINE == "developer-dip-mip"
   artifacts:
-    paths:
-      - "MIP_ACAS_Report.pdf"
+    untracked: true
 
 MIP Cleanup:
   stage: cleanup
@@ -164,12 +142,7 @@ MIP Cleanup:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup
   when: always
-  cache:
-    key: tfplenum-mip-cache-${CI_PIPELINE_ID}
-    paths:
-      - controllersetupsettings_mip.yml
-      - mipkickstartsettings.yml
-    policy: pull
+  allow_failure: true
   only:
     variables:
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-mip"

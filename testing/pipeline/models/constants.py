@@ -42,11 +42,13 @@ class SubCmd:
     unset_perms = 'unset-perms'
     export_ctrl = 'export-ctrl'
     generate_versions_file = 'generate-versions-file'
-    create_master_drive = 'create-master-drive'
     export_mip_ctrl = 'export-mip-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
     export_reposync_server = 'export-reposync-server'
     export_reposync_workstation = 'export-reposync-workstation'
+    create_master_drive = 'create-master-drive'
+    create_master_drive_hashes = 'create-master-drive-hashes'
+    check_master_drive_hashes = 'check-master-drive-hashes'
 
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'

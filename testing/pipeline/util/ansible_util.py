@@ -15,6 +15,7 @@ from models.common import NodeSettings, VCenterSettings
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 POWER_CONTROL_NODES = PIPELINE_DIR + "playbooks/power_control_nodes.yml"
+REVERT_AND_POWER_CONTROL_NODES = PIPELINE_DIR + "playbooks/revert_snapshot_and_power_control_nodes.yml"
 
 class Target:
     def __init__(self, name: str, ipaddress: str, port:int=22):
@@ -24,11 +25,17 @@ class Target:
 
 
 def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=None, targets: Union[Target, List[Target]]=None, tags=[], timeout=10):
+    print("execute_playbook")
     loader = DataLoader()
-    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False, listhosts=False, syntax=False, connection='ssh',
+    print(playbooks)
+    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
+                                    listhosts=False, syntax=False, connection='ssh',
                                     module_path=None, forks=100, remote_user='xxx', private_key_file=None,
-                                    ssh_common_args=None, ssh_extra_args=None, sftp_extra_args=None, scp_extra_args=None, become=True,
-                                    become_method='sudo', become_user=getpass.getuser(), verbosity=True, check=False, start_at_task=None,
+                                    ssh_common_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no',
+                                    ssh_extra_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no',
+                                    sftp_extra_args=None, scp_extra_args=None, become=True,
+                                    become_method='sudo', become_user=getpass.getuser(), verbosity=True,
+                                    check=False, start_at_task=None,
                                     timeout=timeout)
 
     inventory = InventoryManager(loader=loader)
@@ -56,6 +63,15 @@ def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=N
     if status_code != 0:
         print("Failed to run {}".format(str(playbooks)))
         exit(status_code)
+
+
+def revert_to_baseline_and_power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]], snapshot_name:str='baseline'):
+    if isinstance(nodes, NodeSettings):
+        nodes = [nodes]
+
+    nodes_ary = [node.to_dict() for node in nodes]
+    extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'state': 'poweredon', 'vcenter': vcenter, 'snapshot_name': snapshot_name}
+    execute_playbook([REVERT_AND_POWER_CONTROL_NODES], extra_vars)
 
 
 def power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]]):

@@ -1,5 +1,6 @@
 Export Reposync Server:
   stage: export
+  needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -8,20 +9,17 @@ Export Reposync Server:
     python3 testing/pipeline/pipeline.py \
     --system-name "REPO" \
     run-export export-reposync-server \
-    --export-path "$REPO_EXPORT_LOC" \
+    --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
+    --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
+    --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
-      - $PIPELINE == "export-reposync-server"
+      - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    paths:
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
-    policy: pull
 
 Export Reposync Workstation:
   stage: export
+  needs: ["Perform Reposync Workstation STIGs", "Build Workstation Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -30,14 +28,10 @@ Export Reposync Workstation:
     python3 testing/pipeline/pipeline.py \
     --system-name "REPO" \
     run-export export-reposync-workstation \
-    --export-path "$REPO_EXPORT_LOC" \
+    --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
+    --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
+    --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
-      - $PIPELINE == "export-reposync-workstation"
+      - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    paths:
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
-    policy: pull

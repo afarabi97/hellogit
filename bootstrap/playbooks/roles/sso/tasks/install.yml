@@ -195,8 +195,10 @@
   command: "{{ item }}"
   with_items: "{{ keycloak_realm_import_cmds }}"
   register: keycloak_import
+  until: keycloak_import.rc == 0
   changed_when: keycloak_import.rc == 0
-  failed_when:  keycloak_import.rc > 0
+  retries: 5
+  delay: 10
 
 - name: Wait for SSO IdP to become healthy
   uri:

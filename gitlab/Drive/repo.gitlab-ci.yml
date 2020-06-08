@@ -84,15 +84,14 @@ Build Server Reposync VM for Export:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Headless Template"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    paths:
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
+    --vm-template "RHEL7.7 Headless Template" \
+    --linked-clone "$LINKED_CLONE"
+  retry: 2
+  artifacts:
+    untracked: true
   only:
     variables:
-      - $PIPELINE == "export-reposync-server"
+      - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
 
 
@@ -118,51 +117,44 @@ Build Workstation Reposync VM for Export:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Workstation Template"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    paths:
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
+    --vm-template "RHEL7.7 Workstation Template" \
+    --linked-clone "$LINKED_CLONE"
+  retry: 2
+  artifacts:
+    untracked: true
   only:
     variables:
-      - $PIPELINE == "export-reposync-workstation"
+      - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
 
 Perform Reposync Server STIGs:
   stage: stig-kit
+  needs: ["Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"echo
     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    policy: pull
-    paths: 
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
+  artifacts:
+    untracked: true
   only:
     variables:
-      - $RUN_REPOSYNC_SERVER_STIGS == "true" && $PIPELINE == "export-reposync-server"
+      - $RUN_REPOSYNC_SERVER_STIGS == "true" && $PIPELINE == "export-reposync"
       - $RUN_REPOSYNC_SERVER_STIGS == "true" && $PIPELINE == "export-all"
 
 Perform Reposync Workstation STIGs:
   stage: stig-kit
+  needs: ["Build Workstation Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"echo
     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "WORKSTATION"
-  cache:
-    key: tfplenum-reposync-cache-${CI_PIPELINE_ID}
-    policy: pull
-    paths: 
-      - rhelreposettings_server.yml
-      - rhelreposettings_workstation.yml
+  artifacts:
+    untracked: true
   only:
     variables:
-      - $RUN_REPOSYNC_WORKSTATION_STIGS == "true" && $PIPELINE == "export-reposync-workstation"
+      - $RUN_REPOSYNC_WORKSTATION_STIGS == "true" && $PIPELINE == "export-reposync"
       - $RUN_REPOSYNC_WORKSTATION_STIGS == "true" && $PIPELINE == "export-all"

@@ -114,7 +114,7 @@ class MyConfluenceExporter(Confluence):
                 break
         return None
 
-    def _download_pdf(self, page_id: int, export_hash: str, export_path: str, export_version: str, export_format: str):
+    def _download_pdf(self, page_id: int, export_hash: str, export_path: str, export_version: str, export_format: str) -> str:
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'Accept-Encoding': ACCEPT_ENCODING,
@@ -125,6 +125,7 @@ class MyConfluenceExporter(Confluence):
             'User-Agent': USER_AGENT,
             'X-Atlassian-Token': 'no-check'
         }
+        file_to_save = ""
         download_url = self.url + ("/plugins/contentexporter/download.action"
                                    "?pageId={page_id}&hash={exportHash}"
                                    .format(page_id=page_id, exportHash=export_hash))
@@ -148,8 +149,9 @@ class MyConfluenceExporter(Confluence):
                         f.write(chunk)
 
             print("Successfully exported documentation to {}".format(file_to_save))
+        return file_to_save
 
-    def _download_pdf2(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str):
+    def _download_pdf2(self, page_id: int, export_path: str, export_version: str, timeout_min: int, title: str) -> str:
         headers = {
             'Accept': 'application/json, text/plain, */*',
             'Accept-Encoding': ACCEPT_ENCODING,
@@ -244,6 +246,7 @@ class MyConfluenceExporter(Confluence):
                 }
             }
         }
+        file_to_save = ""
         url = self.url + "/plugins/servlet/scroll-pdf/api/exports"
         response = self._session.request(
             method='POST',
@@ -284,6 +287,7 @@ class MyConfluenceExporter(Confluence):
                 print("Successfully exported documentation to {}".format(file_to_save))
         else:
             print("Failed to initiate download with url: {} status_code: {}".format(url, response.status_code))
+        return file_to_save
 
     def _get_content_array(self, space: str, page_id: str, out_content: List[int]):
         pages = self.get_child_pages(page_id)
@@ -309,7 +313,7 @@ class MyConfluenceExporter(Confluence):
                                title: str,
                                content: List[int],
                                space: str,
-                               timeout_min):
+                               timeout_min) -> str:
 
         if export_format not in MyConfluenceExporter.valid_formats:
             raise ValueError("Invalid format passed in it can only be %s" % str(MyConfluenceExporter.valid_formats))
@@ -333,6 +337,7 @@ class MyConfluenceExporter(Confluence):
             "customProfileName":None,"fontResize":True,"breakWord":False,"separatePage":False,"useCustomFont":False,"selectedFont":None
         }
 
+        file_path = ""
         export_params_str = json.dumps(export_params)
         payload = {'pageId': page_id, 'exportParametersJson': export_params_str}
         export_url = self.url + '/plugins/contentexporter/start-export.action'
@@ -347,25 +352,26 @@ class MyConfluenceExporter(Confluence):
         if response.status_code == 200:
             export_hash = response.json()['hash']
             self._wait_for_pdf(page_id, export_hash, timeout_min)
-            self._download_pdf(page_id, export_hash, export_path, export_version, export_format)
+            file_path = self._download_pdf(page_id, export_hash, export_path, export_version, export_format)
         else:
             print("Page Export failed with status {}.".format(response.status_code))
+        return file_path
 
     def export_single_page_pdf(self,
                                export_path: str,
                                export_version: str,
                                title: str,
                                space: str='THISISCVAH',
-                               timeout_min: int=5):
+                               timeout_min: int=5) -> str:
 
         page = self.get_page_by_title(space, title)
         page_id = str(page['id'])
-        self._download_pdf2(page_id, export_path, export_version, timeout_min, title)
+        return self._download_pdf2(page_id, export_path, export_version, timeout_min, title)
 
     def export_page_w_children(self,
                                export_path: str,
                                export_version: str,
-                               export_format: Union[str, List[str]],
+                               export_format: str,
                                title: str,
                                space: str='THISISCVAH',
                                timeout_min: int=5):
@@ -380,16 +386,10 @@ class MyConfluenceExporter(Confluence):
         :param space: The confluence space key.
         :param timeout_min: The amount of time in minutes this process will wait until it times outs during PDF export. (EX: 20 will time out after 20 minutes if the job has not completed).
         """
-
-        if isinstance(export_format, str):
-            content = self._get_content_page_ids(space, title)
-            self._export_page_w_children(export_path, export_version, export_format, title, content, space, timeout_min)
-        elif isinstance(export_format, list):
-            content = self._get_content_page_ids(space, title)
-            for fmt in export_format:
-                self._export_page_w_children(export_path, export_version, fmt, title, content, space, timeout_min)
-        else:
+        if export_format not in ["HTML", "PDF"]:
             raise ValueError("Export format can only be alist or ")
+        content = self._get_content_page_ids(space, title)
+        return self._export_page_w_children(export_path, export_version, export_format, title, content, space, timeout_min)
 
     def set_permissions(self, title: str, space: str='THISISCVAH', is_restricted: bool=True):
         page_ids = self._get_content_page_ids(space, title)

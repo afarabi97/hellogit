@@ -45,12 +45,12 @@ playbooks/inventory/dev/*
 charts/*/*.tgz
 inventory.yml
 testing/testy-tester/testcases/userdefined/
-infrastucture/Firewall/Firewall.ova
-infrastucture/Software/
+infrastructure/Firewall/Firewall.ova
+infrastructure/Software/
 *.bin
 *.tar
 *.old
-infrastucture/Kit_*/
+infrastructure/Kit_*/
 *.rpm
 
 controllersetupsettings_dip.yml

@@ -1,5 +1,10 @@
+import os
+import subprocess
+
 from fabric import Connection
-from models.drive_creation import DriveCreationSettings
+from util.hash_util import create_hashes, md5_sum
+from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
+from pathlib import Path
 from time import sleep
 from util.connection_mngs import FabricConnectionWrapper
 
@@ -39,3 +44,72 @@ class DriveCreationJob:
             self._burn_image_to_disk(shell)
             self._create_data_partition(shell)
             self._rysnc_data_files(shell)
+
+
+class DriveHashCreationJob:
+    def __init__(self, drive_hash_settings: DriveCreationHashSettings):
+        self._drive_hash_settings = drive_hash_settings
+
+    def execute(self):
+        create_hashes(self._drive_hash_settings.rsync_source)
+
+    def _run_verification_script(self):
+        proc = subprocess.Popen("./validate_drive.sh", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = proc.communicate()
+        if proc.returncode != 0:
+            raise Exception("HASH check failed with stdout {} and stderr {}".format(stdout, stderr))
+
+    def _create_verification_script(self):
+        md5_hash = md5_sum("drive_md5_hashes.txt")
+        validation_script = '''
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+pushd $SCRIPT_DIR > /dev/null
+
+MD5_SUM_CHECK=$(md5sum drive_md5_hashes.txt 2>/dev/null | cut -d" " -f1)
+STATUS=0
+
+if [[ "''' + md5_hash + '''" != "${MD5_SUM_CHECK}" ]] ; then
+    echo "drive_md5_hashes.txt is invalid actual_hash: ${MD5_SUM_CHECK} expected_hash: ''' + md5_hash + '''."
+    STATUS=1
+else
+    while read line; do
+        expected_hash=$(echo "$line" | awk '{print $1}')
+        rel_path=$(echo "$line" | awk '{print $2}')
+        actual_hash=$(md5sum $rel_path | awk '{print $1}')
+
+        if [[ "${expected_hash}" != "${actual_hash}" ]] ; then
+            echo "${rel_path} is invalid actual_hash: ${actual_hash} expected_hash: ${expected_hash}."
+            STATUS=2
+        fi
+done < drive_md5_hashes.txt
+fi
+
+popd > /dev/null
+
+exit $STATUS
+        '''
+
+        with open("validate_drive.sh", 'w') as script:
+            script.write(validation_script)
+
+        os.chmod("validate_drive.sh", 0o755 )
+
+
+    def create_verification_script_and_validate(self):
+        directory_to_walk = self._drive_hash_settings.rsync_source
+        if not directory_to_walk.endswith("/"):
+            directory_to_walk = directory_to_walk + "/"
+
+        cur_cwd = os.getcwd()
+        try:
+            cwd = Path(directory_to_walk)
+            if not cwd.exists() or not cwd.is_dir():
+                raise NotADirectoryError("{} is not a directory or does not exist".format(directory_to_walk))
+
+            os.chdir(directory_to_walk)
+            self._create_verification_script()
+            self._run_verification_script()
+        finally:
+            os.chdir(cur_cwd)

@@ -1,6 +1,6 @@
 import os
 from models.rhel_repo_vm import RHELRepoSettings
-from util.ansible_util import execute_playbook, take_snapshot, Target
+from util.ansible_util import execute_playbook, Target
 from util.ssh import test_nodes_up_and_alive
 from util.connection_mngs import FabricConnectionWrapper
 

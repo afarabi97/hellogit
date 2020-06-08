@@ -17,6 +17,7 @@
         name: "{{ template_name }}"
         state: absent
         validate_certs: False
+        force: yes
       delegate_to: localhost
 
     - name: Wait for the virtual machine to shutdown
