@@ -12,8 +12,6 @@
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         name: "{{ item.hostname }}"
-        datacenter: "{{ vcenter.datacenter }}"
-        cluster: "{{ vcenter.cluster }}"
         state: shutdown-guest
         validate_certs: False
         state_change_timeout: 300
