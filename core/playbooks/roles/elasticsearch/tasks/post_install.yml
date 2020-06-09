@@ -44,12 +44,22 @@
     status_code: 200, 201
   with_items:
     - logstash_writer
+    - logstash_monitor_writer
     - moloch_writer
 
 - name: Set Logstash User Password
   set_fact:
     logstash_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+
+- name: Set Logstash Monitor User Password
+  set_fact:
     logstash_monitor_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+
+- debug:
+    msg: "{{ logstash_password }}"
+
+- debug:
+    msg: "{{ logstash_monitor_password }}"
 
 - name: Create logstash user secret
   shell: |
@@ -57,7 +67,7 @@
   register: results
   changed_when: results.rc == 0
   with_items:
-    - { secret: tfplenum-logstash-user, user: "{{ logstash_user }}", password: "{{ logstash_password }}" }
+    - { secret: tfplenum-logstash-user, user: "logstash_internal", password: "{{ logstash_password }}" }
     - { secret: tfplenum-logstash-monitor-user, user: "logstash_monitor", password: "{{ logstash_monitor_password }}" }
 
 - name: Create users
@@ -71,7 +81,8 @@
     body: "{{ lookup('template', 'files/users/{{ item }}.json.j2') }}"
     status_code: 200, 201
   with_items:
-    - "{{ logstash_user }}"
+    - logstash_internal
+    - logstash_monitor
     - moloch
 
 - name: Load Index Policies

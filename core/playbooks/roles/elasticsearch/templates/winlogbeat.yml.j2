@@ -15,6 +15,10 @@ data:
 
     setup.dashboards.enabled: true
 
+    setup.ilm:
+      policy_name: winlogbeat
+      rollover_alias: winlogbeat
+
     #============================== Kibana =====================================
     setup.kibana:
       host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"

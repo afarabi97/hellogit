@@ -76,7 +76,7 @@ data:
           password => "${ELASTICSEARCH_PASSWORD}"
           ilm_rollover_alias => "filebeat-external"
           ilm_policy => "filebeat-external"
-          ilm_enabled => true
+          ilm_enabled => false
           manage_template => false
         }
       }
@@ -89,7 +89,7 @@ data:
           password => "${ELASTICSEARCH_PASSWORD}"
           ilm_rollover_alias => "winlogbeat"
           ilm_policy => "winlogbeat"
-          ilm_enabled => true
+          ilm_enabled => false
           manage_template => false
         }
       }
@@ -102,7 +102,7 @@ data:
           password => "${ELASTICSEARCH_PASSWORD}"
           ilm_rollover_alias => "auditbeat-external"
           ilm_policy => "auditbeat-external"
-          ilm_enabled => true
+          ilm_enabled => false
           manage_template => false
         }
       }
