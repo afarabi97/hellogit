@@ -9,6 +9,8 @@
     - name: "Power off the VM {{ node.hostname }}"
       ignore_errors: yes
       vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
@@ -21,6 +23,8 @@
     - name: "Removing VM {{ node.hostname }}"
       ignore_errors: yes
       vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
@@ -38,6 +42,7 @@
         name: "{{ node.hostname }}"
         template: "{{ node.template }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         folder: "{{ node.folder }}"
         state: poweredon
         networks:

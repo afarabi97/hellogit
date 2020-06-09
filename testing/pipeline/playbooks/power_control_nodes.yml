@@ -9,6 +9,8 @@
     - name: "Setting {{ state }} state on nodes"
       ignore_errors: yes
       vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"

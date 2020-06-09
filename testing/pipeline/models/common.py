@@ -119,6 +119,7 @@ class VCenterSettings(Model):
         self.username = ''
         self.ipaddress = ''
         self.datacenter = ''
+        self.cluster = 'DEV_Cluster'
 
     def from_namespace(self, namespace: Namespace):
         self.password = self.b64decode_string(namespace.vcenter_password)

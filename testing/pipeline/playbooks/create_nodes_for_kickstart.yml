@@ -13,6 +13,7 @@
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         name: "{{ item.hostname }}"
         folder: "{{ item.folder }}"
         state: poweredoff
@@ -27,6 +28,7 @@
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         name: "{{ item.hostname }}"
         state: absent
         validate_certs: False
@@ -39,6 +41,7 @@
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         guest_id: "rhel7_64Guest"
         validate_certs: False
         name: "{{ item.hostname }}"
@@ -75,6 +78,7 @@
         validate_certs: False
         name: "{{ item.hostname }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         folder: "{{ item.folder }}"
         state: poweredon
         networks:

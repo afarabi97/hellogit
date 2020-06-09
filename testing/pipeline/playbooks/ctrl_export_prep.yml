@@ -9,6 +9,8 @@
     - name: "Power off the VM {{ node.hostname }}"
       ignore_errors: yes
       vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
@@ -26,6 +28,7 @@
         validate_certs: False
         name: "{{ node.hostname }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         folder: "{{ node.folder }}"
         state: present
         networks:
@@ -42,6 +45,8 @@
     - name: "Remove old template if it exists."
       ignore_errors: yes
       vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
@@ -59,6 +64,7 @@
         name: "{{ release_template_name }}"
         template: "{{ node.hostname }}"
         datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
         folder: "{{ node.folder }}"
         state: present
         is_template: yes
