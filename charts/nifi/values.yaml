@@ -12,3 +12,8 @@ zk_image: 'bitnami/zookeeper'
 zk_version: '3.6.1'
 zk_replicas: 1
 domain: lan
+
+### proxy info
+proxy:
+  image: tfplenum/shibboleth_proxy
+  version: 3.0.4

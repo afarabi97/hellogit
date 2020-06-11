@@ -81,7 +81,6 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /elastic-data
-          subPath: elastic
       {{- end }}
       {{- if .Values.mispIntegration }}
       - name: hive-init-misp
@@ -109,7 +108,7 @@ spec:
           mountPath: /init-misp.sh
           subPath: init-misp.sh
       {{ end }}
-      {{- if or .Values.cortexIntegration .Values.mispIntegration }}
+#      {{- if or .Values.cortexIntegration .Values.mispIntegration }}
       - name: hive-init-keystore
         image: "{{ .Values.hive_image }}"
         imagePullPolicy: IfNotPresent
@@ -139,6 +138,30 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
       {{ end }}
+      - name: hive-init
+        image: "busybox:1.31.1"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/init-hive.sh"
+        env:
+        - name: OPEN_ID_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: hive-openid
+              key: openid-secret
+        volumeMounts:
+        - name: api-cache
+          mountPath: /tmp/hive
+          subPath: hive-data
+        - name: hiveconfig
+          mountPath: /data/config.conf
+          subPath: hive.conf
+        - name: setup
+          mountPath: /init-hive.sh
+          subPath: init-hive.sh
       containers:
       {{- if not .Values.cortexIntegration }}
       - name: elastic
@@ -227,6 +250,9 @@ spec:
         - name: setup
           mountPath: /etc/thehive/setup.py
           subPath: setup.py
+        - name: api-cache
+          mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
+          subPath: keystore/cacerts
         {{- if or .Values.cortexIntegration .Values.mispIntegration }}
         - name: api-cache
           mountPath: /etc/thehive/application.conf
@@ -236,7 +262,7 @@ spec:
           mountPath: /etc/thehive/application.conf
           subPath: hive.conf
         {{- end }}
-        {{- if .Values.mispIntegration }}
+        {{- if or .Values.cortexIntegration .Values.mispIntegration }}
         - name: api-cache
           mountPath: /etc/thehive/webCA.jks
           subPath: keystore/webCA.jks
@@ -273,8 +299,8 @@ spec:
         configMap:
           name: {{ .Release.Name }}-nginx
           defaultMode: 0444
-      - name: api-cache
-        emptyDir: {}
       - name: data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
+      - name: api-cache
+        emptyDir: {}

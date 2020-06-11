@@ -30,7 +30,7 @@
   openssl_privatekey:
     path: "{{ certs_dir }}/{{ item }}-saml.key"
     force: true
-  with_items: "{{ saml_apps }}"
+  with_items: "{{ setup_apps }}"
 
 - name: Generate SSO Keycloak & Portal CSRs
   openssl_csr:
@@ -38,7 +38,7 @@
     privatekey_path: "{{ certs_dir }}/{{ item }}-saml.key"
     common_name: "{{ item }}-saml"
     force: true
-  with_items: "{{ saml_apps }}"
+  with_items: "{{ setup_apps }}"
 
 - name: Generate SSO Keycloak & Portal Certificates
   openssl_certificate:
@@ -47,21 +47,22 @@
     csr_path: "{{ certs_dir }}/{{ item }}-saml.csr"
     provider: selfsigned
     force: true
-  with_items: "{{ saml_apps }}"
+  with_items: "{{ setup_apps }}"
 
 - name: Remove Headers from SAML certs
   shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.crt | sed 's/-----[A-Z ]*-----//g'"
   register: clean_certs
   changed_when: clean_certs.rc == 0
   failed_when:  clean_certs.rc > 0
-  with_items: "{{ saml_apps }}"
+  with_items: "{{ setup_apps }}"
+
 
 - name: Remove Headers from SAML keys
   shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.key | sed 's/-----[A-Z ]*-----//g'"
   register: clean_keys
   changed_when: clean_keys.rc == 0
   failed_when:  clean_keys.rc > 0
-  with_items: "{{ saml_apps }}"
+  with_items: "{{ setup_apps }}"
 
 - name: Populate SAML Certs with no headers
   set_fact:
@@ -251,7 +252,7 @@
 - name: Write Admin Password to file
   copy:
     content: "{{ sso_admin_password }}"
-    dest: "{{ sso_dir }}/sso_admin_password.txt"
+    dest: "{{ password_file }}"
     owner: root
     group: root
     mode: '0644'
@@ -282,7 +283,14 @@
     force: yes
     select_crypto_backend: cryptography
 
-- name: Remove Certs Directory
+- name: Remove SAML Private CSRs
   file:
-    path: "{{ certs_dir }}"
+    path: "{{ certs_dir }}/{{ item }}-saml.csr"
     state: absent
+  with_items: "{{ setup_apps }}"
+
+- name: Remove SAML Private Keys
+  file:
+    path: "{{ certs_dir }}/{{ item }}-saml.key"
+    state: absent
+  with_items: "{{ setup_apps }}"

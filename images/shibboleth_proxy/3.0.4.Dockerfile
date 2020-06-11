@@ -1,0 +1,41 @@
+
+FROM ubuntu:eoan
+
+#User Input
+ARG SHIB_VERSION=3.0.4+dfsg1-1
+
+# Install core components
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && \
+    apt-get dist-upgrade -y && apt-get autoremove -y && apt-get clean && \
+    apt-get install -y software-properties-common && \
+    apt-get install -y  openssl zip locales curl
+
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Apache
+RUN apt-get install -y apache2 apache2-doc apache2-utils libapache2-mod-shib=${SHIB_VERSION} && \
+    a2dismod status && a2dissite 000-default && apt-get clean
+
+ADD apache.conf /etc/apache2/sites-available/apache.conf
+# Apache Setup
+RUN a2dissite 000-default && \
+    a2ensite apache && \
+    a2enmod rewrite && \
+    a2enmod headers && \
+    a2enmod ssl && \
+    a2enmod proxy_http && \
+    a2enmod proxy && \
+    a2enmod shib
+
+# Add run script
+# Trigger to perform first boot operations
+ADD run.sh /run.sh
+RUN chmod 0755 /run.sh && touch /.firstboot.tmp
+
+EXPOSE 80
+EXPOSE 443
+ENTRYPOINT ["/run.sh"]
+CMD ["apachectl", "-D", "FOREGROUND"]

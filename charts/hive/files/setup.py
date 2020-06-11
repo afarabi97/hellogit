@@ -79,9 +79,9 @@ def set_password(username, password):
     data = {"password": password}
     return post(url=url, data=data, requires_auth=True)
 
-def create_user(username, password, roles, requires_auth):
-    print("Creating " + username)
-    data = {"login": username,"name": username, "password": password, "roles": roles}
+def create_user(username, name, password, roles, requires_auth):
+    print("Creating {} ({})".format(name, username))
+    data = {"login": username,"name": name, "password": password, "roles": roles}
     url = URI + "/user"
     return post(url=url, data=data, requires_auth=requires_auth)
 
@@ -89,7 +89,6 @@ if __name__ == '__main__':
     print("Running The Hive Setup Script")
     if get_status():
         migratedb = post(url=URI + "/maintenance/migrate")
-        create_user(username=SUPER_USERNAME, password=SUPER_PASS, roles=["read","write","admin"], requires_auth=False)
-        create_user(username=ALERT_USERNAME, password=ALERT_PASSWORD, roles=["read","write","alert"], requires_auth=True)
-        create_user(username=USER_USERNAME, password=USER_PASSWORD, roles=["read","write"], requires_auth=True)
-
+        create_user(username=SUPER_USERNAME, name="Hive Admin", password=SUPER_PASS, roles=["read","write","admin"], requires_auth=False)
+        create_user(username=ALERT_USERNAME, name="Hive Alert User", password=ALERT_PASSWORD, roles=["read","write","alert"], requires_auth=True)
+        create_user(username=USER_USERNAME, name="Hive User", password=USER_PASSWORD, roles=["read","write"], requires_auth=True)

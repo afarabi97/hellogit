@@ -10,7 +10,7 @@ hive_https_port: 9443
 cortexIntegration: true
 mispIntegration: true
 esUri: http://cortex-elastic.default.svc.cluster.local:9200
-superadmin_username: admin
+superadmin_username: hive_admin
 superadmin_password: password!
 alert_username: alert_user
 alert_user_password: password!

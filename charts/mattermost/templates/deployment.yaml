@@ -90,6 +90,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: team_name
+        # - name: OPEN_ID_SECRET
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: mattermost-openid
+        #       key: openid-secret
         volumeMounts:
         - name: data
           mountPath: /mattermost/data
@@ -118,3 +123,11 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-pvc
+      # - name: mattermost-saml
+      #   secret:
+      #     secretName: mattermost-saml
+      #     defaultMode: 0444
+      # - name: sso-idp-metadata
+      #   secret:
+      #     secretName: sso-idp-metadata
+      #     defaultMode: 0444

@@ -20,12 +20,25 @@ containers:
     valueFrom:
       fieldRef:
         fieldPath: spec.nodeName
-{%- endmacro %}
+  volumeMounts:
+  - name: kibana-saml
+    mountPath: /usr/share/elasticsearch/config/kibana-saml-certs/
+  - name: sso-idp-metadata
+    mountPath: /usr/share/elasticsearch/config/sso-idp-metadata
+{% endmacro %}
 
 {% macro volumes_empty_dir() %}
 volumes:
 - name: elasticsearch-data
   emptyDir: {}
+- name: kibana-saml
+  secret:
+    secretName: kibana-saml
+    defaultMode: 0444
+- name: sso-idp-metadata
+  secret:
+    secretName: sso-idp-metadata
+    defaultMode: 0444
 {% endmacro %}
 
 {% macro volumes_host_path(path) %}
@@ -34,6 +47,14 @@ volumes:
   hostPath:
     path: {{ path }}
     type: DirectoryOrCreate
+- name: kibana-saml
+  secret:
+    secretName: kibana-saml
+    defaultMode: 0444
+- name: sso-idp-metadata
+  secret:
+    secretName: sso-idp-metadata
+    defaultMode: 0444
 {% endmacro %}
 
 {% macro volume_claim_templates() %}
@@ -49,6 +70,20 @@ volumeClaimTemplates:
         storage: 1Gi
 {% endmacro %}
 
+{% macro saml_volumes() %}
+volumes:
+- name: elasticsearch-data
+  emptyDir: {}
+- name: kibana-saml
+  secret:
+    secretName: kibana-saml
+    defaultMode: 0444
+- name: sso-idp-metadata
+  secret:
+    secretName: sso-idp-metadata
+    defaultMode: 0444
+{% endmacro %}
+
 {% macro node_set(name, count, config, spec, elasticsearch_plugins, enable_ml, storage) %}
 - name: {{ name }}
   count: {{ count | string }}
@@ -61,6 +96,24 @@ volumeClaimTemplates:
     script.cache.max_size: "500"
     script.max_compilations_rate: "256/1m"
     xpack.ml.enabled: {{ enable_ml | string }}
+    xpack.security.authc.token.enabled: true
+    xpack.security.authc.realms.saml.saml1.order: 2
+    xpack.security.authc.realms.saml.saml1.attributes.principal: "uid"
+    xpack.security.authc.realms.saml.saml1.attributes.name: "displayName"
+    xpack.security.authc.realms.saml.saml1.attributes.mail: "email"
+    xpack.security.authc.realms.saml.saml1.attributes.groups: "roles"
+    xpack.security.authc.realms.saml.saml1.idp.metadata.path: "/usr/share/elasticsearch/config/sso-idp-metadata/idp.metadata.xml"
+    xpack.security.authc.realms.saml.saml1.ssl.verification_mode: none
+    xpack.security.authc.realms.saml.saml1.idp.use_single_logout: true
+    xpack.security.authc.realms.saml.saml1.idp.entity_id: "https://controller.lan/auth/realms/CVAH-SSO"
+    xpack.security.authc.realms.saml.saml1.sp.entity_id: "https://kibana.lan/"
+    xpack.security.authc.realms.saml.saml1.sp.acs: "https://kibana.lan/api/security/v1/saml"
+    xpack.security.authc.realms.saml.saml1.sp.logout: "https://kibana.lan/logout"
+    xpack.security.authc.realms.saml.saml1.signing.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
+    xpack.security.authc.realms.saml.saml1.signing.key: /usr/share/elasticsearch/config/kibana-saml-certs/tls.key
+    xpack.security.authc.realms.saml.saml1.encryption.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
+    xpack.security.authc.realms.saml.saml1.encryption.key: /usr/share/elasticsearch/config/kibana-saml-certs/tls.key
+    xpack.security.authc.realms.saml.saml1.signing.saml_messages: "*"
 {% if storage %}{{ storage | indent(width=2,first=True) }}{% endif %}
   podTemplate:
     metadata:
@@ -142,25 +195,39 @@ volumeClaimTemplates:
     {% set config = node_type(true, false, false, false) %}
   {% endif %}
     {% set storage = volume_claim_templates() %}
-    {% set spec = containers(memory, cpu, java_memory) %}
+    {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
 {{ node_set('master', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
 {% macro data(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, true, true, false) %}
   {% set storage = volume_claim_templates() %}
-  {% set spec = containers(memory, cpu, java_memory) %}
+  {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
 {{ node_set('data', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
 {% macro coordinating(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, false, true, false) %}
-  {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
+  {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
 {{ node_set('coordinating', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
 {% macro ml(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, false, false, true) %}
-  {% set spec = volumes_empty_dir() + containers(memory, cpu, java_memory) %}
+  {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
 {{ node_set('ml', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
+{% endmacro %}
+
+{% macro gip_coordinating(count, memory, cpu, java_memory, elasticsearch_plugins) %}
+  {%- set config = gip_node_type(false, false, true, false) %}
+  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
+
+  {{- node_set('coordinating', count, config, spec, elasticsearch_plugins) }}
+{% endmacro %}
+
+{% macro gip_ml(count, memory, cpu, java_memory, elasticsearch_plugins) %}
+  {%- set config = gip_node_type(false, false, false, true) + gip_machine_learning(true) %}
+  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
+
+  {{- node_set('ml', count, config, spec, elasticsearch_plugins) }}
 {% endmacro %}

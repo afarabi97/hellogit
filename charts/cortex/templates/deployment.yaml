@@ -22,11 +22,50 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "chown -R 1000 /elastic-data"
+        - "/init-cortex.sh"
+        env:
+        - name: OPEN_ID_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cortex-openid
+              key: openid-secret
+        - name: CORTEX_ORGANIZATION
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_name
         volumeMounts:
         - name: data
           mountPath: /elastic-data
           subPath: elastic
+        - name: api-cache
+          mountPath: /tmp/cortex
+          subPath: cortex-data
+        - name: cortexconfig
+          mountPath: /data/config.conf
+          subPath: cortex.conf
+        - name: setup
+          mountPath: /init-cortex.sh
+          subPath: init-cortex.sh
+      - name: cortex-init-keystore
+        image: "{{ .Values.cortex_image }}"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/etc/cortex/keystore.sh"
+        volumeMounts:
+        - name: api-cache
+          mountPath: /opt/cortex/keystore
+          subPath: keystore
+        - name: setup
+          mountPath: /etc/cortex/keystore.sh
+          subPath: keystore.sh
+        - name: webca
+          mountPath: /etc/ssl/certs/container/
+          readOnly: true
       containers:
       - name: elastic
         image: "{{ .Values.elastic_image }}"
@@ -117,9 +156,12 @@ spec:
                 name: cortex-secret
                 key: org_user_password
         volumeMounts:
-        - name: cortexconfig
+        - name: api-cache
           mountPath: /etc/cortex/application.conf
-          subPath: cortex.conf
+          subPath: cortex-data/application.conf
+        - name: api-cache
+          mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
+          subPath: keystore/cacerts
         - name: setup
           mountPath: /etc/cortex/setup.py
           subPath: setup.py
@@ -151,3 +193,5 @@ spec:
         configMap:
           name: {{ .Release.Name }}-nginx
           defaultMode: 0444
+      - name: api-cache
+        emptyDir: {}

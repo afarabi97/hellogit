@@ -1,0 +1,41 @@
+---
+- name: Delete IDP Metadata Secret
+  command: "{{ item }} --ignore-not-found"
+  ignore_errors: true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items:
+    - "kubectl delete secret sso-idp-metadata"
+
+- name: Delete App SSO Secrets
+  command: "kubectl delete secret {{ item }}-saml --ignore-not-found"
+  ignore_errors: true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items: "{{ saml_apps }}"
+
+- name: Delete Open ID Secrets
+  command: "kubectl delete secret {{ item }}-openid --ignore-not-found"
+  ignore_errors: true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items: "{{ openid_apps }}"
+
+- name: Get Current Keycloak Clients
+  command: "{{ keycloak_dir }}/bin/kcadm.sh get clients -r {{ realm_name }} --fields id,clientId"
+  register: keycloak_clients
+  changed_when: keycloak_clients.rc == 0
+  failed_when:  keycloak_clients.rc > 0
+
+- name: Delete Current Keycloak Clients
+  command: "{{ keycloak_dir }}/bin/kcadm.sh delete clients/{{ item[0].id }} -r {{ realm_name }}"
+  register: results
+  changed_when: results.rc == 0
+  failed_when:  results.rc > 0
+  with_nested:
+    - "{{ keycloak_clients.stdout | from_json }}"
+    - "{{ all_apps }}"
+  when: item[1] in item[0].clientId

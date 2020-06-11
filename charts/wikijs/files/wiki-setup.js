@@ -68,6 +68,28 @@ const options = {
     'Content-Length': data.length
   }
 }
+
+samlData = JSON.parse(fs.readFileSync('./server/saml.json'));
+samlData.cert = process.env.SSO_IDP_CRT;
+samlData.privateCert = process.env.SAML_KEY;
+samlData.decryptionPvk = process.env.SAML_KEY;
+samlData.issuer = process.env.URL;
+
+//Function to inject SAML config into DB
+function updateSamlConfig() {
+  knex('authentication')
+  .where('key','=','saml')
+  .update({
+     isEnabled: 1,
+     config: JSON.stringify(samlData),
+     selfRegistration: 1,
+     autoEnrollGroups: '{"v":[1]}'
+  }).then(function(res) {
+     console.log(res);
+     process.exit();
+  });
+}
+
 function sleep(millis) {
   return new Promise(resolve => setTimeout(resolve,millis));
 }
@@ -75,7 +97,7 @@ async function main() {
   await sleep(5000);
   const req = http.request(options, res => {
     console.log(`statusCode: ${res.statusCode}`)
-
+    updateSamlConfig();
     res.on('data', d => {
       console.log("Init complete")
       process.stdout.write(d);

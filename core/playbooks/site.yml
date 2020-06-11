@@ -339,6 +339,16 @@
   tags:
     - certificate_authority
 
+- name: Deploy Single Sign On
+  hosts: localhost
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - sso
+  tags: sso
+
 - name: helm
   any_errors_fatal: true
   hosts:
@@ -387,15 +397,12 @@
       set_fact:
         admin_api_key: "{{ admin_api_key.stdout | replace('\n', '') }}"
         metrics_api_key: "{{ metrics_api_key.stdout | replace('\n', '') }}"
-    # - debug:
-    #     msg: "{{ admin_api_key }}"
-    - name: Remove API Key Secret
-      shell: |
-        kubectl delete secret metrics-api-key --ignore-not-found=true
+    - name: Delete Previous API Key Secret
+      command: "kubectl delete secret metrics-api-key --ignore-not-found"
       register: api_key_sec
       changed_when: api_key_sec.rc == 0
     - name: Create API Key Secret
-      shell: |
+      command: |
         kubectl create secret generic metrics-api-key --from-literal=api-key={{ metrics_api_key }}
       register: api_key_sec
       changed_when: api_key_sec.rc == 0

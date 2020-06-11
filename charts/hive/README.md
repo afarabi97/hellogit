@@ -13,7 +13,7 @@
     },
     {
       "type": "textinput",
-      "default_value": "admin",
+      "default_value": "hive_admin",
       "description": "Enter Superadmin Username",
       "required": true,
       "regexp": "",

@@ -64,9 +64,7 @@ export class CatalogComponent implements OnInit {
       this.charts = data;
       this.setPMOSupported(this.charts);
       this._CatalogService.isLoading = true;
-      this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
-         this.filterCommunityApplications(this.showCharts['comm'])
-       );
+      this.filterCharts();
     });
 
     this.ioConnection = this._WebsocketService.onBroadcast()
@@ -132,17 +130,18 @@ export class CatalogComponent implements OnInit {
 
   pmoToggle(event: MatSlideToggle){
     this.showCharts['pmo'] = event.checked;
-    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
-      this.filterCommunityApplications(this.showCharts['comm'])
-    );
-    this.updateCookie();
+    this.filterCharts();
   }
 
   communityToggle(event: MatSlideToggle){
     this.showCharts['comm'] = event.checked;
-    this.filteredCharts = this.filterCommunityApplications(this.showCharts['comm']).concat(
-      this.filterPMOApplications(this.showCharts['pmo'])
-    );
+    this.filterCharts();
+  }
+
+  filterCharts() {
+    this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
+      this.filterCommunityApplications(this.showCharts['comm'])
+    ).sort((a, b) => a.application.localeCompare(b.application));
     this.updateCookie();
   }
 

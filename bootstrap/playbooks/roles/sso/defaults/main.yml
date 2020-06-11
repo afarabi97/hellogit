@@ -10,6 +10,7 @@ realm_name: CVAH-SSO
 realm_id: CVA/H SSO
 realm_json: {}
 ansible_controller: "{{ ansible_controller_hostname }}" # "{{ ansible_default_ipv4.address }}" # {{ ansible_controller_hostname }}
+password_file: "{{ sso_dir }}/sso_admin_password.txt"
 realm_files:
   - realm
   - realm_roles
@@ -17,7 +18,7 @@ realm_files:
   - realm_clients
   - realm_client_scopes
 
-saml_apps:
+setup_apps:
   - idp
   - portal
 

@@ -80,6 +80,21 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: admin_email
+        - name: SAML_CRT
+          valueFrom:
+            secretKeyRef:
+              name: wikijs-saml
+              key: tls.crt
+        - name: SAML_KEY
+          valueFrom:
+            secretKeyRef:
+              name: wikijs-saml
+              key: tls.key
+        - name: SSO_IDP_CRT
+          valueFrom:
+            secretKeyRef:
+              name: sso-idp-metadata
+              key: idp.crt
         volumeMounts:
         - name: configmap
           mountPath: "/wiki/data/sideload/en.json"
@@ -93,6 +108,9 @@ spec:
         - name: configmap
           mountPath: "/wiki/server/wiki-setup.js"
           subPath: wiki-setup.js
+        - name: configmap
+          mountPath: "/wiki/server/saml.json"
+          subPath: saml.json
         - name: data
           mountPath: /wiki/data
           subPath: content

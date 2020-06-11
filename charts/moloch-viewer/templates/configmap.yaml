@@ -48,6 +48,11 @@ data:
     tpacketv3NumThreads=2
     maxPacketsInQueue={{ .Values.maxPacketsInQueue }}
     # Cert file to use, comment out to use http instead
-    certFile=/etc/ssl/certs/container/tls.crt
+    # certFile=/etc/ssl/certs/moloch.crt
     # Private key file to use, comment out to use http instead
-    keyFile=/etc/ssl/certs/container/tls.key
+    # keyFile=/etc/ssl/certs/moloch.key
+    userNameHeader=uid
+    viewHost=localhost
+    requiredAuthHeader=roles
+    requiredAuthHeaderVal=moloch-user
+    userAutoCreateTmpl={"userId": "${this.uid}", "userName": "${this.uid}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": true, "removeEnabled": true, "packetSearch": true }

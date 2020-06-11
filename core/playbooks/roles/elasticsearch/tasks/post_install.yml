@@ -21,7 +21,7 @@
 
 - name: Check Elasticsearch endpoint is ready
   uri:
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+    url: "{{ elastic_url }}"
     return_content: yes
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -32,20 +32,21 @@
   retries: 60
   delay: 5
 
-- name: Create logstash role
+- name: Create roles
   uri:
     method: POST
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/role/{{ item }}"
+    url: "{{ elastic_url }}/_security/role/{{ item }}"
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('file', 'files/users/{{ item }}.json') }}"
+    body: "{{ lookup('file', 'files/roles/{{ item }}.json') }}"
     status_code: 200, 201
   with_items:
     - logstash_writer
     - logstash_monitor_writer
     - moloch_writer
+    - read_only
 
 - name: Set Logstash User Password
   set_fact:
@@ -73,7 +74,7 @@
 - name: Create users
   uri:
     method: POST
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_security/user/{{ item }}"
+    url: "{{ elastic_url }}/_security/user/{{ item }}"
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
@@ -87,7 +88,7 @@
 
 - name: Load Index Policies
   uri:
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}/_ilm/policy/{{ item }}"
+    url: "{{ elastic_url }}/_ilm/policy/{{ item }}"
     method: PUT
     validate_certs: no
     user: "{{ default_elastic_user }}"
@@ -111,4 +112,19 @@
     status_code: 200, 201
     headers:
       Authorization: "Bearer {{ hostvars['localhost']['admin_api_key'] }}"
+
+- name: Load SAML Role Mappings
+  uri:
+    url: "{{ elastic_url }}/_security/role_mapping/saml1-{{ item }}"
+    method: PUT
+    validate_certs: no
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ lookup('file', 'files/role-mappings/{{ item }}.json') }}"
+    status_code: 200, 201
+  with_items:
+    - super_user
+    - read_only
+    - kibana_admin
 ...

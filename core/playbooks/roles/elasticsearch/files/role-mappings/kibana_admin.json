@@ -1,0 +1,8 @@
+{
+  "roles": ["kibana_admin","machine_learning_user","read_only"],
+  "enabled": true,
+  "rules":   { "all": [
+    { "field":  {"realm.name": "saml1"} },
+    { "field":  {"groups": "elk-kibana-admin"} }
+  ] }
+}

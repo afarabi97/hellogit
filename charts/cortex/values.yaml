@@ -7,7 +7,7 @@ hive_image: thehiveproject/thehive:3.4.0
 nginx_image: nginx:1.18.0
 hive_port: 9000
 elastic_port: 9200
-superadmin_username: admin
+superadmin_username: cortex_admin
 superadmin_password: password!
 org_name: thehive
 org_admin_username: admin_thehive

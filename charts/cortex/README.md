@@ -5,7 +5,7 @@
   "formControls": [
     {
       "type": "textinput",
-      "default_value": "admin",
+      "default_value": "cortex_admin",
       "description": "Enter Superadmin Username",
       "required": true,
       "regexp": "",

@@ -1,7 +1,9 @@
 {
   "defaultGroups": [
     "/Operator",
-    "/All Users"
+    "/All Users",
+    "/Hive Read",
+    "/Cortex Read"
   ],
   "groups": [
     {
@@ -80,11 +82,31 @@
       "subGroups": []
     },
     {
+      "name": "ELK Kibana Admin",
+      "path": "/ELK Kibana Admin",
+      "attributes": {},
+      "realmRoles": [
+        "elk-kibana-admin"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
       "name": "MISP Admin",
       "path": "/MISP Admin",
       "attributes": {},
       "realmRoles": [
         "misp-admin"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "MISP Org Admin",
+      "path": "/MISP Org Admin",
+      "attributes": {},
+      "realmRoles": [
+        "misp-org-admin"
       ],
       "clientRoles": {},
       "subGroups": []
@@ -100,6 +122,16 @@
       "subGroups": []
     },
     {
+      "name": "MISP Read Only",
+      "path": "/MISP Read Only",
+      "attributes": {},
+      "realmRoles": [
+        "misp-readonly"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
       "name": "Moloch User",
       "path": "/Moloch User",
       "attributes": {},
@@ -108,7 +140,122 @@
       ],
       "clientRoles": {},
       "subGroups": []
-    }
+    },
+    {
+      "name": "Rocket Chat Admin",
+      "path": "/Rocket Chat Admin",
+      "attributes": {
+        "rocketchat_role": [
+          "admin"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Hive Admin",
+      "path": "/Hive Admin",
+      "attributes": {
+        "hive_role": [
+          "admin",
+          "write",
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Hive Write",
+      "path": "/Hive Write",
+      "attributes": {
+        "hive_role": [
+          "write",
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Hive Read",
+      "path": "/Hive Read",
+      "attributes": {
+        "hive_role": [
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Cortex Super Admin",
+      "path": "/Cortex Super Admin",
+      "attributes": {
+        "cortex_role": [
+          "superadmin"
+        ],
+        "cortex_org": [
+          "cortex"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Cortex Org Admin",
+      "path": "/Cortex Org Admin",
+      "attributes": {
+        "cortex_role": [
+          "orgadmin",
+          "analyze",
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Cortex Analyze",
+      "path": "/Cortex Anaylze",
+      "attributes": {
+        "cortex_role": [
+          "analyze",
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Cortex Read",
+      "path": "/Cortex Read",
+      "attributes": {
+        "cortex_role": [
+          "read"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "NiFi User",
+      "path": "/NiFi User",
+      "attributes": {},
+      "realmRoles": [
+        "nifi-user"
+      ],
+      "clientRoles": {},
+      "subGroups": []
+    },
 {% endif %}
   ]
 }

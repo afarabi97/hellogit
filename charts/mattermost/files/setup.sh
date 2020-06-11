@@ -35,4 +35,8 @@ if [[ $(echo $teams | jq '. | length') == 0 ]]; then
   echo "Creating default team"
   new_team='{"display_name":"'${TEAM_NAME}'","name":"'${team_id}'","type":"O"}'
   create_team=$(curl --insecure -XPOST -H "Content-Type: application/json" -H "Authorization: Bearer ${token}" --data $new_team https://localhost:8065/api/v4/teams)
+  team_guid=$(echo $create_team | jq '.id')
+  echo "Updating team to Open Invite"
+  update_team_data='{"id":"'${team_guid}'","display_name":"'${TEAM_NAME}'","allow_open_invite":true}'
+  update_team=$(curl --insecure -XPUT -H "Content-Type: application/json" -H "Authorization: Bearer ${token}" --data $update_team_data "https://localhost:8065/api/v4/teams/${team_guid}")
 fi

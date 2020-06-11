@@ -38,6 +38,29 @@ data:
   wiki-setup.js: |
 {{ .Files.Get "files/wiki-setup.js" | indent 4 }}
 
+  saml.json: |
+    {
+      "entryPoint":"https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml",
+      "issuer":"https://wikijs.{{ .Values.domain }}/",
+      "audience":"",
+      "cert":"",
+      "privateCert":"",
+      "decryptionPvk":"",
+      "signatureAlgorithm":"sha1",
+      "identifierFormat":"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+      "acceptedClockSkewMs":-1,
+      "disableRequestedAuthnContext":false,
+      "authnContext":"urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+      "forceAuthn":false,
+      "providerName":"wiki.js",
+      "skipRequestCompression":false,
+      "authnRequestBinding":"HTTP-Redirect",
+      "mappingUID":"uid",
+      "mappingEmail":"email",
+      "mappingDisplayName":"displayName",
+      "mappingPicture":""
+    }
+
   locales.json: |
 {{ .Files.Get "files/locales.json" | indent 4 }}
 

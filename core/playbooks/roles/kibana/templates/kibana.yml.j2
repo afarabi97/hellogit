@@ -41,6 +41,12 @@ spec:
     xpack.reporting.enabled: true
     elasticsearch.requestTimeout: 100000
     elasticsearch.shardTimeout: 0
+    xpack.security.authc.providers: [saml,basic]
+    xpack.security.authc.saml.realm: saml1
+    xpack.security.public.protocol: https
+    xpack.security.public.hostname: kibana.{{ domain }}
+    xpack.security.public.port: 443
+    server.xsrf.whitelist: [/api/security/v1/saml]
   elasticsearchRef:
     name: "tfplenum"
   secureSettings:
@@ -52,8 +58,8 @@ spec:
       - name: kibana
         resources:
           requests:
-            memory: {{kibana_memory}}Gi
-            cpu: {{kibana_cpu}}
+            memory: {{ kibana_memory }}Gi
+            cpu: {{ kibana_cpu }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -76,7 +82,7 @@ spec:
     kibana.k8s.elastic.co/name: tfplenum
   ports:
   - name: http
-    port: {{kibana_port}}
+    port: {{ kibana_port }}
     targetPort: http
   type: LoadBalancer
 

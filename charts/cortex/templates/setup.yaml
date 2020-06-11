@@ -7,3 +7,22 @@ metadata:
 data:
   setup.py: |
 {{ .Files.Get "files/setup.py" | indent 4 }}
+
+  init-cortex.sh: |
+    #!/bin/sh
+    if [ ! -f /tmp/cortex/application.conf ]; then
+      cp /data/config.conf /tmp/cortex/application.conf;
+    fi
+    sed -i 's|##OPEN_ID_SECRET##|'${OPEN_ID_SECRET}'|g' /tmp/cortex/application.conf
+    sed -i 's|##CORTEX_ORGANIZATION##|'${CORTEX_ORGANIZATION}'|g' /tmp/cortex/application.conf
+    chown -R 1 /tmp/cortex
+    chown -R 1000 /elastic-data
+
+  keystore.sh: |
+    #!/bin/bash
+
+    #Default truststore
+    echo "Add WebCA to default trustStore"
+    cp /usr/local/openjdk-8/jre/lib/security/cacerts /opt/cortex/keystore/cacerts
+    chmod +w /opt/cortex/keystore/cacerts
+    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/container/ca.crt -alias webCA -keystore /opt/cortex/keystore/cacerts -storepass changeit

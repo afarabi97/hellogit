@@ -27,9 +27,6 @@ spec:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
           subPath: logs
-        #- name: nifi-data
-      #    mountPath: {{ .Values.nifi_base_dir }}/conf
-      #    subPath: conf
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/database_repository
           subPath: database_repository
@@ -46,25 +43,29 @@ spec:
           mountPath: {{ .Values.nifi_base_dir }}/state
           subPath: state
       containers:
-      - name: nifi-nginx
-        image: "{{ .Values.nginx_image }}"
+      - name: shibboleth-proxy
+        image: "{{ .Values.proxy.image }}:{{ .Values.proxy.version }}"
         imagePullPolicy: IfNotPresent
         ports:
         - name: https
           containerPort: 443
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "cat /etc/ssl/certs/container/tls.crt /etc/ssl/certs/container/ca.crt > /tmp/bundle.crt && exec nginx -g 'daemon off;'"
         volumeMounts:
-        - name: nginx-configmap
-          mountPath: "/etc/nginx/conf.d/default.conf"
-          subPath: default.conf
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
+        - name: shibboleth
+          mountPath: /etc/shibboleth/shibboleth2.xml
+          subPath: shibboleth2.xml
+        - name: shibboleth
+          mountPath: /etc/shibboleth/attribute-map.xml
+          subPath: attribute-map.xml
+        - name: shibboleth
+          mountPath: /etc/apache2/sites-enabled/apache.conf
+          subPath: apache.conf
+        - name: sso-idp-metadata
+          mountPath: /etc/shibboleth/idp/
+        - name: nifi-saml
+          mountPath: /etc/shibboleth/nifi-saml-certs/
       - name: nifi
         image: "{{ .Values.nifi_image }}:{{ .Values.nifi_version }}"
         imagePullPolicy: IfNotPresent
@@ -73,8 +74,8 @@ spec:
         - "-c"
         - "/setup.sh; /opt/nifi/scripts/start.sh"
         ports:
-        - name: webgui
-          containerPort: {{ .Values.nifi_port }}
+        - name: http
+          containerPort: 8080
         env:
         - name: NIFI_WEB_HTTP_HOST
           value: localhost
@@ -82,7 +83,6 @@ spec:
         - name: config
           mountPath: /setup.sh
           subPath: setup.sh
-          readOnly: true
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/logs
           subPath: logs
@@ -117,7 +117,15 @@ spec:
           defaultMode: 420
           optional: false
           secretName: {{ .Release.Name }}-certificate
-      - name: nginx-configmap
+      - name: shibboleth
         configMap:
-          name: {{ .Release.Name }}-nginx
+          name: {{ .Release.Name }}-shibboleth
+          defaultMode: 0444
+      - name: nifi-saml
+        secret:
+          secretName: nifi-saml
+          defaultMode: 0444
+      - name: sso-idp-metadata
+        secret:
+          secretName: sso-idp-metadata
           defaultMode: 0444

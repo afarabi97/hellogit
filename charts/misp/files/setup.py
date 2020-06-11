@@ -10,6 +10,7 @@ api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
 HIVE_USER_API_KEY=os.environ['HIVE_USER_API_KEY']
 ADMIN_PASS=os.environ['ADMIN_PASS']
+ORG_NAME=os.environ['ORG_NAME']
 #HIVE_USER_API_KEY="P6iX7ht5UqjmL5Hktk44kDSymHuRnOJIq78URU4c"
 
 def post(url=None, data=None, requires_auth=False):
@@ -69,6 +70,7 @@ def get_status():
     while True:
         print("Waiting for MISP to becoming ready...")
         try:
+            headers['Authorization'] = 'THISISNOTREAL'
             r = requests.get(URI + "/admin/users",headers=headers,timeout=3,verify=False)
             if r.status_code == 200 or r.status_code == 403 or r.status_code == 401:
                 return True
@@ -79,7 +81,8 @@ def get_status():
             continue
 
 def create_user(email, role_id, org_id, authkey):
-    print("Creating " + email)
+    str = "Creating {email}".format(email=email)
+    print(str)
     data = {"email": email, "role_id": role_id}
     if org_id != None:
         data['org_id'] = org_id
@@ -89,7 +92,8 @@ def create_user(email, role_id, org_id, authkey):
     return post(url=url, data=data, requires_auth=True)
 
 def edit_user(user_id, email, role_id, org_id, authkey):
-    print("Editing " + email)
+    str = "Editing {email}".format(email=email)
+    print(str)
     data = {"email": email, "role_id": role_id}
     if org_id != None:
         data['org_id'] = org_id
@@ -103,11 +107,32 @@ def get_users():
     url = URI + "/admin/users"
     return get(url=url, requires_auth=True)
 
+def get_org(org_id = 1):
+    str = "Getting Org ID {org_id}".format(org_id=org_id)
+    print(str)
+    url = URI + "/organisations/view/{org_id}".format(org_id=org_id)
+    return get(url=url, requires_auth=True)
+
+def edit_org_name(org_id = 1, name = "ORGNAME"):
+    str = "Editing Org ID {org_id} Name -> {name}".format(org_id=org_id,name=name)
+    print(str)
+    data = {"name": name, "nationality": "US", "local": True}
+    url = URI + "/admin/organisations/edit/{org_id}".format(org_id=org_id)
+    return post(url=url, data=data, requires_auth=True)
+
+def add_org(name = "ORGNAME"):
+    str = "Adding Org {name}".format(name=name)
+    print(str)
+    data = {"name": name, "nationality": "US"}
+    url = URI + "/admin/organisations/add"
+    return post(url=url, data=data, requires_auth=True)
+
 if __name__ == '__main__':
     print("Running MISP Setup Script")
     if get_status():
         # Set password for admin@admin.test
-        password = os.popen("/var/www/MISP/app/Console/cake Password admin@admin.test \""+ADMIN_PASS+"\" -o").readlines()
+        set_pass = "/var/www/MISP/app/Console/cake Password admin@admin.test \"{password}\" -o".format(password=ADMIN_PASS)
+        password = os.popen(set_pass).readlines()
         # Get API key for admin@admin.test
         api_key_arr = os.popen("/var/www/MISP/app/Console/cake Authkey admin@admin.test").readlines()
         api_key = api_key_arr[-1].strip()
@@ -127,3 +152,8 @@ if __name__ == '__main__':
         else:
             # Create Hive User
             create_user(email=HIVE_USER_EMAIL, role_id=1, org_id=None, authkey=HIVE_USER_API_KEY)
+        org = get_org(org_id = 1)
+        if org.status_code == 200:
+            edit_org_name(org_id = 1,name = ORG_NAME)
+        elif org.status_code == 404:
+            add_org(name = ORG_NAME)

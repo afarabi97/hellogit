@@ -38,6 +38,29 @@ extraEnv:   |
     value: "True"
   - name: Jitsi_Enable_Channels
     value: "True"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default
+    value: "True"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_provider
+    value: "keycloak"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_button_label_text
+    value: "Login with SAML"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_generate_username
+    value: "True"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_username_normalize
+    value: "Lowercase"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_immutable_property
+    value: "Username"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_mail_overwrite
+    value: "True"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_name_overwrite
+    value: "True"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_user_data_fieldmap
+    value: "{\"uid\":\"username\", \"email\":\"email\", \"displayName\": \"name\"}"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_default_user_role
+    value: "user"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_name
+    value: "rocketchat_role"
+
 
 ## Pod anti-affinity can prevent the scheduler from placing RocketChat replicas on the same node.
 ## The default value "soft" means that the scheduler should *prefer* to not schedule two replica pods onto the same node but no guarantee is provided.

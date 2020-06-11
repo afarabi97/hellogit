@@ -53,9 +53,10 @@
         "composites": {
           "realm": [
 {% if system_name == 'DIP' or system_name == 'GIP' %}
-            "elk-read-only",
+            "elk-kibana-admin",
             "misp-operator",
-            "moloch-user"
+            "moloch-user",
+            "nifi-user"
 {% endif %}
           ]
         },
@@ -77,7 +78,26 @@
         "attributes": {}
       },
       {
+        "name": "misp-org-admin",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "misp-operator"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
         "name": "misp-operator",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "misp-readonly",
         "composite": false,
         "clientRole": false,
         "containerId": "{{ realm_id }}",
@@ -99,6 +119,20 @@
       },
       {
         "name": "elk-read-only",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "elk-kibana-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{ realm_id }}",
+        "attributes": {}
+      },
+      {
+        "name": "nifi-user",
         "composite": false,
         "clientRole": false,
         "containerId": "{{ realm_id }}",

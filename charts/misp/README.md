@@ -22,6 +22,15 @@
       "error_message": "Enter a value"
     },
     {
+      "type": "textinput",
+      "default_value": "ORGNAME",
+      "description": "Enter Default Organization Name",
+      "required": true,
+      "regexp": "",
+      "name": "org_name",
+      "error_message": "Enter a value"
+    },
+    {
       "type": "invisible",
       "name": "affinity_hostname"
     },

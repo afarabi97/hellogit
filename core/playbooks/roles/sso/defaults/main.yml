@@ -1,0 +1,26 @@
+---
+boostrap_sso_vars: "/opt/tfplenum/bootstrap/playbooks/roles/sso/defaults/main.yml"
+sso_idp_url: "controller.{{ domain }}"
+
+saml_apps:
+  - "kibana"
+  - "misp"
+#  - "redmine"
+  - "wikijs"
+  - "rocketchat"
+#  - "mattermost"
+  - "moloch"
+  - "nifi"
+
+openid_apps:
+  - "cortex"
+  - "hive"
+#  - "nifi"
+#  - "mattermost"
+
+all_apps: "{{ saml_apps + openid_apps }}"
+
+saml_certs: {}
+saml_keys: {}
+openid_secrets: {}
+realm_json: {}

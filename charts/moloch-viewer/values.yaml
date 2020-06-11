@@ -25,3 +25,8 @@ packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
 es_user: moloch
 es_password: password
+
+### proxy info
+proxy:
+  image: tfplenum/shibboleth_proxy
+  version: 3.0.4

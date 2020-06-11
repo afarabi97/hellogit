@@ -106,9 +106,9 @@ def set_password(username, password):
     return post(url=url, data=data, requires_auth=True)
 
 
-def create_user(username, roles, password, organization, requires_auth):
-    print("Creating " + username)
-    data = {"login": username, "name": username, "password": password, "roles": roles, "organization": organization}
+def create_user(username, name, roles, password, organization, requires_auth):
+    print("Creating {} ({})".format(name, username))
+    data = {"login": username, "name": name, "password": password, "roles": roles, "organization": organization}
     url = URI + "/user"
     return post(url=url, data=data, requires_auth=requires_auth)
 
@@ -146,14 +146,14 @@ if __name__ == '__main__':
         migratedb = post(url=URI + "/maintenance/migrate")
         print(migratedb.text)
         # Create superadmin
-        create_user(username=SUPER_USERNAME, password=SUPER_PASS, roles=["superadmin"], organization="cortex", requires_auth=False)
+        create_user(username=SUPER_USERNAME, name="Cortex Super Admin", password=SUPER_PASS, roles=["superadmin"], organization="cortex", requires_auth=False)
         org = create_org()
         if org:
             print(org.json())
         # Create org admin
-        create_user(username=ORG_ADMIN_USERNAME, password=ORG_ADMIN_PASSWORD, roles=["read","analyze","orgadmin"],organization=ORGANIZATION, requires_auth=True)
+        create_user(username=ORG_ADMIN_USERNAME, name="Hive Admin", password=ORG_ADMIN_PASSWORD, roles=["read","analyze","orgadmin"],organization=ORGANIZATION, requires_auth=True)
         # Create org user
-        create_user(username=ORG_USER_USERNAME, password=ORG_USER_PASSWORD, roles=["read","analyze"],organization=ORGANIZATION, requires_auth=True)
+        create_user(username=ORG_USER_USERNAME, name="Hive User", password=ORG_USER_PASSWORD, roles=["read","analyze"],organization=ORGANIZATION, requires_auth=True)
 
         if api_key_exists():
             api_key = get_api_key()

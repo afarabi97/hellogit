@@ -1,0 +1,18 @@
+---
+- name: Import Bootstrap SSO variables
+  include_vars:
+    file: "{{ boostrap_sso_vars }}"
+
+- name: Get Master Admin Password
+  set_fact:
+    sso_admin_password: "{{ lookup('file', password_file) }}"
+
+- name: Authenticate Keycloak
+  command: "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+
+- import_tasks: "uninstall.yml"
+
+- import_tasks: "install.yml"

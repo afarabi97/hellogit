@@ -83,6 +83,27 @@ spec:
               key: admin_email
         - name: ROOT_URL
           value: https://rocketchat.{{ .Values.domain }}
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_entry_point
+          value: "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml"
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_idp_slo_redirect_url
+          value: "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml"
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_issuer
+          value: "https://rocketchat.{{ .Values.domain }}/_saml/metadata/keycloak"
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_cert
+          valueFrom:
+            secretKeyRef:
+              name: sso-idp-metadata
+              key: idp.crt
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_public_cert
+          valueFrom:
+            secretKeyRef:
+              name: rocketchat-saml
+              key: tls.crt
+        - name: OVERWRITE_SETTING_SAML_Custom_Default_private_key
+          valueFrom:
+            secretKeyRef:
+              name: rocketchat-saml
+              key: tls.key
         {{- if .Values.smtp.enabled }}
         - name: MAIL_URL
           valueFrom:

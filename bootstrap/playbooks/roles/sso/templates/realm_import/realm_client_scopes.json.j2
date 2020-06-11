@@ -117,6 +117,85 @@
             "claim.name": "given_name",
             "jsonType.label": "String"
           }
+        },
+        {
+          "name": "Rocket Chat Role",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "rocketchat_role",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "rocketchat_role",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "Hive Role",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "hive_role",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "hive_role",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "Cortex Role",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "true",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "cortex_role",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "cortex_role",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "Cortex Org",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "false",
+            "multivalued": "false",
+            "userinfo.token.claim": "true",
+            "user.attribute": "cortex_org",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "cortex_org",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "MISP Org",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "false",
+            "multivalued": "false",
+            "userinfo.token.claim": "true",
+            "user.attribute": "misp_org",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "misp_org",
+            "jsonType.label": "String"
+          }
         }
       ]
     },
@@ -166,18 +245,6 @@
           }
         },
         {
-          "name": "Rocket Chat Role",
-          "protocol": "saml",
-          "protocolMapper": "saml-hardcode-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "attribute.nameformat": "Basic",
-            "attribute.value": "admin",
-            "friendly.name": "rocketchat_role",
-            "attribute.name": "rocketchat_role"
-          }
-        },
-        {
           "name": "X500 surname",
           "protocol": "saml",
           "protocolMapper": "saml-user-property-mapper",
@@ -224,6 +291,71 @@
             "attribute.nameformat": "Basic",
             "friendly.name": "displayName",
             "attribute.name": "displayName"
+          }
+        },
+        {
+          "name": "Rocket Chat Role",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "rocketchat_role",
+            "aggregate.attrs": "true",
+            "friendly.name": "rocketchat_role",
+            "attribute.name": "rocketchat_role"
+          }
+        },
+        {
+          "name": "Hive Role",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "hive_role",
+            "aggregate.attrs": "true",
+            "friendly.name": "hive_role",
+            "attribute.name": "hive_role"
+          }
+        },
+        {
+          "name": "Cortex Role",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "cortex_role",
+            "aggregate.attrs": "true",
+            "friendly.name": "cortex_role",
+            "attribute.name": "cortex_role"
+          }
+        },
+        {
+          "name": "Cortex Org",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "cortex_org",
+            "aggregate.attrs": "false",
+            "friendly.name": "cortex_org",
+            "attribute.name": "cortex_org"
+          }
+        },
+        {
+          "name": "MISP Org",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "misp_org",
+            "aggregate.attrs": "false",
+            "friendly.name": "misp_org",
+            "attribute.name": "misp_org"
           }
         }
       ]

@@ -14,8 +14,9 @@ data:
 
   init-cortex2.sh: |
     #!/bin/sh
-    api_key=$(cat /tmp/hive/cortex_api.txt)
-    cp /data/config.conf /tmp/hive/application.conf && sed -i 's|#key = \"CORTEX_API_KEY\"|key = \"'${api_key}'\"|g' /tmp/hive/application.conf
+    CORTEX_API_KEY=$(cat /tmp/hive/cortex_api.txt)
+    cp /data/config.conf /tmp/hive/application.conf
+    sed -i 's|##CORTEX_API_KEY##|'${CORTEX_API_KEY}'|g' /tmp/hive/application.conf
     chown -R 1 /tmp/hive
 
   init-misp.sh: |
@@ -23,7 +24,7 @@ data:
     if [ ! -f /tmp/hive/application.conf ]; then
       cp /data/config.conf /tmp/hive/application.conf;
     fi
-    sed -i 's|#key = \"MISP_API_KEY\"|key = \"'${MISP_API_KEY}'\"|g' /tmp/hive/application.conf
+    sed -i 's|##MISP_API_KEY##|'${MISP_API_KEY}'|g' /tmp/hive/application.conf
     chown -R 1 /tmp/hive
 
   keystore.sh: |
@@ -34,5 +35,19 @@ data:
     if [ ! -f /tmp/hive/application.conf ]; then
       cp /data/config.conf /tmp/hive/application.conf
     fi
-    sed -i 's|password = \"KEYSTORE_PASSWORD\"|password = \"'${KEYSTORE_PASSWORD}'\"|g' /tmp/hive/application.conf
+    sed -i 's|##KEYSTORE_PASSWORD##|'${KEYSTORE_PASSWORD}'|g' /tmp/hive/application.conf
+    chown -R 1 /tmp/hive
+
+    #Default truststore
+    echo "Add WebCA to default trustStore"
+    cp /usr/local/openjdk-8/jre/lib/security/cacerts /opt/thehive/keystore/cacerts
+    chmod +w /opt/thehive/keystore/cacerts
+    keytool -importcert -noprompt -trustcacerts -file /etc/ssl/certs/container/ca.crt -alias webCA -keystore /opt/thehive/keystore/cacerts -storepass changeit
+
+  init-hive.sh: |
+    #!/bin/sh
+    if [ ! -f /tmp/hive/application.conf ]; then
+      cp /data/config.conf /tmp/hive/application.conf;
+    fi
+    sed -i 's|##OPEN_ID_SECRET##|'${OPEN_ID_SECRET}'|g' /tmp/hive/application.conf
     chown -R 1 /tmp/hive

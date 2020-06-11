@@ -50,11 +50,12 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
       }
     }, (err: any) => {
       if (err instanceof HttpErrorResponse) {
+        let reload = () => window.location.reload();
         if (err.status === 401) {
-          this.snackbar.showSnackBar('Unauthorized Request. Please reload the page to re-login', -1, 'Dismiss');
+          this.snackbar.showSnackBar('Unauthorized Request. Please reload the page to re-login', 10000, 'Reload Page', reload);
         } else if (err.status === 403) {
-            this.snackbar.showSnackBar('Forbidden. You do not have permissions for this request', -1, 'Dismiss');
-          }
+          this.snackbar.showSnackBar('Forbidden. You do not have permissions for this request', -1, 'Dismiss');
+        }
       }
     });
   }

@@ -1,0 +1,120 @@
+---
+
+- name: Create install directory
+  file:
+    path: "{{ item }}"
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    state: directory
+  with_items:
+    - "{{ sso_dir }}"
+    - "{{ certs_dir }}"
+
+- name: Generate SSO Keycloak & Portal Private keys
+  openssl_privatekey:
+    path: "{{ certs_dir }}/{{ item }}-saml.key"
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Generate SSO Keycloak & Portal CSRs
+  openssl_csr:
+    path: "{{ certs_dir }}/{{ item }}-saml.csr"
+    privatekey_path: "{{ certs_dir }}/{{ item }}-saml.key"
+    common_name: "{{ item }}-saml"
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Generate SSO Keycloak & Portal Certificates
+  openssl_certificate:
+    path: "{{ certs_dir }}/{{ item }}-saml.crt"
+    privatekey_path: "{{ certs_dir }}/{{ item }}-saml.key"
+    csr_path: "{{ certs_dir }}/{{ item }}-saml.csr"
+    provider: selfsigned
+    force: true
+  with_items: "{{ saml_apps }}"
+
+- name: Remove Headers from SAML certs
+  shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.crt | sed 's/-----[A-Z ]*-----//g'"
+  register: clean_certs
+  changed_when: clean_certs.rc == 0
+  failed_when:  clean_certs.rc > 0
+  with_items: "{{ saml_apps }}"
+
+- name: Remove Headers from SAML keys
+  shell: "set -o pipefail && tr -d '\n' < {{ certs_dir }}/{{ item }}-saml.key | sed 's/-----[A-Z ]*-----//g'"
+  register: clean_keys
+  changed_when: clean_keys.rc == 0
+  failed_when:  clean_keys.rc > 0
+  with_items: "{{ saml_apps }}"
+
+- name: Populate SAML Certs with no headers
+  set_fact:
+    saml_certs: "{{ saml_certs|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ clean_certs.results }}"
+
+- name: Populate SAML Keys with no headers
+  set_fact:
+    saml_keys: "{{ saml_keys|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ clean_keys.results }}"
+
+- name: Generate SAML Secrets
+  command: "kubectl create secret generic {{ item }}-saml --from-file=tls.key='{{ certs_dir }}/{{ item }}-saml.key' --from-file=tls.crt='{{ certs_dir }}/{{ item }}-saml.crt' --from-literal=key-clean='{{ saml_keys[item] }}' --from-literal=crt-clean='{{ saml_certs[item] }}'"
+  ignore_errors: true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items: "{{ saml_apps }}"
+
+- name: Generate Open ID Secrets
+  set_fact:
+    openid_secrets: "{{ openid_secrets|default({}) | combine( {item: 99999999 | random | to_uuid} ) }}"
+  with_items: "{{ openid_apps }}"
+
+- name: Generate Open ID Secrets
+  command: "kubectl create secret generic {{ item }}-openid --from-literal=openid-secret={{ openid_secrets[item] }}"
+  ignore_errors: true
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items: "{{ openid_apps }}"
+
+- name: Copy Templates
+  template:
+    src: "templates/client_{{ item }}.json.j2"
+    dest: "{{ sso_dir }}/client_{{ item }}.json"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items: "{{ all_apps }}"
+
+- name: Import clients into Keycloak
+  command: "{{ keycloak_dir }}/bin/kcadm.sh create clients -f {{ sso_dir }}/client_{{ item }}.json -r {{ realm_name }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items: "{{ all_apps }}"
+
+- name: Get IdP Metadata
+  get_url:
+    url: "https://{{ sso_idp_url }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor"
+    dest: "{{ sso_dir }}/idp.metadata.xml"
+    validate_certs: no
+
+- name: Generate IdP Metadata Secret
+  command: "kubectl create secret generic sso-idp-metadata --from-file={{ sso_dir }}/idp.metadata.xml --from-file=idp.crt='{{ certs_dir }}/idp-saml.crt'"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+
+- name: Remove SAML Private CSRs
+  file:
+    path: "{{ certs_dir }}/{{ item }}-saml.csr"
+    state: absent
+  with_items: "{{ saml_apps }}"
+
+- name: Remove SAML Private Keys
+  file:
+    path: "{{ certs_dir }}/{{ item }}-saml.key"
+    state: absent
+  with_items: "{{ saml_apps }}"

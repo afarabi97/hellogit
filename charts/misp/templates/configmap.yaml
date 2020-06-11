@@ -6,6 +6,11 @@ data:
   config.external.php: |-
 {{ .Files.Get "files/config.external.php" | indent 4 }}
 
+  bootstrap.external.php: |-
+    <?php
+    CakePlugin::load('ShibbAuth');
+    ?>
+
   misp.conf: |-
     <VirtualHost *:443>
       ServerAdmin admin@dip.local
@@ -22,6 +27,17 @@ data:
       SSLCertificateFile /etc/ssl/certs/container/tls.crt
       SSLCertificateKeyFile /etc/ssl/certs/container/tls.key
       SSLCertificateChainFile /etc/ssl/certs/container/ca.crt
+
+      <If "-T req('Authorization')">
+        Require all granted
+        AuthType None
+      </If>
+      <Else>
+        Require valid-user
+        AuthType Shibboleth
+        ShibRequestSetting requiresession On
+        ShibUseHeaders off
+      </Else>
 
       LogLevel warn
       ErrorLog /var/log/apache2/misp.local_error.log

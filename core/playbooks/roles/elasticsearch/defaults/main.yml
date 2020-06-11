@@ -46,3 +46,7 @@ filebeat_modules:
 
 elasticsearch_plugins:
   - http://{{ ansible_controller_hostname }}/offlinerepo/elasticsearch-plugins/repository-s3-{{ elastic_7_version }}.zip
+  #- zeek
+  #- suricata
+  #- netflow
+elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"

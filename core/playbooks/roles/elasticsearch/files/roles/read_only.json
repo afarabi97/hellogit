@@ -1,0 +1,24 @@
+{
+  "cluster": [ ],
+  "indices": [
+      {
+          "names": [
+              "*"
+          ],
+          "privileges": [
+              "read"
+          ]
+      }
+  ],
+  "applications" : [
+    {
+      "application" : "kibana-.kibana",
+      "privileges" : [
+        "read"
+      ],
+      "resources" : [
+        "*"
+      ]
+    }
+  ]
+}

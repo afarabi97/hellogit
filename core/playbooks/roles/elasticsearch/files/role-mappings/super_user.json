@@ -1,0 +1,8 @@
+{
+  "roles": ["superuser"],
+  "enabled": true,
+  "rules":   { "all": [
+    { "field":  {"realm.name": "saml1"} },
+    { "field":  {"groups": "elk-super-user"} }
+  ] }
+}

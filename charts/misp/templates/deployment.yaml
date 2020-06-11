@@ -67,6 +67,11 @@ spec:
             secretKeyRef:
               name: misp-secret
               key: admin_pass
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: misp-secret
+              key: org_name
         volumeMounts:
         - name: misp-setup
           mountPath: /setup.py
@@ -78,11 +83,24 @@ spec:
           mountPath: /var/www/MISP/app/Config/config.external.php
           subPath: config.external.php
         - name: misp-config
+          mountPath: /var/www/MISP/app/Config/bootstrap.external.php
+          subPath: bootstrap.external.php
+        - name: misp-config
           mountPath: /etc/apache2/sites-enabled/misp.conf
           subPath: misp.conf
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
+        - name: misp-shibboleth
+          mountPath: /etc/shibboleth/shibboleth2.xml
+          subPath: shibboleth2.xml
+        - name: misp-shibboleth
+          mountPath: /etc/shibboleth/attribute-map.xml
+          subPath: attribute-map.xml
+        - name: sso-idp-metadata
+          mountPath: /etc/shibboleth/idp/
+        - name: misp-saml
+          mountPath: /etc/shibboleth/misp-saml-certs/
       - name: misp-modules
         image: {{ .Values.mispModulesImage }}
         imagePullPolicy: IfNotPresent
@@ -100,11 +118,19 @@ spec:
       - name: misp-setup
         configMap:
           name: {{ .Release.Name }}-setup
-      - name: misp-secret
-        secret:
-          secretName: {{ .Release.Name }}-secret
+      - name: misp-shibboleth
+        configMap:
+          name: {{ .Release.Name }}-shibboleth
       - name: webca
         secret:
           defaultMode: 420
           optional: false
           secretName: {{ .Release.Name }}-certificate
+      - name: sso-idp-metadata
+        secret:
+          secretName: sso-idp-metadata
+          defaultMode: 0444
+      - name: misp-saml
+        secret:
+          secretName: misp-saml
+          defaultMode: 0444

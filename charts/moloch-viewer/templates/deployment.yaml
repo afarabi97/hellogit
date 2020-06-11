@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moloch-viewer
+  labels:
+    component: moloch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moloch-viewer
+  template:
+    metadata:
+      labels:
+        component: moloch
+        app: moloch-viewer
+    spec:
+      containers:
+      - name: shibboleth-proxy
+        image: "{{ .Values.proxy.image }}:{{ .Values.proxy.version }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: https
+          containerPort: 443
+        volumeMounts:
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        - name: shibboleth
+          mountPath: /etc/shibboleth/shibboleth2.xml
+          subPath: shibboleth2.xml
+        - name: shibboleth
+          mountPath: /etc/shibboleth/attribute-map.xml
+          subPath: attribute-map.xml
+        - name: shibboleth
+          mountPath: /etc/apache2/sites-enabled/apache.conf
+          subPath: apache.conf
+        - name: sso-idp-metadata
+          mountPath: /etc/shibboleth/idp/
+        - name: moloch-saml
+          mountPath: /etc/shibboleth/moloch-saml-certs/
+      - name: moloch-viewer
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_request }}m
+        env:
+        - name: CONTAINER_TYPE
+          value: "VIEWER"
+        - name: MOLOCH_USER
+          value: "{{ .Values.username }}"
+        - name: MOLOCH_PASSWORD
+          value: "{{ .Values.password }}"
+        ports:
+        - name: webgui
+          containerPort: {{ .Values.port }}
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      restartPolicy: Always
+      nodeSelector:
+        role: server
+      volumes:
+      - name: configini
+        configMap:
+          name: {{.Release.Name}}
+      - name: shibboleth
+        configMap:
+          name: {{ .Release.Name }}-shibboleth
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: {{ .Release.Name }}-certificate
+      - name: sso-idp-metadata
+        secret:
+          secretName: sso-idp-metadata
+          defaultMode: 0444
+      - name: moloch-saml
+        secret:
+          secretName: moloch-saml
+          defaultMode: 0444
