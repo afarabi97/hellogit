@@ -51,6 +51,7 @@ class SubCmd:
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'
     run_mip_config = 'run-mip-config'
+    save_kit = 'save-kit'
 
     # Gip subcommands
     create_gip_service_vm = 'create-gip-service-vm'

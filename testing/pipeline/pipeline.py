@@ -363,6 +363,7 @@ class Runner:
                 executor = MIPControllerExport(
                     ctrl_settings, export_settings.export_loc)
                 executor.export_mip_controller()
+
             elif args.which == SubCmd.run_cleanup:
                 if args.system_name == "DIP":
                     ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(

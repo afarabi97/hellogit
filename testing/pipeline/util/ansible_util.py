@@ -98,3 +98,7 @@ def delete_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSet
 def take_snapshot(vcenter: VCenterSettings, node: NodeSettings, snapshot_name: str="baseline"):
     extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'snapshot_name': snapshot_name}
     execute_playbook([PIPELINE_DIR + "playbooks/take_snapshot.yml"], extra_vars)
+
+def create_template(vcenter: VCenterSettings, node: NodeSettings, template_name: str="Test_Template"):
+    extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'template_name': template_name}
+    execute_playbook([PIPELINE_DIR + "playbooks/create_template.yml"], extra_vars)

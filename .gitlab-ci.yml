@@ -47,6 +47,7 @@ variables:
   RHEL_SUB_METHOD: "standard"
   RHEL_ORGANIZATION: "7403688"
   RHEL_ACTIVATIONKEY: "Reposync"
+  SAVE_KIT: "No"
 
   RUN_DIP_STIGS: "true"
   RUN_MIP_STIGS: "true"

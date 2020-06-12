@@ -21,7 +21,7 @@ class KitJob:
         self.kickstart_settings = kickstart_settings
         self.kit_settings = kit_settings
 
-    def _install_vmware_tools(self):
+    def install_vmware_tools(self):
         for node in self.kickstart_settings.nodes:
             with FabricConnectionWrapper(node.username,
                                          node.password,
@@ -31,4 +31,4 @@ class KitJob:
     def run_kit(self):
         runner = APITester(self.ctrl_settings, self.kickstart_settings, self.kit_settings)
         runner.run_kit_api_call()
-        self._install_vmware_tools()
+        self.install_vmware_tools()

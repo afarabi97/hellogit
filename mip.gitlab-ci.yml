@@ -1,44 +1,9 @@
-Setup MIP Nightly Controller:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
-    setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $MIP_NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-template "$MIP_TEMPLATE_TO_CLONE" \
-    --gateway "$VM_GATEWAY" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type build_from_scratch \
-    --vm-datastore "NVMe Storage 2" \
-    --disk-size "250" \
-    --repo-url "$REPO_URL" \
-    --vm-prefix "$VM_PREFIX-mip"
-  only:
-    variables:
-      - $PIPELINE == "nightly_build"
-      - $PIPELINE == "nightly_build_mip"
-
 Setup MIP Controller:
   stage: build
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -i | awk '{print $2}')"
-    echo "Changing to the testing/pipeline directory."
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "MIP" \
@@ -69,12 +34,15 @@ Setup MIP Controller:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+      - $PIPELINE == "nightly_build"
+      - $PIPELINE == "nightly_build_mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
       - controllersetupsettings_mip.yml
 
 MIP Kickstart:
+  needs: ["Setup MIP Controller"]
   stage: kickstart
   tags:
     - tfplenum-buildv2
@@ -105,6 +73,8 @@ MIP Kickstart:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+      - $PIPELINE == "nightly_build"
+      - $PIPELINE == "nightly_build_mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
@@ -114,18 +84,22 @@ MIP Kickstart:
 
 Configure MIPs:
   stage: kit
+  needs: ["Setup MIP Controller","MIP Kickstart"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -i | awk '{print $2}')"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" \
-    run-mip-config --operator-type "$MIP_OPERATOR_TYPE"
+    run-mip-config --operator-type "$MIP_OPERATOR_TYPE" \
+    --save-kit "$SAVE_KIT"
   only:
     variables:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+      - $PIPELINE == "nightly_build"
+      - $PIPELINE == "nightly_build_mip"
   cache:
     key: tfplenum-mip-cache-${CI_PIPELINE_ID}
     paths:
