@@ -6,23 +6,27 @@
     owner: root
     group: root
     mode: 0644
+  tags: always
 
 - name: Reload CA trust
   command: "/bin/update-ca-trust"
   register: result
   changed_when: result.rc == 0
+  tags: always
 
 - name: Checking if crio is Installed
   stat:
     path: /usr/bin/crio
   register: crio_installed
   when: "'localhost' not in inventory_hostname"
+  tags: always
 
 - name: Checking if crio is Installed
   stat:
     path: /usr/local/bin/crio
   register: crio_installed
   when: "'localhost' not in inventory_hostname"
+  tags: always
 
 - name: Restart Cri-O
   service:
@@ -30,3 +34,4 @@
     state: restarted
   when: "'localhost' not in inventory_hostname and crio_installed.stat.exists"
   ignore_errors: yes
+  tags: always

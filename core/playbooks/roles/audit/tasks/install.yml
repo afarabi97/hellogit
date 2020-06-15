@@ -28,6 +28,10 @@
     register: es_password
     changed_when: es_password.rc == 0
 
+  - name: set_fact domain
+    set_fact:
+      domain: "{{ '.'.join(groups['servers'][0].split('.')[1:]) }}"
+
   - name: Copy Audit External Template
     template:
       src: "templates/auditbeat-external.yml.j2"

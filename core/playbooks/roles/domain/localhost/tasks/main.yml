@@ -1,0 +1,36 @@
+---
+- name: set_fact domain
+  set_fact:
+    domain: "{{ '.'.join(groups['servers'][0].split('.')[1:]) }}"
+
+- debug:
+    msg: "Domain : {{ domain }}"
+
+- name: change domain
+  hostname:
+    name: "controller.{{ domain }}"
+
+- name: modify offline yum repo
+  lineinfile:
+    dest: '{{ item }}'
+    regexp: 'baseurl=http://controller.*/offlinerepo/tfplenum'
+    line: 'baseurl=http://controller.{{ domain }}/offlinerepo/tfplenum'
+    state: present
+  with_items:
+    - '/var/www/html/offlinerepo/offline.repo'
+    - '/etc/yum.repos.d/offline.repo'
+
+- name: set_fact ansible_controller hostname and ip
+  set_fact:
+    ansible_controller_hostname: "controller.{{ domain }}"
+    ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
+
+- name: set_fact offline and docker repo
+  set_fact:
+    offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
+    docker_registry_repo: "{{ ansible_controller_hostname }}"
+
+- name: Update Keycloak and Controller Shibboleth Configs
+  script: "/opt/sso-idp/update_portal_client.py --new_hostname {{ ansible_controller_hostname }} --new_ip {{ ansible_controller_ip }}"
+  args:
+    executable: /opt/tfplenum/web/tfp-env/bin/python3

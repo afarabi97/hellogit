@@ -35,15 +35,6 @@
         tasks_from: create
   tags: disks
 
-- name: Set controller domain
-  hosts: localhost
-  gather_facts: yes
-  roles:
-    - domain
-  tags:
-    - always
-    - domain
-
 - name: Set Kit Size
   hosts: master_server
   tags: always
@@ -75,6 +66,24 @@
         cacheable: yes
     - debug:
         msg: "Kit size: {{ kit_size }}"
+
+- name: Set controller domain
+  hosts: localhost
+  gather_facts: yes
+  roles:
+    - domain/localhost
+  tags:
+    - domain
+
+- name: Set server/sensor domain
+  hosts:
+    - servers
+    - sensors
+  gather_facts: yes
+  roles:
+    - domain/common
+  tags:
+    - domain
 
 - name: Setup Repos
   hosts:

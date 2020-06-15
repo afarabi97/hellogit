@@ -152,11 +152,11 @@ def execute_add_node() -> Response:
     if is_sucessful:
         cmd_to_execute_one = ("ansible-playbook site.yml -i inventory.yml "
                               "-e ansible_ssh_pass='{playbook_pass}' "
-                              "-t repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common,openvpn"
+                              "-t domain/common,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common,openvpn"
                               ).format(playbook_pass=root_password)
 
         cmd_to_execute_two = ("ansible-playbook site.yml -i inventory.yml "
-                              "-t crio,kube-node,logs,audit,frontend-health-metrics,node-health "
+                              "-t certificate_authority/common,crio,kube-node,logs,audit,frontend-health-metrics,node-health "
                               "--limit localhost,{node}"
                               ).format(
             playbook_pass=root_password,
