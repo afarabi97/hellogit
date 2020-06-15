@@ -1,9 +1,11 @@
 {
   "defaultGroups": [
-    "/Operator",
-    "/All Users",
+{% if system_name == 'DIP' or system_name == 'GIP' %}
     "/Hive Read",
-    "/Cortex Read"
+    "/Cortex Read",
+{% endif %}
+    "/Operator",
+    "/All Users"
   ],
   "groups": [
     {
