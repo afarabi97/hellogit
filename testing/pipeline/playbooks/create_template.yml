@@ -6,6 +6,19 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
+    - name: "Removing Template {{ template_name }}"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ template_name }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost
+
     - name: Wait for the virtual machine to shutdown
       vmware_guest_powerstate:
         hostname: "{{ vcenter.ipaddress }}"
@@ -15,6 +28,18 @@
         state: shutdown-guest
         validate_certs: no
         state_change_timeout: 300
+
+    - name: Create a VM snapshot
+      vmware_guest_snapshot:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        name: "{{ node.hostname }}"
+        validate_certs: False
+        state: present
+        snapshot_name: "baseline"
 
     - name: Get VM "{{ node.hostname }}" uuid
       vmware_guest_info:
