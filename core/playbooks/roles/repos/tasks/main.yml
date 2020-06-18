@@ -28,7 +28,6 @@
     path: /var/cache/yum
     state: absent
 
-
 - name: Get offline_repo url
   get_url:
     url: "{{ offline_repo_base }}/offline.repo"

@@ -104,16 +104,16 @@ kubernetes-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kubernetes,certificate_authority,sso,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
 
 certificate_authority-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
-
-storage-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t certificate_authority,sso,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
 
 sso-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t sso,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup
 
 helm-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
+
+storage-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
 
 chartmuseum-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup

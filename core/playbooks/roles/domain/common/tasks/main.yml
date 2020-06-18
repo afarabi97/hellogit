@@ -8,14 +8,6 @@
     msg: "Domain : {{ domain }}"
   tags: always
 
-- name: modify /etc/hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '^127\.0\.0\.1[ \t]+localhost'
-    line: '127.0.0.1 localhost controller.{{ domain }}'
-    state: present
-  tags: always
-
 - name: set_fact ansible_controller hostname and ip
   set_fact:
     ansible_controller_hostname: "controller.{{ domain }}"
@@ -30,11 +22,4 @@
     domain: "{{ domain }}"
     offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
     docker_registry_repo: "{{ ansible_controller_hostname }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: True
-  with_items:
-    - "{{ groups['servers'] }}"
-    - "{{ groups['sensors'] }}"
   tags: always
-
-

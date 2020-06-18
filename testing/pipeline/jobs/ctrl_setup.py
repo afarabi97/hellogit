@@ -23,13 +23,13 @@ class ControllerSetupJob:
     def _run_bootstrap(self):
         curl_cmd = ''
         if 'di2e' in self.ctrl_settings.repo.url:
-            curl_cmd = "curl -m 30 -o /root/bootstrap.sh -u {username}:'{password}' " \
+            curl_cmd = "curl -s -o /root/bootstrap.sh -u {username}:'{password}' " \
                         "https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum" \
                         "/raw/bootstrap.sh?at={branch_name}".format(branch_name=self.ctrl_settings.repo.branch_name,
                                                                     username=self.ctrl_settings.repo.username,
                                                                     password=self.ctrl_settings.repo.password)
         else:
-            curl_cmd = "curl -m 30 -k -o /root/bootstrap.sh --header 'PRIVATE-TOKEN: RT8FscKP1ZQ8NcgTdcas' \
+            curl_cmd = "curl -s -k -o /root/bootstrap.sh --header 'PRIVATE-TOKEN: RT8FscKP1ZQ8NcgTdcas' \
                         'https://gitlab.sil.lab/api/v4/projects/1/repository/files/bootstrap.sh/raw?ref={}'".format(self.ctrl_settings.repo.branch_name)
 
         bootstrap_cmd = ("export BRANCH_NAME='" + self.ctrl_settings.repo.branch_name + "' && \
