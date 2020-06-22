@@ -1,9 +1,9 @@
 ---
 
 # Check for Node Status Condition Ready
-- name: Set Template Fact
+- name: Set Template Fact for Condition Ready
   set_fact:
-    template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"Ready\") }}{{ .status }}{{end}}{{end}}'"
+    template: !unsafe "'{{ range .status.conditions }}{{ if eq (.type) (\"Ready\") }}{{ .status }}{{ end }}{{ end }}'"
 
 - name: Get node ready status
   command: |
@@ -24,8 +24,9 @@
 
 
 # Check for DiskPressure Status Condition
-- set_fact:
-    template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"DiskPressure\") }}{{ .status }}{{end}}{{end}}'"
+- name: Set template fact for Disk Pressure
+  set_fact:
+    template: !unsafe "'{{ range .status.conditions }}{{ if eq (.type) (\"DiskPressure\") }}{{ .status }}{{ end }}{{ end }}'"
 
 - name: Get nodes DiskPressure status
   command: |
@@ -45,9 +46,9 @@
   with_items: "{{ node_results.results }}"
 
 # Check for MemoryPressure Status Condition
-- name: Set Template Fact
+- name: Set Template Fact for Memory Pressure
   set_fact:
-    template: !unsafe "'{{range .status.conditions}}{{if eq (.type) (\"MemoryPressure\") }}{{ .status }}{{end}}{{end}}'"
+    template: !unsafe "'{{ range .status.conditions }}{{ if eq (.type) (\"MemoryPressure\") }}{{ .status }}{{ end }}{{ end }}'"
 
 - name: Get nodes MemoryPressure status
   command: |

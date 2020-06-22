@@ -145,4 +145,3 @@ GIP Kit:
   only:
     variables:
       - $PIPELINE == "developer-gip"
-      - $PIPELINE == "developer-all"

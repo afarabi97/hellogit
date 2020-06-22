@@ -353,7 +353,8 @@
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - setup:
+    - name: Deploy SSO pre_tasks
+      setup:
   roles:
     - sso
   tags: sso

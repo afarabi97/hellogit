@@ -46,5 +46,5 @@
       when: dhcp_config.changed
   when:
     - dhcp
-    - dhcp_start != ""
-    - dhcp_end != ""
+    - dhcp_start | length > 0
+    - dhcp_end | length > 0

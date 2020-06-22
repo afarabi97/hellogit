@@ -21,7 +21,7 @@
   register: wireshark_conf
   changed_when: wireshark_conf.rc == 0
   failed_when:  wireshark_conf.rc > 0
-  when: wireshark_source.changed
+  when: result.rc == 0
 
 - name: Clean build before compiling code
   command: make clean
@@ -30,7 +30,7 @@
   register: wireshark_clean
   changed_when: wireshark_clean.rc == 0
   failed_when:  wireshark_clean.rc > 0
-  when: wireshark_conf.changed
+  when: wireshark_conf.rc == 0
 
 - name: Make sources and install source code
   command: "{{ item }}"
@@ -39,7 +39,7 @@
     - make install
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
-  when: wireshark_clean.changed
+  when: wireshark_clean.rc == 0
 
 - name: Find file names
   find:

@@ -59,7 +59,10 @@
   with_items: "{{ clean_keys.results }}"
 
 - name: Generate SAML Secrets
-  command: "kubectl create secret generic {{ item }}-saml --from-file=tls.key='{{ certs_dir }}/{{ item }}-saml.key' --from-file=tls.crt='{{ certs_dir }}/{{ item }}-saml.crt' --from-literal=key-clean='{{ saml_keys[item] }}' --from-literal=crt-clean='{{ saml_certs[item] }}'"
+  command: >
+    "kubectl create secret generic {{ item }}-saml --from-file=tls.key='{{ certs_dir }}/{{ item }}-saml.key'
+    --from-file=tls.crt='{{ certs_dir }}/{{ item }}-saml.crt' --from-literal=key-clean='{{ saml_keys[item] }}'
+    --from-literal=crt-clean='{{ saml_certs[item] }}'"
   ignore_errors: true
   register: result
   changed_when: result.rc == 0

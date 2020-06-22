@@ -8,7 +8,9 @@
     sso_admin_password: "{{ lookup('file', password_file) }}"
 
 - name: Authenticate Keycloak
-  command: "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}"
+  command: >
+    "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth
+    --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}"
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
