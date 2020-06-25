@@ -1,0 +1,14 @@
+a {
+    cursor: pointer;
+    color:#31dc31;
+    text-decoration: none;
+}
+
+a:hover {
+  color: lightgreen;
+  text-decoration: underline;
+}
+
+.zoom {
+  padding: 20px;
+}

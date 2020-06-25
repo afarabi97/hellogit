@@ -23,6 +23,7 @@ import { KitNodeFormComponent } from './system-setup/components/kit-node-form/ki
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
+import { SupportComponent } from './support/support.component';
 import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 
 //Tools page
@@ -137,6 +138,7 @@ export function initializeApp1(appLoadService: AppLoadService) {
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
     PortalComponent,
+    SupportComponent,
     ToolsFormComponent,
     KitClockFormComponent,
     ChangePasswordFormComponent,

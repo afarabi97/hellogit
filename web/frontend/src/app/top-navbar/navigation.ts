@@ -26,7 +26,8 @@ let allSections: Array<NavGroup> = [
   { id: 'kubernetes', label: 'Kubernetes', system: ['DIP','GIP'], children: [] },
   { id: 'policy_mgmt', label: 'Policy Management', system: ['DIP'], children: [] },
   { id: 'tools', label: 'Tools', system: ['DIP','MIP','GIP'], children: [] },
-  { id: 'confluence', label: 'Confluence', system: ['DIP','MIP','GIP'], children: [] }
+  { id: 'confluence', label: 'Confluence', system: ['DIP','MIP','GIP'], children: [] },
+  { id: 'support', label: 'Support', system: ['DIP','MIP','GIP'], children: [] }
 ]
 
 export function getSideNavigationButtons(system_name: string, userService) {
@@ -54,7 +55,8 @@ export function getSideNavigationButtons(system_name: string, userService) {
     { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: ['DIP'], privs: operator },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer },
     { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank" },
-    { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin }
+    { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin },
+    { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', system: ['DIP','MIP','GIP'], privs: operator }
   ]
   let navigationButtons: Array<NavGroup> = [];
   allSections.forEach((section) => {

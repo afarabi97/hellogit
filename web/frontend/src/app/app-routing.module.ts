@@ -4,6 +4,7 @@ import { KickstartComponent } from './system-setup/kickstart/kickstart.component
 import { KitComponent } from './system-setup/kit/kit.component';
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
+import { SupportComponent } from './support/support.component';
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { RegistryComponent } from './registry/registry.component';
@@ -22,6 +23,7 @@ import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, Operat
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
+  { path: 'support', component:  SupportComponent},
   { path: 'health', component:  SystemHealthComponent},
   { path: 'kickstart', component: KickstartComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'kit_configuration', component: KitComponent, canActivate: [ ControllerAdminRequiredGuard ] },
