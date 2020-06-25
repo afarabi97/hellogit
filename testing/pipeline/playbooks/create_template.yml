@@ -6,19 +6,17 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
-    - name: "Removing Template {{ template_name }}"
-      ignore_errors: yes
+    - name: Delete MIP Kit Template VM
       vmware_guest:
-        datacenter: "{{ vcenter.datacenter }}"
-        cluster: "{{ vcenter.cluster }}"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
-        name: "{{ template_name }}"
+        validate_certs: no
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "MIP_Kit_Template"
+        folder: "/{{ vcenter.datacenter }}/vm/Templates"
         state: absent
-        validate_certs: False
-        force: yes
-      delegate_to: localhost
+        is_template: no
 
     - name: Wait for the virtual machine to shutdown
       vmware_guest_powerstate:
@@ -38,7 +36,7 @@
         datacenter: "{{ vcenter.datacenter }}"
         folder: "{{ node.folder }}"
         name: "{{ node.hostname }}"
-        validate_certs: False
+        validate_certs: no
         state: present
         snapshot_name: "baseline"
 
@@ -82,7 +80,7 @@
         datacenter: "{{ vcenter.datacenter }}"
         folder: "{{ node.folder }}"
         name: "{{ template_name }}"
-        validate_certs: False
+        validate_certs: no
         state: present
         is_template: yes
 
