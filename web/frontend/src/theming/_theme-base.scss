@@ -89,9 +89,14 @@
       padding: 15px 15px 3px 15px;
     }
 
-    .mat-card-actions .mat-button:first-child, .mat-card-actions .mat-raised-button:first-child {
+    .mat-card-actions .mat-button:first-child, .mat-card-actions .mat-raised-button:first-child, .mat-card-actions .mat-stroked-button:first-child {
       margin-bottom: 10px;
       margin-left: 15px;
+    }
+
+    .mat-card-actions .mat-button:last-child, .mat-card-actions .mat-raised-button:last-child, .mat-card-actions .mat-stroked-button:last-child {
+      margin-bottom: 10px;
+      margin-right: 15px;
     }
 
     .mat-card>.mat-card-actions:last-child {

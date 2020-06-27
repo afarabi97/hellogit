@@ -116,12 +116,12 @@
           </mat-vertical-stepper>
       </div>
       <div class="stepper__footer" fxLayout="row" fxLayoutAlign="end none">
-          <button mat-raised-button color="warn" style="margin-right: 10px;" (click)="goBack(stepper)" [disabled]="stepper.selectedIndex === 0">Back</button>
-          <button mat-raised-button color="primary" (click)="goForward(stepper)" *ngIf="stepper.selectedIndex === 0"
+          <button mat-button color="warn" style="margin-right: 10px;" (click)="goBack(stepper)" [disabled]="stepper.selectedIndex === 0">Back</button>
+          <button mat-button color="primary" (click)="goForward(stepper)" *ngIf="stepper.selectedIndex === 0"
                                                           [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
-          <button mat-raised-button color="primary" (click)="getConfig(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 1 ))"
+          <button mat-button color="primary" (click)="getConfig(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 1 ))"
                                                           [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
-          <button mat-raised-button color="primary" (click)="getValues(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
+          <button mat-button color="primary" (click)="getValues(stepper)" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
                                                           [disabled]="(configFormGroup.invalid)">Next</button>
           <button mat-raised-button color="primary" (click)="runChart(stepper)" *ngIf="stepper.selectedIndex === 3 || processFormGroup.value.selectedProcess === 'uninstall'"
                                                           [disabled]="valueFormGroup.invalid">Run</button>

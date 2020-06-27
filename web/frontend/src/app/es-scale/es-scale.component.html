@@ -52,8 +52,8 @@
       </ng-container>
     </mat-card-content>
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-stroked-button color="warn" (click)="editElasticConfig()" [disabled]="status" matTooltip="Advanced edit of entire Elastic Config">Edit Full Config</button>
       <button mat-raised-button color="primary" (click)="askRunDialog()" [disabled]="status" matTooltip="Execute Elastic Scaling">Run</button>
-      <button mat-raised-button color="warn" (click)="editElasticConfig()" [disabled]="status" matTooltip="Advanced edit of entire Elastic Config">Edit Full Config</button>
     </mat-card-actions>
   </mat-card>
   <br>

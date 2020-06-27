@@ -30,12 +30,12 @@
       </div>
     </mat-card-content>
     <mat-card-footer>
-      <button mat-raised-button color="warn" (click)="openCloseDialog()">Close without saving</button>
+      <button mat-stroked-button color="warn" (click)="openCloseDialog()">Close without saving</button>
       <button mat-raised-button color="primary" [disabled]="!ruleGroup.valid"
-              style="float: right;" (click)="openSaveDialog()">Save and close</button>
-      <button mat-raised-button class="btn-secondary" [disabled]="!ruleGroup.valid"
+            style="float: right;" (click)="openSaveDialog()">Save and close</button>
+      <button mat-stroked-button color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid"
               style="float: right; margin-right: 10px;" (click)="validateRule()">Validate Syntax</button>
-      <button mat-raised-button class="btn-secondary" [disabled]="!ruleGroup.valid"
+      <button mat-stroked-button color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid"
               style="float: right; margin-right: 10px;" (click)="testAgainstPCAP()">Test against PCAP</button>
     </mat-card-footer>
   </mat-card>

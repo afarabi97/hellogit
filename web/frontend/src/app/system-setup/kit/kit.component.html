@@ -26,13 +26,14 @@
         </p>
       </mat-card-content>
 
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="openConsole()">
+      <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
+        <button mat-stroked-button color="primary" (click)="openConsole()">
           Open Console
         </button>
-        <div style="float: right;">
-          <button mat-raised-button color="accent" (click)="kitFormGroup.enable()">Enable</button>
-          <button mat-raised-button color="warn" (click)="clearkitFormGroup()">Clear</button>
+        <div>
+          <button mat-stroked-button color="warn" (click)="clearkitFormGroup()"
+            [disabled]="kitFormGroup.disabled">Clear</button>
+          <button mat-raised-button color="primary" (click)="kitFormGroup.enable()">Enable</button>
         </div>
       </mat-card-actions>
     </mat-card>
@@ -108,7 +109,7 @@
                 <app-kit-node-form mode="gip" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
-                <button mat-raised-button color="warn"  (click)="canRemove(i)">Remove</button>
+                <button mat-button color="warn"  (click)="canRemove(i)">Remove</button>
               </div>
             </section>
           </mat-expansion-panel>
@@ -142,10 +143,10 @@
           </div>
         </section>
       </mat-card-content>
-    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-raised-button (click)="openExecuteKitDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
-        <button mat-raised-button (click)="openGenKitInventoryDialog()"
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
+        <button mat-stroked-button color="accent" (click)="openGenKitInventoryDialog()"
           [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
+        <button mat-raised-button color="primary" (click)="openExecuteKitDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
       </mat-card-actions>
     </mat-card>
     <br>

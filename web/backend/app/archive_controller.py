@@ -166,6 +166,9 @@ def get_archived_ids(config_id: str) -> Response:
     if result:
         for item in result:
             item["_id"] = str(item["_id"])
+            if config_id == KICKSTART_ID:
+                item['form']['root_password'] = decode_password(item['form']['root_password'])
+                item['form']['re_password'] = decode_password(item['form']['re_password'])
             ret_val.append(item)
 
     return jsonify(sorted(ret_val, key=lambda x: datetime.strptime(x['archive_date'], DATE_FORMAT_STR), reverse=True))

@@ -33,6 +33,7 @@ export class KickstartComponent implements OnInit {
   public system_name: string;
   public controllerAdmin: boolean;
   public timeZones = TIMEZONES2;
+  public min_systems: number = 0;
 
   constructor(private archiveSrv: ArchiveService,
     private fb: FormBuilder,
@@ -69,10 +70,12 @@ export class KickstartComponent implements OnInit {
   private initializeView(): void {
     this.loading = true;
     if (this.system_name == 'DIP' || this.system_name == 'GIP') {
+      this.min_systems = 2;
       this.initDIP();
     }
 
     if (this.system_name == 'MIP') {
+      this.min_systems = 1;
       this.initMIP();
     }
   }
@@ -228,8 +231,8 @@ export class KickstartComponent implements OnInit {
       gateway: new FormControl(kickstartForm ? kickstartForm.gateway : '', Validators.compose([validateFromArray(kickstart_validators.gateway)]))
     });
 
-    if (this.system_name === "DIP") {
-      kickstartFormGroup.addControl('timezone', new FormControl(kickstartForm ? kickstartForm.timezone : 'UTC', Validators.compose([validateFromArray(kickstart_validators.timezone)])));
+    if (this.system_name === "DIP" || this.system_name === "GIP") {
+      kickstartFormGroup.addControl('timezone', new FormControl({value: kickstartForm ? kickstartForm.timezone : 'UTC', disabled: true}, Validators.compose([validateFromArray(kickstart_validators.timezone)])));
     }
 
     if (this.system_name === "MIP") {
@@ -372,6 +375,36 @@ export class KickstartComponent implements OnInit {
   public removeNode(nodeArray: FormArray, index: number): void {
     nodeArray.removeAt(index);
   }
+
+  /**
+   * removes a formcontrol form nodeArray at index
+   *
+   * @param {FormArray} nodeArray
+   * @param {number} index
+   * @memberof KickstartFormComponent
+   */
+  public duplicateNode(nodeArray: FormArray, index: number): void {
+    let node = this.newNodeFormGroup(nodeArray.at(index).value, nodeArray.length);
+    let hostname = node.get('hostname').value;
+    let name_int = hostname.match(/(\d+)/);
+    if(name_int != undefined) {
+      let new_int = (parseInt(name_int[0]) + 1).toString();
+      let hostname_arr = hostname.split('');
+      hostname_arr.splice(name_int['index'],name_int[0].length,new_int)
+      hostname = hostname_arr.join('');
+    }
+    let ip_array = node.get('ip_address').value.split('.');
+    let last_octet = parseInt(ip_array[3]);
+    if(last_octet < 255) {
+      ip_array[3] = last_octet + 1;
+    }
+    node.patchValue({
+      hostname: hostname,
+      ip_address: ip_array.join('.'),
+    });
+    nodeArray.push(node);
+  }
+
 
   /**
    *

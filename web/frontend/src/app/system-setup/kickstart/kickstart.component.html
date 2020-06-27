@@ -26,14 +26,16 @@
         Add Node page which can be accessed on your side navigation bar.
       </p>
     </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="openConsole()">Open Console</button>
-      <div style="float: right;">
-        <button mat-raised-button color="accent" (click)="kickStartFormGroup.enable()">Enable</button>
-        <button mat-raised-button color="accent" (click)="openRestore()">Restore</button>
-        <button mat-raised-button color="primary" (click)="openSaveArchive()">Save</button>
-        <button mat-raised-button color="warn" (click)="clearKickstartFormGroup()"
+    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-stroked-button color="primary" (click)="openConsole()">Open Console</button>
+      <div>
+        <button mat-stroked-button color="warn" (click)="clearKickstartFormGroup()"
           [disabled]="kickStartFormGroup.disabled">Clear</button>
+        <button mat-stroked-button color="accent" (click)="openRestore()"
+          [disabled]="kickStartFormGroup.disabled">Restore</button>
+        <button mat-stroked-button color="accent" (click)="openSaveArchive()"
+          [disabled]="kickStartFormGroup.disabled">Save</button>
+        <button mat-raised-button color="primary" (click)="kickStartFormGroup.enable()">Enable</button>
       </div>
     </mat-card-actions>
   </mat-card>
@@ -167,10 +169,10 @@
               kickStartFormGroup.get('re_password').touched" matSuffix color="warn">error</mat-icon>
           <mat-error>{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
         </mat-form-field>
-        <ng-container *ngIf="system_name == 'DIP'">
+        <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
           <mat-form-field>
             <mat-label>Time Zone</mat-label>
-            <mat-select formControlName="timezone" matTooltip="{{ getTooltip('timezone') }}" [disabled]="kickStartFormGroup.get('timezone').disabled">
+            <mat-select formControlName="timezone" matTooltip="{{ getTooltip('timezone') }}">
                 <mat-option value="{{ timezone }}" *ngFor="let timezone of timeZones">{{ timezone }}</mat-option>
             </mat-select>
             <mat-error>{{getErrorMessage(kickStartFormGroup.get("timezone"))}}</mat-error>
@@ -203,23 +205,20 @@
           <section [formGroupName]="i" fxLayout="column" fxLayoutAlign="start stretch" style="margin-top: 10px;">
             <app-kickstart-node-form [node]="node" [availableIPs]="availableIPs"></app-kickstart-node-form>
             <mat-action-row>
-              <ng-container *ngIf="system_name === 'DIP'">
-                <button mat-raised-button color="warn" (click)="removeNode(nodesFormArray(), i)"
-                *ngIf="kickStartFormGroup.get('nodes').controls.length > 2"
+              <ng-container>
+                <button mat-button color="warn" (click)="removeNode(nodesFormArray(), i)"
+                *ngIf="kickStartFormGroup.get('nodes').controls.length > min_systems"
                 [disabled]="kickStartFormGroup.disabled">Remove</button>
-              </ng-container>
-
-              <ng-container *ngIf="system_name === 'MIP'">
-                <button mat-raised-button color="warn" (click)="removeNode(nodesFormArray(), i)"
-                *ngIf="kickStartFormGroup.get('nodes').controls.length > 1"
-                [disabled]="kickStartFormGroup.disabled">Remove</button>
+                <button mat-button color="primary" (click)="duplicateNode(nodesFormArray(), i)"
+                *ngIf="kickStartFormGroup.get('nodes').controls.length - 1 == i"
+                [disabled]="kickStartFormGroup.disabled">Duplicate Node</button>
               </ng-container>
             </mat-action-row>
           </section>
         </mat-expansion-panel>
       </mat-accordion>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
       <button mat-raised-button color="primary" [disabled]="kickStartFormGroup.disabled"
         (click)="addNode(nodesFormArray())">Add Node</button>
     </mat-card-actions>
@@ -250,7 +249,7 @@
         </div>
       </section>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
       <button mat-raised-button color="primary" [disabled]="kickStartFormGroup.disabled || kickStartFormGroup.invalid"
         (click)="onSubmit()">
         Execute Kickstart

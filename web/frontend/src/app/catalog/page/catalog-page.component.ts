@@ -383,7 +383,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   setValues(ob: any, nodes: any) {
     const values = JSON.stringify(ob, undefined, 2);
-    this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
+    let formControl = this.valueFormGroup.get(ob.deployment_name);
+    if (!formControl) {
+      this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
+    } else {
+      formControl.setValue(values)
+    }
     this.valueFormGroup.controls[ob.deployment_name].disable();
     nodes.deployment_name = ob.deployment_name;
   }
