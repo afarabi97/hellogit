@@ -128,8 +128,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   }
 
   getRules(ruleset: RuleSet, index: number) {
+    let dataSourceDataIndex = this.getRuleSetIndex(ruleset);
     let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
-    let wereRulesVisible = this.isRulesVisible[index];
+    let wereRulesVisible = this.isRulesVisible[dataSourceDataIndex];
 
     //Make everything invisible
     this.isRulesVisible =  new Array(ruleSets.length).fill(false);
@@ -140,13 +141,13 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     }
 
     if (!wereRulesVisible) {
-      this.isRulesVisible[index] = !this.isRulesVisible[index];
+      this.isRulesVisible[dataSourceDataIndex] = !this.isRulesVisible[dataSourceDataIndex];
     }
 
     this.policySrv.getRules(ruleset._id).subscribe(rules => {
       ruleset.rules = rules;
       this.rulesDataSource.data = rules;
-      this.rulesDataSource.paginator = this.paginatorInner.toArray()[index];
+      this.rulesDataSource.paginator = this.paginatorInner.toArray()[dataSourceDataIndex];
     });
   }
 
