@@ -77,6 +77,9 @@
 - name: Generate SSO Admin Password
   set_fact:
     sso_admin_password: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits,hexdigits,#,%,&,(,),*,+,-,.,:,;,=,?,@,[,],^,_,{,|,},~') }}"
+  until: sso_admin_password is match('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[#%&()*+-.:;=?@[\]^_{|}~]).{8,32}$')
+  retries: 35
+  delay: 1
 
 - debug:
     msg: "SSO Admin creds: admin/{{ sso_admin_password }}"
