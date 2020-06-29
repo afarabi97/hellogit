@@ -1,0 +1,31 @@
+---
+- name: Creating /opt/banner/bin directory
+  file:
+    path: /opt/banner/bin
+    state: directory
+    owner: root
+    group: root
+    mode: '1755'
+    
+- name: Copying all the scripts over to the MIP
+  copy:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: "{{ item['mode'] }}"
+  with_items: "{{ banner_scripts }}"
+    
+- name: Set trust setting for MIP config script
+  become: yes
+  become_user: "assessor"
+  command: /usr/bin/dbus-launch gio set "/home/assessor/Desktop/Config.desktop" 'metadata::trusted' yes
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.042
+    state: touch
+...

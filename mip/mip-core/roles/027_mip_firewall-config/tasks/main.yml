@@ -1,18 +1,9 @@
 ---
-- name: Set Firewall State
-  firewalld:
-   zone: public
-   interface: "{{ ansible_default_ipv4.interface }}"
-   permanent: yes
-   state: enabled
-
-- name: Set public as default policy
-  command: firewall-cmd --set-default-zone=public
-  register: result
-  changed_when: result.rc == 0
-  failed_when:  result.rc > 0
-
-- name: Restart Firewall
-  systemd:
-    name: firewalld
-    state: restarted
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.027
+  register: check
+    
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

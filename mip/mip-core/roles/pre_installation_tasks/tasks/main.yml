@@ -1,3 +1,4 @@
+# No validation for this play.  This play should always be run
 ---
 - name: Remove known hosts file
   file:

@@ -1,14 +1,9 @@
 ---
-- name: Install packages only required for CPT core
-  yum:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ cpt_packages }}"
-
-- name: Download CPT software from labrepo into tmp dir
-  get_url:
-    url: "{{ item }}"
-    dest: "{{ tmp_apps }}"
-    timeout: 120
-  loop: "{{ cpt_software }}"
-...
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.004
+  register: check
+  
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

@@ -1,9 +1,9 @@
 ---
-- name: Copy versionlock.list
-  copy:
-    src: versionlock
-    dest: /etc/yum/pluginconf.d/versionlock.list
-    owner: root
-    group: root
-    mode: '0644'
-...
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.005
+  register: check
+    
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

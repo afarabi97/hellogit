@@ -1,3 +1,4 @@
+# No validation we want to always run this task
 ---
 - name: Adding offline repository
   template:
@@ -15,4 +16,15 @@
   args:
     warn: no
 
+# Check to see if the hidden directory used for validation is made yet or not
+- stat: 
+    path: /operator/.DO_NOT_DELETE
+  register: isMade
+  
+- name: Creating hidden directory for validation use later if it doesn't already exist
+  file:
+    path: /operator/.DO_NOT_DELETE
+    state: directory
+    mode: '0700'
+  when: not isMade.stat.exists
 ...

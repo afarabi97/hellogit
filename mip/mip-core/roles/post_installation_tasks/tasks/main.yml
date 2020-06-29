@@ -1,3 +1,4 @@
+# No validation for this play.  This play should always run
 ---
 - name: Rebooting mips
   reboot:

@@ -1,31 +1,9 @@
 ---
-- name: Install packages required for MDT and CPT
-  yum:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ packages }}"
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.003
+  register: check
 
-- name: Create tmp install directory for third party software
-  file:
-    path: "{{ tmp_apps }}"
-    state: directory
-
-- name: Download main software from controller webserver into tmp dir
-  get_url:
-    url: "{{ item }}"
-    dest: "{{ tmp_apps }}"
-    timeout: 120
-  loop: "{{ software }}"
-
-- name: Find and register kernel version
-  command: uname -r
-  register: kernel_results
-  changed_when: kernel_results.rc == 0
-  failed_when:  kernel_results.rc > 0
-
-- name: Reboot system and utilize new kernel
-  reboot:
-    reboot_timeout: 2000
-    test_command: "whoami"
-  when: kernel_results.stdout != kernel_version
-...
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

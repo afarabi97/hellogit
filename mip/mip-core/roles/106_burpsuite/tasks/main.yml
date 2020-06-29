@@ -1,13 +1,9 @@
 ---
-- name: Launch and install burpsuite script
-  shell: >
-    bash {{ burpsuite_path }} -q
-    sys.adminRights$Boolean=true
-    sys.installationDir=/opt/BurpSuitePro
-    sys.languageId=en
-    sys.programGroupDisabled$Boolean=false
-    sys.symlinkDir=/usr/local/bin
-  register: result
-  changed_when: result.rc == 0
-  failed_when:  result.rc > 0
-...
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.106
+  register: check
+    
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

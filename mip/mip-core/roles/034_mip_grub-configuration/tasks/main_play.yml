@@ -1,0 +1,89 @@
+---
+- debug:
+    msg: "{{ ansible_product_name }}"
+  register: MIP_model
+    
+- name: Updating GRUB default menu choice
+  replace:
+    path: /etc/default/grub
+    regexp: 'GRUB_DEFAULT=saved'
+    replace: "GRUB_DEFAULT=3"
+ 
+- name: Updating GRUB submenu selection
+  replace:
+    path: /etc/default/grub
+    regexp: 'GRUB_DISABLE_SUBMENU=true'
+    replace: "#GRUB_DISABLE_SUBMENU=true"
+    
+- name: Adding GRUB font, background, and terminal options to grub menus
+  lineinfile:
+    path: /etc/default/grub
+    line: "{{ item }}"
+    create: yes
+    state: present
+  with_items:
+    - 'GRUB_FONT={{ uefi_grub_path }}fonts/unicode2.pf2'
+    - 'GRUB_BACKGROUND={{ uefi_grub_path }}mip2-background.jpg'
+    - "GRUB_TERMINAL=gfxterm"
+    
+- name: Registering CVA/H release variables
+  command: head -n 1 /etc/cvah-release
+  register: cvah
+  changed_when: cvah.rc == 0
+  failed_when:  cvah.rc > 0
+    
+- name: Registering CVA/H release variables
+  command: tail -n 1 /etc/cvah-release
+  register: mip
+  changed_when: mip.rc == 0
+  failed_when:  mip.rc > 0
+    
+- name: check if 05_custom file exists
+  stat:
+    path: /etc/grub.d/05_custom
+  register: does_exist
+    
+- name: Adding custom menu to GRUB
+  lineinfile:
+    path: /etc/grub.d/05_custom
+    line: "{{ item }}"
+    create: yes
+    state: present
+    mode: '0755'
+  with_items:
+    - "#!/bin/sh\nexec tail -n +3 $0"
+    - "# This file provides an easy way to add custom menu entries.  Simply type the"
+    - "# menu entries you want to add after this comment.  Be careful not to change"
+    - "# the 'exec tail' line above."
+    - "menuentry '{{ cvah.stdout }}' {"
+    - "\ttrue\n}\nmenuentry '{{ mip.stdout }}' {\n\ttrue\n}"
+    - "menuentry ' ' {\n\ttrue\n}"
+  when: not does_exist.stat.exists
+    
+- name: Copy MIP Background
+  copy:
+    src: "/root/Files_To_Be_Copied_Over/usr/local/scripts/mip2-background.jpg"
+    dest: '{{ uefi_grub_path }}'
+    owner: root
+    group: root
+    mode: '0700'
+    
+- name: Update GRUB fonts and remake the GRUB config
+  command: "{{ item }} "
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items:
+    - grub2-mkfont --output={{ uefi_grub_path }}fonts/unicode2.pf2 --size=28 /usr/share/fonts/dejavu/DejaVuSansMono-Bold.ttf
+    - grub2-mkconfig -o {{ uefi_grub_path }}grub.cfg
+    
+- name: Change file ownership for grub.cfg
+  file:
+    path: '{{ uefi_grub_path }}grub.cfg'
+    mode: '0600'
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.034
+    state: touch
+...

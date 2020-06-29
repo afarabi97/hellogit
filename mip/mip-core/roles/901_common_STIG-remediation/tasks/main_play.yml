@@ -1,0 +1,10 @@
+---
+- import_tasks: other_sec_settings.yml
+- import_tasks: password_policy.yml
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.901
+    state: touch
+...
+    

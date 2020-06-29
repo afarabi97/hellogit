@@ -1,0 +1,12 @@
+---
+- name: Install ostinato
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ ostinato_path }}"
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.108
+    state: touch
+...

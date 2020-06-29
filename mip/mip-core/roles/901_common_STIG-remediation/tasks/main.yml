@@ -1,3 +1,9 @@
 ---
-- import_tasks: other_sec_settings.yml
-- import_tasks: password_policy.yml
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.901
+  register: check
+      
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

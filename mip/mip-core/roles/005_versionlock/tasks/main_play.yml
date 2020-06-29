@@ -1,0 +1,14 @@
+---
+- name: Copy versionlock.list
+  copy:
+    src: versionlock
+    dest: /etc/yum/pluginconf.d/versionlock.list
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.005
+    state: touch
+...

@@ -1,4 +1,9 @@
 ---
-- import_tasks: McAfee_install.yml
-- import_tasks: McAfee_config.yml
-...
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.100
+  register: check
+      
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

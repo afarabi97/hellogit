@@ -1,19 +1,9 @@
 ---
-- name: Install Google-Chrome
-  yum:
-    name: "{{ chrome_path }}"
-    state: present
-
-- name: Add password string clause to prevent keyring prompt
-  replace:
-    path: "{{ chrome_app_path }}"
-    regexp: 'google-chrome-stable %U'
-    replace: "google-chrome-stable --password-store=basic %U"
-
-- name: "Disable google-chrome repo"
-  ini_file:
-    dest: /etc/yum.repos.d/google-chrome.repo
-    section: google-chrome
-    option: enabled
-    value: 0
-...
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.103
+  register: check
+    
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
+...    

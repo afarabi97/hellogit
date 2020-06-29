@@ -1,23 +1,9 @@
 ---
-- name: Copy CPT cvah-release file to etc
-  copy:
-    src: cpt
-    dest: /etc/cvah-release
-    owner: root
-    group: root
-    mode: '0664'
-
-- name: Copy release notes file to cvah
-  copy:
-    src: cpt_notes
-    dest: "/cvah/docs/release-notes/{{ cvah_notes }}"
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: '0770'
-
-- name: Create symbolic link for release notes
-  file:
-    src: /cvah/docs/release-notes
-    dest: "/home/{{ user }}/Desktop/release-notes"
-    state: link
+- stat: 
+    path: /operator/.DO_NOT_DELETE/.023
+  register: check
+    
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists 
 ...
