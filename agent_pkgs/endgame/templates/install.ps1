@@ -31,4 +31,4 @@ if ($return_value -eq 0){
     echo "Failed with return Code: $return_value"
 }
 
-return $return_value
+exit $return_value

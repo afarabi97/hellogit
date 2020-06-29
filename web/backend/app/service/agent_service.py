@@ -4,10 +4,11 @@ import requests
 import shutil
 import sys
 import tempfile
-import traceback
-import os
-import zipfile
 import cgi
+import logging
+import os
+import traceback
+import zipfile
 
 from app import celery, conn_mng, AGENT_PKGS_DIR
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
@@ -15,15 +16,14 @@ from app.service.job_service import run_command2, run_command
 from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
-from kubernetes.client.rest import ApiException
-from shared.constants import TargetStates, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
-from shared.tfwinrm_util import WindowsConnectionManager
+from shared.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from shared.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
 from shared.utils import fix_hostname, decode_password
-from shared.connection_mngs import get_kubernetes_secret
+from urllib3.connectionpool import log
 from pathlib import Path
 from pprint import PrettyPrinter
 from pypsrp.powershell import PSDataStreams
-from typing import Dict, List
+from typing import Dict, List, Union
 from contextlib import ExitStack
 
 
@@ -32,6 +32,11 @@ _JOB_NAME = "agent"
 
 class EndgameAgentException(Exception):
     pass
+
+
+class SuppressFilter(logging.Filter):
+    def filter(self, record):
+        return 'wsman' not in record.getMessage()
 
 
 class EndgameAgentPuller:
@@ -49,7 +54,7 @@ class EndgameAgentPuller:
         self._endgame_pass = endgame_pass
         self._content_header = { 'Content-Type': 'application/json' }
 
-    def _check_response(self, resp, action):
+    def _checkResponse(self, resp, action):
         if(resp.ok):
             return action(resp)
         else:
@@ -66,16 +71,16 @@ class EndgameAgentPuller:
         #Get data about current sensor configuration
         url = 'https://{}:{}/api/v1/deployment-profiles'.format(self._endgame_server_ip, self._endgame_port)
         resp = self._session.get(url)
-        sensor_data = self._check_response(resp, lambda r : r.json()['data'][0])
+        sensor_data = self._checkResponse(resp, lambda r : r.json()['data'][0])
         return sensor_data
 
     def _authenticate(self):
         url = 'https://{}:{}/api/v1/auth/login'.format(self._endgame_server_ip, self._endgame_port)
 
         resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header)
-        return self._check_response(resp, lambda r: r.json()['metadata']['token'])
+        return self._checkResponse(resp, lambda r: r.json()['metadata']['token'])
 
-    def _save_installer(self, resp, sensor_data, dst_folder: str):
+    def _saveInstaller(self, resp, sensor_data, dst_folder: str):
 
         cd = resp.headers.get('Content-Disposition')
         installer_name = cgi.parse_header(cd)[1]['filename']
@@ -83,7 +88,7 @@ class EndgameAgentPuller:
         with open(installer_path, 'wb') as f:
             f.write(resp.content)
 
-    def get_agent_pkg(self, installer_id: str, dst_folder: str) -> str:
+    def getAgentPkg(self, installer_id: str, dst_folder: str) -> str:
         auth_token = self._authenticate()
 
         auth_header = { "Authorization": "JWT {}".format(auth_token) }
@@ -93,7 +98,7 @@ class EndgameAgentPuller:
         #Download the Windows sensor software and save it to a file.
         url = 'https://{}:{}/api/v1/windows/installer/{}'.format(self._endgame_server_ip, self._endgame_port, installer_id)
         resp = self._session.get(url)
-        self._save_installer(resp, sensor_data, dst_folder)
+        self._saveInstaller(resp, sensor_data, dst_folder)
         return sensor_data['api_key']
 
 
@@ -137,12 +142,15 @@ class AgentBuilder:
             return
 
         folder_to_copy = "/opt/tfplenum/agent_pkgs/endgame"
+        for path in Path(folder_to_copy).glob("*.zip"): # type: Path
+            path.unlink()
+
         agent_puller = EndgameAgentPuller(self._installer_config['endgame_server_ip'].strip(),
                                           self._installer_config['endgame_user_name'].strip(),
                                           decode_password(self._installer_config['endgame_password']),
                                           self._installer_config['endgame_port'].strip())
 
-        api_token = agent_puller.get_agent_pkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
+        api_token = agent_puller.getAgentPkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/install.ps1", {"api_token": api_token})
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/uninstall.ps1", {"api_token": api_token})
         self._copy_package(folder_to_copy, dst_folder)
@@ -157,50 +165,23 @@ class AgentBuilder:
                 packages[package_name] = {'folder': appconfig.parent.name}
             return packages
 
-    def _process_kubernetes_dir(self,
-                                kubernetes_dir: Path,
-                                application_name: str,
-                                folder_to_copy: str):
-        if kubernetes_dir.exists() and kubernetes_dir.is_dir():
-            kubernetes_scripts = kubernetes_dir.glob('*')
-            for script in kubernetes_scripts:
-                stdout, ret_val = run_command2("kubectl apply -f {}".format(script))
-                if ret_val != 0:
-                    print("Failed to run kubectl apply command with error code {} and {}".format(ret_val, stdout))
-
-            try:
-                secret = get_kubernetes_secret(conn_mng, '{}-agent-certificate'.format(application_name))
-                secret.write_to_file(folder_to_copy)
-            except ApiException:
-                pass
-
-    def _process_templates_dir(self, tpl_dir: Path, tpl_context: Dict):
-        if tpl_dir.exists() and tpl_dir.is_dir():
-            templates = tpl_dir.glob('*')
-            for template in templates:
-                self._create_config(template, tpl_context)
-
-    def _package_generic(self,
-                         pkg_folder: Path,
-                         dst_folder: Path,
-                         tpl_context: Dict,
-                         application_name: str):
+    def _package_generic(self, pkg_folder: Path, dst_folder: Path, tpl_context: Dict):
         tpl_dir = pkg_folder / 'templates'
-        kubernetes_dir = pkg_folder / 'kubernetes'
+        templates = tpl_dir.glob('*')
+        for template in templates:
+            self._create_config(template, tpl_context)
         folder_to_copy = str(pkg_folder)
-        self._process_templates_dir(tpl_dir, tpl_context)
-        self._process_kubernetes_dir(kubernetes_dir, application_name, folder_to_copy)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
-        custom_packages = self._installer_config.get('customPackages', None)
-        if custom_packages:
-            for name, tpl_context in custom_packages.items():
+        customPackages = self._installer_config.get('customPackages', None)
+        if customPackages:
+            for name, tpl_context in customPackages.items():
                 package = self._packages.get(name, None)
                 if package:
                     folder = package['folder']
                     pkg_folder = AGENT_PKGS_DIR / folder
-                    self._package_generic(pkg_folder, dst_folder, tpl_context, folder)
+                    self._package_generic(pkg_folder, dst_folder, tpl_context)
 
     def _zip_package(self, package_dir: str):
         zipf = zipfile.ZipFile(self._zip_path, 'w', zipfile.ZIP_DEFLATED)
@@ -243,14 +224,10 @@ def build_agent_if_not_exists(payload: Dict) -> str:
     return builder.build_agent()
 
 
-class WinRunnerError(Exception):
-    pass
-
-
 class WinRunner:
 
     def __init__(self,
-                 hostname_or_ip: str,
+                 hostname_or_ip: Union[str, list],
                  configs: Dict,
                  do_uninstall_only: bool=False):
         self._notification = NotificationMessage(role=_JOB_NAME)
@@ -293,6 +270,15 @@ class WinRunner:
             cd C:\\
             '''
 
+    def _update_single_host_state(self, host_or_ip: str, new_state: str, dt_string: str):
+        new_target = { "hostname" : host_or_ip, "state" : new_state, "last_state_change" : dt_string }
+        ret_val = conn_mng.mongo_windows_target_lists.update_one({"_id": ObjectId(self._target_config["_id"]), "targets.hostname": host_or_ip},
+                                                                {"$set": {"targets.$": new_target }} )
+        if ret_val.modified_count != 1:
+            print("==Failed to update the state of the Windows host")
+            print("Modified count: %s" % str(ret_val.modified_count))
+            print("==END")
+
     def _update_windows_host_state(self, new_state: str):
         """
         { "_id" : ObjectId("5d10f8af8937267d139f804a"), "name" : "test", "domain_name" : "bc_domain.sil.local",
@@ -300,22 +286,20 @@ class WinRunner:
         "targets" : [ { "hostname" : "desktop-rgg1jbk", "state" : "Uninstalled", "last_state_change" : "" } ] }
         """
         dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-        new_target = { "hostname" : self._hostname_or_ip, "state" : new_state, "last_state_change" : dt_string }
-        ret_val = conn_mng.mongo_windows_target_lists.update_one({"_id": ObjectId(self._target_config["_id"]), "targets.hostname": self._hostname_or_ip},
-                                                                {"$set": {"targets.$": new_target }} )
-        if ret_val.modified_count != 1:
-            print("==Failed to update the state of the Windows host")
-            print("Modified count: %s" % str(ret_val.modified_count))
-            print("==END")
+        if isinstance(self._hostname_or_ip, list):
+            for host in self._hostname_or_ip:
+                self._update_single_host_state(host, new_state, dt_string)
+        else:
+            self._update_single_host_state(self._hostname_or_ip, new_state, dt_string)
 
     def _set_installer(self):
         self._installer = self._agent_dir / "agent.zip"
 
         if not self._installer.exists() or not self._installer.is_file():
-            self._notification.set_message("Failed because the installer file does not exist.")
-            self._notification.set_status(NotificationCode.ERROR.name)
+            self._notification.setMessage("Failed because the installer file does not exist.")
+            self._notification.setStatus(NotificationCode.ERROR.name)
             self._notification.post_to_websocket_api()
-            self._update_windows_host_state(TargetStates.error.value)
+            self._update_windows_host_state(TARGET_STATES.error.value)
 
     def _run_prep_operations_over_smb(self):
         self._winapi.run_smb_command(self._prep_powershell_script)
@@ -327,42 +311,37 @@ class WinRunner:
         print("stderr=======================================================")
         print(stderr)
 
-    def _run_prep_powershell_script(self):
-        self._winapi.run_powershell_cmd(self._prep_powershell_script)
-
     def _build_agents(self):
         build_agent_if_not_exists(self._payload)
 
     def _move_agent_installer(self) -> None:
         self._winapi.push_file(str(self._installer), "C:\\" + self._installer.name)
 
-    def _run_post_powershell_scripts(self):
-        stdout, stderr, rc = self._winapi.run_powershell_cmd(self._post_ps_script)
-        print("stdout=======================================================")
-        print(stdout)
-        print("stderr=======================================================")
-        print(stderr)
-        if rc != 0:
-            raise WinRunnerError("Failed to run the powershell {} script for {} \n{}. \nstdout: {} \nstderr: {} \nret_code: {}"
-                                 .format(self._action, self._hostname_or_ip, self._post_ps_script, stdout, stderr, rc))
+    def notify_failure(self, action: str, host: str, err_msg: str):
+        self._notification.setMessage("Failed to {} {} because of error: {}".format(action, host, err_msg))
+        self._notification.setStatus(NotificationCode.ERROR.name)
+        self._notification.post_to_websocket_api()
+
+    def notify_success(self, action: str, hostname_or_ip: str):
+        msg = "%s %s successfully completed for Windows host: %s." % (_JOB_NAME.capitalize(), action, hostname_or_ip)
+        self._notification.setMessage(msg)
+        self._notification.setStatus(NotificationCode.COMPLETED.name)
+        self._notification.post_to_websocket_api()
 
     def _set_end_state(self):
         if self._action == 'uninstall':
-            self._update_windows_host_state(TargetStates.uninstalled.value)
+            self._update_windows_host_state(TARGET_STATES.uninstalled.value)
         else:
-            self._update_windows_host_state(TargetStates.installed.value)
-
-        msg = "%s %s successfully completed for Windows host: %s." % (_JOB_NAME.capitalize(), self._action, self._hostname_or_ip)
-        self._notification.set_message(msg)
-        self._notification.set_status(NotificationCode.COMPLETED.name)
-        self._notification.post_to_websocket_api()
+            self._update_windows_host_state(TARGET_STATES.installed.value)
+        self.notify_success(self._action, str(self._hostname_or_ip))
 
     def _initalize_winapi(self):
         protocol = self._target_config["protocol"]
         username = self._credentials["user_name"]
         password = self._credentials["password"]
 
-        if protocol == "ntlm" or protocol == "negotiate":
+        if protocol == "ntlm":
+            log.addFilter(SuppressFilter())
             is_ssl = self._target_config["ntlm"]["is_ssl"]
             dns_suffix = self._target_config["ntlm"]["domain_name"]
             port = self._target_config["ntlm"]["port"]
@@ -374,6 +353,7 @@ class WinRunner:
                                                     port=port,
                                                     dns_suffix=dns_suffix)
         elif protocol == "kerberos":
+            log.addFilter(SuppressFilter())
             dns_suffix = self._target_config["kerberos"]["domain_name"]
             port = self._target_config["kerberos"]["port"]
             self._winapi = WindowsConnectionManager(self._hostname_or_ip,
@@ -394,8 +374,8 @@ class WinRunner:
             raise ValueError("The protocol passed in is not supported.")
 
     def execute(self) -> int:
-        self._notification.set_message("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, self._hostname_or_ip) )
-        self._notification.set_status(NotificationCode.IN_PROGRESS.name)
+        self._notification.setMessage("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, str(self._hostname_or_ip)) )
+        self._notification.setStatus(NotificationCode.IN_PROGRESS.name)
         self._notification.post_to_websocket_api()
 
         try:
@@ -412,23 +392,43 @@ class WinRunner:
                     self._winapi.cleanup_smb_command_operations()
             else:
                 self._build_agents()
-                self._run_prep_powershell_script()
                 self._set_installer()
-                self._move_agent_installer()
-                self._run_post_powershell_scripts()
-
+                if self._do_uninstall_only:
+                    self._winapi.uninstall_agent_pkg(self._installer)
+                else:
+                    self._winapi.reinstall_agent_pkg(self._installer)
             self._set_end_state()
+        except WinrmCommandFailure as ansible_err:
+            traceback.print_exc()
+            if isinstance(self._hostname_or_ip, list) and ansible_err.results:
+                dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+                for host in self._hostname_or_ip:
+                    host_id = host.replace(".", "_")
+                    if ansible_err.results != {} and ansible_err.results[host_id]['failures'] == 0:
+                        if self._action == 'uninstall':
+                            self.notify_success(self._action, host)
+                            self._update_single_host_state(host, TARGET_STATES.uninstalled.value, dt_string)
+                        else:
+                            self.notify_success(self._action, host)
+                            self._update_single_host_state(host, TARGET_STATES.installed.value, dt_string)
+                    else:
+                        self.notify_failure(self._action, str(host), str(ansible_err))
+                        self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+            else:
+                self.notify_failure(self._action, str(self._hostname_or_ip), str(ansible_err))
+                self._update_windows_host_state(TARGET_STATES.error.value)
         except Exception as e:
             traceback.print_exc()
-            self._notification.set_message("Failed to {} {} because of error: {}".format(self._action, self._hostname_or_ip, str(e)))
-            self._notification.set_status(NotificationCode.ERROR.name)
-            self._notification.post_to_websocket_api()
-            self._update_windows_host_state(TargetStates.error.value)
+            self.notify_failure(self._action, str(self._hostname_or_ip), str(e))
+            self._update_windows_host_state(TARGET_STATES.error.value)
         return 0
 
 
 @celery.task
-def perform_agent_reinstall(configs: Dict, hostname_or_ip: str, do_uninstall_only: bool) -> int:
+def perform_agent_reinstall(configs: Dict, hostname_or_ip: Union[str, List], do_uninstall_only: bool) -> int:
+    # print(json.dumps(configs, indent=4, sort_keys=True))
+    # print(hostname_or_ip)
+    # print(do_uninstall_only)
     try:
         runner = WinRunner(hostname_or_ip, configs, do_uninstall_only)
         return runner.execute()

@@ -11,33 +11,15 @@ function set_winlogbeat_archive_name() {
 }
 
 function UninstallWinlogbeat() {
-    Try {
-        $Private:wlb_path = "C:\Program Files\$Script:wlb_archive"
-        if(-Not (Test-Path -Path $Private:wlb_path) ) {
-            echo "Winlogbeat is not installed on this system moving on."
-            return $return_value
-        }
+    $Private:wlb_path = "C:\Program Files\$Script:wlb_archive"
+    if(-Not (Test-Path -Path $Private:wlb_path) ) {
+        echo "Winlogbeat is not installed on this system moving on."
+        exit $return_value
+    }
 
         taskkill /F /IM mmc.exe
-        & $Private:wlb_path\uninstall-service-winlogbeat.ps1
-        function getWlbSvc {
-            return Get-Service -Name "winlogbeat" 2> $null
-        }
-
-        $Private:wlb = getWlbSvc
-        Write-Host -NoNewLine "Waiting for winlogbeat service to stop..."
-        while ( $Private:wlb ) {
-            $Private:wlb = getWlbSvc
-            Write-Host -NoNewLine "."
-            sleep 1
-        }
-        "done"
-
-        Remove-Item -Path $Private:wlb_path -recurse -ErrorAction SilentlyContinue
-    }Catch {
-        Write-Host "Caught exception uninstalling Winlogbeat", $_.Exception
-        $Script:return_value = 1
-    }
+    & $Private:wlb_path\uninstall-service-winlogbeat.ps1
+    Remove-Item -Path $Private:wlb_path -recurse -ErrorAction SilentlyContinue
 }
 
 set_winlogbeat_archive_name
@@ -49,4 +31,4 @@ if ($return_value -eq 0){
     echo "Failed with return Code: $return_value"
 }
 
-return $return_value
+exit $return_value

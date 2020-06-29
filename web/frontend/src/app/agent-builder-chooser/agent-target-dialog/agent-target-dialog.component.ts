@@ -84,7 +84,7 @@ export class AgentTargetDialogComponent implements OnInit {
     this.isNegOrNTLM = false;
     this.isSMB = false;
 
-    if (event.value === "negotiate" || event.value === "ntlm"){
+    if (event.value === "ntlm"){
       this.isNegOrNTLM = true;
       this.ntlmForm.get('port').setValue(WINRM_PORT);
     } else if (event.value === "kerberos") {

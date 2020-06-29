@@ -1,0 +1,40 @@
+---
+- name: Reinstall TFPlenum Agent Package
+  hosts: windows_targets
+  connection: local
+  become: yes
+  become_user: "{{ goto_user }}"
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Remove tfplenum_agent directory on {{ ansible_host }}
+      win_file:
+        path: C:\tfplenum_agent
+        state: absent
+
+    - name: Remove agents.zip on {{ ansible_host }}
+      win_file:
+        path: C:\agents.zip
+        state: absent
+
+    - name: Copy agents.zip over to {{ ansible_host }}
+      win_copy:
+        src: "{{ agent_zip_path }}"
+        dest: C:\agents.zip
+
+    - name: Unzip agents.zip on {{ ansible_host }}
+      win_unzip:
+        src: C:\agents.zip
+        dest: C:\
+
+    - name: Run the install powershell script on {{ ansible_host }}
+      win_shell: |
+        .\install.ps1
+      args:
+        chdir: C:\tfplenum_agent
+      register: install_results
+
+    - fail:
+        msg: FAILED to install AGENTS PACKAGE "{{ install_results }}"
+      when: "install_results.rc != 0"

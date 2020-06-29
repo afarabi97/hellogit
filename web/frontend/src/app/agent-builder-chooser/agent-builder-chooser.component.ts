@@ -319,6 +319,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   uninstallAgents(config, target) {
+    console.log("uninstallAgents")
     let title = "Uninstall Windows hosts";
     let instructions = "Executing this form will attempt to uninstall the selected executable \
                         configuration on all Windows hosts within your target configuration. \

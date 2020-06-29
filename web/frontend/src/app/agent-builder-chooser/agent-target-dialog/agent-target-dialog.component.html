@@ -7,10 +7,9 @@
         <input matInput formControlName="config_name">
       </mat-form-field>
         <mat-radio-group formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
-          <mat-radio-button value="negotiate" style="margin-bottom: 5px">WinRM Negotiate</mat-radio-button>
-          <mat-radio-button value="kerberos" style="margin-bottom: 5px">WinRM Kerberos</mat-radio-button>
           <mat-radio-button value="ntlm" style="margin-bottom: 5px">WinRM NTLM</mat-radio-button>
-          <mat-radio-button value="smb">PSEXEC over SMB</mat-radio-button>
+          <!-- TODO Reimplement in 3.4 <mat-radio-button value="kerberos" style="margin-bottom: 5px">WinRM Kerberos (Experimental)</mat-radio-button> -->
+          <mat-radio-button value="smb">PSEXEC over SMB (Experimental)</mat-radio-button>
         </mat-radio-group>
       </form>
     </mat-step>

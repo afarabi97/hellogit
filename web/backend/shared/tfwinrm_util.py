@@ -1,34 +1,138 @@
+import os
+import sys
+import tempfile
+
+from ansible import context
+from ansible.cli import CLI
+from ansible.module_utils.common.collections import ImmutableDict
+from ansible.executor.playbook_executor import PlaybookExecutor
+from ansible.parsing.dataloader import DataLoader
+from ansible.inventory.manager import InventoryManager
+from ansible.vars.manager import VariableManager
 from base64 import b64encode
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from pypsexec.client import Client as SMBClient
 from pypsexec.exceptions import SCMRException
-from pypsrp.client import Client
-from pypsrp.powershell import PSDataStreams
-from pypsrp.shell import Process, SignalCode, WinRS, CommandState
-from pypsrp.wsman import WSMan
 from shared.utils import fix_hostname
+from shared.ansible_collector import CallbackModule
 from smbprotocol.exceptions import SMBException, SMBResponseException
 from smb.SMBConnection import SMBConnection
 from time import sleep
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Dict
 
 
-WINRM_PROTOCOLS = ("kerberos", "negotiate", "ntlm", "certificate", "smb")
+BACKEND_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
+REINSTALL_AGENT_PKG = BACKEND_DIR + "playbooks/reinstall.yml"
+UNINSTALL_AGENT_PKG = BACKEND_DIR + "playbooks/uninstall.yml"
+WINRM_PROTOCOLS = ("kerberos", "ntlm", "certificate", "smb")
 DEFAULT_TIMEOUT = 300
+
 
 class WinrmFileNotFound(Exception):
     pass
 
+
 class WinrmCommandFailure(Exception):
+     def __init__(self, message: str, results: Dict):
+        super(WinrmCommandFailure, self).__init__(message)
+        self.results = results
+
+
+class ProtocolNotSupported(Exception):
     pass
+
+
+def execute_win_playbook(playbooks: List, extra_vars: Dict={},
+                         inventory_file: str=None, tags=[],
+                         timeout=20) -> Dict:
+    """
+    :returns:
+    {'10_96_0_101': {'ok': 5, 'failures': 0, 'unreachable': 0, 'changed': 5, 'skipped': 1, 'rescued': 0, 'ignored': 0},
+    '10_96_0_103': {'ok': 5, 'failures': 0, 'unreachable': 0, 'changed': 5, 'skipped': 1, 'rescued': 0, 'ignored': 0},
+    '10_96_0_104': {'ok': 5, 'failures': 0, 'unreachable': 0, 'changed': 5, 'skipped': 1, 'rescued': 0, 'ignored': 0}}
+    """
+    loader = DataLoader()
+    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
+                                    listhosts=False, syntax=False, connection='ssh',
+                                    module_path=None, forks=100, remote_user='xxx', private_key_file=None,
+                                    sftp_extra_args=None, scp_extra_args=None, become=True,
+                                    become_method='sudo', become_user=None, verbosity=True,
+                                    check=False, start_at_task=None,
+                                    timeout=timeout)
+
+    inventory = InventoryManager(loader=loader, sources=(inventory_file,))
+    variable_manager = VariableManager(loader=loader,
+                                       inventory=inventory,
+                                       version_info=CLI.version_info(gitinfo=False))
+    variable_manager._extra_vars = extra_vars
+    pbex = PlaybookExecutor(playbooks=playbooks,
+                            inventory=inventory,
+                            variable_manager=variable_manager,
+                            loader=loader,
+                            passwords=None)
+    results_callback = CallbackModule()
+    pbex._tqm._stdout_callback = results_callback
+    status_code = pbex.run()
+    print(results_callback.summary)
+    if status_code != 0:
+        raise WinrmCommandFailure("Failed with status_code {}. Run tail -f /var/log/celery/*.log for more information.".format(status_code), results_callback.summary)
+    return results_callback.summary
+
+
+def _create_inventoryfile(hosts: List, username: str, password: str,
+                          port: int, winrm_transport: str, tmp_dir: str, ansible_winrm_scheme: str) -> str:
+    file_path = tmp_dir + "/inventory.ini"
+    with open(file_path, "w") as fhandle:
+        fhandle.write("[windows_targets]\n")
+        for host in hosts:
+            host_id = host.replace(".", "_")
+            fhandle.write("{} ansible_host={}\n".format(host_id, host))
+
+        fhandle.write("\n")
+        fhandle.write("[windows_targets:vars]\n")
+        fhandle.write("ansible_user={}\n".format(username))
+        fhandle.write('ansible_password="{}"\n'.format(password))
+        fhandle.write("ansible_connection=winrm\n")
+        fhandle.write("ansible_port={}\n".format(port))
+        fhandle.write("ansible_winrm_transport={}\n".format(winrm_transport))
+        fhandle.write("ansible_winrm_scheme={}\n".format(ansible_winrm_scheme))
+        fhandle.write("ansible_winrm_server_cert_validation=ignore\n")
+
+    return file_path
+
+
+def reinstall_agent(hosts: List, username: str, password: str, port: int, ansible_winrm_scheme: str,
+                    winrm_transport="ntlm", agent_zip_path="agents.zip") -> Dict:
+    print("Reinstalling agent with hosts: {}, username: {}, port: {}, winrm_scheme: {}, winrm_transport: {}".format(str(hosts), username, port, ansible_winrm_scheme, winrm_transport))
+    ret_val = None
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        inventory_path = _create_inventoryfile(hosts, username, password, port, winrm_transport, tmp_dir, ansible_winrm_scheme)
+        extra_vars = { 'python_executable': sys.executable,
+                       "goto_user": username ,
+                       "agent_zip_path": agent_zip_path}
+        ret_val = execute_win_playbook([REINSTALL_AGENT_PKG] , extra_vars, inventory_path)
+    return ret_val
+
+
+def uninstall_agent(hosts: str, username: str, password: str, port: int, ansible_winrm_scheme: str,
+                    winrm_transport="ntlm", agent_zip_path="agents.zip") -> Dict:
+    print("Uninstalling agent with host: {}, username: {}, port: {}, winrm_scheme: {}, winrm_transport: {}".format(str(hosts), username, port, ansible_winrm_scheme, winrm_transport))
+    ret_val = None
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        inventory_path = _create_inventoryfile(hosts, username, password, port, winrm_transport, tmp_dir, ansible_winrm_scheme)
+        extra_vars = { 'python_executable': sys.executable,
+                       "goto_user": username ,
+                       "agent_zip_path": agent_zip_path}
+        ret_val = execute_win_playbook([UNINSTALL_AGENT_PKG] , extra_vars, inventory_path)
+    return ret_val
 
 
 class WindowsConnectionManager:
 
     def __init__(self,
-                 host: str,
+                 host: Union[List, str],
                  protocol: str,
                  username: str=None,
                  password: str=None,
@@ -46,7 +150,13 @@ class WindowsConnectionManager:
         else:
             self._port = port
 
-        self._host = fix_hostname(dns_suffix, host)
+
+        if isinstance(host, list):
+            self._host = [fix_hostname(dns_suffix, i) for i in host]
+        else:
+            self._host = fix_hostname(dns_suffix, host)
+
+
         self._pool = None
         self._wsman = None
         self._winrs = None
@@ -54,45 +164,12 @@ class WindowsConnectionManager:
         self._protocol = protocol
         self._username = username
         self._password = password
+        self._is_ssl = ssl
 
         if protocol not in WINRM_PROTOCOLS:
             raise ValueError("Not a valid protocol please use one of " + str(WINRM_PROTOCOLS))
 
-        if protocol == WINRM_PROTOCOLS[0]:
-            self._client = Client(self._host,
-                                  auth=WINRM_PROTOCOLS[0],
-                                  cert_validation=cert_validation,
-                                  port=self._port)
-            self._wsman = self._client.wsman
-        elif protocol == WINRM_PROTOCOLS[1]:
-            self._client = Client(self._host,
-                                  username=username,
-                                  password=password,
-                                  cert_validation=cert_validation,
-                                  ssl=ssl,
-                                  port=self._port)
-            self._wsman = self._client.wsman
-        elif protocol == WINRM_PROTOCOLS[2]:
-            self._client = Client(self._host,
-                                  auth=WINRM_PROTOCOLS[2],
-                                  username=username,
-                                  password=password,
-                                  cert_validation=cert_validation,
-                                  ssl=ssl,
-                                  port=self._port)
-            self._wsman = self._client.wsman
-        elif protocol == WINRM_PROTOCOLS[3]:
-            self._client = Client(self._host,
-                                  auth=WINRM_PROTOCOLS[3],
-                                  username=username,
-                                  password=password,
-                                  cert_validation=cert_validation,
-                                  ssl=True,
-                                  port=self._port,
-                                  certificate_key_pem=certificate_key_pem,
-                                  certificate_pem=certificate_pem)
-            self._wsman = self._client.wsman
-        elif protocol == WINRM_PROTOCOLS[4]:
+        if protocol == WINRM_PROTOCOLS[3]:
             self._smb_conn = SMBConnection(username,
                                            password,
                                            "tfcontroller",
@@ -105,28 +182,6 @@ class WindowsConnectionManager:
                                            username=username,
                                            password=password,
                                            port=self._port)
-
-    def run_command(self, cmd: str, timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
-        """
-        Executes a Windows remote command.
-        :param cmd: The windows command to run
-        :param timeout_seconds: Timeout in seconds defaults to 10.
-        :return: return_code, stdout, stderr
-        """
-        with WinRS(self._wsman) as shell:
-            process = Process(shell, cmd)
-            process.begin_invoke()
-            future_time = datetime.utcnow() + timedelta(seconds=timeout_seconds)
-            while process.state == CommandState.RUNNING or process.state == CommandState.PENDING:
-                process.poll_invoke(30)
-                if future_time <= datetime.utcnow():
-                    print("The following command timed out: {}".format(cmd))
-                    process.signal(SignalCode.CTRL_C)
-                    break
-                sleep(1)
-
-            process.end_invoke()
-            return process.stdout.decode("utf-8"), process.stderr.decode("utf-8"), process.rc
 
     def run_smb_command(self, cmd: str, executable: str="powershell.exe", timeout_seconds: int=DEFAULT_TIMEOUT) -> Tuple[str, str, int]:
         if not self._smb_command_connected:
@@ -165,15 +220,6 @@ class WindowsConnectionManager:
             self._smb_executer.disconnect()
             self._smb_command_connected = False
 
-    def run_powershell_cmd(self, cmd: str) -> Tuple[str, str, bool]:
-        encoded_cmd = b64encode(cmd.encode('UTF-16LE'))
-        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -EncodedCommand {} < nul".format(encoded_cmd.decode("UTF-8")))
-        return stdout, stderr, rc
-
-    def run_powershell_file(self, file_path: str) -> Tuple[str, str, bool]:
-        stdout, stderr, rc = self.run_command("powershell.exe -noprofile -executionpolicy bypass -file {} < nul".format(file_path))
-        return stdout, stderr, rc
-
     def _send_over_smb(self, source_path: str, dest_path: str):
         self._smb_conn.connect(self._host, self._port)
         try:
@@ -192,10 +238,24 @@ class WindowsConnectionManager:
         if not source.exists() or not source.is_file():
             raise WinrmFileNotFound("The {} either does not exist or is not a file.".format(source))
 
-        if self._protocol == WINRM_PROTOCOLS[4]:
+        if self._protocol == WINRM_PROTOCOLS[3]:
             self._send_over_smb(str(source), remote_dest_path)
         else:
-            self._client.copy(str(source), remote_dest_path)
+            raise ProtocolNotSupported("push_file not supported for {}".format(self._protocol))
 
-    def fetch_file(self, remote_path: str, local_path: str):
-        self._client.fetch(remote_path, local_path)
+    def reinstall_agent_pkg(self, agent_zip_path: str) -> Dict:
+        ansible_winrm_scheme = "http"
+        if self._is_ssl:
+            ansible_winrm_scheme = "https"
+        return reinstall_agent(self._host, self._username, self._password,
+                               self._port, ansible_winrm_scheme,
+                               agent_zip_path=agent_zip_path)
+
+    def uninstall_agent_pkg(self, agent_zip_path: str) -> Dict:
+        ansible_winrm_scheme = "http"
+        if self._is_ssl:
+            ansible_winrm_scheme = "https"
+        return uninstall_agent(self._host, self._username, self._password,
+                               self._port, ansible_winrm_scheme,
+                               agent_zip_path=agent_zip_path)
+

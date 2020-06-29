@@ -10,19 +10,22 @@ function set_service_name (){
 }
 
 function uninstall_sysmon {
-    Try {
-        $Private:path_name = "C:\Program Files\Sysmon"
-        if(Test-Path -Path $Private:path_name ) {
+    $Private:path_name = "C:\Program Files\Sysmon"
+    if(Test-Path -Path $Private:path_name ) {
+        Try {
             & $Private:path_name\$Script:service_name.exe -u 2> $null
             Remove-Item -Path $Private:path_name -recurse
             $sysmon_service = Get-Service -Name $Script:service_name -ErrorAction SilentlyContinue
             if($sysmon_service) {
                 $sysmon_service.delete()
             }
+        } Catch {
+            Write-Host "Caught exception uninstalling Sysmon", $_.Exception
+            $Script:return_value = 1
         }
-    } Catch {
-        Write-Host "Caught exception uninstalling Sysmon", $_.Exception
-        $Script:return_value = 1
+    } else {
+        echo "Sysmon is not installed on this system moving on."
+        exit $return_value
     }
 }
 
@@ -35,4 +38,4 @@ if ($return_value -eq 0){
     echo "Failed with return Code: $return_value"
 }
 
-return $return_value
+exit $return_value
