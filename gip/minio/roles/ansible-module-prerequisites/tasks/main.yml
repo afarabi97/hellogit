@@ -1,0 +1,3 @@
+---
+- name: Install prerequisites for the firewalld module.
+  import_tasks: python2-firewalld.yml

@@ -7,8 +7,8 @@ Setup GIP Services VM:
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
 
-    echo "Zipping up the gip playbooks."
-    zip -r playbooks.zip gip/
+    echo "Zipping up services Ansible code."
+    zip -r playbooks.zip gip/services/
 
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \

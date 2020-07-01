@@ -1,0 +1,30 @@
+---
+- name: Add the labrepo RHEL 7 server rpms repository to Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-rpms
+    description: A mirror of RHEL 7 server repository.
+    file: labrepo
+    baseurl: http://yum.labrepo.sil.lab/rhel/rhel-7-server-rpms
+    gpgcheck: yes
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+  notify: "Clean up Yum's metadata."
+
+- name: Add the labrepo RHEL 7 server extras rpms repository to Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-extras-rpms
+    file: labrepo
+    description: A mirror of RHEL 7 extras repository.
+    baseurl: http://yum.labrepo.sil.lab/rhel/rhel-7-server-extras-rpms
+    gpgcheck: yes
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+  notify: "Clean up Yum's metadata."
+
+- name: Add the labrepo RHEL 7 server optional rpms repository to Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-optional-rpms
+    file: labrepo
+    description: A mirror of RHEL 7 optional repository.
+    baseurl: http://yum.labrepo.sil.lab/rhel/rhel-7-server-optional-rpms
+    gpgcheck: yes
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+  notify: "Clean up Yum's metadata."

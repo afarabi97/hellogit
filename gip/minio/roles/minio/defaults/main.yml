@@ -1,0 +1,12 @@
+---
+minio_server_binary_url: https://dl.min.io/server/minio/release/linux-amd64/minio
+# minio_server_binary_sha256: 155db062aaccd7c504fe8399a94223d05d3d0875b5a14ed31c15c9685957af94
+minio_system_account: minio-user
+minio_volumes: /usr/local/share/minio
+minio_configuration_directory: /etc/minio
+minio_systemd_service_url: https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service
+minio_systemd_service_sha256: becf8ad2ce3409a0b025a5af08eb7a0316559fe6d6a37f9a457d8d49ab887d42
+minio_binding_port: 9000
+minio_certificate_subject_alt_names:
+  - "minio.lan"
+certificate_creation_delegate: "{{ controller }}"

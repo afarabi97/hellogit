@@ -1,3 +1,6 @@
+from collections import namedtuple
+
+Command = namedtuple('Command', 'name id')
 
 class SubCmd:
     # Top Level commands
@@ -8,9 +11,13 @@ class SubCmd:
     run_integration_tests = 'run-integration-tests'
     simulate_power_failure = 'simulate-power-failure'
     run_unit_tests = 'run-unit-tests'
+
     run_export = 'run-export'
+
     run_cleanup = 'run-cleanup'
+    
     gip_setup = 'gip-setup'
+
     test_server_repository_vm = 'test-server-repository-vm'
     test_workstation_repository_vm = 'test-workstation-repository-vm'
     build_server_for_export = 'build-server-for-export'
@@ -49,18 +56,22 @@ class SubCmd:
     create_master_drive = 'create-master-drive'
     create_master_drive_hashes = 'create-master-drive-hashes'
     check_master_drive_hashes = 'check-master-drive-hashes'
+    export_minio = Command('minio', 'export-minio')
 
     # mip subcommands
     run_mip_kickstart = 'run-mip-kickstart'
     run_mip_config = 'run-mip-config'
     save_kit = 'save-kit'
 
-    # Gip subcommands
+    # gip-setup subcommands
     create_gip_service_vm = 'create-gip-service-vm'
     setup_gip_ctrl = 'setup-gip-controller'
     run_gip_kickstart = 'run-gip-kickstart'
     run_gip_kit = 'run-gip-kit'
-
+    minio_command = 'minio'
+    # minio subcommands
+    setup_minio = Command('create', 'setup-minio')
+    create_certificate_minio = Command('create-certificate', 'create-certificate-minio')
 
 class StigSubCmd:
     # Ran when system_name is GIP but we want

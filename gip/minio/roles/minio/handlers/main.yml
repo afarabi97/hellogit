@@ -1,0 +1,14 @@
+---
+- name: Reload the systemd daemon.
+  systemd:
+    daemon_reload: yes
+
+- name: Restart the firewalld service.
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Restart the MinIO service.
+  systemd:
+    name: minio
+    state: restarted

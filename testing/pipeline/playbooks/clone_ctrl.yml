@@ -67,9 +67,9 @@
           memory_mb: "{{ node.memory }}"
           num_cpus: "{{ node.cpu }}"
         disk:
-        - size_gb: "{{ node.disk_size }}"
-          type: thin
-          datastore: "{{ node.datastore }}"
+          - size_gb: "{{ node.disk_size }}"
+            type: thin
+            datastore: "{{ node.datastore }}"
       delegate_to: localhost
 
     - name: "Make sure network adapter is connected"

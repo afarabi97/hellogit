@@ -141,3 +141,20 @@ def test_nodes_up_and_alive(nodes_to_test: Union[NodeSettings, List[NodeSettings
             break
 
         sleep(5)
+
+def wait_for_connection(host: str, port: int, minutes_timeout: int):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
+    reachable = False
+    while not reachable:      
+        if future_time <= datetime.utcnow():
+            raise Exception("timed out")
+        try:
+            client.connect(host, port, allow_agent=False, look_for_keys=False, timeout=5)
+        except (paramiko.ssh_exception.SSHException, paramiko.ssh_exception.NoValidConnectionsError, socket.timeout) as e:
+            if str(e) == 'No authentication methods available':
+                reachable = True
+            else:
+                logging.error(str(e))
+        sleep(5)

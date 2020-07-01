@@ -1,0 +1,25 @@
+---
+- name: Yum clean all.
+  command: yum clean all
+  args:
+    warn: no
+  changed_when: true
+
+- name: Remmove the labrepo RHEL 7 server rpms repository from Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-rpms
+    file: labrepo
+    state: absent
+
+- name: Remove the labrepo RHEL 7 server extras rpms repository from Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-extras-rpms
+    file: labrepo
+    state: absent
+
+- name: Remove the labrepo RHEL 7 server optional rpms repository to Yum.
+  yum_repository:
+    name: labrepo-rhel-7-server-optional-rpms
+    file: labrepo
+    state: absent
+

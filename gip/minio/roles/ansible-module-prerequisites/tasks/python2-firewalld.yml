@@ -1,0 +1,3 @@
+- name: Install the firewalld bindings for Python2.
+  yum:
+    name: python-firewall

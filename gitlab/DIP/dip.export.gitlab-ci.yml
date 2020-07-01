@@ -84,3 +84,23 @@ Export DIP Controller:
     variables:
       - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
+
+Export DIP MinIO:
+  stage: export
+  needs: ["Create a standalone MinIO server"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export minio \
+    --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --export-hash "$TFPLENUM_EXPORT_HASH"
+  only:
+    variables:
+      - $PIPELINE == "export-dip"
+      - $PIPELINE == "export-all"

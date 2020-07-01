@@ -188,7 +188,7 @@ class IPAddressManager:
         Filters IP addresses from NMAP functions commands.
         :return:
         """
-        for i in range(0, 1):
+        for i in [0, 1, 255]:
             if ipaddress.endswith('.' + str(i)):
                 return True
 
@@ -236,3 +236,8 @@ class IPAddressManager:
         pos = ip.rfind('.') + 1
         last_octet = int(ip[pos:])
         return ip[:pos] + str(last_octet + 8)
+    
+    def get_free_ip(self):
+        if not hasattr(IPAddressManager, 'available_ip'):
+            IPAddressManager.available_ip = list(filter(lambda x: x not in range(81,241), self.unused_ips))
+        return IPAddressManager.available_ip.pop()

@@ -85,6 +85,9 @@ class ExportSettings(Model):
 
         if SubCmd.export_gip_service_vm == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
+        
+        if namespace.which == SubCmd.export_minio.id:
+            populate_model_from_namespace(self.export_loc, namespace)
 
         if SubCmd.export_reposync_server == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
@@ -94,7 +97,7 @@ class ExportSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
-        subparsers = parser.add_subparsers()
+        subparsers = parser.add_subparsers(help='export commands')
         export_html_parser = subparsers.add_parser(SubCmd.export_html_docs,
                                                    help="This subcommand can be used to export html confluence documents.")
         add_args_from_instance(export_html_parser, HtmlExportSettings(), True)
@@ -164,3 +167,8 @@ class ExportSettings(Model):
             SubCmd.create_master_drive, help="This subcommand will create a master drive.  Before running this subcommand please make sure you have an external USB drive plugged into a Ubuntu server or desktop.")
         drive_parser.set_defaults(which=SubCmd.create_master_drive)
         add_args_from_instance(drive_parser, DriveCreationSettings(), True)
+
+        minio = subparsers.add_parser(SubCmd.export_minio.name,
+                                                   help="Exports the MinIO server to the provided location.")
+        add_args_from_instance(minio, ExportLocSettings(), True)
+        minio.set_defaults(which=SubCmd.export_minio.id, application='minio')

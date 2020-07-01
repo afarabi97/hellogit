@@ -1,0 +1,2 @@
+---
+- import_tasks: add_labrepo_repositories.yml

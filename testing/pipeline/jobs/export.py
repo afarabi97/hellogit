@@ -4,6 +4,7 @@ import tempfile
 import subprocess
 import shlex
 import shutil
+import sys
 
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
@@ -13,7 +14,7 @@ from util.hash_util import hash_file
 from models import Model
 from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
-from models.common import BasicNodeCreds
+from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
 from pathlib import Path
 from typing import Tuple
 from io import StringIO
@@ -27,6 +28,7 @@ from models.rhel_repo_vm import RHELRepoSettings
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
 TESTING_DIR = PIPELINE_DIR + "/../"
+POWER_OFF_VM = PIPELINE_DIR + "playbooks/power_off_virtual_machine.yml"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
@@ -60,6 +62,66 @@ def generate_versions_file(export_loc: ExportLocSettings):
 
     shutil.copy2(cpt_file_path, mdt_file_path)
 
+def poweroff(node: VCenterSettings, vcenter: VCenterSettings):
+    execute_playbook([POWER_OFF_VM], {'hostname': vcenter.ipaddress, 'username': vcenter.username, 'password': vcenter.password, 'vmname': node.hostname, 'python_executable': sys.executable})
+
+class ExportOVF:
+    def __init__(self, source_locator, target_locator):
+        self.source_locator = source_locator
+        self.target_locator = target_locator
+
+    def export(self):
+        if (Path(self.target_locator).parent.exists() == False) or (Path(self.target_locator).parent.is_dir() == False):
+            raise ValueError("The target_locator is invalid.")
+
+        if Path(self.target_locator).exists() and Path(self.target_locator).is_file():
+            Path(self.target_locator).unlink()
+
+        command = ['ovftool', '--noSSLVerify', '--diskMode=thin', self.source_locator, self.target_locator]
+        logging.info("Exporting OVA file to {target_locator}. This can take a few hours before it completes.".format(target_locator=self.target_locator))
+        process = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sout, serr = process.communicate()
+        logging.info(sout)
+        os.chmod(self.target_locator, 0o644)
+        if serr:
+            logging.error(serr)
+
+class MinIOExport:
+    def __init__(self, node: NodeSettings, vcenter: VCenterSettings, export_loc: ExportLocSettings):
+        self._node = node
+        self._vcenter = vcenter
+        self._export_loc = export_loc
+
+    def _vsphere_locator_uri_parts(self):
+        return {
+            'hostname': self._vcenter.ipaddress,
+            'username': self._vcenter.username.replace("@", "%40"),
+            'password': self._vcenter.password,
+            'datacenter': self._vcenter.datacenter,
+            'folder': self._node.folder,
+            'vmname': self._node.hostname
+        }
+
+    @property
+    def cpt_export_path(self):
+        return "{export_path}/{export_name}".format(export_path=create_export_path(self._export_loc)[0], export_name=self._export_loc.render_export_name("MinIO"))
+
+    @property
+    def mdt_export_path(self):
+        return "{export_path}/{export_name}".format(export_path=create_export_path(self._export_loc)[1], export_name=self._export_loc.render_export_name("MinIO"))
+
+    @property
+    def source_locator(self):
+        return "vi://{username}:{password}@{hostname}/{datacenter}/vm/{folder}/{vmname}".format(**self._vsphere_locator_uri_parts())
+
+    @property
+    def target_locator(self):
+        return self.cpt_export_path
+
+    def export(self):
+        ExportOVF(self.source_locator, self.target_locator).export()
+        logging.info(f"Copying MinIO OVA from {self.cpt_export_path} to {self.mdt_export_path}.")
+        shutil.copy2(self.cpt_export_path, self.mdt_export_path)
 
 class ControllerExport:
 

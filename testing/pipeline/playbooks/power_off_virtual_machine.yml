@@ -1,0 +1,17 @@
+---
+- name: Power off a virtual machine.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Send a shutdown signal to {{ vmname }} and wait for it to be powered off.
+      vmware_guest_powerstate:
+        hostname: "{{ hostname }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        name: "{{ vmname }}"
+        state: shutdown-guest
+        validate_certs: False
+        state_change_timeout: 300

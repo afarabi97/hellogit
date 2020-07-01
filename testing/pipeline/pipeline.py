@@ -12,8 +12,10 @@ from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport,
                          generate_versions_file, MIPControllerExport,
-                         GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport)
+                         GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport,
+                         poweroff, MinIOExport)
 from jobs.gip_creation import GipCreationJob
+from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
 from jobs.stig import StigJob
@@ -21,7 +23,7 @@ from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
 from models.catalog import CatalogSettings
-from models.common import BasicNodeCreds
+from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.mip_config import MIPConfigSettings
 
@@ -61,26 +63,26 @@ class Runner:
 
     def _setup_args(self):
         parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
-                                             It can setup Kits, export docs, export controller OVA and does \
-                                             other various actions.")
-        subparsers = parser.add_subparsers()
+                                                It can setup Kits, export docs, export controller OVA and does \
+                                                other various actions.")
+        subparsers = parser.add_subparsers(help='commands')
         setup_ctrl_parser = subparsers.add_parser(SubCmd.setup_ctrl, help="This command is used to setup a controller \
-                                                                           either from scratch or is cloned from nightly")
+                                                                            either from scratch or is cloned from nightly")
         ControllerSetupSettings.add_args(setup_ctrl_parser)
         setup_ctrl_parser.set_defaults(which=SubCmd.setup_ctrl)
 
         kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_kickstart, help="This command is used to Kickstart/PXE \
-                                                                                  boot the nodes for the DIP kit.")
+                                                                                    boot the nodes for the DIP kit.")
         KickstartSettings.add_args(kickstart_ctrl_parser)
         kickstart_ctrl_parser.set_defaults(which=SubCmd.run_kickstart)
 
         mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart, help="This command is used to Kickstart/PXE \
-                                                                           boot the nodes for the MIP.")
+                                                                            boot the nodes for the MIP.")
         MIPKickstartSettings.add_mip_args(mip_kickstart_ctrl_parser)
         mip_kickstart_ctrl_parser.set_defaults(which=SubCmd.run_mip_kickstart)
 
         kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit, help="This command is used to Kickstart/PXE \
-                                                                      boot the nodes for the DIP kit.")
+                                                                        boot the nodes for the DIP kit.")
         KitSettings.add_args(kit_ctrl_parser)
         kit_ctrl_parser.set_defaults(which=SubCmd.run_kit)
 
@@ -118,11 +120,29 @@ class Runner:
 
         gip_setup_parser = subparsers.add_parser(
             SubCmd.gip_setup, help="Configures GIP VMs and other related commands.")
-        gip_setup_subparsers = gip_setup_parser.add_subparsers()
-        GIPControllerSettings.add_args(gip_setup_subparsers)
-        GIPKickstartSettings.add_args(gip_setup_subparsers)
-        GIPServiceSettings.add_args(gip_setup_subparsers)
-        GIPKitSettings.add_args(gip_setup_subparsers)
+        gip_setup_subparsers = gip_setup_parser.add_subparsers(help="gip setup commands")
+        GIPControllerSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
+        GIPKickstartSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
+        GIPServiceSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
+        GIPKitSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
+
+        # minio
+        minio_parser = gip_setup_subparsers.add_parser(SubCmd.minio_command)
+        minio_parser.set_defaults(application='minio')
+        # minio commands
+        minio_commands = minio_parser.add_subparsers(help="Commands for creating a stand alone MinIO server.")
+        # setup minio
+        minio_setup_parser = minio_commands.add_parser(
+            SubCmd.setup_minio.name,
+            help="Creates a stand alone MinIO server.")
+        minio_setup_parser.set_defaults(which=SubCmd.setup_minio.id)
+        NodeSettings.add_args(minio_setup_parser, True)
+        VCenterSettings.add_args(minio_setup_parser)
+        # create certificate minio
+        minio_create_certificate_parser = minio_commands.add_parser(
+            SubCmd.create_certificate_minio.name,
+            help="Creates a TLS certificate on the MinIO server.")
+        minio_create_certificate_parser.set_defaults(which=SubCmd.create_certificate_minio.id)
 
         test_server_vm_parser = subparsers.add_parser(
             SubCmd.test_server_repository_vm, help="Tests the reposync server repository VM.")
@@ -166,7 +186,30 @@ class Runner:
             traceback.print_exc()
 
         try:
-            if args.which == SubCmd.test_server_repository_vm:
+            if args.which == SubCmd.setup_minio.id:
+                vcenter = VCenterSettings()
+                vcenter.from_namespace(args)
+                node = NodeSettings()
+                node.from_namespace(args, args.application)
+                StandAloneMinIO(vcenter, node).create()
+                YamlManager.save_to_yaml(vcenter, args.application)
+                YamlManager.save_to_yaml(node, args.application)
+            elif args.which == SubCmd.create_certificate_minio.id:
+                StandAloneMinIO(
+                    YamlManager.load_vcenter_settings(args.application),
+                    YamlManager.load_node_settings(args.application),
+                    YamlManager.load_ctrl_settings_from_yaml('dip').node.ipaddress) \
+                .create_certificate()
+            elif args.which == SubCmd.export_minio.id:
+                export_settings = ExportSettings()
+                export_settings.from_namespace(args)
+                poweroff(YamlManager.load_node_settings(args.application), YamlManager.load_vcenter_settings(args.application))
+                MinIOExport(
+                    YamlManager.load_node_settings(args.application),
+                    YamlManager.load_vcenter_settings(args.application),
+                    export_settings.export_loc) \
+                .export()
+            elif args.which == SubCmd.test_server_repository_vm:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args, True)
                 executor = RHELCreationJob(repo_settings)
@@ -256,7 +299,6 @@ class Runner:
             elif args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()
                 ctrl_settings.from_namespace(args)
-
                 YamlManager.save_to_yaml(ctrl_settings, args.system_name)
                 executor = ControllerSetupJob(ctrl_settings)
                 executor.setup_controller()

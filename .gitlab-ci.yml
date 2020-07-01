@@ -98,6 +98,12 @@ variables:
   GIP_SERVER_CPU: 32
   GIP_SERVER_MEM: 65536
 
+  # MinIO
+  MINIO_STORAGE_SIZE: 250
+  MINIO_MEMORY: 8192
+  MINIO_CPU: 2
+  MINIO_USE_TLS: "true"
+
   #THE VARIBALES IN THIS SECTION DO NOT NEED TO BE OVERWRITTEN IN SCHEDULES.
   MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/"
   MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/MDT/Data/"
@@ -137,6 +143,7 @@ stages:
   - docs
   - kickstart
   - kit
+  - configure:minio
   - stig-kit
   - security_scans
   - catalog

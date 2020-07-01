@@ -17,6 +17,7 @@ from models.rhel_repo_vm import RHELRepoSettings
 from typing import Union
 
 YAML_FILE = "{}.yml"
+YAML_APPLICATION_FILE = "{}_{}.yml"
 
 class YamlManager:
     yaml = None
@@ -70,6 +71,14 @@ class YamlManager:
         with open(name, 'r') as fhandle:
             some_model = cls.yaml.load(fhandle)
         return some_model
+
+    @classmethod
+    def load_node_settings(cls, application: str):
+        return cls._load_from_yaml(YAML_APPLICATION_FILE.format(NodeSettings.__name__.lower(), application))
+
+    @classmethod
+    def load_vcenter_settings(cls, application: str):
+        return cls._load_from_yaml(YAML_APPLICATION_FILE.format(VCenterSettings.__name__.lower(), application))
 
     @classmethod
     def load_ctrl_settings_from_yaml(cls, application: str) -> ControllerSetupSettings:

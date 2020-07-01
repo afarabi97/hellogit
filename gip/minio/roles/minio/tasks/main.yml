@@ -1,0 +1,62 @@
+---
+- name: Create a system acount for the MinIO server to run as.
+  user:
+    name: "{{ minio_system_account }}"
+    shell: /sbin/nologin
+    system: yes
+
+- name: Install the MinIO server binary.
+  get_url:
+    url: "{{ minio_server_binary_url }}"
+    dest: /usr/local/bin/minio
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+    mode: 0755
+
+- name: Create the MinIO volumes directory.
+  file:
+    path: "{{ minio_volumes }}"
+    state: directory
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+
+- name: Create the MinIO configuration directory.
+  file:
+    path: "{{ minio_configuration_directory }}"
+    state: directory
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+
+- name: Create the MinIO environments file.
+  template:
+    src: minio.j2
+    dest: /etc/default/minio
+
+- name: Install the MinIO systemd service file.
+  get_url:
+    url: "{{ minio_systemd_service_url }}"
+    dest: /etc/systemd/system/minio.service
+    checksum: "sha256:{{ minio_systemd_service_sha256 }}"
+  notify: "Reload the systemd daemon."
+
+- name: Open the port that the MinIO server is listening on.
+  firewalld:
+    port: "{{ minio_binding_port }}/tcp"
+    immediate: yes
+    permanent: yes
+    state: enabled
+  when: ansible_facts['python']['version']['major'] == 2
+
+# RHEL7 doesn't have firewalld bindings for Python3.
+- name: Open the port that the MinIO server is listening on (command).
+  command: "firewall-cmd --permanent --add-port {{ minio_binding_port }}/tcp"
+  register: result
+  changed_when: (result.rc == 0) and ("ALREADY_ENABLED" not in result.stderr)
+  notify: "Restart the firewalld service."
+  when: ansible_facts['python']['version']['major'] == 3
+
+- name: Start the MinIO service.
+  systemd:
+    name: minio
+    state: started
+    enabled: yes

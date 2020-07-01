@@ -16,4 +16,3 @@
         validate_certs: False
         state_change_timeout: 300
       with_items: "{{ nodes }}"
-

@@ -8,7 +8,7 @@ MAC_BASE = "00:0a:29:00:00:00"
 
 class NodeSettings(Model):
     unused_ips = None
-    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo")
+    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo", "minio")
     valid_sensor_types = ("remote_sensor", "sensor")
     valid_server_types = ("master_server", "server")
     valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
@@ -35,6 +35,7 @@ class NodeSettings(Model):
         self.node_type = self.valid_node_types[2]
         self.disk_size = 100
         self.luks_password = ''
+        self.extra_disks = []
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
@@ -72,11 +73,16 @@ class NodeSettings(Model):
         self.datastore = namespace.datastore
         self.network_id = namespace.network_id
         self.network_block_index = namespace.network_block_index
-        self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
+
+        if node_type == 'minio':
+            self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_free_ip()
+        else:
+            self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
 
         self.mng_mac = str(RandMac(MAC_BASE)).strip("'")
         self.sensing_mac = str(RandMac(MAC_BASE)).strip("'")
         self.disk_size = namespace.disk_size
+        self.extra_disks = namespace.extra_disks.copy()
 
     def set_for_kickstart(self, cpu: int, memory: int, node_type: str):
         self.cpu = cpu
@@ -104,6 +110,7 @@ class NodeSettings(Model):
                             default=0, choices=range(0, 5), type=int)
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
+        parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='default')
 
         if is_for_ctrl_setup:
@@ -138,6 +145,10 @@ class VCenterSettings(Model):
         parser.add_argument("--vcenter-datacenter", dest="vcenter_datacenter", required=True,
                             help="The data center to use on vsphere.")
 
+    # def __getstate__(self):
+    #     result = self.__dict__.copy()
+    #     result['password'] = u'<REDACTED>'
+    #     return result
 
 class RepoSettings(Model):
 
@@ -164,6 +175,10 @@ class RepoSettings(Model):
         parser.add_argument('--repo-url', dest='repo_url', required=True,
                             help="The branch name bootstrap will use when setting up the controller.")
 
+    # def __getstate__(self):
+    #     result = self.__dict__.copy()
+    #     result['password'] = u'<REDACTED>'
+    #     return result
 
 class BasicNodeCreds(Model):
     def __init__(self):
