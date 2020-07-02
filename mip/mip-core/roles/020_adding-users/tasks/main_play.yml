@@ -3,7 +3,7 @@
   group:
     name: operators
     state: present
-    
+
 - name: Making Desktop folder for skeleton directory
   file:
     path: /etc/skel/Desktop
@@ -11,7 +11,7 @@
     owner: root
     group: root
     mode: '1755'
-   
+
 - name: Create canonical accounts for the MIP echelon.
   user:
     name: "{{ item['user'] }}"
@@ -30,4 +30,4 @@
   file:
     path: /operator/.DO_NOT_DELETE/.020
     state: touch
-... 
+...

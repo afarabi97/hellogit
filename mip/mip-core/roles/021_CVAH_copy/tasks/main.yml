@@ -1,9 +1,90 @@
 ---
-- stat: 
+- name: Determine status of cvah_file
+  stat:
+    path: /cvah/.cvah_file
+  register: cvah_file
+  tags:
+    - CPT
+    - MDT
+
+- name: Download CPT cvah folder tar from web server
+  get_url:
+    url: "{{ cpt_cvah_tar }}"
+    dest: /root
+    timeout: 120
+  when: not cvah_file.stat.exists
+  tags:
+    - CPT
+
+- name: Download MDT cvah folder tar from web server
+  get_url:
+    url: "{{ mdt_cvah_tar }}"
+    dest: /root
+    timeout: 120
+  when: not cvah_file.stat.exists
+  tags:
+    - MDT
+
+- name: Find cvah tar file
+  find:
+    paths: /root
+    patterns: "*cvah*tar.gz"
+  register: tar_file
+  tags:
+    - CPT
+    - MDT
+
+- name: Set TAR file
+  set_fact:
+    tar_file: "{{ tar_file.files[0].path.split('/')[-1] }}"
+  when: not cvah_file.stat.exists
+  tags:
+    - CPT
+    - MDT
+
+- name: Unpack cvah folder tar
+  command: tar -xvzf /root/"{{ tar_file }}" -C /
+  tags:
+    - CPT
+    - MDT
+
+- name: Create hidden file in ansible to ensure cvah folder is complete
+  file:
+    path: "/cvah/.cvah_file"
+    state: touch
+  tags:
+    - CPT
+    - MDT
+
+- name: Remove tar file
+  file:
+    path: "/root/{{ tar_file }}"
+    state: absent
+  tags:
+    - CPT
+    - MDT
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /cvah
+    owner: "{{ user }}"
+    group: "{{ operator_group }}"
+    mode: '0770'
+  tags:
+    - CPT
+    - MDT
+
+- name: Create symlink to user Desktop
+  file:
+    src: /cvah
+    dest: "{{ user_desktop }}/cvah"
+    state: link
+  tags:
+    - CPT
+    - MDT
+
+- name: Create hidden file for validation if playbooks crash
+  file:
     path: /operator/.DO_NOT_DELETE/.021
-  register: check
-   
-- name: Validate play hasn't been run before
-  include_tasks: main_play.yml
-  when: not check.stat.exists 
-...   
+    state: touch
+...

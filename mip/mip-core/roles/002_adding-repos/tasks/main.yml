@@ -17,10 +17,10 @@
     warn: no
 
 # Check to see if the hidden directory used for validation is made yet or not
-- stat: 
+- stat:
     path: /operator/.DO_NOT_DELETE
   register: isMade
-  
+
 - name: Creating hidden directory for validation use later if it doesn't already exist
   file:
     path: /operator/.DO_NOT_DELETE

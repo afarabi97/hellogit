@@ -11,7 +11,7 @@
     - { src: '/root/Files_To_Be_Copied_Over/etc/dconf/db/gdm.d/01-login-screen', dest: '/etc/dconf/db/gdm.d/'}
     - { src: '/root/Files_To_Be_Copied_Over/etc/issue.net', dest: '/etc/'}
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/share/pixmaps/cvah-logo.png', dest: '/usr/local/share/pixmaps/'}
-  
+
 - name: Setting desktop icon size
   become: yes
   become_user: "{{ item }}"
@@ -26,7 +26,7 @@
     - usaf_admin
     - 911admin
     - auditor
-   
+
 - name: Setting screen lock when idle/inactive to off
   become: yes
   become_user: "{{ item }}"
@@ -41,7 +41,7 @@
     - usaf_admin
     - 911admin
     - auditor
-    
+
 - name: Setting screen timeout delay to never
   become: yes
   become_user: "{{ item }}"
@@ -56,13 +56,13 @@
     - usaf_admin
     - 911admin
     - auditor
-    
+
 - name: Updating ssh banner path
   replace:
     path: /etc/ssh/sshd_config
     regexp: '#Banner none'
     replace: "Banner /etc/issue.net"
-  
+
 - name: Create hidden file for validation if playbooks crash
   file:
     path: /operator/.DO_NOT_DELETE/.041

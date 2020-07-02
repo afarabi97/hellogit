@@ -4,25 +4,25 @@
     name: "{{ item }}"
     state: present
   loop: "{{ packages }}"
-        
+
 - name: Create tmp install directory for third party software
   file:
     path: "{{ tmp_apps }}"
     state: directory
-        
+
 - name: Download main software from controller webserver into tmp dir
   get_url:
     url: "{{ item }}"
     dest: "{{ tmp_apps }}"
     timeout: 120
   loop: "{{ software }}"
-        
+
 - name: Find and register kernel version
   command: uname -r
   register: kernel_results
   changed_when: kernel_results.rc == 0
   failed_when:  kernel_results.rc > 0
-        
+
 - name: Reboot system and utilize new kernel
   reboot:
     reboot_timeout: 2000
@@ -33,4 +33,4 @@
   file:
     path: /operator/.DO_NOT_DELETE/.003
     state: touch
-...    
+...

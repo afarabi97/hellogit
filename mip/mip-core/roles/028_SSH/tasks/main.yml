@@ -12,7 +12,7 @@
       - MDT
       - CPT
       - 028-SSH
-  
+
   - name: Generate SSH keys
     connection: ssh
     any_errors_fatal: true
@@ -29,5 +29,5 @@
       - MDT
       - CPT
       - 028-SSH
-  
-  ...  
+
+...

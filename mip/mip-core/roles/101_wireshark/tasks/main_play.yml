@@ -5,7 +5,7 @@
     dest: "{{ tmp_apps }}"
     remote_src: yes
   register: wireshark_source
-    
+
 - name:  Generate configure file with autogen
   command: ./autogen.sh
   args:
@@ -13,7 +13,7 @@
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
-    
+
 - name:  Configure file wireshark source code
   command: "./configure --prefix={{ wireshark_install_dir }}"
   args:
@@ -22,7 +22,7 @@
   changed_when: wireshark_conf.rc == 0
   failed_when:  wireshark_conf.rc > 0
   when: result.rc == 0
-    
+
 - name: Clean build before compiling code
   command: make clean
   args:
@@ -31,7 +31,7 @@
   changed_when: wireshark_clean.rc == 0
   failed_when:  wireshark_clean.rc > 0
   when: wireshark_conf.rc == 0
-  
+
 - name: Make sources and install source code
   command: "{{ item }}"
   loop:
@@ -40,17 +40,17 @@
   args:
     chdir: "{{ wireshark_tmp_install_dir }}"
   when: wireshark_clean.rc == 0
-    
+
 - name: Find file names
   find:
     paths: "{{ wireshark_install_dir }}/bin/"
     recurse: yes
   register: wireshark_bins
-    
+
 - name: Set Wireshark files
   set_fact:
     wireshark_files: "{{ wireshark_bins['files'] | map(attribute='path') | list }}"
-  
+
 - name: Create symbolic links to /usr/bin for wireshark applications
   file:
     src: "{{ item }}"
@@ -58,13 +58,13 @@
     state: link
     force: yes
   loop: "{{ wireshark_files }}"
-    
+
 - name: Create symbolic link for wireshark desktop
   file:
     src: "{{ wireshark_desktop_dir }}"
     dest: "{{ wireshark_desktop_application }}"
     state: link
-    
+
 - name: Replace path to wireshark icon
   replace:
     path: "{{ wireshark_desktop_dir }}"

@@ -3,20 +3,20 @@
   yum:
     name: "{{ gitkraken_path }}"
     state: present
-    
+
 - name: Copy gitkraken to desktop
   copy:
     src: "{{ application_path }}/{{ gitkraken_desktop_app }}"
     dest: "{{ user_desktop }}"
     remote_src: yes
-   
+
 - name: Change gitkraken permissions
   file:
     path: "{{ user_desktop }}/{{ gitkraken_desktop_app }}"
     owner: "{{ user }}"
     group: "{{ user }}"
     mode: '0774'
-    
+
 - name: Trust gitkraken application
   become: yes
   become_user: "{{ user }}"
@@ -29,4 +29,4 @@
   file:
     path: /operator/.DO_NOT_DELETE/.105
     state: touch
-...   
+...

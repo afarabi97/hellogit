@@ -10,7 +10,7 @@
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/sbin/', dest: '/usr/local/sbin' , owner: 'root', group: 'root'}
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/bin/', dest: '/usr/local/bin' , owner: 'root', group: 'root'}
-    
+
 - name: Create a symbolic link
   file:
     src: /usr/local/scripts/set_classification/mip2-green.jpg
@@ -19,7 +19,7 @@
     group: root
     state: link
     force: yes
-    
+
 - name: Set background image
   become: yes
   become_user: "{{ item }}"

@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: '1755'
-    
+
 - name: Copying all the scripts over to the MIP
   copy:
     src: "{{ item['src'] }}"
@@ -15,7 +15,7 @@
     group: "{{ item['group'] }}"
     mode: "{{ item['mode'] }}"
   with_items: "{{ banner_scripts }}"
-    
+
 - name: Set trust setting for MIP config script
   become: yes
   become_user: "assessor"

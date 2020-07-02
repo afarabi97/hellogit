@@ -1,9 +1,9 @@
 ---
-- stat: 
+- stat:
     path: /operator/.DO_NOT_DELETE/.102
   register: check
-   
+
 - name: Validate play hasn't been run before
   include_tasks: main_play.yml
-  when: not check.stat.exists 
-...    
+  when: not check.stat.exists
+...

@@ -3,20 +3,20 @@
   yum:
     name: "{{ vscode_path }}"
     state: present
-    
+
 - name: Copy vscode to desktop
   copy:
     src: "{{ application_path }}/{{ vscode_desktop_app }}"
     dest: "{{ user_desktop }}"
     remote_src: yes
-    
+
 - name: Change vscode permissions
   file:
     path: "{{ user_desktop }}/{{ vscode_desktop_app }}"
     owner: "{{ user }}"
     group: "{{ user }}"
     mode: '0774'
-    
+
 - name: Trust vscode application
   become: yes
   become_user: "{{ user }}"

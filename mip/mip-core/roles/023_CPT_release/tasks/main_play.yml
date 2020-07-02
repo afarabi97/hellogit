@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: '0664'
-    
+
 - name: Copy release notes file to cvah
   copy:
     src: cpt_notes
@@ -14,13 +14,13 @@
     owner: "{{ user }}"
     group: "{{ user }}"
     mode: '0770'
-    
+
 - name: Create symbolic link for release notes
   file:
     src: /cvah/docs/release-notes
     dest: "/home/{{ user }}/Desktop/release-notes"
     state: link
-        
+
 - name: Create hidden file for validation if playbooks crash
   file:
     path: /operator/.DO_NOT_DELETE/.023
