@@ -39,7 +39,6 @@ import { ModalTableComponent } from './system-health/table-dialog/modal-table.co
 
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RegistryComponent } from './registry/registry.component';
 import { MaterialModule } from './utilily-modules/material-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -186,7 +185,6 @@ export function initializeApp1(appLoadService: AppLoadService) {
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    NgbModule,
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
