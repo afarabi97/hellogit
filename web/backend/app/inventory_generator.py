@@ -111,6 +111,17 @@ class KitInventoryGenerator:
         if "remove_node" not in self._template_ctx:
             self._template_ctx["remove_node"] = ''
 
+
+    def _set_domain(self) -> None:
+        """
+        Sets the domain for the kit.
+
+        :return:
+        """
+        if "domain" in self._kickstart_form:
+            self._template_ctx["domain"] = self._kickstart_form["domain"]
+
+
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
@@ -118,6 +129,7 @@ class KitInventoryGenerator:
         """
         self._set_defaults()
         self._set_reservations()
+        self._set_domain()
 
         template = JINJA_ENV.get_template('inventory_template.yml')
         kit_template = template.render(template_ctx=self._template_ctx)

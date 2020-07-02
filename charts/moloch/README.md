@@ -9,7 +9,7 @@
           "default_value": "simple",
           "description": "Enable writing PCAPs (do not enable this and Suricata PCAP at the same time)",
           "trueValue": "simple",
-          "falseValue": "null",
+          "falseValue": "disablepcap",
           "name": "pcapWriteMethod"
         },
         {

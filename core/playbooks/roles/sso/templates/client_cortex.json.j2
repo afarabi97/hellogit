@@ -2,18 +2,18 @@
   "clientId": "cortex",
   "name": "Cortex",
   "description": "Cortex",
-  "rootUrl": "https://cortex.{{ domain }}",
-  "adminUrl": "https://cortex.{{ domain }}",
+  "rootUrl": "https://cortex.{{ kit_domain }}",
+  "adminUrl": "https://cortex.{{ kit_domain }}",
   "surrogateAuthRequired": false,
   "enabled": true,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
   "secret": "{{ openid_secrets.cortex }}",
   "redirectUris": [
-    "https://cortex.{{ domain }}/*"
+    "https://cortex.{{ kit_domain }}/*"
   ],
   "webOrigins": [
-    "https://cortex.{{ domain }}"
+    "https://cortex.{{ kit_domain }}"
   ],
   "notBefore": 0,
   "bearerOnly": false,

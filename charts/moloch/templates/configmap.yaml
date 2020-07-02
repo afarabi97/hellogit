@@ -38,7 +38,11 @@ data:
     pluginsDir=/data/moloch/plugins
     spiDataMaxIndices={{ .Values.spiDataMaxIndices }}
     packetThreads={{ .Values.packetThreads }}
+{{- if eq .Values.pcapWriteMethod "disablepcap" }}
+    pcapWriteMethod=null
+{{- else }}
     pcapWriteMethod={{ .Values.pcapWriteMethod }}
+{{- end }}
     pcapWriteSize={{ .Values.pcapWriteSize }}
     dbBulkSize={{ .Values.dbBulkSize }}
     compressES=false

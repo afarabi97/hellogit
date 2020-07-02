@@ -2,18 +2,18 @@
   "clientId": "hive",
   "name": "The Hive",
   "description": "The Hive",
-  "rootUrl": "https://hive.{{ domain }}",
-  "adminUrl": "https://hive.{{ domain }}",
+  "rootUrl": "https://hive.{{ kit_domain }}",
+  "adminUrl": "https://hive.{{ kit_domain }}",
   "surrogateAuthRequired": false,
   "enabled": true,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
   "secret": "{{ openid_secrets.hive }}",
   "redirectUris": [
-    "https://hive.{{ domain }}/*"
+    "https://hive.{{ kit_domain }}/*"
   ],
   "webOrigins": [
-    "https://hive.{{ domain }}"
+    "https://hive.{{ kit_domain }}"
   ],
   "notBefore": 0,
   "bearerOnly": false,

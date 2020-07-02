@@ -33,7 +33,7 @@
     register: charts
   - name: Upload charts into Chartmuseum
     uri:
-      url: "https://chartmuseum.{{ domain }}/api/charts"
+      url: "https://chartmuseum.{{ kit_domain }}/api/charts"
       src: "{{ item.path }}"
       method: POST
       status_code: 201, 200

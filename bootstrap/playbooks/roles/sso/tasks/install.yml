@@ -74,12 +74,22 @@
     saml_keys: "{{ saml_keys|default({}) | combine( {item.item: item.stdout} ) }}"
   with_items: "{{ clean_keys.results }}"
 
-- name: Generate SSO Admin Password
+- name: Install Keycloak Dependencies
+  yum:
+    name:
+      - java
+      - pwgen
+    state: present
+
+- name: Gen Password # noqa 306
+  shell: |
+    /usr/bin/pwgen -cyBn -r \`\"\'\!\$\\\/\(\)\{\}\[\]\<\>\~\,\*\^\+\|\_\; 20 1
+  register: tpass
+  changed_when: tpass.rc == 0
+
+- name: Set Password
   set_fact:
-    sso_admin_password: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits,hexdigits,#,%,&,(,),*,+,-,.,:,;,=,?,@,[,],^,_,{,|,},~') }}"
-  until: sso_admin_password is match('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[#%&()*+-.:;=?@[\]^_{|}~]).{8,32}$')
-  retries: 35
-  delay: 1
+    sso_admin_password: "{{ tpass.stdout }}"
 
 - debug:
     msg: "SSO Admin creds: admin/{{ sso_admin_password }}"
@@ -118,11 +128,6 @@
    - gen_api_token.py
    - import_users.py
    - update_portal_client.py
-
-- name: Install Keycloak Dependencies
-  yum:
-    name: java
-    state: present
 
 - name: Check if keycloak TAR exists
   stat:

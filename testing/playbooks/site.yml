@@ -18,24 +18,11 @@
       with_items: "{{ groups['all'] }}"
       changed_when: false
 
-- name: Tag remote sensors
-  hosts: localhost
-  tags: always
-  tasks:
-    - name: Set Remote Sensors
-      add_host:
-        hostname: "{{ item }}"
-        groups: remote_sensors
-      when: hostvars[item].is_remote | default(false)
-      with_items: "{{ groups['all'] }}"
-      changed_when: false
-
 - name: Verify tfplenum has been deployed
   hosts:
     - master_server
     - servers
     - sensors
-    - remote_sensors
   gather_facts: no
   roles:
     - preflight

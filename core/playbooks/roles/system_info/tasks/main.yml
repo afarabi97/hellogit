@@ -1,4 +1,8 @@
 ---
+- name: set_fact ansible_controller hostname and ip
+  set_fact:
+    ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
+
 - name: Set System Name from tfplenum ini
   set_fact:
     system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
@@ -10,13 +14,6 @@
     groups: master_server
   when: hostvars[item].is_master | default(false)
   with_items: "{{ groups['servers'] }}"
-
-- name: Add Sensors to Remote Sensors Group
-  add_host:
-    hostname: "{{ item }}"
-    groups: remote_sensors
-  when: hostvars[item].is_remote | default(false)
-  with_items: "{{ groups['sensors'] }}"
 
 - block:
   - name: Tag Servers to be control plane nodes

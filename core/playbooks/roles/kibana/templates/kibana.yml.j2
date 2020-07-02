@@ -44,7 +44,7 @@ spec:
     xpack.security.authc.providers: [saml,basic]
     xpack.security.authc.saml.realm: saml1
     xpack.security.public.protocol: https
-    xpack.security.public.hostname: kibana.{{ domain }}
+    xpack.security.public.hostname: kibana.{{ kit_domain }}
     xpack.security.public.port: 443
     server.xsrf.whitelist: [/api/security/v1/saml]
   elasticsearchRef:

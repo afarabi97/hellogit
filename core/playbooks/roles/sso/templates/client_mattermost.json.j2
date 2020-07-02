@@ -1,14 +1,14 @@
 {
-  "clientId": "https://mattermost.{{ domain }}/",
+  "clientId": "https://mattermost.{{ kit_domain }}/",
   "name": "Mattermost",
-  "rootUrl": "https://mattermost.{{ domain }}/",
+  "rootUrl": "https://mattermost.{{ kit_domain }}/",
   "adminUrl": "",
   "surrogateAuthRequired": false,
   "enabled": true,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
   "redirectUris": [
-    "https://mattermost.{{ domain }}/*"
+    "https://mattermost.{{ kit_domain }}/*"
   ],
   "webOrigins": [],
   "notBefore": 0,
@@ -23,12 +23,12 @@
   "protocol": "saml",
   "attributes": {
     "saml.assertion.signature": "true",
-    "saml_assertion_consumer_url_redirect": "https://mattermost.{{ domain }}/login/sso/saml",
+    "saml_assertion_consumer_url_redirect": "https://mattermost.{{ kit_domain }}/login/sso/saml",
     "saml.force.post.binding": "false",
     "saml.multivalued.roles": "false",
     "saml_single_logout_service_url_post": "",
     "saml.encrypt": "true",
-    "saml_assertion_consumer_url_post": "https://mattermost.{{ domain }}/login/sso/saml",
+    "saml_assertion_consumer_url_post": "https://mattermost.{{ kit_domain }}/login/sso/saml",
     "saml.server.signature": "true",
     "saml_idp_initiated_sso_url_name": "wikijs",
     "saml.server.signature.keyinfo.ext": "false",

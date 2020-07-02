@@ -1,0 +1,8 @@
+---
+
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "{{ host_file }}"
+  tags:
+    - update-dnsmasq-hosts

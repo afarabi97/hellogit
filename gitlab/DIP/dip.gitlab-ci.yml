@@ -27,6 +27,7 @@ Setup DIP Controller:
     --vm-template "$DIP_TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX-dip" \
+    --domain "$KIT_DOMAIN" \
     --branch-name "$CI_COMMIT_REF_NAME" \
     --run-type "$BUILD_TYPE" \
     --vm-datastore "$VCENTER_DATASTORE" \
@@ -77,6 +78,7 @@ DIP Kickstart:
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-prefix "$VM_PREFIX" \
+    --domain "$KIT_DOMAIN" \
     --gateway "$VM_GATEWAY" \
     --num-servers $NUM_SERVERS \
     --num-sensors $NUM_SENSORS \

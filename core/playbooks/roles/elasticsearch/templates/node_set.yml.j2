@@ -84,7 +84,7 @@ volumes:
     defaultMode: 0444
 {% endmacro %}
 
-{% macro node_set(name, count, config, spec, elasticsearch_plugins, enable_ml, storage) %}
+{% macro node_set(name, kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage) %}
 - name: {{ name }}
   count: {{ count | string }}
   config:
@@ -105,10 +105,10 @@ volumes:
     xpack.security.authc.realms.saml.saml1.idp.metadata.path: "/usr/share/elasticsearch/config/sso-idp-metadata/idp.metadata.xml"
     xpack.security.authc.realms.saml.saml1.ssl.verification_mode: none
     xpack.security.authc.realms.saml.saml1.idp.use_single_logout: true
-    xpack.security.authc.realms.saml.saml1.idp.entity_id: "https://controller.lan/auth/realms/CVAH-SSO"
-    xpack.security.authc.realms.saml.saml1.sp.entity_id: "https://kibana.lan/"
-    xpack.security.authc.realms.saml.saml1.sp.acs: "https://kibana.lan/api/security/v1/saml"
-    xpack.security.authc.realms.saml.saml1.sp.logout: "https://kibana.lan/logout"
+    xpack.security.authc.realms.saml.saml1.idp.entity_id: "https://controller.{{ kit_domain }}/auth/realms/CVAH-SSO"
+    xpack.security.authc.realms.saml.saml1.sp.entity_id: "https://kibana.{{ kit_domain }}/"
+    xpack.security.authc.realms.saml.saml1.sp.acs: "https://kibana.{{ kit_domain }}/api/security/v1/saml"
+    xpack.security.authc.realms.saml.saml1.sp.logout: "https://kibana.{{ kit_domain }}/logout"
     xpack.security.authc.realms.saml.saml1.signing.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
     xpack.security.authc.realms.saml.saml1.signing.key: /usr/share/elasticsearch/config/kibana-saml-certs/tls.key
     xpack.security.authc.realms.saml.saml1.encryption.certificate: /usr/share/elasticsearch/config/kibana-saml-certs/tls.crt
@@ -188,7 +188,7 @@ volumes:
 {% set spec = None %}
 {% set storage = None %}
 
-{% macro master(mdi, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+{% macro master(kit_domain, mdi, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% if mdi %}
     {% set config = node_type(true, true, true, false) %}
   {% else %}
@@ -196,38 +196,38 @@ volumes:
   {% endif %}
     {% set storage = volume_claim_templates() %}
     {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
-{{ node_set('master', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
+{{ node_set('master', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro data(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+{% macro data(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, true, true, false) %}
   {% set storage = volume_claim_templates() %}
   {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
-{{ node_set('data', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
+{{ node_set('data', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro coordinating(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+{% macro coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, false, true, false) %}
   {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
-{{ node_set('coordinating', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
+{{ node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro ml(count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
+{% macro ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml) %}
   {% set config = node_type(false, false, false, true) %}
   {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
-{{ node_set('ml', count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
+{{ node_set('ml', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage) }}
 {% endmacro %}
 
-{% macro gip_coordinating(count, memory, cpu, java_memory, elasticsearch_plugins) %}
+{% macro gip_coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins) %}
   {%- set config = gip_node_type(false, false, true, false) %}
   {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
 
-  {{- node_set('coordinating', count, config, spec, elasticsearch_plugins) }}
+  {{- node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins) }}
 {% endmacro %}
 
-{% macro gip_ml(count, memory, cpu, java_memory, elasticsearch_plugins) %}
+{% macro gip_ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins) %}
   {%- set config = gip_node_type(false, false, false, true) + gip_machine_learning(true) %}
   {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
 
-  {{- node_set('ml', count, config, spec, elasticsearch_plugins) }}
+  {{- node_set('ml', kit_domain, count, config, spec, elasticsearch_plugins) }}
 {% endmacro %}

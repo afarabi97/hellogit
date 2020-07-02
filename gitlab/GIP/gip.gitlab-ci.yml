@@ -89,6 +89,7 @@ Setup GIP Controller:
     --vm-template "$GIP_TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX-gip" \
+    --domain "$KIT_DOMAIN" \
     --branch-name "$CI_COMMIT_REF_NAME" \
     --run-type "$BUILD_TYPE" \
     --vm-datastore "$VCENTER_DATASTORE"
@@ -120,6 +121,7 @@ GIP Kickstart:
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-prefix "$VM_PREFIX-gip" \
+    --domain "$KIT_DOMAIN" \
     --gateway "$VM_GATEWAY" \
     --num-servers $GIP_NUM_SERVERS \
     --server-cpu $GIP_SERVER_CPU \

@@ -1,0 +1,29 @@
+---
+- name: Turn off network manager resolv.conf modifications
+  ini_file:
+    path: /etc/NetworkManager/NetworkManager.conf
+    state: present
+    no_extra_spaces: yes
+    section: main
+    option: dns
+    value: none
+    backup: yes
+  register: nm_conf
+
+- name: Restart NetworkManager # noqa 503
+  systemd:
+    name: NetworkManager
+    state: restarted
+  when: nm_conf.changed
+
+- name: Add Resolv Conf
+  template:
+    src: "templates/resolv.conf.j2"
+    dest: "/etc/resolv.conf"
+
+- name: Reverting to default /etc/hosts
+  copy:
+    src: "files/default_hosts"
+    dest: "/etc/hosts"
+
+...

@@ -23,7 +23,7 @@
   vars:
     type: "pods"
     namespace: "kube-system"
-    resource_name: "etcd-{{ ansible_fqdn }}"
+    resource_name: "etcd-{{ inventory_hostname }}"
     label: ""
   register: result
   until: result.rc == 0

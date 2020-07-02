@@ -35,7 +35,7 @@ reboot
 # Network information
 {% if item is defined %}
 network --device={{ hostvars[item].mac | lower }} --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
-network  --hostname={{ item }}
+network --hostname={{ item }}
 
 {% else %}
 network  --bootproto=dhcp --device=eth0 --noipv6 --activate
@@ -91,11 +91,6 @@ echo "volgroup vg_data pv.02" >> /tmp/partition_layout
 echo "logvol /data --fstype=xfs --size=1 --name=data --vgname=vg_data --grow" >> /tmp/partition_layout
 fi
 
-# Add DNS search domain
-{% if item is defined -%}
-echo "DOMAIN={{domain}}" >> `grep -r '{{ hostvars[item].ip }}' /etc/sysconfig/ -l`
-{%- endif %}
-
 %end
 
 %include /tmp/partition_layout
@@ -148,4 +143,10 @@ chcon -R -t container_file_t /data
 
 # Disable SSHD DNS lookups
 echo "UseDNS no" >> /etc/ssh/sshd_config
+
+# Add DNS search domain
+{% if item is defined -%}
+echo "DOMAIN={{ kit_domain }}" >> `grep -r '{{ hostvars[item].ip }}' /etc/sysconfig/ -l`
+{%- endif %}
+
 %end

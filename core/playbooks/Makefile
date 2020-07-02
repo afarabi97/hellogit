@@ -7,7 +7,7 @@ PLAYBOOK ?= 'site.yml'
 REMOVE_PLAYBOOK ?= 'remove-node.yml'
 NODE ?= 'NONE'
 
-.PHONY: all system-info domain dev genkeys rerun common common-nokeys kubernetes storage certificate_authority sso elasticsearch kibana metrics kubernetes-rerun certificate_authority-rerun sso-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
+.PHONY: all system-info dev genkeys rerun common common-nokeys kubernetes storage certificate_authority sso elasticsearch kibana metrics kubernetes-rerun certificate_authority-rerun sso-rerun elasticsearch-rerun metrics-rerun add-node chartmuseum-reinstall reinstall
 
 # Default target, build *and* run tests
 all:
@@ -30,9 +30,6 @@ rerun:
 
 common:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
-
-domain:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t domain
 
 dnsmasq:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq
@@ -84,9 +81,6 @@ logs:
 
 node-health:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
-
-domain-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t domain,dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,certificate_authority,storage,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
 
 dnsmasq-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,certificate_authority,sso,storage,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup

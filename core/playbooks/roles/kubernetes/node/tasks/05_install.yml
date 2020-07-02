@@ -66,21 +66,21 @@
   vars:
     type: "node"
     namespace: ""
-    resource_name: "{{ ansible_fqdn }}"
+    resource_name: "{{ inventory_hostname }}"
     label: ""
 
 - name: Kube | Label sensors
-  command: 'kubectl label nodes {{ ansible_fqdn }} role=sensor --overwrite=true'
+  command: 'kubectl label nodes {{ inventory_hostname }} role=sensor --overwrite=true'
   when: inventory_hostname in groups['sensors']
 
 - name: Kube | Label secondary servers
-  command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
+  command: 'kubectl label nodes {{ inventory_hostname }} role=server --overwrite=true'
   when: inventory_hostname in groups['servers']
   register: debug_output
 
 - name: Kube | Remove NoSchedule Taint
   shell: |
-    kubectl taint node {{ ansible_fqdn }} node-role.kubernetes.io/master-
+    kubectl taint node {{ inventory_hostname }} node-role.kubernetes.io/master-
   when:
     - enable_kube_ha
     - inventory_hostname in groups['servers']

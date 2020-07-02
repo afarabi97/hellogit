@@ -19,9 +19,10 @@ class SuricataSettings(Model):
         self.node_hostname = ""
 
     def set_from_node_settings(self, node_settings: NodeSettings):
-        self.affinity_hostname = node_settings.hostname
-        self.deployment_name = node_settings.hostname.replace(".lan", "-suricata")
-        self.node_hostname = node_settings.hostname
+        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
+        self.affinity_hostname = node_fqdn
+        self.deployment_name = "{}-{}".format(node_settings.hostname, "suricata")
+        self.node_hostname = node_fqdn
 
 
 class MolochCaptureSettings(Model):
@@ -39,9 +40,10 @@ class MolochCaptureSettings(Model):
         self.deployment_name = ""
 
     def set_from_node_settings(self, node_settings: NodeSettings):
-        self.affinity_hostname = node_settings.hostname
-        self.deployment_name = node_settings.hostname.replace(".lan", "-moloch")
-        self.node_hostname = node_settings.hostname
+        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
+        self.affinity_hostname = node_fqdn
+        self.deployment_name = "{}-{}".format(node_settings.hostname, "moloch")
+        self.node_hostname = node_fqdn
 
 
 class MolochViewerSettings(Model):
@@ -71,9 +73,10 @@ class ZeekSettings(Model):
         self.log_retention_hours = "24"
 
     def set_from_node_settings(self, node_settings: NodeSettings):
-        self.affinity_hostname = node_settings.hostname
-        self.deployment_name = node_settings.hostname.replace(".lan", "-zeek")
-        self.node_hostname = node_settings.hostname
+        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
+        self.affinity_hostname = node_fqdn
+        self.deployment_name = "{}-{}".format(node_settings.hostname, "zeek")
+        self.node_hostname = node_fqdn
 
 
 class LogstashSettings(Model):
@@ -90,7 +93,8 @@ class LogstashSettings(Model):
     def set_from_kickstart(self, kickstart_settings: KickstartSettings):
         self.kafka_clusters = []
         for sensor in kickstart_settings.sensors: # type: NodeSettings
-            self.kafka_clusters.append(sensor.hostname.replace(".lan", "-zeek") + ".default.svc.cluster.local:9092")
+            dep_name = "{}-{}".format(sensor.hostname, "zeek")
+            self.kafka_clusters.append(dep_name + ".default.svc.cluster.local:9092")
 
 
 class WikijsSettings(Model):

@@ -151,36 +151,59 @@ def execute_add_node() -> Response:
         current_kit_configuration["form"])
     if is_sucessful:
         cmd_to_execute_one = ("ansible-playbook site.yml -i inventory.yml "
-                              "-e ansible_ssh_pass='{playbook_pass}' "
-                              "-t domain/common,repos,update-networkmanager,update-dnsmasq-hosts,update-dns,genkeys,preflight,common,openvpn"
-                              ).format(playbook_pass=root_password)
+            "-e ansible_ssh_pass='{playbook_pass}' "
+            "-t domain/common,update-dnsmasq-hosts"
+        ).format(playbook_pass=root_password)
 
         cmd_to_execute_two = ("ansible-playbook site.yml -i inventory.yml "
-                              "-t certificate_authority/common,crio,kube-node,logs,audit,frontend-health-metrics,node-health "
-                              "--limit localhost,{node}"
-                              ).format(
+            "-e ansible_ssh_pass='{playbook_pass}' "
+            "-t domain/common,repos,update-networkmanager,update-dns"
+            "--limit localhost,{node}"
+        ).format(
             playbook_pass=root_password,
             node=add_node_payload['hostname']
         )
 
-        cmd_to_execute_three = "make dip-stigs"
+        cmd_to_execute_three = ("ansible-playbook site.yml -i inventory.yml "
+            "-e ansible_ssh_pass='{playbook_pass}' "
+            "-t domain/common,genkeys,preflight,common,openvpn"
+        ).format(playbook_pass=root_password)
 
-        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
-                        perform_kit.si(cmd_to_execute_two, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode"),
-                        perform_kit.si(cmd_to_execute_three, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="StigAddedNode"))()
+        cmd_to_execute_four = ("ansible-playbook site.yml -i inventory.yml "
+            "-t certificate_authority/common,crio,kube-node,logs,audit,frontend-health-metrics,node-health "
+            "--limit localhost,{node}"
+        ).format(
+            playbook_pass=root_password,
+            node=add_node_payload['hostname']
+        )
 
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                         {"_id": "Kit", "task_id": str(
+        cmd_to_execute_five = "make dip-stigs"
+
+        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode1"),
+                        perform_kit.si(cmd_to_execute_two, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode2"),
+                        perform_kit.si(cmd_to_execute_three, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode3"),
+                        perform_kit.si(cmd_to_execute_four, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode4"),
+                        perform_kit.si(cmd_to_execute_five, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode5"),)()
+
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode1"},
+                                                         {"_id": "Addnode1", "task_id": str(
                                                              results), "pid": ""},
                                                          upsert=True)
 
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode"},
-                                                         {"_id": "Addnode", "task_id": str(
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode2"},
+                                                         {"_id": "Addnode2", "task_id": str(
                                                              results), "pid": ""},
                                                          upsert=True)
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "StigAddedNode"},
-                                                         {"_id": "StigAddedNode", "task_id": str(
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode3"},
+                                                         {"_id": "Addnode3", "task_id": str(
+                                                             results), "pid": ""},
+                                                         upsert=True)
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode4"},
+                                                         {"_id": "Addnode4", "task_id": str(
+                                                             results), "pid": ""},
+                                                         upsert=True)
+        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode5"},
+                                                         {"_id": "Addnode5", "task_id": str(
                                                              results), "pid": ""},
                                                          upsert=True)
 
@@ -201,8 +224,14 @@ def execute_remove_node() -> Response:
     payload = request.get_json()
     is_sucessful, root_password = _replace_kit_inventory(payload)
     if is_sucessful:
-        cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}'"
-                          ).format(playbook_pass=root_password)
+        node_to_remove = None
+
+        if "remove_node" in payload:
+            node_to_remove = payload["remove_node"]
+
+        cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node='{node}'"
+                          ).format(playbook_pass=root_password,
+                            node=node_to_remove)
         task_id = perform_kit.delay(cmd_to_execute, True)
         mongo_document = conn_mng.mongo_kickstart.find_one(
             {"_id": KICKSTART_ID})
@@ -211,11 +240,6 @@ def execute_remove_node() -> Response:
                                                          {"_id": "Kit", "task_id": str(
                                                              task_id), "pid": ""},
                                                          upsert=True)
-
-        node_to_remove = None
-
-        if "remove_node" in payload:
-            node_to_remove = payload["remove_node"]
 
         kickstart_form = mongo_document["form"]
         kick_nodes = list(kickstart_form["nodes"])

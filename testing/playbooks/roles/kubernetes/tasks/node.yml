@@ -14,7 +14,6 @@
   - "{{ groups['master_server'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
-  - "{{ groups['remote_sensors'] }}"
 
 - name: Test | Ready status should be True
   assert:
@@ -37,7 +36,6 @@
   - "{{ groups['master_server'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
-  - "{{ groups['remote_sensors'] }}"
 
 - name: Test | DiskPressure status should be False
   assert:
@@ -59,7 +57,6 @@
   - "{{ groups['master_server'] }}"
   - "{{ groups['servers'] }}"
   - "{{ groups['sensors'] }}"
-  - "{{ groups['remote_sensors'] }}"
 
 - name: Test | MemoryPressure status should be False
   assert:

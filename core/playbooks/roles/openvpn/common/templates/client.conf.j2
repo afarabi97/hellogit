@@ -28,8 +28,8 @@ persist-key
 # for each client.  A single ca
 # file can be used for all clients.
 ca /etc/openvpn/pki/ca.crt
-cert /etc/openvpn/{{ inventory_hostname }}.req.crt
-key /etc/openvpn/pki/private/{{ inventory_hostname }}.key
+cert /etc/openvpn/{{ inventory_hostname_short }}.crt
+key /etc/openvpn/pki/private/{{ inventory_hostname_short }}.key
 
 # If a tls-auth key is used on the server
 # then every client must also have the key.
@@ -49,3 +49,4 @@ cipher AES-256-CBC
 
 # Set log file verbosity.
 verb 3
+log-append /var/log/openvpn.log

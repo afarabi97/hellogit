@@ -101,5 +101,5 @@
   vars:
     type: "node"
     namespace: ""
-    resource_name: "{{ ansible_fqdn }}"
+    resource_name: "{{ inventory_hostname }}"
     label: ""

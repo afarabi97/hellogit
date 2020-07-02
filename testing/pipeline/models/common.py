@@ -36,16 +36,18 @@ class NodeSettings(Model):
         self.disk_size = 100
         self.luks_password = ''
         self.extra_disks = []
+        self.domain = ''
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
-            self.hostname = "{}-{}.lan".format(vm_prefix, node_type)
+            self.hostname = "{}-{}".format(vm_prefix, node_type)
         else:
-            self.hostname = "{}-{}{}.lan".format(vm_prefix, node_type, index)
+            self.hostname = "{}-{}{}".format(vm_prefix, node_type, index)
 
     def from_namespace(self, namespace: Namespace, node_type: str=None):
         self.dns_servers = namespace.dns_servers
         self.vm_prefix = namespace.vm_prefix
+        self.domain = namespace.domain
 
         if node_type:
             self.set_hostname(self.vm_prefix, node_type=node_type)
@@ -109,6 +111,7 @@ class NodeSettings(Model):
         parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 0 which uses 96 as the last octet. [81, 113, 145, 177, 209]",
                             default=0, choices=range(0, 5), type=int)
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
+        parser.add_argument('--domain', dest='domain', required=True, help="The kit domain")
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
         parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='default')

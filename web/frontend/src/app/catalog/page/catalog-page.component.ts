@@ -589,7 +589,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.kafkaArray = array;
   }
   /**
-   * parses out the .lan on the deployment name so that Kubernetes doesnt crash
+   * parses out the domain on the deployment name so that Kubernetes doesnt crash
    *
    * @param {string} application
    * @param {string} node_hostname
@@ -597,7 +597,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   makeRegexGreatAgain(application: string, node_hostname: string, value?: any): string {
-    const new_hostname = node_hostname.replace(/\.(lan)?$/, '');
+    const new_hostname = node_hostname.split('.')[0];
     let deployment_name;
     this.chart.node_affinity === "Server - Any" ? deployment_name = application : deployment_name = new_hostname + '-' + application;
     if( value !== undefined) {

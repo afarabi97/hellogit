@@ -4,11 +4,6 @@
 # Checking that required variables are set #
 ############################################
 
-- name: Check if remote_sensors is defined
-  fail:
-    msg: 'Verify you have the remote_sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.' # noqa 204
-  when: "'remote_sensors' not in groups"
-
 - name: Check if servers is defined
   fail:
     msg: 'Verify you have the servers group in your inventory file. It must be defined. See sample inventory. If you have no servers you can define an empty group with just servers: under nodes.' # noqa 204

@@ -17,6 +17,7 @@ all:
     # you will need to manually provide all required DNS entries on your separate
     # DNS Server or the kit will break.
     dns_ip: {{ template_ctx.dns_ip }}
+    kit_domain: {{ template_ctx.domain }}
 
     #############################
     # Kubernetes Settings       #
@@ -44,7 +45,6 @@ all:
     #############################
 
     # Here you will define any variables specific to each sensor host.
-        remote_sensors:
 
         sensors:
           {% if template_ctx.sensor_count > 0 %}
@@ -86,7 +86,6 @@ all:
               # This is the address Ansible will use to communicate with.
               management_ipv4: "{{ node.management_ip_address }}"
 
-              is_remote: {{ node.is_remote }}
             {% endif %}
           {% endfor %}
 

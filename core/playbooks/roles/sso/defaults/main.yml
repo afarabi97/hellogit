@@ -1,6 +1,6 @@
 ---
 boostrap_sso_vars: "/opt/tfplenum/bootstrap/playbooks/roles/sso/defaults/main.yml"
-sso_idp_url: "controller.{{ domain }}"
+sso_idp_url: "controller.{{ kit_domain }}"
 
 saml_apps:
   - "kibana"

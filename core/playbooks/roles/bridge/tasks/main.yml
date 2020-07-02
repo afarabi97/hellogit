@@ -1,0 +1,78 @@
+---
+
+- name: Install net-tools
+  yum:
+    name:
+      - bridge-utils
+      - net-tools
+    state: present
+
+- name: Check if openvpn-server exists
+  stat:
+    path: /usr/lib/systemd/system/openvpn-server.service
+  register: existing_ovpn_server
+
+- name: Stop openvpn server
+  systemd:
+    name: openvpn-server
+    state: stopped
+  ignore_errors: yes
+  when: existing_ovpn_server.stat.exists
+
+- name: Get Gateway Ip
+  shell: |
+    set -o pipefail
+    ip route | grep default | cut -d ' ' -f3 | head -n1
+  register: gateway_ip
+  changed_when: False
+
+- name: Set Gateway Var
+  set_fact:
+    gateway_ip_address: "{{ gateway_ip.stdout }}"
+
+- name: Set management interface var
+  set_fact:
+     management_interface: "{{ ansible_default_ipv4.interface }}"
+
+- debug:
+    msg: "master server interface: {{ management_interface }}"
+
+- block:
+  - name: Create bridge interface
+    template:
+      src: "templates/ifcfg-br0.j2"
+      dest: "/etc/sysconfig/network-scripts/ifcfg-br0"
+
+  - name: Create management interface to bridge
+    template:
+      src: "templates/ifcfg-interface.j2"
+      dest: "/etc/sysconfig/network-scripts/ifcfg-{{ management_interface }}"
+
+  - name: Restart network services on master server
+    systemd:
+      name: "{{ item }}"
+      state: restarted
+      enabled: yes
+    with_items:
+      - network
+      - NetworkManager
+
+  - name: Configure iptables rule on the server for br0
+    iptables:
+      chain: INPUT
+      in_interface: br0
+      jump: ACCEPT
+
+  - name: Configure iptables rule on the server for br0 forwarding
+    iptables:
+      chain: FORWARD
+      in_interface: br0
+      jump: ACCEPT
+  when: management_interface != "br0"
+
+- name: Start openvpn server
+  systemd:
+    name: openvpn-server
+    state: started
+  ignore_errors: yes
+  when: existing_ovpn_server.stat.exists

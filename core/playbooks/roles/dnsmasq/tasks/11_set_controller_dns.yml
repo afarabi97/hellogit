@@ -1,6 +1,5 @@
 ---
 
-
 - name: Remove all nameservers from resolv conf
   lineinfile:
     path: "/etc/resolv.conf"

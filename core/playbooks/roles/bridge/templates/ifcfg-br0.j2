@@ -1,0 +1,9 @@
+DEVICE=br0
+BOOTPROTO=none
+IPADDR={{ hostvars[groups['master_server'][0]].management_ipv4 }}
+NETMASK=255.255.255.0
+GATEWAY={{ gateway_ip_address }}
+DNS1=127.0.0.1
+ONBOOT=yes
+TYPE=Bridge
+NM_CONTROLLED=no

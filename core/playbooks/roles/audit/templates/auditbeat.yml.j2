@@ -71,7 +71,7 @@ setup.dashboards.index: "auditbeat-internal-*"
 setup.kibana:
     space.id: "audit"
 {% if "localhost" in inventory_hostname  %}
-    host: "https://kibana.{{ domain }}:{{ kibana_port }}"
+    host: "https://kibana.{{ kit_domain }}:{{ kibana_port }}"
 {% else %}
     host: "https://{{ kibana_fqdn }}:{{ kibana_port }}"
 {% endif %}
@@ -87,7 +87,7 @@ setup.kibana:
 output.elasticsearch:
   # Array of hosts to connect to.
 {% if "localhost" in inventory_hostname  %}
-    hosts: ['elasticsearch.{{ domain }}:{{ elastic_port }}']
+    hosts: ['elasticsearch.{{ kit_domain }}:{{ elastic_port }}']
 {% else %}
     hosts: ['{{ elastic_fqdn }}:{{ elastic_port }}']
 {% endif %}

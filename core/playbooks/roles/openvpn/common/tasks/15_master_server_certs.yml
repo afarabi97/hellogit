@@ -1,0 +1,28 @@
+---
+
+- name: Generate a PKI request for master server
+  shell: |
+    ./easyrsa --batch gen-req {{ inventory_hostname_short }} nopass
+  args:
+    chdir: "{{ ovpn_dir }}"
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname_short }}"
+  register: results
+  changed_when: results.rc == 0
+
+- name: Sign pki request for master server
+  shell: |
+    ./easyrsa --batch sign-req server {{ inventory_hostname_short }}
+  args:
+    chdir: "{{ ovpn_dir }}"
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname_short }}"
+  register: results
+  changed_when: results.rc == 0
+
+- name: Copy master server signed cert
+  shell: |
+    /usr/bin/cp -rf {{ ovpn_dir }}/pki/issued/{{ inventory_hostname_short }}.crt {{ ovpn_dir }}/pki/{{ inventory_hostname_short }}.crt
+  register: results
+  changed_when: results.rc == 0
+

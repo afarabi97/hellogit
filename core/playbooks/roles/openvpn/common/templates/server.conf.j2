@@ -1,21 +1,21 @@
 port 1194
 
 # TCP or UDP server?
-proto tcp
+proto tcp4
 ;proto udp
 
 dev tap0
 ;dev tun
 
-ca /etc/openvpn/pki/ca.crt
-cert /etc/openvpn/pki/ca.crt
-key /etc/openvpn/pki/private/ca.key  # This file should be kept secret
-dh /etc/openvpn/pki/dh.pem
+ca {{ ovpn_dir }}/pki/ca.crt
+cert {{ ovpn_dir }}/pki/{{ inventory_hostname_short }}.crt
+key {{ ovpn_dir }}/pki/private/{{ inventory_hostname_short }}.key  # This file should be kept secret
+dh {{ ovpn_dir }}/pki/dh.pem
+crl-verify {{ ovpn_dir }}/pki/crl.pem
 
 topology subnet
 
 server-bridge
-client-config-dir /etc/openvpn/server/ccd
 push "route-gateway {{ hostvars[groups['master_server'][0]].management_ipv4 }}"
 push "redirect-gateway def1"
 
@@ -33,5 +33,7 @@ persist-key
 status openvpn-status.log
 
 verb 3
+client-config-dir client-scripts
+log-append /var/log/openvpn.log
 
 ;explicit-exit-notify 1

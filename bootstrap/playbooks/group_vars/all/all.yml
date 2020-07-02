@@ -94,7 +94,7 @@ iso_rhel_worstation_checksum: 56c4be4757c4b8e560d21e13a8cc3854ace401547e02999ff8
 
 BOOTSTRAP: false
 
-ansible_controller_hostname: "controller.lan"
+ansible_controller_hostname: "{{ ansible_fqdn }}"
 
 RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
 TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"

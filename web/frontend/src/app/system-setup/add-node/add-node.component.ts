@@ -18,7 +18,7 @@ import { UserService } from '../../user.service';
 
 const add_node_validators = {
   hostname: [
-    { ops: { pattern: /^[a-z]([a-z]|[0-9]|[-])*[.][a-z]([a-z]|[0-9]|[-][.])*$/ }, error_message: 'Hostnames must be alphanumeric and end with .<domain> (.lan, etc). Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters, should NOT include domain. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
   ip_address: [

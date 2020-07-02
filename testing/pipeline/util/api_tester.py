@@ -208,7 +208,7 @@ class KickstartPayloadGenerator:
             ],
             "nodes": self._construct_node_parts(),
             "continue": True,
-            "domain": "lan"
+            "domain": self._ctrl_settings.node.domain
         }
 
 
@@ -305,9 +305,10 @@ class KitPayloadGenerator:
                              "It must be %s" % str(NodeSettings.valid_server_types))
 
         is_master = node.node_type == NodeSettings.valid_node_types[0]
+        node_fqdn = "{}.{}".format(node.hostname, node.domain)
         return {
             "node_type": "Server",
-            "hostname": node.hostname,
+            "hostname": node_fqdn,
             "management_ip_address": node.ipaddress,
             "is_master_server": is_master,
             "deviceFacts": self._device_facts_map[node.ipaddress]
@@ -319,9 +320,10 @@ class KitPayloadGenerator:
                              "It must be %s" % str(NodeSettings.valid_sensor_types))
 
         is_remote = node.node_type == NodeSettings.valid_node_types[1]
+        node_fqdn = "{}.{}".format(node.hostname, node.domain)
         return {
             "node_type": SENSOR,
-            "hostname": node.hostname,
+            "hostname": node_fqdn,
             "management_ip_address": node.ipaddress,
             "is_remote": is_remote,
             "deviceFacts": self._device_facts_map[node.ipaddress]
@@ -392,7 +394,8 @@ class CatalogPayloadGenerator:
 
         if kit_form:
             for kit_node in kit_form["nodes"]:
-                if kit_node["hostname"] == node.hostname:
+                node_fqdn = "{}.{}".format(node.hostname, node.domain)
+                if kit_node["hostname"] == node_fqdn:
                     ret_val = kit_node["deviceFacts"]
                     break
 

@@ -20,33 +20,33 @@ all:
     dhcp: true
     # dhcp_start: This is the DHCP range starting ip address.
     # Default: null
-    dhcp_start: '{{ template_ctx.dhcp_start }}'
+    dhcp_start: {{ template_ctx.dhcp_start }}
     # dhcp_end: This is the DHCP range ending ip address.
     # Default: null
-    dhcp_end: '{{ template_ctx.dhcp_end }}'
+    dhcp_end: {{ template_ctx.dhcp_end }}
     # dhcp_mask: Subnet mask used for dhcp configuration.
     # Default: The same subnet as the ansible controller.
 
     # Below are networking options for node static addressing.
     # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
     # Default: ansible controllers ip address
-    dns: '{{ template_ctx["controller_interface"][0] }}'
+    dns: {{ template_ctx["controller_interface"][0] }}
 
     # gateway: This is used to configure the nodes with a default gateway.
     # Default: null
-    gateway: '{{ template_ctx.gateway }}'
+    gateway: {{ template_ctx.gateway }}
     # netmask: This is used to define the subnet mask for the node static address.
     # Default: null
-    netmask: '{{ template_ctx.netmask }}'
-    domain: '{{ template_ctx.domain }}'
+    netmask: {{ template_ctx.netmask }}
+    kit_domain: {{ template_ctx.domain }}
 
     # The following variables are used for kickstart options.
     # root_password: Sets root password for each node.
     # Define: empty
-    root_password: "{{ template_ctx.root_password }}"
+    root_password: {{ template_ctx.root_password }}
     # timezone: Set the timezone for each node.
     # Define: America/Chicago
-    timezone: "{{ template_ctx.timezone | default('UTC') }}"
+    timezone: {{ template_ctx.timezone | default('UTC') }}
 
     # default_boot_drive: This is the default drive used for operating system installation.
     # Default: sda
@@ -57,7 +57,7 @@ all:
 
     # server_ip: ansible controller ip address used to define kickstart server
     # Default: ansible controller ip address
-    server_ip: '{{ template_ctx["controller_interface"][0] }}'
+    server_ip: {{ template_ctx["controller_interface"][0] }}
 
   children:
     nodes:
@@ -65,7 +65,7 @@ all:
         servers:
           hosts:
             {% for node in template_ctx.nodes %}
-            {{ node.hostname }}:
+            {{ node.hostname }}.{{ template_ctx.domain }}:
               ip: {{ node.ip_address }}
               mac: {{ node.mac_address }}
               boot_drive: {{ node.boot_drive|lower() }}

@@ -144,6 +144,16 @@
                    kickStartFormGroup.get('confirm_luks_password').touched" matSuffix color="warn">error</mat-icon>
           </mat-form-field>
         </ng-container>
+        <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
+          <mat-form-field>
+            <mat-label>Domain</mat-label>
+            <input matInput type="text" placeholder="You must enter a domain name for the kit."
+                   formControlName="domain" matTooltip="{{ getTooltip('domain') }}" />
+                   <mat-icon *ngIf="kickStartFormGroup.get('domain')?.valid && kickStartFormGroup.get('domain')?.touched" matSuffix color="primary">check_circle</mat-icon>
+                   <mat-icon *ngIf="kickStartFormGroup.get('domain')?.invalid && kickStartFormGroup.get('domain')?.touched" matSuffix color="warn">error</mat-icon>
+                   <mat-error>{{ getErrorMessage(kickStartFormGroup.get("domain")) }}</mat-error>
+          </mat-form-field>
+        </ng-container>
         <mat-form-field>
           <mat-label>Root Password</mat-label>
           <input matInput (keyup)="reEvaluate($event)" type="password"

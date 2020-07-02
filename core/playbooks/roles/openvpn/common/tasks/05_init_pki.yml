@@ -1,0 +1,11 @@
+---
+
+- name: Init Pki
+  shell: |
+    ./easyrsa --batch init-pki
+  args:
+    chdir: "{{ ovpn_dir }}"
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname }}"
+  register: results
+  changed_when: results.rc == 0

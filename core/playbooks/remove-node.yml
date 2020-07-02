@@ -5,6 +5,30 @@
 # Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
 
 ---
+- name: Set controller variables on hosts
+  hosts:
+    - localhost
+    - servers
+    - sensors
+  tags: always
+  tasks:
+    - name: Set controller ip var
+      set_fact:
+        ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
+
+    - name: Create master server group
+      add_host:
+        hostname: "{{ item }}"
+        groups: master_server
+      when: hostvars[item].is_master | default(false)
+      with_items: "{{ groups['all'] }}"
+
+    - name: Create nodes to remove group
+      add_host:
+        hostname: "{{ node }}"
+        groups: nodes_to_remove
+      when: node is defined
+
 - name: Preflight before removing node from k8s cluster
   hosts: master_server
   tasks:
@@ -25,9 +49,11 @@
       with_items: "{{ groups['nodes_to_remove'] }}"
 
     - name: Get current node list
-      shell: set -o pipefail && kubectl get nodes --no-headers=true | awk '{ print $1 }'
+      shell: |
+        set -o pipefail
+        kubectl get nodes --no-headers=true | awk '{ print $1 }'
       register: node_list
-      changed_when: node_list.rc == 0
+      changed_when: False
 
     - name: Check if nodes in nodes to remove is in node_list
       fail:
@@ -44,33 +70,60 @@
       failed_when: false
       ignore_errors: yes
       with_items: "{{ groups['nodes_to_remove'] }}"
-      register: result
-      changed_when: result.rc == 0
+      register: results
+      changed_when: results.rc == 0
 
 - name: Delete node from k8s
-  hosts: nodes_to_remove
+  hosts: master_server
   tasks:
     - name: Delete nodes from k8s cluster
       shell: |
         kubectl delete node {{ item }}
       with_items: "{{ groups['nodes_to_remove'] }}"
-      register: result
-      changed_when: result.rc == 0
+      register: results
+      changed_when: results.rc == 0
 
 - name: Clean up node
   hosts: nodes_to_remove
   roles:
     - { role: kubernetes/reset }
-
-- name: Reboot node
-  hosts: nodes_to_remove
   tasks:
-    - name: Reboot system
+    - name: Reboot system # noqa 301
       command: "/sbin/shutdown -r +1 --no-wall"
-      register: result
-      changed_when: result.rc == 0
       async: 0
       poll: 0
       ignore_errors: yes
-      failed_when: result.rc != 0
-...
+
+- name: Update DNS
+  hosts:
+    - master_server
+  tasks:
+    - name: Update hosts in dnsmasq
+      import_role:
+        name: dnsmasq
+        tasks_from: update_dns
+
+    - name: Clean up remote sensor files
+      file:
+        path: "/etc/openvpn/server/client-scripts/{{ hostvars[item].inventory_hostname_short }}"
+        state: absent
+      with_items: "{{ groups['nodes_to_remove'] }}"
+
+    - name: Revoke remote sensor certificate
+      shell: |
+        ./easyrsa --batch revoke {{ hostvars[item].inventory_hostname_short }}
+      args:
+        chdir: /etc/openvpn/
+      with_items: "{{ groups['nodes_to_remove'] }}"
+      register: results
+      changed_when: results.rc == 0
+      ignore_errors: yes
+
+    - name: Generate CRL
+      shell: |
+        ./easyrsa gen-crl
+      args:
+        chdir: /etc/openvpn/
+      register: results
+      changed_when: results.rc == 0
+      ignore_errors: yes

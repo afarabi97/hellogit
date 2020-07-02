@@ -71,7 +71,7 @@ import { IP_CONSTRAINT } from '../../frontend-constants';
 
 export const kickstart_validators = {
   hostname: [
-    { ops: { pattern: /(?=^.{4,253}$)(^([a-z][a-z0-9-]*)+(\.[a-z][a-z0-9-]*)+$)/ }, error_message: 'Hostnames must be alphanumeric, less than 253 characters, and end with .<domain>. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters, should NOT include domain. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
@@ -95,6 +95,10 @@ export const kickstart_validators = {
   netmask: [{ error_message: 'Netmask is required', validatorFn: 'required' }],
   //general form validation
   controller_interface: [{ error_message: 'Controller Interface is required', validatorFn: 'required' }],
+  domain: [
+    { ops: { pattern: /^[a-z]([a-z0-9-]){2,51}$/ }, error_message: 'Domain must be alphanumeric, less than 51 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { error_message: 'Domain is required', validatorFn: 'required' }
+  ],
   // root_password: [
   //   { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
   //   { error_message: 'Root password is required', validatorFn: 'required' }
@@ -145,6 +149,7 @@ export const kickStartTooltips = {
   machines on the network. This means it will take whatever IP address you select \
   and create range addresses from that IP +16. For example, \
   192.168.1.16 would become a range from 192.168.1.16-31.',
+  domain: 'The Domain Name used for the kit this should be unique domain for each kit',
   root_password: `The root password will be how to log into each server and sensor after the kickstart process completes.  \
   Do not forget this password or you will not be able to complete the system installation.`,
   re_password: `The root password will be how to log into each server and sensor after the kickstart process completes.  \

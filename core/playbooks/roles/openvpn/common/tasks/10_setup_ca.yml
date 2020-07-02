@@ -1,0 +1,11 @@
+---
+
+- name: Create a certificate authority
+  shell: |
+    ./easyrsa --batch build-ca nopass
+  args:
+    chdir: "{{ ovpn_dir }}"
+  environment:
+    EASYRSA_REQ_CN: "{{ inventory_hostname }}"
+  register: results
+  changed_when: results.rc == 0

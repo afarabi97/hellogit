@@ -8,8 +8,8 @@
 
 - name: Set System Name and Node Groups
   hosts:
-    - all
     - localhost
+    - all
   gather_facts: no
   pre_tasks:
     - name: Run gather facts
@@ -67,24 +67,6 @@
     - debug:
         msg: "Kit size: {{ kit_size }}"
 
-- name: Set controller domain
-  hosts: localhost
-  gather_facts: yes
-  roles:
-    - domain/localhost
-  tags:
-    - domain
-
-- name: Set server/sensor domain
-  hosts:
-    - servers
-    - sensors
-  gather_facts: yes
-  roles:
-    - domain/common
-  tags:
-    - domain
-
 - name: Setup Repos
   hosts:
     - servers
@@ -98,34 +80,17 @@
     - repos
   tags: repos
 
-- name: Install Controller Dependencies
-  hosts:
-    - servers
-    - sensors
-  tasks:
-    - name: Install NetworkManager packages
-      yum:
-        name: "NetworkManager-glib"
-        state: installed
-      register: network_manager_result
-
-    - name: "Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301"
-      systemd:
-        name: NetworkManager
-        state: restarted
-  tags:
-    - dnsmasq
-    - update-networkmanager
-
-- name: Verify Ansible meets version requirements
-  hosts: localhost
+- name: Create Bridge Interface
+  hosts: master_server
+  gather_facts: no
   any_errors_fatal: true
-  tasks:
-    - name: Ansible reqs failure
-      fail:
-        msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
-      when: "ansible_version.full is version('2.5', '<=')"
-  tags: preflight
+  pre_tasks:
+    - name: Setup bridge pre_tasks
+      setup:
+  roles:
+    - bridge
+  tags:
+    - bridge
 
 - name: dnsmasq
   hosts:
@@ -135,13 +100,6 @@
   pre_tasks:
     - name: dnsmasq pre_tasks
       setup:
-    - name: Disable possible existing OpenVPN
-      systemd:
-        name: openvpn-client.service
-        enabled: no
-        state: stopped
-      when: inventory_hostname in groups['remote_sensors']
-      ignore_errors: yes
   roles:
     - dnsmasq
   tags: dnsmasq
@@ -261,7 +219,7 @@
 - name: OpenVPN
   hosts:
     - master_server
-    - remote_sensors
+    - sensors
   gather_facts: yes
   any_errors_fatal: true
   pre_tasks:

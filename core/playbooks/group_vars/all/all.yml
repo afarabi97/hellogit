@@ -65,12 +65,11 @@ package_list:
   - ipvsadm
   - libsemanage-python
 
-
 pip_installs:
   - netaddr
 
+ansible_controller_hostname: "controller.{{ kit_domain }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
-docker_registry_port: 5000
 docker_registry_repo: "{{ ansible_controller_hostname }}"
 
 # kit size is defaulted -1
