@@ -1,0 +1,9 @@
+uid: debug
+givenName: Debug
+surname: User
+displayName: Debug User
+email: debug@dip.local
+roles:
+  - controller-admin
+  - controller-maintainer
+  - operator

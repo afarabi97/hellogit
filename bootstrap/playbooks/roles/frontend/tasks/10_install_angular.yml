@@ -15,7 +15,7 @@
 - name: npm | Install specific npm version
   npm:
     name: npm
-    version: 6.13.4
+    version: 6.14.5
     path: "{{ web_install_dir }}/frontend"
     global: yes
 
