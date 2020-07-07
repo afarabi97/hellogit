@@ -15,7 +15,8 @@
         "ecs*",
         "ecs-zeek*",
         "*beat*",
-        ".monitoring-*"
+        ".monitoring-*",
+        "filebeat-*"
       ],
       "privileges": [
         "write",
@@ -24,7 +25,10 @@
         "create_index",
         "manage",
         "manage_ilm",
-        "monitor"
+        "monitor",
+        "view_index_metadata",
+        "read",
+        "index"
       ],
       "allow_restricted_indices": false
     }

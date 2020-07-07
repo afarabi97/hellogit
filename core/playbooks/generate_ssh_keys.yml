@@ -2,6 +2,15 @@
 
 ---
 
+- name: Set Variables
+  set_fact:
+    ssh_known_hosts: "{{ groups['servers'] + groups['sensors'] }}"
+
+- name: Set Short Name List
+  set_fact:
+    ssh_short_known_hosts: "{{ ssh_short_known_hosts|default([]) + [hostvars[item].inventory_hostname_short] }}"
+  with_items: "{{ ssh_known_hosts }}"
+
 - name: For each host, ssh-copy-id my ssh public keys to the host
   command: "sshpass -p '{{ ansible_ssh_pass }}' ssh-copy-id -oStrictHostKeyChecking=no {{ item }}"
   with_items: "{{ ssh_known_hosts + ssh_short_known_hosts }}"

@@ -1,7 +1,6 @@
-{% set number_of_shards = 2 %}
-{% if kit_size > 1 %}
-  {% set number_of_shards = 4 %}
-{% endif %}
+{% set number_of_shards = 2 %}{% if kit_size > 1 %}{% set number_of_shards = 4 %}{% endif %}
+
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
