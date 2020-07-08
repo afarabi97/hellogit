@@ -111,7 +111,7 @@ class NodeSettings(Model):
         parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 0 which uses 96 as the last octet. [81, 113, 145, 177, 209]",
                             default=0, choices=range(0, 5), type=int)
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
-        parser.add_argument('--domain', dest='domain', required=False, help="The kit domain" default="lan")
+        parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
         parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='default')
