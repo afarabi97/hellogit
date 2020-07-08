@@ -140,8 +140,8 @@ MIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup
-  when: always
+    python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup \
+    --create-nightly "$CREATE_NIGHTLY"
   allow_failure: true
   only:
     variables:

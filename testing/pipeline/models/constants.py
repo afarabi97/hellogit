@@ -23,6 +23,7 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
+    create_nightly = 'create_nightly'
 
     # run-catalog subcommands
     install = "install"

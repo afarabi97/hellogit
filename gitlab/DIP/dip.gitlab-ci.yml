@@ -43,21 +43,8 @@ Setup DIP Controller:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
 
-DIP Run Python Unit Tests:
-  tags:
-    - tfplenum-buildv2
-  stage: unit-test
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
-  only:
-    variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
-
 DIP Kickstart:
+  needs: ["Setup DIP Controller"]
   stage: kickstart
   tags:
     - tfplenum-buildv2
@@ -97,6 +84,7 @@ DIP Kickstart:
       - $PIPELINE == "developer-dip-mip"
 
 DIP Kit:
+  needs: ["DIP Kickstart", "Setup DIP Controller"]
   stage: kit
   tags:
     - tfplenum-buildv2
@@ -174,6 +162,21 @@ CVAH Catalog:
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
 
+
+DIP Run Python Unit Tests:
+  tags:
+    - tfplenum-buildv2
+  stage: unit-test
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
+  only:
+    variables:
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+
 System Function Testing:
   stage: integration-test
   tags:
@@ -233,8 +236,8 @@ DIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup
-  when: always
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup \
+    --create-nightly "$CREATE_NIGHTLY"
   allow_failure: true
   only:
     variables:

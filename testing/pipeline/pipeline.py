@@ -34,7 +34,7 @@ from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKi
 from models.rhel_repo_vm import RHELRepoSettings
 from models.stig import STIGSettings
 from util.yaml_util import YamlManager
-from util.ansible_util import delete_vms
+from util.ansible_util import delete_vms, create_nightly
 
 
 class Runner:
@@ -112,6 +112,8 @@ class Runner:
         cleanup_parser = subparsers.add_parser(
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
+        cleanup_parser.add_argument('--create-nightly', dest='create_nightly', required=False,
+                             help="Creates nightly controllers after before cleanup")
 
         mip_config_parser = subparsers.add_parser(
             SubCmd.run_mip_config, help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
@@ -427,6 +429,10 @@ class Runner:
                     try:
                         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
                         kickstart_settings.nodes.append(ctrl_settings.node)
+                        if args.create_nightly == "Yes":
+                            create_nightly(ctrl_settings.vcenter,
+                                           ctrl_settings.node,
+                                           ctrl_settings.system_name)
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.nodes)
                     except FileNotFoundError:
@@ -438,6 +444,10 @@ class Runner:
                     try:
                         kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
                         kickstart_settings.mips.append(ctrl_settings.node)
+                        if args.create_nightly == "Yes":
+                            create_nightly(ctrl_settings.vcenter,
+                                            ctrl_settings.node,
+                                            ctrl_settings.system_name)
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.mips)
                     except FileNotFoundError:
@@ -445,6 +455,10 @@ class Runner:
                 elif args.system_name == "GIP":
                     try:
                         gip_settings = YamlManager.load_gip_settings_from_yaml()
+                        if args.create_nightly == "Yes":
+                            create_nightly(gip_settings.vcenter,
+                                            gip_settings.node,
+                                            gip_settings.system_name)
                         delete_vms(gip_settings.vcenter, gip_settings.node)
                     except FileNotFoundError:
                         pass

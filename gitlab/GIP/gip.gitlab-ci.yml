@@ -52,12 +52,11 @@ GIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup
-  when: always
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup \
+    --create-nightly "$CREATE_NIGHTLY"
   only:
     variables:
       - $IS_CLEANUP == "true" && $PIPELINE == "developer-gip"
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
       - $IS_CLEANUP == "true" && $PIPELINE == "export-gip-service"
       - $IS_CLEANUP == "true" && $PIPELINE == "export-gip"
 
