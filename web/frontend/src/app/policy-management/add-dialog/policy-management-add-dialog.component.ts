@@ -72,9 +72,9 @@ export class PolicyManagementAddDialog  implements OnInit {
     this.ruleSetGroup = this.formBuilder.group({
       '_id': new FormControl(ruleSet ? ruleSet._id : '0'),
       'name': new FormControl(ruleSet ? ruleSet.name : '', Validators.compose([Validators.required])),
-      'clearance': new FormControl(ruleSet ? ruleSet.clearance : ''),
+      'clearance': new FormControl(ruleSet ? ruleSet.clearance : '', Validators.compose([Validators.required])),
       'sensors': new FormControl(),
-      'appType': new FormControl(ruleSet ? ruleSet.appType : ''),
+      'appType': new FormControl(ruleSet ? ruleSet.appType : '', Validators.compose([Validators.required])),
       'isEnabled': new FormControl(ruleSet ? ruleSet.isEnabled : true)
     });
 

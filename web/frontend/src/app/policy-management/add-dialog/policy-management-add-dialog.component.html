@@ -34,6 +34,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
-  <button mat-raised-button color="primary" [mat-dialog-close]="data"
+  <button [disabled]="ruleSetGroup.invalid" mat-raised-button color="primary" [mat-dialog-close]="data"
           (click)="onSubmit()" cdkFocusInitial>Submit</button>
 </div>

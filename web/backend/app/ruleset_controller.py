@@ -294,6 +294,7 @@ def create_rule() -> Response:
     if rule_set:
         rule_type = rule_set['appType']
         is_valid = False
+        error_output = ""
         if rule_type == RULE_TYPES[0]:
             is_valid, error_output = _validate_suricata_rule(rule)
         elif rule_type == RULE_TYPES[1]:
