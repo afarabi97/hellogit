@@ -22,29 +22,9 @@
     owner: root
     group: root
 
-- block:
-  - name: Copy Charts to master server
-    copy:
-      src: /var/www/html/offlinerepo/charts/
-      dest: "{{ chartmuseum_install_dir }}/charts"
-  - name: Get list of charts
-    find:
-      paths: "{{ chartmuseum_install_dir }}/charts"
-    register: charts
-  - name: Upload charts into Chartmuseum
-    uri:
-      url: "https://chartmuseum.{{ kit_domain }}/api/charts"
-      src: "{{ item.path }}"
-      method: POST
-      status_code: 201, 200
-      return_content: yes
-      remote_src: 'yes'
-    with_items: "{{ charts.files }}"
-    register: results
-    until: results.status == 201 and results.json.saved
-    retries: 10
-    delay: 5
-  when: inventory_hostname in groups['master_server']
+- import_tasks: load_charts.yml
+  when: inventory_hostname == "localhost"
+  tags: build-load-charts
 
 - name: update helm repo
   shell: |
