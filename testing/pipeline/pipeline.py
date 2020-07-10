@@ -7,6 +7,7 @@ from jobs.ctrl_setup import ControllerSetupJob, checkout_latest_code
 from jobs.drive_creation import DriveCreationJob, DriveHashCreationJob
 from jobs.kickstart import KickstartJob, MIPKickstartJob, GIPKickstartJob
 from jobs.mip_config import MIPConfigJob
+from jobs.mip_save_kit import MIPSaveKitJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
@@ -113,7 +114,10 @@ class Runner:
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
         cleanup_parser.add_argument('--create-nightly', dest='create_nightly', required=False,
-                             help="Creates nightly controllers after before cleanup")
+                            help="Creates nightly controllers after before cleanup ('Yes' or 'No')")
+        cleanup_parser.add_argument('--save-kit', dest='save_kit', required=False, 
+                            help="Allows for saving a template of a functional MIP kit. ('Yes' or 'No')")
+
 
         mip_config_parser = subparsers.add_parser(
             SubCmd.run_mip_config, help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
@@ -444,10 +448,15 @@ class Runner:
                     try:
                         kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
                         kickstart_settings.mips.append(ctrl_settings.node)
+
                         if args.create_nightly == "Yes":
                             create_nightly(ctrl_settings.vcenter,
                                             ctrl_settings.node,
                                             ctrl_settings.system_name)
+                        elif args.save_kit == "Yes":
+                            executor = MIPSaveKitJob(
+                            ctrl_settings, kickstart_settings)
+                            executor.save_mip_kit()                
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.mips)
                     except FileNotFoundError:

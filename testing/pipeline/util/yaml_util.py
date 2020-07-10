@@ -102,7 +102,7 @@ class YamlManager:
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
-    def load_mip_kickstart_settings_from_yaml(cls) -> KickstartSettings:
+    def load_mip_kickstart_settings_from_yaml(cls) -> MIPKickstartSettings:
         yaml_name = YAML_FILE.format(MIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 

@@ -28,7 +28,7 @@ class GIPServiceSettings(Model):
         self.node.from_namespace(namespace)
 
         self.node.disk_size = 250
-        self.node.hostname = "{}-services.lan".format(namespace.vm_prefix)
+        self.node.hostname = "{}-services.{}".format(namespace.vm_prefix, namespace.domain)
 
 class GIPControllerSettings(Model):
     def __init__(self):

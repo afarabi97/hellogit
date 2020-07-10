@@ -20,7 +20,6 @@ Test Reposync Server VM:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --domain "$KIT_DOMAIN" \
     --disk-size "1100" \
     --vm-template "RHEL7.7 Headless Template" \
     --subscription "$RHEL_SUB_METHOD" \
@@ -53,7 +52,6 @@ Test Reposync Workstation VM:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --domain "$KIT_DOMAIN" \
     --disk-size "1100" \
     --vm-template "RHEL7.7 Workstation Template" \
     --subscription "$RHEL_SUB_METHOD" \
@@ -85,7 +83,6 @@ Build Server Reposync VM for Export:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --domain "$KIT_DOMAIN" \
     --disk-size "1100" \
     --vm-template "RHEL7.7 Headless Template" \
     --linked-clone "$LINKED_CLONE"
@@ -119,7 +116,6 @@ Build Workstation Reposync VM for Export:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --domain "$KIT_DOMAIN" \
     --disk-size "1100" \
     --vm-template "RHEL7.7 Workstation Template" \
     --linked-clone "$LINKED_CLONE"

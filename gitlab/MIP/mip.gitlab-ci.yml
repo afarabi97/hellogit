@@ -86,8 +86,7 @@ Configure MIPs:
     echo "IP of runner is $(hostname -i | awk '{print $2}')"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" \
-    run-mip-config --operator-type "$MIP_OPERATOR_TYPE" \
-    --save-kit "$SAVE_KIT"
+    run-mip-config --operator-type "$MIP_OPERATOR_TYPE"
   only:
     variables:
       - $PIPELINE == "developer-mip"
@@ -141,7 +140,8 @@ MIP Cleanup:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup \
-    --create-nightly "$CREATE_NIGHTLY"
+    --create-nightly "$CREATE_NIGHTLY" \
+    --save-kit "$SAVE_KIT"
   allow_failure: true
   only:
     variables:
