@@ -43,6 +43,48 @@ Setup DIP Controller:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
 
+Create a standalone MinIO server:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    args=(
+      --system-name "DIP"
+      gip-setup minio
+      create
+      --vcenter-ipaddress "$VCENTER_IPADDRESS"
+      --vcenter-username "$VCENTER_USERNAME"
+      --vcenter-password "$VCENTER_PASSWORD"
+      --vcenter-datacenter "$VCENTER_DATACENTER"
+      --portgroup "$VCENTER_PORTGROUP"
+      --network-id "$NETWORK_ID"
+      --network-block-index "$DIP_NETWORK_BLOCK_INDEX"
+      --dns-servers $DNS_SERVERS
+      --vm-folder "$VMWARE_FOLDER"
+      --vm-template "jdms-rhel7-template"
+      --gateway "$VM_GATEWAY"
+      --vm-prefix "$VM_PREFIX-dip"
+      --vm-datastore "dev-vol00"
+      --disk-size 10
+      --cpu $MINIO_CPU
+      --memory $MINIO_MEMORY
+      --extra-disk $MINIO_STORAGE_SIZE
+    )
+
+    echo "${args[@]}"
+    python3 testing/pipeline/pipeline.py "${args[@]}"
+  only:
+    variables:
+      - $MINIO_VM == "true" && $PIPELINE == "export-dip"
+      - $MINIO_VM == "true" && $PIPELINE == "export-all"
+      - $MINIO_VM == "true" && $PIPELINE == "developer-dip"
+      - $MINIO_VM == "true" && $PIPELINE == "developer-all"
+  artifacts:
+    paths:
+      - vcentersettings_minio.yml
+      - nodesettings_minio.yml
+    expire_in: 6 hrs
+
 DIP Kickstart:
   needs: ["Setup DIP Controller"]
   stage: kickstart
@@ -99,6 +141,24 @@ DIP Kit:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+
+Secure MinIO with a TLS certificate:
+  stage: configure:minio
+  tags:
+    - tfplenum-buildv2
+  script: |
+    args=(
+      --system-name "DIP"
+      gip-setup minio
+      create-certificate
+    )
+
+    echo "${args[@]}"
+    python3 testing/pipeline/pipeline.py "${args[@]}"
+  only:
+    variables: # The TLS certificate should not be exported.
+      - $MINIO_VM == "true" && $PIPELINE == "developer-dip" && $MINIO_USE_TLS == "true"
+      - $MINIO_VM == "true" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "true"
 
 Perform DIP STIGs:
   stage: stig-kit
