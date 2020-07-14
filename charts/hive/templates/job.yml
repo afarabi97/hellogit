@@ -1,0 +1,78 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-setup
+  labels:
+    component: {{ .Release.Name }}-setup
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}-setup
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: setup
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 /setup.py"
+        env:
+          - name: CASE_TEMPLATE
+            value: "{{ .Values.case_template }}"
+          - name: THEHIVE_SUPERADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_username
+          - name: THEHIVE_SUPERADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_password
+          - name: THEHIVE_ALERT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: alert_username
+          - name: THEHIVE_ALERT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: alert_user_password
+          - name: THEHIVE_USER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: read_write_user_username
+          - name: THEHIVE_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: read_write_user_password
+        volumeMounts:
+        - name: setup
+          mountPath: /setup.py
+          subPath: setup.py
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      nodeSelector:
+        role: server
+      restartPolicy: Never

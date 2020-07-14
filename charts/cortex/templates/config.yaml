@@ -14,6 +14,7 @@ data:
     # IMPORTANT: If you deploy your application to several  instances,  make
     # sure to use the same key.
     #play.http.secret.key="***CHANGEME***"
+    play.http.session.secure=true
 
     ## ElasticSearch
     search {

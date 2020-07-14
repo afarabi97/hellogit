@@ -51,10 +51,7 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3443
-        command:
-        - "/bin/bash"
-        - "-c"
-        - "node ./server/wiki-setup.js & node server"
+        - containerPort: 3000
         env:
         - name: DB_HOST
           value: localhost
@@ -68,33 +65,6 @@ spec:
           value: {{ .Values.sqlUserPassword }}
         - name: DB_TYPE
           value: "mariadb"
-        - name: URL
-          value: https://wikijs.{{ .Values.domain }}
-        - name: ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-secret
-              key: admin_pass
-        - name: ADMIN_EMAIL
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Release.Name }}-secret
-              key: admin_email
-        - name: SAML_CRT
-          valueFrom:
-            secretKeyRef:
-              name: wikijs-saml
-              key: tls.crt
-        - name: SAML_KEY
-          valueFrom:
-            secretKeyRef:
-              name: wikijs-saml
-              key: tls.key
-        - name: SSO_IDP_CRT
-          valueFrom:
-            secretKeyRef:
-              name: sso-idp-metadata
-              key: idp.crt
         volumeMounts:
         - name: configmap
           mountPath: "/wiki/data/sideload/en.json"
@@ -105,12 +75,6 @@ spec:
         - name: configmap
           mountPath: "/wiki/config.yml"
           subPath: config.yml
-        - name: configmap
-          mountPath: "/wiki/server/wiki-setup.js"
-          subPath: wiki-setup.js
-        - name: configmap
-          mountPath: "/wiki/server/saml.json"
-          subPath: saml.json
         - name: data
           mountPath: /wiki/data
           subPath: content

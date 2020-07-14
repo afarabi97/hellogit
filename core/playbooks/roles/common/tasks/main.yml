@@ -15,5 +15,7 @@
   tags:
     - enable-sensor-monitor-interface
     - change-interfaces
+- import_tasks: 75_job_cleanup.yml
+  when: inventory_hostname in groups['master_server']
 
 ...

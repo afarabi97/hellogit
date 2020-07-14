@@ -10,6 +10,7 @@ data:
     # The secret key is used to secure cryptographic functions.
     # WARNING: If you deploy your application on several servers, make sure to use the same key.
     play.http.secret.key="***changeme***"
+    play.http.session.secure=true
 
     # Elasticsearch
     search {
@@ -17,11 +18,7 @@ data:
       # Index name.
       index = the_hive
       # ElasticSearch instance address.
-      {{- if .Values.cortexIntegration }}
-      uri = "{{ .Values.esUri}}"
-      {{ else }}
       uri = "http://127.0.0.1:9200/"
-      {{- end }}
 
       ## Advanced configuration
       # Scroll keepalive.

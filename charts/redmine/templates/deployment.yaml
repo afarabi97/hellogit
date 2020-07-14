@@ -50,7 +50,7 @@ spec:
         - name: data
           mountPath: /usr/src/redmine/files
           subPath: files
-      - name: redmine-nginx
+      - name: nginx
         image: "{{ .Values.nginx_image }}"
         imagePullPolicy: IfNotPresent
         ports:

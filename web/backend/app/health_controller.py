@@ -86,12 +86,15 @@ def pod_logs(pod_name: str, namespace: str) -> Response:
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         pod = kube_apiv1.read_namespaced_pod(pod_name, namespace) # type: V1PodList
         pod = pod.to_dict()
-        if "spec" in pod and "containers" in pod['spec']:
-            for container in pod['spec']['containers']:
-                container_name = container['name']
-                command = PYTHON_PATH + ' kubernetes_pod_logs.py %s %s %s' % (pod_name, namespace, container_name)
-                stdout = run_command(command, working_dir=FABRIC_PATH)
-                logs.append({'name': container_name, 'logs': stdout})
+        containers = []
+        if "spec" in pod and "init_containers" in pod['spec'] and pod['spec']['init_containers']:
+            containers = containers + pod['spec']['init_containers']
+        if "spec" in pod and "containers" in pod['spec'] and pod['spec']['containers']:
+            containers = containers + pod['spec']['containers']
+        for container in containers:
+            container_name = container['name']
+            stdout = kube_apiv1.read_namespaced_pod_log(pod_name, namespace, container=container_name, timestamps=False)
+            logs.append({'name': container_name, 'logs': stdout})
     return jsonify(logs)
 
 

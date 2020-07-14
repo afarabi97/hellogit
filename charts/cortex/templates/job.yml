@@ -1,0 +1,81 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-setup
+  labels:
+    component: {{ .Release.Name }}-setup
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}-setup
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: setup
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 /setup.py"
+        env:
+          - name: CORTEX_SUPERADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_username
+          - name: CORTEX_SUPERADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: superadmin_password
+          - name: CORTEX_ORGANIZATION
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_name
+          - name: CORTEX_ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_admin_username
+          - name: CORTEX_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_admin_password
+          - name: CORTEX_USER_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_user_username
+          - name: MISP_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: misp_user
+        volumeMounts:
+        - name: setup
+          mountPath: /setup.py
+          subPath: setup.py
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      nodeSelector:
+        role: server
+      restartPolicy: Never

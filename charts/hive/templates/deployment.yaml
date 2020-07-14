@@ -5,7 +5,7 @@ metadata:
   labels:
     component: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       component: {{ .Release.Name }}
@@ -15,138 +15,49 @@ spec:
         component: {{ .Release.Name }}
     spec:
       initContainers:
-      {{- if .Values.cortexIntegration }}
-      - name: hive-init-cortex
-        image: "{{ .Values.hive_image }}"
+      - name: hive-init
+        image: "{{ .Values.python_image }}"
         securityContext:
           runAsUser: 0
         imagePullPolicy: IfNotPresent
         command:
         - "/bin/sh"
         - "-c"
-        - "/init-cortex1.sh"
+        - "python3 /init_setup.py"
         env:
-          - name: CORTEX_SUPERADMIN_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: cortex-secret
-                key: superadmin_username
-          - name: CORTEX_SUPERADMIN_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: cortex-secret
-                key: superadmin_password
-          - name: CORTEX_USER_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: cortex-secret
-                key: org_user_username
-        volumeMounts:
-        - name: api-cache
-          mountPath: /tmp/api
-          subPath: hive-data
-        - name: webca
-          mountPath: /etc/ssl/certs/container
-          readOnly: true
-        - name: setup
-          mountPath: /init-cortex1.sh
-          subPath: init-cortex1.sh
-      - name: hive-init-cortex2
-        image: "busybox:1.31.1"
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/init-cortex2.sh"
-        volumeMounts:
-        - name: api-cache
-          mountPath: /tmp/hive
-          subPath: hive-data
-        - name: hiveconfig
-          mountPath: /data/config.conf
-          subPath: hive.conf
-        - name: setup
-          mountPath: /init-cortex2.sh
-          subPath: init-cortex2.sh
-      {{ else }}
-      - name: hive-init-elastic
-        image: "busybox:1.31.1"
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "chown -R 1000 /elastic-data"
-        volumeMounts:
-        - name: data
-          mountPath: /elastic-data
-      {{- end }}
-      {{- if .Values.mispIntegration }}
-      - name: hive-init-misp
-        image: "busybox:1.31.1"
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/init-misp.sh"
-        env:
+        - name: CORTEX_INTEGRATION
+          value: {{ .Values.cortexIntegration | quote }}
+        - name: MISP_INTEGRATION
+          value: {{ .Values.mispIntegration | quote }}
+{{- if .Values.cortexIntegration }}
+        - name: CORTEX_SUPERADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: superadmin_username
+        - name: CORTEX_SUPERADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: superadmin_password
+        - name: CORTEX_USER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_user_username
+{{- end }}
+{{- if .Values.mispIntegration }}
         - name: MISP_API_KEY
           valueFrom:
             secretKeyRef:
               name: misp-secret
               key: hive_user_api_key
-        volumeMounts:
-        - name: api-cache
-          mountPath: /tmp/hive
-          subPath: hive-data
-        - name: hiveconfig
-          mountPath: /data/config.conf
-          subPath: hive.conf
-        - name: setup
-          mountPath: /init-misp.sh
-          subPath: init-misp.sh
-      {{ end }}
-#      {{- if or .Values.cortexIntegration .Values.mispIntegration }}
-      - name: hive-init-keystore
-        image: "{{ .Values.hive_image }}"
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/etc/thehive/keystore.sh"
-        env:
+{{- end }}
         - name: KEYSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: keystore_password
-        volumeMounts:
-        - name: api-cache
-          mountPath: /tmp/hive
-          subPath: hive-data
-        - name: api-cache
-          mountPath: /opt/thehive/keystore
-          subPath: keystore
-        - name: setup
-          mountPath: /etc/thehive/keystore.sh
-          subPath: keystore.sh
-        - name: webca
-          mountPath: /etc/ssl/certs/container
-          readOnly: true
-      {{ end }}
-      - name: hive-init
-        image: "busybox:1.31.1"
-        securityContext:
-          runAsUser: 0
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "/init-hive.sh"
-        env:
         - name: OPEN_ID_SECRET
           valueFrom:
             secretKeyRef:
@@ -156,14 +67,22 @@ spec:
         - name: api-cache
           mountPath: /tmp/hive
           subPath: hive-data
+        - name: api-cache
+          mountPath: /tmp/keystore
+          subPath: keystore
         - name: hiveconfig
           mountPath: /data/config.conf
           subPath: hive.conf
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
         - name: setup
-          mountPath: /init-hive.sh
-          subPath: init-hive.sh
+          mountPath: /init_setup.py
+          subPath: init_setup.py
+        - name: data
+          mountPath: /tmp/elastic-data
+          subPath: elastic
       containers:
-      {{- if not .Values.cortexIntegration }}
       - name: elastic
         image: "{{ .Values.elastic_image }}"
         imagePullPolicy: IfNotPresent
@@ -186,8 +105,7 @@ spec:
         - name: data
           mountPath: /usr/share/elasticsearch/data
           subPath: elastic
-      {{- end }}
-      - name: hive-nginx
+      - name: nginx
         image: "{{ .Values.nginx_image }}"
         imagePullPolicy: IfNotPresent
         ports:
@@ -212,40 +130,9 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "/etc/thehive/setup.py & /opt/thehive/entrypoint --no-config"
+        - "/opt/thehive/entrypoint --no-config"
         ports:
         - containerPort: {{ .Values.hive_port }}
-        env:
-          - name: THEHIVE_SUPERADMIN_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: superadmin_username
-          - name: THEHIVE_SUPERADMIN_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: superadmin_password
-          - name: THEHIVE_ALERT_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: alert_username
-          - name: THEHIVE_ALERT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: alert_user_password
-          - name: THEHIVE_USER_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: read_write_user_username
-          - name: THEHIVE_USER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-secret
-                key: read_write_user_password
         volumeMounts:
         - name: setup
           mountPath: /etc/thehive/setup.py
@@ -253,20 +140,18 @@ spec:
         - name: api-cache
           mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
           subPath: keystore/cacerts
-        {{- if or .Values.cortexIntegration .Values.mispIntegration }}
+{{- if or .Values.cortexIntegration .Values.mispIntegration }}
         - name: api-cache
           mountPath: /etc/thehive/application.conf
           subPath: hive-data/application.conf
-        {{ else }}
-        - name: hiveconfig
-          mountPath: /etc/thehive/application.conf
-          subPath: hive.conf
-        {{- end }}
-        {{- if or .Values.cortexIntegration .Values.mispIntegration }}
         - name: api-cache
           mountPath: /etc/thehive/webCA.jks
           subPath: keystore/webCA.jks
-        {{- end }}
+{{ else }}
+        - name: hiveconfig
+          mountPath: /etc/thehive/application.conf
+          subPath: hive.conf
+{{- end }}
       nodeSelector:
         role: "server"
       volumes:
@@ -276,16 +161,16 @@ spec:
       - name: {{ .Release.Name }}-secret
         secret:
           secretName: {{ .Release.Name }}-secret
-      {{- if .Values.cortexIntegration }}
+{{- if .Values.cortexIntegration }}
       - name: cortex-secret
         secret:
           secretName: cortex-secret
-      {{- end }}
-      {{- if .Values.mispIntegration }}
+{{- end }}
+{{- if .Values.mispIntegration }}
       - name: misp-secret
         secret:
           secretName: misp-secret
-      {{- end }}
+{{- end }}
       - name: setup
         configMap:
           name: {{ .Release.Name }}-setup

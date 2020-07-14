@@ -36,15 +36,16 @@ spec:
       - name: misp
         image: {{ .Values.mispImage }}
         imagePullPolicy: IfNotPresent
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "python3 /setup.py & /run.sh"
         ports:
         - containerPort: 443
         env:
         - name: BASE_URL
           value: https://misp.{{ .Values.domain }}
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: org_name
         - name: MYSQL_HOST
           value: 127.0.0.1
         - name: MYSQL_DATABASE
@@ -55,23 +56,10 @@ spec:
           value: {{ .Values.sqlUserPassword }}
         - name: MISP_EXTERNAL_CONFIG
           value: 'true'
-        - name: HIVE_USER_EMAIL
-          value: {{ .Values.hive_user_email }}
-        - name: HIVE_USER_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: misp-secret
-              key: hive_user_api_key
-        - name: ADMIN_PASS
-          valueFrom:
-            secretKeyRef:
-              name: misp-secret
-              key: admin_pass
-        - name: ORG_NAME
-          valueFrom:
-            secretKeyRef:
-              name: misp-secret
-              key: org_name
+        - name: MISP_MODULES_URL
+          value: localhost
+        - name: MISP_MODULES_PORT
+          value: "6666"
         volumeMounts:
         - name: misp-setup
           mountPath: /setup.py
@@ -79,6 +67,9 @@ spec:
         - name: misp-vol
           mountPath: /var/www/MISP/app/Config
           subPath: appConfig
+        - name: misp-vol
+          mountPath: /var/www/MISP/app/setup
+          subPath: setup
         - name: misp-config
           mountPath: /var/www/MISP/app/Config/config.external.php
           subPath: config.external.php

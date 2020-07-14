@@ -5,8 +5,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-setup
 data:
-  setup.sh: |
-{{ .Files.Get "files/setup.sh" | indent 4 }}
+  setup.py: |
+{{ .Files.Get "files/setup.py" | indent 4 }}
 
   config_file.sh: |
     #!/bin/sh

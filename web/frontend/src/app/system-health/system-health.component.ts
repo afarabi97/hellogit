@@ -70,7 +70,7 @@ export class SystemHealthComponent implements OnInit {
     let status = pod['status'];
     let containers = this.getPodStatus(status);
     let hasError = containers.some(container => {
-      return container['status'] !== 'running';
+      return this._badContainerStatus(container['status']);
     });
     return hasError;
   }
@@ -80,7 +80,7 @@ export class SystemHealthComponent implements OnInit {
       let podStatus = pod['status'];
       let containers = this.getPodStatus(podStatus);
       let hasError = containers.some(container => {
-        return container['status'] !== 'running';
+        return this._badContainerStatus(container['status']);
       });
       return hasError;
     });
@@ -88,6 +88,9 @@ export class SystemHealthComponent implements OnInit {
     this.podErrors = new MatTableDataSource<Array<Object>>(podErrors);
   }
 
+  private _badContainerStatus(status) {
+    return status !== 'running' && status !== 'Succeeded'
+  }
   private _getLookup(nodes: Object) {
     let lookup = {};
 
@@ -301,6 +304,10 @@ export class SystemHealthComponent implements OnInit {
 
     if (stateObj["phase"] === "Pending"){
       let item = {name: '', status: 'Pending'};
+      retVal.push(item);
+      return retVal;
+    } else if (stateObj["phase"] === "Succeeded"){
+      let item = {name: '', status: 'Succeeded'};
       retVal.push(item);
       return retVal;
     }

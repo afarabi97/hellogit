@@ -4,7 +4,7 @@ from app import app, celery, logger, conn_mng
 from typing import Dict, Tuple, List
 from enum import Enum
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper
+from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
 from app.node_facts import get_system_info
 from shared.utils import decode_password
 import re
@@ -340,7 +340,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
 
                 if ret_code == 0 and stdout != '':
                     results = yaml.full_load(stdout.strip())
-
+                    job_watch = application_setup_job_watcher.delay(application=application, deployment_name=deployment_name, namespace=namespace, task_id=None)
                     # Send Update Notification to websocket
                     notification.set_status(status=results["STATUS"].upper())
                     notification.post_to_websocket_api()
@@ -467,4 +467,69 @@ def check_deployment_pvc_deletetion(deployment_name: str):
                 sleep(5)
             except Exception as e:
                 break
+    return True
+
+
+@celery.task
+def application_setup_job_watcher(application: str, deployment_name: str, namespace: str = 'default', task_id=None):
+    notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
+    setup_job = None
+
+    with KubernetesWrapper2(conn_mng) as api:
+        v1 = api.batch_V1_API
+        try:
+            jobs = v1.list_namespaced_job(namespace=namespace,watch=False)
+            for job in jobs.items:
+                job_name = job.metadata.name
+                if job_name.startswith(deployment_name+'-setup'):
+                    setup_job = job
+                    logger.info("Found Job "+setup_job.metadata.name)
+                    break
+        except Exception as exc:
+            logger.exception(exc)
+            # Send Update Notification to websocket
+            notification.set_status(status=NotificationCode.ERROR.name)
+            notification.set_exception(exception=exc)
+            notification.post_to_websocket_api()
+
+        if setup_job is None:
+            return False
+
+        notification.set_message(message='Setup Job Started')
+        notification.set_status(status=NotificationCode.IN_PROGRESS.name)
+        notification.post_to_websocket_api()
+        while True:
+            # logger.info("Sleeping for 10s: "+setup_job.metadata.name)
+            sleep(10)
+            try:
+                # logger.info("Querying K8S: "+setup_job.metadata.name)
+                job = v1.read_namespaced_job(setup_job.metadata.name, namespace=namespace, pretty=False)
+                # logger.info(job)
+                containers = job.spec.template.spec.containers
+                succeeded = job.status.succeeded
+                failed = job.status.failed
+                active = job.status.active
+                # logger.info("Job containers: "+str(len(containers)))
+                # logger.info("Job succeeded: "+str(succeeded))
+                # logger.info("Job failed: "+str(failed))
+                # logger.info("Job active: "+str(active))
+                if active is None and failed is None and succeeded == len(containers):
+                    # Send Update Notification to websocket
+                    notification.set_message(message='Setup Job Completed')
+                    notification.set_status(status=NotificationCode.COMPLETED.name)
+                    notification.post_to_websocket_api()
+                    break
+                elif active is None and failed is not None and failed > 0:
+                    # Send Update Notification to websocket
+                    notification.set_message(message='Setup Job Error')
+                    notification.set_status(status=NotificationCode.ERROR.name)
+                    notification.post_to_websocket_api()
+                    break
+            except Exception as exc:
+                logger.exception(exc)
+                # Send Update Notification to websocket
+                notification.set_status(status=NotificationCode.ERROR.name)
+                notification.set_exception(exception=exc)
+                notification.post_to_websocket_api()
+                return False
     return True

@@ -338,6 +338,7 @@ class KubernetesWrapper2(KubernetesWrapper):
         """
         super().__init__(mongo_conn)
         self._apps_apiv1 = client.AppsV1Api()
+        self._batch_apiv1 = client.BatchV1Api()
 
     @property
     def apps_V1_API(self) -> client.AppsV1Api():
@@ -346,6 +347,10 @@ class KubernetesWrapper2(KubernetesWrapper):
     @property
     def core_V1_API(self) -> client.CoreV1Api():
         return self._kube_apiv1
+
+    @property
+    def batch_V1_API(self) -> client.BatchV1Api():
+        return self._batch_apiv1
 
     def __enter__(self):
         return self

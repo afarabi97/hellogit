@@ -49,24 +49,6 @@
       "error_message": "Enter a value"
     },
     {
-      "type": "textinput",
-      "default_value": "user_thehive",
-      "description": "Enter Org User Username",
-      "required": true,
-      "regexp": "",
-      "name": "org_user_username",
-      "error_message": "Enter a value"
-    },
-    {
-      "type": "textinput",
-      "default_value": "password!",
-      "description": "Enter User Password",
-      "required": true,
-      "regexp": "",
-      "name": "org_user_password",
-      "error_message": "Enter a value"
-    },
-    {
       "type": "invisible",
       "name": "affinity_hostname"
     },

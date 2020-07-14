@@ -1,0 +1,91 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-setup
+  labels:
+    component: {{ .Release.Name }}-setup
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        component: {{ .Release.Name }}-setup
+    spec:
+      serviceAccountName: helm-apps-job
+      restartPolicy: Never
+      containers:
+      - name: setup
+        image: "{{ .Values.python_image }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "python3 /setup.py"
+        env:
+        - name: HIVE_USER_EMAIL
+          value: {{ .Values.hive_user_email }}
+        - name: CORTEX_USER_EMAIL
+          value: {{ .Values.cortex_user_email }}
+        - name: HIVE_USER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: hive_user_api_key
+        - name: CORTEX_USER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: cortex_user_api_key
+        - name: ADMIN_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: admin_pass
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: org_name
+{{- if .Values.cortexIntegration }}
+        - name: CORTEX_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_admin_username
+        - name: CORTEX_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_admin_password
+        - name: CORTEX_USER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: misp_user
+{{- end }}
+        volumeMounts:
+        - name: setup
+          mountPath: /setup.py
+          subPath: setup.py
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      nodeSelector:
+        role: "server"
+      volumes:
+      - name: misp-vol
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
+      - name: setup
+        configMap:
+          name: {{ .Release.Name }}-setup
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      nodeSelector:
+        role: server
+      restartPolicy: Never

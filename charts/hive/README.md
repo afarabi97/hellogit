@@ -75,7 +75,7 @@
     },
     {
       "type": "textinput",
-      "default_value": "<Template_Name_goes_here>",
+      "default_value": "MISP",
       "description": "Enter MISP Case Template Name",
       "required": true,
       "regexp": "",

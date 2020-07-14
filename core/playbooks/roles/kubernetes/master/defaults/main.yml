@@ -11,3 +11,4 @@ kube_init_cmd: "kubeadm init --config {{ kube_dir }}/kubeadm.conf"
 kube_init_file: /tmp/kube_init
 kube_worker_join_file: /etc/kubernetes/join-worker-node.sh
 kube_master_join_file: /etc/kubernetes/join-control-plane.sh
+helm_apps_svc_acct: helm-apps-job

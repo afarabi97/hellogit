@@ -1,5 +1,6 @@
 # Default values for mattermost
 mattermostImage: mattermost/mattermost-prod-app:5.22.3
+python_image: tfplenum/python:3.8.3
 domain: lan
 
 # database variables
@@ -10,4 +11,5 @@ sqlPassword: mmuser_password
 sqlRootPassword: mmuser_password
 admin_user: admin
 admin_pass: 1qaz@WSX1qaz@WSX
-admin_email: CPT
+admin_email: admin@dip.local
+team_name: CPT

@@ -7,6 +7,10 @@ metadata:
   labels:
     component: {{ .Release.Name }}
 data:
+
+  setup.py: |
+{{ .Files.Get "files/setup.py" | indent 4 }}
+
   config.yml: |
     port: 3000
     bindIP: 0.0.0.0
@@ -35,9 +39,6 @@ data:
     lang:
       code: en
 
-  wiki-setup.js: |
-{{ .Files.Get "files/wiki-setup.js" | indent 4 }}
-
   saml.json: |
     {
       "entryPoint":"https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml",
@@ -49,12 +50,12 @@ data:
       "signatureAlgorithm":"sha1",
       "identifierFormat":"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       "acceptedClockSkewMs":-1,
-      "disableRequestedAuthnContext":false,
+      "disableRequestedAuthnContext":true,
       "authnContext":"urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
       "forceAuthn":false,
       "providerName":"wiki.js",
-      "skipRequestCompression":false,
-      "authnRequestBinding":"HTTP-Redirect",
+      "skipRequestCompression":true,
+      "authnRequestBinding":"HTTP-POST",
       "mappingUID":"uid",
       "mappingEmail":"email",
       "mappingDisplayName":"displayName",

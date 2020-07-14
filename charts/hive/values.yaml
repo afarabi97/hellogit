@@ -1,12 +1,8 @@
-# Default values for fir.
-replicas: 1
 elastic_image: elasticsearch:6.8.0
-cortex_image: thehiveproject/cortex:3.0.0
-corex_port: 9001
-hive_image: tfplenum/thehive:3.4.0
+python_image: tfplenum/python:3.8.3
+hive_image: thehiveproject/thehive:3.4.0
 nginx_image: nginx:1.18.0
 hive_port: 9000
-hive_https_port: 9443
 cortexIntegration: true
 mispIntegration: true
 esUri: http://cortex-elastic.default.svc.cluster.local:9200
@@ -16,5 +12,5 @@ alert_username: alert_user
 alert_user_password: password!
 read_write_user_username: user
 read_write_user_password: password!
-case_template: <Template_Name_goes_here>
+case_template: MISP
 domain: lan

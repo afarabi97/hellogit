@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: wikijs
   labels:
     component: {{ .Release.Name }}
 spec:
@@ -13,3 +13,19 @@ spec:
     targetPort: 3443
     protocol: TCP
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wikijs-setup
+  labels:
+    component: wikijs-setup
+spec:
+  selector:
+    component: {{ .Release.Name }}
+  ports:
+  - name: setup
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP

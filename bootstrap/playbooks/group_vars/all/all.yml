@@ -9,7 +9,7 @@ dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
-keycloak_version: 9.0.3
+keycloak_version: 10.0.2
 
 server_repos:
   - rhel-7-server-rpms
