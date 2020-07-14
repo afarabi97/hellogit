@@ -125,7 +125,7 @@ def create_nightly(vcenter: VCenterSettings, node: NodeSettings, system_name: st
     elif system_name == "MIP":
         controller = "nightly-mip-ctrl"
     elif system_name == "GIP":
-        controller = "test-nightly-gip-ctrl"
+        controller = "nightly-gip-ctrl"
     else:
         controller = None
 

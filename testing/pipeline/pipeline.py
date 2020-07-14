@@ -463,7 +463,7 @@ class Runner:
                         delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
                 elif args.system_name == "GIP":
                     try:
-                        gip_settings = YamlManager.load_gip_settings_from_yaml()
+                        gip_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
                         if args.create_nightly == "Yes":
                             create_nightly(gip_settings.vcenter,
                                             gip_settings.node,

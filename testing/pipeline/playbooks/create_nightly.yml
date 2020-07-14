@@ -99,5 +99,5 @@
         datacenter: "{{ vcenter.datacenter }}"
         validate_certs: no
         name: "{{ controller }}"
-        folder: "/{{ vcenter.datacenter }}/vm/Templates"
+        dest_folder: "/{{ vcenter.datacenter }}/vm/Templates"
 
