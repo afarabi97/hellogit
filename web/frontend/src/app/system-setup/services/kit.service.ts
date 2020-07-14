@@ -75,8 +75,7 @@ export class KitService {
    * @param {FormGroup} genericNode
    * @memberof KitFormComponent
    */
-  private addSensorControls(genericNode: FormGroup, value): void {
-    genericNode.addControl('is_remote', new FormControl(value ? value : false));
+  private addSensorControls(genericNode: FormGroup): void {
     // remove Server Controls
     if (genericNode.get('is_master_server')) {
       genericNode.removeControl('is_master_server');
@@ -100,10 +99,6 @@ export class KitService {
     if (addNode) {
       genericNode.addControl('is_add_node', new FormControl(true));
     }
-    // remove Server Controls
-    if (genericNode.get('is_remote')) {
-      genericNode.removeControl('is_remote');
-    }
   }
 
   /**
@@ -117,8 +112,8 @@ export class KitService {
    */
   private addNodeControls(value: string, genericNode: FormGroup, node: KitFormNode, addNode?: boolean): void {
     if (value === 'Sensor') {
-      this.addSensorControls(genericNode, node.is_remote);
-    } 
+      this.addSensorControls(genericNode);
+    }
     if (value === 'MIP') {
       this.addServerControls(genericNode, node, addNode); //added MIP node control based on server values
     }
@@ -137,7 +132,7 @@ export class KitService {
    */
   public newKitNodeForm(node, addNode?: boolean): FormGroup {
     let default_node_type;
-  
+
     if(this.sysName === 'GIP') {
       default_node_type = 'Server';
     }
@@ -195,10 +190,10 @@ export class KitService {
       data => {
         data  = String(data['system_name']); //Return System Name via string
         this.sysName = data;
-        
+
         //Cycle validation messages per system name/ type
 
-        if (this.sysName == 'GIP') { 
+        if (this.sysName == 'GIP') {
           kitFormGroup.setValidators(Validators.compose([
             validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
             ValidateServerCpuMem
@@ -212,7 +207,7 @@ export class KitService {
             ValidateServerCpuMem
           ]));
         };
-        if (this.sysName =='MIP') { 
+        if (this.sysName =='MIP') {
           kitFormGroup.setValidators(Validators.compose([
             ValidateServerCpuMem
           ]));

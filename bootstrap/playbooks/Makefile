@@ -26,6 +26,9 @@ install_angular:
 build_deploy_frontend:
 	ansible-playbook $(PLAYBOOK) -i localhost -t build_frontend,restart_frontend_services
 
+nightly_clone_rebuild_frontend:
+	ansible-playbook $(PLAYBOOK) -i localhost -t setup_python,build_frontend,restart_frontend_services
+
 build_helm_charts:
 	ansible-playbook $(PLAYBOOK) -i localhost -t helm
 

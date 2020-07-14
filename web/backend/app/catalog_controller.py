@@ -3,6 +3,7 @@ from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
 from flask import jsonify, request, Response, send_file
 from typing import Dict, Tuple, List
 from shared.connection_mngs import FabricConnectionWrapper, KitFormNotFound
+from shared.constants import KICKSTART_ID
 from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps
 from app.middleware import Auth, controller_maintainer_required
 import json
@@ -11,8 +12,13 @@ import requests
 from celery import chain
 from typing import Set, List
 
-
 NAMESPACE = "default"
+
+def _get_domain() -> str:
+    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if "domain" in kickstart_configuration["form"]:
+        return kickstart_configuration["form"]["domain"]
+    return "lan"
 
 
 @app.route('/api/catalog/<application>/saved_values', methods=['GET'])
@@ -140,14 +146,14 @@ def generate_values_file() -> Response:
 
 def _get_all_charts() -> List:
     charts = []
-    charts = get_repo_charts()  # type: list
+    charts = get_repo_charts("chartmuseum.{}".format(_get_domain()))  # type: list
     return charts
 
 
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
     charts = []
-    charts = get_repo_charts()  # type: list
+    charts = get_repo_charts("chartmuseum.{}".format(_get_domain()))  # type: list
     return jsonify(charts)
 
 

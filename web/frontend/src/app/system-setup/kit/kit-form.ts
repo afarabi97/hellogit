@@ -164,8 +164,7 @@ export const kitTooltips = {
     There can only be one master server. It is a bit like the Highlander that way.
     The master server is special in that it runs the Kubernetes master and is responsible for deploying services out to all the other hosts in the cluster.
     This server should be fairly beefy. By default, this server will also provide DNS to the rest of the kit for internal services.
-    WARNING: If this server fails, the entire kit goes down with it!!!`,
-    is_remote: `When checked, is remote will install and configure open VPN on this sensor.`
+    WARNING: If this server fails, the entire kit goes down with it!!!`
 }
 
 export class KitForm {
@@ -179,6 +178,5 @@ export class KitFormNode {
     management_ip_address: string;
     deviceFacts: any;
     is_master_server?: string;
-    is_remote?: string;
     default_ipv4_settings?: any;
 }

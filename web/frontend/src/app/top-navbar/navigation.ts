@@ -25,6 +25,7 @@ let allSections: Array<NavGroup> = [
   { id: 'system_setup', label: 'System Setup', system: ['DIP','MIP','GIP'], children: [] },
   { id: 'kubernetes', label: 'Kubernetes', system: ['DIP','GIP'], children: [] },
   { id: 'policy_mgmt', label: 'Policy Management', system: ['DIP'], children: [] },
+  { id: 'Elastic', label: 'Elastic', system: ['DIP'], children: [] },
   { id: 'tools', label: 'Tools', system: ['DIP','MIP','GIP'], children: [] },
   { id: 'confluence', label: 'Confluence', system: ['DIP','MIP','GIP'], children: [] },
   { id: 'support', label: 'Support', system: ['DIP','MIP','GIP'], children: [] }
@@ -47,13 +48,14 @@ export function getSideNavigationButtons(system_name: string, userService) {
     { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false, section: 'system_setup', system: ['DIP','GIP'], privs: controller_maintainer },
     { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin },
     { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin },
-    { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_maintainer },
+    { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer },
     { label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true },
     { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: operator },
     { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true },
     { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', system: ['DIP','GIP'], privs: operator },
     { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: ['DIP'], privs: operator },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer },
+    { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer },
     { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank" },
     { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin },
     { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', system: ['DIP','MIP','GIP'], privs: operator }

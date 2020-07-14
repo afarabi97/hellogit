@@ -1,37 +1,36 @@
+import io
+import json
+import logging
 import shutil
 import tempfile
 import zipfile
-
-from app import app, logger, conn_mng, CORE_DIR
-from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.service.configmap_service import bounce_pods
-from app.service.elastic_service import apply_es_deploy, setup_s3_repository, wait_for_elastic_cluster_ready, Timeout
-from app.service.job_service import run_command, run_command2
-from app.service.time_service import change_time_on_kit, TimeChangeFailure
-from celery import chain
-from celery.result import AsyncResult
-from elasticsearch.exceptions import NotFoundError, ConnectionError
-from fabric.runners import Result
-from flask import request, jsonify, Response
-from kubernetes.client.models.v1_service_list import V1ServiceList
-from kubernetes.client.models.v1_service import V1Service
-from paramiko.ssh_exception import AuthenticationException
 from pathlib import Path
+from typing import Dict, List
+
+import yaml
+from celery.result import AsyncResult
+from fabric.runners import Result
+from flask import Response, jsonify, request
+from kubernetes.client.models.v1_service import V1Service
+from kubernetes.client.models.v1_service_list import V1ServiceList
+from paramiko.ssh_exception import AuthenticationException
 from pymongo import ReturnDocument
-from shared.constants import KICKSTART_ID, ELK_SNAPSHOT_STATE, KIT_ID
-from shared.utils import decode_password, encode_password
-from shared.connection_mngs import FabricConnectionManager, ElasticsearchManager, KubernetesWrapper, FabricConnection, FabricConnectionWrapper
-from socket import gethostbyname
-from typing import List, Dict, Tuple, Set
 from werkzeug.utils import secure_filename
-import traceback
-from app.service.socket_service import NotificationMessage, NotificationCode
-import io
-import yaml, json
-from app.service.scale_service import es_cluster_status
+
+from app import app, conn_mng, logger
+from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.dao import elastic_deploy
 from app.middleware import Auth, controller_maintainer_required
-
+from app.service.elastic_service import (Timeout, apply_es_deploy,
+                                         setup_s3_repository,
+                                         wait_for_elastic_cluster_ready)
+from app.service.job_service import run_command2
+from app.service.socket_service import NotificationCode, NotificationMessage
+from app.service.time_service import TimeChangeFailure, change_time_on_kit
+from shared.connection_mngs import (FabricConnection, FabricConnectionManager,
+                                    FabricConnectionWrapper, KubernetesWrapper)
+from shared.constants import KICKSTART_ID
+from shared.utils import decode_password, encode_password
 
 REGISTRATION_JOB = None # type: AsyncResult
 _JOB_NAME = "tools"

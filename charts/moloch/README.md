@@ -60,7 +60,7 @@
           "default_value": "20Gi",
           "description": "Enter Moloch memory limit",
           "required": false,
-          "regexp": "^(\d?[1-9]|[1-9]0)Gi$",
+          "regexp": "^(\\d?[1-9]|[1-9]0)Gi$",
           "name": "mem_limit",
           "error_message": "Enter a valid setting"
         },

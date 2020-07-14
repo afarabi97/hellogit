@@ -113,6 +113,9 @@ import { MIPConfigNodeComponent } from './mip-config-node/mip-config-node.compon
 import { MIPConfigPasswordComponent } from './mip-config-password/mip-config-password.component';
 import { MIPConfigValidationComponent } from './mip-config-validation/mip-config-validation.component';
 
+// Index Management 
+import { IndexManagementComponent } from './index-management/component/index-management.component';
+
 export function initializeApp1(appLoadService: AppLoadService) {
   return (): Promise<any> => {
     return appLoadService.getCurrentUser();
@@ -177,7 +180,8 @@ export function initializeApp1(appLoadService: AppLoadService) {
     ESScaleComponent,
     PodLogModalDialogComponent,
     ElasticEditorComponent,
-    RepositorySettingsComponent
+    RepositorySettingsComponent,
+    IndexManagementComponent
   ],
   imports: [
     BrowserModule,

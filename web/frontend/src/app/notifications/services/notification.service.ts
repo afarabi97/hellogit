@@ -24,7 +24,7 @@ export class NotificationService extends ApiService<any> {
                             {"name": "Agent", "selected": false, "title": "Agent Messages", "role": "agent", "notifications": [], "icon": "desktop_windows"},
                             {"name": "PCAP", "selected": false, "title": "PCAP Replay", "role": "pcap", "notifications": [], "icon": "network_check"},
                             {"name": "Tools", "selected": false, "title": "Tools Messages", "role": "tools", "notifications": [], "icon": "build"},
-                            {"name": "Upgrade", "selected": false, "title": "Upgrade Messages", "role": "upgrade", "notifications": [], "icon": "timeline"}];
+                            {"name": "Index Management", "selected": false, "title": "Index Management Messages", "role": "curator", "notifications": [], "icon": "timeline"}];
 
   private mipButtons: any = [
     {"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},

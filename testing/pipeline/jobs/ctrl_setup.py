@@ -116,7 +116,8 @@ EOF
         # TODO make this more efficient we do not need to run redeploy if there were not code changes.
         if self.ctrl_settings.system_name in ["DIP", "GIP"]:
             client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
-        client.run('/opt/tfplenum/web/setup/redeploy.sh')
+        client.run('cd /opt/tfplenum/bootstrap/playbooks && make nightly_clone_rebuild_frontend')
+        # client.run('/opt/tfplenum/web/setup/redeploy.sh')
         client.run('/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/update_portal_client.py')
         client.run("""
 cat <<EOF > /etc/resolv.conf

@@ -15,20 +15,14 @@ from time import sleep, strftime
 import os
 import socket
 import dns.resolver
-
-hostname = os.getenv('HOSTNAME')
-if not hostname:
-    hostname = celery_utils.nodenames.gethostname()
-domain = '.'.join(hostname.split('.')[1:])
-
-_MESSAGETYPE_PREFIX = "catalog"
-_CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
-CHARTMUSEUM_FQDN = "chartmuseum.{}".format(domain)
-HELM_BINARY_PATH = "/usr/local/bin/helm"
-WORKING_DIR = "/root"
-
 from requests import Session, HTTPError
 from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
+
+
+HELM_BINARY_PATH = "/usr/local/bin/helm"
+WORKING_DIR = "/root"
+_MESSAGETYPE_PREFIX = "catalog"
+_CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 
 
 class DNSResolverHTTPSAdapter(HTTPAdapter):
@@ -48,13 +42,13 @@ class DNSResolverHTTPSAdapter(HTTPAdapter):
         super(DNSResolverHTTPSAdapter, self).init_poolmanager(connections, maxsize, block=block, **pool_kwargs)
 
 
-def _get_chartmuseum_uri() -> str:
-    return "https://" + CHARTMUSEUM_FQDN
+def _get_chartmuseum_uri(chartmuseum_fqdn) -> str:
+    return "https://" + chartmuseum_fqdn
 
 
-def _get_chartmuseum_ip():
+def _get_chartmuseum_ip(chartmuseum_fqdn):
     resolver = dns.resolver.Resolver()
-    return resolver.query(CHARTMUSEUM_FQDN, 'A')[0].to_text()
+    return resolver.query(chartmuseum_fqdn, 'A')[0].to_text()
 
 
 def get_node_type(hostname: str) -> str:
@@ -122,7 +116,7 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
-def get_repo_charts() -> list:
+def get_repo_charts(chartmuseum_fqdn) -> list:
     """
     Returns a list of charts from helm repo
 
@@ -136,11 +130,11 @@ def get_repo_charts() -> list:
         logger.info("helm repo cache updated.")
     results = []
     try:
-        uri = _get_chartmuseum_uri()
-        host = _get_chartmuseum_ip()
+        uri = _get_chartmuseum_uri(chartmuseum_fqdn)
+        host = _get_chartmuseum_ip(chartmuseum_fqdn)
         session = Session()
-        session.mount(uri, DNSResolverHTTPSAdapter(CHARTMUSEUM_FQDN, host))
-        response = session.get(_get_chartmuseum_uri() + "/api/charts")
+        session.mount(uri, DNSResolverHTTPSAdapter(chartmuseum_fqdn, host))
+        response = session.get(uri + "/api/charts")
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key

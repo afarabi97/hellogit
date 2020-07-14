@@ -99,26 +99,14 @@ celery = Celery(app.name,
 celery.conf.update(app.config)
 
 # Load the REST API
-from app import common_controller
-from app import console_controller
-from app import kickstart_controller
-from app import kit_controller
-from app import portal_controller
-from app import health_controller
-from app import configmap_controller
-from app import archive_controller
-from app import registry_controller
-from app import agent_builder_controller
-from app import ruleset_controller
-from app import pcap_controller
-from app import catalog_controller
-from app import notification_controller
-from app import task_controller
-from app import version_controller
-from app import upgrade_controller
-from app import tools_controller
-from app import scale_controller
-from app import mip_config_controller
+from app import (agent_builder_controller, archive_controller,
+                 catalog_controller, common_controller, configmap_controller,
+                 console_controller, curator_controller, health_controller,
+                 kickstart_controller, kit_controller, mip_config_controller,
+                 notification_controller, pcap_controller, portal_controller,
+                 registry_controller, ruleset_controller, scale_controller,
+                 task_controller, tools_controller, upgrade_controller,
+                 version_controller)
 
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.

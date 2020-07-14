@@ -1,0 +1,72 @@
+<div class="main-content2" fxLayout="column" fxLayoutAlign="center center">
+  <div fxLayout="column" fxLayoutAlign="center none"> 
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          ElasticSearch Index Management
+        </mat-card-title>
+      </mat-card-header>
+      <div fxLayout="column" fxLayoutAlign="space-around stretch">
+        <mat-vertical-stepper #stepper>
+          <mat-step [stepControl]="indexManagementActions" [editable]="isEditable">
+              <ng-template matStepLabel>Index Action</ng-template>
+              <mat-card-content>
+                <p>
+                  Select an action; Close or Delete
+                </p>
+                <p>
+                  Close: A closed index will blocked read/write operations and does not allow all operations that opened indices allow.
+                </p>
+                <p>
+                  Delete: A delete index will delete all metadata in the index and clear out all shards and replicas tied to it.
+                  To delete an index it must be closed first. 
+                </p>
+              </mat-card-content>
+              <form [formGroup]="indexManagementActions">
+                <div fxLayout="column" fxLayoutAlign="start stretch">
+                  <mat-form-field>
+                    <mat-label>Action</mat-label>
+                    <mat-select formControlName="action" required>
+                      <mat-option *ngFor="let value of actions" [value]="value.value">{{value.name}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <div>
+                    <button mat-raised-button color="primary" (click)="goForwardAction(stepper)" 
+                      [disabled]="indexManagementActions.invalid">Next</button>
+                  </div>
+                </div>
+              </form>
+          </mat-step>
+          <mat-step [stepControl]="indexManagementList" [editable]="isEditable">
+              <ng-template matStepLabel>Index List</ng-template>
+              <mat-card-content>
+                <p>
+                Select an Index and Click Update 
+                </p>
+              </mat-card-content>
+              <form [formGroup]="indexManagementList">
+                <div fxLayout="column" fxLayoutAlign="start stretch">
+                  <mat-form-field>
+                    <mat-label>List</mat-label>
+                    <mat-select formControlName="index_list" multiple>
+                      <mat-option (click)="isEmptyFun()" *ngFor="let index of indices" [value]="index">{{ index }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <div>
+                    <button style="margin-right: 20px;" mat-raised-button color="primary" (click)="goBack(stepper)"
+                      [disabled]="false">Back</button>
+                    <button mat-raised-button color="primary" (click)="goForwardList(stepper)"
+                      [disabled]="!isEmpty">Update</button>
+                  </div>
+                </div> 
+              </form>
+            </mat-step>
+        </mat-vertical-stepper>
+    </div>
+    </mat-card>
+  </div>
+</div>
+
+<div fxLayout="row" fxLayoutAlign="center center">
+  <mat-spinner *ngIf="isLoading"  ></mat-spinner>
+</div>

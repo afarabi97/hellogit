@@ -40,12 +40,6 @@
               matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master
               Server</mat-checkbox>
           </div>
-          <div *ngIf="node.controls.node_type.value == 'Sensor'" fxLayout="column"
-            fxLayoutAlign="start stretch">
-            <mat-checkbox matTooltip="When checked, remote will install and configure open VPN on this sensor"
-              formControlName="is_remote" matTooltip="{{ getTooltip('is_master_server') }}">Remote
-            </mat-checkbox>
-          </div>
         </ng-container>
       </div>
     </div>
