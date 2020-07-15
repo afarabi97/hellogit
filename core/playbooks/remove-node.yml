@@ -5,15 +5,28 @@
 # Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
 
 ---
+- name: Set controller variables
+  hosts: localhost
+  tags: always
+  gather_facts: yes
+  tasks:
+    - set_fact:
+        ansible_controller_hostname: "{{ hostvars.localhost.ansible_nodename }}"
+        ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
+    - debug:
+        msg: "{{ ansible_controller_ip }}"
+    - debug:
+        msg: "{{ ansible_controller_hostname }}"
+
 - name: Set controller variables on hosts
   hosts:
-    - localhost
     - servers
     - sensors
   tags: always
   tasks:
-    - name: Set controller ip var
-      set_fact:
+    - set_fact:
+        host_list: "{{ groups['servers'] + groups['sensors'] }}"
+        ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
         ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
 
     - name: Create master server group
