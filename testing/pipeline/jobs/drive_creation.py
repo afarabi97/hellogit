@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 
@@ -7,35 +8,55 @@ from models.drive_creation import DriveCreationSettings, DriveCreationHashSettin
 from pathlib import Path
 from time import sleep
 from util.connection_mngs import FabricConnectionWrapper
+from jobs.create_multiboot import Multiboot_Create
+from util.network import retry
 
 
 class DriveCreationJob:
     def __init__(self, drive_settings: DriveCreationSettings):
         self._drive_settings = drive_settings
 
+    @retry()
+    def _execute(self, shell: Connection, command: str):
+        print(command)
+        shell.sudo(command)
+
     def _burn_image_to_disk(self, shell: Connection):
         print("Making sure external drive is not mounted before proceeding...")
         shell.sudo("umount {}1".format(self._drive_settings.external_drive), warn=True)
         shell.sudo("umount {}2".format(self._drive_settings.external_drive), warn=True)
         sleep(3)
-        print("Burning multiboot image to drive, this may take a while...")
-        cmd = ("dd if={} of={} bs=26144 status=progress oflag=sync"
-                    .format(self._drive_settings.multi_boot_img_path,
-                            self._drive_settings.external_drive))
-        shell.sudo(cmd)
+        print("Creating the MULTIBOOT partition to drive.  This may take a while...")
+        Multiboot_Image = Multiboot_Create(Argument_Path          = self._drive_settings.multiboot_path,
+                                           Argument_File_Location = self._drive_settings.drive_creation_path,
+                                           Argument_Drive_Device  = self._drive_settings.external_drive)
+
+        print("Burning the MULTIBOOT partition to drive.  This may take a while...")
+        self._execute(shell, "dd bs=262144 if={} of={}".format(Multiboot_Image, self._drive_settings.external_drive))
+        self._execute(shell, "mkdir --parent {}Multi_Partition".format(self._drive_settings.multiboot_path))
+        sleep(10)
+        self._execute(shell, "mount {}1 {}Multi_Partition".format(self._drive_settings.external_drive,
+                                                           self._drive_settings.multiboot_path))
+
+        self._execute(shell, "rsync --times --recursive {} {}Multi_Partition/".format(self._drive_settings.multiboot_path,
+                                                                               self._drive_settings.multiboot_path))
+        self._execute(shell, "umount {}1".format(self._drive_settings.external_drive))
+        self._execute(shell, "rm --force --recursive {}Multi_Partition".format(self._drive_settings.multiboot_path))
+        print("Finished burning the MULTIBOOT partition to drive.")
         sleep(10)
 
     def _create_data_partition(self, shell: Connection):
         print("Creating Data partition...")
-        shell.sudo("mkfs -t xfs -f -L Data {}2".format(self._drive_settings.external_drive))
+        self._execute(shell, "mkfs -t xfs -f -L Data {}2".format(self._drive_settings.external_drive))
         sleep(5)
 
     def _rysnc_data_files(self, shell: Connection):
         print("Copying files to Data partition...")
-        shell.sudo("mount {}2 {}".format(self._drive_settings.external_drive, self._drive_settings.mount_point))
+        self._execute(shell, "mount {}2 {}".format(self._drive_settings.external_drive, self._drive_settings.mount_point))
         sleep(3)
-        shell.sudo("rsync -azhSW --numeric-ids --info=progress2 {} {}".format(self._drive_settings.rsync_source, self._drive_settings.mount_point))
-        shell.sudo("umount {}2".format(self._drive_settings.external_drive))
+        self._execute(shell, "rsync -azhSW --numeric-ids --info=progress2 {} {}".format(self._drive_settings.rsync_source,
+                                                                                        self._drive_settings.mount_point))
+        self._execute(shell, "umount {}2".format(self._drive_settings.external_drive))
 
     def execute(self):
         with FabricConnectionWrapper(self._drive_settings.username,
@@ -65,7 +86,7 @@ class DriveHashCreationJob:
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-pushd $SCRIPT_DIR > /dev/null
+pushd $SCRIPT_DIR 1>/dev/null 2>&1
 
 MD5_SUM_CHECK=$(md5sum drive_md5_hashes.txt 2>/dev/null | cut -d" " -f1)
 STATUS=0
@@ -74,19 +95,18 @@ if [[ "''' + md5_hash + '''" != "${MD5_SUM_CHECK}" ]] ; then
     echo "drive_md5_hashes.txt is invalid actual_hash: ${MD5_SUM_CHECK} expected_hash: ''' + md5_hash + '''."
     STATUS=1
 else
-    while read line; do
-        expected_hash=$(echo "$line" | awk '{print $1}')
-        rel_path=$(echo "$line" | awk '{print $2}')
-        actual_hash=$(md5sum $rel_path | awk '{print $1}')
-
-        if [[ "${expected_hash}" != "${actual_hash}" ]] ; then
-            echo "${rel_path} is invalid actual_hash: ${actual_hash} expected_hash: ${expected_hash}."
-            STATUS=2
-        fi
-done < drive_md5_hashes.txt
+    MD5_SUM_CHECK=$(md5sum --check --quiet drive_md5_hashes.txt 2>&1)
+    if [[ "${MD5_SUM_CHECK}" != "" ]] ; then
+        echo "Checksums for drive failed."
+        echo "Failed Files are:"
+        echo "${MD5_SUM_CHECK}"
+        STATUS=2
+    else
+        echo "Checksums are good"
+    fi
 fi
 
-popd > /dev/null
+popd 1>/dev/null 2>&1
 
 exit $STATUS
         '''

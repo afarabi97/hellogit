@@ -3,6 +3,7 @@ import sys
 import subprocess
 
 from invoke.exceptions import UnexpectedExit
+from fabric import Connection
 from models.ctrl_setup import ControllerSetupSettings
 from time import sleep
 from typing import Dict
@@ -45,9 +46,16 @@ class ControllerSetupJob:
         self.ctrl_settings = ctrl_settings
 
     @retry()
-    def _set_hostname(self, client):
+    def _set_hostname(self, client: Connection):
         cmd = "hostnamectl set-hostname controller.{}".format(self.ctrl_settings.node.domain)
         client.run(cmd)
+
+    def _run_pings_to_fix_network(self, client: Connection):
+        pos = self.ctrl_settings.node.network_id.rfind(".")
+        hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
+        client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
+        client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
+        client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
 
     def _run_bootstrap(self):
         curl_cmd = ''
@@ -78,14 +86,7 @@ class ControllerSetupJob:
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
             self._set_hostname(client)
-
-            pos = self.ctrl_settings.node.network_id.rfind(".")
-
-            #This is hack to get around some weird layer 2 issues we have to live with on the SILs network
-            hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
-            client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
-            client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
-            client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
+            self._run_pings_to_fix_network(client)
             ret_val = client.run(curl_cmd, shell=True, warn=True)
             if ret_val.return_code != 0:
                 print("Failed to fetch the bootstrap script from bitbucket with {}.".format(curl_cmd))
@@ -132,6 +133,7 @@ EOF
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
+            self._run_pings_to_fix_network(client)
             self._update_code(client)
 
     def setup_controller(self):

@@ -52,16 +52,19 @@ Create Master CPT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive \
-    --multi-boot-img-path "$MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH" \
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE" \
     --mount-point "$MASTER_DRIVE_CREATION_CPT_MOUNT_POINT" \
     --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
+    --multiboot-path "$MASTER_DRIVE_CPT_MULTIBOOT_PATH" \
+    --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
+    --drive-creation-version "v$MAIN_FOLDER_VERSION"
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $PIPELINE == "carldeletelater"
 
 
 Create Master MDT Drive:
@@ -70,13 +73,16 @@ Create Master MDT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive \
-    --multi-boot-img-path "$MASTER_DRIVE_CREATION_MULTIBOOT_IMG_PATH" \
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE" \
     --mount-point "$MASTER_DRIVE_CREATION_MDT_MOUNT_POINT" \
     --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
-    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
+    --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
+    --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
+    --multiboot-path "$MASTER_DRIVE_MDT_MULTIBOOT_PATH" \
+    --drive-creation-version "v$MAIN_FOLDER_VERSION"
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $PIPELINE == "carldeletelater"
