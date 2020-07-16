@@ -33,7 +33,7 @@
       - "'cni' not in item"
       - "'docker' not in item"
       - "'tunl0' not in item"
-      - "'calic' not in item"
+      - "'cali' not in item"
       - "'virbr0' not in item"
       - "'lo' not in item"
       - "'br0' != item"

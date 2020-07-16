@@ -103,11 +103,10 @@ from app import (agent_builder_controller, archive_controller,
                  catalog_controller, common_controller, configmap_controller,
                  console_controller, curator_controller, health_controller,
                  kickstart_controller, kit_controller, mip_config_controller,
-                 notification_controller, pcap_controller, portal_controller,
-                 registry_controller, ruleset_controller, scale_controller,
-                 task_controller, tools_controller, upgrade_controller,
-                 version_controller)
-
+                 node_controller, notification_controller, pcap_controller,
+                 portal_controller, registry_controller, ruleset_controller,
+                 scale_controller, task_controller, tools_controller,
+                 upgrade_controller, version_controller)
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

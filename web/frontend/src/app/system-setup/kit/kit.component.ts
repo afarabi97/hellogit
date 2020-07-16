@@ -160,6 +160,11 @@ export class KitComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/stdout/Kit']);
   }
 
+  public openRemoveNodeConsole(): void {
+    this.isGettingDeviceFacts = false;
+    this.router.navigate(['/stdout/Removenode']);
+  }
+
   /**
    * get Node deviceFacts and sets KubernetesCIDRange
    *
@@ -364,7 +369,7 @@ export class KitComponent implements OnInit, AfterViewInit {
         this.kitFormGroup.get("remove_node").setValue(hostname);
 
         this.kitSrv.executeRemoveNode(this.kitFormGroup.getRawValue()).subscribe( result => {
-          this.openConsole();
+          this.openRemoveNodeConsole();
         });
       }
     });

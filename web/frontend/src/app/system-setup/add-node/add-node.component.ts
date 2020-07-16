@@ -180,7 +180,7 @@ export class AddNodeComponent implements OnInit {
   }
 
   openKitConsole(): void {
-    this.router.navigate(['/stdout/Kit']);
+    this.router.navigate(['/stdout/Addnode']);
   }
 
   stepChanged(step: StepperSelectionEvent) {

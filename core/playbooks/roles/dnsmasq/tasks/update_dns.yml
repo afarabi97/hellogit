@@ -1,4 +1,9 @@
 ---
+- name: create list
+  set_fact:
+    host_list: "{{ groups['servers'] + groups['sensors'] }}"
+  tags:
+    - update-dnsmasq-hosts
 
 - name: Copy over hosts template
   template:

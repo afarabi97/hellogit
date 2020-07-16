@@ -77,23 +77,20 @@ def execute_kit_inventory() -> Response:
     is_successful, root_password = _process_kit_and_time(payload)
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
-        cmd_to_execute_one = None
+        cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{password}'".format(password=root_password)
         system_name = get_system_name()
         if system_name == "GIP":
-            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + \
-                root_password + "' --skip-tags moloch"
-        else:
-            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='" + \
-                root_password + "'"
+            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{password}' --skip-tags moloch".format(password=root_password)
 
-        cmd_to_execute_one = 'semanage permissive -a systemd_hostnamed_t && {} && semanage permissive -d systemd_hostnamed_t'.format(
-            cmd_to_execute_one)
         cmd_to_execute_two = "make dip-stigs"
 
         results = chain(
             perform_kit.si(cmd_to_execute_one,
-                           cwd_dir=str(CORE_DIR / "playbooks")), perform_kit.si(cmd_to_execute_two, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
+                    cwd_dir=str(CORE_DIR / "playbooks")),
+            perform_kit.si(cmd_to_execute_two,
+                    cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
         )()
+
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
                                                          {"_id": "Kit", "task_id": str(
                                                              results), "pid": ""},
@@ -129,148 +126,6 @@ def generate_kit_inventory() -> Response:
     error_msg = "Executing /api/generate_kit_inventory has failed."
     logger.error(error_msg)
     return (jsonify({"error_message": error_msg}), 500)
-
-
-@app.route('/api/execute_add_node', methods=['POST'])
-@controller_admin_required
-def execute_add_node() -> Response:
-    """
-    Generates the kit inventory file and executes the add node routine
-
-    :return: Response object
-    """
-    add_node_payload = request.get_json()
-    current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    current_kit_configuration["form"]["nodes"].append(add_node_payload)
-
-    # Remove the state of the add node wizard
-    conn_mng.mongo_add_node_wizard.delete_one({"_id": ADDNODE_ID})
-
-    # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    is_sucessful, root_password = _replace_kit_inventory(
-        current_kit_configuration["form"])
-    if is_sucessful:
-        cmd_to_execute_one = ("ansible-playbook site.yml -i inventory.yml "
-            "-e ansible_ssh_pass='{playbook_pass}' "
-            "-t domain/common,update-dnsmasq-hosts"
-        ).format(playbook_pass=root_password)
-
-        cmd_to_execute_two = ("ansible-playbook site.yml -i inventory.yml "
-            "-e ansible_ssh_pass='{playbook_pass}' "
-            "-t domain/common,repos,update-networkmanager,update-dns"
-            "--limit localhost,{node}"
-        ).format(
-            playbook_pass=root_password,
-            node=add_node_payload['hostname']
-        )
-
-        cmd_to_execute_three = ("ansible-playbook site.yml -i inventory.yml "
-            "-e ansible_ssh_pass='{playbook_pass}' "
-            "-t domain/common,genkeys,preflight,common,openvpn"
-        ).format(playbook_pass=root_password)
-
-        cmd_to_execute_four = ("ansible-playbook site.yml -i inventory.yml "
-            "-t certificate_authority/common,crio,kube-node,logs,audit,frontend-health-metrics,node-health "
-            "--limit localhost,{node}"
-        ).format(
-            playbook_pass=root_password,
-            node=add_node_payload['hostname']
-        )
-
-        cmd_to_execute_five = "make dip-stigs"
-
-        results = chain(perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode1"),
-                        perform_kit.si(cmd_to_execute_two, cwd_dir=str(CORE_DIR / "playbooks"), job_name="Addnode2"),
-                        perform_kit.si(cmd_to_execute_three, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode3"),
-                        perform_kit.si(cmd_to_execute_four, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode4"),
-                        perform_kit.si(cmd_to_execute_five, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Addnode5"),)()
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode1"},
-                                                         {"_id": "Addnode1", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode2"},
-                                                         {"_id": "Addnode2", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode3"},
-                                                         {"_id": "Addnode3", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode4"},
-                                                         {"_id": "Addnode4", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Addnode5"},
-                                                         {"_id": "Addnode5", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-
-        return OK_RESPONSE
-
-    logger.error("Executing add node configuration has failed.")
-    return ERROR_RESPONSE
-
-
-@app.route('/api/execute_remove_node', methods=['POST'])
-@controller_admin_required
-def execute_remove_node() -> Response:
-    """
-    Generates the kit inventory file and executes the add node routine
-
-    :return: Response object
-    """
-    payload = request.get_json()
-    is_sucessful, root_password = _replace_kit_inventory(payload)
-    if is_sucessful:
-        node_to_remove = None
-
-        if "remove_node" in payload:
-            node_to_remove = payload["remove_node"]
-
-        cmd_to_execute = ("ansible-playbook remove-node.yml -i inventory.yml -e ansible_ssh_pass='{playbook_pass}' -e node='{node}'"
-                          ).format(playbook_pass=root_password,
-                            node=node_to_remove)
-        task_id = perform_kit.delay(cmd_to_execute, True)
-        mongo_document = conn_mng.mongo_kickstart.find_one(
-            {"_id": KICKSTART_ID})
-        kit_mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                         {"_id": "Kit", "task_id": str(
-                                                             task_id), "pid": ""},
-                                                         upsert=True)
-
-        kickstart_form = mongo_document["form"]
-        kick_nodes = list(kickstart_form["nodes"])
-        for node in kick_nodes:
-            if str(node["hostname"]) == str(node_to_remove):
-                kick_nodes.remove(node)
-
-        kickstart_form["nodes"] = kick_nodes
-
-        conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                                      {"_id": KICKSTART_ID,
-                                                          "form": kickstart_form},
-                                                      upsert=True,
-                                                      return_document=ReturnDocument.AFTER)  # type: InsertOneResult
-        kit_form = kit_mongo_document["form"]
-        kit_nodes = list(kit_form["nodes"])
-        for node in kit_nodes:
-            if str(node["hostname"]) == str(node_to_remove):
-                kit_nodes.remove(node)
-
-        kit_form["nodes"] = kit_nodes
-
-        conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
-                                                {"_id": KIT_ID, "form": kit_form},
-                                                upsert=True,
-                                                return_document=ReturnDocument.AFTER)  # type: InsertOneResult
-
-        return (jsonify(str(task_id)), 200)
-
-    logger.error("Executing remove node configuration has failed.")
-    return ERROR_RESPONSE
 
 
 @app.route('/api/get_kit_form', methods=['GET'])

@@ -1,5 +1,5 @@
 from app import celery, logger, CORE_DIR, conn_mng
-from app.inventory_generator import KitInventoryGenerator
+from app.inventory_generator import KitInventoryGenerator, KickstartInventoryGenerator
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
 from pathlib import Path
@@ -9,25 +9,14 @@ from shared.constants import KICKSTART_ID, KIT_ID
 _JOB_NAME_NOTIFICATION = "kit"
 
 
-def _remove_node_inventory_section():
-    current_kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    current_kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-
-    if current_kit_configuration["form"] and current_kit_configuration["form"]["remove_node"]:
-        del current_kit_configuration["form"]["remove_node"]
-        kit_generator = KitInventoryGenerator(current_kit_configuration["form"], current_kickstart_config["form"])
-        kit_generator.generate()
-        conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID}, {"_id": KIT_ID, "form": current_kit_configuration["form"]})
-
-
 @celery.task
-def perform_kit(command: str, cwd_dir: str, job_name: str="kit", is_remove_node:bool=False):
+def perform_kit(command: str, cwd_dir: str, job_name: str="Kit"):
     notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION)
     notification.set_message("%s started." % _JOB_NAME_NOTIFICATION.capitalize())
     notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
 
-    job = AsyncJob(job_name.capitalize(), command, working_dir=cwd_dir, use_shell=True)
+    job = AsyncJob(job_name, command, working_dir=cwd_dir, use_shell=True)
 
     notification.set_message("%s in progress." % _JOB_NAME_NOTIFICATION.capitalize())
     notification.set_status(NotificationCode.IN_PROGRESS.name)
@@ -44,9 +33,6 @@ def perform_kit(command: str, cwd_dir: str, job_name: str="kit", is_remove_node:
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
-    conn_mng.mongo_celery_tasks.delete_one({"_id": job_name.capitalize()})
-
-    if is_remove_node:
-        _remove_node_inventory_section()
+    conn_mng.mongo_celery_tasks.delete_one({"_id": job_name})
 
     return ret_val

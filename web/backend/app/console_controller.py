@@ -26,7 +26,12 @@ def get_console_logs(job_name: str) -> Response:
 
     :param job_name: The name of the job (EX: Kickstart or Kit)
     """
-    logs = list(conn_mng.mongo_console.find({"jobName": job_name}, {'_id': False}))
+    job_list =  {"jobName": job_name}
+
+    if job_name == "Kit":
+        job_list =  { "jobName": { "$in": [job_name, "Stignode" ] } }
+
+    logs = list(conn_mng.mongo_console.find(job_list, {'_id': False}))
     return jsonify(logs)
 
 

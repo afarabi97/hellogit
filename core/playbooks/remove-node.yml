@@ -10,7 +10,8 @@
   tags: always
   gather_facts: yes
   tasks:
-    - set_fact:
+    - name: Set Vars
+      set_fact:
         ansible_controller_hostname: "{{ hostvars.localhost.ansible_nodename }}"
         ansible_controller_ip: "{{ hostvars.localhost.ansible_default_ipv4.address }}"
     - debug:
@@ -24,7 +25,8 @@
     - sensors
   tags: always
   tasks:
-    - set_fact:
+    - name: Set Vars
+      set_fact:
         host_list: "{{ groups['servers'] + groups['sensors'] }}"
         ansible_controller_hostname: "{{ hostvars.localhost.ansible_controller_hostname }}"
         ansible_controller_ip: "{{ hostvars.localhost.ansible_controller_ip }}"
@@ -73,6 +75,34 @@
         msg: "{{ item }} node is not joined to k8s cluster. Remove {{ item }} from nodes_to_remove group in inventory file."
       when: item not in node_list.stdout
       with_items: "{{ groups['nodes_to_remove'] }}"
+
+- name: Remove installed apps
+  hosts: nodes_to_remove
+  tasks:
+    - name: Disable and Stop Auditbeat
+      service:
+        name: auditbeat
+        state: stopped
+        enabled: no
+
+    - name: Remove auditbeat
+      yum:
+        name: auditbeat-{{ elastic_7_version }}
+        state: absent
+
+    - name: Removes a cron file from under /etc/cron.d
+      cron:
+        name: node-health
+        state: absent
+      ignore_errors: yes
+
+    - name: Delete install directory
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/auditbeat
+        - /opt/metrics
 
 - name: Remove node from cluster
   hosts: master_server

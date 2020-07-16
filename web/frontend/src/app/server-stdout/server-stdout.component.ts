@@ -54,12 +54,16 @@ export class ServerStdoutComponent implements OnInit {
     });
 
     this.stdoutService.getMessage().subscribe(data => {
-      if(data['jobName'] == this.jobName) {
+      if ( this.jobName == "Kit" &&
+      (data['jobName'] == "Kit" || data['jobName'] == "Stignode")) {
+          this.messages.push({msg: data['log'], color: data['color']});
+          this.scrollToBottom();
+      }
+      else if(this.jobName == data['jobName'] ) {
         this.messages.push({msg: data['log'], color: data['color']});
         this.scrollToBottom();
       }
     });
-
   }
 
   ngAfterViewInit(){

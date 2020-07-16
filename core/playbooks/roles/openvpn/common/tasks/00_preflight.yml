@@ -20,6 +20,7 @@
   stat:
     path: "{{ ovpn_dir }}/pki/private/{{ inventory_hostname_short }}.key"
   register: existing_key
+  delegate_to: "{{ groups['master_server'][0] }}"
 
 - name: Check for server ca
   stat:
