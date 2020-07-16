@@ -127,7 +127,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     return search;
   }
 
-  getRules(ruleset: RuleSet) {
+  getRules(ruleset: RuleSet, dataSourceDataIndex: number) {
     let index = this.getRuleSetIndex(ruleset);
     let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
     let wereRulesVisible = this.isRulesVisible[dataSourceDataIndex];

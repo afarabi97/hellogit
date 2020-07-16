@@ -24,7 +24,7 @@ from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
-from shared.constants import TargetStates, AGENT_UPLOAD_DIR
+from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR
 from shared.connection_mngs import MongoConnectionManager
 from shared.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
