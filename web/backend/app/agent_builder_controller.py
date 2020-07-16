@@ -189,7 +189,7 @@ def _get_unique_hosts_to_add(target_config: Dict, hosts_to_add: Dict) -> List[Di
             if _is_host_duplicate(target_config, host_to_add):
                 continue
 
-            host_to_add['state'] = TargetStates.uninstalled.value
+            host_to_add['state'] = TARGET_STATES.uninstalled.value
             host_to_add['last_state_change'] = ""
             to_insert.append(host_to_add)
     return to_insert
