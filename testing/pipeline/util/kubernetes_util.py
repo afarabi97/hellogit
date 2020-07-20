@@ -18,23 +18,36 @@ def _check_pod_states(items: Dict) -> bool:
     ret_val = True
     logging.info("====================PODS THAT ARE STILL DOWN====================================")
     for item in items:
-        # Ignore curator pods as they are cron jobs that are more often than not in a terminated state.
-        if "curator" in item["metadata"]["name"]:
+        pod_msg_list = []
+        container_stat = True
+        # Ignore Pods that are marked as Sucessfull.  All Containers in the Pod have terminated in success, and will not be restarted.
+        if item["status"]["phase"] == "Succeeded":
             continue
-
-        if item["status"]["phase"] == "Pending":
-            logging.info(item["metadata"]["name"] + " is in Pending state")
-            ret_val = False
+        else:
+            pod_msg = "{name} current state: {phase}".format(name=item["metadata"]["name"],phase=item["status"]["phase"])
 
         if item["status"]["container_statuses"]:
             for status in item["status"]["container_statuses"]:
                 if not status["ready"]:
-                    logging.info(item["metadata"]["name"])
+                    container_stat = False
+                    msg = "Not Ready"
+                    if status["state"]["waiting"]:
+                        msg = split_camel_case(status["state"]["waiting"]["reason"])
+                    if status["state"]["terminated"]:
+                        msg = split_camel_case(status["state"]["terminated"]["reason"])
+                    if status["state"]["running"]:
+                        msg = "Running But Not Ready Yet"
+                    pod_msg_list.append("{name}: {msg}".format(name=status["name"],msg=msg))
                     if ret_val:
                         ret_val = False
+        if not container_stat:
+            logging.info(pod_msg)
+            logging.info('\n'.join(pod_msg_list))
 
     return ret_val
 
+def split_camel_case(string: str) -> str:
+    return ''.join(map(lambda x: " "+x if x.isupper() else x, string)).strip()
 
 def wait_for_pods_to_be_alive(master_srv: NodeSettings, timeout_minutes: int=10):
     """

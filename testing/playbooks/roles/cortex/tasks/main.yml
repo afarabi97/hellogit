@@ -51,7 +51,7 @@
 
   - name: Test | Check Pod Status
     assert:
-      that: item.stdout == 'Running'
+      that: item.stdout == 'Running' or item.stdout == 'Completed'
       msg: "Failed it appears cortex pod status is {{ item.stdout }}"
     with_items: "{{ pod_status.results }}"
   when: app_deployed
