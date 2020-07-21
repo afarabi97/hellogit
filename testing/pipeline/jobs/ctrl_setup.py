@@ -5,6 +5,7 @@ import subprocess
 from invoke.exceptions import UnexpectedExit
 from fabric import Connection
 from models.ctrl_setup import ControllerSetupSettings
+from models.common import RepoSettings
 from time import sleep
 from typing import Dict
 from util.connection_mngs import FabricConnectionWrapper
@@ -16,20 +17,20 @@ from util.network import retry
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
 
-def checkout_latest_code(ctrl_settings):
+def checkout_latest_code(repo_settings: RepoSettings):
     cred_file_cmd = """
 cat <<EOF > ~/credential-helper.sh
 #!/bin/bash
 echo username="{}"
 echo password="{}"
 EOF
-    """.format(ctrl_settings.repo.username, ctrl_settings.repo.password)
+    """.format(repo_settings.username, repo_settings.password)
 
     commands = ['git config --global --unset credential.helper',
                 cred_file_cmd,
                 'git config --global credential.helper "/bin/bash ~/credential-helper.sh"',
                 'git fetch',
-                'git checkout {} --force'.format(ctrl_settings.repo.branch_name),
+                'git checkout {} --force'.format(repo_settings.branch_name),
                 'git pull --rebase',
                 'git config --global --unset credential.helper',
                 'git rev-parse HEAD']

@@ -1,0 +1,21 @@
+DIP Robot Tests:
+  stage: robot-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    mkdir -p $(pwd)/testing/robotest-output
+    docker run -e JIRA_USERNAME=$JIRA_USERNAME -e JIRA_PASSWORD=$JIRA_PASSWORD -e JIRA_PROJECT_KEY=$JIRA_PROJECT_KEY -i --network="host" \
+    -v $(pwd)/testing/robotest:/usr/src/robot/tests \
+    -v $(pwd)/testing/robotest-output:/usr/src/robot/output tfplenum/robot-automator:1.1.0 \
+    pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
+  artifacts:
+    untracked: true
+    when: always
+  allow_failure: true
+  only:
+    variables:
+      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-dip"
+      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-all"
+      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-dip-mip"

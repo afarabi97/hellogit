@@ -11,11 +11,12 @@ class SubCmd:
     run_integration_tests = 'run-integration-tests'
     simulate_power_failure = 'simulate-power-failure'
     run_unit_tests = 'run-unit-tests'
+    checkout_latest_code = 'checkout-latest-code'
 
     run_export = 'run-export'
 
     run_cleanup = 'run-cleanup'
-    
+
     gip_setup = 'gip-setup'
 
     test_server_repository_vm = 'test-server-repository-vm'

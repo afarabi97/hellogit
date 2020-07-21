@@ -138,6 +138,16 @@ variables:
   DIP_SOFTWARE_FOLDERS: "$STACK_SOFTWARE_FOLDER $DIP_SOFTWARE_FOLDER"
   MIP_SOFTWARE_FOLDERS: "$MIP_SOFTWARE_FOLDER"
 
+  # Robot Test Integration
+  RUN_ROBOT_TESTS: "true"
+  JIRA_USERNAME: "zTHISISCVAH"
+  JIRA_PASSWORD: "We.are.tfplenum4$"
+  JIRA_PROJECT_KEY: "THISISCVAH"
+
+  # If this is set to true
+  # we will not accept this as a pass
+  IS_EDITABLE: "false"
+
 
 stages:
   - code-analysis
@@ -146,6 +156,7 @@ stages:
   - docs
   - kickstart
   - kit
+  - robot-test
   - configure:minio
   - stig-kit
   - security_scans
@@ -160,11 +171,23 @@ stages:
   - checkhash
   - publish
 
+default:
+  before_script:
+    - |
+      python3 testing/pipeline/pipeline.py \
+          --system-name "DIP" \
+          checkout-latest-code \
+          --repo-username "$REPO_USERNAME" \
+          --repo-password "$REPO_PASSWORD" \
+          --repo-url "$REPO_URL" \
+          --branch-name "$CI_COMMIT_REF_NAME"
+
 include:
   - local: gitlab/code-analysis.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml
   - local: gitlab/DIP/dip.export.gitlab-ci.yml
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml
+  - local: gitlab/DIP/dip.robot.gitlab-ci.yml
   - local: gitlab/MIP/mip.gitlab-ci.yml
   - local: gitlab/MIP/mip.export.gitlab-ci.yml
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml

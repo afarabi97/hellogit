@@ -45,6 +45,8 @@ playbooks/inventory/dev/*
 charts/*/*.tgz
 inventory.yml
 testing/testy-tester/testcases/userdefined/
+testing/robotest-output
+testing/robotest-output/**
 infrastructure/Firewall/Firewall.ova
 infrastructure/Software/
 *.bin
@@ -52,6 +54,7 @@ infrastructure/Software/
 *.old
 infrastructure/Kit_*/
 *.rpm
+*.env
 
 controllersetupsettings_dip.yml
 controllersetupsettings_mip.yml

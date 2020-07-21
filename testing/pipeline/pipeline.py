@@ -24,7 +24,7 @@ from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
 from models.catalog import CatalogSettings
-from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
+from models.common import BasicNodeCreds, NodeSettings, VCenterSettings, RepoSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.mip_config import MIPConfigSettings
 
@@ -179,17 +179,16 @@ class Runner:
         STIGSettings.add_args(stig_ctrl_parser)
         stig_ctrl_parser.set_defaults(which=SubCmd.run_stigs)
 
+        latest_code_parser = subparsers.add_parser(
+            SubCmd.checkout_latest_code, help="Pulls the latest git commit of your branch.")
+        RepoSettings.add_args(latest_code_parser)
+        latest_code_parser.set_defaults(which=SubCmd.checkout_latest_code)
+
         parser.add_argument('--system-name', dest='system_name',
                             choices=['DIP', 'MIP', 'GIP', 'REPO'],
                             help="Selects which component your controller should be built for.")
 
         args = parser.parse_args()
-
-        try:
-            ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
-            checkout_latest_code(ctrl_settings)
-        except Exception as e:
-            traceback.print_exc()
 
         try:
             if args.which == SubCmd.setup_minio.id:
@@ -498,6 +497,10 @@ class Runner:
                 executor = MIPConfigJob(
                     ctrl_settings, kickstart_settings, mip_config_settings)
                 executor.run_mip_config()
+            elif args.which == SubCmd.checkout_latest_code:
+                repo_settings = RepoSettings()
+                repo_settings.from_namespace(args)
+                checkout_latest_code(repo_settings)
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:
