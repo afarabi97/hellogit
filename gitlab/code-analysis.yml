@@ -132,6 +132,56 @@ analyze ansible mip playbooks:
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
 
+pylint the backend code:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.0 /opt/tfplenum/web/setup/pylint_backend.sh
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+
+pylint the pipeline code:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.0 /opt/tfplenum/testing/pipeline/pylint_pipeline.sh
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+
+compile the angular code:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.0 /opt/tfplenum/web/setup/compile_frontend.sh
+  allow_failure: true
+  only:
+    variables:
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
 
 # include:
   # - template: Container-Scanning.gitlab-ci.yml

@@ -43,7 +43,6 @@ variables:
   SONAR_HOST_URL: "http://sonarqube.sil.lab:9000/"
   ACAS_IPADDRESS: "172.16.82.15"
   ACAS_USERNAME: "acas"
-  ACAS_PASSWORD: "we.are.tfplenum"
   DIP_ACAS_SCAN_TO_RUN: "DIP Dynamic Scan"
   MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
   RUN_ACAS: "false"
@@ -140,8 +139,6 @@ variables:
 
   # Robot Test Integration
   RUN_ROBOT_TESTS: "true"
-  JIRA_USERNAME: "zTHISISCVAH"
-  JIRA_PASSWORD: "We.are.tfplenum4$"
   JIRA_PROJECT_KEY: "THISISCVAH"
 
   # If this is set to true

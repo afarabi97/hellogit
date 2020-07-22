@@ -1,5 +1,7 @@
 ---
 - import_tasks: 05_install_node.yml
+  tags: install_node
+
 - import_tasks: 10_install_angular.yml
   tags: install_angular
 

@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import requests
@@ -30,6 +31,11 @@ def print_json(some_obj: Union[Dict, List]):
     print(json.dumps(some_obj, indent=4, sort_keys=True))
 
 
+def b64decode_string(some_str: str):
+    ret_val = base64.b64decode(some_str.encode())
+    return ret_val.decode('utf-8')
+
+
 class ACASRunner:
 
     def __init__(self, ip_or_host: str, username: str, password: str, report_name: str):
@@ -38,7 +44,7 @@ class ACASRunner:
         self._session = requests.Session()
         self._cached_cookies = None # type: requests.cookies.RequestsCookieJar
         self._username = username
-        self._password = password
+        self._password = b64decode_string(password)
         self._headers = None # type: Dict
         self._scan_obj = None #type: Dict
         self._report_name = report_name

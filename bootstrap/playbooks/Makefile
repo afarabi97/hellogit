@@ -5,7 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre, frontend, install_angular, build_deploy_frontend, dip_bootstrap, sso, build_helm_charts, mip_bootstrap
+.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, dip_bootstrap, sso, build_helm_charts, mip_bootstrap, nightly_clone_rebuild_frontend, pull_docker_images
 
 # Default target, build *and* run tests
 all:
@@ -20,11 +20,20 @@ execute_pre:
 frontend:
 	ansible-playbook $(PLAYBOOK) -i localhost -t frontend
 
+install_node:
+	ansible-playbook $(PLAYBOOK) -i localhost -t install_node
+
 install_angular:
 	ansible-playbook $(PLAYBOOK) -i localhost -t install_angular
 
+build_frontend_only:
+	ansible-playbook $(PLAYBOOK) -i localhost -t build_frontend
+
 build_deploy_frontend:
 	ansible-playbook $(PLAYBOOK) -i localhost -t build_frontend,restart_frontend_services
+
+setup_python_env:
+	ansible-playbook $(PLAYBOOK) -i localhost -t setup_python
 
 nightly_clone_rebuild_frontend:
 	ansible-playbook $(PLAYBOOK) -i localhost -t setup_python,build_frontend,restart_frontend_services
