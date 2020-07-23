@@ -79,6 +79,19 @@ class HiveSetUp:
                 time.sleep(2)
                 continue
 
+    def es_get_status(self):
+        while True:
+            print("Waiting for elasticsearch to becoming ready...")
+            try:
+                r = requests.get("http://hive-elastic.default.svc.cluster.local:9200/_cluster/health", verify=self._verify, headers=self._headers)
+                if r.json()["status"] == "yellow" or r.json()["status"] == "green":
+                    return True
+                time.sleep(2)
+            except Exception as e:
+                print("Setup Exception: " + str(e))
+                time.sleep(2)
+                continue
+
     def set_password(self, username, password):
         print("Setting Password for " + username)
         url = URI + "/user/" + username + "/password/set"
@@ -100,7 +113,7 @@ class HiveSetUp:
 if __name__ == '__main__':
     print("Running The Hive Setup Script")
     setup = HiveSetUp()
-    if setup.get_status():
+    if setup.get_status() and setup.es_get_status():
         migratedb = setup.post(url=URI + "/maintenance/migrate")
         setup.create_user(username=SUPER_USERNAME, name="Hive Admin", password=SUPER_PASS, roles=["read","write","admin"], requires_auth=False)
         setup.create_user(username=ALERT_USERNAME, name="Hive Alert User", password=ALERT_PASSWORD, roles=["read","write","alert"], requires_auth=True)

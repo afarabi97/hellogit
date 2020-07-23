@@ -187,7 +187,9 @@ class KubernetesWrapper:
         self._ip_address = ip_address
         self._get_and_save_kubernetes_config()
         config.load_kube_config(self._kubernetes_config_path)
-        self._kube_apiv1 = client.CoreV1Api()
+        self._core_apiv1 = client.CoreV1Api()
+        self._apps_apiv1 = client.AppsV1Api()
+        self._batch_apiv1 = client.BatchV1Api()
 
     def _get_and_save_kubernetes_config(self) -> None:
         """
@@ -198,6 +200,18 @@ class KubernetesWrapper:
                                         self._password,
                                         self._ip_address) as fab_conn:
             fab_conn.get(config_path, self._kubernetes_config_path)
+
+    @property
+    def apps_V1_API(self) -> client.AppsV1Api():
+        return self._apps_apiv1
+
+    @property
+    def core_V1_API(self) -> client.CoreV1Api():
+        return self._core_apiv1
+
+    @property
+    def batch_V1_API(self) -> client.BatchV1Api():
+        return self._batch_apiv1
 
     def close(self) -> None:
         """
@@ -212,7 +226,8 @@ class KubernetesWrapper:
 
         :return kubernetes api.
         """
-        return self._kube_apiv1
+        return self
+        # return self._kube_apiv1
 
     def __exit__(self, *exc) -> None:
         self.close()

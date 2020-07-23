@@ -14,3 +14,19 @@ spec:
     targetPort: 443
     protocol: TCP
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hive-elastic
+  labels:
+    component: hive-elastic
+spec:
+  selector:
+    component: {{ .Release.Name }}
+  ports:
+  - name: elastic
+    port: 9200
+    targetPort: elasticsearch
+    protocol: TCP
+  type: ClusterIP

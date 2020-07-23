@@ -11,7 +11,7 @@ from kubernetes.stream import stream
 URI="https://misp.default.svc.cluster.local"
 CORTEX_URI="https://cortex.default.svc.cluster.local/api"
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
-headers2 = {"Content-Type": "application/json", "Accept": "application/json"}
+cortex_headers = {"Content-Type": "application/json", "Accept": "application/json"}
 api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
 CORTEX_USER_EMAIL=os.environ['CORTEX_USER_EMAIL']
@@ -140,17 +140,17 @@ class MISPSetup:
     def conf_cortex_module(self, api_key: str):
         print("Updating Cortex Module")
         exec_command = [
-            'chown www-data:www-data /var/www/MISP/app/Config',
             '/var/www/MISP/app/Console/cake Admin setSetting "Plugin.Cortex_services_enable" true',
-            'chown www-data:www-data /var/www/MISP/app/Config',
+            'chown www-data:www-data -R /var/www/MISP/app/Config',
             '/var/www/MISP/app/Console/cake Admin setSetting "Plugin.Cortex_authkey" "{api_key}"'.format(api_key=api_key),
-            'chown www-data:www-data /var/www/MISP/app/Config',
+            'chown www-data:www-data -R /var/www/MISP/app/Config',
         ]
         while True:
             if exec_command:
                 com = exec_command.pop(0)
                 resp = self.execute_command(pod_name=self._misp_pod.metadata.name, namespace=self._misp_pod.metadata.namespace, container='misp', command=com)
                 print(resp)
+                time.sleep(5)
             else:
                 break
 
@@ -171,9 +171,9 @@ class MISPSetup:
         str = "Creating {email}".format(email=email)
         print(str)
         data = {"email": email, "role_id": role_id}
-        if org_id != None:
+        if org_id is not None:
             data['org_id'] = org_id
-        if authkey != None:
+        if authkey is not None:
             data['authkey'] = authkey
         url = URI + "/admin/users/add"
         return self.post(url=url, data=data, requires_auth=True)
@@ -182,27 +182,27 @@ class MISPSetup:
         str = "Editing {email}".format(email=email)
         print(str)
         data = {"email": email, "role_id": role_id}
-        if org_id != None:
+        if org_id is not None:
             data['org_id'] = org_id
-        if authkey != None:
+        if authkey is not None:
             data['authkey'] = authkey
         url = URI + "/admin/users/edit/"+user_id
         return self.post(url=url, data=data, requires_auth=True)
 
-    def get_org(self, org_id = 1):
+    def get_org(self, org_id=1):
         str = "Getting Org ID {org_id}".format(org_id=org_id)
         print(str)
         url = URI + "/organisations/view/{org_id}".format(org_id=org_id)
         return self.get(url=url, requires_auth=True)
 
-    def edit_org_name(self, org_id = 1, name = "CPT HUNT"):
-        str = "Editing Org ID {org_id} Name -> {name}".format(org_id=org_id,name=name)
+    def edit_org_name(self, org_id=1, name="CPT HUNT"):
+        str = "Editing Org ID {org_id} Name -> {name}".format(org_id=org_id, name=name)
         print(str)
         data = {"name": name, "nationality": "US", "local": True}
         url = URI + "/admin/organisations/edit/{org_id}".format(org_id=org_id)
         return self.post(url=url, data=data, requires_auth=True)
 
-    def add_org(self, name = "CPT HUNT"):
+    def add_org(self, name="CPT HUNT"):
         str = "Adding Org {name}".format(name=name)
         print(str)
         data = {"name": name, "nationality": "US", "local": True}
@@ -211,7 +211,7 @@ class MISPSetup:
 
     def setup_misp_hive_user(self):
         user = self.get_users(HIVE_USER_EMAIL)
-        if user != None and user != False:
+        if user is not None and user is not False:
             # Edit Hive User
             self.edit_user(user_id=user, email=HIVE_USER_EMAIL, role_id=1, org_id=None, authkey=HIVE_USER_API_KEY)
         else:
@@ -220,7 +220,7 @@ class MISPSetup:
 
     def setup_misp_cortex_user(self):
         user = self.get_users(CORTEX_USER_EMAIL)
-        if user != None and user != False:
+        if user is not None and user is not False:
             # Edit Hive User
             self.edit_user(user_id=user, email=CORTEX_USER_EMAIL, role_id=1, org_id=None, authkey=CORTEX_USER_API_KEY)
         else:
@@ -230,7 +230,7 @@ class MISPSetup:
     def get_cortex_status(self):
         print("Checking Cortex Status")
         try:
-            r = requests.get(CORTEX_URI + "/status", verify=VERIFY, headers=headers2)
+            r = requests.get(CORTEX_URI + "/status", verify=VERIFY, headers=cortex_headers)
             print(r)
             if r.status_code == 200:
                 print(r)
@@ -267,14 +267,16 @@ class MISPSetup:
           "jobTimeout": 30
         }
         url = CORTEX_URI + "/organization/analyzer/MISP_2_0"
-        return requests.post(url=url, json=data, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD), verify=VERIFY, headers=headers2)
+        return requests.post(url=url, json=data, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD), verify=VERIFY, headers=cortex_headers)
 
     def get_cortex_api(self):
+        print("Getting Cortex API Key")
         url = CORTEX_URI + '/user/{cortex_user}/key/renew'.format(cortex_user=CORTEX_USER_USERNAME)
-        response = requests.post(url=url, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD),verify=VERIFY, headers=headers2)
+        response = requests.post(url=url, auth=HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD), verify=VERIFY, headers=cortex_headers)
         if response and response.status_code == 200:
             return response.text
         sys.exit(os.EX_CONFIG)
+
 
 if __name__ == '__main__':
     setup = MISPSetup()
@@ -289,11 +291,11 @@ if __name__ == '__main__':
             setup.reset_authkey()
             setup.setup_misp_hive_user()
             setup.setup_misp_cortex_user()
-            org = setup.get_org(org_id = 1)
+            org = setup.get_org(org_id=1)
             if org.status_code == 200:
-                setup.edit_org_name(org_id = 1,name = ORG_NAME)
+                setup.edit_org_name(org_id=1,name=ORG_NAME)
             elif setup.status_code == 404:
-                self.add_org(name = ORG_NAME)
+                setup.add_org(name=ORG_NAME)
         if setup.get_cortex_status():
             setup.enable_cortex_misp_analyzer()
             api_key = setup.get_cortex_api()

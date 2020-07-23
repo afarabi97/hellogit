@@ -1,10 +1,10 @@
 # Default values for mattermost
-mattermostImage: mattermost/mattermost-prod-app:5.22.3
+mattermostImage: mattermost/mattermost-prod-app:5.24.2
 python_image: tfplenum/python:3.8.3
 domain: lan
 
 # database variables
-mariadbImage: mariadb:10.5.2
+mariadbImage: mariadb:10.5.4
 sqlDatabase: mattermost-db
 sqlUsername: mmuser
 sqlPassword: mmuser_password

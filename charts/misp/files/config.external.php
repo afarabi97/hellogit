@@ -1,13 +1,14 @@
 <?php
 $config['MISP']['language']= 'eng';
 $config['MISP']['live']= true;
-$config['MISP']['baseurl']= $_SERVER['BASE_URL'];
-$config['MISP']['external_baseurl']= $_SERVER['BASE_URL'];
+$config['MISP']['baseurl']= $_SERVER['MISP_BASEURL'];
+$config['MISP']['external_baseurl']= $_SERVER['MISP_BASEURL'];
 $config['MISP']['host_org_id']= 1;
 $config['Security']['password_policy_length']= '4';
 $config['Security']['password_policy_complexity']= '/^.{4,}/';
 // Configuration for shibboleth authentication
 $config['Security']['auth']= array('ShibbAuth.ApacheShibb');
+$config['Plugin']['CustomAuth_custom_logout'] = "/Shibboleth.sso/Logout";
 $config['ApacheShibbAuth'] = array(
   'apacheEnv'         => 'REMOTE_USER',        // If proxy variable = HTTP_REMOTE_USER
   'MailTag'           => 'email',
@@ -39,10 +40,8 @@ if( isset($_SERVER['MISP_MODULES_URL']) && $_SERVER['MISP_MODULES_URL'] !== '' &
         'Export_services_url' => $_SERVER['MISP_MODULES_URL'],
         'Export_services_port' => (int) $_SERVER['MISP_MODULES_PORT'],
         'Export_timeout' => 300,
-        'Cortex_services_enable' => false,
         'Cortex_services_url' => 'https://cortex.default.svc.cluster.local',
         'Cortex_services_port' => 443,
-        'Cortex_authkey' => '',
         'Cortex_timeout' => 120,
         'Cortex_ssl_verify_peer' => true,
         'Cortex_ssl_verify_host' => true,

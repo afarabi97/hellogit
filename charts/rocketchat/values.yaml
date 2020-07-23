@@ -4,12 +4,12 @@
 domain: lan
 image:
   repository: rocketchat/rocket.chat
-  tag: 3.2.2
+  tag: 3.4.2
   pullPolicy: IfNotPresent
 
 nginxImage:
   repository: nginx
-  tag: 1.18.0
+  tag: 1.19.1
   pullPolicy: IfNotPresent
 ## Host for the application
 ##
@@ -55,11 +55,13 @@ extraEnv:   |
   - name: OVERWRITE_SETTING_SAML_Custom_Default_name_overwrite
     value: "True"
   - name: OVERWRITE_SETTING_SAML_Custom_Default_user_data_fieldmap
-    value: "{\"uid\":\"username\", \"email\":\"email\", \"displayName\": \"name\"}"
+    value: "{\"username\":\"uid\", \"email\":\"email\", \"name\":\"displayName\"}"
   - name: OVERWRITE_SETTING_SAML_Custom_Default_default_user_role
     value: "user"
   - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_name
     value: "rocketchat_role"
+  - name: OVERWRITE_SETTING_SAML_Custom_Default_role_attribute_sync
+    value: "true"
 
 
 ## Pod anti-affinity can prevent the scheduler from placing RocketChat replicas on the same node.

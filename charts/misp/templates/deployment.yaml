@@ -39,7 +39,7 @@ spec:
         ports:
         - containerPort: 443
         env:
-        - name: BASE_URL
+        - name: MISP_BASEURL
           value: https://misp.{{ .Values.domain }}
         - name: ORG_NAME
           valueFrom:
@@ -61,15 +61,9 @@ spec:
         - name: MISP_MODULES_PORT
           value: "6666"
         volumeMounts:
-        - name: misp-setup
-          mountPath: /setup.py
-          subPath: setup.py
         - name: misp-vol
           mountPath: /var/www/MISP/app/Config
           subPath: appConfig
-        - name: misp-vol
-          mountPath: /var/www/MISP/app/setup
-          subPath: setup
         - name: misp-config
           mountPath: /var/www/MISP/app/Config/config.external.php
           subPath: config.external.php

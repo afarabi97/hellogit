@@ -1,11 +1,11 @@
 # Default values for misp
-mispImage: tfplenum/misp:2.4.120
-mispModulesImage: tfplenum/misp-modules:2.4.120
+mispImage: tfplenum/misp:2.4.129
+mispModulesImage: tfplenum/misp-modules:2.4.121
 python_image: tfplenum/python:3.8.3
 domain: lan
 
 # Database values
-mariadbImage: mariadb:10.5.2
+mariadbImage: mariadb:10.5.4
 sqlDatabase: misp-db
 sqlUsername: misp
 sqlRootPassword: A0@QlrLZPEDB3*aLcgPsMm805

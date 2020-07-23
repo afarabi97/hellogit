@@ -8,8 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 pushd $SCRIPT_DIR > /dev/null
 
-docker build -t tfplenum/winlogbeat-setup:7.6.2 -f 7.6.2.Dockerfile .
-docker build -t tfplenum/winlogbeat-setup:7.7.1 -f 7.7.1.Dockerfile .
-docker build -t tfplenum/winlogbeat-setup:7.8.0 -f 7.8.0.Dockerfile .
+docker build -t tfplenum/misp:2.4.120 -f 2.4.120.Dockerfile .
+docker build -t tfplenum/misp:2.4.129 -f 2.4.129.Dockerfile .
 
 popd > /dev/null

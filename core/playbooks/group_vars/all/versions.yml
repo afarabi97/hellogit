@@ -3,8 +3,8 @@
 # Use include_vars function to utilize this file.
 
 # VERSIONS
-rocketchat_version: "3.2.2"
-mongodb_version: "4.2.6"
+rocketchat_version: "3.4.2"
+mongodb_version: "4.2.8"
 zeek_version: "3.1.1"
 busybox_version: "1.31.1"
 coreos_version: "1688.5.3"
@@ -23,24 +23,25 @@ chartmuseum_image_version: "v0.12.0"
 elastic_7_version: "7.7.1"
 elastic_7_chart_version: "7.7.1"
 window_remote_installer_version: "1.2"
-hive_elastic_version: "6.8.0"
+hive_elastic_version: "6.8.9"
 hive_cortex_version: "3.0.1"
 hive_version: "3.4.0"
 zookeeper_image_version: 3.6.1
 kafka_image_version: 2.5.0
 elastic_operator: 1.0.1
-redmine_version: "4.1.0"
-postgres_version: "12.2"
+redmine_version: "4.1.1"
+postgres_version: "12.3"
 nifi_version: 1.11.4
-mariadb_version: 10.5.2
-mattermost_version: 5.22.3
-wikijs_version: 2.3.81
-misp_version: 2.4.120
+mariadb_version: 10.5.4
+mattermost_version: 5.24.2
+wikijs_version: 2.4.107
+misp_version: 2.4.129
+misp_modules_version: 2.4.121
 crio_version: "v1.17.4"
 conmon_version: 2.0.12
 calico_version: "v3.13.1"
-nginx_version: "1.18.0"
-cert_manager_version: v0.14.2
+nginx_version: "1.19.1"
+cert_manager_version: v0.15.2
 storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
 python_version: 3.8.3
@@ -66,7 +67,7 @@ kube_images:
   - { image: "docker.elastic.co/logstash/logstash:{{ elastic_7_version }}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/eck/eck-operator:{{ elastic_operator }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/windows_remote_installer:{{ window_remote_installer_version }}", for_dip: true, for_gip: false }
-  - { image: "docker.io/elasticsearch:{{ hive_elastic_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/elasticsearch/elasticsearch:{{ hive_elastic_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/thehiveproject/cortex:{{ hive_cortex_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/thehiveproject/thehive:{{ hive_version }}", for_dip: true, for_gip: true }
   - { image: "k8s.gcr.io/kube-apiserver:v{{ k8s_version }}", for_dip: true, for_gip: true }
@@ -85,7 +86,7 @@ kube_images:
   - { image: "docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/requarks/wiki:{{ wikijs_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/misp:{{ misp_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/tfplenum/misp-modules:{{ misp_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/misp-modules:{{ misp_modules_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/pod2daemon-flexvol:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/cni:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/node:{{ calico_version }}", for_dip: true, for_gip: true }
@@ -95,9 +96,9 @@ kube_images:
   - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-webhook:{{ cert_manager_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/tfplenum/squid:{{squid_version | default('1.1.0')}}", for_dip: false, for_gip: true }
+  - { image: "docker.io/tfplenum/squid:{{ squid_version | default('1.1.0') }}", for_dip: false, for_gip: true }
   - { image: "quay.io/external_storage/local-volume-provisioner:v{{ storage_provisioner_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/tfplenum/squid:{{squid_version | default('1.1.0')}}", for_dip: false, for_gip: true }
+  - { image: "docker.io/tfplenum/squid:{{ squid_version | default('1.1.0') }}", for_dip: false, for_gip: true }
   - { image: "docker.io/tfplenum/shibboleth_proxy:{{ shibboleth_proxy_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/python:{{ python_version }}", for_dip: true, for_gip: true }
 

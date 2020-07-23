@@ -23,7 +23,7 @@
   "protocol": "saml",
   "attributes": {
     "saml.assertion.signature": "true",
-    "saml_assertion_consumer_url_redirect": "https://nifi.{{ kit_domain }}/Shibboleth.sso/SAML2/POST",
+    "saml_assertion_consumer_url_redirect": "",
     "saml.force.post.binding": "false",
     "saml.multivalued.roles": "false",
     "saml_single_logout_service_url_post": "https://nifi.{{ kit_domain }}/Shibboleth.sso/SLO/POST",
@@ -34,7 +34,7 @@
     "saml.server.signature.keyinfo.ext": "false",
     "exclude.session.state.from.auth.response": "false",
     "saml.signing.certificate": "{{ saml_certs.nifi }}",
-    "saml_single_logout_service_url_redirect": "https://nifi.{{ kit_domain }}/Shibboleth.sso/SLO/POST",
+    "saml_single_logout_service_url_redirect": "https://nifi.{{ kit_domain }}/Shibboleth.sso/SLO/Redirect",
     "saml.signature.algorithm": "RSA_SHA256",
     "saml_force_name_id_format": "false",
     "saml.client.signature": "true",

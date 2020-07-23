@@ -3,6 +3,7 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.catalog import CatalogSettings
 from models.constants import SubCmd
 from util.api_tester import APITester
+from util.kubernetes_util import wait_for_jobs_to_complete
 import logging
 
 class CatalogJob:
@@ -19,6 +20,7 @@ class CatalogJob:
                                 catalog_settings=self.catalog_settings)
 
     def run_catalog(self, application: str, process: str):
+        wait_for_jobs_to_complete(self.kickstart_settings.get_master_kubernetes_server(), 10)
         if process == SubCmd.install:
             logging.info("Installing "+application.title())
             if application == SubCmd.suricata:

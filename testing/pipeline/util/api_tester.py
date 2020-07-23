@@ -566,67 +566,67 @@ class APITester:
     def install_logstash(self) -> None:
         payload = self._catalog_payload_generator.generate("logstash", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_suricata(self) -> None:
         payload = self._catalog_payload_generator.generate("suricata", INSTALL, SENSOR)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def reinstall_suricata(self) -> None:
         payload = self._catalog_payload_generator.generate("suricata", REINSTALL, SENSOR)
         post_request(self._catlog_reinstall_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_moloch_viewer(self):
         payload = self._catalog_payload_generator.generate("moloch-viewer", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_moloch_capture(self):
         payload = self._catalog_payload_generator.generate("moloch", INSTALL, SENSOR)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_zeek(self):
         payload = self._catalog_payload_generator.generate("zeek", INSTALL, SENSOR)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_wikijs(self) -> None:
         payload = self._catalog_payload_generator.generate("wikijs", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def reinstall_wikijs(self) -> None:
         payload = self._catalog_payload_generator.generate("wikijs", REINSTALL, SERVER_ANY)
         post_request(self._catlog_reinstall_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_misp(self) -> None:
         payload = self._catalog_payload_generator.generate("misp", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_hive(self):
         payload = self._catalog_payload_generator.generate("hive", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_cortex(self):
         payload = self._catalog_payload_generator.generate("cortex", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_mongodb(self):
         payload = self._catalog_payload_generator.generate("mongodb", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def install_rocketchat(self):
         payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait = 60)
+        _clean_up(wait=60)
 
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -636,7 +636,7 @@ class APITester:
         payload = self._kit_payload_generator.generate()
         post_request(self._url.format("/api/execute_kit_inventory"), payload)
         wait_for_mongo_job("Kit", self._controller_ip, 60)
-        _clean_up(wait = 0)
+        _clean_up(wait=0)
 
     def run_kickstart_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -646,7 +646,7 @@ class APITester:
         payload = self._kickstart_payload_generator.generate()
         post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
-        _clean_up(wait = 0)
+        _clean_up(wait=0)
 
 
 
@@ -665,7 +665,7 @@ class MIPAPITester(APITester):
         payload = self._kickstart_payload_generator.generate()
         post_request(self._url.format("/api/generate_mip_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
-        _clean_up(wait = 0)
+        _clean_up(wait=0)
 
     def run_mip_config_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
@@ -675,4 +675,4 @@ class MIPAPITester(APITester):
         payload = self._mip_config_payload_generator.generate()
         post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
         wait_for_mongo_job("Mipconfig", self._controller_ip, 180)
-        _clean_up(wait = 0)
+        _clean_up(wait=0)

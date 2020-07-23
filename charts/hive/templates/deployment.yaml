@@ -87,7 +87,8 @@ spec:
         image: "{{ .Values.elastic_image }}"
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 9200
+        - name: elasticsearch
+          containerPort: 9200
         env:
           - name: http.host
             value: 0.0.0.0
@@ -134,9 +135,6 @@ spec:
         ports:
         - containerPort: {{ .Values.hive_port }}
         volumeMounts:
-        - name: setup
-          mountPath: /etc/thehive/setup.py
-          subPath: setup.py
         - name: api-cache
           mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
           subPath: keystore/cacerts

@@ -3,7 +3,7 @@ set -eu
 
 # Variables
 NC='\033[0m' # No Color
-Light_Green='\033[1;32m' 
+Light_Green='\033[1;32m'
 STARTMSG="${Light_Green}[ENTRYPOINT_MISP_MODULES]${NC}"
 VENV_DIR=${VENV_DIR:-"/misp-modules"}
 MISP_MODULES_BINARY="${VENV_DIR}/venv/bin/misp-modules"
