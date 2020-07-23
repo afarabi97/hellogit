@@ -32,6 +32,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   public statuses: any;
   public configArray: Array<any> = [];
   public kafkaArray: Array<any> = [];
+  public cortexDisable: boolean = true;
+  public mispDisable: boolean = true;
+  public hiveDisable: boolean = true;
   public gip_number: number;
 
   /**
@@ -103,7 +106,13 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
           this.gip_number = nodes[0].management_ip_address.split('.')[1];
         });
       }
-
+      if(this.chart.id === "hive") {
+        this.setupCortex();
+        this.setupMisp();
+      }
+      if(this.chart.id === "misp") {
+        this.setupCortex();
+      }
     }
   }
 
@@ -557,6 +566,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         } else if (control.type === "kafka-cluster-cluster") {
             let strValue = JSON.stringify(this.kafkaArray);
             nodeControls.addControl(control.name, new FormControl( strValue ));
+        } else if (control.type === "cortex-checkbox") {
+            nodeControls.addControl(control.name, new FormControl( { value: !this.cortexDisable, disabled: this.cortexDisable} ));
+        } else if (control.type === "misp-checkbox") {
+            nodeControls.addControl(control.name, new FormControl( { value: !this.mispDisable, disabled: this.mispDisable} ));
         } else {
           nodeControls.addControl(control.name, new FormControl([]));
         }
@@ -587,6 +600,39 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       }
     });
     this.kafkaArray = array;
+  }
+
+  setupCortex() {
+    let cortexValues;
+
+    this._CatalogService.getByString("cortex/saved_values").subscribe(values => {
+      cortexValues = values.length !== 0 ? values : null;
+      if(cortexValues != null) {
+        this.cortexDisable = false;
+      }
+    });
+  }
+
+  setupMisp() {
+    let mispValues;
+
+    this._CatalogService.getByString("misp/saved_values").subscribe(values => {
+      mispValues = values.length !== 0 ? values : null;
+      if(mispValues != null) {
+        this.mispDisable = false;
+      }
+    });
+  }
+
+  setupHive() {
+    let hiveValues;
+
+    this._CatalogService.getByString("hive/saved_values").subscribe(values => {
+      hiveValues = values.length !== 0 ? values : null;
+      if(hiveValues != null) {
+        this.hiveDisable = false;
+      }
+    });
   }
   /**
    * parses out the domain on the deployment name so that Kubernetes doesnt crash

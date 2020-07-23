@@ -3,8 +3,8 @@ hive_image: thehiveproject/thehive:3.4.0
 python_image: tfplenum/python:3.8.3
 nginx_image: nginx:1.19.1
 hive_port: 9000
-cortexIntegration: true
-mispIntegration: true
+cortexIntegration: false
+mispIntegration: false
 esUri: http://cortex-elastic.default.svc.cluster.local:9200
 superadmin_username: hive_admin
 superadmin_password: password!

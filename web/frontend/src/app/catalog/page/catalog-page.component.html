@@ -64,6 +64,20 @@
                                                 matTooltip="{{control?.description}}" [matTooltipPosition]="'right'"
                                                 [required]="control?.required">{{control?.description}}</mat-checkbox>
                                 </div>
+                                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
+                                  <mat-checkbox formControlName="{{control.name}}"
+                                                [checked]="checkboxValue(sensor, control)"
+                                                (change)="checkboxSetValue(sensor, control)"
+                                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'"
+                                                [required]="control?.required">{{control?.description}}</mat-checkbox>
+                                </div>
+                                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
+                                  <mat-checkbox formControlName="{{control.name}}"
+                                                [checked]="checkboxValue(sensor, control)"
+                                                (change)="checkboxSetValue(sensor, control)"
+                                                matTooltip="{{control?.description}}" [matTooltipPosition]="'right'"
+                                                [required]="control?.required">{{control?.description}}</mat-checkbox>
+                                </div>
                                 <!-- Text Input List -->
                                 <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none" >
                                   <div fxLayout="column" fxLayoutAlign="start center" >

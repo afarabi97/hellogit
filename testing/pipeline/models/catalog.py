@@ -110,6 +110,7 @@ class MispSettings(Model):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "misp"
+        self.cortexIntegration = True
 
 
 class HiveSettings(Model):
@@ -117,6 +118,8 @@ class HiveSettings(Model):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "hive"
+        self.cortexIntegration = True
+        self.mispIntegration = True
 
 
 class CortexSettings(Model):
