@@ -1,0 +1,34 @@
+---
+- name: Copy Web CA to all hosts
+  copy:
+    src: "/var/www/html/webCA.crt"
+    dest: "/etc/pki/ca-trust/source/anchors"
+    owner: root
+    group: root
+    mode: 0644
+  register: webca_results
+
+- name: Reload CA trust # noqa 503
+  command: "/bin/update-ca-trust"
+  register: result
+  changed_when: result.rc == 0
+  when: webca_results.changed
+
+- name: Checking if crio is Installed # noqa 503
+  stat:
+    path: /usr/bin/crio
+  register: crio_installed
+  when: inventory_hostname != "localhost" and webca_results.changed
+
+- name: Checking if crio is Installed # noqa 503
+  stat:
+    path: /usr/local/bin/crio
+  register: crio_installed
+  when: inventory_hostname != "localhost" and webca_results.changed
+
+- name: Restart Cri-O # noqa 503
+  service:
+    name: crio
+    state: restarted
+  when: inventory_hostname != "localhost" and webca_results.changed and crio_installed.stat.exists
+  ignore_errors: yes

@@ -1,14 +1,15 @@
 [Unit]
 Description=Keycloak
 After=network.target
-
 [Service]
 Type=idle
 User={{ keycloak_user }}
 Group={{ keycloak_group }}
+Environment="JAVA_OPTS=-Xms512m -Xmx1024m -XX:MetaspaceSize=256M -XX:MaxMetaspaceSize=512m -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true"
 ExecStart={{ keycloak_dir }}/bin/standalone.sh -b 0.0.0.0
 TimeoutStartSec=600
 TimeoutStopSec=600
-
+Restart=always
+RestartSec=5
 [Install]
 WantedBy=multi-user.target
