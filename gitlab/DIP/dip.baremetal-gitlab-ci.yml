@@ -1,0 +1,112 @@
+Setup Hardware DIP Controller:
+  stage: build
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "Setup Baremetal DIP Controller"
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "DIP" \
+    setup-baremetal-controller \
+    --run-type "$BUILD_TYPE" \
+    --esxi-ipaddress "$ESXI_IPADDRESS" \
+    --esxi-username "$ESXI_USERNAME" \
+    --esxi-password "$ESXI_PASSWORD" \
+    --node-password "$NODE_PASSWORD" \
+    --vm-datastore "$ESXI_DATASTORE" \
+    --ctrl-path "$DIP_CONTROLLER_PATH" \
+    --ctrl-name "$CONTROLLER_OVA" \
+    --template-path "$DIP_TEMPLATE_PATH" \
+    --template "$DIP_TEMPLATE_OVA" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --ipaddress "$CONTROLLER_IPADDRESS" \
+    --dns-servers $CONTROLLER_DNS_SERVERS \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+    --domain "$KIT_DOMAIN" \
+    --redfish-user "$REDFISH_USER" \
+    --redfish-password "$REDFISH_PASSWORD"
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware DIP Kickstart:
+  stage: kickstart
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "DIP" \
+    run-kickstart \
+    --node-password "$NODE_PASSWORD" \
+    --vm-datastore "$ESXI_DATASTORE" \
+    --ctrl-path "$DIP_CONTROLLER_PATH" \
+    --ctrl-name "$CONTROLLER_OVA" \
+    --template-path "$DIP_TEMPLATE_PATH" \
+    --template "$DIP_TEMPLATE_OVA" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --ipaddress "$CONTROLLER_IPADDRESS" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --dns-servers $CONTROLLER_DNS_SERVERS \
+    --server-oob $SERVER_OOB \
+    --sensor-oob $SENSOR_OOB \
+    --domain "$KIT_DOMAIN" \
+    --redfish-user "$REDFISH_USER" \
+    --redfish-password "$REDFISH_PASSWORD"
+  artifacts:
+    untracked: true
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware DIP Kit:
+  stage: kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-kit
+  retry: 2
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-dip"
+
+Hardware System Function Testing:
+  stage: integration-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-integration-tests
+  only:
+    variables:
+      - $RUN_INTEGRATION == "true" && $PIPELINE == "hw-developer-dip"
+  artifacts:
+    paths:
+      - "./*.xml"
+    reports:
+      junit: "./*.xml"
+
+Hardware Simulate Power Failure:
+  stage: test-powerfailure
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" simulate-power-failure
+  only:
+    variables:
+      - $RUN_POWER_FAILURE == "true" && $PIPELINE == "hw-developer-dip"

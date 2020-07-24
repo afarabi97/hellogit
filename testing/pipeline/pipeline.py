@@ -82,8 +82,8 @@ class Runner:
         MIPKickstartSettings.add_mip_args(mip_kickstart_ctrl_parser)
         mip_kickstart_ctrl_parser.set_defaults(which=SubCmd.run_mip_kickstart)
 
-        kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit, help="This command is used to Kickstart/PXE \
-                                                                        boot the nodes for the DIP kit.")
+        kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit, help="This command is used to run kit configuration \
+                                                                      for the DIP kit.")
         KitSettings.add_args(kit_ctrl_parser)
         kit_ctrl_parser.set_defaults(which=SubCmd.run_kit)
 
@@ -301,12 +301,14 @@ class Runner:
                 YamlManager.save_to_yaml(service_settings)
                 executor = GipCreationJob(service_settings)
                 executor.execute()
+
             elif args.which == SubCmd.setup_ctrl:
                 ctrl_settings = ControllerSetupSettings()
                 ctrl_settings.from_namespace(args)
                 YamlManager.save_to_yaml(ctrl_settings, args.system_name)
                 executor = ControllerSetupJob(ctrl_settings)
                 executor.setup_controller()
+
             elif args.which == SubCmd.run_kickstart:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name)
@@ -477,7 +479,6 @@ class Runner:
             elif args.which == SubCmd.run_mip_kickstart:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name)
-
                 mip_kickstart_settings = MIPKickstartSettings()
                 mip_kickstart_settings.from_mip_namespace(args)
                 YamlManager.save_to_yaml(mip_kickstart_settings)

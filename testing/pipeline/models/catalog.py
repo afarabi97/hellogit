@@ -1,7 +1,8 @@
+from typing import Union
 from argparse import Namespace, ArgumentParser
 from models import Model, add_args_from_instance
-from models.common import NodeSettings
-from models.kickstart import KickstartSettings
+from models.common import NodeSettings, HwNodeSettings
+from models.kickstart import KickstartSettings, HwKickstartSettings
 from typing import Dict
 from models.constants import SubCmd
 
@@ -13,12 +14,12 @@ class SuricataSettings(Model):
         self.deployment_name = ""
         self.external_net = ["any"]
         self.home_net = ["any"]
-        self.interfaces = ["ens224"]
         self.pcapEnabled = True
         self.suricata_threads = 2
         self.node_hostname = ""
+        self.interfaces = ["ens224"]
 
-    def set_from_node_settings(self, node_settings: NodeSettings):
+    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "suricata")
@@ -36,10 +37,10 @@ class MolochCaptureSettings(Model):
         self.freespaceG = "25%"
         self.maxFileSizeG = 25
         self.magicMode = "basic"
-        self.interfaces = ["ens224"]
         self.deployment_name = ""
+        self.interfaces = ["ens224"]
 
-    def set_from_node_settings(self, node_settings: NodeSettings):
+    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "moloch")
@@ -67,12 +68,12 @@ class ZeekSettings(Model):
         self.cpu_request = "1000"
         self.deployment_name = ""
         self.home_net = ["any"]
-        self.interfaces = ["ens224"]
         self.zeek_workers = 4
         self.node_hostname = ""
         self.log_retention_hours = "24"
+        self.interfaces = ["ens224"]
 
-    def set_from_node_settings(self, node_settings: NodeSettings):
+    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "zeek")
@@ -90,7 +91,7 @@ class LogstashSettings(Model):
         self.external_ip = ""
 
 
-    def set_from_kickstart(self, kickstart_settings: KickstartSettings):
+    def set_from_kickstart(self, kickstart_settings: Union[KickstartSettings,HwNodeSettings]):
         self.kafka_clusters = []
         for sensor in kickstart_settings.sensors: # type: NodeSettings
             dep_name = "{}-{}".format(sensor.hostname, "zeek")
@@ -154,7 +155,7 @@ class CatalogSettings(Model):
         self.rocketchat_settings = dict()
 
     def set_from_kickstart(self,
-                           kickstart_settings: KickstartSettings,
+                           kickstart_settings: Union[KickstartSettings,HwKickstartSettings],
                            namespace: Namespace):
         for sensor in kickstart_settings.sensors:
             if namespace.which == SubCmd.suricata:

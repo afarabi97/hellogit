@@ -54,6 +54,7 @@ pyOpenSSL==17.5.0
 pyserial==3.4
 python-apt==1.6.5+ubuntu0.2
 python-dateutil==2.8.1
+pyvim==3.0.2
 python-debian==0.1.32
 python-string-utils==1.0.0
 pyvmomi==7.0

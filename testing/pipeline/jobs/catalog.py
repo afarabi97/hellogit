@@ -1,5 +1,6 @@
-from models.kickstart import KickstartSettings
-from models.ctrl_setup import ControllerSetupSettings
+from typing import Union
+from models.kickstart import KickstartSettings, HwKickstartSettings
+from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.catalog import CatalogSettings
 from models.constants import SubCmd
 from util.api_tester import APITester
@@ -9,8 +10,8 @@ import logging
 class CatalogJob:
 
     def __init__(self,
-                 ctrl_settings: ControllerSetupSettings,
-                 kickstart_settings: KickstartSettings,
+                 ctrl_settings: Union[ControllerSetupSettings,HwControllerSetupSettings],
+                 kickstart_settings: Union[KickstartSettings,HwKickstartSettings],
                  catalog_settings: CatalogSettings):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings

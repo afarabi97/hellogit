@@ -47,13 +47,17 @@ variables:
   MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
   RUN_ACAS: "false"
   RUN_INTEGRATION: "false"
+  RUN_POWER_FAILURE: "false"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
+  CONTROLLER_DNS_SERVERS: "10.10.101.248"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
   VCENTER_DATACENTER: "DEV_Datacenter"
   VCENTER_PORTGROUP: "12-Dev2-Navarro"
   VCENTER_DATASTORE: "dev-vol02"
+  ESXI_DATASTORE: "datastore1"
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl"
+  DIP_TEMPLATE_OVA: "/mnt/drive_creation/templates/dip_template.ova"
   MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl"
   GIP_TEMPLATE_TO_CLONE: "nightly-gip-ctrl"
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
@@ -120,6 +124,8 @@ variables:
   DIP_MDT_DOC_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/DIP"
   APP_STORE_CPT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
   APP_STORE_MDT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
+  DIP_TEMPLATE_PATH: "/mnt/drive_creation/"
+  DIP_CONTROLLER_PATH: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH\ $MAIN_FOLDER_VERSION/Software/DIP/"
 
   APP_STORE_DIRECTORY: "PowerShell_Modules"
   DOCS_ARCH_FOLDER: "Architecture"
@@ -186,6 +192,7 @@ include:
   - local: gitlab/DIP/dip.export.gitlab-ci.yml
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml
   - local: gitlab/DIP/dip.robot.gitlab-ci.yml
+  - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
   - local: gitlab/MIP/mip.gitlab-ci.yml
   - local: gitlab/MIP/mip.export.gitlab-ci.yml
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml

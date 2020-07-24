@@ -19,6 +19,9 @@ WikijsSettings, MispSettings, HiveSettings, CortexSettings, MongodbSettings, Roc
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
 from util.connection_mngs import FabricConnectionWrapper
+from util.network import retry
+
+from pprint import pprint
 
 SERVER_ANY = "Server - Any"
 SENSOR = "Sensor"
@@ -174,7 +177,6 @@ class KickstartPayloadGenerator:
         self._kickstart_settings = kickstart_settings
 
     def _construct_node_part(self, node: NodeSettings) -> Dict:
-        boot_mode = "BIOS"
         boot_drive = "sda"
         data_drive = "sdb"
         return {
@@ -183,8 +185,8 @@ class KickstartPayloadGenerator:
             "mac_address": node.mng_mac,
             "boot_drive": boot_drive,
             "data_drive": data_drive,
-            "pxe_type": boot_mode,
-            "os_raid": node.os_raid
+            "os_raid": node.os_raid,
+            "pxe_type": node.boot_mode
         }
 
     def _construct_node_parts(self) -> List[Dict]:
@@ -628,12 +630,15 @@ class APITester:
         post_request(self._catlog_install_url, payload)
         _clean_up(wait=60)
 
+    @retry()
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_kit.drop()
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kit_payload_generator.generate()
+        print("Kit config payload")
+        pprint(payload)
         post_request(self._url.format("/api/execute_kit_inventory"), payload)
         wait_for_mongo_job("Kit", self._controller_ip, 60)
         _clean_up(wait=0)
@@ -644,6 +649,8 @@ class APITester:
             mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kickstart_payload_generator.generate()
+        print("Kickstart payload")
+        pprint(payload)
         post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
         wait_for_mongo_job("Kickstart", self._controller_ip, 30)
         _clean_up(wait=0)

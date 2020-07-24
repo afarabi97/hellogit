@@ -1,0 +1,41 @@
+---
+- name: Rename DIP controller
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Set template ova name
+      set_fact:
+        ctrl_name: "{{ '.'.join(node.template.split('.')[:-1]) }}"
+      when: "run_type == 'build_from_scratch'"
+
+    - name: Set vm facts
+      set_fact:
+        vm_name: "{{ ctrl_name }}"
+        new_vm_name: "DIP-Controller"
+        datacenter: None #Required variables
+        cluster_name: None #Required variables
+
+    - name: Get VM "{{ vm_name }}" uuid
+      vmware_guest_facts:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username}}"
+        password: "{{ esxi.password }}"
+        validate_certs: False
+        datacenter: "{{ datacenter }}"
+        folder: "{{ datacenter }}"
+        name: "{{ vm_name }}"
+      register: vm_facts
+      
+    - name: Rename "{{ vm_name }}" to "{{ new_vm_name }}"
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress}}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        validate_certs: False
+        cluster: "{{ cluster_name }}"
+        uuid: "{{ vm_facts.instance.hw_product_uuid }}"
+        name: "{{ new_vm_name }}"
+...

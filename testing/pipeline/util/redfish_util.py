@@ -5,8 +5,8 @@
 import sys
 import requests
 import json
-from util.network import retry
 from requests.structures import CaseInsensitiveDict
+from util.network import retry
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -20,14 +20,69 @@ HEADERS = {
 
 TOKEN_LOOKUP = {}
 
+def server_info(ip, token):
+    h = HEADERS.copy()
+    h['x-auth-token'] = token
+
+    host = "https://{}".format(ip)
+    url = "{}/redfish/v1".format(host)
+     
+    systems = requests.get(url + "/Systems/", headers=h, verify=False)
+    system_url = systems.json()['Members'][0]['@odata.id']
+    resp = requests.get(host + system_url, headers=h, verify=False)
+    system_data = resp.json()
+    #print(system_data)
+    info = {
+        'pxe_mac': get_pxe_mac(ip, token),
+        'sku': system_data['SKU'],
+        'serial': system_data['SerialNumber'],
+        'model': system_data['Model'],
+        'memory_gb': system_data['MemorySummary']['TotalSystemMemoryGiB']
+    }
+    processors_data = requests.get(host + system_data['Processors']['@odata.id'],
+        headers=h, verify=False).json()
+    processors = []
+    vcpus = 0
+    cores = 0
+    for member in processors_data['Members']:
+        processor = requests.get(host + member['@odata.id'],
+            headers=h, verify=False).json()
+        proc_info = {
+            'model': processor['Model'],
+            'manufacturer': processor['Manufacturer'],
+            'cores': processor['TotalCores'],
+            'threads': processor['TotalThreads']
+        }
+        processors.append(proc_info)
+        vcpus += proc_info['threads']
+        cores += proc_info['cores']
+    info['processors'] = processors
+    info['vcpus'] = vcpus
+    info['cores'] = vcpus
+
+    # storage
+    controllers = requests.get(host + system_data['SimpleStorage']['@odata.id'],
+        headers=h, verify=False).json()
+    raid_members = [x for x in controllers['Members'] if 'RAID' in x['@odata.id']]
+    raid_url = raid_members[0]['@odata.id']
+    raid_data = requests.get(host+raid_url, headers=h, verify=False).json()
+    capacity_bytes = sum([d['CapacityBytes'] for d in raid_data['Devices'] \
+        if d['CapacityBytes'] is not None])
+    info['raid'] = {
+        'status': raid_data['Status'],
+        'terabytes': round(capacity_bytes / (10 ** 12), 2)
+    }
+    return info
+    
+
 def logout(token):
     h = HEADERS.copy()
     h['x-auth-token'] = token
 
     session_url = TOKEN_LOOKUP[token]['session_url']
     resp = requests.delete(session_url, headers=h, verify=False)
-    
-@retry
+
+@retry()
 def get_token(ip, username, password, token=None):
     headers = {
         'OData-Version': '4.0',
@@ -306,6 +361,7 @@ def power_off(ip, token):
 
 def power_on(ip, token):
     pass
+
 
 
 def connection_manager(ip, username, password):

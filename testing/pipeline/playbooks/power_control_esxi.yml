@@ -1,0 +1,29 @@
+---
+- name: Power off and Remove VM
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Power off the VM {{ esxi_ctrl_name }}"
+      ignore_errors: yes
+      vmware_guest_powerstate:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        name:  "{{ esxi_ctrl_name }}"
+        state: powered-off
+        validate_certs: no
+      delegate_to: localhost
+
+    - name: "Removing VM"
+      ignore_errors: yes
+      vmware_guest:
+        hostname: "{{ esxi.ipaddress }}"
+        username: "{{ esxi.username }}"
+        password: "{{ esxi.password }}"
+        name:  "{{ esxi_ctrl_name }}"
+        state: absent
+        validate_certs: False
+      delegate_to: localhost

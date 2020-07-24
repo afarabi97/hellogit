@@ -1,6 +1,6 @@
 from argparse import Namespace, ArgumentParser
 from models import Model
-from models.common import VCenterSettings, NodeSettings, RepoSettings
+from models.common import VCenterSettings, NodeSettings, RepoSettings, ESXiSettings, HwNodeSettings
 from models.constants import SubCmd
 
 
@@ -50,3 +50,39 @@ class ControllerSetupSettings(Model):
         VCenterSettings.add_args(parser)
         RepoSettings.add_args(parser)
         NodeSettings.add_args(parser, True)
+
+
+class HwControllerSetupSettings(ControllerSetupSettings):
+    def __init__(self):
+        super().__init__()
+        self.esxi = None
+        self.esxi_ctrl_name = None
+        self.node = None
+
+    def from_namespace(self, namespace: Namespace):
+
+        self.rhel_source_repo = namespace.rhel_source_repo
+        self.run_type = namespace.run_type
+
+        self.esxi = ESXiSettings()
+        self.esxi.from_namespace(namespace)
+
+        self.node = HwNodeSettings()
+        self.node.from_namespace(namespace)
+
+        self.repo = RepoSettings()
+        self.repo.from_namespace(namespace)
+
+        self.system_name = namespace.system_name
+
+        self._validate_settings()
+
+    @staticmethod
+    def add_args(parser: ArgumentParser):
+        parser.add_argument('--run-type', dest='run_type', required=True,
+                            help="You should either pass clone_from_nightly or build_from_scratch.")
+        parser.add_argument('--rhel-source-repo', dest='rhel_source_repo', default="labrepo",
+                            help="Use labrepo for SIL network otherwise pass in public.")
+        ESXiSettings.add_args(parser)
+        RepoSettings.add_args(parser)
+        HwNodeSettings.add_args(parser, True)

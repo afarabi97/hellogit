@@ -2,10 +2,12 @@
 
 import sys
 import ruamel.yaml
-from models.common import NodeSettings, VCenterSettings, Model, RepoSettings
-from models.ctrl_setup import ControllerSetupSettings
-from models.kit import KitSettings
+from typing import Union
+from models.common import NodeSettings, HwNodeSettings, VCenterSettings, Model, RepoSettings, ESXiSettings
+from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
+from models.kit import KitSettings, HwKitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
+from models.kickstart import HwKickstartSettings
 from models.gip_settings import GIPControllerSettings, GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
@@ -27,11 +29,16 @@ class YamlManager:
         if cls.yaml is None:
             cls.yaml = ruamel.yaml.YAML()
             cls.yaml.register_class(ControllerSetupSettings)
+            cls.yaml.register_class(HwControllerSetupSettings)
             cls.yaml.register_class(NodeSettings)
+            cls.yaml.register_class(HwNodeSettings)
             cls.yaml.register_class(VCenterSettings)
+            cls.yaml.register_class(ESXiSettings)
             cls.yaml.register_class(RepoSettings)
             cls.yaml.register_class(KickstartSettings)
+            cls.yaml.register_class(HwKickstartSettings)
             cls.yaml.register_class(KitSettings)
+            cls.yaml.register_class(HwKitSettings)
             cls.yaml.register_class(SuricataSettings)
             cls.yaml.register_class(CatalogSettings)
             cls.yaml.register_class(MolochCaptureSettings)
@@ -81,19 +88,19 @@ class YamlManager:
         return cls._load_from_yaml(YAML_APPLICATION_FILE.format(VCenterSettings.__name__.lower(), application))
 
     @classmethod
-    def load_ctrl_settings_from_yaml(cls, application: str) -> ControllerSetupSettings:
+    def load_ctrl_settings_from_yaml(cls, application: str, ctrl_obj=ControllerSetupSettings) -> Union[ControllerSetupSettings,HwControllerSetupSettings]:
         yaml_name = "{}_{}.yml".format(
-            ControllerSetupSettings.__name__.lower(), application.lower())
+            ctrl_obj.__name__.lower(), application.lower())
         return cls._load_from_yaml(yaml_name)
-
+        
     @classmethod
     def load_gip_ctrl_settings_from_yaml(cls) -> GIPControllerSettings:
         yaml_name = YAML_FILE.format(GIPControllerSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod
-    def load_kickstart_settings_from_yaml(cls) -> KickstartSettings:
-        yaml_name = YAML_FILE.format(KickstartSettings.__name__.lower())
+    def load_kickstart_settings_from_yaml(cls, kick_obj=KickstartSettings) -> Union[KickstartSettings,HwKickstartSettings]:
+        yaml_name = YAML_FILE.format(kick_obj.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod

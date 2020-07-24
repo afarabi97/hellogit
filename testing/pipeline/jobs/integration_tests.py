@@ -1,9 +1,11 @@
 import os
 import logging
 import requests
+import time
+from typing import Union
 
-from models.kickstart import KickstartSettings
-from models.ctrl_setup import ControllerSetupSettings
+from models.kickstart import KickstartSettings, HwKickstartSettings
+from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.catalog import CatalogSettings
 from models.common import NodeSettings
 from models.constants import SubCmd
@@ -15,12 +17,13 @@ from invoke.exceptions import UnexpectedExit
 from util.kubernetes_util import wait_for_pods_to_be_alive
 import os, logging
 from util.api_tester import get_api_key, get_web_ca, check_web_ca, _clean_up
+from util import redfish_util as redfish
 
 class IntegrationTestsJob:
 
     def __init__(self,
-                 ctrl_settings: ControllerSetupSettings,
-                 kickstart_settings: KickstartSettings):
+                 ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
+                 kickstart_settings: Union[KickstartSettings, HwKickstartSettings]):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings
         try:
@@ -119,3 +122,29 @@ class PowerFailureJob:
         power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.nodes)
         test_nodes_up_and_alive(self.kickstart_settings.nodes, 30)
         wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
+
+class HwPowerFailureJob:
+
+    def __init__(self, kickstart_settings: HwKickstartSettings):
+        self.kickstart_settings = kickstart_settings
+
+    def run_power_cycle(self):
+        for node in self.kickstart_settings.nodes:
+            self._power_cycle(
+                node.oob_ip,
+                node.oob_user,
+                node.oob_password
+            )
+        print("Waiting for nodes to respond...")
+        time.sleep(60 * 13)
+        test_nodes_up_and_alive(self.kickstart_settings.nodes, 15)
+        print("Wating for pods to respond...")
+        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
+        print("All servers and sensors are up!")
+
+    def _power_cycle(self, oob_ip, oob_user, oob_password):
+        token = redfish.get_token(oob_ip, oob_user, oob_password)
+        print("Restarting server {}".format(oob_ip))
+        result = redfish.restart_server(oob_ip, token)
+        redfish.logout(token)
+        return result

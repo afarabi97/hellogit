@@ -38,6 +38,7 @@ class NodeSettings(Model):
         self.extra_disks = []
         self.domain = ''
         self.os_raid = False
+        self.boot_mode = 'BIOS'
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
@@ -125,6 +126,93 @@ class NodeSettings(Model):
             parser.add_argument("--memory", dest="memory", help="The default amount of memory to assign to the VM(s)", default="16384")
 
 
+class HwNodeSettings(Model):
+    unused_ips = None
+    valid_node_types = ("master_server", "remote_sensor", "controller", "sensor", "server", "mip", "gipsvc", "rhel_work_station_repo", "rhel_server_repo")
+    valid_sensor_types = ("remote_sensor", "sensor")
+    valid_server_types = ("master_server", "server")
+    valid_node_types_no_ctrl = valid_sensor_types + valid_server_types
+
+    def __init__(self):
+        self.ctrl_path = ''
+        self.ctrl_name = ''
+        self.username = 'root'
+        self.password = ''
+        self.hostname = ''
+        self.domain = 'lan'
+        self.dns_servers = []
+        self.template_path = ''
+        self.mng_mac = ''
+        self.mng_interface = ''
+        self.sensing_mac = ''
+        self.sensing_interface = ''
+        self.node_type = ''
+        self.memory_gb = 0
+        self.system_model = ''
+        self.cpu_manufacturer = ''
+        self.cpu_model = ''
+        self.sockets = ''
+        self.cores = 0
+        self.vcpus = 0
+        self.raid_controller_health = ''
+        self.raid_storage_tb = 0
+        self.serial = ''
+        self.sku = ''
+        self.oob_ip = ''
+        self.oob_user = ''
+        self.oob_password = ''
+        self.ipaddress = ''
+        self.boot_mode = 'UEFI'
+        self.redfish_user = ''
+        self.redfish_password = ''
+        self.os_raid = False
+
+    def set_hostname(self, node_type: str="ctrl", index: int=0):
+        self.hostname = "{}{}".format(node_type, index+1)
+
+    def from_namespace(self, namespace: Namespace, node_type: str=None):
+        self.dns_servers = namespace.dns_servers
+
+        if node_type:
+            self.set_hostname(node_type=node_type)
+            self.node_type = node_type
+
+        self.domain = namespace.domain
+        self.ipaddress = namespace.ipaddress
+        self.gateway = namespace.gateway
+        self.netmask = namespace.netmask
+        self.username = namespace.username or self.username
+        self.password = self.b64decode_string(namespace.password)
+        self.datastore = namespace.datastore
+        self.ctrl_path = namespace.ctrl_path
+        self.ctrl_name = namespace.ctrl_name
+        self.template_path = namespace.template_path
+        self.template = namespace.template
+        self.redfish_user = namespace.redfish_user
+        self.redfish_password = self.b64decode_string(namespace.redfish_password)
+
+    @staticmethod
+    def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
+        parser.add_argument("--ctrl-path", dest="ctrl_path", required=True, help="ctrl_path where controller ova is stored")
+        parser.add_argument("--ctrl-name", dest="ctrl_name", required=True, help="Name of controller ova")
+        parser.add_argument("--template-path", dest="template_path", required=True, help="where controller template is stored")
+        parser.add_argument("--template", dest="template", required=True, help="Name of controller template")
+        parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
+        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
+        parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
+        parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
+        parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.", required=True)
+        parser.add_argument("--node-username", dest="username", help="The username for ctrl and node.", default="root")
+        parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", default="d2UuYXJlLnRmcGxlbnVt")
+        parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
+        parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
+        parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
+
+    def set_from_defaults(self, other):
+        for key in self.__dict__:
+            self.__dict__[key] = other.__dict__[key]
+
+    
 class VCenterSettings(Model):
 
     def __init__(self):
@@ -151,10 +239,26 @@ class VCenterSettings(Model):
         parser.add_argument("--vcenter-datacenter", dest="vcenter_datacenter", required=True,
                             help="The data center to use on vsphere.")
 
-    # def __getstate__(self):
-    #     result = self.__dict__.copy()
-    #     result['password'] = u'<REDACTED>'
-    #     return result
+class ESXiSettings(Model):
+
+    def __init__(self):
+        self.password = ''
+        self.username = ''
+        self.ipaddress = ''
+
+    def from_namespace(self, namespace: Namespace):
+        self.password = self.b64decode_string(namespace.esxi_password)
+        self.username = namespace.esxi_username
+        self.ipaddress = namespace.esxi_ipaddress
+
+    @staticmethod
+    def add_args(parser: ArgumentParser):
+        parser.add_argument("--esxi-ipaddress", dest="esxi_ipaddress", required=True,
+                            help="A esxi ip address.")
+        parser.add_argument("--esxi-username", dest="esxi_username", required=True,
+                            help="A username to the esxi hosted on our local network.")
+        parser.add_argument("--esxi-password", dest="esxi_password", required=True,
+                            help="A password to the esxi hosted on our local network.")
 
 class RepoSettings(Model):
 

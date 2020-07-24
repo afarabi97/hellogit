@@ -5,6 +5,7 @@ Command = namedtuple('Command', 'name id')
 class SubCmd:
     # Top Level commands
     setup_ctrl = 'setup-controller'
+    setup_baremetal_ctrl = 'setup-baremetal-controller'
     run_kickstart = 'run-kickstart'
     run_kit = 'run-kit'
     run_catalog = 'run-catalog'
