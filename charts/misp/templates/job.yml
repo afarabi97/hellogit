@@ -24,6 +24,8 @@ spec:
         - "-c"
         - "python3 /setup.py"
         env:
+        - name: CORTEX_INTEGRATION
+          value: {{ .Values.cortexIntegration | quote}}
         - name: HIVE_USER_EMAIL
           value: {{ .Values.hive_user_email }}
         - name: CORTEX_USER_EMAIL

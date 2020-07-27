@@ -14,12 +14,13 @@ headers = {"Content-Type": "application/json", "Accept": "application/json"}
 cortex_headers = {"Content-Type": "application/json", "Accept": "application/json"}
 api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
-CORTEX_USER_EMAIL=os.environ['CORTEX_USER_EMAIL']
 HIVE_USER_API_KEY=os.environ['HIVE_USER_API_KEY']
-CORTEX_USER_API_KEY=os.environ['CORTEX_USER_API_KEY']
-ORG_ADMIN_USERNAME=os.environ['CORTEX_ADMIN_USERNAME']
-ORG_ADMIN_PASSWORD=os.environ['CORTEX_ADMIN_PASSWORD']
+CORTEX_USER_EMAIL=os.getenv('CORTEX_USER_EMAIL', default='')
+CORTEX_USER_API_KEY=os.getenv('CORTEX_USER_API_KEY',default='')
+ORG_ADMIN_USERNAME=os.getenv('CORTEX_ADMIN_USERNAME',default='')
+ORG_ADMIN_PASSWORD=os.getenv('CORTEX_ADMIN_PASSWORD',default='')
 CORTEX_USER_USERNAME=os.getenv('CORTEX_USER_USERNAME',default='')
+CORTEX_INTEGRATION=os.getenv('CORTEX_INTEGRATION',default='')
 ADMIN_PASS=os.environ['ADMIN_PASS']
 ORG_NAME=os.environ['ORG_NAME']
 VERIFY="/etc/ssl/certs/container/ca.crt"
@@ -228,6 +229,8 @@ class MISPSetup:
             self.create_user(email=CORTEX_USER_EMAIL, role_id=1, org_id=None, authkey=CORTEX_USER_API_KEY)
 
     def get_cortex_status(self):
+        if not CORTEX_INTEGRATION == "true":
+            return False
         print("Checking Cortex Status")
         try:
             r = requests.get(CORTEX_URI + "/status", verify=VERIFY, headers=cortex_headers)
@@ -290,13 +293,13 @@ if __name__ == '__main__':
             setup.reset_password()
             setup.reset_authkey()
             setup.setup_misp_hive_user()
-            setup.setup_misp_cortex_user()
-            org = setup.get_org(org_id=1)
+            org = setup.get_org(org_id = 1)
             if org.status_code == 200:
                 setup.edit_org_name(org_id=1,name=ORG_NAME)
             elif setup.status_code == 404:
                 setup.add_org(name=ORG_NAME)
         if setup.get_cortex_status():
+            setup.setup_misp_cortex_user()
             setup.enable_cortex_misp_analyzer()
             api_key = setup.get_cortex_api()
             time.sleep(10)
