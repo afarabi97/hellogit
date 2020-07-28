@@ -14,9 +14,6 @@ from app.service.job_service import run_command2
 from time import sleep, strftime
 import os
 import socket
-import dns.resolver
-from requests import Session, HTTPError
-from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -25,30 +22,15 @@ _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 
 
-class DNSResolverHTTPSAdapter(HTTPAdapter):
-    def __init__(self, common_name, host, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
-        max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
-        self.__common_name = common_name
-        self.__host = host
-        super(DNSResolverHTTPSAdapter, self).__init__(pool_connections=pool_connections, pool_maxsize=pool_maxsize,
-            max_retries=max_retries, pool_block=pool_block)
-
-    def get_connection(self, url, proxies=None):
-        redirected_url = url.replace(self.__common_name, self.__host)
-        return super(DNSResolverHTTPSAdapter, self).get_connection(redirected_url, proxies=proxies)
-
-    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
-        pool_kwargs['assert_hostname'] = self.__common_name
-        super(DNSResolverHTTPSAdapter, self).init_poolmanager(connections, maxsize, block=block, **pool_kwargs)
+def _get_domain() -> str:
+    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if "domain" in kickstart_configuration["form"]:
+        return kickstart_configuration["form"]["domain"]
+    return "lan"
 
 
-def _get_chartmuseum_uri(chartmuseum_fqdn) -> str:
-    return "https://" + chartmuseum_fqdn
-
-
-def _get_chartmuseum_ip(chartmuseum_fqdn):
-    resolver = dns.resolver.Resolver()
-    return resolver.query(chartmuseum_fqdn, 'A')[0].to_text()
+def _get_chartmuseum_uri() -> str:
+    return "https://chartmuseum.{domain}".format(domain=_get_domain())
 
 
 def get_node_type(hostname: str) -> str:
@@ -116,7 +98,7 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
-def get_repo_charts(chartmuseum_fqdn) -> list:
+def get_repo_charts() -> list:
     """
     Returns a list of charts from helm repo
 
@@ -130,11 +112,8 @@ def get_repo_charts(chartmuseum_fqdn) -> list:
         logger.info("helm repo cache updated.")
     results = []
     try:
-        uri = _get_chartmuseum_uri(chartmuseum_fqdn)
-        host = _get_chartmuseum_ip(chartmuseum_fqdn)
-        session = Session()
-        session.mount(uri, DNSResolverHTTPSAdapter(chartmuseum_fqdn, host))
-        response = session.get(uri + "/api/charts")
+        uri = _get_chartmuseum_uri()
+        response = requests.get(uri + "/api/charts")
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key
@@ -147,7 +126,7 @@ def get_repo_charts(chartmuseum_fqdn) -> list:
                     t_chart["description"] = c["description"]
                     results.append(t_chart)
     except Exception as exc:
-       logger.exception(exc)
+        logger.exception(exc)
     return results
 
 
@@ -254,10 +233,7 @@ def get_values(application) -> dict:
 def generate_values(application: str, namespace: str, configs: list=None) -> list:
     try:
         values = get_values(application)
-        hostname = os.environ['HOSTNAME']
-        domain = hostname.split('.')[1:]
-        domain = '.'.join(domain) if domain else domain
-        values['domain'] = domain
+        values['domain'] = _get_domain()
     except Exception as e:
         logger.exception(e)
     if configs:

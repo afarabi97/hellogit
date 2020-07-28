@@ -14,12 +14,6 @@ from typing import Set, List
 
 NAMESPACE = "default"
 
-def _get_domain() -> str:
-    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if "domain" in kickstart_configuration["form"]:
-        return kickstart_configuration["form"]["domain"]
-    return "lan"
-
 
 @app.route('/api/catalog/<application>/saved_values', methods=['GET'])
 def get_saved_values(application: str) -> str:
@@ -146,14 +140,14 @@ def generate_values_file() -> Response:
 
 def _get_all_charts() -> List:
     charts = []
-    charts = get_repo_charts("chartmuseum.{}".format(_get_domain()))  # type: list
+    charts = get_repo_charts()  # type: list
     return charts
 
 
 @app.route('/api/catalog/charts', methods=['GET'])
 def get_all_charts() -> Response:
     charts = []
-    charts = get_repo_charts("chartmuseum.{}".format(_get_domain()))  # type: list
+    charts = get_repo_charts()  # type: list
     return jsonify(charts)
 
 
