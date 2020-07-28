@@ -115,7 +115,8 @@ DIP Kickstart:
     --server-mem $SERVER_MEM \
     --sensor-cpu $SENSOR_CPU \
     --sensor-mem $SENSOR_MEM \
-    --vm-datastore "$VCENTER_DATASTORE"
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --os-raid "$VM_RAID"
   artifacts:
     untracked: true
   retry: 2

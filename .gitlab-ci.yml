@@ -70,6 +70,7 @@ variables:
   RUN_GIPSVC_STIGS: "true"
   RUN_REPOSYNC_SERVER_STIGS: "true"
   RUN_REPOSYNC_WORKSTATION_STIGS: "true"
+  VM_RAID: "no"
 
 
   #Master Drive Creation Variables

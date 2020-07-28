@@ -74,4 +74,11 @@
       </mat-select>
     </mat-form-field>
   </ng-container>
+
+  <ng-container *ngIf="system_name==='DIP'">
+    <mat-checkbox disableRipple formControlName="os_raid" matTooltip="{{ getTooltip('os_raid') }}">
+      Enable Software RAID
+    </mat-checkbox>
+  </ng-container>
+
 </form>

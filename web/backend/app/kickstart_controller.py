@@ -93,7 +93,7 @@ def _get_index(kickstart_form: Dict, new_node: Dict) -> int:
     #{'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff',
     # 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
     for index, node in enumerate(kickstart_form["nodes"]):
-        if node['hostname'] == new_node['hostname'] and node['ip_address'] == new_node['ip_address']:
+        if node['hostname'] == new_node['hostname'] and node['ip_address'] == new_node['ip_address'] and node['os_raid']:
             return index
     raise IndexNotFound()
 

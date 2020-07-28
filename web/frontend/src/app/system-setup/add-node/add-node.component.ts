@@ -85,7 +85,8 @@ export class AddNodeComponent implements OnInit {
       mac_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.mac_address)])),
       data_drive: new FormControl('sdb', Validators.compose([validateFromArray(add_node_validators.data_drive)])),
       boot_drive: new FormControl('sda', Validators.compose([validateFromArray(add_node_validators.boot_drive)])),
-      pxe_type: new FormControl('BIOS', Validators.compose([validateFromArray(add_node_validators.pxe_type)]))
+      pxe_type: new FormControl('BIOS', Validators.compose([validateFromArray(add_node_validators.pxe_type)])),
+      os_raid: new FormControl(false)
     });
 
     this.addNodeSrv.getAddNodeWizardState().subscribe(data => {
@@ -97,6 +98,7 @@ export class AddNodeComponent implements OnInit {
         this.node.get('data_drive').setValue(node['data_drive']);
         this.node.get('boot_drive').setValue(node['boot_drive']);
         this.node.get('pxe_type').setValue(node['pxe_type']);
+        this.node.get('os_raid').setValue(node['os_raid']);
 
         for (let i = 1; i < data['step']; i++){
           this.stepper.next();

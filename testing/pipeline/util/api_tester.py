@@ -183,7 +183,8 @@ class KickstartPayloadGenerator:
             "mac_address": node.mng_mac,
             "boot_drive": boot_drive,
             "data_drive": data_drive,
-            "pxe_type": boot_mode
+            "pxe_type": boot_mode,
+            "os_raid": node.os_raid
         }
 
     def _construct_node_parts(self) -> List[Dict]:

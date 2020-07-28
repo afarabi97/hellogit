@@ -9,4 +9,5 @@ BOOTSTRAP: false
 ansible_controller_hostname: "controller.{{ kit_domain }}"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
+os_raid: "hostvars"
 ...

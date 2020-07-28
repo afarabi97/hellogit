@@ -71,5 +71,6 @@ all:
               boot_drive: {{ node.boot_drive|lower() }}
               data_drive: {{ node.data_drive|lower() }}
               pxe_type: {{ node.pxe_type|lower() }}
+              os_raid: {{ node.os_raid }}
               node_type: tfplenum
             {% endfor %}

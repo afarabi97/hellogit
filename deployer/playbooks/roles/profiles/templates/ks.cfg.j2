@@ -5,13 +5,21 @@
 {% set boot_drive = default_boot_drive %}
 {% endif %}
 
+{% set multi_data_drive = false %}
+{% set data_drive_list = [] %}
+{% set raid_vol_list = [] %}
 {% if item is defined %}
 {% set data_drive = hostvars[item].data_drive %}
+{% if ',' in hostvars[item].data_drive %}
+{% set multi_data_drive = true %}
+{% set data_drive_list = hostvars[item].data_drive.split(',') %}
+{% for drive in data_drive_list %}
+{% set _ = raid_vol_list.append('raid.' + drive) %}
+{% endfor %}
+{% endif %}
 {% else %}
 {% set data_drive = default_data_drive %}
 {% endif %}
-
-
 
 #version=DEVEL
 # System authorization information
@@ -65,6 +73,8 @@ cat <<EOF > /tmp/partition_layout
 bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive }}
 # Partition clearing information
 zerombr
+
+{% if not os_raid %}
 clearpart --all
 {% if uefi %}
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
@@ -83,6 +93,69 @@ part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
 {% endif %}
+{%- endif %}
+
+{% if os_raid and not multi_data_drive %}
+clearpart --all
+{% if uefi %}
+part raid.01 --fstype="raid" --size=512 --asprimary --ondisk={{ boot_drive }}
+part raid.11 --fstype="raid" --size=512 --asprimary --ondisk={{ data_drive }}
+raid /boot/efi --fstype="xfs" --level=1 --device="boot" --label="rhel7-efiboot" raid.01 raid.11
+{% endif %}
+part raid.02 --fstype="raid" --size=512 --asprimary --ondisk={{ boot_drive }}
+part raid.12 --fstype="raid" --size=512 --asprimary --ondisk={{ data_drive }}
+part raid.03 --fstype="raid" --size=1 --grow --ondisk={{ boot_drive }}
+part raid.13 --fstype="raid" --size=1 --grow --ondisk={{ data_drive }}
+raid /boot --fstype="xfs" --level=1 --device="boot" --label="rhel7-boot" raid.02 raid.12
+raid pv.01 --fstype="lvmpv" --level=1 --device="pv.01" --label="lvmpv-pv01" raid.03 raid.13
+volgroup vg_root pv.01
+logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
+logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
+logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
+logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
+logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
+logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
+{% if system_name == "DIP" %}
+part raid.04 --fstype="raid" --size=1 --grow --ondisk={{ boot_drive }}
+part raid.14 --fstype="raid" --size=1 --grow --ondisk={{ data_drive }}
+raid pv.02 --fstype="lvmpv" --level=1 --device="pv.02" --label="lvmpv-pv02" raid.04 raid.14
+volgroup vg_data pv.02
+logvol /data --fstype="xfs" --name=data --size=1 --vgname=vg_data --grow
+{% endif %}
+{%- endif %}
+
+{% if os_raid and multi_data_drive %}
+clearpart --all --disklabel gpt --initlabel
+{% if uefi %}
+part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
+{% else %}
+part biosboot --fstype=biosboot --size=1 --ondisk={{ boot_drive }}
+{% endif %}
+part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive }}
+part pv.01 --fstype="lvmpv" --size=1 --grow --ondisk={{ boot_drive }}
+volgroup vg_root pv.01
+logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
+logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
+logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
+logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
+logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
+logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
+{% if system_name == "DIP" %}
+{% if not multi_data_drive %}
+part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive }}
+volgroup vg_data pv.02
+logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
+{% else %}
+{% for drive in data_drive_list %}
+part raid.{{ drive }} --size 1000 --grow --ondrive={{ drive }}
+{% endfor %}
+raid pv.02 --fstype xfs --device md0 --level=0 {{ raid_vol_list|join(' ') }}
+volgroup vg_data pv.02
+logvol /data --size=1 --name=data --vgname=vg_data --grow
+{% endif %}
+{% endif %}
+{%- endif %}
+
 EOF
 
 if [ "$system_name" == "GIP" ] && [ "$is_physical" == false ]; then

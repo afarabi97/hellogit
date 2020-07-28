@@ -165,5 +165,7 @@ export const kickStartTooltips = {
   mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
   luks_password: 'This is the password you will use to decrypt the disk.',
   confirm_luks_password: 'This is the password you will use to decrypt the disk.',
-  timezone: 'The timezone set during Kickstart.'
+  timezone: 'The timezone set during Kickstart.',
+  os_raid: 'OS Level RAID is a data protection method that spreads data on multiple hard disks, balancing overlapping I/O operations \
+  improving performance and increasing the mean time between failures.'
 }

@@ -37,6 +37,7 @@ class NodeSettings(Model):
         self.luks_password = ''
         self.extra_disks = []
         self.domain = ''
+        self.os_raid = False
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
@@ -48,6 +49,7 @@ class NodeSettings(Model):
         self.dns_servers = namespace.dns_servers
         self.vm_prefix = namespace.vm_prefix
         self.domain = namespace.domain
+        self.os_raid = namespace.os_raid == 'yes'
 
         if node_type:
             self.set_hostname(self.vm_prefix, node_type=node_type)
@@ -115,6 +117,7 @@ class NodeSettings(Model):
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
         parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
         parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='default')
+        parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
 
         if is_for_ctrl_setup:
             parser.add_argument('--vm-template', dest='template', required=True, help="The name of the VM or Template to clone from.")
