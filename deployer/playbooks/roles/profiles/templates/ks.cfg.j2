@@ -1,8 +1,10 @@
 # Determine what drives to use based on inventory file
 {% if item is defined %}
 {% set boot_drive = hostvars[item].boot_drive %}
+{% set os_raid = hostvars[item].os_raid %}
 {% else %}
 {% set boot_drive = default_boot_drive %}
+{% set os_raid = False %}
 {% endif %}
 
 {% set multi_data_drive = false %}
