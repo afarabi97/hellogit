@@ -46,23 +46,14 @@ export class NotificationService extends ApiService<any> {
   }
 
   private setupNavigation() {
-    this.sysNameSrv.getSystemName().subscribe(
-      data => {
-        this.system_name = data['system_name'];
+    this.system_name = this.sysNameSrv.getSystemName();
 
-        if (this.system_name === 'MIP') {
-          this.buttonList = this.mipButtons;
-        }
+    if (this.system_name === 'MIP') {
+      this.buttonList = this.mipButtons;
+    }
 
-        if (this.system_name === 'DIP') {
-          this.buttonList = this.dipButtons;
-        }
-      },
-      err => {
-        this.system_name = 'DIP';
-        this.buttonList = this.dipButtons;
-      }
-    );
+    if (this.system_name === 'DIP') {
+      this.buttonList = this.dipButtons;
+    }
   }
-
 }

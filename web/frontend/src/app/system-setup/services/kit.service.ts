@@ -14,11 +14,11 @@ import { WeaponSystemNameService } from 'src/app/services/weapon-system-name.ser
   providedIn: 'root'
 })
 export class KitService {
-  public sysName: any = "DIP";
+  public system_name: any = "DIP";
   constructor(private http: HttpClient,
     private snackbarWrapper: SnackbarWrapper,
     private formBuilder: FormBuilder,
-    private sysNameSrv: WeaponSystemNameService
+    private system_nameSrv: WeaponSystemNameService
   ) {}
 
   getKitForm(): Observable<Object> {
@@ -133,11 +133,11 @@ export class KitService {
   public newKitNodeForm(node, addNode?: boolean): FormGroup {
     let default_node_type;
 
-    if(this.sysName === 'GIP') {
+    if(this.system_name === 'GIP') {
       default_node_type = 'Server';
     }
 
-    if(this.sysName === 'DIP') {
+    if(this.system_name === 'DIP') {
       default_node_type = '';
     }
 
@@ -148,12 +148,12 @@ export class KitService {
       deviceFacts: node && node.deviceFacts ? node.deviceFacts : node
     });
 
-    if (this.sysName === 'DIP') {
+    if (this.system_name === 'DIP') {
       // This way of changing controls causes an "Expression has changed after it was checked" error when you are in development mode.
       genericNode.get('node_type').valueChanges.subscribe(value => this.addNodeControls(value, genericNode, node, addNode));
     }
 
-    if (this.sysName === 'GIP') {
+    if (this.system_name === 'GIP') {
       this.addNodeControls('Server', genericNode, node, addNode);
     }
 
@@ -173,7 +173,7 @@ export class KitService {
   public newKitFormGroup(kitForm?: KitForm, isDisabled = true): FormGroup {
     let use_proxy_pool = false;
 
-    if (this.sysName === "GIP") {
+    if (this.system_name === "GIP") {
       use_proxy_pool = true;
     }
 
@@ -186,20 +186,17 @@ export class KitService {
       use_proxy_pool: new FormControl(use_proxy_pool)
     });
 
-    this.sysNameSrv.getSystemName().subscribe(
-      data => {
-        data  = String(data['system_name']); //Return System Name via string
-        this.sysName = data;
+    this.system_name = this.system_nameSrv.getSystemName();
 
         //Cycle validation messages per system name/ type
 
-        if (this.sysName == 'GIP') {
+        if (this.system_name == 'GIP') {
           kitFormGroup.setValidators(Validators.compose([
             validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
             ValidateServerCpuMem
           ]));
         };
-        if (this.sysName == 'DIP') {
+        if (this.system_name == 'DIP') {
           kitFormGroup.setValidators(Validators.compose([
             validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
             validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
@@ -207,7 +204,7 @@ export class KitService {
             ValidateServerCpuMem
           ]));
         };
-        if (this.sysName =='MIP') {
+        if (this.system_name =='MIP') {
           kitFormGroup.setValidators(Validators.compose([
             ValidateServerCpuMem
           ]));
@@ -221,8 +218,6 @@ export class KitService {
             kitFormGroup.disable();
           }
         }
-      });
     return kitFormGroup;
   }
-
 }

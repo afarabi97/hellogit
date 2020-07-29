@@ -113,12 +113,18 @@ import { MIPConfigNodeComponent } from './mip-config-node/mip-config-node.compon
 import { MIPConfigPasswordComponent } from './mip-config-password/mip-config-password.component';
 import { MIPConfigValidationComponent } from './mip-config-validation/mip-config-validation.component';
 
-// Index Management 
+// Index Management
 import { IndexManagementComponent } from './index-management/component/index-management.component';
 
 export function initializeApp1(appLoadService: AppLoadService) {
   return (): Promise<any> => {
     return appLoadService.getCurrentUser();
+  }
+}
+
+export function initializeSystemName(appLoadService: AppLoadService) {
+  return (): Promise<any> => {
+    return appLoadService.getSystemName();
   }
 }
 
@@ -202,6 +208,7 @@ export function initializeApp1(appLoadService: AppLoadService) {
     CookieService,
     AppLoadService,
     { provide: APP_INITIALIZER,useFactory: initializeApp1, deps: [AppLoadService], multi: true},
+    { provide: APP_INITIALIZER,useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
     UserService,
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
     ControllerAdminRequiredGuard,

@@ -51,11 +51,7 @@ export class KitComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isGettingDeviceFacts = false;
     this.title.setTitle("Kit Configuration");
-    this.sysNameSrv.getSystemName().subscribe(
-      data => {
-        this.system_name = data['system_name'];
-      }
-    );
+    this.system_name = this.sysNameSrv.getSystemName();
   }
 
   ngAfterViewInit() {
@@ -289,7 +285,9 @@ export class KitComponent implements OnInit, AfterViewInit {
             this.isGettingDeviceFacts = false;
             let node = this.nodes.at(0);
             let control = node.get('is_master_server');
-            control.setValue(true);
+            if (control){
+              control.setValue(true);
+            }
           }
 
           this.ref.detectChanges();

@@ -29,7 +29,7 @@
   </mat-form-field>
 
   <ng-container *ngIf="system_name === 'DIP'||system_name === 'GIP'">
-    <mat-form-field>
+    <mat-form-field *ngIf="!isRaid">
       <mat-label>Boot Drive</mat-label>
       <input matInput placeholder="Enter a Boot Drive" formControlName="boot_drive"
         matTooltip="{{ getTooltip('boot_drive') }}" />
@@ -42,7 +42,7 @@
       <mat-error>{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
     </mat-form-field>
 
-    <mat-form-field>
+    <mat-form-field *ngIf="!isRaid">
       <mat-label>Data Drive</mat-label>
       <input matInput placeholder="Enter a Data Drive" formControlName="data_drive"
         matTooltip="{{ getTooltip('data_drive') }}" />
@@ -54,8 +54,18 @@
           node.get('data_drive')?.touched" matSuffix color="warn">error</mat-icon>
       <mat-error>{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
     </mat-form-field>
-  </ng-container>
 
+    <mat-form-field *ngIf="isRaid">
+      <mat-label>Raid Drives</mat-label>
+      <input matInput placeholder="Enter list of drives" formControlName="raid_drives"
+        matTooltip="{{ getTooltip('raid_drives') }}" />
+    </mat-form-field>
+
+    <mat-checkbox  style="padding-bottom: 25px;"  *ngIf="system_name==='DIP'" (change)="checkRaidChanged($event)" disableRipple formControlName="os_raid" matTooltip="{{ getTooltip('os_raid') }}">
+      Enable Software RAID
+    </mat-checkbox>
+
+  </ng-container>
 
   <ng-container *ngIf="system_name==='DIP'||system_name==='GIP'">
     <mat-form-field>
@@ -73,12 +83,6 @@
         <mat-option *ngFor="let pxe of pxe_types" [value]="pxe">{{ pxe }}</mat-option>
       </mat-select>
     </mat-form-field>
-  </ng-container>
-
-  <ng-container *ngIf="system_name==='DIP'">
-    <mat-checkbox disableRipple formControlName="os_raid" matTooltip="{{ getTooltip('os_raid') }}">
-      Enable Software RAID
-    </mat-checkbox>
   </ng-container>
 
 </form>

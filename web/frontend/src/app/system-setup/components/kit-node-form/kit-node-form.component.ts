@@ -29,7 +29,7 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
   isSystemMIP: boolean = false;
 
   constructor(
-    private weaponSystemNameService: WeaponSystemNameService
+    private sysNameSrv: WeaponSystemNameService
   ) {
     this.disableMasterSelection = false;
     this.formArray = [];
@@ -65,23 +65,18 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
    * @memberof KitNodeFormComponent
    */
   private getSystem() {
-    let system_name: String = "";
-    this.weaponSystemNameService.getSystemName().subscribe(
-      data => {
-        system_name = data['system_name'];
-        switch (system_name.toLocaleUpperCase().trim()) {
-          case 'DIP':
-            this.isSystemDIP = true;
-            break;
-          case 'GIP':
-            this.isSystemGIP = true;
-            break;
-          case 'MIP':
-            this.isSystemMIP = true;
-            break;
-        }
-      }
-    );
+    let system_name = this.sysNameSrv.getSystemName();
+    switch (system_name) {
+      case 'DIP':
+        this.isSystemDIP = true;
+        break;
+      case 'GIP':
+        this.isSystemGIP = true;
+        break;
+      case 'MIP':
+        this.isSystemMIP = true;
+        break;
+    }
   }
 
 

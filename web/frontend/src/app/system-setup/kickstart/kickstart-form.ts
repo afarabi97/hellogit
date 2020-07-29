@@ -89,6 +89,10 @@ export const kickstart_validators = {
   ],
   boot_drive: [{ error_message: 'Boot Drive is required', validatorFn: 'required' }],
   data_drive: [{ error_message: 'Data Drive is required', validatorFn: 'required' }],
+  raid_drives: [
+    { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
+    { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
+  ],
   pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
 
   gateway: [{ error_message: 'Gateway is required', validatorFn: 'required' }],
@@ -156,11 +160,12 @@ export const kickStartTooltips = {
   Do not forget this password or you will not be able to complete the system installation.`,
   boot_drive: 'The boot drive is the disk name that will have the operating system installed during the kickstart process.  \
   By default, the Supermicro will use sda and the HP DL160 will use sdb',
+  raid_drives: 'The raid drives is a comma separated list of drives that will be raid together in raid0.  \
+  For example: sda,sdb',
   pxe_type: 'The PXE Type referes to the motherboards method of network booting.  \
   By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
   BIOS is sometimes called Legacy in the bios settings.',
-  data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process.  \
-  By default, the Supermicro will use sdb and the HP DL160 will use sdc.',
+  data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process.',
   dns: 'The DNS Server that MIPs use to resolve queries.',
   mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
   luks_password: 'This is the password you will use to decrypt the disk.',

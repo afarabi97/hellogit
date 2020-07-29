@@ -1,5 +1,6 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, AfterContentInit } from '@angular/core';
 import { OverlayContainer} from '@angular/cdk/overlay';
+import { WeaponSystemNameService } from './services/weapon-system-name.service';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import { OverlayContainer} from '@angular/cdk/overlay';
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent {
+export class AppComponent implements AfterContentInit {
   title = 'app';
   theme = null;
 
@@ -17,13 +18,13 @@ export class AppComponent {
     'GIP': 'gip-theme'
   };
 
-  constructor(private overlayContainer: OverlayContainer) {
+  constructor(private overlayContainer: OverlayContainer, private sysNameSrv: WeaponSystemNameService) {
   }
 
   @HostBinding('class') componentCssClass;
 
-  setTheme(event) {
-    let system_name = event['system_name'];
+  ngAfterContentInit() {
+    let system_name = this.sysNameSrv.getSystemName();
     let newTheme = this.classForSystemName[system_name];
 
     if(this.theme) {

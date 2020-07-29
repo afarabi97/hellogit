@@ -46,6 +46,17 @@ class KickstartInventoryGenerator:
         end_ip = self._template_ctx['dhcp_range'][0:pos] + str(last_octet)
         self._template_ctx['dhcp_end'] = end_ip
 
+    def _set_raid(self):
+        for node in self._template_ctx["nodes"]:
+            if node['os_raid']:
+                node['boot_drive'] = ""
+                node['data_drive'] = ""
+                raid_drives = node['raid_drives'].split(",")
+                node['raid_drives'] = raid_drives
+            if not node['os_raid']:
+                node['raid_drives'] = []
+
+
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
@@ -53,6 +64,7 @@ class KickstartInventoryGenerator:
         """
         self._map_dl160_and_supermicro()
         self._set_dhcp_range()
+        self._set_raid()
         template = JINJA_ENV.get_template('kickstart_inventory.yml')
         kickstart_template = template.render(template_ctx=self._template_ctx)
 

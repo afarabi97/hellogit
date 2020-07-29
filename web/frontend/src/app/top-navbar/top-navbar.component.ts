@@ -68,20 +68,10 @@ export class TopNavbarComponent implements OnInit {
   }
 
   private setSystemTheme() {
-    this.sysNameSrv.getSystemName().subscribe(
-      data => {
-        this.system_name = data['system_name'];
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
-        this.emitTheme();
-        this.ref.detectChanges();
-      },
-      err => {
-        this.system_name = null;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
-        this.emitTheme();
-        this.ref.detectChanges();
-      }
-    );
+    this.system_name = this.sysNameSrv.getSystemName();
+    this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
+    this.emitTheme();
+    this.ref.detectChanges();
   }
 
   selectSystem() {

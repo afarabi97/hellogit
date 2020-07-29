@@ -1,26 +1,28 @@
 # Determine what drives to use based on inventory file
 {% if item is defined %}
 {% set boot_drive = hostvars[item].boot_drive %}
+{% set data_drive = hostvars[item].data_drive %}
 {% set os_raid = hostvars[item].os_raid %}
 {% else %}
 {% set boot_drive = default_boot_drive %}
+{% set data_drive = default_data_drive %}
 {% set os_raid = False %}
 {% endif %}
 
-{% set multi_data_drive = false %}
-{% set data_drive_list = [] %}
-{% set raid_vol_list = [] %}
+{% set raid_drives = [] %}
+{% set raid_vol_list_0 = [] %}
+{% set raid_vol_list_1 = [] %}
+{% set raid_vol_list_2 = [] %}
+
 {% if item is defined %}
-{% set data_drive = hostvars[item].data_drive %}
-{% if ',' in hostvars[item].data_drive %}
-{% set multi_data_drive = true %}
-{% set data_drive_list = hostvars[item].data_drive.split(',') %}
-{% for drive in data_drive_list %}
-{% set _ = raid_vol_list.append('raid.' + drive) %}
+{% if os_raid %}
+{% set raid_drives = hostvars[item].raid_drives %}
+{% for drive in raid_drives %}
+{% set _ = raid_vol_list_0.append('raid.0_' + drive) %}
+{% set _ = raid_vol_list_1.append('raid.1_' + drive) %}
+{% set _ = raid_vol_list_2.append('raid.2_' + drive) %}
 {% endfor %}
 {% endif %}
-{% else %}
-{% set data_drive = default_data_drive %}
 {% endif %}
 
 #version=DEVEL
@@ -38,21 +40,16 @@ lang en_US.UTF-8
 # Disable Firewalld
 firewall --enabled
 eula --agreed
-
 #Reboot when its all over
 reboot
-
 # Network information
 {% if item is defined %}
 network --device={{ hostvars[item].mac | lower }} --bootproto=static --ip={{ hostvars[item].ip }} --netmask={{ netmask }} --gateway={{ gateway }} --nameserver={{ dns }} --noipv6 --activate
 network --hostname={{ item }}
-
 {% else %}
 network  --bootproto=dhcp --device=eth0 --noipv6 --activate
 network  --hostname=localhost.localdomain
 {% endif %}
-
-
 # Root password
 rootpw --iscrypted {{ rootpw.stdout }}
 # System services
@@ -60,23 +57,21 @@ services --disabled="chronyd"
 # System timezone
 timezone {{ timezone }} --isUtc --nontp
 
-
 %pre
-
 is_physical=true
 system_name="{{ system_name }}"
 manufacturer=$(dmidecode --string system-manufacturer)
+
 if [ "$manufacturer" == "VMware, Inc." ]; then
 is_physical=false
 fi
 
 cat <<EOF > /tmp/partition_layout
-# Partitioning scheme
-bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive }}
 # Partition clearing information
 zerombr
-
 {% if not os_raid %}
+# Partitioning scheme
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive }}
 clearpart --all
 {% if uefi %}
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
@@ -97,19 +92,27 @@ logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
 {% endif %}
 {%- endif %}
 
-{% if os_raid and not multi_data_drive %}
-clearpart --all
-{% if uefi %}
-part raid.01 --fstype="raid" --size=512 --asprimary --ondisk={{ boot_drive }}
-part raid.11 --fstype="raid" --size=512 --asprimary --ondisk={{ data_drive }}
-raid /boot/efi --fstype="xfs" --level=1 --device="boot" --label="rhel7-efiboot" raid.01 raid.11
+{% if os_raid %}
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --driveorder={{ raid_drives|join(',') }}
+clearpart --all --disklabel gpt --initlabel
+
+{% for drive in raid_drives %}
+part raid.0_{{ drive }} --fstype="raid" --size=512 --asprimary --ondrive={{ drive }} # Boot Partition
+{% if not uefi %}
+part biosboot --fstype=biosboot --size=1 --ondisk={{ drive }}
 {% endif %}
-part raid.02 --fstype="raid" --size=512 --asprimary --ondisk={{ boot_drive }}
-part raid.12 --fstype="raid" --size=512 --asprimary --ondisk={{ data_drive }}
-part raid.03 --fstype="raid" --size=1 --grow --ondisk={{ boot_drive }}
-part raid.13 --fstype="raid" --size=1 --grow --ondisk={{ data_drive }}
-raid /boot --fstype="xfs" --level=1 --device="boot" --label="rhel7-boot" raid.02 raid.12
-raid pv.01 --fstype="lvmpv" --level=1 --device="pv.01" --label="lvmpv-pv01" raid.03 raid.13
+part raid.1_{{ drive }} --fstype="raid" --size=1 --grow --asprimary --ondrive={{ drive }} # OS Partition
+{% if system_name == "DIP" %}
+part raid.2_{{ drive }} --fstype="raid" --size=1 --grow --ondrive={{ drive }} # Data Partition
+{% endif %}
+{% endfor %}
+
+{% if uefi %}
+part /boot/efi --fstype=efi --grow --maxsize=200 --size=20
+#raid /boot/efi --fstype="xfs" --label="rhel7-efiboot" --level=0 {{ raid_vol_list_0|join(' ') }}
+{% endif %}
+raid /boot --device="boot" --fstype="xfs" --label="rhel7-boot" --level=0 {{ raid_vol_list_0|join(' ') }}
+raid pv.01 --fstype="lvmpv" --device="pv.01" --label="lvmpv-pv01" --level=0 {{ raid_vol_list_1|join(' ') }}
 volgroup vg_root pv.01
 logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
 logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
@@ -117,54 +120,22 @@ logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
 logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
 logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
 logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
+
 {% if system_name == "DIP" %}
-part raid.04 --fstype="raid" --size=1 --grow --ondisk={{ boot_drive }}
-part raid.14 --fstype="raid" --size=1 --grow --ondisk={{ data_drive }}
-raid pv.02 --fstype="lvmpv" --level=1 --device="pv.02" --label="lvmpv-pv02" raid.04 raid.14
+raid pv.02 --fstype="lvmpv" --device="pv.02" --label="lvmpv-pv02" --level=0 {{ raid_vol_list_2|join(' ') }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --name=data --size=1 --vgname=vg_data --grow
 {% endif %}
 {%- endif %}
-
-{% if os_raid and multi_data_drive %}
-clearpart --all --disklabel gpt --initlabel
-{% if uefi %}
-part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive }}
-{% else %}
-part biosboot --fstype=biosboot --size=1 --ondisk={{ boot_drive }}
-{% endif %}
-part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive }}
-part pv.01 --fstype="lvmpv" --size=1 --grow --ondisk={{ boot_drive }}
-volgroup vg_root pv.01
-logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
-logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5
-logvol /home --fstype="xfs" --name=home --vgname=vg_root --grow --percent=10
-logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
-logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
-logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
-{% if system_name == "DIP" %}
-{% if not multi_data_drive %}
-part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive }}
-volgroup vg_data pv.02
-logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
-{% else %}
-{% for drive in data_drive_list %}
-part raid.{{ drive }} --size 1000 --grow --ondrive={{ drive }}
-{% endfor %}
-raid pv.02 --fstype xfs --device md0 --level=0 {{ raid_vol_list|join(' ') }}
-volgroup vg_data pv.02
-logvol /data --size=1 --name=data --vgname=vg_data --grow
-{% endif %}
-{% endif %}
-{%- endif %}
-
 EOF
 
+{% if system_name == "GIP" %}
 if [ "$system_name" == "GIP" ] && [ "$is_physical" == false ]; then
 echo "part pv.02 --fstype=lvmpv --size=1 --grow --ondisk={{ data_drive }}" >> /tmp/partition_layout
 echo "volgroup vg_data pv.02" >> /tmp/partition_layout
 echo "logvol /data --fstype=xfs --size=1 --name=data --vgname=vg_data --grow" >> /tmp/partition_layout
 fi
+{%- endif %}
 
 %end
 
@@ -176,11 +147,11 @@ fi
 kexec-tools
 pciutils
 -NetworkManager-wifi
-
 %end
 
 %post --log=/root/ks-post.log
 /usr/sbin/grubby --update-kernel=ALL --args=console=ttyS0
+
 {% if item is defined %}
 ip addr | grep -i broadcast | awk '{ print $2 }' > /tmp/interfaces
 sed -i 's/:/\ /g' /tmp/interfaces
