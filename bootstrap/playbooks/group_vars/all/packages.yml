@@ -92,6 +92,8 @@ dip_packages:
   - screen
   - tmux
   - open-vm-tools
+  - sysstat
+  - htop
 
 dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"

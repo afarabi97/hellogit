@@ -1,5 +1,5 @@
 $return_value = 0x00
-$winlog_beat_version = "7.7.1"
+$winlog_beat_version = "7.8.1"
 
 function set_winlogbeat_archive_name() {
     $arch = (Get-WmiObject Win32_Processor).AddressWidth

@@ -5,6 +5,6 @@ elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
 elastic_port: 9200
 interfaces: ["eth0"]
 image_name: beats/filebeat
-image_tag: 7.7.1
+image_tag: 7.8.1
 affinity_hostname: {}
 netflow_port: 2055

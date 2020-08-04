@@ -31,6 +31,15 @@
 - import_tasks: 55_preload_pcaps.yml
   when: system_name == 'DIP' and labrepo_check
 
+# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+-  name: "Enable IP Forwarding so docker containers can reach outside of the network."
+   sysctl:
+     name: net.ipv4.ip_forward
+     value: '1'
+     sysctl_set: yes
+     state: present
+     reload: yes
+
 - name: Clean repo cache
   file:
     path: /var/cache/yum

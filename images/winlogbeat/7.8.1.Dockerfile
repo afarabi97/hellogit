@@ -1,5 +1,5 @@
 FROM golang:1.13 as builder
-ARG version=7.8.0
+ARG version=7.8.1
 
 # Install virtualenv. Required for beats build processes.
 RUN apt-get update

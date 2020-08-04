@@ -18,7 +18,7 @@ kafka_image_name: bitnami/kafka
 kafka_image_tag: 2.5.0
 kafka_path: /data/kafka
 metricbeat_image_name: beats/metricbeat
-metricbeat_image_tag: 7.7.1
+metricbeat_image_tag: 7.8.1
 kibana_fqdn: kibana.default.svc.cluster.local
 kibana_port: 443
 log_retention_hours: 24
