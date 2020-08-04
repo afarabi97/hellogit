@@ -1,0 +1,60 @@
+---
+- name: Configure Winlogbeat and Run it for cold log ingest
+  hosts: windows_targets
+  connection: local
+  become: yes
+  become_user: "{{ goto_user }}"
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Stop winlogbeat service
+      win_service:
+        name: winlogbeat
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove coldlog directory on {{ ansible_host }}
+      win_file:
+        path: C:/coldlog
+        state: absent
+
+    # This is run so that if a user wants to rerun the same logs through on a different index, winlogbeat will be forced to re run on them.
+    - name: Remove old winlogbeat registry file {{ ansible_host }}
+      win_file:
+        path: C:/ProgramData/winlogbeat/.winlogbeat.yml
+        state: absent
+
+    - name: Copy {{ cold_log_zip_path }} over to {{ ansible_host }}
+      win_copy:
+        src: "{{ cold_log_zip_path }}"
+        dest: C:/coldlog.zip
+
+    - name: Unzip coldlog.zip on {{ ansible_host }}
+      win_unzip:
+        src: C:/coldlog.zip
+        dest: C:/
+
+    - name: Copy Winlogbeat template
+      win_copy:
+        remote_src: yes
+        src: "C:/coldlog/winlogbeat.yml"
+        dest: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/winlogbeat.yml"
+
+    - name: Copy Certificates
+      win_copy:
+        remote_src: yes
+        src: "C:/coldlog/{{ item }}"
+        dest: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/{{ item }}"
+      with_items:
+        - "ca.crt"
+        - "tls.crt"
+        - "tls.key"
+      ignore_errors: yes
+
+    - name: Run Winlogbeat and process the logs
+      win_shell: |
+        ./winlogbeat.exe
+      args:
+        chdir: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/"
+      register: install_results

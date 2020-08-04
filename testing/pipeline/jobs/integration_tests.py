@@ -98,7 +98,7 @@ class IntegrationTestsJob:
                                      ctrl_node.password,
                                      ctrl_node.ipaddress) as ctrl_shell:
             with ctrl_shell.cd("/opt/tfplenum/web/backend/tests"):
-                ctrl_shell.run("export CONTROLLER_API_KEY="+os.environ['CONTROLLER_API_KEY']+" && /opt/tfplenum/web/tfp-env/bin/python controller_test.py")
+                ctrl_shell.run("/opt/tfplenum/web/tfp-env/bin/python controller_test.py")
                 ctrl_shell.run("zip -r htmlcov.zip htmlcov/")
                 ctrl_shell.run("mv htmlcov/ /var/www/html/")
 

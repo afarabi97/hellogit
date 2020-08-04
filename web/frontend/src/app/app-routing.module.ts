@@ -20,6 +20,7 @@ import { ESScaleComponent } from './es-scale/es-scale.component';
 import { MIPConfigComponent } from './mip-config/mip-config.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './user.service';
 import { IndexManagementComponent } from './index-management/component/index-management.component';
+import { LogIngestComponent } from './log-ingest/log-ingest.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -42,6 +43,7 @@ const routes: Routes = [
   { path: 'es_scale', component: ESScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'mip_config', component: MIPConfigComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'index_management', component: IndexManagementComponent, canActivate: [ControllerMaintainerRequiredGuard] },
+  { path: 'logingest', component: LogIngestComponent, canActivate: [ OperatorRequiredGuard ] },
 ];
 
 @NgModule({

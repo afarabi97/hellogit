@@ -1,0 +1,37 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+{% if template_ctx.send_to_logstash %}
+  - add_fields:
+      target: "@mymetadata"
+      fields:
+        index_suffix: "{{ template_ctx.index }}"
+
+output.logstash:
+  hosts: ["{{ template_ctx.elk_ip }}:{{ template_ctx.elk_port }}"]
+  ssl.certificate_authorities: ["/usr/share/filebeat/ca.crt"]
+  ssl.certificate: "/usr/share/filebeat/tls.crt"
+  ssl.key: "/usr/share/filebeat/tls.key"
+  ssl.verification_mode: none
+
+{% else %}
+
+setup.ilm.enabled: false
+setup.template.enabled: false
+setup.template.overwrite: false
+setup.template.name: filebeat-external
+
+output.elasticsearch:
+  hosts: ["https://{{ template_ctx.elk_ip }}:{{ template_ctx.elk_port }}"]
+  username: "{{ template_ctx.elk_username }}"
+  password: "{{ template_ctx.elk_password }}"
+  pipeline: "filebeat-external_modules"
+  index: "{{ template_ctx.index }}"
+  ssl.verification_mode: none
+
+{% endif %}

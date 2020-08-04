@@ -65,44 +65,87 @@ data:
       }
     }
 
+    filter {
+      mutate { add_field => { "[@metadata][index]" => "%{[@mymetadata][index_suffix]}" } }
+      mutate { remove_field => [ "@mymetadata" ] }
+    }
 
     output {
+      #stdout {
+      #  codec  => rubydebug {
+      #    metadata => true
+      #  }
+      #}
+
       if [@metadata][beat] == "filebeat" {
-        elasticsearch {
-          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-          cacert => '/etc/ssl/certs/container/ca.crt'
-          ssl_certificate_verification => true
-          user => "${ELASTICSEARCH_USERNAME}"
-          password => "${ELASTICSEARCH_PASSWORD}"
-          ilm_rollover_alias => "filebeat-external"
-          ilm_policy => "filebeat-external"
-          ilm_enabled => false
-          manage_template => false
+      if "" in [@metadata][index] {
+          elasticsearch {
+            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            cacert => '/etc/ssl/certs/container/ca.crt'
+            ssl_certificate_verification => true
+            user => "${ELASTICSEARCH_USERNAME}"
+            password => "${ELASTICSEARCH_PASSWORD}"
+            index => "%{[@metadata][index]}"
+            template_name => "filebeat-external"
+            ilm_enabled => false
+            pipeline => "filebeat-external_modules"
+            manage_template => false
+          }
+        } else {
+          elasticsearch {
+            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            cacert => '/etc/ssl/certs/container/ca.crt'
+            ssl_certificate_verification => true
+            user => "${ELASTICSEARCH_USERNAME}"
+            password => "${ELASTICSEARCH_PASSWORD}"
+            ilm_rollover_alias => "filebeat-external"
+            ilm_policy => "filebeat-external"
+            ilm_enabled => true
+            ilm_pattern => "{now/d}-000001"
+            pipeline => "filebeat-external_modules"
+            manage_template => false
+          }
         }
       }
       if [@metadata][beat] == "winlogbeat" {
-        elasticsearch {
-          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-          cacert => '/etc/ssl/certs/container/ca.crt'
-          ssl_certificate_verification => true
-          user => "${ELASTICSEARCH_USERNAME}"
-          password => "${ELASTICSEARCH_PASSWORD}"
-          ilm_rollover_alias => "winlogbeat"
-          ilm_policy => "winlogbeat"
-          ilm_enabled => false
-          manage_template => false
+        if "" in [@metadata][index] {
+          elasticsearch {
+            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            cacert => '/etc/ssl/certs/container/ca.crt'
+            ssl_certificate_verification => true
+            user => "${ELASTICSEARCH_USERNAME}"
+            password => "${ELASTICSEARCH_PASSWORD}"
+            index => "%{[@metadata][index]}"
+            template_name => "winlogbeat"
+            ilm_enabled => false
+            manage_template => false
+          }
+        } else {
+          elasticsearch {
+            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            cacert => '/etc/ssl/certs/container/ca.crt'
+            ssl_certificate_verification => true
+            user => "${ELASTICSEARCH_USERNAME}"
+            password => "${ELASTICSEARCH_PASSWORD}"
+            ilm_rollover_alias => "winlogbeat"
+            ilm_policy => "winlogbeat"
+            ilm_enabled => true
+            ilm_pattern => "{now/d}-000001"
+            manage_template => false
+          }
         }
       }
       if [@metadata][beat] == "auditbeat" {
         elasticsearch {
-          hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
+          hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
           cacert => '/etc/ssl/certs/container/ca.crt'
           ssl_certificate_verification => true
           user => "${ELASTICSEARCH_USERNAME}"
           password => "${ELASTICSEARCH_PASSWORD}"
           ilm_rollover_alias => "auditbeat-external"
           ilm_policy => "auditbeat-external"
-          ilm_enabled => false
+          ilm_enabled => true
+          ilm_pattern => "{now/d}-000001"
           manage_template => false
         }
       }

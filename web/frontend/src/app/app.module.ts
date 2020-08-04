@@ -25,6 +25,7 @@ import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
 import { PortalComponent } from './portal/portal.component';
 import { SupportComponent } from './support/support.component';
 import { AddNodeComponent } from './system-setup/add-node/add-node.component';
+import { LogIngestComponent } from './log-ingest/log-ingest.component';
 
 //Tools page
 import { ToolsFormComponent } from './tools-form/tools.component';
@@ -187,7 +188,8 @@ export function initializeSystemName(appLoadService: AppLoadService) {
     PodLogModalDialogComponent,
     ElasticEditorComponent,
     RepositorySettingsComponent,
-    IndexManagementComponent
+    IndexManagementComponent,
+    LogIngestComponent
   ],
   imports: [
     BrowserModule,

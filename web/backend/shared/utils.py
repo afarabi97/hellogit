@@ -4,9 +4,11 @@ This module is for storing standard functions which can be reused anywhere withi
 """
 import base64
 import hashlib
+import os
 import requests
 import shutil
 import tarfile
+import zipfile
 
 from datetime import datetime
 from pathlib import Path
@@ -151,3 +153,23 @@ def normalize_epoc_or_unixtimestamp(time: int) -> str:
         return datetime.utcfromtimestamp(time).strftime(DATE_FORMAT_STR)
     except ValueError:
         return datetime.utcfromtimestamp(time / 1000).strftime(DATE_FORMAT_STR)
+
+
+def does_file_have_ext(some_path: str, extension: str) -> bool:
+    pos = some_path.rfind(".")
+    file_ext = some_path[pos:]
+    return file_ext.lower() == extension
+
+
+def zip_package(zip_save_path: str,
+                package_dir: str,
+                zip_root_dir="/tfplenum_agent"):
+    zipf = zipfile.ZipFile(zip_save_path, 'w', zipfile.ZIP_DEFLATED)
+    try:
+        for root, dirs, files in os.walk(package_dir):
+            for fname in files:
+                abs_path = os.path.join(root, fname)
+                rel_path = abs_path.replace(package_dir, '')
+                zipf.write(os.path.join(root, fname), zip_root_dir + rel_path)
+    finally:
+        zipf.close()

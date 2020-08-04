@@ -20,6 +20,7 @@ KIT_ID = "kit_form"
 MIP_CONFIG_ID = "mip_config"
 PORTAL_ID = 'portal_links'
 KICKSTART_ID = "kickstart_form"
+WINDOWS_COLD_LOG_CONFIG_ID = "windows_cold_log_config"
 ADDNODE_ID = "add_node_wizard"
 ELK_SNAPSHOT_STATE = "elk_snapshot"
 DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
@@ -30,6 +31,7 @@ PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
 SURICATA_IMAGE_VERSION = "5.0.2"
 ZEEK_IMAGE_VERSION = "3.1.1"
+BEATS_IMAGE_VERSIONS = "7.8.1"
 
 # The path inside of the docker container
 BRO_RULE_DIR = "/zeek/share/bro/site"

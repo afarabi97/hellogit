@@ -23,6 +23,7 @@ from flask_socketio import SocketIO
 from tests.integration.base_test_setup import BaseTestCase
 from tests.integration.ruleset_tests import TestRulesetController
 from tests.integration.pcap_tests import TestPcapController
+from tests.integration.cold_log_tests import TestColdLogController
 from typing import Dict, List
 
 class TestKickstartController(BaseTestCase):
@@ -96,7 +97,7 @@ def run_integration_tests() -> bool:
 
     :return:
     """
-    test_classes_to_run = [TestPcapController, TestCommonController, TestKickstartController, TestRulesetController]
+    test_classes_to_run = [TestPcapController, TestCommonController, TestKickstartController, TestRulesetController, TestColdLogController]
     loader = unittest.TestLoader()
     suites_list = []
     for test_class in test_classes_to_run:

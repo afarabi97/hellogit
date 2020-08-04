@@ -1,0 +1,42 @@
+winlogbeat.event_logs:
+  {% for log_name in template_ctx.log_names %}
+  - name: 'C:/coldlog/log/{{ log_name }}'
+    no_more_events: stop {% endfor %}
+
+winlogbeat.registry_file: C:/ProgramData/winlogbeat/.winlogbeat.yml
+winlogbeat.shutdown_timeout: 30s
+
+{% if template_ctx.send_to_logstash %}
+processors:
+  - add_fields:
+      target: "@mymetadata"
+      fields:
+        index_suffix: "{{ template_ctx.index }}"
+
+output.logstash:
+  hosts: ["{{ template_ctx.elk_ip }}:{{ template_ctx.elk_port }}"]
+  ssl.certificate_authorities: ["${path.home}/ca.crt"]
+  ssl.certificate: "${path.home}/tls.crt"
+  ssl.key: "${path.home}/tls.key"
+  ssl.verification_mode: none
+
+{% else %}
+
+setup.ilm.enabled: false
+setup.template.enabled: false
+setup.template.overwrite: false
+setup.template.name: winlogbeat
+
+output.elasticsearch:
+  hosts: ["{{ template_ctx.elk_ip }}:{{ template_ctx.elk_port }}"]
+  protocol: "https"
+  username: "{{ template_ctx.elk_username }}"
+  password: "{{ template_ctx.elk_password }}"
+  index: "{{ template_ctx.index }}"
+  ssl.verification_mode: none
+{% endif %}
+
+logging.to_files: true
+logging.files:
+  path: C:\ProgramData\winlogbeat\Logs
+logging.level: info

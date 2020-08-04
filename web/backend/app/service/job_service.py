@@ -77,12 +77,10 @@ class AsyncJob:
                                 stderr=subprocess.PIPE,
                                 cwd=self._working_dir,
                                 env=my_env)
-        print(self._job_name)
         task = conn_mng.mongo_celery_tasks.find_one({"_id": self._job_name})
-        print(task)
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": self._job_name},
-                                                     {"_id": self._job_name, "task_id": task["task_id"], "pid": proc.pid},
-                                                     upsert=True)
+                                                         {"_id": self._job_name, "task_id": task["task_id"], "pid": proc.pid},
+                                                         upsert=True)
         def check_io():
             while True:
                 output = proc.stdout.readline().decode()

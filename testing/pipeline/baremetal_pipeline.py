@@ -43,7 +43,7 @@ class BaremetalRunner():
                                                 It can setup Kits, export docs, export controller OVA and does \
                                                 other various actions.")
 
-        
+
         subparsers = parser.add_subparsers()
         setup_ctrl_parser = subparsers.add_parser(SubCmd.setup_baremetal_ctrl,
             help="This command is used to setup a controller either from \
@@ -77,7 +77,7 @@ class BaremetalRunner():
             SubCmd.run_bp, help="this subcommand runs breaking point on your kit")
         BPSettings.add_args(bp_parser)
         bp_parser.set_defaults(which=SubCmd.run_bp)
-        
+
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
         args = parser.parse_args()
@@ -138,7 +138,7 @@ class BaremetalRunner():
                 executor.run_kit(virtual=False)
             elif self.args.which == SubCmd.run_integration_tests:
                 executor = IntegrationTestsJob(
-                                self.ctrl_settings, 
+                                self.ctrl_settings,
                                 self.kickstart_settings
                                 )
                 executor.run_integration_tests()
@@ -152,7 +152,6 @@ class BaremetalRunner():
             print("\n** ERROR:")
             print(e)
             raise e
-            sys.exit(1)
 
 def main():
     baremetalrunner = BaremetalRunner()

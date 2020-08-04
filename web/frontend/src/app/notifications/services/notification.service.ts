@@ -23,6 +23,7 @@ export class NotificationService extends ApiService<any> {
                             {"name": "ES-Scale", "selected": false, "title": "ES-Scale Messages", "role": "scale", "notifications": [], "icon": "tune"},
                             {"name": "Agent", "selected": false, "title": "Agent Messages", "role": "agent", "notifications": [], "icon": "desktop_windows"},
                             {"name": "PCAP", "selected": false, "title": "PCAP Replay", "role": "pcap", "notifications": [], "icon": "network_check"},
+                            {"name": "Cold Log Ingest", "selected": false, "title": "Cold Log Ingest", "role": "process_logs", "notifications": [], "icon": "archive"},
                             {"name": "Tools", "selected": false, "title": "Tools Messages", "role": "tools", "notifications": [], "icon": "build"},
                             {"name": "Index Management", "selected": false, "title": "Index Management Messages", "role": "curator", "notifications": [], "icon": "timeline"}];
 

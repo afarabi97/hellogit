@@ -26,7 +26,7 @@ def server_info(ip, token):
 
     host = "https://{}".format(ip)
     url = "{}/redfish/v1".format(host)
-     
+
     systems = requests.get(url + "/Systems/", headers=h, verify=False)
     system_url = systems.json()['Members'][0]['@odata.id']
     resp = requests.get(host + system_url, headers=h, verify=False)
@@ -73,7 +73,7 @@ def server_info(ip, token):
         'terabytes': round(capacity_bytes / (10 ** 12), 2)
     }
     return info
-    
+
 
 def logout(token):
     h = HEADERS.copy()
@@ -83,7 +83,7 @@ def logout(token):
     resp = requests.delete(session_url, headers=h, verify=False)
 
 @retry()
-def get_token(ip, username, password, token=None):
+def get_token(ip, username, password):
     headers = {
         'OData-Version': '4.0',
         'Content-type': 'application/json',
@@ -417,7 +417,9 @@ def example():
 
 
 def example2():
-    #token = get_token(ip, USER_NAME, PASSWORD)
+    ip = ""
+    USER_NAME = "root"
+    PASSWORD = ""
     remote_mgmt = connection_manager(ip, USER_NAME, PASSWORD)
     network_adapters = remote_mgmt.Systems.systems_dict['1'] \
                 .network_adapters_collection \

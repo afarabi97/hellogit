@@ -38,6 +38,15 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kickstart
 
     @property
+    def mongo_configurations(self) -> Collection:
+        """
+        Returns a mongo object that be used for storing misc configuration information.
+
+        :return:
+        """
+        return self._tfplenum_database.configurations
+
+    @property
     def mongo_kit(self) -> Collection:
         """
         Returns a mongo object that can do database manipulations.

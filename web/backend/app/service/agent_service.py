@@ -17,8 +17,9 @@ from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from shared.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from shared.connection_mngs import get_kubernetes_secret
 from shared.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
-from shared.utils import fix_hostname, decode_password
+from shared.utils import fix_hostname, decode_password, zip_package
 from urllib3.connectionpool import log
 from pathlib import Path
 from pprint import PrettyPrinter
@@ -165,12 +166,35 @@ class AgentBuilder:
                 packages[package_name] = {'folder': appconfig.parent.name}
             return packages
 
-    def _package_generic(self, pkg_folder: Path, dst_folder: Path, tpl_context: Dict):
+    def _process_kubernetes_dir(self,
+                                kubernetes_dir: Path,
+                                application_name: str,
+                                folder_to_copy: str):
+        if kubernetes_dir.exists() and kubernetes_dir.is_dir():
+            kubernetes_scripts = kubernetes_dir.glob('*')
+            for script in kubernetes_scripts:
+                stdout, ret_val = run_command2("kubectl apply -f {}".format(script))
+                if ret_val != 0:
+                    print("Failed to run kubectl apply command with error code {} and {}".format(ret_val, stdout))
+
+            try:
+                secret = get_kubernetes_secret(conn_mng, '{}-agent-certificate'.format(application_name))
+                secret.write_to_file(folder_to_copy)
+            except ApiException:
+                pass
+
+    def _process_templates_dir(self, tpl_dir: Path, tpl_context: Dict):
+        if tpl_dir.exists() and tpl_dir.is_dir():
+            templates = tpl_dir.glob('*')
+            for template in templates:
+                self._create_config(template, tpl_context)
+
+    def _package_generic(self, pkg_folder: Path, dst_folder: Path, tpl_context: Dict, application_name: str):
         tpl_dir = pkg_folder / 'templates'
-        templates = tpl_dir.glob('*')
-        for template in templates:
-            self._create_config(template, tpl_context)
+        kubernetes_dir = pkg_folder / 'kubernetes'
         folder_to_copy = str(pkg_folder)
+        self._process_templates_dir(tpl_dir, tpl_context)
+        self._process_kubernetes_dir(kubernetes_dir, application_name, folder_to_copy)
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
@@ -181,18 +205,8 @@ class AgentBuilder:
                 if package:
                     folder = package['folder']
                     pkg_folder = AGENT_PKGS_DIR / folder
-                    self._package_generic(pkg_folder, dst_folder, tpl_context)
+                    self._package_generic(pkg_folder, dst_folder, tpl_context, folder)
 
-    def _zip_package(self, package_dir: str):
-        zipf = zipfile.ZipFile(self._zip_path, 'w', zipfile.ZIP_DEFLATED)
-        try:
-            for root, dirs, files in os.walk(package_dir):
-                for fname in files:
-                    abs_path = os.path.join(root, fname)
-                    rel_path = abs_path.replace(package_dir, '')
-                    zipf.write(os.path.join(root, fname), "/tfplenum_agent" + rel_path)
-        finally:
-            zipf.close()
 
     def build_agent(self) -> str:
         # if not Path(self._zip_path).exists():
@@ -201,7 +215,7 @@ class AgentBuilder:
             shutil.copy2("/opt/tfplenum/agent_pkgs/uninstall.ps1", agent_path)
             self._package_endgame(agent_path)
             self._package_generic_all(Path(agent_path))
-            self._zip_package(agent_path)
+            zip_package(self._zip_path, agent_path, "/tfplenum_agent")
 
         return self._zip_path
 
@@ -296,8 +310,8 @@ class WinRunner:
         self._installer = self._agent_dir / "agent.zip"
 
         if not self._installer.exists() or not self._installer.is_file():
-            self._notification.setMessage("Failed because the installer file does not exist.")
-            self._notification.setStatus(NotificationCode.ERROR.name)
+            self._notification.set_message("Failed because the installer file does not exist.")
+            self._notification.set_status(NotificationCode.ERROR.name)
             self._notification.post_to_websocket_api()
             self._update_windows_host_state(TARGET_STATES.error.value)
 
@@ -318,14 +332,14 @@ class WinRunner:
         self._winapi.push_file(str(self._installer), "C:\\" + self._installer.name)
 
     def notify_failure(self, action: str, host: str, err_msg: str):
-        self._notification.setMessage("Failed to {} {} because of error: {}".format(action, host, err_msg))
-        self._notification.setStatus(NotificationCode.ERROR.name)
+        self._notification.set_message("Failed to {} {} because of error: {}".format(action, host, err_msg))
+        self._notification.set_status(NotificationCode.ERROR.name)
         self._notification.post_to_websocket_api()
 
     def notify_success(self, action: str, hostname_or_ip: str):
         msg = "%s %s successfully completed for Windows host: %s." % (_JOB_NAME.capitalize(), action, hostname_or_ip)
-        self._notification.setMessage(msg)
-        self._notification.setStatus(NotificationCode.COMPLETED.name)
+        self._notification.set_message(msg)
+        self._notification.set_status(NotificationCode.COMPLETED.name)
         self._notification.post_to_websocket_api()
 
     def _set_end_state(self):
@@ -374,8 +388,8 @@ class WinRunner:
             raise ValueError("The protocol passed in is not supported.")
 
     def execute(self) -> int:
-        self._notification.setMessage("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, str(self._hostname_or_ip)) )
-        self._notification.setStatus(NotificationCode.IN_PROGRESS.name)
+        self._notification.set_message("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, str(self._hostname_or_ip)) )
+        self._notification.set_status(NotificationCode.IN_PROGRESS.name)
         self._notification.post_to_websocket_api()
 
         try:

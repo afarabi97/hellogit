@@ -9,6 +9,7 @@ import eventlet
 eventlet.monkey_patch(all=False, os=True, select=False, socket=True, thread=False, time=True)
 import logging
 import os
+import redis
 import signal
 
 from shared.connection_mngs import MongoConnectionManager
@@ -98,6 +99,8 @@ celery = Celery(app.name,
     backend=app.config['CELERY_RESULT_BACKEND'])
 celery.conf.update(app.config)
 
+REDIS_CLIENT = redis.Redis()
+
 # Load the REST API
 from app import (agent_builder_controller, archive_controller,
                  catalog_controller, common_controller, configmap_controller,
@@ -106,7 +109,7 @@ from app import (agent_builder_controller, archive_controller,
                  node_controller, notification_controller, pcap_controller,
                  portal_controller, registry_controller, ruleset_controller,
                  scale_controller, task_controller, tools_controller,
-                 upgrade_controller, version_controller)
+                 upgrade_controller, version_controller, cold_log_controller)
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

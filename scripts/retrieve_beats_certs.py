@@ -16,7 +16,7 @@ def retrieve_certificate(conn_mng: MongoConnectionManager, certificate_name: str
     folder = Path(SCRIPT_DIR + "/" + certificate_name)
     folder.mkdir(exist_ok=True)
     secret.write_to_file(str(folder))
-    print("Scripts saved to {}".format(str(folder)))
+    print("Certificate saved to {}".format(str(folder)))
 
 
 def apply_certificate(script: str):

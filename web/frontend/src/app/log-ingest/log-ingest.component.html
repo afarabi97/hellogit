@@ -1,0 +1,60 @@
+<div class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Log Ingest Instructions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="logIngestInstructions">
+        <p>
+          This page allows cold log files to be ingested into the ELK stack. Click the 'Choose Log File'
+          button to add a .zip or individual log files.
+          <br><br>
+          Use the 'Elasticsearch Index Suffix' field to create a custom suffix aside from the 'cold-log' default.
+          <br><br>
+          Optionally send the data through logstash for custom ingest pipelines.
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <br>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          Upload Cold Log File
+          <button mat-raised-button color="primary"
+                  (click)="uploadFile()" style="float: right;"
+                  [disabled]="!logToUpload" name="upload_file">Upload
+            <span *ngIf="logToUpload">&nbsp;{{ logToUpload.name }}</span></button>
+          <button mat-raised-button color="primary" style="float:right; margin-right: 10px;"
+                  (click)="fileInput.click()">Choose Log File</button>
+          <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="log_file_uploader">
+          <button mat-raised-button color="primary"
+                  (click)="setupWinlogBeat()"
+                  style="float: right; margin-right: 10px;"
+                  name="upload_file">Setup Winlogbeat</button>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content [formGroup]="logForm">
+        <mat-form-field appearance="fill">
+          <mat-label>Select Log Type</mat-label>
+          <mat-select disableRipple formControlName="module">
+          <mat-option value="apache">Apache</mat-option>
+          <mat-option value="auditd">Auditd</mat-option>
+          <mat-option value="system">System</mat-option>
+          <mat-option value="suricata">Suricata</mat-option>
+          <mat-option value="windows">Windows event logs</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="custom-suffix">
+          <mat-label>Elasticsearch Index Suffix</mat-label>
+          <input matInput maxlength="256" placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
+        </mat-form-field>
+
+        <mat-checkbox formControlName="send_to_logstash"
+         matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
+          (Optional) Send data through logstash instead of sending it directly to elasticsearch.
+        </mat-checkbox>
+      </mat-card-content>
+    </mat-card>
+</div>

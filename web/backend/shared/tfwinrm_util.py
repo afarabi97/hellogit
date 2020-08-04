@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 
+from app.models.cold_log import WinlogbeatInstallModel
 from ansible import context
 from ansible.cli import CLI
 from ansible.module_utils.common.collections import ImmutableDict
@@ -15,6 +16,7 @@ from enum import Enum
 from pathlib import Path
 from pypsexec.client import Client as SMBClient
 from pypsexec.exceptions import SCMRException
+from shared.constants import BEATS_IMAGE_VERSIONS
 from shared.utils import fix_hostname
 from shared.ansible_collector import CallbackModule
 from smbprotocol.exceptions import SMBException, SMBResponseException
@@ -26,6 +28,9 @@ from typing import Tuple, Union, List, Dict
 BACKEND_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 REINSTALL_AGENT_PKG = BACKEND_DIR + "playbooks/reinstall.yml"
 UNINSTALL_AGENT_PKG = BACKEND_DIR + "playbooks/uninstall.yml"
+COLD_LOG_CONFIGURE_WINLOGBEAT = BACKEND_DIR + "playbooks/configure_cold_log_winlogbeat.yml"
+COLD_LOG_INSTALL_WINLOGBEAT = BACKEND_DIR + "playbooks/install_winlogbeat_for_cold_log_ingest.yml"
+
 WINRM_PROTOCOLS = ("kerberos", "ntlm", "certificate", "smb")
 DEFAULT_TIMEOUT = 300
 
@@ -103,9 +108,12 @@ def _create_inventoryfile(hosts: List, username: str, password: str,
     return file_path
 
 
-def reinstall_agent(hosts: List, username: str, password: str, port: int, ansible_winrm_scheme: str,
+def reinstall_agent(hosts: Union[List, str], username: str, password: str, port: int, ansible_winrm_scheme: str,
                     winrm_transport="ntlm", agent_zip_path="agents.zip") -> Dict:
     print("Reinstalling agent with hosts: {}, username: {}, port: {}, winrm_scheme: {}, winrm_transport: {}".format(str(hosts), username, port, ansible_winrm_scheme, winrm_transport))
+    if isinstance(hosts, str):
+        hosts = [hosts]
+
     ret_val = None
     with tempfile.TemporaryDirectory() as tmp_dir:
         inventory_path = _create_inventoryfile(hosts, username, password, port, winrm_transport, tmp_dir, ansible_winrm_scheme)
@@ -116,9 +124,14 @@ def reinstall_agent(hosts: List, username: str, password: str, port: int, ansibl
     return ret_val
 
 
-def uninstall_agent(hosts: str, username: str, password: str, port: int, ansible_winrm_scheme: str,
+def uninstall_agent(hosts: Union[List, str], username: str, password: str, port: int, ansible_winrm_scheme: str,
                     winrm_transport="ntlm", agent_zip_path="agents.zip") -> Dict:
     print("Uninstalling agent with host: {}, username: {}, port: {}, winrm_scheme: {}, winrm_transport: {}".format(str(hosts), username, port, ansible_winrm_scheme, winrm_transport))
+    if isinstance(hosts, str):
+        hosts = [hosts]
+
+    if isinstance(hosts, str):
+        hosts = [hosts]
     ret_val = None
     with tempfile.TemporaryDirectory() as tmp_dir:
         inventory_path = _create_inventoryfile(hosts, username, password, port, winrm_transport, tmp_dir, ansible_winrm_scheme)
@@ -127,6 +140,36 @@ def uninstall_agent(hosts: str, username: str, password: str, port: int, ansible
                        "agent_zip_path": agent_zip_path}
         ret_val = execute_win_playbook([UNINSTALL_AGENT_PKG] , extra_vars, inventory_path)
     return ret_val
+
+
+def install_winlogbeat_for_cold_log_ingest(config: WinlogbeatInstallModel):
+    hosts = config.windows_host
+    if isinstance(hosts, str):
+        hosts = [config.windows_host]
+
+    ret_val = None
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        inventory_path = _create_inventoryfile(hosts, config.username, config.password, config.winrm_port, config.winrm_transport, tmp_dir, config.winrm_scheme)
+        extra_vars = { 'python_executable': sys.executable,
+                        "goto_user": config.username,
+                        'beats_version': BEATS_IMAGE_VERSIONS }
+        ret_val = execute_win_playbook([COLD_LOG_INSTALL_WINLOGBEAT], extra_vars, inventory_path)
+    return ret_val
+
+
+def configure_and_run_winlogbeat_for_cold_log_ingest(config: WinlogbeatInstallModel,
+                                                     cold_log_zip_path: str,
+                                                     tmp_dir: str):
+    hosts = config.windows_host
+    if isinstance(hosts, str):
+        hosts = [config.windows_host]
+
+    inventory_path = _create_inventoryfile(hosts, config.username, config.password, config.winrm_port, config.winrm_transport, tmp_dir, config.winrm_scheme)
+    extra_vars = { 'python_executable': sys.executable,
+                    "goto_user": config.username,
+                    'cold_log_zip_path': cold_log_zip_path,
+                    'beats_version': BEATS_IMAGE_VERSIONS }
+    return execute_win_playbook([COLD_LOG_CONFIGURE_WINLOGBEAT], extra_vars, inventory_path)
 
 
 class WindowsConnectionManager:

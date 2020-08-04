@@ -86,6 +86,27 @@ function install_powershell(){
     run_cmd apt-get install -y powershell
 }
 
+function install_docker(){
+    apt-get remove docker docker-engine docker.io containerd runc
+    apt-get update
+
+    apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+    add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+
+    apt-get update
+    apt-get install docker-ce docker-ce-cli containerd.io
+    systemctl enable docker
+}
+
 disable_host_key_checking
 update_system_pkgs
 install_nodejs
@@ -94,5 +115,6 @@ install_requirements
 install_ovftool
 install_sonarscanner
 install_powershell
+install_docker
 
 popd > /dev/null
