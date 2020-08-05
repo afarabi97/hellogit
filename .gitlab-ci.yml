@@ -57,7 +57,7 @@ variables:
   VCENTER_DATASTORE: "dev-vol02"
   ESXI_DATASTORE: "datastore1"
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl"
-  DIP_TEMPLATE_OVA: "/mnt/drive_creation/templates/dip_template.ova"
+  DIP_TEMPLATE_OVA: "dip_template.ova"
   MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl"
   GIP_TEMPLATE_TO_CLONE: "nightly-gip-ctrl"
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
@@ -124,7 +124,7 @@ variables:
   DIP_MDT_DOC_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Documentation/DIP"
   APP_STORE_CPT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
   APP_STORE_MDT_EXPORT_LOC: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/MDT/Data/CVAH $MAIN_FOLDER_VERSION/Software/AppStore"
-  DIP_TEMPLATE_PATH: "/mnt/drive_creation/"
+  DIP_TEMPLATE_PATH: "/mnt/drive_creation/templates/"
   DIP_CONTROLLER_PATH: "/mnt/drive_creation/v$MAIN_FOLDER_VERSION/CPT/Data/CVAH\ $MAIN_FOLDER_VERSION/Software/DIP/"
 
   APP_STORE_DIRECTORY: "PowerShell_Modules"
