@@ -66,6 +66,7 @@ packages:
   - wireshark
   - sshpass
   - bind-utils
+  - dbus*
 
 dependent_packages:
   - gtk3-immodule-xim
