@@ -1,0 +1,19 @@
+- name: "RHEL-07-010260"
+  block:
+      - name: "RHEL-07-010260"
+        command: "awk -F: '$1 !~ /^root$/ && $2 !~ /^[!*]/ && $5 > 60 {print $1}' /etc/shadow"
+        check_mode: no
+        changed_when: rhel_07_010260_audit.stdout | length > 0
+        register: rhel_07_010260_audit
+
+      - name: "RHEL-07-010260"
+        command: chage -d '-1 day' {{ item }}
+        with_items: "{{ rhel_07_010260_audit.stdout_lines }}"
+
+      - name: "RHEL-07-010260"
+        command: chage -M 60 {{ item }}
+        with_items: "{{ rhel_07_010260_audit.stdout_lines }}"
+  tags:
+      - RHEL-07-010260
+      - disruption-high
+      - password

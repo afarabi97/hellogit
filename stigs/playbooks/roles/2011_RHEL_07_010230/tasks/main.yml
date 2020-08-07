@@ -1,0 +1,9 @@
+- name: "RHEL-07-010230"
+  lineinfile:
+      create: yes
+      dest: /etc/login.defs
+      regexp: ^#?PASS_MIN_DAYS
+      line: "PASS_MIN_DAYS {{ rhel7stig_login_defaults.pass_min_days | default('1') }}"
+  tags:
+      - RHEL-07-010230
+      - login

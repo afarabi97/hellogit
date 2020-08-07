@@ -13,5 +13,7 @@
   unarchive:
     src: "{{ web_install_dir }}/node-{{ node_version }}-linux-x64.tar.xz"
     dest: /usr/local
+    owner: root
+    group: root
     extra_opts:
       - --strip-components=1

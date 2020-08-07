@@ -1,0 +1,45 @@
+- name: "RHEL-07-010270"
+  block:
+      - name: "RHEL-07-010270"
+        pamd:
+            name: "{{ item }}"
+            state: before
+            type: password
+            control: sufficient
+            module_path: pam_unix.so
+            new_type: password
+            new_control: requisite
+            new_module_path: pam_pwhistory.so
+        with_items:
+            - "system-auth"
+            - "password-auth"
+
+      - name: "RHEL-07-010270"
+        command: >-
+          grep -iE '^password\\s+requisite\\s+pam_pwhistory.so\\s+use_authtok\\s+remember={{ rhel7stig_pam_pwhistory.remember | default(5) }}\\s+retry=
+          {{ rhel7stig_pam_pwhistory.retries | default(3) }} debug enforce_for_root$' /etc/pam.d/{{ item }}
+        changed_when: no
+        failed_when: rhel_07_010270_audit.rc > 1
+        register: rhel_07_010270_audit
+        with_items:
+            - "system-auth"
+            - "password-auth"
+
+      - name: "RHEL-07-010270"
+        pamd:
+            name: "{{ item.item }}"
+            state: updated
+            type: password
+            control: requisite
+            module_path: pam_pwhistory.so
+            module_arguments:
+                - use_authtok
+                - remember={{ rhel7stig_pam_pwhistory.remember | default(5) }}
+                - retry={{ rhel7stig_pam_pwhistory.retries | default(3) }}
+                - debug
+                - enforce_for_root
+        with_items: "{{ rhel_07_010270_audit.results }}"
+        when: item.rc == 1
+  tags:
+      - RHEL-07-010270
+      - pamd

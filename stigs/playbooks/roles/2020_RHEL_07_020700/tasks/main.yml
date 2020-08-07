@@ -1,0 +1,31 @@
+- name: "RHEL-07-020700"
+  block:
+      - name: "RHEL-07-020700"
+        command: "{{ find_command_base }} -print -quit"
+        check_mode: no
+        changed_when: rhel_07_020700_audit.stdout != ""
+        register: rhel_07_020700_audit
+        with_items: "{{ rhel7stig_passwd }}"
+        loop_control:
+            label: "{{ rhel7stig_passwd_label }}"
+        when:
+            - this_item.uid >= 1000
+            - this_item.uid != 65534
+        vars:
+            this_item: "{{ item }}"
+
+      - name: "RHEL-07-020700"
+        command: "{{ find_command_base }} -exec chgrp {{ this_item.gid }} {} +"
+        with_items: "{{ rhel_07_020700_audit.results }}"
+        loop_control:
+            label: "{{ rhel7stig_passwd_label }}"
+        when:
+            - item is changed
+        vars:
+            this_item: "{{ item.item }}"
+  vars:
+      find_command_base: 'find "{{ this_item.dir }}" -mindepth 1 -type f
+              -path "{{ this_item.dir }}/.*" -not -path "{{ this_item.dir }}/.*/*"
+              -not ( -group {{ this_item.gid }} -o -group root )'
+  tags:
+      - RHEL-07-020700

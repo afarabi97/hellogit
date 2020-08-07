@@ -1,0 +1,9 @@
+- name: "RHEL-07-010120"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*ucredit'
+      line: "ucredit = {{ rhel7stig_password_complexity.ucredit | default('-1') }}"
+  tags:
+      - RHEL-07-010120
+      - pwquality

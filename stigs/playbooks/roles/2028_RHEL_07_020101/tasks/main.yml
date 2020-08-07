@@ -1,0 +1,20 @@
+- name: "RHEL-07-020101"
+  lineinfile:
+      dest: /etc/modprobe.d/nodccp.conf
+      insertafter: "{{ item.insertafter }}"
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      create: yes
+      owner: root
+      group: root
+      mode: "0644"
+  with_items:
+      - insertafter: ^#blacklist dccp
+        regexp: ^blacklist dccp(\s+|$)
+        line: blacklist dccp
+      - insertafter: ^#install dccp
+        regexp: "^install dccp "
+        line: install dccp /bin/true
+  tags:
+      - RHEL-07-020101
+      - dccp

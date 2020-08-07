@@ -1,0 +1,32 @@
+# RHEL-07-030819
+- name: "Search files in {{ audit_directory }} for module-change ruleset."
+  find:
+    paths: "{{ audit_directory }}"
+    recurse: false
+    contains: -F key=module-change$
+    patterns: '*.rules'
+  register: find_module_change
+
+- name: "If module-change ruleset not found, use {{ audit_directory }}/privileged.rules as the recipient for the rule"
+  set_fact:
+    all_files:
+    - "{{ audit_directory }}/privileged.rules"
+
+- name: Use matched file as the recipient for the rule
+  set_fact:
+    all_files:
+    - '{{ find_module_change.files | map(attribute=''path'') | list | first }}'
+  when:
+  - find_module_change.matched is defined and find_module_change.matched > 0
+
+- name: "Inserts/replaces create-module rule in {{ audit_directory }} (x86)"
+  lineinfile:
+    path: '{{ all_files[0] }}'
+    line: -a always,exit -F arch=b32 -S create_module -k module-change
+    create: true
+
+- name: "Inserts/replaces the create-module rule in {{ audit_directory }} (x86_64)"
+  lineinfile:
+    path: '{{ all_files[0] }}'
+    line: -a always,exit -F arch=b64 -S create_module -k module-change
+    create: true

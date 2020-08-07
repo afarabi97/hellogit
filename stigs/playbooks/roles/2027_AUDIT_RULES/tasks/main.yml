@@ -1,0 +1,231 @@
+# From https://github.com/RedHatOfficial/ansible-role-rhel7-stig.
+# Code intentionally extracted from role to fit STIG structure.
+
+- name: Set the system_name fact.
+  set_fact:
+    system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
+
+- name: Set the location for audit rules.
+  set_fact:
+     audit_directory: "{{ auditbeat_rules_directory }}"
+  when: system_name == "DIP"
+
+- name: Set the location for audit rules.
+  set_fact:
+     audit_directory: "{{ auditd_rules_directory }}"
+  when: system_name == "MIP"
+
+# DISA-STIG-RHEL-07-030360
+- import_tasks: 030360.yml
+
+# DISA-STIG-RHEL-07-030370
+- import_tasks: 030370.yml
+
+# DISA-STIG-RHEL-07-030380
+- import_tasks: 030380.yml
+
+# DISA-STIG-RHEL-07-030390
+- import_tasks: 030390.yml
+
+# DISA-STIG-RHEL-07-030400
+- import_tasks: 030400.yml
+
+# DISA-STIG-RHEL-07-030410
+- import_tasks: 030410.yml
+
+# DISA-STIG-RHEL-07-030420
+- import_tasks: 030420.yml
+
+# DISA-STIG-RHEL-07-030430
+- import_tasks: 030430.yml
+
+# DISA-STIG-RHEL-07-030440
+- import_tasks: 030440.yml
+
+# DISA-STIG-RHEL-07-030450
+- import_tasks: 030450.yml
+
+# DISA-STIG-RHEL-07-030460
+- import_tasks: 030460.yml
+
+# DISA-STIG-RHEL-07-030470
+- import_tasks: 030470.yml
+
+# DISA-STIG-RHEL-07-030480
+- import_tasks: 030480.yml
+
+# DISA-STIG-RHEL-07-030490
+- import_tasks: 030490.yml
+
+# DISA-STIG-RHEL-07-030500
+- import_tasks: 030500.yml
+
+# DISA-STIG-RHEL-07-030510
+- import_tasks: 030510.yml
+
+# DISA-STIG-RHEL-07-030520
+- import_tasks: 030520.yml
+
+# DISA-STIG-RHEL-07-030530
+- import_tasks: 030530.yml
+
+# DISA-STIG-RHEL-07-030540
+- import_tasks: 030540.yml
+
+# DISA-STIG-RHEL-07-030550
+- import_tasks: 030550.yml
+
+# DISA-STIG-RHEL-07-030560
+- import_tasks: 030560.yml
+
+# DISA-STIG-RHEL-07-030570
+- import_tasks: 030570.yml
+
+# DISA-STIG-RHEL-07-030580
+- import_tasks: 030580.yml
+
+# DISA-STIG-RHEL-07-030590
+- import_tasks: 030590.yml
+
+# DISA-STIG-RHEL-07-030610
+- import_tasks: 030610.yml
+
+# DISA-STIG-RHEL-07-030620
+- import_tasks: 030620.yml
+
+# DISA-STIG-RHEL-07-030630
+- import_tasks: 030630.yml
+
+# DISA-STIG-RHEL-07-030640
+- import_tasks: 030640.yml
+
+# DISA-STIG-RHEL-07-030650
+- import_tasks: 030650.yml
+
+# DISA-STIG-RHEL-07-030660
+- import_tasks: 030660.yml
+
+# DISA-STIG-RHEL-07-030670
+- import_tasks: 030670.yml
+
+# DISA-STIG-RHEL-07-030680
+- import_tasks: 030680.yml
+
+# DISA-STIG-RHEL-07-030690
+- import_tasks: 030690.yml
+
+# DISA-STIG-RHEL-07-030700
+- import_tasks: 030700.yml
+
+# DISA-STIG-RHEL-07-030710
+- import_tasks: 030710.yml
+
+# DISA-STIG-RHEL-07-030720
+- import_tasks: 030720.yml
+
+# DISA-STIG-RHEL-07-030740
+- import_tasks: 030740.yml
+
+# DISA-STIG-RHEL-07-030750
+- import_tasks: 030750.yml
+
+# DISA-STIG-RHEL-07-030760
+- import_tasks: 030760.yml
+
+# DISA-STIG-RHEL-07-030770
+- import_tasks: 030770.yml
+
+# DISA-STIG-RHEL-07-030780
+- import_tasks: 030780.yml
+
+# DISA-STIG-RHEL-07-030800
+- import_tasks: 030800.yml
+
+# DISA-STIG-RHEL-07-030810
+- import_tasks: 030810.yml
+
+# DISA-STIG-RHEL-07-030819
+- import_tasks: 030819.yml
+
+# DISA-STIG-RHEL-07-030820
+- import_tasks: 030820.yml
+
+# DISA-STIG-RHEL-07-030821
+- import_tasks: 030821.yml
+
+# DISA-STIG-RHEL-07-030830
+- import_tasks: 030830.yml
+
+# DISA-STIG-RHEL-07-030840
+- import_tasks: 030840.yml
+
+# DISA-STIG-RHEL-07-030870
+- import_tasks: 030870.yml
+
+# DISA-STIG-RHEL-07-030871
+- import_tasks: 030871.yml
+
+# DISA-STIG-RHEL-07-030872
+- import_tasks: 030872.yml
+
+# DISA-STIG-RHEL-07-030873
+- import_tasks: 030873.yml
+
+# DISA-STIG-RHEL-07-030874
+- import_tasks: 030874.yml
+
+# DISA-STIG-RHEL-07-030880
+- import_tasks: 030880.yml
+
+# DISA-STIG-RHEL-07-030890
+- import_tasks: 030890.yml
+
+# DISA-STIG-RHEL-07-030900
+- import_tasks: 030900.yml
+
+# DISA-STIG-RHEL-07-030910
+- import_tasks: 030910.yml
+
+# DISA-STIG-RHEL-07-030920
+- import_tasks: 030920.yml
+
+- name: Restart the auditd service # The auditd service does not allow manual restarts.
+  block:
+    - name: Create a directory for overriding settings on the auditd service.
+      file:
+        path: /etc/systemd/system/auditd.service.d
+        state: directory
+
+    - name: Override the RefuseManualStop directive.
+      copy:
+        content: "[Unit]\nRefuseManualStop=no\n"
+        dest: /etc/systemd/system/auditd.service.d/local.conf
+        
+    - name: Restart the auditd service.
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: auditd
+
+    - name: Remove local auditd service changes.
+      file:
+        path: /etc/systemd/system/auditd.service.d
+        state: absent
+
+    - name: Reload the systemd daemon.
+      systemd:
+        daemon_reload: yes
+  when: system_name == "MIP"
+
+- name: Restart the auditbeat service.
+  block:
+    - name: Stop the auditbeat service
+      systemd:
+        name: auditbeat
+        state: stopped
+
+    - name: Start the auditbeat service
+      systemd:
+        name: auditbeat
+        state: stopped
+  when: system_name == "DIP"

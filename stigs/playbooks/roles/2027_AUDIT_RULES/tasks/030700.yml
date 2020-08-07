@@ -1,0 +1,26 @@
+# RHEL-07-030700
+- name: "Search files in {{ audit_directory }} for module-change ruleset."
+  find:
+    paths: "{{ audit_directory }}"
+    recurse: false
+    contains: -F key=privileged-actions$
+    patterns: '*.rules'
+  register: find_privileged_actions
+
+- name: "If module-change ruleset not found, use {{ audit_directory }}/privileged.rules as the recipient for the rule"
+  set_fact:
+    all_files:
+    - "{{ audit_directory }}/privileged.rules"
+
+- name: Use matched file as the recipient for the rule
+  set_fact:
+    all_files:
+    - '{{ find_privileged_actions.files | map(attribute=''path'') | list | first }}'
+  when:
+  - find_privileged_actions.matched is defined and find_privileged_actions.matched > 0
+
+- name: "Inserts/replaces the sudoers.d rule in {{ audit_directory }}"
+  lineinfile:
+    path: '{{ all_files[0] }}'
+    line: -w /etc/sudoers.d/ -p wa -k privileged-actions
+    create: true

@@ -83,13 +83,13 @@
 
 - name: Gen Password # noqa 306
   shell: |
-    /usr/bin/pwgen -cyBn -r \`\"\'\!\$\\\/\(\)\{\}\[\]\<\>\~\,\*\^\+\|\_\; 20 1
+    /usr/bin/pwgen -cyBn -r \`\"\'\!\$\\\/\(\)\{\}\[\]\<\>\~\,\*\^\+\|\_\; 20 2 | tr -d '\n'
   register: tpass
   changed_when: tpass.rc == 0
 
 - name: Set Password
   set_fact:
-    sso_admin_password: "{{ tpass.stdout }}"
+    sso_admin_password: "{{ tpass.stdout | replace(' ','') }}"
 
 - debug:
     msg: "SSO Admin creds: admin/{{ sso_admin_password }}"

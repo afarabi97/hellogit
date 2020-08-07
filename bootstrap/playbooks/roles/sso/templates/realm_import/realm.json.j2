@@ -26,7 +26,7 @@
   "requiredCredentials": [
     "password"
   ],
-  "passwordPolicy": "notUsername(undefined) and length(8) and lowerCase(1) and upperCase(1) and specialChars(1) and digits(1)",
+  "passwordPolicy": "notUsername(undefined) and length(15) and lowerCase(1) and upperCase(1) and specialChars(1) and digits(1) and forceExpiredPasswordChange(60) and passwordHistory(5) and hashAlgorithm(pbkdf2-sha256)",
   "requiredActions": [
     {
       "alias": "CONFIGURE_TOTP",

@@ -4,6 +4,8 @@
     src: "{{ wireshark_path }}"
     dest: "{{ tmp_apps }}"
     remote_src: yes
+    owner: root
+    group: root
   register: wireshark_source
 
 - name:  Generate configure file with autogen

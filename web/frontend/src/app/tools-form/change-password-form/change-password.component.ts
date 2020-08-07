@@ -10,6 +10,7 @@ import { ModalDialogMatComponent } from 'src/app/modal-dialog-mat/modal-dialog-m
 import { DialogFormControl, DialogControlTypes } from 'src/app/modal-dialog-mat/modal-dialog-mat-form-types';
 import { UserService } from '../../user.service';
 
+
 const DIALOG_WIDTH = "800px";
 
 export const target_config_validators = {
@@ -71,40 +72,27 @@ export class ChangePasswordFormComponent implements OnInit {
   }
 
   private changePassword(amended_passwords: Array<Object>=[]){
-    this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue(), amended_passwords).subscribe(data => {
-      if (data){
-        if (data["message"]){
-          this.displaySnackBar(data["message"]);
-        } else if (data["hostname"]){
-          let dialogForm = this.formBuilder.group({
-            hostname: new DialogFormControl("Hostname", data["hostname"], undefined, undefined, undefined, undefined, undefined, true),
-            ip_address: new DialogFormControl("IP Address", data["ip_address"], undefined, undefined, undefined, undefined, undefined, true),
-            password: new DialogFormControl("SSH Password", '',
-                  Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
-                  undefined, undefined, DialogControlTypes.password)
-          });
-
-          let dialogData = { title: "Authentication failure",
-                             instructions: "Authentication failed for " + data["hostname"] + ". Please type the correct SSH root user password.",
-                             dialogForm: dialogForm,
-                             confirmBtnText: "Execute" }
-
-
-          const dialogRef = this.dialog.open(ModalDialogMatComponent, {
-            width: DIALOG_WIDTH,
-            data: dialogData
-          });
-
-          dialogRef.afterClosed().subscribe(result => {
-            let form = result as FormGroup;
-            if (form && form.valid){
-              this.insertInToArray(amended_passwords, form.getRawValue());
-              this.changePassword(amended_passwords);
-            }
-          });
+    this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue(), amended_passwords).subscribe(
+      data => {
+        this.displaySnackBar(data["message"]);
+      },
+      error => {
+        if (error.error instanceof ErrorEvent) {
+          console.error('An error occurred:', error.error.message);
+          this.displaySnackBar("Oops! Something bad happend.");
+        } else {
+          if (error.status == 409) {
+            this.displaySnackBar(error.error['message']);
+          }
+          if (error.status == 422) {
+            this.displaySnackBar("Authentication failure. Check the ssh key on the controller.");
+          }
+          if (error.status == 500) {
+            this.displaySnackBar(error.error['message']);
+          }
         }
       }
-    });
+    );
   }
 
   onSubmit(){

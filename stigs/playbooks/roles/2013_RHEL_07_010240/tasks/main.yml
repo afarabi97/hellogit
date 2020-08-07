@@ -1,0 +1,14 @@
+- name: "RHEL-07-010240"
+  block:
+      - name: "RHEL-07-010240"
+        command: "awk -F: '$1 !~ /^root$/ && $2 !~ /^[!*]/ && $4 < 1 {print $1}' /etc/shadow"
+        check_mode: no
+        changed_when: no
+        register: rhel_07_010240_audit
+
+      - name: "RHEL-07-010240"
+        command: chage -m 1 {{ item }}
+        with_items: "{{ rhel_07_010240_audit.stdout_lines }}"
+  tags:
+      - RHEL-07-010240
+      - password

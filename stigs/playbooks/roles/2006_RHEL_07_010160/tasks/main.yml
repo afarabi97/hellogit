@@ -1,0 +1,9 @@
+- name: "RHEL-07-010160"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*difok'
+      line: "difok = {{ rhel7stig_password_complexity.difok | default('8') }}"
+  tags:
+      - RHEL-07-010160
+      - pwquality

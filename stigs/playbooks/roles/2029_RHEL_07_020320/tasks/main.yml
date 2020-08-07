@@ -1,0 +1,20 @@
+- name: "RHEL-07-020320"
+  block:
+      - name: "RHEL-07-020320 | AUDIT"
+        command: find "{{ item.mount }}" -xdev -nouser
+        check_mode: no
+        register: rhel_07_020320_audit
+        failed_when: no
+        changed_when: no
+        when: item['device'].startswith('/dev') and not 'bind' in item['options']
+        with_items: "{{ ansible_mounts }}"
+
+      - name: "RHEL-07-020320 | PATCH"
+        debug:
+            msg: "Manual intervention is required -- missing owner on items in {{ item.item.mount }}: {{ item.stdout_lines | join(', ') }}"
+        when:
+            - item.stdout_lines is defined
+            - item.stdout_lines | length > 0
+        with_items: "{{ rhel_07_020320_audit.results }}"
+  tags:
+      - RHEL-07-020320

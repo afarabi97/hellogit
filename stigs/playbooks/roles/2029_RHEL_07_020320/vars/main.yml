@@ -1,0 +1,12 @@
+# RHEL-07-020270
+# If vsftpd is required, remove 'ftp' from rhel7stig_unnecessary_accounts.
+#
+# By default, files owned by removed users will be retained, but this may
+# trigger RHEL-07-020320 (all files and directories must have a valid owner).
+# Set rhel7stig_remove_unnecessary_user_files to yes to remove old files,
+# but this could remove files you intended to keep. And it's probably best to
+# avoid removing 'dbus', 'nobody', 'systemd-network', and 'polkitd', as they all
+# have home directories of '/' by default.
+rhel7stig_unnecessary_accounts:
+    - games
+rhel7stig_remove_unnecessary_user_files: no

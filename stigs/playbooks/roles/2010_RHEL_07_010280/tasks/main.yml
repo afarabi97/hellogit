@@ -1,0 +1,9 @@
+- name: "RHEL-07-010280"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*minlen'
+      line: "minlen = {{ rhel7stig_password_complexity.minlen | default('15') }}"
+  tags:
+      - RHEL-07-010280
+      - pwquality

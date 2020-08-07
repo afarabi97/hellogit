@@ -286,14 +286,14 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-optional-rpms]
-name=labrepos rhel-7-server-extras-rpms
+name=labrepos rhel-7-server-optional-rpms
 baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-optional-rpms
 enabled=1
 gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 
 [rhel-7-server-rpms]
-name=labrepos rhel-7-server-extras-rpms
+name=labrepos rhel-7-server-rpms
 baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-rpms
 enabled=1
 gpgcheck=1

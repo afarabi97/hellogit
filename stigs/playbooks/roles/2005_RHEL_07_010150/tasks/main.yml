@@ -1,0 +1,9 @@
+- name: "RHEL-07-010150"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*ocredit'
+      line: "ocredit = {{ rhel7stig_password_complexity.ocredit | default('-1') }}"
+  tags:
+      - RHEL-07-010150
+      - pwquality

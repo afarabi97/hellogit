@@ -32,6 +32,9 @@ from shared.connection_mngs import (FabricConnection, FabricConnectionManager,
 from shared.constants import KICKSTART_ID
 from shared.utils import decode_password, encode_password
 
+from fabric import Connection
+import crypt
+
 REGISTRATION_JOB = None # type: AsyncResult
 _JOB_NAME = "tools"
 
@@ -82,61 +85,48 @@ def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict
             return item["password"]
     raise AmmendedPasswordNotFound()
 
+def password_from_config(config):
+    return decode_password(config["form"]["root_password"])
+
+def update_password(config, password):
+    config["form"]["root_password"] = encode_password(password)
+    config["form"]["re_password"] = encode_password(password)
+    result = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
+                                        {"_id": KICKSTART_ID, "form": config["form"]},
+                                        upsert=False,
+                                        return_document=ReturnDocument.AFTER)
+    return result
 
 @app.route('/api/change_kit_password', methods=['POST'])
 @controller_maintainer_required
 def change_kit_password():
     payload = request.get_json()
-    password_form = payload["passwordForm"]
-    ammended_passwords = payload["amendedPasswords"]
+
     current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_config:
-        old_password = decode_password(current_config["form"]["root_password"])
-        password_hash, ret_code = run_command2('perl -e "print crypt(\'{}\', "Q9"),"'.format(password_form["root_password"]))
-        change_root_pwd = "usermod --password {} root".format(password_hash)
 
-        for node in current_config["form"]["nodes"]:
-            ip = node["ip_address"]
+    if current_config == None:
+        return (jsonify({"message": "Couldn't find kit configuration."}), 500)
+    
+    for node in current_config["form"]["nodes"]:
+        try:
+            connection = Connection(node["ip_address"], "root", connect_kwargs={'key_filename': '/root/.ssh/id_rsa', 'allow_agent': False, 'look_for_keys': False})
+            result = connection.run("echo '{}' | passwd --stdin root".format(payload["passwordForm"]["root_password"]), warn=True) # type: Result
 
-            if ret_code != 0:
-                return ERROR_RESPONSE
-
-            try:
-                amended_password = _get_ammended_password(ip, ammended_passwords)
-                correct_password = amended_password
-            except AmmendedPasswordNotFound:
-                correct_password = None
-
-            try:
-                with FabricConnectionManager("root", old_password, ip) as shell:
-                    ret = shell.run(change_root_pwd) # type: Result
-                    if ret.return_code != 0:
-                        return ERROR_RESPONSE
-
-            except AuthenticationException:
-                if correct_password is not None:
-                    try:
-                        with FabricConnectionManager("root", correct_password, ip) as shell:
-                            ret = shell.run(change_root_pwd) # type: Result
-                            if ret.return_code != 0:
-                                return ERROR_RESPONSE
-                    except AuthenticationException:
-                        return jsonify(node)
+            if result.return_code !=0:
+                _result = connection.run("journalctl SYSLOG_IDENTIFIER=pwhistory_helper --since '10s ago'")
+                if (_result.stdout.count("\n") == 2):
+                    return (jsonify({"message": "Password has already been used. You must try another password."}), 409)
                 else:
-                    return jsonify(node)
+                    return (jsonify({"message": "An unknown error occured."}), 409)
+            connection.close()
 
+        except AuthenticationException:
+            return (jsonify(node), 422)
+        except Exception as e:
+            return (jsonify({"message": str(e)}), 500)
 
-        current_config["form"]["root_password"] = encode_password(password_form["root_password"])
-        current_config["form"]["re_password"] = encode_password(password_form["root_password"])
-        new_configuration = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                            {"_id": KICKSTART_ID, "form": current_config["form"]},
-                                            upsert=False,
-                                            return_document=ReturnDocument.AFTER)
-        if not new_configuration:
-            return ERROR_RESPONSE
-
+    update_password(current_config, payload["passwordForm"]["root_password"])
     return jsonify({"message": "Successfully changed the password of your Kit!"})
-
 
 @app.route('/api/update_documentation', methods=['POST'])
 @controller_maintainer_required

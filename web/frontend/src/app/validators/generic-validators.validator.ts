@@ -2,6 +2,7 @@ import { FormArray, AbstractControl, FormGroup, ValidationErrors, ValidatorFn } 
 import { IP_CONSTRAINT } from '../frontend-constants';
 import { isIpv4InSubnet } from '../globals';
 
+
 export interface validatorObject {
   validatorFn: string;
   error_message: string | any;
@@ -33,6 +34,8 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
       switch (validator.validatorFn) {
         case 'pattern':
           return patternValidator(validator, control);
+        case 'password':
+          return passwordValidator(validator, control)
         case 'unique':
           return uniqueValidator(validator, control, ops);
         case 'ip&subnet':
@@ -51,6 +54,71 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
     return errors.length === 0 ? null : errors[0];
   };
 }
+
+export function passwordValidator(validatorObject: validatorObject, control: AbstractControl): ValidationErrors | null {
+
+  if (control.value.length < 15) {
+    return { password: validatorObject.error_message, error_message: "The password must be at least 15 characters"};
+  }
+
+  if(!/[0-9]/.test(control.value)) {
+    return { password: validatorObject.error_message, error_message: "The password must have at least 1 digit"}
+  }
+  
+  if(!/[a-z]/.test(control.value)) {
+    return { password: validatorObject.error_message, error_message: "The password must have at least 1 lowercase letter"}
+  }
+ 
+  if (!/[A-Z]/.test(control.value)) {
+    return { password: validatorObject.error_message, error_message: "The password must have at least 1 uppercase letter"}
+  }
+ 
+  if (!/[^0-9a-zA-Z]/.test(control.value)) {
+  return { password: validatorObject.error_message, error_message: "The password must have at least 1 symbol"}
+  }
+
+  if ((new Set(control.value)).size < 8) {
+    return { password: validatorObject.error_message, error_message: "The password must have at least 8 unique characters."}
+  }
+  console.log(consecutive(control.value))
+  if (consecutive(control.value)) {
+    return { password: validatorObject.error_message, error_message: "The password must not have 3 consecutive characters that are the same"}
+  }
+
+}
+
+function consecutive(password) {
+  console.log("entering of call to consecutive function: "+password);
+  let c;
+  let same;
+
+  for (let i = 0; i<= password.length; i++) {
+   console.log(password[i]);
+    if (i == 0) {
+      c = password[i];
+      same = 1;
+    } else {
+      console.log("comparing: "+c+" "+password[i]+","+(password[i]==c));
+      if (c == password[i]) {
+        console.log("match character: "+password[i]);
+        same += 1;
+      } else {
+        if (same > 2) {
+          console.log('testing greater than 2');
+          return true;
+        }
+        same = 1;
+        c = password[i];
+      }
+    }
+  }
+  console.log("leaving consecutive call");
+  return false
+}
+
+
+
+
 
 export function patternValidator(validatorObject: validatorObject, control: AbstractControl) {
   const forbidden = control.value && control.value.length > 0 ? validatorObject.ops.pattern.test(control.value) : {};

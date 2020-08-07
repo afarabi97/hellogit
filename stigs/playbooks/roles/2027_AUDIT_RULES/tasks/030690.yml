@@ -1,0 +1,28 @@
+# DISA-STIG-RHEL-07-030690
+- name: "Search {{ audit_directory }} for audit rule entries"
+  find:
+    paths: "{{ audit_directory }}"
+    recurse: false
+    contains: ^.*path=/usr/bin/sudo.*$
+    patterns: '*.rules'
+  register: find_sudo
+
+- name: "Use {{ audit_directory }}/privileged.rules as the recipient for the rule"
+  set_fact:
+    all_files:
+    - "{{ audit_directory }}/privileged.rules"
+  when:
+  - find_sudo.matched is defined and find_sudo.matched == 0
+
+- name: Use matched file as the recipient for the rule
+  set_fact:
+    all_files:
+    - '{{ find_sudo.files | map(attribute=''path'') | list | first }}'
+  when:
+  - find_sudo.matched is defined and find_sudo.matched > 0
+
+- name: "Inserts/replaces the sudo rule in {{ audit_directory }}"
+  lineinfile:
+    path: '{{ all_files[0] }}'
+    line: -a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+    create: true

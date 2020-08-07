@@ -23,7 +23,7 @@ all-stigs:
 #	DIP STIGS	#
 #################
 dip-controller-stigs:
-	ansible-playbook $(PLAYBOOK) --connection=local -i localhost --tags "dip-controller-stigs"
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "dip-controller-stigs"
 
 dip-stigs:
 	ansible-playbook $(PLAYBOOK) -i $(CORE_INVENTORY) --tags "dip-stigs"

@@ -1,0 +1,9 @@
+- name: "RHEL-07-010170"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*minclass'
+      line: "minclass = {{ rhel7stig_password_complexity.minclass | default('4') }}"
+  tags:
+      - RHEL-07-010170
+      - pwquality

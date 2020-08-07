@@ -1,0 +1,9 @@
+- name: "RHEL-07-010180"
+  lineinfile:
+      create: yes
+      dest: /etc/security/pwquality.conf
+      regexp: '^#?\s*maxrepeat'
+      line: "maxrepeat = {{ rhel7stig_password_complexity.maxrepeat | default('3') }}"
+  tags:
+      - RHEL-07-010180
+      - pwquality

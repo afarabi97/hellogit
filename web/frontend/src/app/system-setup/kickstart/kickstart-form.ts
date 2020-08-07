@@ -117,14 +117,10 @@ export const kickstart_validators = {
   //   { error_message: 'Root password is required', validatorFn: 'required' }
   // ],
   root_password: [
-    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
-    { error_message: 'Retyping Root password is required', validatorFn: 'required' }
+    { error_message: "Root password did not meet the password requirements.", validatorFn: 'password' }
   ],
   re_password: [
-    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a root password with a minimum length of 6 characters.', validatorFn: 'pattern' },
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
-    { error_message: 'Retyping Root password is required', validatorFn: 'required' }
+    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' }
   ],
   dhcp_range: [
     { ops: { ip_range: [{ value: 'controller_interface', label: 'Controller Interface', testRange: true }, { value: 'netmask', label: 'Netmask', testRange: false }] }, error_message: 'Invalid selection', validatorFn: 'ip&subnet' },
