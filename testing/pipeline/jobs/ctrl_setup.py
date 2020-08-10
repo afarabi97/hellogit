@@ -48,18 +48,21 @@ class ControllerSetupJob:
     def __init__(self, ctrl_settings: Union[ControllerSetupSettings,HwControllerSetupSettings]):
         self.ctrl_settings = ctrl_settings
 
-    def _run_pings_to_fix_network(self, client: Connection):
-        pos = self.ctrl_settings.node.network_id.rfind(".")
-        hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
-        client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
-        client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
-        client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
+    def _run_pings_to_fix_network(self, client: Connection, flag):
+        if flag:
+            pos = self.ctrl_settings.node.network_id.rfind(".")
+            hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
+            client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
+            client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
+            client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
+        else:
+            pass
 
     def _set_hostname(self, client:Connection):
         cmd = "hostnamectl set-hostname controller.{}".format(self.ctrl_settings.node.domain)
         client.run(cmd)
 
-    def _run_bootstrap(self):
+    def _run_bootstrap(self, flag=True):
         curl_cmd = ''
         if 'di2e' in self.ctrl_settings.repo.url:
             curl_cmd = "curl -s -o /root/bootstrap.sh -u {username}:'{password}' " \
@@ -87,7 +90,7 @@ class ControllerSetupJob:
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
-            self._run_pings_to_fix_network(client)
+            self._run_pings_to_fix_network(client, flag)
             self._set_hostname(client)
             ret_val = client.run(curl_cmd, shell=True, warn=True)
             if ret_val.return_code != 0:
@@ -133,11 +136,11 @@ EOF
         """.format(self.ctrl_settings.node.domain))
         client.run('systemctl restart network NetworkManager')
 
-    def _update_nightly_controller(self):
+    def _update_nightly_controller(self, flag=True):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
-            self._run_pings_to_fix_network(client)
+            self._run_pings_to_fix_network(client, flag)
             self._update_code(client)
 
     def setup_controller(self):
@@ -223,4 +226,4 @@ class BaremetalControllerSetup(ControllerSetupJob):
                 self.copy_controller(self.baremetal_ctrl_settings.run_type)
                 execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
                                  self.baremetal_ctrl_settings.to_dict())
-                hwsettings._run_bootstrap()
+                hwsettings._run_bootstrap(False)
