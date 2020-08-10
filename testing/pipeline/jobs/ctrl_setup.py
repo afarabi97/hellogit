@@ -48,15 +48,12 @@ class ControllerSetupJob:
     def __init__(self, ctrl_settings: Union[ControllerSetupSettings,HwControllerSetupSettings]):
         self.ctrl_settings = ctrl_settings
 
-    def _run_pings_to_fix_network(self, client: Connection, flag):
-        if flag:
-            pos = self.ctrl_settings.node.network_id.rfind(".")
-            hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
-            client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
-            client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
-            client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
-        else:
-            pass
+    def _run_pings_to_fix_network(self, client: Connection):
+        pos = self.ctrl_settings.node.network_id.rfind(".")
+        hack_ping_ip = self.ctrl_settings.node.network_id[0:pos+1] + "3"
+        client.run("ping {} -c 3".format(hack_ping_ip), shell=True, warn=True)
+        client.run("ping {} -c 3".format(self.ctrl_settings.node.dns_servers[0]), shell=True, warn=True)
+        client.run("ping {} -c 3".format("gitlab.sil.lab"), shell=True, warn=True)
 
     def _set_hostname(self, client:Connection):
         cmd = "hostnamectl set-hostname controller.{}".format(self.ctrl_settings.node.domain)
@@ -90,6 +87,7 @@ class ControllerSetupJob:
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
+            self._run_pings_to_fix_network(client)
             self._set_hostname(client)
             ret_val = client.run(curl_cmd, shell=True, warn=True)
             if ret_val.return_code != 0:
@@ -135,11 +133,11 @@ EOF
         """.format(self.ctrl_settings.node.domain))
         client.run('systemctl restart network NetworkManager')
 
-    def _update_nightly_controller(self, flag=True):
+    def _update_nightly_controller(self):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
-            self._run_pings_to_fix_network(client, flag)
+            self._run_pings_to_fix_network(client)
             self._update_code(client)
 
     def setup_controller(self):

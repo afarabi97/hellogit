@@ -76,7 +76,7 @@ Create a standalone MinIO server:
   only:
     variables:
       - $MINIO_VM == "true" && $PIPELINE == "export-dip"
-      - $MINIO_VM == "true" && $PIPELINE == "export-all"
+      - $PIPELINE == "export-all"
       - $MINIO_VM == "true" && $PIPELINE == "developer-dip"
       - $MINIO_VM == "true" && $PIPELINE == "developer-all"
   artifacts:
