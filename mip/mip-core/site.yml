@@ -148,6 +148,17 @@
     - MDT
     - CPT
 
+- name: Add 2fa folder and files to desktop
+  hosts: mips
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - 045_2fa
+  tags:
+    - 2fa
+    - MDT
+    - CPT
+
 - name: Install COTS software for MDT and CPT
   hosts: mips
   gather_facts: no

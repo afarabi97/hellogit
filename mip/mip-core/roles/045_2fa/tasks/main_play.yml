@@ -1,0 +1,14 @@
+---
+- name: Copying 2fa folder to Desktop
+  copy:
+    src: /root/Files_To_Be_Copied_Over/2fa
+    dest: /home/assessor/Desktop/
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create hidden file for validation if playbooks crash
+  file:
+    path: /operator/.DO_NOT_DELETE/.045
+    state: touch
+...

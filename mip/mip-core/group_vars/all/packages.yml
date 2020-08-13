@@ -22,7 +22,13 @@ packages:
   - libgcrypt-devel
   - libpcap
   - libpcap-devel
-#Other
+  #2FA Packages
+  - pcsc-lite
+  - coolkey
+  - pam_pkcs11
+  - esc
+  #- opensc   # This package is already added in OTHER section but if it is REMOVED from there this should be uncommented to avoid functionality loss for 2FA
+  #Other
   - libvirt*
   - iptables-services
   - nmap
