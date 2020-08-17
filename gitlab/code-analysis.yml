@@ -9,11 +9,11 @@ sonarqube analyze production code:
     sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=tfplenum -Dsonar.sources=web/
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 sonarqube analyze test code:
   tags:
@@ -26,11 +26,11 @@ sonarqube analyze test code:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible test playbooks:
   tags:
@@ -43,11 +43,11 @@ analyze ansible test playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
-      - $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
 
 analyze ansible bootstrap playbooks:
   tags:
@@ -60,11 +60,11 @@ analyze ansible bootstrap playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
-      - $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
 
 analyze ansible core playbooks:
   tags:
@@ -78,10 +78,10 @@ analyze ansible core playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible deployer playbooks:
   tags:
@@ -94,10 +94,10 @@ analyze ansible deployer playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible stigs playbooks:
   tags:
@@ -110,10 +110,10 @@ analyze ansible stigs playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 analyze ansible mip playbooks:
   tags:
@@ -127,10 +127,10 @@ analyze ansible mip playbooks:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 pylint the backend code:
   tags:
@@ -143,11 +143,11 @@ pylint the backend code:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 pylint the pipeline code:
   tags:
@@ -160,11 +160,11 @@ pylint the pipeline code:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 compile the angular code:
   tags:
@@ -177,11 +177,11 @@ compile the angular code:
   allow_failure: true
   only:
     variables:
-      - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-mip"
-      - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
 # include:
   # - template: Container-Scanning.gitlab-ci.yml

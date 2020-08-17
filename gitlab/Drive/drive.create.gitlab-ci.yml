@@ -7,7 +7,7 @@ Hash Master CPT Drive:
     --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Hash Master MDT Drive:
@@ -19,7 +19,7 @@ Hash Master MDT Drive:
     --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Hash Check Master CPT Drive:
@@ -31,7 +31,7 @@ Hash Check Master CPT Drive:
     --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Hash Check Master MDT Drive:
@@ -43,7 +43,7 @@ Hash Check Master MDT Drive:
     --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Create Master CPT Drive:
@@ -63,7 +63,7 @@ Create Master CPT Drive:
     --drive-creation-version "v$MAIN_FOLDER_VERSION"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
       - $PIPELINE == "carldeletelater"
 
 
@@ -84,5 +84,5 @@ Create Master MDT Drive:
     --drive-creation-version "v$MAIN_FOLDER_VERSION"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "true"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
       - $PIPELINE == "carldeletelater"

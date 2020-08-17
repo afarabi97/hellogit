@@ -75,10 +75,10 @@ Create a standalone MinIO server:
     python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
     variables:
-      - $MINIO_VM == "true" && $PIPELINE == "export-dip"
+      - $MINIO_VM == "yes" && $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
-      - $MINIO_VM == "true" && $PIPELINE == "developer-dip"
-      - $MINIO_VM == "true" && $PIPELINE == "developer-all"
+      - $MINIO_VM == "yes" && $PIPELINE == "developer-dip"
+      - $MINIO_VM == "yes" && $PIPELINE == "developer-all"
   artifacts:
     paths:
       - vcentersettings_minio.yml
@@ -158,8 +158,8 @@ Secure MinIO with a TLS certificate:
     python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
     variables: # The TLS certificate should not be exported.
-      - $MINIO_VM == "true" && $PIPELINE == "developer-dip" && $MINIO_USE_TLS == "true"
-      - $MINIO_VM == "true" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "true"
+      - $MINIO_VM == "yes" && $PIPELINE == "developer-dip" && $MINIO_USE_TLS == "yes"
+      - $MINIO_VM == "yes" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "yes"
 
 Perform DIP STIGs:
   stage: stig-kit
@@ -171,9 +171,9 @@ Perform DIP STIGs:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
   only:
     variables:
-      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-dip"
-      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-all"
-      - $RUN_DIP_STIGS == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
 
 Perform DIP Security Scans:
   stage: security_scans
@@ -191,9 +191,9 @@ Perform DIP Security Scans:
     --nodes-to-scan $(cat dipnodestoscan.txt)
   only:
     variables:
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip"
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     untracked: true
 
@@ -219,9 +219,9 @@ CVAH Catalog:
     # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall suricata
   only:
     variables:
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
 
 
 DIP Run Python Unit Tests:
@@ -248,9 +248,9 @@ System Function Testing:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "./*.xml"
@@ -267,9 +267,9 @@ Simulate Power Failure:
     python3 testing/pipeline/pipeline.py --system-name "DIP" simulate-power-failure
   only:
     variables:
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
 
 System Function Testing2:
   stage: rerun-integration-test
@@ -281,9 +281,9 @@ System Function Testing2:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-all"
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     paths:
       - "./*.xml"
@@ -302,6 +302,6 @@ DIP Cleanup:
   allow_failure: true
   only:
     variables:
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip"
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip-mip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-all"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip-mip"

@@ -103,5 +103,5 @@ Export DIP MinIO:
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
-      - $MINIO_VM == "true" && $PIPELINE == "export-dip"
-      - $MINIO_VM == "true" && $PIPELINE == "export-all"
+      - $MINIO_VM == "yes" && $PIPELINE == "export-dip"
+      - $MINIO_VM == "yes" && $PIPELINE == "export-all"

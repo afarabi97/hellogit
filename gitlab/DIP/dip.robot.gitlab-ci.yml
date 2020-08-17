@@ -16,6 +16,6 @@ DIP Robot Tests:
   allow_failure: true
   only:
     variables:
-      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-dip"
-      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-all"
-      - $RUN_ROBOT_TESTS == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_ROBOT_TESTS == "yes" && $PIPELINE == "developer-dip-mip"

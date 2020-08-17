@@ -92,7 +92,7 @@ Hardware System Function Testing:
     python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-integration-tests
   only:
     variables:
-      - $RUN_INTEGRATION == "true" && $PIPELINE == "hw-developer-dip"
+      - $RUN_INTEGRATION == "yes" && $PIPELINE == "hw-developer-dip"
   artifacts:
     paths:
       - "./*.xml"
@@ -109,4 +109,4 @@ Hardware Simulate Power Failure:
     python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" simulate-power-failure
   only:
     variables:
-      - $RUN_POWER_FAILURE == "true" && $PIPELINE == "hw-developer-dip"
+      - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-dip"

@@ -115,7 +115,7 @@ class Runner:
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
         cleanup_parser.add_argument('--create-nightly', dest='create_nightly', required=False,
                             help="Creates nightly controllers after before cleanup ('Yes' or 'No')")
-        cleanup_parser.add_argument('--save-kit', dest='save_kit', required=False, 
+        cleanup_parser.add_argument('--save-kit', dest='save_kit', required=False,
                             help="Allows for saving a template of a functional MIP kit. ('Yes' or 'No')")
 
 
@@ -434,7 +434,7 @@ class Runner:
                     try:
                         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
                         kickstart_settings.nodes.append(ctrl_settings.node)
-                        if args.create_nightly == "Yes":
+                        if args.create_nightly == "yes":
                             create_nightly(ctrl_settings.vcenter,
                                            ctrl_settings.node,
                                            ctrl_settings.system_name)
@@ -450,14 +450,14 @@ class Runner:
                         kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
                         kickstart_settings.mips.append(ctrl_settings.node)
 
-                        if args.create_nightly == "Yes":
+                        if args.create_nightly == "yes":
                             create_nightly(ctrl_settings.vcenter,
                                             ctrl_settings.node,
                                             ctrl_settings.system_name)
-                        elif args.save_kit == "Yes":
+                        elif args.save_kit == "yes":
                             executor = MIPSaveKitJob(
                             ctrl_settings, kickstart_settings)
-                            executor.save_mip_kit()                
+                            executor.save_mip_kit()
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.mips)
                     except FileNotFoundError:
@@ -465,7 +465,7 @@ class Runner:
                 elif args.system_name == "GIP":
                     try:
                         gip_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
-                        if args.create_nightly == "Yes":
+                        if args.create_nightly == "yes":
                             create_nightly(gip_settings.vcenter,
                                             gip_settings.node,
                                             gip_settings.system_name)

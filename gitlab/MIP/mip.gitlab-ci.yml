@@ -106,9 +106,9 @@ Perform MIP STIGs:
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-stigs
   only:
     variables:
-      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-mip"
-      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-all"
-      - $RUN_MIP_STIGS == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
 
 Perform MIP Security Scans:
   stage: security_scans
@@ -126,9 +126,9 @@ Perform MIP Security Scans:
     --nodes-to-scan $(cat mipnodestoscan.txt)
   only:
     variables:
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-mip"
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-all"
-      - $RUN_ACAS == "true" && $PIPELINE == "developer-dip-mip"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_ACAS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     untracked: true
 
@@ -145,6 +145,6 @@ MIP Cleanup:
   allow_failure: true
   only:
     variables:
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-mip"
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-all"
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-dip-mip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-mip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-all"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip-mip"

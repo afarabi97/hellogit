@@ -43,7 +43,7 @@ Perform GIP Servives STIGs:
     python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs --sub-system-name "SERVICES"
   only:
     variables:
-      - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "true"
+      - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "yes"
 
 GIP Cleanup:
   stage: cleanup
@@ -56,9 +56,9 @@ GIP Cleanup:
     --create-nightly "$CREATE_NIGHTLY"
   only:
     variables:
-      - $IS_CLEANUP == "true" && $PIPELINE == "developer-gip"
-      - $IS_CLEANUP == "true" && $PIPELINE == "export-gip-service"
-      - $IS_CLEANUP == "true" && $PIPELINE == "export-gip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "developer-gip"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "export-gip-service"
+      - $IS_CLEANUP == "yes" && $PIPELINE == "export-gip"
 
 
 Setup GIP Controller:

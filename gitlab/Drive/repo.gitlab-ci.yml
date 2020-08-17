@@ -140,8 +140,8 @@ Perform Reposync Server STIGs:
     untracked: true
   only:
     variables:
-      - $RUN_REPOSYNC_SERVER_STIGS == "true" && $PIPELINE == "export-reposync"
-      - $RUN_REPOSYNC_SERVER_STIGS == "true" && $PIPELINE == "export-all"
+      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
+      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"
 
 Perform Reposync Workstation STIGs:
   stage: stig-kit
@@ -156,5 +156,5 @@ Perform Reposync Workstation STIGs:
     untracked: true
   only:
     variables:
-      - $RUN_REPOSYNC_WORKSTATION_STIGS == "true" && $PIPELINE == "export-reposync"
-      - $RUN_REPOSYNC_WORKSTATION_STIGS == "true" && $PIPELINE == "export-all"
+      - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-reposync"
+      - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-all"

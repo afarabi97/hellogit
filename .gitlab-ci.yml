@@ -31,7 +31,7 @@ variables:
 
   PIPELINE: "developer-dip"
   BUILD_TYPE: "clone_from_nightly"
-  IS_CLEANUP: "false"
+  IS_CLEANUP: "no"
   VMWARE_FOLDER: "Testing"
   NETWORK_ID: "10.40.12.0"
   DIP_NETWORK_BLOCK_INDEX: 0
@@ -45,16 +45,17 @@ variables:
   ACAS_USERNAME: "acas"
   DIP_ACAS_SCAN_TO_RUN: "DIP Dynamic Scan"
   MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
-  RUN_ACAS: "false"
-  RUN_INTEGRATION: "false"
-  RUN_POWER_FAILURE: "false"
+  RUN_ACAS: "no"
+  RUN_INTEGRATION: "no"
+  RUN_CODE_CHECKS: "yes"
+  RUN_POWER_FAILURE: "no"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
   CONTROLLER_DNS_SERVERS: "10.10.101.248"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
   VCENTER_IPADDRESS: "10.10.103.10"
   VCENTER_DATACENTER: "DEV_Datacenter"
   VCENTER_PORTGROUP: "12-Dev2-Navarro"
-  VCENTER_DATASTORE: "dev-vol02"
+  VCENTER_DATASTORE: "DEV-vSAN"
   ESXI_DATASTORE: "datastore1"
   DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl"
   DIP_TEMPLATE_OVA: "dip_template.ova"
@@ -66,14 +67,14 @@ variables:
   RHEL_SUB_METHOD: "standard"
   RHEL_ORGANIZATION: "7403688"
   RHEL_ACTIVATIONKEY: "Reposync"
-  SAVE_KIT: "No"
-  CREATE_NIGHTLY: "No"
-  RUN_DIP_STIGS: "true"
-  RUN_MIP_STIGS: "true"
-  RUN_GIP_STIGS: "true"
-  RUN_GIPSVC_STIGS: "true"
-  RUN_REPOSYNC_SERVER_STIGS: "true"
-  RUN_REPOSYNC_WORKSTATION_STIGS: "true"
+  SAVE_KIT: "no"
+  CREATE_NIGHTLY: "no"
+  RUN_DIP_STIGS: "yes"
+  RUN_MIP_STIGS: "yes"
+  RUN_GIP_STIGS: "yes"
+  RUN_GIPSVC_STIGS: "yes"
+  RUN_REPOSYNC_SERVER_STIGS: "yes"
+  RUN_REPOSYNC_WORKSTATION_STIGS: "yes"
   VM_RAID: "no"
 
 
@@ -84,7 +85,7 @@ variables:
   MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE: "/dev/sdc"
   MASTER_DRIVE_CREATION_CPT_MOUNT_POINT: "/mnt/CPTData"
   MASTER_DRIVE_CREATION_MDT_MOUNT_POINT: "/mnt/MDTData"
-  RUN_CREATE_MASTER_DRIVE: "false"
+  RUN_CREATE_MASTER_DRIVE: "no"
   #End
 
   #The VM prefix is the prefix for all the VMs that will be created.
@@ -106,7 +107,8 @@ variables:
   MINIO_STORAGE_SIZE: 250
   MINIO_MEMORY: 8192
   MINIO_CPU: 2
-  MINIO_USE_TLS: "true"
+  MINIO_USE_TLS: "yes"
+  MINIO_VM: "no"
 
   #THE VARIBALES IN THIS SECTION DO NOT NEED TO BE OVERWRITTEN IN SCHEDULES.
   MASTER_DRIVE_CREATION_PATH: "/mnt/drive_creation"
@@ -145,13 +147,8 @@ variables:
   MIP_SOFTWARE_FOLDERS: "$MIP_SOFTWARE_FOLDER"
 
   # Robot Test Integration
-  RUN_ROBOT_TESTS: "true"
+  RUN_ROBOT_TESTS: "yes"
   JIRA_PROJECT_KEY: "THISISCVAH"
-
-  # If this is set to true
-  # we will not accept this as a pass
-  IS_EDITABLE: "false"
-
 
 stages:
   - code-analysis
