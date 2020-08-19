@@ -1,18 +1,23 @@
 <mat-card>
   <mat-card-header>
     <mat-card-title>
-      <a (click)="toggleCard()">
-        <em class="material-icons" *ngIf="!isCardVisible">chevron_right</em>
-        <em class="material-icons" *ngIf="isCardVisible">expand_more</em>
+      <a id="app-kit-clock-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
+        <em *ngIf="!isCardVisible" id="app-kit-clock-mat-card-mat-card-header-mat-card-title-a-em-chevron-right"
+            class="material-icons">chevron_right</em>
+        <em *ngIf="isCardVisible" id="app-kit-clock-mat-card-mat-card-header-mat-card-title-a-em-expand-more"
+            class="material-icons">expand_more</em>
         <span style="vertical-align: top;">Change Kit Clock</span>
       </a>
     </mat-card-title>
   </mat-card-header>
   <mat-card-content *ngIf="isCardVisible">
-    <app-date-time [datetime]="getDate()" [timezone]="getTimezone()" placeholder="Current Date & Time"></app-date-time>
+    <app-date-time id="app-kit-clock-mat-card-mat-card-content-app-data-time"
+                   [uniqueHTMLID]="'app-kit-clock'" [datetime]="getDate()"
+                   [timezone]="getTimezone()" placeholder="Current Date & Time"></app-date-time>
   </mat-card-content>
   <mat-card-actions *ngIf="isCardVisible">
-    <button mat-raised-button color="primary" (click)="openConfirmResetClockDialog()"
-      [disabled]="resetClock.invalid || resetClock.disabled">Change Clock</button>
+    <button mat-raised-button id="app-kit-clock-mat-card-mat-card-actions-button-change-clock"
+            color="primary" (click)="openConfirmResetClockDialog()"
+            [disabled]="resetClock.invalid || resetClock.disabled">Change Clock</button>
   </mat-card-actions>
 </mat-card>

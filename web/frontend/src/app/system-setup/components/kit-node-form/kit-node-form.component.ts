@@ -1,17 +1,18 @@
-import { Component, OnInit, Input, AfterViewInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { kickStartTooltips } from '../../kickstart/kickstart-form';
 import { MatSelectChange } from '@angular/material';
+
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
+import { kickStartTooltips } from '../../kickstart/kickstart-form';
 
 @Component({
   selector: 'app-kit-node-form',
   templateUrl: './kit-node-form.component.html',
   styleUrls: ['./kit-node-form.component.css']
 })
-export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
-
-
+export class KitNodeFormComponent implements OnInit {
+  // Unique ID passed from parent component to create unique element ids
+  @Input() uniqueHTMLID: string;
   @Input()
   node: FormGroup;
 
@@ -39,11 +40,16 @@ export class KitNodeFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.getSystem();
   }
 
-  ngAfterViewInit(){
-  }
+  /**
+   * Used for generating unique element id for html
+   *
+   * @param {string} passedID
+   * @returns {string}
+   * @memberof KitNodeFormComponent
+   */
+  generateUniqueHTMLID(passedID: string): string {
 
-  ngOnChanges(changes: SimpleChanges): void {
-
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   public getTooltip(inputName: string): string {

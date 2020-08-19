@@ -1,5 +1,7 @@
-import { Component, OnInit, Input, ViewChild,
-         ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
+import {
+  Component, OnInit, Input, ViewChild,
+  ElementRef, HostListener, EventEmitter, Output
+} from '@angular/core';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 import { ConfigmapsService } from '../configmaps/configmaps.service';
 import { UserService } from '../user.service';
@@ -11,10 +13,10 @@ import { UserService } from '../user.service';
 })
 export class ConfigmapEditorComponent implements OnInit {
 
-  @ViewChild('editorCard', {static: false})
+  @ViewChild('editorCard', { static: false })
   private editorCard: ElementRef;
 
-  @ViewChild('outerCard', {static: false})
+  @ViewChild('outerCard', { static: false })
   private outerCard: ElementRef;
 
   @Input()
@@ -34,11 +36,11 @@ export class ConfigmapEditorComponent implements OnInit {
 
   numbers: Array<number>;
 
-  private associatedPods: Array<{podName:string, namespace: string}>;
+  private associatedPods: Array<{ podName: string, namespace: string }>;
   controllerMaintainer: boolean;
   operator: boolean;
 
-  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService, private userService: UserService) {
+  constructor(private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService, private userService: UserService) {
     this.numbers = new Array(1000).fill(true);
     this.controllerMaintainer = this.userService.isControllerMaintainer();
     this.operator = this.userService.isOperator();
@@ -49,8 +51,8 @@ export class ConfigmapEditorComponent implements OnInit {
    * @param event
    */
   @HostListener('window:resize', ['$event'])
-  onResize(event){
-     this.resizeEditor();
+  onResize(event) {
+    this.resizeEditor();
   }
 
   ngOnInit() {
@@ -60,9 +62,9 @@ export class ConfigmapEditorComponent implements OnInit {
     this.resizeEditor();
   }
 
-  private resizeEditor(){
+  private resizeEditor() {
     let height: string = "";
-    if (window.innerHeight > 400){
+    if (window.innerHeight > 400) {
       height = (window.innerHeight - 130) + "px";
     } else {
       height = "100px";
@@ -71,7 +73,7 @@ export class ConfigmapEditorComponent implements OnInit {
     this.outerCard.nativeElement.style.height = height;
   }
 
-  openCloseDialog(){
+  openCloseDialog() {
     this.confirmer.confirmAction(
       "Close without saving",
       "Are you sure you want to close this editor? All changes will be discarded.",
@@ -82,19 +84,19 @@ export class ConfigmapEditorComponent implements OnInit {
     );
   }
 
-  openSaveDialog(){
-    if (this.configMapName === null || this.configMapName === ""){
+  openSaveDialog() {
+    if (this.configMapName === null || this.configMapName === "") {
       this.configMapName = "doesNotExist";
     }
 
     this.configMapSrv.getAssociatedPods(this.configMapName).subscribe(data => {
-      this.associatedPods = data as Array<{podName:string, namespace: string}>;
+      this.associatedPods = data as Array<{ podName: string, namespace: string }>;
       let confirmText = 'Are you sure you want to save this configuration? Doing so will cause ';
 
-      for (let index = 0; index < this.associatedPods.length; index++){
+      for (let index = 0; index < this.associatedPods.length; index++) {
         let podName = this.associatedPods[index].podName;
         confirmText = confirmText.concat(podName);
-        if (index !== (this.associatedPods.length - 1)){
+        if (index !== (this.associatedPods.length - 1)) {
           confirmText = confirmText.concat(", ")
         }
       }
@@ -112,11 +114,12 @@ export class ConfigmapEditorComponent implements OnInit {
     });
   }
 
-  closeWithoutSaving(event: any){
+  closeWithoutSaving(event: any) {
     this.closeNoSaveEvent.emit(event);
   }
 
   closeAndSave() {
-    this.closeSaveEvent.emit({configData: this.text, associatedPods: this.associatedPods});
+    this.closeSaveEvent.emit({ configData: this.text, associatedPods: this.associatedPods });
   }
+
 }

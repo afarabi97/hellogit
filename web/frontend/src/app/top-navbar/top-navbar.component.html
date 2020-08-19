@@ -1,64 +1,73 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
-      <h3 *ngIf="showLinkNames">
-        <div id="systemTitle">TFPlenum <span id="sysname">{{ system_name }}</span> Controller</div>
-        <mat-list *ngIf="controllerMaintainer">
-          <mat-list-item (click)="selectSystem()">
-            <mat-icon mat-list-icon>laptop</mat-icon>
-            <h4 mat-line>Select System</h4>
-          </mat-list-item>
-        </mat-list>
-        <mat-divider></mat-divider>
-      </h3>
-      <span class="version" *ngIf="showLinkNames">v. {{ version }}</span>
-      <mat-list>
-        <mat-list-item>
-          <mat-icon mat-list-icon matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
-          <div *ngIf="showLinkNames" fxLayout="column" fxLayoutAlign="center none" style="padding-left: 16px;">
-            <div style="color:lightgreen;" mat-line>{{ time | date:'MM-dd-yy HH:mm:ss' }}</div>
-            <div style="color:lightgreen;" mat-line>{{ timezone }}</div>
-          </div>
-        </mat-list-item>
-        <mat-list-item (click)="openNotifications()">
-              <mat-icon class="notification-icon" mat-list-icon><app-notifications #notifications></app-notifications></mat-icon>
-              <h4 *ngIf="showLinkNames" mat-line>Notifications</h4>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <div *ngFor="let group of sideNavigationButtons">
-          <h3 mat-subheader *ngIf="group.label && group.label != '' && showLinkNames">
-            {{ group.label }}
-          </h3>
-          <ng-container *ngFor="let child of group.children">
-            <mat-list-item *ngIf="!child.isExternalLink" routerLink="{{ child.url }}" matTooltip="{{child.label}}" routerLinkActive="active">
-              <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
-              <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
+        <h3 *ngIf="showLinkNames">
+            <div>TFPlenum
+                <span id="app-top-navbar-mat-drawer-container-mat-drawer-h3-div-span-system-name">{{ system_name }}</span> Controller
+            </div>
+            <mat-list *ngIf="controllerMaintainer">
+                <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-h3-mat-list-mat-list-item" (click)="selectSystem()">
+                    <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-h3-mat-list-mat-list-item-mat-icon-laptop">laptop</mat-icon>
+                    <h4 mat-line>Select System</h4>
+                </mat-list-item>
+            </mat-list>
+            <mat-divider></mat-divider>
+        </h3>
+        <span *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-span-version" class="version">v. {{ version }}</span>
+        <mat-list>
+            <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone">
+                <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-mat-icon-date-range"
+                          matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
+                <div *ngIf="showLinkNames" fxLayout="column" fxLayoutAlign="center none" style="padding-left: 16px;">
+                    <div mat-line id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-div-time"
+                         style="color:lightgreen;">{{ time | date:'MM-dd-yy HH:mm:ss' }}</div>
+                    <div mat-line id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-div-zone"
+                         style="color:lightgreen;">{{ timezone }}</div>
+                </div>
             </mat-list-item>
 
-            <a mat-list-item class="confluence-link" *ngIf="child.isExternalLink" matTooltip="{{child.label}}" href="{{ child.url }}" target="{{child.target}}">
-              <mat-icon mat-list-icon>{{child.icon}}</mat-icon>
-              <h4 *ngIf="showLinkNames" mat-line >{{ child.label }}</h4>
-            </a>
-          </ng-container>
-          <mat-divider></mat-divider>
+            <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications"
+                           (click)="openNotifications()">
+                <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon" class="notification-icon">
+                    <app-notifications #notifications id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon-app-notifications"></app-notifications>
+                </mat-icon>
+                <h4 *ngIf="showLinkNames" mat-line id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-h4">Notifications</h4>
+            </mat-list-item>
+
+            <mat-divider></mat-divider>
+            <div *ngFor="let group of sideNavigationButtons; let i = index;"
+                 id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i }}">
+                <h3 mat-subheader *ngIf="group.label && group.label != '' && showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-group-label' }}">
+                    {{ group.label }}
+                </h3>
+                <ng-container *ngFor="let child of group.children; let j = index;">
+                    <mat-list-item *ngIf="!child.isExternalLink" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j }}"
+                                    routerLink="{{ child.url }}" matTooltip="{{child.label}}" routerLinkActive="active">
+                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-mat-icon' }}">{{child.icon}}</mat-icon>
+                        <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-h4-label' }}">{{ child.label }}</h4>
+                    </mat-list-item>
+                    <a mat-list-item *ngIf="child.isExternalLink"
+                       id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a' }}"
+                       class="confluence-link" matTooltip="{{child.label}}" href="{{ child.url }}" target="{{child.target}}">
+                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-mat-icon' }}">{{child.icon}}</mat-icon>
+                        <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-h4-label' }}">{{ child.label }}</h4>
+                    </a>
+                </ng-container>
+                <mat-divider></mat-divider>
+            </div>
+        </mat-list>
+        <div matRipple id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav"
+             class="main-sidenav-bottom" (click)="toggleSideNavigation()" [matRippleTrigger]="trigger" centered="true">
+            <mat-divider></mat-divider>
+            <div #trigger id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger"
+                 class="main-sidenav-button-trigger" matTooltip="Toggle">
+                <mat-icon *ngIf="!showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-forward">arrow_forward</mat-icon>
+                <mat-icon *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-mat-icon-arrow-back">arrow_back</mat-icon>
+                <span *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-div-sidenav-trigger-span-collapse">Collapse</span>
+            </div>
         </div>
-      </mat-list>
-      <div
-        class="main-sidenav-bottom"
-        (click)="toggleSideNavigation()"
-        matRipple
-        [matRippleTrigger]="trigger"
-        centered="true"
-      >
-      <mat-divider></mat-divider>
-        <div #trigger class="main-sidenav-button-trigger" matTooltip="Toggle">
-          <mat-icon *ngIf="!showLinkNames">arrow_forward</mat-icon>
-          <mat-icon *ngIf="showLinkNames">arrow_back</mat-icon>
-          <span *ngIf="showLinkNames">Collapse</span>
-        </div>
-      </div>
     </mat-drawer>
 
-    <div class="mat-drawer-main-content" >
-      <router-outlet></router-outlet>
+    <div class="mat-drawer-main-content">
+        <router-outlet id="app-top-navbar-mat-drawer-container-div-router-outlet"></router-outlet>
     </div>
 </mat-drawer-container>

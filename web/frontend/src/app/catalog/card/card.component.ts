@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+
 import { Chart } from '../interface/chart.interface';
 
 @Component({
@@ -7,17 +8,24 @@ import { Chart } from '../interface/chart.interface';
   styleUrls: ['./card.component.scss']
 })
 export class CardComponent {
+
+  // Unique ID passed from parent component to create unique element ids
+  @Input() uniqueHTMLID: string;
   @Input() chart: Chart;
   public color: string = '#e74c3c';
   public hoverColor: string = '#222222';
   public hovered: boolean = false;
 
   /**
-   *Creates an instance of CardComponent.
+   * Used for generating unique element id for html
+   *
+   * @param {string} passedID
+   * @returns {string}
    * @memberof CardComponent
    */
-  constructor() {
+  generateUniqueHTMLID(passedID: string): string {
 
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   /**
@@ -57,5 +65,4 @@ export class CardComponent {
   blue() {
     return "#3498db";
   }
-
 }

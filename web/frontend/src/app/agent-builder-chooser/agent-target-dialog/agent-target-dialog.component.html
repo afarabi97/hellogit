@@ -1,78 +1,101 @@
 <div mat-dialog-content>
   <mat-vertical-stepper [linear]=true>
-    <mat-step label="Configuration Name" [stepControl]="newTargetAgentForm">
+    <!-- Configuration Name -->
+    <mat-step id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name"
+              label="Configuration Name" [stepControl]="newTargetAgentForm">
       <form [formGroup]="newTargetAgentForm">
-      <mat-form-field>
-        <mat-label>Config Name</mat-label>
-        <input matInput formControlName="config_name">
-      </mat-form-field>
-        <mat-radio-group formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
-          <mat-radio-button value="ntlm" style="margin-bottom: 5px">WinRM NTLM</mat-radio-button>
+        <!-- Config Name -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-form-field-config-name">
+          <mat-label>Config Name</mat-label>
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-form-field-config-name-input" formControlName="config_name">
+        </mat-form-field>
+        <mat-radio-group id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group"
+                         formControlName="protocol" fxLayout="column" fxLayoutAlign="start start" (change)="changeStep($event)">
+          <mat-radio-button id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group-mat-radio-button-ntlm"
+                            value="ntlm" style="margin-bottom: 5px">WinRM NTLM</mat-radio-button>
           <!-- TODO Reimplement in 3.4 <mat-radio-button value="kerberos" style="margin-bottom: 5px">WinRM Kerberos (Experimental)</mat-radio-button> -->
-          <mat-radio-button value="smb">PSEXEC over SMB (Experimental)</mat-radio-button>
+          <mat-radio-button id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-configuration-name-form-mat-radio-group-mat-radio-button-smb"
+                            value="smb">PSEXEC over SMB (Experimental)</mat-radio-button>
         </mat-radio-group>
       </form>
     </mat-step>
-    <mat-step label="Kerberos Configuration" *ngIf="isKerberos" [stepControl]="kerberosForm">
+    <!-- Kerberos Configuration -->
+    <mat-step *ngIf="isKerberos" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration"
+              label="Kerberos Configuration" [stepControl]="kerberosForm">
       <form [formGroup]="kerberosForm">
-        <mat-form-field>
+        <!-- Port -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-port">
           <mat-label>Port</mat-label>
-          <input matInput formControlName="port">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-port-input" formControlName="port">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(kerberosForm, 'port') }}</mat-error>
-        <mat-form-field>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-port">{{ getErrorMessage(kerberosForm, 'port') }}</mat-error>
+        <!-- Windows DNS Suffix -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-windows-dns-suffix">
           <mat-label>Windows DNS Suffix</mat-label>
-          <input matInput formControlName="domain_name">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-windows-dns-suffix-input" formControlName="domain_name">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(kerberosForm, 'domain_name') }}</mat-error>
-        <mat-form-field>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-domain-name">{{ getErrorMessage(kerberosForm, 'domain_name') }}</mat-error>
+        <!-- Key Controller Hostname -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-key-controller-hostname">
           <mat-label>Key Controller Hostname</mat-label>
-          <input matInput formControlName="key_controller">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-key-controller-hostname-input" formControlName="key_controller">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(kerberosForm, 'key_controller') }}</mat-error>
-        <mat-form-field>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-key-controller">{{ getErrorMessage(kerberosForm, 'key_controller') }}</mat-error>
+        <!-- Admin Server Hostname -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-admin-server-hostname">
           <mat-label>Admin Server Hostname</mat-label>
-          <input matInput formControlName="admin_server">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-form-field-admin-server-hostname-input" formControlName="admin_server">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(kerberosForm, 'admin_server') }}</mat-error>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-kerberos-configuration-form-mat-error-admin-server">{{ getErrorMessage(kerberosForm, 'admin_server') }}</mat-error>
       </form>
     </mat-step>
-    <mat-step label="Protocol Configuration" *ngIf="isNegOrNTLM" [stepControl]="ntlmForm">
+    <!-- Protocol Configuration -->
+    <mat-step *ngIf="isNegOrNTLM" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration"
+              label="Protocol Configuration" [stepControl]="ntlmForm">
       <form [formGroup]="ntlmForm">
-        <mat-checkbox formControlName="is_ssl" (change)="changePortIfNotDirty($event)">SSL</mat-checkbox>
-        <mat-form-field>
+        <mat-checkbox id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-checkbox-ssl"
+                      formControlName="is_ssl" (change)="changePortIfNotDirty($event)">SSL</mat-checkbox>
+        <!-- Port -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-port">
           <mat-label>Port</mat-label>
-          <input matInput formControlName="port">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-port-input" formControlName="port">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(ntlmForm, 'port') }}</mat-error>
-        <p>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-error-port">{{ getErrorMessage(ntlmForm, 'port') }}</mat-error>
+        <p id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-p-dns-instructions">
           {{ dnsInstructions }}
         </p>
-        <mat-form-field>
+        <!-- Windows DNS Suffix -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-windows-dns-suffix">
           <mat-label>Windows DNS Suffix</mat-label>
-          <input matInput formControlName="domain_name">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-protocol-configuration-form-mat-form-field-windows-dns-suffix-input" formControlName="domain_name">
         </mat-form-field>
       </form>
     </mat-step>
-    <mat-step label="SMB Configuration" *ngIf="isSMB" [stepControl]="smbForm">
+    <!-- SMB Configuration -->
+    <mat-step *ngIf="isSMB" id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration"
+              label="SMB Configuration" [stepControl]="smbForm">
       <form [formGroup]="smbForm">
-        <mat-form-field>
+        <!-- Port -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-port">
           <mat-label>Port</mat-label>
-          <input matInput formControlName="port">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-port-input" formControlName="port">
         </mat-form-field>
-        <mat-error >{{ getErrorMessage(smbForm, 'port') }}</mat-error>
-        <p>
+        <mat-error id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-error-port">{{ getErrorMessage(smbForm, 'port') }}</mat-error>
+        <p id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-p-dns-instructions">
           {{ dnsInstructions }}
         </p>
-        <mat-form-field>
+        <!-- Windows DNS Suffix -->
+        <mat-form-field id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-windows-dns-suffix">
           <mat-label>Windows DNS Suffix</mat-label>
-          <input matInput formControlName="domain_name">
+          <input matInput id="agent-target-dialog-div-mat-dialog-content-mat-vertical-stepper-mat-step-smb-configuration-mat-form-field-windows-dns-suffix-input" formControlName="domain_name">
         </mat-form-field>
       </form>
     </mat-step>
   </mat-vertical-stepper>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
-  <button mat-raised-button color="primary" [disabled]="!isWizardValid()" (click)="submitAndClose()">Add Configuration</button>
+  <button mat-raised-button id="agent-target-dialog-button-cancel"
+          color="warn" (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button id="agent-target-dialog-button-add configuration"
+          color="primary" [disabled]="!isWizardValid()" (click)="submitAndClose()">Add Configuration</button>
 </div>

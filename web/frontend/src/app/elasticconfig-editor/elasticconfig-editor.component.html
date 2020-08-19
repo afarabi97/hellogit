@@ -6,21 +6,19 @@
     <mat-card-content>
       <div #outerCard fxLayout="row" fxLayoutAlign="start" style="overflow: auto;">
         <div class="line-numbers">
-            <div *ngFor="let item of numbers; let i = index">{{ i + 1 }}</div>
+          <div *ngFor="let item of numbers; let i = index" id="{{ 'app-elasticconfig-editor-div-mat-card-mat-card-content-div-div-div-' + i }}">{{ i + 1 }}</div>
         </div>
         <div class="text-area-wrapper">
-          <textarea #editorCard class="text-area" rows="500" cols="50" [(ngModel)]="text"></textarea>
+          <textarea #editorCard id="app-elasticconfig-editor-div-mat-card-mat-card-content-div-div-textarea-text" class="text-area" rows="500" cols="50" [(ngModel)]="text"></textarea>
         </div>
       </div>
     </mat-card-content>
     <mat-card-footer style="padding: 0em 2em 2em 2em;">
-      <button mat-raised-button color="warn" (click)="openCloseDialog()">
-        Close without Saving
+      <button mat-raised-button id="app-elasticconfig-editor-div-mat-card-mat-card-footer-button-close-without-saving"
+              color="warn" (click)="openCloseDialog()">Close without Saving
       </button>
-      <button mat-raised-button [disabled]="!controllerMaintainer"
-              color="primary" style="float: right;"
-              (click)="openSaveDialog()">
-        Save and Close
+      <button mat-raised-button id="app-elasticconfig-editor-div-mat-card-mat-card-footer-button-save-and-close"
+              [disabled]="!controllerMaintainer" color="primary" style="float: right;" (click)="openSaveDialog()">Save and Close
       </button>
     </mat-card-footer>
   </mat-card>

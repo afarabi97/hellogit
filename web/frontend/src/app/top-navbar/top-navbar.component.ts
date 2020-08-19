@@ -1,16 +1,17 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output } from '@angular/core';
-import { NotificationsComponent } from '../notifications/component/notifications.component';
-import { CookieService } from '../services/cookies.service';
-import { NavBarService } from './navbar.service';
-import { interval } from "rxjs";
-import { WebsocketService } from '../services/websocket.service';
-import { WeaponSystemNameService } from '../services/weapon-system-name.service';
-import { getSideNavigationButtons, NavGroup, NavLink } from './navigation';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { interval } from 'rxjs';
+
+import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { NotificationsComponent } from '../notifications/component/notifications.component';
+import { CookieService } from '../services/cookies.service';
+import { WeaponSystemNameService } from '../services/weapon-system-name.service';
+import { WebsocketService } from '../services/websocket.service';
 import { UserService } from '../user.service';
+import { NavBarService } from './navbar.service';
+import { getSideNavigationButtons, NavGroup } from './navigation';
 
 @Component({
   selector: 'app-top-navbar',
@@ -94,9 +95,7 @@ export class TopNavbarComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      let system_name = response.controls['dropdown'].value;
-      //Changes the system name once the dropdown is selected.
-      document.getElementById("sysname").innerHTML = system_name;
+      this.system_name = response.controls['dropdown'].value;
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxChange } from '@angular/material/checkbox'
 import { FormBuilder, FormControl,
@@ -23,7 +23,7 @@ export class AgentInstallerDialogComponent implements OnInit {
   newHostAgentForm: FormGroup;
   externalIPToolTip: string;
   endgame_server_reachable: boolean;
-  sensor_profiles: Array<{name: string, value: string}>
+  sensor_profiles: Array<{name: string, value: string}>;
 
   // Custom packages
   appConfigs: Array<AppConfig>;

@@ -1,42 +1,55 @@
 <div class="main-content2">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title> Docker Images </mat-card-title>
-    </mat-card-header>
-    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-    <mat-card-content>
-      <table mat-table [dataSource]="registry" aria-describedby="Docker registry table">
-        <ng-container matColumnDef="name">
-          <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let repo">{{ repo.name }}</td>
-        </ng-container>
-        <ng-container matColumnDef="tags">
-          <th scope="col" mat-header-cell *matHeaderCellDef>Tags</th>
-          <td mat-cell *matCellDef="let repo">
-            <p *ngFor="let meta of repo.metadata">
-              {{ meta.tag}}
-            </p>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="image_id">
-          <th scope="col" mat-header-cell *matHeaderCellDef>Image ID</th>
-          <td mat-cell *matCellDef="let repo">
-            <p *ngFor="let meta of repo.metadata">
-              {{ meta.image_id }}
-            </p>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="image_size">
-          <th scope="col" mat-header-cell *matHeaderCellDef>Image Size MB</th>
-          <td mat-cell *matCellDef="let repo">
-            <p *ngFor="let meta of repo.metadata">
-              {{ meta.image_size }}
-            </p>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columnsForImages"></tr>
-        <tr mat-row *matRowDef="let rowData; columns: columnsForImages"></tr>
-      </table>
-    </mat-card-content>
-  </mat-card>
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title> Docker Images </mat-card-title>
+        </mat-card-header>
+        <mat-progress-bar *ngIf="loading" id="app-registry-div-mat-card-mat-progress-bar" mode="indeterminate"></mat-progress-bar>
+        <mat-card-content>
+            <table mat-table [dataSource]="registry" aria-describedby="Docker registry table">
+                <!-- Name -->
+                <ng-container matColumnDef="name">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let repo; let i  = index;"
+                        id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-name' }}">{{ repo.name }}</td>
+                </ng-container>
+                <!-- Tags -->
+                <ng-container matColumnDef="tags">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Tags</th>
+                    <td mat-cell *matCellDef="let repo; let i = index;"
+                        id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-tags' }}">
+                        <p *ngFor="let meta of repo.metadata; let j = index;"
+                           id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-name-p-' + j + '-tag' }}">
+                            {{ meta.tag}}
+                        </p>
+                    </td>
+                </ng-container>
+                <!-- Image ID -->
+                <ng-container matColumnDef="image_id">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Image ID</th>
+                    <td mat-cell *matCellDef="let repo; let i = index;"
+                        id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-image-id' }}">
+                        <p *ngFor="let meta of repo.metadata; let j = index;"
+                           id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-image-id-p-' + j + '-id' }}">
+                            {{ meta.image_id }}
+                        </p>
+                    </td>
+                </ng-container>
+                <!-- Image Size -->
+                <ng-container matColumnDef="image_size">
+                    <th scope="col" mat-header-cell *matHeaderCellDef>Image Size MB</th>
+                    <td mat-cell *matCellDef="let repo; let i = index;"
+                        id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-image-size' }}">
+                        <p *ngFor="let meta of repo.metadata; let j = index;"
+                           id="{{ 'app-registry-div-mat-card-mat-card-content-table-td-' + i + '-image-size-p-' + j + '-size' }}">
+                            {{ meta.image_size }}
+                        </p>
+                    </td>
+                </ng-container>
+                <!-- Table Rows -->
+                <tr mat-header-row *matHeaderRowDef="columnsForImages"></tr>
+                <tr mat-row *matRowDef="let rowData; columns: columnsForImages; let i = index;"
+                    id="{{ 'app-registry-div-mat-card-mat-card-content-table-tr-mat-row-' + i }}"></tr>
+            </table>
+        </mat-card-content>
+    </mat-card>
 </div>

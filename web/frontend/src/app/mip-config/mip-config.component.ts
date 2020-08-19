@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ViewChild, Input } from '@angular/core';
 import { KickstartService } from '../system-setup/services/kickstart.service';
 import { forkJoin } from 'rxjs';
 import { MIPConfigNodeComponent } from '../mip-config-node/mip-config-node.component';
@@ -15,13 +15,12 @@ import { FormGroup, FormArray, FormControl } from '@angular/forms';
   }
 })
 export class MIPConfigComponent implements OnInit {
+  
+  @Input() uniqueHTMLID: string;
   nodes: any = null;
-
   loading: boolean;
-
   form: FormGroup;
   boot_drives: any;
-
   default_type = "CPT";
 
   @ViewChildren(MIPConfigNodeComponent) mipNodes: QueryList<MIPConfigNodeComponent>;
@@ -131,5 +130,16 @@ export class MIPConfigComponent implements OnInit {
   openConsole() {
     this.router.navigate(['/stdout/Mipconfig']);
   }
+
+  /**
+   * Used for generating unique element id for html
+   *
+   * @param {string} passedID
+   * @returns {string}
+   * @memberof MIPConfigComponent
+   */
+  generateUniqueHTMLID(passedID: string): string {
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+  }
 
 }

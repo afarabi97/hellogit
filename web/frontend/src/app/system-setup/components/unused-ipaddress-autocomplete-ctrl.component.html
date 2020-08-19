@@ -1,0 +1,22 @@
+<form>
+  <!-- Form Input -->
+  <mat-form-field id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input') }}">
+    <input matInput id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-input') }}"
+           type="text" placeholder="{{inputPlaceHolder}}" [formControl]="formControlInput" [matAutocomplete]="auto">
+    <mat-error *ngIf="matError" id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-mat-error') }}">{{matError}}</mat-error>
+    <mat-autocomplete #auto="matAutocomplete" id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-mat-autocomplete') }}">
+      <mat-option *ngFor="let option of filteredOptions | async; let i = index;"
+                  id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-mat-autocomplete-mat-option-' + i) }}" [value]="option">
+        {{option}}
+      </mat-option>
+    </mat-autocomplete>
+    <mat-icon matSuffix *ngIf="formControlInput.valid &&
+                               formControlInput.touched"
+              id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-mat-icon-check-circle') }}"
+              color="primary">check_circle</mat-icon>
+    <mat-icon matSuffix *ngIf="formControlInput.invalid &&
+                               formControlInput.touched"
+              id="{{ generateUniqueHTMLID('unused-ipaddress-autocomplete-ctrl-form-mat-form-field-form-input-mat-icon-error') }}"
+              color="warn">error</mat-icon>
+  </mat-form-field>
+</form>

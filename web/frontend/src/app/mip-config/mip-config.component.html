@@ -7,7 +7,6 @@
                     Instructions
                 </mat-card-title>
             </mat-card-header>
-    
             <mat-card-content>
                 <ul>
                     <li>Wait for the controller to gather facts for the MIPs that were Kickstarted.</li>
@@ -16,95 +15,97 @@
                     <li>When you are ready click the "Run Playbook" button.</li>
                 </ul>
             </mat-card-content>
-    
             <mat-card-actions>
-                <button mat-raised-button color="primary" (click)="openConsole()">
-                  Open Console
+                <button mat-raised-button id="app-mip-config-div-mat-card-mat-card-actions-button-open-console"
+                        color="primary" (click)="openConsole()">Open Console
                 </button>
-    
                 <div class="form-controls">
-                    <button [disabled]="loading" mat-raised-button color="accent" (click)="onEnable()">Enable</button>
-                    <button [disabled]="loading || form.disabled" mat-raised-button color="warn" (click)="onClear()">Clear</button>
+                    <button mat-raised-button id="app-mip-config-div-mat-card-mat-card-actions-div-button-enable"
+                            [disabled]="loading" color="accent" (click)="onEnable()">Enable</button>
+                    <button mat-raised-button id="app-mip-config-div-mat-card-mat-card-actions-div-button-clear"
+                            [disabled]="loading || form.disabled" color="warn" (click)="onClear()" >Clear</button>
                 </div>
             </mat-card-actions>
         </mat-card>
-    
         <br>
-    
+        <!-- Select Operator Type [CPT or MDT] -->
         <mat-card>
             <mat-card-header>
                 <mat-card-title>
                     <div fxLayout="row" fxLayoutAlign="space-between none">
                         <div>Operator Type</div>
-                        <mat-radio-group formControlName="type">
-                            <mat-radio-button value="CPT">CPT</mat-radio-button>
-                            <mat-radio-button value="MDT">MDT</mat-radio-button>
+                        <mat-radio-group id="app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-radio-group" formControlName="type">
+                            <mat-radio-button id="app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-radio-group-mat-radio-button-cpt" value="CPT">CPT</mat-radio-button>
+                            <mat-radio-button id="app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-radio-group-mat-radio-button-mdt" value="MDT">MDT</mat-radio-button>
                         </mat-radio-group>
                     </div>
                 </mat-card-title>
             </mat-card-header>
         </mat-card>
-        
         <br>
-
+        <!-- Select Passwords -->
         <mat-card>
             <mat-card-header>
                 <mat-card-title>
                     <div fxLayout="row" fxLayoutAlign="space-between none">
                         <div>Passwords</div>
-                        <mat-checkbox #singlePassword formControlName="singlePassword" matTooltip="Uncheck to specify the password for users individually." class="mat-body-1">Use same password</mat-checkbox>
+                        <mat-checkbox #singlePassword id="app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-checkbox-use-same-password"
+                                      formControlName="singlePassword" matTooltip="Uncheck to specify the password for users individually."
+                                      class="mat-body-1">Use same password</mat-checkbox>
                     </div>
                 </mat-card-title>
             </mat-card-header>
-
             <mat-card-content>
-                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="assessor_pw"></app-mip-config-password>
-                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="usaf_admin_pw"></app-mip-config-password>
-                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="admin_pw"></app-mip-config-password>
-                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="auditor_pw"></app-mip-config-password>
-                <app-mip-config-password [enabled]="!singlePassword.checked" [hidden]="singlePassword.checked" [form]="form" name="maintainer_pw"></app-mip-config-password>
-                <app-mip-config-password #global [enabled]="singlePassword.checked" [hidden]="singlePassword.checked ? false : true" [form]="form" name="global_pw"></app-mip-config-password>
+                <app-mip-config-password id="app-mip-config-div-mat-card-mat-card-content-app-config-password-assessor-pw"
+                                         [uniqueHTMLID]="'app-mip-config-assessor'" [enabled]="!singlePassword.checked"
+                                         [hidden]="singlePassword.checked" [form]="form" name="assessor_pw"></app-mip-config-password>
+                <app-mip-config-password id="app-mip-config-div-mat-card-mat-card-content-app-config-password-usaf-admin-pw"
+                                         [uniqueHTMLID]="'app-mip-config-usaf-admin'" [enabled]="!singlePassword.checked"
+                                         [hidden]="singlePassword.checked" [form]="form" name="usaf_admin_pw"></app-mip-config-password>
+                <app-mip-config-password id="app-mip-config-div-mat-card-mat-card-content-app-config-password-admin-pw"
+                                         [uniqueHTMLID]="'app-mip-config-admin'" [enabled]="!singlePassword.checked"
+                                         [hidden]="singlePassword.checked" [form]="form" name="admin_pw"></app-mip-config-password>
+                <app-mip-config-password id="app-mip-config-div-mat-card-mat-card-content-app-config-password-auditor-pw"
+                                         [uniqueHTMLID]="'app-mip-config-auditor'" [enabled]="!singlePassword.checked"
+                                         [hidden]="singlePassword.checked" [form]="form" name="auditor_pw"></app-mip-config-password>
+                <app-mip-config-password id="app-mip-config-div-mat-card-mat-card-content-app-config-password-maintainer-pw"
+                                         [uniqueHTMLID]="'app-mip-config-maintainer'" [enabled]="!singlePassword.checked"
+                                         [hidden]="singlePassword.checked" [form]="form" name="maintainer_pw"></app-mip-config-password>
+                <app-mip-config-password #global id="app-mip-config-div-mat-card-mat-card-content-app-config-password-global-pw"
+                                         [uniqueHTMLID]="'app-mip-config-global'" [enabled]="singlePassword.checked"
+                                         [hidden]="singlePassword.checked ? false : true" [form]="form" name="global_pw"></app-mip-config-password>
             </mat-card-content>
-
-
         </mat-card>
-
         <br>
-
         <!-- Nodes -->
         <mat-card>
             <mat-card-header>
                 <mat-card-title>MIPs</mat-card-title>
             </mat-card-header>
-    
             <mat-card-content fxLayout="column">
                 <mat-accordion multi="true">
-                    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-                    <mat-expansion-panel expanded="true" *ngFor="let node of nodes; let i = index">
+                    <mat-progress-bar *ngIf="loading" id="app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-progress-bar" mode="indeterminate"></mat-progress-bar>
+                    <mat-expansion-panel *ngFor="let node of nodes; let i = index;" id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i }}" expanded="true">
                         <mat-expansion-panel-header>
-                            <mat-panel-title>MIP {{ i + 1 }}</mat-panel-title>
+                            <mat-panel-title id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-mat-expansion-panel-header-mat-panel-title' }}">MIP {{ i + 1 }}</mat-panel-title>
                         </mat-expansion-panel-header>
-                
                         <ng-container *ngIf="!node?.error_message">
-                            <app-mip-config-node [form]="form" [boot_drive]="boot_drives[node['hostname']]" [node]="node"></app-mip-config-node>
+                            <app-mip-config-node id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-app-mip-config-node' }}"
+                                                 [form]="form" [boot_drive]="boot_drives[node['hostname']]" [node]="node"></app-mip-config-node>
                         </ng-container>
-    
                         <ng-container *ngIf="node?.error_message">
-                            Something bad happened.
+                            <span id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-span-error' }}">Something bad happened.</span>
                         </ng-container>
-    
                     </mat-expansion-panel>
                 </mat-accordion>
             </mat-card-content>
-    
             <mat-card-actions>
-                <button [disabled]="form.disabled || form.invalid" mat-raised-button [disabled]="nodes ? false : true" (click)="runPlaybook()">Run Playbook</button>
+                <button mat-raised-button id="app-mip-config-div-mat-card-mat-card-actions-button-run-playbook"
+                        [disabled]="form.disabled || form.invalid" (click)="runPlaybook()">Run Playbook</button>
             </mat-card-actions>
         </mat-card>
-        
         <br>
-
         <!-- Validation -->
-        <app-mip-config-validation [form]="form"></app-mip-config-validation>
+        <app-mip-config-validation id="app-mip-config-div-mat-card-app-mip-config-validation" [form]="form"></app-mip-config-validation>
     </div>
 </ng-container>

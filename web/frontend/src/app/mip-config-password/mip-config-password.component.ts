@@ -1,5 +1,6 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { validateFromArray } from '../validators/generic-validators.validator';
 
 @Component({
@@ -11,12 +12,13 @@ import { validateFromArray } from '../validators/generic-validators.validator';
   }
 })
 export class MIPConfigPasswordComponent implements OnInit, OnChanges {
+
+    // Unique ID passed from parent component to create unique element ids
+    @Input() uniqueHTMLID: string;
     @Input() form: FormGroup;
     @Input() name: string;
     @Input() enabled: boolean;
-
     password_index: number;
-
     password: FormControl;
     confirm_password: FormControl;
     private group: FormGroup;
@@ -31,8 +33,20 @@ export class MIPConfigPasswordComponent implements OnInit, OnChanges {
                 this.group.enable();
             } else {
                 this.group.disable();
-            }  
+            }
         }
+    }
+
+    /**
+     * Used for generating unique element id for html
+     *
+     * @param {string} passedID
+     * @returns {string}
+     * @memberof CardComponent
+     */
+    generateUniqueHTMLID(passedID: string): string {
+
+      return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
     }
 
     private capitalize(string: string) {

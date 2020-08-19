@@ -1,29 +1,43 @@
-<h2 mat-dialog-title>{{ title | capitalizeFirst }}</h2>
+<h2 mat-dialog-title id="app-modal-dialog-mat-h2-title">{{ title | capitalizeFirst }}</h2>
 <div mat-dialog-content [formGroup]="dialogForm">
-  <p>{{ instructions }}</p>
-  <ng-container *ngFor="let control of objectValues(dialogForm.controls)">
-    <mat-form-field *ngIf="isTextInput(control)">
-      <mat-label>{{ control.label }}</mat-label>
-      <input matInput [formControl]="control" matTooltip="{{ control.tooltip }}">
-    </mat-form-field>
-    <mat-form-field *ngIf="isTextArea(control)">
-      <mat-label>{{ control.label }}</mat-label>
-      <textarea matInput [formControl]="control" matTooltip="{{ control.tooltip }}" rows="10"></textarea>
-    </mat-form-field>
-    <mat-form-field *ngIf="isPasswordInput(control)">
-      <mat-label>{{ control.label }}</mat-label>
-      <input matInput [formControl]="control" matTooltip="{{ control.tooltip }}" type="password">
-    </mat-form-field>
-    <mat-form-field *ngIf="isDropDown(control)">
-      <mat-select [formControl]="control">
-        <mat-option *ngFor="let option of control.options" [value]="option">{{ option }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-error >{{ getErrorMessage(control) }}</mat-error>
-    <app-date-time *ngIf="isDateInput(control)" [datetime]="control" [timezone]="getTimezoneControl()" placeholder="Current Date & Time"></app-date-time>
-  </ng-container>
+    <p id="app-modal-dialog-mat-div-p-instructions">{{ instructions }}</p>
+    <ng-container *ngFor="let control of objectValues(dialogForm.controls); let i = index;">
+        <!-- Text Input -->
+        <mat-form-field *ngIf="isTextInput(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-textinput' }}">
+            <mat-label id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-textinput-mat-label' }}">{{ control.label }}</mat-label>
+            <input matInput id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-textinput-input' }}"
+                   [formControl]="control" matTooltip="{{ control.tooltip }}">
+        </mat-form-field>
+        <!-- Text Textarea -->
+        <mat-form-field *ngIf="isTextArea(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-texttextarea' }}">
+            <mat-label id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-texttextarea-mat-label' }}">{{ control.label }}</mat-label>
+            <textarea matInput id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-texttextarea-textarea' }}"
+                      [formControl]="control" matTooltip="{{ control.tooltip }}" rows="10"></textarea>
+        </mat-form-field>
+        <!-- Password Input -->
+        <mat-form-field *ngIf="isPasswordInput(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-passwordinput' }}">
+            <mat-label id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-passwordinput-mat-label' }}">{{ control.label }}</mat-label>
+            <input matInput id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-passwordinput-input' }}"
+                   [formControl]="control" matTooltip="{{ control.tooltip }}" type="password">
+        </mat-form-field>
+        <!-- Select -->
+        <mat-form-field *ngIf="isDropDown(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-select' }}">
+            <mat-select id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-select-mat-select' }}" [formControl]="control">
+                <mat-option *ngFor="let option of control.options; let j = index;"
+                            id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-form-field-select-mat-select-mat-option-' + j }}"
+                            [value]="option">{{ option }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-error id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-error' }}">{{ getErrorMessage(control) }}</mat-error>
+        <app-date-time *ngIf="isDateInput(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-app-date-time' }}"
+                       [uniqueHTMLID]="'app-modal-dialog-mat'" [datetime]="control" [timezone]="getTimezoneControl()"
+                       placeholder="Current Date & Time"></app-date-time>
+    </ng-container>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="submitAndClose()" [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
+    <button mat-raised-button id="app-modal-dialog-mat-div-button-cancel"
+            color="warn" (click)="onNoClick()">Cancel</button>
+    <button mat-raised-button id="app-modal-dialog-mat-div-button-confirm"
+            color="primary" (click)="submitAndClose()"
+            [disabled]="!dialogForm.valid">{{ confirmBtnText }}</button>
 </div>

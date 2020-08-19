@@ -1,0 +1,25 @@
+<div fxLayoutGap="10px">
+    <!-- Picker Update -->
+  <mat-form-field id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-picker-update') }}">
+    <!-- Datepicker requires an input be attached to it. So we'll give it a fake one -->
+    <!-- We have to give it a fake one otherwise it will override the time fields in our date-->
+    <input hidden id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-picker-update-input-picker-hidden') }}"
+           [matDatepicker]="picker" (dateChange)="pickerUpdate($event)" [disabled]="isDisabled"/>
+    <input matInput id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-picker-update-input-datetime') }}"
+           [value]="value | date:format" (change)="textChange($event)" [formControl]="datetime" placeholder="{{placeholder}}"/>
+    <mat-datepicker-toggle matSuffix id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-picker-update-mat-datepicker-toggle') }}" [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-picker-update-mat-datepicker') }}"></mat-datepicker>
+    <mat-error>Invalid Date provided</mat-error>
+    <mat-hint *ngIf="!!mandatoryTime">Time of day cannot be changed</mat-hint>
+  </mat-form-field>
+  <!-- Time Zone -->
+  <mat-form-field id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-timezone') }}">
+    <mat-label>Time Zone</mat-label>
+    <mat-select id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-timezone-mat-select') }}"
+                [formControl]="timezone" (selectionChange)="changeDateTime($event)">
+      <mat-option *ngFor="let timezone of timeZones; let i = index;"
+                  id="{{ generateUniqueHTMLID('app-date-time-div-mat-form-field-timezone-mat-select-mat-option-'+ i) }}"
+                  value="{{timezone}}">{{timezone}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

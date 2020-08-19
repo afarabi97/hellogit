@@ -1,3 +1,4 @@
-<div class="list-item" *ngFor="let chart of charts" >
-  <app-card [chart]="chart" (click)="onSelectCard(chart)"></app-card>
+<div *ngFor="let chart of charts; let i = index;" class="list-item">
+  <app-card id="{{ 'app-chart-list-div-app-card-' + i }}"
+            [uniqueHTMLID]="'app-chart-list-' + i" [chart]="chart" (click)="onSelectCard(chart)"></app-card>
 </div>

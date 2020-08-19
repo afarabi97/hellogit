@@ -1,19 +1,21 @@
 <mat-list>
   <mat-list-item>
     <mat-icon mat-list-icon>developer_board</mat-icon>
-    <h4 mat-line>CPU Cores Available: {{ serverResource?.cpuCoresAvailable }} </h4>
+    <h4 mat-line id="app-total-server-resources-card-mat-list-mat-list-item-developer-board-h4-cpu-cores-available">CPU Cores Available: {{ serverResource?.cpuCoresAvailable }} </h4>
   </mat-list-item>
 
   <mat-list-item>
     <mat-icon mat-list-icon>memory</mat-icon>
-    <h4 mat-line>Memory Available: {{ serverResource?.memoryAvailable | number:'1.0-2' }} GB </h4>
+    <h4 mat-line id="app-total-server-resources-card-mat-list-mat-list-item-memory-h4-memory-available">Memory Available: {{ serverResource?.memoryAvailable | number:'1.0-2' }} GB </h4>
   </mat-list-item>
 
   <mat-list-item>
     <mat-icon mat-list-icon>search</mat-icon>
     <h4 mat-line>Storage Available:
-      <span *ngIf="serverResource?.clusterStorageAvailable_tb < 1">{{serverResource?.clusterStorageAvailable_gb | number: "1.0-2" }} GB</span>
-      <span *ngIf="serverResource?.clusterStorageAvailable_tb > 1">{{serverResource?.clusterStorageAvailable_tb | number: "1.0-2" }} TB</span>
+      <span *ngIf="serverResource?.clusterStorageAvailable_tb < 1"
+            id="app-total-server-resources-card-mat-list-mat-list-item-search-h4-cores-available-span-tb-less1">{{serverResource?.clusterStorageAvailable_gb | number: "1.0-2" }} GB</span>
+      <span *ngIf="serverResource?.clusterStorageAvailable_tb > 1"
+            id="app-total-server-resources-card-mat-list-mat-list-item-search-h4-cores-available-span-tb-great1">{{serverResource?.clusterStorageAvailable_tb | number: "1.0-2" }} TB</span>
     </h4>
   </mat-list-item>
 </mat-list>

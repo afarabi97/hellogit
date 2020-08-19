@@ -1,8 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDatepickerInputEvent, MatSelectChange } from '@angular/material';
-
 
 export const TIMEZONES = [
   'UTC',
@@ -36,33 +35,7 @@ export function getCurrentDate(timezone: string='UTC') {
 
 @Component({
     selector: 'app-date-time',
-    template: `
-     <div fxLayoutGap="10px">
-      <mat-form-field>
-        <!-- Datepicker requires an input be attached to it. So we'll give it a fake one -->
-        <!-- We have to give it a fake one otherwise it will override the time fields in our date-->
-        <input [matDatepicker]="picker" hidden (dateChange)="pickerUpdate($event)" [disabled]="isDisabled"/>
-        <input
-          matInput
-          [value]="value | date:this.format"
-          (change)="textChange($event)"
-          [formControl]="datetime"
-          placeholder="{{placeholder}}"
-
-        />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <mat-error>Invalid Date provided</mat-error>
-        <mat-hint *ngIf="!!mandatoryTime">Time of day cannot be changed</mat-hint>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Time Zone</mat-label>
-        <mat-select [formControl]="timezone" (selectionChange)="changeDateTime($event)">
-            <mat-option value="{{timezone}}" *ngFor="let timezone of timeZones">{{timezone}}</mat-option>
-        </mat-select>
-        </mat-form-field>
-    </div>
-    `,
+    templateUrl: './date-time.component.html',
     providers: [{
         provide: NG_VALUE_ACCESSOR,
         useExisting: DateTimeComponent,
@@ -70,6 +43,8 @@ export function getCurrentDate(timezone: string='UTC') {
     }]
 })
 export class DateTimeComponent implements OnChanges {
+    // Unique ID passed from parent component to create unique element ids
+    @Input() uniqueHTMLID: string;
     public timeZones = TIMEZONES;
     public value: Date = null;
     private showPicker = false;
@@ -94,6 +69,18 @@ export class DateTimeComponent implements OnChanges {
          this._changeDateTime();
          this.writeValue(this.value);
       }
+    }
+
+    /**
+     * Used for generating unique element id for html
+     *
+     * @param {string} passedID
+     * @returns {string}
+     * @memberof DateTimeComponent
+     */
+    generateUniqueHTMLID(passedID: string): string {
+
+      return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
     }
 
     private _changeDateTime(timezonestr: string="UTC"){

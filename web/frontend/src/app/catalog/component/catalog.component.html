@@ -1,4 +1,4 @@
-<div >
+<div>
   <section class="charts" style="margin-bottom: 60px;">
       <header class="charts__header">
         <div class="charts__header__block">
@@ -8,14 +8,19 @@
         </div>
       </header>
       <div fxLayout="column" fxLayoutAlign="space-between center">
-        <mat-slide-toggle #pmoElement (change)="pmoToggle($event)" [checked]="showCharts['pmo']" style="margin-right:43px; margin-bottom: 15px;">PMO Applications</mat-slide-toggle>
-        <mat-slide-toggle #commElement (change)="communityToggle($event)" [checked]="showCharts['comm']" >Community Applications</mat-slide-toggle>
+        <mat-slide-toggle #pmoElement id="app-catalog-div-section-div-mat-slide-toggle-pmo-applications"
+                          (change)="pmoToggle($event)" [checked]="showCharts['pmo']" style="margin-right:43px; margin-bottom: 15px;">PMO Applications</mat-slide-toggle>
+        <mat-slide-toggle #commElement id="app-catalog-div-section-div-mat-slide-toggle-community-applications"
+                          (change)="communityToggle($event)" [checked]="showCharts['comm']">Community Applications</mat-slide-toggle>
       </div>
       <div *ngIf="_CatalogService.isLoading">
-        <app-chart-list class="charts__gallery__content" [charts]="filteredCharts" fxLayout="row" fxLayoutAlign="space-evenly center"></app-chart-list>
+        <app-chart-list id="app-catalog-div-section-div-app-chart-list"
+                        class="charts__gallery__content" fxLayout="row" fxLayoutAlign="space-evenly center"
+                        [charts]="filteredCharts"></app-chart-list>
       </div>
       <div *ngIf="!_CatalogService.isLoading">
-          <mat-progress-bar mode="indeterminate" style="margin-top: 80px"></mat-progress-bar>
+        <mat-progress-bar id="app-catalog-div-section-div-mat-progress-bar"
+                          mode="indeterminate" style="margin-top: 80px"></mat-progress-bar>
       </div>
   </section>
 </div>

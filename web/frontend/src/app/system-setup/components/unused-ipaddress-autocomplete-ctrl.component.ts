@@ -1,45 +1,20 @@
-import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
+
 @Component({
   selector: 'unused-ipaddress-autocomplete-ctrl',
-  template: `
-    <form>
-    <mat-form-field>
-      <input type="text" placeholder="{{inputPlaceHolder}}" matInput [formControl]="formControlInput" [matAutocomplete]="auto">
-      <mat-error *ngIf="matError">{{matError}}</mat-error>
-      <mat-autocomplete #auto="matAutocomplete">
-        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-          {{option}}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-icon
-      *ngIf="
-      formControlInput.valid &&
-      formControlInput.touched
-      "
-      matSuffix
-      color="primary"
-      >check_circle</mat-icon>
-    <mat-icon
-      *ngIf="
-      formControlInput.invalid &&
-      formControlInput.touched
-      "
-      matSuffix
-      color="warn"
-      >error</mat-icon>
-    </mat-form-field>
-  </form>
-  `,
+  templateUrl: './unused-ipaddress-autocomplete-ctrl.component.html',
   styles: [`
-        mat-form-field{
-            width:100%
-        }
+    mat-form-field{
+        width:100%
+    }
   `]
 })
 export class UnusedIpAddressAutoCompleteComponent implements OnChanges {
+  // Unique ID passed from parent component to create unique element ids
+  @Input() uniqueHTMLID: string;
   @Input() formControlInput: FormControl = new FormControl();
   @Input() options: string[] = [];
   @Input() inputPlaceHolder: string;
@@ -58,6 +33,18 @@ export class UnusedIpAddressAutoCompleteComponent implements OnChanges {
           map(value => this._filter(value))
         );
     }
+  }
+
+  /**
+   * Used for generating unique element id for html
+   *
+   * @param {string} passedID
+   * @returns {string}
+   * @memberof UnusedIpAddressAutoCompleteComponent
+   */
+  generateUniqueHTMLID(passedID: string): string {
+
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   private _filter(value: string): string[] {

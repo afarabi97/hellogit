@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ title | capitalizeFirst }}</h2>
+<h2 mat-dialog-title id="app-modal-table-div-title">{{ title | capitalizeFirst }}</h2>
 <div mat-dialog-content>
   <table class="table mat-table" aria-describedby="Container information table">
     <thead>
@@ -11,16 +11,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let container of pod['spec']['containers']" class="mat-row ng-star-inserted">
-        <td class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ container.name }}</td>
-        <td class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getRequest(container, 'cpu') }}</td>
-        <td class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getRequest(container, 'memory') }}</td>
-        <td class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getLimit(container, 'cpu') }}</td>
-        <td class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getLimit(container, 'memory') }}</td>
+      <tr *ngFor="let container of pod['spec']['containers']; let i = index;"
+          id="{{ 'app-modal-table-div-table-tbody-tr-' + i }}"
+          class="mat-row ng-star-inserted">
+        <td id="{{ 'app-modal-table-div-table-tbody-tr-' + i + '-td-container-name' }}" class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ container.name }}</td>
+        <td id="{{ 'app-modal-table-div-table-tbody-tr-' + i + '-td-cpu' }}" class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getRequest(container, 'cpu') }}</td>
+        <td id="{{ 'app-modal-table-div-table-tbody-tr-' + i + '-td-memory' }}" class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getRequest(container, 'memory') }}</td>
+        <td id="{{ 'app-modal-table-div-table-tbody-tr-' + i + '-td-cpu-limit' }}" class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getLimit(container, 'cpu') }}</td>
+        <td id="{{ 'app-modal-table-div-table-tbody-tr-' + i + '-td-memory-limit' }}" class="mat-cell cdk-column-Enabled mat-column-Enabled ng-star-inserted">{{ getLimit(container, 'memory') }}</td>
       </tr>
     </tbody>
   </table>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button (click)="onNoClick()">Close</button>
+  <button mat-raised-button id="app-modal-table-div-button-close" (click)="onNoClick()">Close</button>
 </div>

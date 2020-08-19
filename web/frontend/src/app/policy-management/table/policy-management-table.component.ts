@@ -298,7 +298,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     this.policySrv.syncRuleSets().subscribe(data => {
       this.displaySnackBar("Started Rule Sync. Open the notification dialog on the left to see its progress.");
     }, err => {
-      this.displaySnackBar("Failed to start the rule sync. Check logs in /var/log/tfplenum/ for more details.");;
+      this.displaySnackBar("Failed to start the rule sync. Check logs in /var/log/tfplenum/ for more details.");
     });
   }
 

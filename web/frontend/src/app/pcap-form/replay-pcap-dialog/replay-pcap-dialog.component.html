@@ -3,27 +3,35 @@
      fxLayout="column" fxLayoutAlign="start stretch"
      style="overflow: unset;">
     <p>Executing this form will replay the selected PCAP on the selected Sensor. Are you sure you want to do this?</p>
-    <mat-form-field>
-      <input matInput placeholder="Selected PCAP" type="text" id="name" formControlName="pcap" required>
+    <!-- PCAP -->
+    <mat-form-field id="replay-pcap-dialog-div-mat-form-field-pcap">
+      <input matInput id="replay-pcap-dialog-div-mat-form-field-pcap-input"
+             placeholder="Selected PCAP" type="text" formControlName="pcap" required>
     </mat-form-field>
-    <mat-form-field>
+    <!-- Sensor Hostname -->
+    <mat-form-field id="replay-pcap-dialog-div-mat-form-field-sensor-hostname">
       <mat-label>Sensor hostname</mat-label>
-      <mat-select formControlName="sensor" (selectionChange)="changeIfaceValues($event)">
-        <mat-option *ngFor="let sensor of selectableSensors" [value]="sensor.management_ip">
+      <mat-select id="replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select" formControlName="sensor" (selectionChange)="changeIfaceValues($event)">
+        <mat-option *ngFor="let sensor of selectableSensors; let i = index;"
+                    id="{{ 'replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select-mat-option-' + i }}" [value]="sensor.management_ip">
           {{ sensor.hostname }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-error >{{ getErrorMessage(pcapForm.get('sensor')) }}</mat-error>
-    <mat-form-field>
-      <mat-select formControlName="ifaces" multiple matToolTip="These are the interfaces that the PCAP will replay on. If you select multiple Ifaces, the PCAP will be replayed on each iface selected.">
-        <mat-option *ngFor="let iface of selectableIfaces" [value]="iface">{{ iface }}</mat-option>
+    <mat-error id="replay-pcap-dialog-div-mat-error-sensor-hostname">{{ getErrorMessage(pcapForm.get('sensor')) }}</mat-error>
+    <!-- ifaces -->
+    <mat-form-field id="replay-pcap-dialog-div-mat-form-field-iface">
+      <mat-select id="replay-pcap-dialog-div-mat-form-field-iface-mat-select"
+                  formControlName="ifaces" multiple matToolTip="These are the interfaces that the PCAP will replay on. If you select multiple Ifaces, the PCAP will be replayed on each iface selected.">
+        <mat-option *ngFor="let iface of selectableIfaces; let j = index;"
+                    id="{{ 'replay-pcap-dialog-div-mat-form-field-iface-mat-select-mat-option-' + j }}" [value]="iface">{{ iface }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-error >{{ getErrorMessage(pcapForm.get('ifaces')) }}</mat-error>
+    <mat-error id="replay-pcap-dialog-div-mat-error-iface">{{ getErrorMessage(pcapForm.get('ifaces')) }}</mat-error>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button color="warn" (click)="onNoClick()">Cancel</button>
-  <button mat-raised-button color="primary" [disabled]="!pcapForm.valid"
-          (click)="onSubmit()" cdkFocusInitial>Execute</button>
+  <button mat-raised-button id="replay-pcap-dialog-div-button-cancel"
+          color="warn" (click)="onNoClick()">Cancel</button>
+  <button mat-raised-button cdkFocusInitial id="replay-pcap-dialog-div-button-execute"
+          color="primary" [disabled]="!pcapForm.valid" (click)="onSubmit()">Execute</button>
 </div>

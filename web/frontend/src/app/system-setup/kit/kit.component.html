@@ -27,13 +27,13 @@
       </mat-card-content>
 
       <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-stroked-button color="primary" (click)="openConsole()">
-          Open Console
-        </button>
+        <button mat-stroked-button id="app-kit-form-div-mat-card-mat-card-actions-button-open-console"
+                color="primary" (click)="openConsole()">Open Console</button>
         <div>
-          <button mat-stroked-button color="warn" (click)="clearkitFormGroup()"
-            [disabled]="kitFormGroup.disabled">Clear</button>
-          <button mat-raised-button color="primary" (click)="kitFormGroup.enable()">Enable</button>
+          <button mat-stroked-button id="app-kit-form-div-mat-card-mat-card-actions-button-clear"
+                  color="warn" (click)="clearkitFormGroup()" [disabled]="kitFormGroup.disabled">Clear</button>
+          <button mat-raised-button id="app-kit-form-div-mat-card-mat-card-actions-button-enable"
+                  color="primary" (click)="kitFormGroup.enable()">Enable</button>
         </div>
       </mat-card-actions>
     </mat-card>
@@ -44,47 +44,46 @@
         <mat-card-title>Kubernetes</mat-card-title>
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutAlign="center stretch">
-        <unused-ipaddress-autocomplete-ctrl [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')"
-          matTooltip="{{ getTooltip('kubernetes_services_cidr') }}" [options]="avaiable_ip_addrs"
-          inputPlaceHolder='Kubernetes Service IP Range Start'
-          [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
+        <unused-ipaddress-autocomplete-ctrl id="app-kit-form-div-mat-card-mat-card-content-unused-ipaddress-autocomplete-ctrl"
+                                            [uniqueHTMLID]="'app-kit-form'" [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')" matTooltip="{{ getTooltip('kubernetes_services_cidr') }}"
+                                            [options]="avaiable_ip_addrs" inputPlaceHolder='Kubernetes Service IP Range Start' [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
         </unused-ipaddress-autocomplete-ctrl>
-        <mat-hint> {{ kubernetesInputEvent() }}</mat-hint>
+        <mat-hint id="app-kit-form-div-mat-card-mat-card-content-mat-hint-kubernetes-input-event">{{ kubernetesInputEvent() }}</mat-hint>
       </mat-card-content>
     </mat-card>
     <br>
     <!-- Resources -->
     <div style="width:100%; border-right: 1px solid black; border-left: 1px solid black;">
       <div fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="10px">
-      <mat-card style="border-left: none;">
-        <mat-card-header>
-          <mat-card-title>Total System Resources</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <app-total-system-resource-card [nodes]="kitFormGroup.get('nodes')">
-          </app-total-system-resource-card>
-        </mat-card-content>
-      </mat-card>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Total Server Resources</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <app-total-server-resources-card [nodes]="kitFormGroup.get('nodes')">
-          </app-total-server-resources-card>
-        </mat-card-content>
-      </mat-card>
-      <ng-container *ngIf="system_name === 'DIP'">
-        <mat-card style="border-right: none;">
+        <mat-card style="border-left: none;">
           <mat-card-header>
-            <mat-card-title>Total Sensor Resources</mat-card-title>
+            <mat-card-title>Total System Resources</mat-card-title>
           </mat-card-header>
-          <mat-card-content style="height: 70%;">
-            <app-total-sensor-resources-card [nodes]="kitFormGroup.get('nodes')">
-            </app-total-sensor-resources-card>
+          <mat-card-content>
+            <app-total-system-resource-card id="app-kit-form-div-div-div-mat-card-mat-card-content-app-total-system-resource-card"
+                                            [nodes]="kitFormGroup.get('nodes')"></app-total-system-resource-card>
           </mat-card-content>
         </mat-card>
-      </ng-container>
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Total Server Resources</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <app-total-server-resources-card id="app-kit-form-div-div-div-mat-card-mat-card-content-app-total-server-resource-card"
+                                             [nodes]="kitFormGroup.get('nodes')"></app-total-server-resources-card>
+          </mat-card-content>
+        </mat-card>
+        <ng-container *ngIf="system_name === 'DIP'">
+          <mat-card style="border-right: none;">
+            <mat-card-header>
+              <mat-card-title>Total Sensor Resources</mat-card-title>
+            </mat-card-header>
+            <mat-card-content style="height: 70%;">
+              <app-total-sensor-resources-card id="app-kit-form-div-div-div-mat-card-mat-card-content-app-total-sensor-resource-card"
+                                               [nodes]="kitFormGroup.get('nodes')"></app-total-sensor-resources-card>
+            </mat-card-content>
+          </mat-card>
+        </ng-container>
       </div>
     </div>
     <br>
@@ -94,22 +93,26 @@
         <mat-card-title>Nodes</mat-card-title>
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
-        <mat-progress-bar mode="indeterminate" *ngIf="isGettingDeviceFacts"></mat-progress-bar>
+        <mat-progress-bar *ngIf="isGettingDeviceFacts" id="app-kit-form-mat-card-mat-card-content-mat-progress-bar" mode="indeterminate"></mat-progress-bar>
         <mat-accordion multi="true" formArrayName="nodes">
-          <mat-expansion-panel expanded="true" *ngFor="let node of kitNodes.controls; let i = index" style="background-color: #5555;">
+          <mat-expansion-panel *ngFor="let node of kitNodes.controls; let i = index;" id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i }}"
+                               expanded="true" style="background-color: #5555;">
             <mat-expansion-panel-header>
-              <mat-panel-title> Node {{ i + 1 }} </mat-panel-title>
-              <mat-panel-description>{{node.get('hostname').value}}</mat-panel-description>
+              <mat-panel-title id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-mat-expansion-panel-header-mat-panel-title' }}"> Node {{ i + 1 }} </mat-panel-title>
+              <mat-panel-description id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-mat-expansion-panel-header-mat-panel-description' }}">{{node.get('hostname').value}}</mat-panel-description>
             </mat-expansion-panel-header>
             <section style="padding: 0.3em;" [formGroupName]="i">
               <ng-container *ngIf="system_name ==='DIP'">
-                <app-kit-node-form mode="dip" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+                <app-kit-node-form id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-app-kit-node-form-dip' }}"
+                                   mode="dip" [uniqueHTMLID]="'app-kit-form-dip'" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
               <ng-container *ngIf="system_name === 'GIP'">
-                <app-kit-node-form mode="gip" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+                <app-kit-node-form id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-app-kit-node-form-gip' }}"
+                                   mode="gip" [uniqueHTMLID]="'app-kit-form-gip'" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
-                <button mat-button color="warn"  (click)="canRemove(i)">Remove</button>
+                <button mat-button id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-div-button-remove' }}"
+                        color="warn"  (click)="canRemove(i)">Remove</button>
               </div>
             </section>
           </mat-expansion-panel>
@@ -125,11 +128,14 @@
       <mat-card-content>
         <section>
           <mat-list>
-            <mat-list-item class="validation-errors"
-              *ngFor="let error of getFormValidationErrors(kitFormGroup.controls); let j = index">
+            <mat-list-item *ngFor="let error of getFormValidationErrors(kitFormGroup.controls); let j = index;"
+                           id="{{ 'app-kit-form-mat-card-mat-card-content-section-mat-list-mat-list-item-error-value-' + j }}"
+                           class="validation-errors">
               {{ j + 1 }}. {{ error.error_value }}
             </mat-list-item>
-            <mat-list-item class="validation-errors" *ngIf="kitFormGroup?.errors && kitFormGroup.enabled">
+            <mat-list-item *ngIf="kitFormGroup?.errors && kitFormGroup.enabled"
+                           id="app-kit-form-mat-card-mat-card-content-section-mat-list-mat-list-item-error-message"
+                           class="validation-errors">
               {{getFormValidationErrors(kitFormGroup.controls).length + 1}}. {{ kitFormGroup?.errors?.error_message }}
             </mat-list-item>
           </mat-list>
@@ -143,10 +149,11 @@
           </div>
         </section>
       </mat-card-content>
-    <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
-        <button mat-stroked-button color="accent" (click)="openGenKitInventoryDialog()"
-          [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
-        <button mat-raised-button color="primary" (click)="openExecuteKitDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
+      <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
+        <button mat-stroked-button id="app-kit-form-mat-card-mat-card-actions-button-generate-inventory"
+                color="accent" (click)="openGenKitInventoryDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
+        <button mat-raised-button id="app-kit-form-mat-card-mat-card-actions-button-execute-kit"
+                color="primary" (click)="openExecuteKitDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
       </mat-card-actions>
     </mat-card>
     <br>

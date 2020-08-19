@@ -2,13 +2,15 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <button mat-raised-button color="warn" style="float: left;" (click)="openKillModal()"><em class="icon_stop_alt2"></em> Kill Job</button>
-        <button mat-raised-button color="warn" style="float: right;" (click)="clearConsole()"><em class="icon_trash"></em> Clear Console</button>
+        <button mat-raised-button id="app-server-stdout-div-mat-card-mat-card-header-mat-card-title-button-kill-job"
+                color="warn" style="float: left;" (click)="openKillModal()"><em class="icon_stop_alt2"></em>Kill Job</button>
+        <button mat-raised-button id="app-server-stdout-div-mat-card-mat-card-header-mat-mat-card-title-button-clear-console"
+                color="warn" style="float: right;" (click)="clearConsole()"><em class="icon_trash"></em>Clear Console</button>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div #console class="card-body console">
-        <p *ngFor="let msg of messages"><span [style.color]="msg.color">{{ msg.msg }}</span></p>
+        <p *ngFor="let msg of messages; let i = index;"><span id="{{ 'app-server-stdout-div-mat-card-mat-card-content-div-p-' + i + '-span-msg' }}" [style.color]="msg.color">{{ msg.msg }}</span></p>
       </div>
     </mat-card-content>
   </mat-card>

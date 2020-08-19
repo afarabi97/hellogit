@@ -1,9 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
-import { kickStartTooltips } from '../../kickstart/kickstart-form';
-import { PXE_TYPES, MIP_PXE_TYPES } from '../../../frontend-constants';
-import { WeaponSystemNameService} from '../../../services/weapon-system-name.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+
+import { MIP_PXE_TYPES, PXE_TYPES } from '../../../frontend-constants';
+import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
+import { kickStartTooltips } from '../../kickstart/kickstart-form';
 
 @Component({
   selector: 'app-kickstart-node-form',
@@ -11,7 +12,8 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   styleUrls: ['./kickstart-node-form.component.css']
 })
 export class KickstartNodeFormComponent implements OnInit {
-
+  // Unique ID passed from parent component to create unique element ids
+  @Input() uniqueHTMLID: string;
   @Input()
   node: FormGroup;
 
@@ -20,7 +22,7 @@ export class KickstartNodeFormComponent implements OnInit {
 
   pxe_types: string[];
   system_name: string;
-  isRaid: boolean = false;
+  isRaid = false;
 
 
   constructor(private sysNameSrv: WeaponSystemNameService) {
@@ -29,6 +31,18 @@ export class KickstartNodeFormComponent implements OnInit {
 
   ngOnInit() {
     this.isRaid = this.node.get('os_raid').value != null ? this.node.get('os_raid').value : false;
+  }
+
+  /**
+   * Used for generating unique element id for html
+   *
+   * @param {string} passedID
+   * @returns {string}
+   * @memberof KickstartNodeFormComponent
+   */
+  generateUniqueHTMLID(passedID: string): string {
+
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   private setupPXETypes() {
@@ -47,21 +61,20 @@ export class KickstartNodeFormComponent implements OnInit {
   }
 
   checkRaidChanged(event: MatCheckboxChange){
-    let checked = event.checked;
-    let boot_drive = this.node.get('boot_drive');
-    let data_drive = this.node.get('data_drive');
-    let raid_drive = this.node.get('raid_drives')
+    const checked: boolean = event.checked;
+    const boot_drive = this.node.get('boot_drive');
+    const data_drive = this.node.get('data_drive');
+    const raid_drive = this.node.get('raid_drives');
     if (checked){
       this.isRaid = true;
-      data_drive.disable()
-      boot_drive.disable()
-      raid_drive.enable()
-    }
-    else {
+      data_drive.disable();
+      boot_drive.disable();
+      raid_drive.enable();
+    } else {
       this.isRaid = false;
-      data_drive.enable()
-      boot_drive.enable()
-      raid_drive.disable()
+      data_drive.enable();
+      boot_drive.enable();
+      raid_drive.disable();
     }
   }
 

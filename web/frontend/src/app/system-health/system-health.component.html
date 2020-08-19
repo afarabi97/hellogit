@@ -1,139 +1,164 @@
-<div class="main-content2" >
+<div class="main-content2">
   <mat-card>
     <mat-card-header>
       <mat-card-title>Node Health</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <table mat-table #nodeStatusesTable [dataSource]="nodeStatuses" multiTemplateDataRows aria-describedby="Node status table">
-
+        <!-- Name -->
         <ng-container matColumnDef="name">
           <th scope="col" mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let node">
-            <a (click)="toggleNodeResources(node)">
-              <em class="material-icons" *ngIf="!isNodeResourceVisible(node)">chevron_right</em>
-              <em class="material-icons" *ngIf="isNodeResourceVisible(node)">expand_more</em>
-              <span style="vertical-align: super;">{{ node.metadata.name }}</span>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-name' }}">
+            <a id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-name-a' }}" (click)="toggleNodeResources(node)">
+              <em *ngIf="!isNodeResourceVisible(node)"
+                  id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-name-a-em-chevron-right' }}"
+                  class="material-icons">chevron_right</em>
+              <em *ngIf="isNodeResourceVisible(node)"
+                  id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-name-a-em-expand-more' }}"
+                  class="material-icons">expand_more</em>
+              <span id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-name-a-span-metadata-name' }}" style="vertical-align: super;">{{ node.metadata.name }}</span>
             </a>
           </td>
         </ng-container>
-
+        <!-- Type -->
         <ng-container matColumnDef="type">
           <th scope="col" mat-header-cell *matHeaderCellDef>Type</th>
-          <td mat-cell *matCellDef="let node">
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-type' }}">
             {{ node.metadata.labels.role | titlecase}}
           </td>
         </ng-container>
-
+        <!-- IP Address -->
         <ng-container matColumnDef="ip_address">
           <th scope="col" mat-header-cell *matHeaderCellDef>IP Address</th>
-          <td mat-cell *matCellDef="let node">
-            <a (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.status.addresses[0].address }}</a>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ip-address' }}">
+            <a id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ip-address-a' }}"
+               (click)="openNodeInfo(node.metadata.name, node.status.node_info)">{{ node.status.addresses[0].address }}</a>
           </td>
         </ng-container>
-
+        <!-- Ready -->
         <ng-container matColumnDef="ready">
           <th scope="col" mat-header-cell *matHeaderCellDef>Ready</th>
-          <td mat-cell *matCellDef="let node">
-              <a matTooltip="{{ node.status.conditions[4].message }}">
-                <div *ngIf="node.status.conditions[4].status === 'True'; else notworking">
-                  <em class="material-icons" style="color:lightgreen;">check_circle</em>
-                </div>
-                <ng-template #notworking>
-                  <em class="material-icons" style="color:darkred;">cancel</em>
-                </ng-template>
-              </a>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ready' }}">
+            <a id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ready-a' }}" matTooltip="{{ node.status.conditions[4].message }}">
+              <div *ngIf="node.status.conditions[4].status === 'True'; else notworking">
+                <em id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ready-a-div-em-check-circle' }}"
+                    class="material-icons" style="color:lightgreen;">check_circle</em>
+              </div>
+              <ng-template #notworking>
+                <em id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-ready-a-em-cancel' }}"
+                    class="material-icons" style="color:darkred;">cancel</em>
+              </ng-template>
+            </a>
           </td>
         </ng-container>
-
+        <!-- Storage -->
         <ng-container matColumnDef="storage">
-            <th scope="col" mat-header-cell *matHeaderCellDef>Storage</th>
-            <td mat-cell *matCellDef="let node">
-                <div *ngIf="node['metadata']['annotations']['tfplenum/root_usage'] !== undefined">
-                  <span matTooltip="{{ node['metadata']['annotations']['tfplenum/root_usage'][2] / 1073741824 | number : '.2-2' }} GiB free">root: {{ node['metadata']['annotations']['tfplenum/root_usage'][3] }}%</span>
-                </div>
-                <div *ngIf="node['metadata']['annotations']['tfplenum/data_usage'] !== undefined">
-                  <span matTooltip="{{ node['metadata']['annotations']['tfplenum/data_usage'][2] / 1073741824 | number : '.2-2' }} GiB free">data: {{ node['metadata']['annotations']['tfplenum/data_usage'][3] }}%</span>
-                </div>
-            </td>
-          </ng-container>
-
+          <th scope="col" mat-header-cell *matHeaderCellDef>Storage</th>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-storage' }}">
+            <div *ngIf="node['metadata']['annotations']['tfplenum/root_usage'] !== undefined">
+              <span id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-storage-span-root-percentage' }}"
+                    matTooltip="{{ node['metadata']['annotations']['tfplenum/root_usage'][2] / 1073741824 | number : '.2-2' }} GiB free">root: {{ node['metadata']['annotations']['tfplenum/root_usage'][3] }}%</span>
+            </div>
+            <div *ngIf="node['metadata']['annotations']['tfplenum/data_usage'] !== undefined">
+              <span id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-storage-span-data-percentage' }}"
+                    matTooltip="{{ node['metadata']['annotations']['tfplenum/data_usage'][2] / 1073741824 | number : '.2-2' }} GiB free">data: {{ node['metadata']['annotations']['tfplenum/data_usage'][3] }}%</span>
+            </div>
+          </td>
+        </ng-container>
+        <!-- Memory -->
         <ng-container matColumnDef="memory">
-            <th scope="col" mat-header-cell *matHeaderCellDef>Memory</th>
-            <td mat-cell *matCellDef="let node">
-                <div *ngIf="node['metadata']['annotations']['tfplenum/memory'] !== undefined">
-                  <span matTooltip="{{ node['metadata']['annotations']['tfplenum/memory'][1] / 1073741824 | number : '.2-2' }} GiB available">{{ node['metadata']['annotations']['tfplenum/memory'][2] }}%</span>
-                </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="cpu">
-            <th scope="col" mat-header-cell *matHeaderCellDef>CPU</th>
-            <td mat-cell *matCellDef="let node">
-                <div *ngIf="node['metadata']['annotations']['tfplenum/cpu_percent'] !== undefined">
-                  <span>{{ node['metadata']['annotations']['tfplenum/cpu_percent'] }}%</span>
-                </div>
-            </td>
-          </ng-container>
-
+          <th scope="col" mat-header-cell *matHeaderCellDef>Memory</th>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-memory' }}">
+            <div *ngIf="node['metadata']['annotations']['tfplenum/memory'] !== undefined">
+              <span id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-memory-span-percentage' }}"
+                    matTooltip="{{ node['metadata']['annotations']['tfplenum/memory'][1] / 1073741824 | number : '.2-2' }} GiB available">{{ node['metadata']['annotations']['tfplenum/memory'][2] }}%</span>
+            </div>
+          </td>
+        </ng-container>
+        <!-- CPU -->
+        <ng-container matColumnDef="cpu">
+          <th scope="col" mat-header-cell *matHeaderCellDef>CPU</th>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-cpu' }}">
+            <div *ngIf="node['metadata']['annotations']['tfplenum/cpu_percent'] !== undefined">
+              <span id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-cpu-span-percentage' }}">{{ node['metadata']['annotations']['tfplenum/cpu_percent'] }}%</span>
+            </div>
+          </td>
+        </ng-container>
+        <!-- Actions -->
         <ng-container matColumnDef="actions">
           <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let node">
-              <button mat-button matTooltip="Click to run describe node." color="primary"
-                  (click)="describeNode(node.metadata.name)">
-                  <em class="material-icons">info</em>
-              </button>
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-actions' }}">
+            <button mat-button id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-actions-button' }}"
+                    matTooltip="Click to run describe node." color="primary" (click)="describeNode(node.metadata.name)">
+              <em id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-actions-button-em-info' }}"
+                  class="material-icons">info</em>
+            </button>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="expandedDetail">
-          <td mat-cell *matCellDef="let node" [attr.colspan]="columnsForNodeStatues.length">
+          <!-- Expanded Detail -->
+          <td mat-cell *matCellDef="let node; let z = index;"
+              id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail' }}"
+              [attr.colspan]="columnsForNodeStatues.length">
             <div fxLayout="row" fxLayoutAlign="start none">
               <div fxFlex="33">
                 Total Capacity
                 <dl fxLayout="column" fxLayoutAlign="start none">
                   <dt>CPUs:</dt>
-                  <dd>{{ node.status.capacity.cpu }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-total-capacity-dl-dd-cpu' }}">{{ node.status.capacity.cpu }}</dd>
                   <dt>Ephemeral storage:</dt>
-                  <dd>{{ node.status.capacity["ephemeral-storage"] }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-total-capacity-dl-dd-ephemeral-storage' }}">{{ node.status.capacity["ephemeral-storage"] }}</dd>
                   <dt>Memory:</dt>
-                  <dd>{{ node.status.capacity.memory }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-total-capacity-dl-dd-memory' }}">{{ node.status.capacity.memory }}</dd>
                   <dt>Max Pods:</dt>
-                  <dd>{{ node.status.capacity.pods }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-total-capacity-dl-dd-max-pods' }}">{{ node.status.capacity.pods }}</dd>
                 </dl>
               </div>
               <div fxFlex="33">
                 Kubernetes Capacity
                 <dl>
                   <dt>CPUs:</dt>
-                  <dd>{{ node.status.allocatable.cpu }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-kubernetes-capacity-dl-dd-cpu' }}">{{ node.status.allocatable.cpu }}</dd>
                   <dt>Ephemeral storage:</dt>
-                  <dd>{{ node.status.allocatable["ephemeral-storage"] }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-kubernetes-capacity-dl-dd-ephemeral-storage' }}">{{ node.status.allocatable["ephemeral-storage"] }}</dd>
                   <dt>Memory:</dt>
-                  <dd>{{ node.status.allocatable.memory }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-kubernetes-capacity-dl-dd-memory' }}">{{ node.status.allocatable.memory }}</dd>
                   <dt>Max Pods:</dt>
-                  <dd>{{ node.status.allocatable.pods }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-kubernetes-capacity-dl-dd-max-pods' }}">{{ node.status.allocatable.pods }}</dd>
                 </dl>
               </div>
               <div fxFlex="33">
                 Other
                 <dl>
                   <dt>CPUs requested from pods:</dt>
-                  <dd>{{ getTotalObj(node.metadata.name).cpus_requested_str }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-other-dl-dd-cpus-requested-from-pods' }}">{{ getTotalObj(node.metadata.name).cpus_requested_str }}</dd>
                   <dt>Remaining allocatable CPUs:</dt>
-                  <dd>{{ getTotalObj(node.metadata.name).remaining_allocatable_cpu }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-other-dl-dd-remaining-allocatable-cpus' }}">{{ getTotalObj(node.metadata.name).remaining_allocatable_cpu }}</dd>
                   <dt>Memory requested from pods:</dt>
-                  <dd>{{ getTotalObj(node.metadata.name).mem_requested_str }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-other-dl-dd-memory-requested-from-pods' }}">{{ getTotalObj(node.metadata.name).mem_requested_str }}</dd>
                   <dt>Remaining allocatable memory:</dt>
-                  <dd>{{ getTotalObj(node.metadata.name).remaining_allocatable_mem }}</dd>
+                  <dd id="{{ 'app-system-health-div-mat-card-mat-card-content-table-td-' + z + '-expanded-detail-div-div-other-dl-dd-remaining-allocatable-memory' }}">{{ getTotalObj(node.metadata.name).remaining_allocatable_mem }}</dd>
                 </dl>
               </div>
             </div>
           </td>
         </ng-container>
-
+        <!-- Table Rows -->
         <tr mat-header-row *matHeaderRowDef="columnsForNodeStatues"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnsForNodeStatues;"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" [hidden]="!isNodeResourceVisible(row)"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnsForNodeStatues; let i = index;"
+            id="{{ 'app-system-health-div-mat-card-mat-card-content-table-tr-mat-row-' + i }}"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; let j = index;"
+            id="{{ 'app-system-health-div-mat-card-mat-card-content-table-tr-mat-row-expanded-detail-' + j }}"
+            [hidden]="!isNodeResourceVisible(row)"></tr>
       </table>
     </mat-card-content>
   </mat-card>
@@ -144,7 +169,8 @@
         <mat-card-title>Pod Errors</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <ng-container [ngTemplateOutlet]="podStatues" [ngTemplateOutletContext]="{pods:podErrors}"></ng-container>
+        <ng-container [ngTemplateOutlet]="podStatues"
+                      [ngTemplateOutletContext]="{pods:podErrors, pod_element_id: 'app-system-health-div-mat-card-mat-card-content-pod-errors-pod-status'}"></ng-container>
       </mat-card-content>
     </mat-card>
     <br>
@@ -156,96 +182,119 @@
     <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
     <mat-card-content>
       <mat-tab-group (selectedTabChange)="changeTab($event)" dynamicHeight>
-        <mat-tab *ngFor="let tab_name of tabs_names" label="{{ tab_name }}">
-          <ng-container [ngTemplateOutlet]="piplineStatus" [ngTemplateOutletContext]="{displayedPipeline: pipelineStatus[tab_name]}"></ng-container>
-          <ng-container [ngTemplateOutlet]="podStatues" [ngTemplateOutletContext]="{pods:podStatus[tab_name], isVisible:true}"></ng-container>
+        <mat-tab *ngFor="let tab_name of tabs_names; let m = index;"
+                 id="{{ 'app-system-health-div-mat-card-mat-card-content-pod-health-mat-tab-group-mat-tab-' + m }}"
+                 label="{{ tab_name }}">
+          <ng-container [ngTemplateOutlet]="piplineStatus"
+                        [ngTemplateOutletContext]="{displayedPipeline: pipelineStatus[tab_name], pipeline_element_id: 'app-system-health-div-mat-card-mat-card-content-pod-health-mat-tab-group-mat-tab-' + m + '-pipeline-status'}"></ng-container>
+          <ng-container [ngTemplateOutlet]="podStatues"
+                        [ngTemplateOutletContext]="{pods:podStatus[tab_name], isVisible:true, pod_element_id: 'app-system-health-div-mat-card-mat-card-content-pod-health-mat-tab-group-mat-tab-' + m + '-pod-status'}"></ng-container>
         </mat-tab>
         <mat-tab label="Unassigned Pods">
-            <ng-container [ngTemplateOutlet]="podStatues" [ngTemplateOutletContext]="{pods:unscheduledPodStatus, isVisible:true}"></ng-container>
-          </mat-tab>
+          <ng-container [ngTemplateOutlet]="podStatues"
+                        [ngTemplateOutletContext]="{pods:unscheduledPodStatus, isVisible:true, pod_element_id: 'app-system-health-div-mat-card-mat-card-content-pod-health-mat-tab-group-mat-tab-unassigned-pods-pod-status'}"></ng-container>
+        </mat-tab>
       </mat-tab-group>
     </mat-card-content>
   </mat-card>
 </div>
 
-<ng-template #piplineStatus let-displayedPipeline='displayedPipeline'>
+<ng-template #piplineStatus let-displayedPipeline='displayedPipeline' let-pipeline_element_id='pipeline_element_id'>
   <ng-container *ngIf="displayedPipeline">
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last Suricata event that occurred on this sensor's disk drive.">Last Suricata Log Event</dt>
-        <dd>{{ displayedPipeline?.last_suricata_log_event ? displayedPipeline?.last_suricata_log_event : 'No events'  }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-suricata-log-event' }}">{{ displayedPipeline?.last_suricata_log_event ? displayedPipeline?.last_suricata_log_event : 'No events'  }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Suricata event that was received by Elasticsearch on the server cluster.">Last Suricata Elastic Event</dt>
-        <dd>{{ displayedPipeline?.last_suricata_elastic_events ? displayedPipeline?.last_suricata_elastic_events : 'No events' }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-suricata-elastic-event' }}">{{ displayedPipeline?.last_suricata_elastic_events ? displayedPipeline?.last_suricata_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last Zeek event that occurred on this sensor's disk drive.">Last Zeek Log Event</dt>
-        <dd>{{ displayedPipeline?.last_zeek_log_event ? displayedPipeline?.last_zeek_log_event : 'No events' }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-zeek-log-event' }}">{{ displayedPipeline?.last_zeek_log_event ? displayedPipeline?.last_zeek_log_event : 'No events' }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Zeek event that was received by Elasticsearch on the server cluster.">Last Zeek Elastic Event</dt>
-        <dd>{{ displayedPipeline.last_zeek_elastic_events ? displayedPipeline.last_zeek_elastic_events : 'No events' }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-zeek-elastic-event' }}">{{ displayedPipeline.last_zeek_elastic_events ? displayedPipeline.last_zeek_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
     <div fxLayout="row" fxLayoutAlign="start none">
       <dl fxFlex="20">
         <dt matTooltip="The last PCAP capture event that occurred on this sensor's disk drive.">Last PCAP Log Event</dt>
-        <dd>{{ displayedPipeline.last_pcap_log_event ? displayedPipeline.last_pcap_log_event : 'No events' }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-pcap-log-event' }}">{{ displayedPipeline.last_pcap_log_event ? displayedPipeline.last_pcap_log_event : 'No events' }}</dd>
       </dl>
       <dl>
         <dt matTooltip="The last Moloch event that was received by Elasticsearch on the server cluster.">Last Moloch Elastic Event</dt>
-        <dd>{{ displayedPipeline.last_moloch_elastic_events ? displayedPipeline.last_moloch_elastic_events : 'No events' }}</dd>
+        <dd id="{{ pipeline_element_id + '-div-dl-dd-moloch-elastic-event' }}">{{ displayedPipeline.last_moloch_elastic_events ? displayedPipeline.last_moloch_elastic_events : 'No events' }}</dd>
       </dl>
     </div>
   </ng-container>
 </ng-template>
 
-<ng-template #podStatues let-pods='pods' let-isVisible='isVisible'>
+<ng-template #podStatues let-pods='pods' let-isVisible='isVisible' let-pod_element_id='pod_element_id'>
   <table mat-table [dataSource]="pods" multiTemplateDataRows aria-describedby="Pod status table">
+    <!-- Namespace -->
     <ng-container matColumnDef="namespace">
       <th scope="col" mat-header-cell *matHeaderCellDef>Namespace</th>
-      <td mat-cell *matCellDef="let pod">
-        <a (click)="openPodDialog(pod)">
-          <span style="vertical-align: super;">{{ pod.metadata.namespace }}</span>
+      <td mat-cell *matCellDef="let pod; let z = index;"
+          id="{{ pod_element_id + '-table-td-' + z + '-namespace' }}">
+        <a id="{{ pod_element_id + '-table-td-' + z + '-namespace-a' }}" (click)="openPodDialog(pod)">
+          <span id="{{ pod_element_id + '-table-td-' + z + '-namespace-a-span-namespace' }}"
+                style="vertical-align: super;">{{ pod.metadata.namespace }}</span>
         </a>
       </td>
     </ng-container>
+    <!-- Pod Name -->
     <ng-container matColumnDef="pod_name">
       <th scope="col" mat-header-cell *matHeaderCellDef>Pod Name</th>
-      <td mat-cell *matCellDef="let pod">
-        <a matTooltip="Click me" (click)="openPodStatusInfo(pod.metadata.name, pod.status)">{{ pod.metadata.name }}</a>
+      <td mat-cell *matCellDef="let pod; let z = index;"
+          id="{{ pod_element_id + '-table-td-' + z + '-pod-name' }}">
+        <a id="{{ pod_element_id + '-table-td-' + z + '-pod-name-a' }}"
+           matTooltip="Click me" (click)="openPodStatusInfo(pod.metadata.name, pod.status)">{{ pod.metadata.name }}</a>
       </td>
     </ng-container>
+    <!-- Container States -->
     <ng-container matColumnDef="container_states">
       <th scope="col" mat-header-cell *matHeaderCellDef>Container States</th>
-      <td mat-cell *matCellDef="let pod">
-        <div *ngFor="let container of getPodStatus(pod.status)">
-          <span *ngIf="container.name">{{ container.name }}: </span>
-          <span class="containerStatus" style="font-weight: bold;">{{ container.status }}</span>
+      <td mat-cell *matCellDef="let pod; let z = index;"
+          id="{{ pod_element_id + '-table-td-' + z + '-container-states' }}">
+        <div *ngFor="let container of getPodStatus(pod.status); let k = index;">
+          <span *ngIf="container.name" id="{{ pod_element_id + '-table-td-' + z + '-container-states-div-' + k + '-span-container-name' }}">{{ container.name }}: </span>
+          <span id="{{ pod_element_id + '-table-td-' + z + '-container-states-div-' + k + '-span-container-status' }}"
+                class="containerStatus" style="font-weight: bold;">{{ container.status }}</span>
         </div>
       </td>
     </ng-container>
+    <!-- Restart Count -->
     <ng-container matColumnDef="restart_count">
       <th scope="col" mat-header-cell *matHeaderCellDef>Restart Count</th>
-      <td mat-cell *matCellDef="let pod">
+      <td mat-cell *matCellDef="let pod; let z = index;"
+          id="{{ pod_element_id + '-table-td-' + z + '-restart-count' }}">
         {{ getContainerRestartCount(pod) }}
       </td>
     </ng-container>
+    <!-- Actions -->
     <ng-container matColumnDef="actions">
       <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let pod">
-          <button mat-button matTooltip="Click to run describe pod." color="primary" (click)="describePod(pod.metadata)">
-            <em class="material-icons">info</em>
+      <td mat-cell *matCellDef="let pod; let z = index;"
+          id="{{ pod_element_id + '-table-td-' + z + '-actions' }}">
+          <button mat-button id="{{ pod_element_id + '-table-td-' + z + '-actions-button-info' }}"
+                  matTooltip="Click to run describe pod." color="primary" (click)="describePod(pod.metadata)">
+            <em id="{{ pod_element_id + '-table-td-' + z + '-actions-button-info-em' }}" class="material-icons">info</em>
           </button>
-          <button mat-button matTooltip="Click to view pod logs." color="primary" (click)="podLogs(pod.metadata)">
-            <em class="material-icons">help</em>
+          <button mat-button id="{{ pod_element_id + '-table-td-' + z + '-actions-button-help' }}"
+                  matTooltip="Click to view pod logs." color="primary" (click)="podLogs(pod.metadata)">
+            <em id="{{ pod_element_id + '-table-td-' + z + '-actions-button-help-em' }}" class="material-icons">help</em>
           </button>
       </td>
     </ng-container>
+    <!-- Table Rows -->
     <tr mat-header-row *matHeaderRowDef="columnsForPodStatues"></tr>
-    <tr mat-row [ngClass]="{'podErrors': podHasErrors(row)}" *matRowDef="let row; columns: columnsForPodStatues;"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsForPodStatues; let l = index;"
+        id="{{ pod_element_id + '-table-tr-mat-row-' + l }}"
+        [ngClass]="{'podErrors': podHasErrors(row)}"></tr>
   </table>
 </ng-template>

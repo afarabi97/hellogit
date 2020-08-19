@@ -1,45 +1,44 @@
-
 <mat-card>
     <mat-card-header>
-        <mat-card-title>{{ node['product_name'] }}</mat-card-title>
+        <mat-card-title id="app-mip-config-node-mat-card-mat-card-header-mat-card-title">{{ node['product_name'] }}</mat-card-title>
     </mat-card-header>
-    
     <mat-card-content fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="20px">
         <mat-list>
+            <!-- Hostname -->
             <mat-list-item>
-                <mat-icon mat-list-icon>computer</mat-icon>
-                <h4 mat-line>
+                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-computer">computer</mat-icon>
+                <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-hostname">
                     Hostname: {{ node['hostname'] }}
                 </h4>
             </mat-list-item>
-
+            <!-- Address -->
             <mat-list-item>
-                <mat-icon mat-list-icon>router</mat-icon>
-                <h4 mat-line>
+                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-router">router</mat-icon>
+                <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-address">
                     Address: {{ node['default_ipv4_settings']['address'] }}
                 </h4>
             </mat-list-item>
         </mat-list>
-
         <mat-list>
+            <!-- CPU -->
             <mat-list-item>
-                <mat-icon mat-list-icon>developer_board</mat-icon>
-                <h4 mat-line>cpus_available:
-                    {{node['cpus_available'] | number:'1.0-2'}}
+                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-developer-board">developer_board</mat-icon>
+                <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-cpus-available">
+                    cpus_available: {{node['cpus_available'] | number:'1.0-2'}}
                 </h4>
             </mat-list-item>
-
+            <!-- Memory -->
             <mat-list-item>
-                <mat-icon mat-list-icon>memory</mat-icon>
-                <h4 mat-line>
+                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-memory">memory</mat-icon>
+                <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-memory-available">
                     memory_avaiable: {{ node['memory_available'] | number:'1.0-2' }} GB
                 </h4>
             </mat-list-item>
-
+            <!-- Storage -->
             <mat-list-item>
-                <mat-icon mat-list-icon>storage</mat-icon>
-                <h4 mat-line>
-                    <div>boot_drive: {{ getBootDrive()['size_gb'] }} GB</div>
+                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-storage">storage</mat-icon>
+                <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-div-storage">
+                    boot_drive: {{ getBootDrive()['size_gb'] }} GB
                 </h4>
             </mat-list-item>
         </mat-list>
