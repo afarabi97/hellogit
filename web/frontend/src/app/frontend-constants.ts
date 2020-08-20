@@ -44,4 +44,4 @@ export const COMMON_VALIDATORS = {
 }
 
 export const PXE_TYPES: string[] = ['BIOS', 'UEFI', 'DL160', 'SuperMicro'];
-export const MIP_PXE_TYPES: string[] = ['6800/7720', '7730'];
+export const MIP_PXE_TYPES: string[] = ['SCSI/SATA/USB', 'NVMe'];

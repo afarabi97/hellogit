@@ -82,10 +82,10 @@ export class MIPConfigComponent implements OnInit {
           for (let node of form['nodes']) {
               let hostname = node['hostname'];
               let model = node['pxe_type'];
-              if (model === '6800/7720') {
+              if (model === 'SCSI/SATA/USB') {
                 this.boot_drives[hostname] = 'sda';
               }
-              if (model === "7730") {
+              if (model === "NVMe") {
                 this.boot_drives[hostname] = 'nvme0n1';
               }
               addressess.push(node['ip_address']);

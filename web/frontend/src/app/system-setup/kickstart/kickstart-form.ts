@@ -179,7 +179,7 @@ export const kickStartTooltips = {
   data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process. \
   If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
   dns: 'The DNS Server that MIPs use to resolve queries.',
-  mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
+  mip_pxe_type: "The hard drive type determines the hard drive name used for booting. Match this with the MIP being Kickstarted.",
   luks_password: 'This is the password you will use to decrypt the disk.',
   confirm_luks_password: 'This is the password you will use to decrypt the disk.',
   timezone: 'The timezone set during Kickstart.',

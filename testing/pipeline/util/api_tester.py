@@ -227,7 +227,7 @@ class MIPKickstartPayloadGenerator:
         self._mip_kickstart_settings = mip_kickstart_settings
 
     def _construct_node_part(self, node: NodeSettings) -> Dict:
-        boot_mode = "6800/7720"
+        boot_mode = "SCSI/SATA/USB"
         return {
             "hostname": node.hostname,
             "ip_address": node.ipaddress,

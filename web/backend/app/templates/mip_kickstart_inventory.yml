@@ -24,11 +24,11 @@ all:
           ip: {{ node.ip_address }}
           mac: {{ node.mac_address }}
           pxe_type: uefi
-          {%- if node.model == "6800/7720" %}
+          {%- if node.model == "SCSI/SATA/USB" %}
           boot_drive: sda
           root_partition: '3'
           {%- endif %}
-          {%- if node.model == "7730" %}
+          {%- if node.model == "NVMe" %}
           boot_drive: nvme0n1
           root_partition: 'p3'
           {%- endif %}    

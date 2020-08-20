@@ -353,7 +353,7 @@ export class KickstartComponent implements OnInit {
         hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
         ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
         mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
-        pxe_type: new FormControl(node ? node.pxe_type : '7730', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
+        pxe_type: new FormControl(node ? node.pxe_type : 'NVMe', Validators.compose([validateFromArray(kickstart_validators.pxe_type)]))
       });
 
       formGroup = mip_group;

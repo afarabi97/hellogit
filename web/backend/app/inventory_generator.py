@@ -158,12 +158,12 @@ class MIPKickstartInventoryGenerator:
 
     def _map_mip_model(self) -> None:
         for node in self._template_ctx["nodes"]:
-            if node['pxe_type'] == "6800/7720":
-                node['model'] = "6800/7720"
+            if node['pxe_type'] == "SCSI/SATA/USB":
+                node['model'] = "SCSI/SATA/USB"
                 node['pxe_type'] = "UEFI"
-
-            elif node['pxe_type'] == "7730":
-                node['model'] = "7730"
+            
+            elif node['pxe_type'] == "NVMe":
+                node['model'] = "NVMe"
                 node['pxe_type'] = "UEFI"
 
     def _set_dhcp_range(self):
