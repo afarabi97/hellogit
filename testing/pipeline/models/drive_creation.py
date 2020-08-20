@@ -4,7 +4,10 @@ from models import Model
 
 class DriveCreationHashSettings(Model):
     def __init__(self):
-        self.rsync_source="/mnt/drive_creation/v3.3/CPT/Data/"
+        self.rsync_source="/mnt/drive_creation/v3.4/CPT/Data/"
+
+    def is_CPT(self) -> bool:
+        return "CPT" in self.rsync_source
 
 
 class DriveCreationSettings(DriveCreationHashSettings):

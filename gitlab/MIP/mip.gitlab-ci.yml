@@ -117,7 +117,7 @@ Perform MIP Security Scans:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/testy-tester/run_acas.py \
+    python3 testing/pipeline/run_acas.py \
     --ipaddress "$ACAS_IPADDRESS" \
     --username "$ACAS_USERNAME" \
     --password "$ACAS_PASSWORD" \
@@ -142,7 +142,6 @@ MIP Cleanup:
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup \
     --create-nightly "$CREATE_NIGHTLY" \
     --save-kit "$SAVE_KIT"
-  allow_failure: true
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-mip"

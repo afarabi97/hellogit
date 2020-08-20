@@ -77,6 +77,9 @@ variables:
   RUN_REPOSYNC_WORKSTATION_STIGS: "yes"
   VM_RAID: "no"
 
+  # Repo Sync variables
+  REPO_SERVER_TEMPLATE_TO_CLONE: reposync-server
+  REPO_WORKSTATION_TEMPLATE_TO_CLONE: reposync-workstation
 
   #Master Drive Creation Variables
   MASTER_DRIVE_CREATION_USERNAME: "drive_creator"
@@ -109,6 +112,10 @@ variables:
   MINIO_CPU: 2
   MINIO_USE_TLS: "yes"
   MINIO_VM: "no"
+  MINIO_TEMPLATE_TO_CLONE: "jdms-rhel7-template"
+  MINIO_DISK_SIZE: 10
+
+
 
   #THE VARIBALES IN THIS SECTION DO NOT NEED TO BE OVERWRITTEN IN SCHEDULES.
   MASTER_DRIVE_CREATION_PATH: "/mnt/drive_creation"
@@ -145,6 +152,7 @@ variables:
 
   DIP_SOFTWARE_FOLDERS: "$STACK_SOFTWARE_FOLDER $DIP_SOFTWARE_FOLDER"
   MIP_SOFTWARE_FOLDERS: "$MIP_SOFTWARE_FOLDER"
+  REPO_SYNC_FOLDERS: "RhelRepo"
 
   # Robot Test Integration
   RUN_ROBOT_TESTS: "yes"

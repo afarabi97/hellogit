@@ -116,6 +116,17 @@ exit $STATUS
 
         os.chmod("validate_drive.sh", 0o755 )
 
+    def _create_text_description_file(self):
+        readme_txt = ("See CVAH 3.4/Documentation/ folder for additional details on how to setup or operate "
+                      "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).")
+
+        if self._drive_hash_settings.is_CPT():
+            with open("CPT_Drive_Readme.txt", 'w') as script:
+                script.write(readme_txt)
+        else:
+            with open("MDT_Drive_Readme.txt", 'w') as script:
+                script.write(readme_txt)
+
 
     def create_verification_script_and_validate(self):
         directory_to_walk = self._drive_hash_settings.rsync_source
@@ -129,6 +140,7 @@ exit $STATUS
                 raise NotADirectoryError("{} is not a directory or does not exist".format(directory_to_walk))
 
             os.chdir(directory_to_walk)
+            self._create_text_description_file()
             self._create_verification_script()
             self._run_verification_script()
         finally:

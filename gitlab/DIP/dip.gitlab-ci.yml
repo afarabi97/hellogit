@@ -37,7 +37,6 @@ Setup DIP Controller:
   only:
     variables:
       - $PIPELINE == "nightly_build"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
@@ -61,11 +60,11 @@ Create a standalone MinIO server:
       --network-block-index "$DIP_NETWORK_BLOCK_INDEX"
       --dns-servers $DNS_SERVERS
       --vm-folder "$VMWARE_FOLDER"
-      --vm-template "jdms-rhel7-template"
+      --vm-template "$MINIO_TEMPLATE_TO_CLONE"
       --gateway "$VM_GATEWAY"
       --vm-prefix "$VM_PREFIX-dip"
-      --vm-datastore "dev-vol00"
-      --disk-size 10
+      --vm-datastore "$VCENTER_DATASTORE"
+      --disk-size $MINIO_DISK_SIZE
       --cpu $MINIO_CPU
       --memory $MINIO_MEMORY
       --extra-disk $MINIO_STORAGE_SIZE
@@ -75,7 +74,7 @@ Create a standalone MinIO server:
     python3 testing/pipeline/pipeline.py "${args[@]}"
   only:
     variables:
-      - $MINIO_VM == "yes" && $PIPELINE == "export-dip"
+      - $PIPELINE == "export-minio"
       - $PIPELINE == "export-all"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-dip"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-all"
@@ -182,7 +181,7 @@ Perform DIP Security Scans:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
-    python3 testing/testy-tester/run_acas.py \
+    python3 testing/pipeline/run_acas.py \
     --ipaddress "$ACAS_IPADDRESS" \
     --username "$ACAS_USERNAME" \
     --password "$ACAS_PASSWORD" \
@@ -299,7 +298,6 @@ DIP Cleanup:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup \
     --create-nightly "$CREATE_NIGHTLY"
-  allow_failure: true
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip"

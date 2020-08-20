@@ -44,7 +44,6 @@ core/playbooks/files/join-node.sh
 playbooks/inventory/dev/*
 charts/*/*.tgz
 inventory.yml
-testing/testy-tester/testcases/userdefined/
 testing/robotest-output
 testing/robotest-output/**
 infrastructure/Firewall/Firewall.ova

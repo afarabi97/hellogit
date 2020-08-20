@@ -78,7 +78,7 @@
         disk:
           - size_gb: "{{ node.disk_size }}"
             type: thin
-            datastore: "dev-vol02"
+            datastore: "{{ node.datastore }}"
       delegate_to: localhost
 
     - name: Create a VM snapshot

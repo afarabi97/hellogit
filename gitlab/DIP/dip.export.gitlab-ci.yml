@@ -16,7 +16,6 @@ Clear DIP Software Folders:
     done
   only:
     variables:
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -34,7 +33,6 @@ Ship Phyical Stack Build:
     unzip "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" -d "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
   only:
     variables:
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -58,7 +56,6 @@ Add Docs to DIP Controller:
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   only:
     variables:
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
   retry: 2
   artifacts:
@@ -82,7 +79,6 @@ Export DIP Controller:
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -103,5 +99,5 @@ Export DIP MinIO:
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
-      - $MINIO_VM == "yes" && $PIPELINE == "export-dip"
-      - $MINIO_VM == "yes" && $PIPELINE == "export-all"
+      - $PIPELINE == "export-minio"
+      - $PIPELINE == "export-all"

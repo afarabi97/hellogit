@@ -19,7 +19,6 @@ Clear DIP Docs Folders:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -46,7 +45,6 @@ Build DIP Offline Documentation:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -70,7 +68,6 @@ DIP Setup Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -94,7 +91,6 @@ DIP User Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -118,7 +114,6 @@ DIP Training Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -142,7 +137,6 @@ DIP Architecture Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -166,7 +160,6 @@ DIP Maintenance Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 DIP TroubleShooting Documents:
@@ -189,7 +182,6 @@ DIP TroubleShooting Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"
 
 
@@ -213,5 +205,4 @@ DIP VDD Documents:
   only:
     variables:
       - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-dip"
       - $PIPELINE == "export-all"

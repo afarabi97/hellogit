@@ -18,7 +18,8 @@ from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
 from pathlib import Path
 from typing import Tuple
 from io import StringIO
-from util.ansible_util import power_on_vms, revert_to_baseline_and_power_on_vms, power_off_vms
+from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms,
+                               power_off_vms, power_off_vms_gracefully)
 from util.docs_exporter import MyConfluenceExporter
 from util.ssh import test_nodes_up_and_alive
 from models.gip_settings import GIPServiceSettings
@@ -28,7 +29,6 @@ from models.rhel_repo_vm import RHELRepoSettings
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 CTRL_EXPORT_PREP = PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"
 TESTING_DIR = PIPELINE_DIR + "/../"
-POWER_OFF_VM = PIPELINE_DIR + "playbooks/power_off_virtual_machine.yml"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
@@ -62,8 +62,19 @@ def generate_versions_file(export_loc: ExportLocSettings):
 
     shutil.copy2(cpt_file_path, mdt_file_path)
 
-def poweroff(node: VCenterSettings, vcenter: VCenterSettings):
-    execute_playbook([POWER_OFF_VM], {'hostname': vcenter.ipaddress, 'username': vcenter.username, 'password': vcenter.password, 'vmname': node.hostname, 'python_executable': sys.executable})
+
+def prepare_for_export(username: str,
+                       password: str,
+                       ctrl_ip: str,
+                       is_controller: bool=True):
+    with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+        remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
+        remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
+        if is_controller:
+            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192')
+        else:
+            remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
+
 
 class ExportOVF:
     def __init__(self, source_locator, target_locator):
@@ -85,6 +96,7 @@ class ExportOVF:
         os.chmod(self.target_locator, 0o644)
         if serr:
             logging.error(serr)
+
 
 class MinIOExport:
     def __init__(self, node: NodeSettings, vcenter: VCenterSettings, export_loc: ExportLocSettings):
@@ -119,6 +131,13 @@ class MinIOExport:
         return self.cpt_export_path
 
     def export(self):
+        power_on_vms(self._vcenter, self._node)
+        test_nodes_up_and_alive(self._node, 10)
+        prepare_for_export(self._node.username,
+                           self._node.password,
+                           self._node.ipaddress,
+                           False)
+        power_off_vms_gracefully(self._vcenter, self._node)
         ExportOVF(self.source_locator, self.target_locator).export()
         logging.info(f"Copying MinIO OVA from {self.cpt_export_path} to {self.mdt_export_path}.")
         shutil.copy2(self.cpt_export_path, self.mdt_export_path)
@@ -144,59 +163,6 @@ class ControllerExport:
             logging.warn("{} returned with {}.".format(cmd, ret_val.return_code))
 
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
-
-    def _clear_history(self, remote_shell: Connection):
-        remote_shell.sudo('cat /dev/null > /root/.bash_history')
-        remote_shell.sudo('cat /dev/null > /home/assessor/.bash_history', warn=True)
-
-    def _remove_extra_files(self, remote_shell: Connection):
-        remote_shell.sudo('rm -rf /root/.ssh/*')
-        remote_shell.sudo('rm -f /opt/tfplenum/.editorconfig')
-
-    def _change_password(self, remote_shell: Connection) -> None:
-        # To get hash for a new password run the following bash command and make sure you escape special characters.
-        # perl -e "print crypt('<Your Password>', "Q9"),"
-        change_root_pwd = "usermod --password Q9sIxtbggUGaw root"
-        try:
-            remote_shell.sudo(change_root_pwd)
-        except UnexpectedExit:
-            # For some strange reason, the password files can be
-            # locked so we release those locks before changing the password
-            remote_shell.sudo('rm -f /etc/passwd.lock')
-            remote_shell.sudo('rm -f /etc/shadow.lock')
-            remote_shell.sudo(change_root_pwd)
-
-    def _update_network_scripts(self, iface_name: str, remote_shell: Connection):
-        iface = ("TYPE=Ethernet\n"
-                 "PROXY_METHOD=none\n"
-                 "BROWSER_ONLY=no\n"
-                 "BOOTPROTO=dhcp\n"
-                 "DEFROUTE=yes\n"
-                 "IPV4_FAILURE_FATAL=no\n"
-                 "IPV6INIT=no\n"
-                 "IPV6_AUTOCONF=yes\n"
-                 "IPV6_DEFROUTE=yes\n"
-                 "IPV6_FAILURE_FATAL=no\n"
-                 "IPV6_ADDR_GEN_MODE=stable-privacy\n"
-                 "NAME={}\n"
-                 "ONBOOT=yes".format(iface_name))
-
-        new_iface_file = StringIO(iface)
-        remote_shell.sudo('find /etc/sysconfig -name "ifcfg-*" -not -name "ifcfg-lo" -delete')
-        remote_shell.put(new_iface_file, '/etc/sysconfig/network-scripts/ifcfg-{}'.format(iface_name))
-
-    def _prepare_for_export(self,
-                            username: str,
-                            password: str,
-                            ctrl_ip: str):
-        with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
-            self._update_network_scripts("ens192", remote_shell)
-            self._remove_extra_files(remote_shell)
-            self._change_password(remote_shell)
-            # Commented out reclaim disk space because OVA exports were becoming 170+GB
-            # self._run_reclaim_disk_space(remote_shell)
-            # TODO: Fix _run_reclaim_disk_space
-            self._clear_history(remote_shell)
 
     def _export(self, destination: str, vm_release_name: str):
         """
@@ -234,9 +200,9 @@ class ControllerExport:
         cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        self._prepare_for_export(self.ctrl_settings.node.username,
-                                 self.ctrl_settings.node.password,
-                                 self.ctrl_settings.node.ipaddress)
+        prepare_for_export(self.ctrl_settings.node.username,
+                           self.ctrl_settings.node.password,
+                           self.ctrl_settings.node.ipaddress)
 
         payload = self.ctrl_settings.to_dict()
         export_name = self.export_loc.render_export_name("DIP_Controller")
@@ -260,9 +226,9 @@ class MIPControllerExport(ControllerExport):
 
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        self._prepare_for_export(self.ctrl_settings.node.username,
-                                 self.ctrl_settings.node.password,
-                                 self.ctrl_settings.node.ipaddress)
+        prepare_for_export(self.ctrl_settings.node.username,
+                           self.ctrl_settings.node.password,
+                           self.ctrl_settings.node.ipaddress)
 
         payload = self.ctrl_settings.to_dict()
         export_name = self.export_loc.render_export_name("MIP_Controller")
@@ -290,9 +256,10 @@ class GIPServiceExport(ControllerExport):
 
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        self._prepare_for_export(self.ctrl_settings.node.username,
-                                 self.ctrl_settings.node.password,
-                                 self.ctrl_settings.node.ipaddress)
+        prepare_for_export(self.ctrl_settings.node.username,
+                           self.ctrl_settings.node.password,
+                           self.ctrl_settings.node.ipaddress,
+                           False)
 
         payload = self.ctrl_settings.to_dict()
         export_name = self.export_loc.render_export_name("GIP_Services")
@@ -316,9 +283,10 @@ class ReposyncServerExport(ControllerExport):
 
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        self._prepare_for_export(self.ctrl_settings.node.username,
-                                 self.ctrl_settings.node.password,
-                                 self.ctrl_settings.node.ipaddress)
+        prepare_for_export(self.ctrl_settings.node.username,
+                           self.ctrl_settings.node.password,
+                           self.ctrl_settings.node.ipaddress,
+                           False)
 
         payload = self.ctrl_settings.to_dict()
         export_name = self.export_loc.render_export_name("Reposync_Server")
@@ -342,9 +310,10 @@ class ReposyncWorkstationExport(ControllerExport):
 
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        self._prepare_for_export(self.ctrl_settings.node.username,
-                                 self.ctrl_settings.node.password,
-                                 self.ctrl_settings.node.ipaddress)
+        prepare_for_export(self.ctrl_settings.node.username,
+                           self.ctrl_settings.node.password,
+                           self.ctrl_settings.node.ipaddress,
+                           False)
 
         payload = self.ctrl_settings.to_dict()
         export_name = self.export_loc.render_export_name("Reposync_Workstation")

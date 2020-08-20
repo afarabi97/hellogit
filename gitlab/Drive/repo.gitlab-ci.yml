@@ -21,7 +21,7 @@ Test Reposync Server VM:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Headless Template" \
+    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
     --subscription "$RHEL_SUB_METHOD" \
     --orgnumber "$RHEL_ORGANIZATION" \
     --activationkey "$RHEL_ACTIVATIONKEY"
@@ -53,7 +53,7 @@ Test Reposync Workstation VM:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Workstation Template" \
+    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE" \
     --subscription "$RHEL_SUB_METHOD" \
     --orgnumber "$RHEL_ORGANIZATION" \
     --activationkey "$RHEL_ACTIVATIONKEY"
@@ -84,7 +84,7 @@ Build Server Reposync VM for Export:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Headless Template" \
+    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
     --linked-clone "$LINKED_CLONE"
   retry: 2
   artifacts:
@@ -117,7 +117,7 @@ Build Workstation Reposync VM for Export:
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
     --disk-size "1100" \
-    --vm-template "RHEL7.7 Workstation Template" \
+    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE" \
     --linked-clone "$LINKED_CLONE"
   retry: 2
   artifacts:

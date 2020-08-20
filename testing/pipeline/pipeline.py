@@ -14,7 +14,7 @@ from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport,
                          generate_versions_file, MIPControllerExport,
                          GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport,
-                         poweroff, MinIOExport)
+                         MinIOExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
@@ -208,7 +208,6 @@ class Runner:
             elif args.which == SubCmd.export_minio.id:
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                poweroff(YamlManager.load_node_settings(args.application), YamlManager.load_vcenter_settings(args.application))
                 MinIOExport(
                     YamlManager.load_node_settings(args.application),
                     YamlManager.load_vcenter_settings(args.application),
