@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 TFPLENUM_DIR=$SCRIPT_DIR/../../
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root or use sudo."
-  exit 2
+  exit
 fi
 
 function run_cmd {
@@ -17,9 +17,14 @@ function run_cmd {
     fi
 }
 
-pushd $SCRIPT_DIR/ > /dev/null
-# runs python pylint checking
-run_cmd pylint --exit-zero --rcfile=../../pylint.rc * > pylint-pipeline.txt
+cat <<EOF > /etc/tfplenum.ini
+[tfplenum]
+system_name = DIP
+version = 3.4.0
+EOF
+
+pushd $TFPLENUM_DIR/bootstrap/playbooks > /dev/null
+run_cmd make setup_python_env
 popd > /dev/null
 
 exit 0

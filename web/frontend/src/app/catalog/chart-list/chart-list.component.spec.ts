@@ -1,16 +1,17 @@
-import { ChartListComponent } from './chart-list.component';
-import { CardComponent } from '../card/card.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { DebugElement } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NodeBackgroundComponent } from '../node-background/node-background.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { By } from '@angular/platform-browser';
+import { RouterTestingModule } from '@angular/router/testing';
+
+import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { CapitalizeFirstPipe } from '../../custom-pipes/capitalize.pipe';
 import { InjectorModule } from '../../utilily-modules/injector.module';
-import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { CardComponent } from '../card/card.component';
+import { NodeBackgroundComponent } from '../node-background/node-background.component';
 import { CatalogService } from '../services/catalog.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { DebugElement } from '@angular/core';
-import { By } from '@angular/platform-browser';
+import { ChartListComponent } from './chart-list.component';
 
 describe('ChartListComponent', () => {
   let component: ChartListComponent;
@@ -115,7 +116,7 @@ describe('ChartListComponent', () => {
       fixture.whenStable().then(() => {
         const debug: DebugElement = fixture.debugElement;
         const cards = debug.queryAll(By.directive(CardComponent));
-        expect(cards.length).toEqual(11);
+        expect(cards.length).toEqual(12);
 
         for (let i in cards) {
           expect(cards[i].componentInstance.chart).toEqual(charts[i]);

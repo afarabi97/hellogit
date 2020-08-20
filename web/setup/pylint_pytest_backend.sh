@@ -23,21 +23,10 @@ system_name = DIP
 version = 3.4.0
 EOF
 
-
-pushd / > /dev/null
-run_cmd python3 -m venv tfp-env
-popd > /dev/null
-
-pushd $TFPLENUM_DIR/bootstrap/playbooks > /dev/null
-run_cmd make setup_python_env
-popd > /dev/null
-
 pushd $TFPLENUM_DIR/web/ > /dev/null
-run_cmd /tfp-env/bin/pip install --upgrade pip
-/tfp-env/bin/pip install -r requirements.txt
-
-run_cmd /tfp-env/bin/pip install pylint==2.5.3
-run_cmd /tfp-env/bin/pylint --rcfile=../pylint.rc backend/
+# runs python pylint checking
+run_cmd pylint --exit-zero --ignore=tests --rcfile=../pylint.rc backend/ > ./setup/pylint-backend.txt
+# TODO - Add Unit Test Section python backend
 popd > /dev/null
 
 exit 0

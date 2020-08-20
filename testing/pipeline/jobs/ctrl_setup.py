@@ -32,7 +32,7 @@ EOF
     commands = ['git config --global --unset credential.helper',
                 cred_file_cmd,
                 'git config --global credential.helper "/bin/bash ~/credential-helper.sh"',
-                'git fetch',
+                'git fetch --unshallow',
                 'git checkout {} --force'.format(repo_settings.branch_name),
                 'git pull --rebase',
                 'git config --global --unset credential.helper',

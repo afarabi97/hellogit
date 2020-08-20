@@ -15,5 +15,7 @@ EOF
 make install_angular
 make build_frontend_only
 
+return_code=$(echo $?)
+
 popd > /dev/null
-exit 0
+exit $return_code

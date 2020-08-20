@@ -1,38 +1,43 @@
-import { Component, HostBinding, AfterContentInit } from '@angular/core';
-import { OverlayContainer} from '@angular/cdk/overlay';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { AfterContentInit, Component, HostBinding } from '@angular/core';
+
+import { ObjectUtilsClass } from './classes';
+import { ClassForSystemNameEnum } from './enums';
 import { WeaponSystemNameService } from './services/weapon-system-name.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  templateUrl: './app.component.html'
 })
-
 export class AppComponent implements AfterContentInit {
-  title = 'app';
+  // theme for application
   theme = null;
+  // Css class reference hostbinding
+  @HostBinding('class') componentCssClass: string;
 
-  classForSystemName = {
-    'DIP': 'dip-theme',
-    'MIP': 'mip-theme',
-    'GIP': 'gip-theme'
-  };
+  /**
+   * Creates an instance of AppComponent.
+   *
+   * @param {OverlayContainer} overlayContainer_
+   * @param {WeaponSystemNameService} weaponSystemNameService_
+   * @memberof AppComponent
+   */
+  constructor(private overlayContainer_: OverlayContainer,
+              private weaponSystemNameService_: WeaponSystemNameService) {}
 
-  constructor(private overlayContainer: OverlayContainer, private sysNameSrv: WeaponSystemNameService) {
-  }
+  /**
+   * Used for seting the theme based on system name
+   *
+   * @memberof AppComponent
+   */
+  ngAfterContentInit(): void {
+    const system_name: string = this.weaponSystemNameService_.getSystemName();
+    const newTheme: string = ClassForSystemNameEnum[system_name];
+    const containerElement: HTMLElement = this.overlayContainer_.getContainerElement();
 
-  @HostBinding('class') componentCssClass;
-
-  ngAfterContentInit() {
-    let system_name = this.sysNameSrv.getSystemName();
-    let newTheme = this.classForSystemName[system_name];
-
-    if(this.theme) {
-      this.overlayContainer.getContainerElement().classList.replace(this.theme, newTheme);
-      this.componentCssClass = newTheme;
-    } else {
-      this.overlayContainer.getContainerElement().classList.add(newTheme);
-      this.componentCssClass = newTheme;
-    }
+    ObjectUtilsClass.notUndefNull(this.theme) ?
+      containerElement.classList.replace(this.theme, newTheme) :
+      containerElement.classList.add(newTheme);
+    this.componentCssClass = newTheme;
   }
 }

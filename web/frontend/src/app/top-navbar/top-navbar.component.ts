@@ -3,6 +3,7 @@ import { FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { interval } from 'rxjs';
 
+import { SystemNameClass } from '../classes';
 import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
@@ -33,7 +34,10 @@ export class TopNavbarComponent implements OnInit {
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
 
   emitTheme() {
-    this.themeChanged.emit({ 'system_name': this.system_name });
+    const systemName: SystemNameClass = new SystemNameClass();
+    systemName.system_name = this.system_name;
+
+    this.themeChanged.emit(systemName);
   }
 
   @ViewChild('notifications', { static: false }) notifications: NotificationsComponent;

@@ -21,7 +21,7 @@ module.exports = function(config) {
     exclude: [],
     coverageIstanbulReporter: {
       reports: [ 'html', 'lcovonly' ],
-      dir: path.join(__dirname, 'doc-tests-coverage'),
+      dir: path.join(__dirname, '../test-coverage'), // so it will add coverage report into test-coverage dir on frontend root level
       fixWebpackSourcePaths: true,
       skipFilesWithNoCoverage: false,
       'report-config': {
@@ -37,16 +37,16 @@ module.exports = function(config) {
       thresholds: {
         emitWarning: true, // set to `true` to not fail the test command when thresholds are not met
         global: { // thresholds for all files
-          statements: 90,
-          lines: 90,
-          branches: 40,
-          functions: 90
+          statements: 1,
+          lines: 1,
+          branches: 1,
+          functions: 1
         },
         each: { // thresholds per file
-          statements: 90,
-          lines: 90,
+          statements: 80,
+          lines: 80,
           branches: 40,
-          functions: 90,
+          functions: 80,
         }
       }
     },
@@ -71,9 +71,16 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: [],
     singleRun: true,
     browserNoActivityTimeout: 60000,
     browserDisconnectTimeout: 2000,
+    browsers: ['ChromeHeadlessNoSandbox'], // only used for running tests as root within docker container
+    customLaunchers: {
+        ChromeHeadlessNoSandbox: {
+            base: 'ChromeHeadless',
+            flags: ['--no-sandbox', '--headless']
+        }
+
+    }
   });
 };
