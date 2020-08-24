@@ -9,6 +9,7 @@ class SubCmd:
     run_kickstart = 'run-kickstart'
     run_kit = 'run-kit'
     run_catalog = 'run-catalog'
+    run_bp = 'run-bp'
     run_integration_tests = 'run-integration-tests'
     simulate_power_failure = 'simulate-power-failure'
     run_unit_tests = 'run-unit-tests'

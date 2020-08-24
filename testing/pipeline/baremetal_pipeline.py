@@ -8,6 +8,7 @@ from jobs.ctrl_setup import BaremetalControllerSetup
 from jobs.kickstart import HwKickstartJob
 from jobs.kit import KitJob
 from jobs.catalog import CatalogJob
+from jobs.breakingpoint import BPJob
 from models import add_args_from_instance
 from models.common import BasicNodeCreds
 from models.constants import SubCmd
@@ -15,6 +16,7 @@ from models.ctrl_setup import HwControllerSetupSettings
 from models.kickstart import HwKickstartSettings
 from models.kit import HwKitSettings
 from models.catalog import CatalogSettings
+from models.breakingpoint import BPSettings
 from util.ansible_util import delete_vms
 from util.yaml_util import YamlManager
 
@@ -71,6 +73,11 @@ class BaremetalRunner():
         CatalogSettings.add_args(catalog_parser)
         catalog_parser.set_defaults(which=SubCmd.run_catalog)
 
+        bp_parser = subparsers.add_parser(
+            SubCmd.run_bp, help="this subcommand runs breaking point on your kit")
+        BPSettings.add_args(bp_parser)
+        bp_parser.set_defaults(which=SubCmd.run_bp)
+        
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
         args = parser.parse_args()
@@ -100,6 +107,9 @@ class BaremetalRunner():
                 self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
             elif args.which == SubCmd.run_catalog:
                 catalog_parser.print_help()
+            elif args.which == SubCmd.run_bp:
+                self.bp_settings = BPSettings()
+                self.bp_settings.from_namespace(args)
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:
@@ -135,7 +145,9 @@ class BaremetalRunner():
             elif self.args.which == SubCmd.simulate_power_failure:
                 executor = HwPowerFailureJob(self.kickstart_settings)
                 executor.run_power_cycle()
-                
+            elif self.args.which == SubCmd.run_bp:
+                executor = BPJob(self.bp_settings)
+                executor.run_test()
         except Exception as e:
             print("\n** ERROR:")
             print(e)

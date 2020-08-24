@@ -49,6 +49,7 @@ variables:
   RUN_INTEGRATION: "no"
   RUN_CODE_CHECKS: "yes"
   RUN_POWER_FAILURE: "no"
+  RUN_BREAKINGPOINT : "no"
   DNS_SERVERS: "10.10.101.11 10.10.101.12 10.11.101.13"
   CONTROLLER_DNS_SERVERS: "10.10.101.248"
   REPO_URL: "https://gitlab.sil.lab/tfplenum/tfplenum.git"
@@ -76,6 +77,8 @@ variables:
   RUN_REPOSYNC_SERVER_STIGS: "yes"
   RUN_REPOSYNC_WORKSTATION_STIGS: "yes"
   VM_RAID: "no"
+  BREAKINGPOINT_IP: "10.10.103.29"
+  BREAKINGPOINT_TEST_NAME: "BP-1GB-Pipeline-Test"
 
   # Repo Sync variables
   REPO_SERVER_TEMPLATE_TO_CLONE: reposync-server
@@ -179,6 +182,7 @@ stages:
   - hashfiles
   - checkhash
   - publish
+  - breakingpoint-test
 
 default:
   before_script:
