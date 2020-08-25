@@ -28,6 +28,8 @@ spec:
           value: {{ .Values.cortexIntegration | quote}}
         - name: HIVE_USER_EMAIL
           value: {{ .Values.hive_user_email }}
+        - name: FILEBEAT_USER_EMAIL
+          value: {{ .Values.filebeat_user_email }}
         - name: CORTEX_USER_EMAIL
           value: {{ .Values.cortex_user_email }}
         - name: HIVE_USER_API_KEY
@@ -40,6 +42,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: cortex_user_api_key
+        - name: FILEBEAT_USER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: filebeat_user_api_key
         - name: ADMIN_PASS
           valueFrom:
             secretKeyRef:

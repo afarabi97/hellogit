@@ -98,6 +98,7 @@
     status_code: 200, 201
   with_items:
     - filebeat-suricata
+    - filebeat-misp
     - ecs-zeek
   register: policy_results
   until: policy_results.status == 200

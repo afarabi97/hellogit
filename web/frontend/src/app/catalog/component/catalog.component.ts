@@ -27,7 +27,7 @@ export class CatalogComponent implements OnInit {
   @ViewChild('commElement', {static: false})
   public commElement: MatSlideToggle;
 
-  pmoSupportedApplications = ['cortex', 'hive', 'logstash', 'moloch', 'moloch-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid'];
+  pmoSupportedApplications = ['cortex', 'hive', 'misp', 'logstash', 'moloch', 'moloch-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid'];
 
   /**
    *Creates an instance of CatalogComponent.

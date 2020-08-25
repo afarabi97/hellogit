@@ -14,6 +14,8 @@ headers = {"Content-Type": "application/json", "Accept": "application/json"}
 cortex_headers = {"Content-Type": "application/json", "Accept": "application/json"}
 api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
+FILEBEAT_USER_EMAIL=os.environ['FILEBEAT_USER_EMAIL']
+FILEBEAT_USER_API_KEY=os.environ['FILEBEAT_USER_API_KEY']
 HIVE_USER_API_KEY=os.environ['HIVE_USER_API_KEY']
 CORTEX_USER_EMAIL=os.getenv('CORTEX_USER_EMAIL', default='')
 CORTEX_USER_API_KEY=os.getenv('CORTEX_USER_API_KEY',default='')
@@ -228,6 +230,15 @@ class MISPSetup:
             # Create Hive User
             self.create_user(email=CORTEX_USER_EMAIL, role_id=1, org_id=None, authkey=CORTEX_USER_API_KEY)
 
+    def setup_misp_filebeat_user(self):
+        user = self.get_users(FILEBEAT_USER_EMAIL)
+        if user is not None and user is not False:
+            # Edit Filebeat User
+            self.edit_user(user_id=user, email=FILEBEAT_USER_EMAIL, role_id=1, org_id=None, authkey=FILEBEAT_USER_API_KEY)
+        else:
+            # Create Filebeat User
+            self.create_user(email=FILEBEAT_USER_EMAIL, role_id=1, org_id=None, authkey=FILEBEAT_USER_API_KEY)
+
     def get_cortex_status(self):
         if not CORTEX_INTEGRATION == "true":
             return False
@@ -292,6 +303,7 @@ if __name__ == '__main__':
             print("Found pod - "+setup._misp_pod.metadata.name)
             setup.reset_password()
             setup.reset_authkey()
+            setup.setup_misp_filebeat_user()
             setup.setup_misp_hive_user()
             org = setup.get_org(org_id = 1)
             if org.status_code == 200:
