@@ -63,7 +63,6 @@ spec:
               name: {{ .Release.Name }}-secret
               key: filebeat_user_api_key
         volumeMounts:
-          readOnly: true
         - name: configs
           subPath: misp.yml
           mountPath: /usr/share/filebeat/modules.d/misp.yml
@@ -80,10 +79,6 @@ spec:
           - '-E'
           - 'name="{{ .Release.Name }}"'
       volumes:
-      - name: misp-vol
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
-          type: DirectoryOrCreate
       - name: configs
         configMap:
           name: misp-filebeat-cm
