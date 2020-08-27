@@ -1,0 +1,96 @@
+---
+- name: Import SSO vars from Bootstrap
+  include_vars:
+    file: /opt/tfplenum/bootstrap/playbooks/roles/sso/defaults/main.yml
+
+- name: Set Keycloak Clients Fact
+  set_fact:
+    ansible_controller_hostname: "controller.lan"
+  when: kit_domain is not defined
+
+- name: Set Keycloak Clients Fact
+  set_fact:
+    ansible_controller_ip: "{{ ansible_default_ipv4.address }}"
+  when: server_ip is not defined
+
+- name: Keycloak Auth
+  command: >
+    {{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth
+    --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}
+  register: keycloak_auth
+  until: keycloak_auth.rc == 0
+  changed_when: keycloak_auth.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Get Clients
+  command: >
+    {{ keycloak_dir }}/bin/kcadm.sh get clients -r {{ realm_name }} --fields id,clientId
+  register: keycloak_clients_cmd
+  until: keycloak_clients_cmd.rc == 0
+  changed_when: keycloak_clients_cmd.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Set Keycloak Clients Fact
+  set_fact:
+    keycloak_clients: "{{ keycloak_clients_cmd.stdout | from_json }}"
+    redirectUris:
+      - "https://{{ ansible_controller_hostname }}/*"
+      - "https://{{ ansible_controller_ip }}/*"
+    webOrigins:
+      - "https://{{ ansible_controller_hostname }}/*"
+      - "https://{{ ansible_controller_ip }}/*"
+    attributes:
+      saml_single_logout_service_url_post: "https://{{ ansible_controller_hostname }}/Shibboleth.sso/SLO/POST"
+      saml_assertion_consumer_url_post: "https://{{ ansible_controller_hostname }}/Shibboleth.sso/SAML2/POST"
+
+- name: Set Controller Client ID
+  set_fact:
+    client_id: "{{ item.id }}"
+  with_items: "{{ keycloak_clients }}"
+  when: "'https://controller.' in item.clientId"
+
+- name: Update Controller Keycloak Client
+  command: >
+    {{ keycloak_dir }}/bin/kcadm.sh update clients/{{ client_id }} -r {{ realm_name }}
+    -s clientId=https://{{ ansible_controller_hostname }}/shibboleth
+    -s rootUrl=https://{{ ansible_controller_hostname }}
+    -s redirectUris={{ redirectUris | to_json | quote }}
+    -s webOrigins={{ webOrigins | to_json | quote }}
+    -s attributes={{ attributes | to_json | quote }}
+  register: keycloak_update_cmd
+  until: keycloak_update_cmd.rc == 0
+  changed_when: keycloak_update_cmd.rc == 0
+  retries: 5
+  delay: 10
+  notify: "Restart Shibboleth"
+
+- name: Get Updated SAML Metadata
+  get_url:
+    url: "https://{{ ansible_controller_hostname }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor"
+    dest: /etc/shibboleth/idp.metadata.xml
+    mode: '0644'
+    validate_certs: no
+    force: yes
+  notify: "Restart Shibboleth"
+
+- name: Update SP entityID
+  xml:
+    path: /etc/shibboleth/shibboleth2.xml
+    xpath: /ns:SPConfig/ns:ApplicationDefaults
+    attribute: entityID
+    value: "https://{{ ansible_controller_hostname }}/shibboleth"
+    namespaces:
+      ns: "urn:mace:shibboleth:3.0:native:sp:config"
+  notify: "Restart Shibboleth"
+
+- name: Update IDP entityID
+  xml:
+    path: /etc/shibboleth/shibboleth2.xml
+    xpath: /ns:SPConfig/ns:ApplicationDefaults/ns:Sessions/ns:SSO
+    attribute: entityID
+    value: "https://{{ ansible_controller_hostname }}/auth/realms/CVAH-SSO"
+    namespaces:
+      ns: "urn:mace:shibboleth:3.0:native:sp:config"
+  notify: "Restart Shibboleth"

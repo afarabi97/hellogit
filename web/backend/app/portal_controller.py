@@ -138,18 +138,18 @@ def get_portal_links() -> Response:
     :return:
     """
     try:
-        with FabricConnectionWrapper(conn_mng) as ssh_conn:
-            portal_links = []
-            ret_val = ssh_conn.run('cat /etc/dnsmasq_hosts/kube_hosts', hide=True)  # type: Result
-            for line in ret_val.stdout.split('\n'):
+        portal_links = []
+        with open('/etc/dnsmasq_hosts/kube_hosts', 'r') as file:
+            lines = file.readlines()
+            for line in lines:
                 try:
-                    ip, dns = line.split(' ')
+                    ip_addr, dns = line.split(' ')
                     if _is_discluded(dns):
                         continue
-                    _append_portal_link(portal_links, dns, ip)
+                    _append_portal_link(portal_links, dns, ip_addr)
                 except ValueError:
                     pass
-            return jsonify(portal_links)
+        return jsonify(portal_links)
     except Exception as e:
         logger.exception(e)
         return jsonify([])

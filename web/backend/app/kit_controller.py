@@ -9,7 +9,6 @@ from app.archive_controller import archive_form
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.kit_service import perform_kit
-from app.service.time_service import change_time_on_nodes, NodeDirtyException
 from flask import request, Response, jsonify
 from pymongo.collection import ReturnDocument
 from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
@@ -52,19 +51,6 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
     return False, None
 
 
-def _process_kit_and_time(payload: Dict) -> Tuple[bool, str]:
-    """
-    Main function for processing the kit and changing times on the nodes.
-
-    :return: Returns True if its successfull.
-    """
-    is_sucessful, root_password = _replace_kit_inventory(payload['kitForm'])
-    if is_sucessful:
-        change_time_on_nodes(payload, root_password)
-        return True, root_password
-    return False, None
-
-
 @app.route('/api/execute_kit_inventory', methods=['POST'])
 @controller_admin_required
 def execute_kit_inventory() -> Response:
@@ -74,7 +60,7 @@ def execute_kit_inventory() -> Response:
     :return: Response object
     """
     payload = request.get_json()
-    is_successful, root_password = _process_kit_and_time(payload)
+    is_successful, root_password = _replace_kit_inventory(payload['kitForm'])
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
         cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{password}'".format(password=root_password)
@@ -116,11 +102,11 @@ def generate_kit_inventory() -> Response:
     """
     try:
         payload = request.get_json()
-        is_successful, _ = _process_kit_and_time(payload)
+        is_successful, root_password = _replace_kit_inventory(payload['kitForm'])
         if is_successful:
             return OK_RESPONSE
 
-    except NodeDirtyException as e:
+    except Exception as e:
         return (jsonify({"error_message": str(e)}), 500)
 
     error_msg = "Executing /api/generate_kit_inventory has failed."

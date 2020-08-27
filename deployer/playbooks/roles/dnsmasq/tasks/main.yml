@@ -1,36 +1,88 @@
 ---
-- name: Configure dns server
-  block:
-    - name: Create /etc/hosts
-      template:
-        src: "hosts.j2"
-        dest: "/etc/hosts"
-        owner: root
-        group: root
-        mode: 0644
-      register: dnsmasq_result
-      notify:
-        - "Restart Network"
-        - "Restart NetworkManager"
+- name: Set_fact management_interface ipv4
+  set_fact:
+    management_interface: "{{ ansible_default_ipv4.interface }}"
 
-    - meta: flush_handlers
+- name: Delete existing files
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "{{ dnsmasq_conf_file }}"
+    - "{{ host_dir }}"
 
-    - name: Install packages
-      yum:
-        name: "dnsmasq"
-        state: present
+- name: Install dnsmasq
+  yum:
+    name:
+      - dnsmasq
+      - bind-utils
+    state: installed
 
-    - name: DNS Services
-      service:
-        name: "dnsmasq"
-        state: started
-        enabled: yes
+- name: "Create host dir"
+  file:
+    path: "{{ host_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
 
-    - name: DNS Firewall
-      firewalld:
-        service: dns
-        state: enabled
-        immediate: yes
-        permanent: yes
-      notify: "Restart Docker"
-  when: dnsmasq is defined and dnsmasq
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "{{ host_file }}"
+
+- name: Create dnsmasq conf
+  template:
+    src: templates/10-dnsmasq.conf.j2
+    dest: "{{ dnsmasq_conf_file }}"
+  register: dnsmasq_conf
+
+- name: Create dnsmasq_kube_hosts file
+  file:
+    path: "{{ item }}"
+    state: touch
+  with_items:
+    - /etc/dnsmasq.d/20-kube-dns.conf
+    - "{{ kube_host_file }}"
+
+- name: Configure firewalld
+  firewalld:
+    service: dns
+    permanent: true
+    state: enabled
+    immediate: yes
+
+- name: "Create dnsmasq directory for override"
+  file:
+    path: "/etc/systemd/system/dnsmasq.service.d"
+    state: directory
+    owner: root
+
+- name: override default dnsmasq service
+  copy:
+    src: "files/override.conf"
+    dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
+    group: root
+    owner: root
+    mode: 0644
+  register: dnsmasq_conf
+
+- name: Start dnsmasq and enable it
+  systemd:
+    name: dnsmasq
+    state: restarted
+    enabled: yes
+    daemon-reload: yes
+
+- name: Reverting to default /etc/hosts
+  copy:
+    src: "files/default_hosts"
+    dest: "/etc/hosts"
+
+- name: Add update-dns script
+  copy:
+    src: files/update-dns.py
+    dest: /usr/bin/update-dns.py
+    mode: 0755
+    owner: root
+    group: root

@@ -1,3 +1,7 @@
 ---
 # defaults file for roles/dnsmasq
 #
+host_dir: /etc/dnsmasq_hosts
+host_file: "{{host_dir}}/static_hosts"
+kube_host_file: "{{host_dir}}/kube_hosts"
+dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf

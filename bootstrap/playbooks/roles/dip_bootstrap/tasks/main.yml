@@ -45,5 +45,6 @@
 - import_tasks: max_log_size.yml
 - import_tasks: update_etc_hosts.yml
 - import_tasks: update_controller_dns.yml
+  tags: setup_ctrl_dns
 - import_tasks: finish.yml
 

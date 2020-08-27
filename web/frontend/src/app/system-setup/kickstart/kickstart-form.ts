@@ -94,8 +94,10 @@ export const kickstart_validators = {
     { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
   pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
-
-  gateway: [{ error_message: 'Gateway is required', validatorFn: 'required' }],
+  gateway: [
+    { error_message: 'Gateway is required', validatorFn: 'required' },
+    { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }
+  ],
   netmask: [{ error_message: 'Netmask is required', validatorFn: 'required' }],
   //general form validation
   controller_interface: [{ error_message: 'Controller Interface is required', validatorFn: 'required' }],
@@ -136,6 +138,8 @@ export const kickstart_validators = {
     { error_message: 'Retyping luks password is required', validatorFn: 'required' }
   ],
   timezone: [{ error_message: 'Timezone is required.', validatorFn: 'required' }],
+  upstream_dns: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }],
+  upstream_ntp: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }]
 }
 
 export const kickStartTooltips = {
@@ -172,5 +176,9 @@ export const kickStartTooltips = {
   confirm_luks_password: 'This is the password you will use to decrypt the disk.',
   timezone: 'The timezone set during Kickstart.',
   os_raid: 'OS Level RAID is a data protection method that spreads data on multiple hard disks, balancing overlapping I/O operations \
-  improving performance and increasing the mean time between failures.'
+  improving performance and increasing the mean time between failures.',
+  upstream_dns: 'The upstream DNS server is used to forward any non-local DNS request outside the kit.  \
+  This is needed if the kit needs access to the internet or mission partner network.',
+  upstream_ntp: 'The upstream NTP server is used to sync time with sources outside the kit.  \
+  This is useful to keep the kit time settings in sync with internet or mission partner time sources.'
 }

@@ -1,64 +1,42 @@
-# {{ ansible_managed }}
-# See https://chrony.tuxfamily.org/documentation.html for details on this file
-
-{% if chrony_pool %}
-pool {{ chrony_pool }}
-{% endif %}
-
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
 server {{ chrony_server }} iburst
 
-keyfile {{ chrony_keyfile }}
-commandkey 1
+# Record the rate at which the system clock gains/losses time.
+driftfile /var/lib/chrony/drift
 
-driftfile {{ chrony_driftfile }}
-log {{ chrony_log }}
-logdir {{ chrony_logdir }}
-maxupdateskew {{ chrony_maxupdateskew }}
-dumponexit
-# Specify directory for dumping measurements.
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+makestep 1.0 -1
 
+# Enable kernel synchronization of the real-time clock (RTC).
+rtcsync
 
-dumpdir {{ chrony_dumpdir }}
+# Enable hardware timestamping on all interfaces that support it.
+#hwtimestamp *
 
-# This line ensures that if system clocks are far off sync after boot, chrony will make
-# a quick forceful adjustment instead of lightly adjusting clock speed
-# measurement count
-#             |
-# tolerance   |
-#         |   |
-#        \|/ \|/
-makestep 100 10
+# Increase the minimum number of selectable sources required to adjust
+# the system clock.
+#minsources 2
 
-# This directive lets 'chronyd' to serve time even if unsynchronised to any
-# NTP server.
+# Allow NTP client access from local network.
+#allow 192.168.0.0/16
 
+# Serve time even if not synchronized to a time source.
 #local stratum 10
 
-# This directive designates subnets (or nodes) from which NTP clients are allowed
-# to access to 'chronyd'.
+# Specify file containing keys for NTP authentication.
+# keyfile /etc/chrony.keys
 
-#allow foo.example.net
-#allow 10/8
-#allow 0/0 (allow access by any IPv4 node)
-#allow ::/0 (allow access by any IPv6 node)
+bindcmdaddress 127.0.0.1
+bindcmdaddress ::1
+port 0
 
-# This directive forces `chronyd' to send a message to syslog if it
-# makes a system clock adjustment larger than a threshold value in seconds.
+# Get TAI-UTC offset and leap seconds from the system tz database.
+leapsectz right/UTC
 
-logchange 0.5
+# Specify directory for log files.
+logdir /var/log/chrony
 
-# This directive defines an email address to which mail should be sent
-# if chronyd applies a correction exceeding a particular threshold to the
-# system clock.
-
-# mailonchange root@localhost 0.5
-
-# This directive tells 'chronyd' to parse the 'adjtime' file to find out if the
-# real-time clock keeps local time or UTC. It overrides the 'rtconutc' directive.
-
-hwclockfile /etc/adjtime
-
-# This directive enables kernel synchronisation (every 11 minutes) of the
-# real-time clock. Note that it can’t be used along with the 'rtcfile' directive.
-
-rtcsync
+# Select which information is logged.
+#log measurements statistics tracking

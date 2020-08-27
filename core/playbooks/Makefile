@@ -31,12 +31,6 @@ rerun:
 common:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
 
-dnsmasq:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq
-
-update_ctrl_dns:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t update_ctrl_dns
-
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
@@ -81,9 +75,6 @@ logs:
 
 node-health:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t node-health
-
-dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,update_ctrl_dns,preflight,common,crio,kube-master,kube-node,certificate_authority,sso,storage,helm,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup
 
 preflight-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,crio,kube-master,kube-node,certificate_authority,sso,helm,storage,chartmuseum,elasticsearch,kibana,audit,metrics,logs,moloch,node-health,run-filebeat-setup,run-winlogbeat-setup

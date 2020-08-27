@@ -151,9 +151,9 @@
       </mat-card-content>
       <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
         <button mat-stroked-button id="app-kit-form-mat-card-mat-card-actions-button-generate-inventory"
-                color="accent" (click)="openGenKitInventoryDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
+                color="accent" (click)="generateInventory()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Generate Inventory</button>
         <button mat-raised-button id="app-kit-form-mat-card-mat-card-actions-button-execute-kit"
-                color="primary" (click)="openExecuteKitDialog()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
+                color="primary" (click)="executeKit()" [disabled]="kitFormGroup.invalid || kitFormGroup.disabled">Execute Kit</button>
       </mat-card-actions>
     </mat-card>
     <br>

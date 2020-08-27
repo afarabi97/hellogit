@@ -55,7 +55,7 @@ rootpw --iscrypted {{ rootpw.stdout }}
 # System services
 services --disabled="chronyd"
 # System timezone
-timezone {{ timezone }} --isUtc --nontp
+timezone {{ timezone }} --isUtc --ntpservers={{ ansible_controller_hostname }}
 
 %pre
 is_physical=true
@@ -147,6 +147,7 @@ fi
 kexec-tools
 pciutils
 -NetworkManager-wifi
+chrony
 %end
 
 %post --log=/root/ks-post.log
@@ -194,5 +195,8 @@ echo "UseDNS no" >> /etc/ssh/sshd_config
 {% if item is defined -%}
 echo "DOMAIN={{ kit_domain }}" >> `grep -r '{{ hostvars[item].ip }}' /etc/sysconfig/ -l`
 {%- endif %}
+
+systemctl enable chronyd
+sed -i 's/^pool.*/server {{ ansible_controller_hostname }} iburst/g' /etc/chrony.conf
 
 %end

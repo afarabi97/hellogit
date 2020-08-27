@@ -13,27 +13,10 @@
     state: restarted
   when: controller_domain_results.changed
 
-- name: modify /etc/hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '^127\.0\.0\.1[ \t]+localhost'
-    line: '127.0.0.1 localhost {{ ansible_controller_hostname }}'
-    state: present
-
-- name: modify offline yum repo
-  lineinfile:
-    dest: "{{ item }}"
-    regexp: "baseurl=http://controller.*/offlinerepo/tfplenum"
-    line: "baseurl=http://{{ ansible_controller_hostname }}/offlinerepo/tfplenum"
-    state: present
-  with_items:
-    - /var/www/html/offlinerepo/offline.repo
-    - /etc/yum.repos.d/offline.repo
-
-- name: Update Keycloak and Controller Shibboleth Configs
-  script: "/opt/sso-idp/update_portal_client.py --new_hostname {{ ansible_controller_hostname }} --new_ip {{ server_ip }}"
-  args:
-    executable: /opt/tfplenum/web/tfp-env/bin/python3
+- name: Add local repo
+  template:
+    src: /opt/tfplenum/bootstrap/playbooks/roles/dip_bootstrap/templates/offline-tfplenum.repo
+    dest: "/etc/yum.repos.d/offline.repo"
 
 - name: Enable Firewalld Service
   service:

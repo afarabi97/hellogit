@@ -16,7 +16,6 @@
     - http
     - https
     - dns
-    - ntp
   when: inventory_hostname in groups['master_server']
 
 - name: Allow ports thru firewall

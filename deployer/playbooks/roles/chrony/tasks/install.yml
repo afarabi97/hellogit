@@ -1,0 +1,19 @@
+---
+
+- name: Allow ntp service thru firewall
+  firewalld:
+    service: ntp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: 'Install Chrony'
+  become: yes
+  package:
+    name: 'chrony'
+    state: 'present'
+  tags:
+    - 'chrony-install'
+    - 'chrony'
+
+...

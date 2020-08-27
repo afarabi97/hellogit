@@ -134,7 +134,7 @@ nameserver 127.0.0.1
 EOF
         """.format(self.ctrl_settings.node.domain))
         client.run('systemctl restart network NetworkManager')
-        client.run('/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/update_portal_client.py')
+        client.run('cd /opt/tfplenum/deployer/playbooks && make update-portal-client')
 
     def _update_nightly_controller(self, flag=True):
         with FabricConnectionWrapper(self.ctrl_settings.node.username,

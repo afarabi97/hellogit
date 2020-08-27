@@ -69,81 +69,14 @@ export class KitComponent implements OnInit, AfterViewInit {
     return true;
   }
 
-  /**
-   * opens a mat dialog with  with Execute Kit data
-   *
-   * @memberof KitFormComponent
-   */
-  openExecuteKitDialog(): void {
-    let dialogForm = this.formBuilder.group({
-      date: new DialogFormControl("Current Date & Time", getCurrentDate(), undefined,
-            undefined, undefined, DialogControlTypes.date),
-      timezone: new DialogFormControl("Timezone", 'UTC', undefined,
-            undefined, undefined, DialogControlTypes.timezone)
+  generateInventory(): void{
+    this.kitSrv.generateKit(this.kitFormGroup.getRawValue()).subscribe(data => {
+      this.snackbar.showSnackBar('Inventory file generated successfully. To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.', -1, 'Dismiss');
     });
-
-    let dialogData = { title: "Execute Kit?",
-                       instructions: 'Do you want to execute the kit? \
-                                      Executing the Kit will generate a new Kit inventory in /opt/tfplenum/core/playbook/inventory.yml. \
-                                      Once installation begins you will be taken to a page where you can view the progress of the tasks that are executing.',
-                       dialogForm: dialogForm,
-                       confirmBtnText: "Execute" };
-    this.openDateTimeDialog(dialogData, false);
   }
 
-  /**
-   * opens a mat dialog with  with Kit inventory data
-   *
-   * @memberof KitFormComponent
-   */
-  public openGenKitInventoryDialog(): void {
-    let dialogForm = this.formBuilder.group({
-      date: new DialogFormControl("Current Date & Time", undefined, undefined,
-            undefined, undefined, DialogControlTypes.date),
-      timezone: new DialogFormControl("Timezone", 'UTC', undefined,
-            undefined, undefined, DialogControlTypes.timezone)
-    });
-
-    let dialogData = { title: "Generate Kit Inventory?",
-                       instructions: 'Are you sure you want to generate the Kit inventory?  \
-                                      Doing so will create a new inventory file in /opt/tfplenum/core/playbooks/inventory.yml. \
-                                      To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.',
-                       dialogForm: dialogForm,
-                       confirmBtnText: "Execute" };
-    this.openDateTimeDialog(dialogData, true);
-  }
-
-  /**
-   * opens a mat dialog with
-   *
-   * @private
-   * @param {*} data
-   * @param {boolean} generateKitInvetory
-   * @memberof KitFormComponent
-   */
-  private openDateTimeDialog(dialogData: { title: string, instructions: string, dialogForm: FormGroup, confirmBtnText: string },
-                             generateKitInvetory: boolean): void {
-    const dialogRef = this.matDialog.open(ModalDialogMatComponent, {
-      width: "50%",
-      data: dialogData
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      let form = result as FormGroup;
-      if (form && form.valid){
-        let formGroup = this.kitFormGroup;
-        this.executeKitForm = new KitFormTime(form.get('date').value, form.get('timezone').value);
-        if (!generateKitInvetory) {
-          this.isGettingDeviceFacts = true;
-          this.ref.detectChanges();
-          this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => this.openConsole());
-        } else {
-          this.kitSrv.generateKit(this.kitFormGroup.getRawValue(), this.executeKitForm).subscribe(data => {
-            this.snackbar.showSnackBar('Inventory file generated successfully. To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.', -1, 'Dismiss');
-          });
-        }
-      }
-    });
+  executeKit(): void{
+    this.kitSrv.executeKit(this.kitFormGroup.getRawValue()).subscribe(data => this.openConsole());
   }
 
   /**

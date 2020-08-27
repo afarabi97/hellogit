@@ -216,30 +216,6 @@ def _reorder_nodes_and_put_master_first(nodes: List[Dict]):
     nodes.insert(0, node_cache)
 
 
-def change_time_on_nodes(payload: Dict, password: str) -> None:
-    """
-    Sets the time on the nodes.  This function throws an exception on failure.
-
-    :param payload: The dictionary object containing the payload.
-    :return: None
-    """
-    time_form = payload['timeForm']
-    _reorder_nodes_and_put_master_first(payload['kitForm']["nodes"])
-    dt_srv = DatetimeService(time_form, payload['kitForm']["nodes"][0]["management_ip_address"])
-    for node in payload['kitForm']["nodes"]:
-        try:
-            is_master = node['is_master_server']
-        except KeyError:
-            is_master = False
-
-        with FabricConnectionManager('root', password, node["management_ip_address"]) as cmd:
-            #if dt_srv._has_chronyd(cmd) or dt_srv._has_ansible(cmd):
-            #    raise NodeDirtyException("{} is dirty.  Please rekickstart this node before proceeding.".format(node["hostname"]))
-            dt_srv.change_time_on_target(cmd, node["hostname"], is_master)
-
-    dt_srv.set_controller_clock(True)
-    notify_clock_refresh()
-
 def change_time_on_kit(time_form: Dict):
     kickstart = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
     kickstart['form']['timezone'] = time_form['timezone']

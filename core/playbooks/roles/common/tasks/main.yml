@@ -8,8 +8,6 @@
 - import_tasks: 50_setup_firewall.yml
   tags: setup-firewall
 - import_tasks: 55_banner.yml
-- import_tasks: 60_kube_external_dns.yml
-  when: inventory_hostname in groups['master_server']
 - import_tasks: 70_sensor_monitor_ifaces.yml
   when: inventory_hostname in groups['sensors']
   tags:

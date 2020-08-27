@@ -12,7 +12,7 @@ all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup,dnsmasq,kickstart,profiles
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,setup,chrony,dnsmasq,kickstart,profiles
 
 dnsmasq:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,dnsmasq
@@ -28,3 +28,6 @@ setup:
 
 generate-profiles:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kickstart,profiles
+
+update-portal-client:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t update_portal_client

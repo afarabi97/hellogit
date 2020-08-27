@@ -146,6 +146,8 @@ class KickstartSettings(Model):
         self.sensor_mem = 0
         self.dhcp_ip_block = ''
         self.timezone = 'UTC'
+        self.upstream_dns = ''
+        self.upstream_ntp = ''
 
     def _validate_params(self):
         if self.server_mem < 1024 or self.server_mem > 65536:
@@ -156,6 +158,8 @@ class KickstartSettings(Model):
 
     def from_namespace(self, namespace: Namespace):
         self.timezone = namespace.timezone
+        self.upstream_dns = namespace.upstream_dns
+        self.upstream_ntp = namespace.upstream_ntp
         self.num_servers = namespace.num_servers
         self.num_sensors = namespace.num_sensors
         self.server_cpu = namespace.server_cpu
@@ -211,6 +215,8 @@ class KickstartSettings(Model):
                             help="The default amount of memory in mb assigned to each sensor.")
         parser.add_argument('--timezone', type=str, dest="timezone", required=False, default="UTC",
                             help="The timezone for each node.")
+        parser.add_argument('--upstream-dns', dest='upstream_dns', help="Set an upstream dns server ip")
+        parser.add_argument('--upstream-ntp', dest='upstream_ntp', help="Set an upstream ntp server ip")
 
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, False)
@@ -287,7 +293,7 @@ class MIPKickstartSettings(KickstartSettings):
             node.set_hostname(self.node_defaults.vm_prefix, "mip", i)
             node.set_for_kickstart(self.mip_cpu, self.mip_mem, NodeSettings.valid_node_types[5])
             self.mips.append(node)
-            
+
     @staticmethod
     def add_mip_args(parser: ArgumentParser):
         parser.add_argument('--num-mips', type=int, dest="num_mips", choices=range(1, 15), required=True,

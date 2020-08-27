@@ -212,7 +212,7 @@ class HwNodeSettings(Model):
         for key in self.__dict__:
             self.__dict__[key] = other.__dict__[key]
 
-    
+
 class VCenterSettings(Model):
 
     def __init__(self):

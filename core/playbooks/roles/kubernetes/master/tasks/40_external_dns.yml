@@ -1,0 +1,14 @@
+---
+- name: Copy external dns service
+  copy:
+    src: "files/external-dns.yml"
+    dest: "{{ kube_dir }}/external-dns.yml"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['master_server']
+
+- name: Create external dns service
+  shell: |
+    kubectl create -f {{ kube_dir }}/external-dns.yml
+  when: inventory_hostname in groups['master_server']

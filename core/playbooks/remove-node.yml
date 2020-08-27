@@ -137,15 +137,10 @@
       poll: 0
       ignore_errors: yes
 
-- name: Update DNS
+- name: Update VPN Server
   hosts:
     - master_server
   tasks:
-    - name: Update hosts in dnsmasq
-      import_role:
-        name: dnsmasq
-        tasks_from: update_dns
-
     - name: Clean up remote sensor files
       file:
         path: "/etc/openvpn/server/client-scripts/{{ hostvars[item].inventory_hostname_short }}"
@@ -170,3 +165,14 @@
       register: results
       changed_when: results.rc == 0
       ignore_errors: yes
+
+- name: Update DNS on Controller
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Remove line from dnsmasq list
+      lineinfile:
+        dest: /etc/dnsmasq_hosts/static_hosts
+        regexp: "{{ item }}"
+        state: absent
+      with_items: "{{ groups['nodes_to_remove'] }}"

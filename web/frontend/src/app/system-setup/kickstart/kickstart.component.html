@@ -215,19 +215,34 @@
                       color="warn">error</mat-icon>
             <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-retype-password-mat-error">{{getErrorMessage(kickStartFormGroup.get("re_password"))}}</mat-error>
           </mat-form-field>
-          <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
-            <!-- Time Zone -->
-            <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-timezone">
-              <mat-label>Time Zone</mat-label>
-              <mat-select id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-timezone-mat-select"
-                          formControlName="timezone" matTooltip="{{ getTooltip('timezone') }}">
-                <mat-option *ngFor="let timezone of timeZones; let i = index;"
-                            id="{{ 'app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-timezone-mat-select-mat-option-' + i }}"
-                            value="{{ timezone }}">{{ timezone }}</mat-option>
-              </mat-select>
-              <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-timezone-mat-error">{{getErrorMessage(kickStartFormGroup.get("timezone"))}}</mat-error>
-            </mat-form-field>
-          </ng-container>
+          <div fxLayout="column" fxLayoutAlign="start stretch">
+            <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
+              <mat-form-field>
+                <mat-label>Upstream DNS Server</mat-label>
+                <input matInput
+                       placeholder="Enter your kit's upstream DNS server here." formControlName="upstream_dns" matTooltip="{{ getTooltip('upstream_dns') }}"/>
+                <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_dns').valid &&
+                                           kickStartFormGroup.get('upstream_dns').touched"
+                          color="primary">check_circle</mat-icon>
+                <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_dns').invalid &&
+                                           kickStartFormGroup.get('upstream_dns').touched"
+                          color="warn">error</mat-icon>
+                <mat-error >{{ getErrorMessage(kickStartFormGroup.get("upstream_dns")) }}</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Upstream NTP Server</mat-label>
+                <input matInput
+                       placeholder="Enter your kit's upstream NTP server here." formControlName="upstream_ntp" matTooltip="{{ getTooltip('upstream_ntp') }}"/>
+                <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_ntp').valid &&
+                                           kickStartFormGroup.get('upstream_ntp').touched"
+                          color="primary">check_circle</mat-icon>
+                <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_ntp').invalid &&
+                                           kickStartFormGroup.get('upstream_ntp').touched"
+                          color="warn">error</mat-icon>
+                <mat-error >{{ getErrorMessage(kickStartFormGroup.get("upstream_ntp")) }}</mat-error>
+              </mat-form-field>
+            </ng-container>
+          </div>
           <unused-ipaddress-autocomplete-ctrl id="app-kickstart-form-div-mat-card-mat-card-content-section-unused-ipaddress-autocomplete-ctrl"
                                               [uniqueHTMLID]="'app-kickstart-form'" [formControlInput]="kickStartFormGroup.get('dhcp_range')"
                                               matTooltip="{{ getTooltip('dhcp_range') }}" [options]="dhcp_range_options"

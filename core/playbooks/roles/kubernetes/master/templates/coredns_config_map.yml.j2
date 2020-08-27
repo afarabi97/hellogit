@@ -3,7 +3,7 @@
     errors
     health
     kubernetes cluster.local
-    forward . {{ hostvars[groups['master_server'][0]].management_ipv4 }}
+    forward . {{ ansible_controller_ip }}
     cache 30
     loop
     reload

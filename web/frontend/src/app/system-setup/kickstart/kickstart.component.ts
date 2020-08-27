@@ -224,8 +224,9 @@ export class KickstartComponent implements OnInit {
     });
 
     if (this.system_name === "DIP" || this.system_name === "GIP") {
-      kickstartFormGroup.addControl('timezone', new FormControl({value: kickstartForm ? kickstartForm.timezone : 'UTC', disabled: true}, Validators.compose([validateFromArray(kickstart_validators.timezone)])));
       kickstartFormGroup.addControl('domain', new FormControl(kickstartForm ? kickstartForm.domain : '', Validators.compose([validateFromArray(kickstart_validators.domain)])));
+      kickstartFormGroup.addControl('upstream_dns', new FormControl(kickstartForm ? kickstartForm.upstream_dns : '', Validators.compose([validateFromArray(kickstart_validators.upstream_dns)])));
+      kickstartFormGroup.addControl('upstream_ntp', new FormControl(kickstartForm ? kickstartForm.upstream_ntp : '', Validators.compose([validateFromArray(kickstart_validators.upstream_ntp)])));
     }
 
     if (this.system_name === "MIP") {

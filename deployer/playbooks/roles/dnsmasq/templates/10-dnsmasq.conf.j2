@@ -4,4 +4,8 @@ local=/{{ kit_domain }}/
 domain={{ kit_domain }}
 interface={{ management_interface }}
 hostsdir={{ host_dir }}
-listen-address={{ hostvars[groups['master_server'][0]].management_ipv4 }},127.0.0.1
+listen-address={{ server_ip }},127.0.0.1
+
+{% if upstream_dns is defined and upstream_dns|length %}
+server={{ upstream_dns }}
+{% endif %}

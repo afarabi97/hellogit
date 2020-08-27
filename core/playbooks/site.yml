@@ -92,32 +92,6 @@
   tags:
     - bridge
 
-- name: dnsmasq
-  hosts:
-    - all
-  gather_facts: yes
-  any_errors_fatal: true
-  pre_tasks:
-    - name: dnsmasq pre_tasks
-      setup:
-  roles:
-    - dnsmasq
-  tags: dnsmasq
-
-- name: Update controller interface dns
-  hosts:
-    - localhost
-  gather_facts: yes
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Update controller interface dns pre_tasks
-      setup:
-  tasks:
-    - import_role:
-        name: dnsmasq
-        tasks_from: 11_set_controller_dns
-  tags: update_ctrl_dns
-
 - name: Remove existing SSH keys
   hosts:
     - localhost
@@ -160,19 +134,6 @@
       setup:
   roles:
     - common
-    - chrony
-  tags:
-    - common
-
-- name: Setup chrony on ctrl
-  hosts:
-    - localhost
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Setup chrony on ctrl pre_tasks
-      setup:
-  roles:
     - chrony
   tags:
     - common
@@ -255,7 +216,9 @@
     - kubernetes
 
 - name: Configure kube master
-  hosts: master_server
+  hosts:
+    - master_server
+    - localhost
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

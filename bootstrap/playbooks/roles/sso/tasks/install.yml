@@ -127,7 +127,6 @@
    - attribute-map.xml
    - gen_api_token.py
    - import_users.py
-   - update_portal_client.py
 
 - name: Check if keycloak TAR exists
   stat:

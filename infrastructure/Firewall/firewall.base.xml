@@ -51,7 +51,7 @@
 		</user>
 		<nextuid>2011</nextuid>
 		<nextgid>2000</nextgid>
-		<timeservers>server1.lan</timeservers>
+		<timeservers>10.101.35.15</timeservers>
 		<webgui>
 			<protocol>https</protocol>
 			<ssl-certref>594cecb4cca0a</ssl-certref>
@@ -572,10 +572,10 @@
 				<address>Endgame</address>
 			</source>
 			<destination>
-				<address>Server1</address>
+				<address>Controller</address>
 				<port>123</port>
 			</destination>
-			<descr><![CDATA[Allow Endgame on DMZ access to NTP on Server1]]></descr>
+			<descr><![CDATA[Allow Endgame on DMZ access to NTP on Controller]]></descr>
 			<updated>
 				<time>1584065261</time>
 				<username>assessor@10.101.32.243</username>
@@ -606,10 +606,10 @@
 				<address>Endgame</address>
 			</source>
 			<destination>
-				<address>Server1</address>
+				<address>Controller</address>
 				<port>53</port>
 			</destination>
-			<descr><![CDATA[Allow Endgame on DMZ access to DNS on Server1]]></descr>
+			<descr><![CDATA[Allow Endgame on DMZ access to DNS on Controller]]></descr>
 			<updated>
 				<time>1584065261</time>
 				<username>assessor@10.101.32.243</username>
@@ -1534,7 +1534,7 @@
 		<alias>
 			<name>OpenVPNServer</name>
 			<type>host</type>
-			<address>server1.lan</address>
+			<address>10.101.35.40</address>
 			<descr><![CDATA[Alias for OpenVPN Server]]></descr>
 			<detail><![CDATA[TFP Master Server]]></detail>
 		</alias>
@@ -1569,7 +1569,14 @@
 		<alias>
 			<name>Server1</name>
 			<type>host</type>
-			<address>server1.lan</address>
+			<address>10.101.35.40</address>
+			<descr></descr>
+			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>Controller</name>
+			<type>host</type>
+			<address>10.101.35.15</address>
 			<descr></descr>
 			<detail><![CDATA[Entry added Fri, 13 Mar 2020 02:06:45 +0000]]></detail>
 		</alias>
@@ -1782,8 +1789,8 @@
 		<regdhcp></regdhcp>
 		<domainoverrides>
 			<domain>lan</domain>
-			<ip>10.101.35.40</ip>
-			<descr><![CDATA[TFP Master Server]]></descr>
+			<ip>10.101.35.15</ip>
+			<descr><![CDATA[TFP Controller]]></descr>
 		</domainoverrides>
 		<hosts>
 			<host>endgame</host>
@@ -1822,7 +1829,7 @@
 		<orphan>3</orphan>
 		<logpeer>yes</logpeer>
 		<logsys>yes</logsys>
-		<prefer>server1.lan </prefer>
+		<prefer>10.101.35.15</prefer>
 	</ntpd>
 	<gateways>
 		<gateway_item>

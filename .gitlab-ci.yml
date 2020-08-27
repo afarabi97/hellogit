@@ -79,6 +79,8 @@ variables:
   VM_RAID: "no"
   BREAKINGPOINT_IP: "10.10.103.29"
   BREAKINGPOINT_TEST_NAME: "BP-1GB-Pipeline-Test"
+  UPSTREAM_DNS: "10.10.101.11"
+  UPSTREAM_NTP: "10.10.101.11"
 
   # Repo Sync variables
   REPO_SERVER_TEMPLATE_TO_CLONE: reposync-server

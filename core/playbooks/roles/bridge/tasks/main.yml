@@ -42,11 +42,19 @@
     template:
       src: "templates/ifcfg-br0.j2"
       dest: "/etc/sysconfig/network-scripts/ifcfg-br0"
+    register: br0_iface
 
   - name: Create management interface to bridge
     template:
       src: "templates/ifcfg-interface.j2"
       dest: "/etc/sysconfig/network-scripts/ifcfg-{{ management_interface }}"
+    register: mng_iface
+
+  - name: Load Configs into NM
+    shell: |
+      nmcli conn reload
+    register: nm_reload
+    when: br0_iface.changed or mng_iface.changed
 
   - name: Restart network services on master server
     systemd:
@@ -56,6 +64,15 @@
     with_items:
       - network
       - NetworkManager
+    when: br0_iface.changed or mng_iface.changed
+
+  - name: Bring up the connections
+    shell: |
+      nmcli con up "`nmcli -g GENERAL.CONNECTION dev show br0`"
+      nmcli con up "`nmcli -g GENERAL.CONNECTION dev show {{ management_interface }}`"
+    register: results
+    when: nm_reload.changed
+    changed_when: results.rc == 0
 
   - name: Configure iptables rule on the server for br0
     iptables:

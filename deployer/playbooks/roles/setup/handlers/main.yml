@@ -13,3 +13,15 @@
     name: sshd
     enabled: yes
     state: restarted
+
+- name: Restart Shibboleth
+  service:
+    name: shibd
+    state: restarted
+  listen: "Restart Shibboleth"
+
+- name: Restart Apache
+  service:
+    name: httpd
+    state: reloaded
+  listen: "Restart Shibboleth"

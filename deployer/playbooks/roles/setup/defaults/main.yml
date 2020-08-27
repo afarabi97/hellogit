@@ -2,3 +2,6 @@
 # defaults file for roles/kickstart
 #
 ansible_controller_ip: "{{ server_ip }}"
+
+sso_admin_password: "{{ lookup('file', '/opt/sso-idp/sso_admin_password.txt') }}"
+client_id: ''

@@ -47,6 +47,8 @@ all:
     # timezone: Set the timezone for each node.
     # Define: America/Chicago
     timezone: {{ template_ctx.timezone | default('UTC') }}
+    upstream_dns: {{ template_ctx.upstream_dns | default('') }}
+    upstream_ntp: {{ template_ctx.upstream_ntp | default('') }}
 
     # default_boot_drive: This is the default drive used for operating system installation.
     # Default: sda

@@ -211,7 +211,9 @@ class KickstartPayloadGenerator:
             ],
             "nodes": self._construct_node_parts(),
             "continue": True,
-            "domain": self._ctrl_settings.node.domain
+            "domain": self._ctrl_settings.node.domain,
+            "upstream_dns": self._kickstart_settings.upstream_dns,
+            "upstream_ntp": self._kickstart_settings.upstream_ntp
         }
 
 
@@ -368,8 +370,7 @@ class KitPayloadGenerator:
                 "kubernetes_services_cidr": self._kit_settings.kubernetes_cidr,
                 "dns_ip": None,
                 "use_proxy_pool": self._kit_settings.use_proxy_pool
-            },
-            "timeForm": self._construct_time_part()
+            }
         }
 
     def generate(self) -> Dict:

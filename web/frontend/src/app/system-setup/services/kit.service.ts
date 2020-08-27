@@ -26,17 +26,17 @@ export class KitService {
     return this.http.get(url).pipe();
   }
 
-  executeKit(kitForm: Object, timeForm: Object) {
+  executeKit(kitForm: Object) {
     const url = '/api/execute_kit_inventory';
-    let payload: Object = { 'kitForm': kitForm, 'timeForm': timeForm };
+    let payload: Object = { 'kitForm': kitForm };
     return this.http.post(url, payload, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))
     );
   }
 
-  generateKit(kitForm: Object, timeForm: Object) {
+  generateKit(kitForm: Object) {
     const url = '/api/generate_kit_inventory';
-    let payload: Object = { 'kitForm': kitForm, 'timeForm': timeForm };
+    let payload: Object = { 'kitForm': kitForm };
     return this.http.post(url, payload, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))
     );

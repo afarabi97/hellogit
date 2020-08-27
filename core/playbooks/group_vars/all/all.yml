@@ -84,7 +84,6 @@ base_discovery_dir: /mnt/disks
 app_disk_discovery_dir: "{{base_discovery_dir}}/apps"
 elastic_disk_discovery_dir: "{{base_discovery_dir}}/elastic"
 
-dnsmasq_conf_file: /etc/dnsmasq.d/10-dnsmasq.conf
 enable_kube_ha: false
 
 ...

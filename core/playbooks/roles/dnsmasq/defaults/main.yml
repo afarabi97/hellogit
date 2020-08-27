@@ -1,7 +1,0 @@
----
-
-host_dir: /etc/dnsmasq_hosts
-host_file: "{{host_dir}}/static_hosts"
-kube_host_file: "{{host_dir}}/kube_hosts"
-
-...

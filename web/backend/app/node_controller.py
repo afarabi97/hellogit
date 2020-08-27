@@ -21,9 +21,9 @@ def execute_add_node() -> Response:
     current_kit_configuration["form"]["nodes"].append(add_node_payload)
 
     # logger.debug(json.dumps(payload, indent=4, sort_keys=True))
-    is_sucessful, root_password = _replace_kit_inventory(
+    is_successful, root_password = _replace_kit_inventory(
         current_kit_configuration["form"])
-    if is_sucessful:
+    if is_successful:
         task_id = add_node.delay(node_payload=add_node_payload, password=root_password)
 
         return (jsonify(str(task_id)), 200)

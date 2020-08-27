@@ -63,13 +63,6 @@ def add_node(node_payload, password):
     command_list = [
         {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                    "-e ansible_ssh_pass='{playbook_pass}' "
-                    "-t update-dnsmasq-hosts"
-                    ).format(playbook_pass=password),
-                    "cwd_dir": str(CORE_DIR / "playbooks"),
-                    "job_name": "Addnode"
-        }, {
-            "command": ("ansible-playbook site.yml -i inventory.yml "
                         "-e ansible_ssh_pass='{playbook_pass}' -t repos,update-dns "
                         "--limit localhost,{node}"
                         ).format(playbook_pass=password, node=node_hostname),
@@ -83,7 +76,7 @@ def add_node(node_payload, password):
            	            "job_name": "Addnode"
         }, {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-t certificate_authority/common,crio,kube-node,logs,audit,node-health "
+                        "-t certificate_authority/common,crio,kube-node,storage,logs,audit,node-health "
                         "--limit localhost,{node}"
                         ).format(node=node_hostname),
            	            "cwd_dir": str(CORE_DIR / "playbooks"),

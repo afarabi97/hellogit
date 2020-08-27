@@ -12,6 +12,17 @@
     - setup
   tags: setup
 
+- name: Update Keycloak Client and Controller Shibboleth Configs
+  hosts: localhost
+  gather_facts: yes
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: setup
+        tasks_from: update_portal_client
+  tags:
+    - update_portal_client
+
 - name: Preflight
   hosts: localhost
   any_errors_fatal: true
@@ -27,6 +38,14 @@
   tags:
     - dnsmasq
     - dns
+
+- name: Setup NTP Server
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - chrony
+  tags:
+    - chrony
 
 - name: Setup Kickstart server
   hosts: localhost
