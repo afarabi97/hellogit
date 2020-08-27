@@ -29,6 +29,7 @@ class SuricataSettings(Model):
 class MolochCaptureSettings(Model):
     def __init__(self):
         self.cpu_request = 1000
+        self.mem_limit = "7Gi"
         self.pcapWriteMethod = "simple"
         self.affinity_hostname = ""
         self.node_hostname = ""
@@ -84,8 +85,8 @@ class LogstashSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.kafka_clusters = []
-        self.replicas = 2
-        self.heap_size = 4
+        self.replicas = 1
+        self.heap_size = 6
         self.deployment_name = "logstash"
         self.external_fqdn = ""
         self.external_ip = ""
