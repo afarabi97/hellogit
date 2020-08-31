@@ -87,12 +87,19 @@ export const kickstart_validators = {
     { ops: { pattern: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/ }, error_message: 'You must enter a valid MAC Address.', validatorFn: 'pattern' }
 
   ],
-  boot_drive: [{ error_message: 'Boot Drive is required', validatorFn: 'required' }],
-  data_drive: [{ error_message: 'Data Drive is required', validatorFn: 'required' }],
+  boot_drive: [
+    { error_message: 'Boot Drive is required', validatorFn: 'required' },
+    { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})*$/}, error_message: 'Boot Drive must be a singhle drive or a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
+  ],
+  data_drive: [
+    { error_message: 'Data Drive is required', validatorFn: 'required' },
+    { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})*$/}, error_message: 'Data Drive must be a singhle drive or a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
+  ],
   raid_drives: [
     { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
     { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
+  os_raid_root_size: [{ error_message: 'Root Data parition size is required', validatorFn: 'required' }],
   pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
   gateway: [
     { error_message: 'Gateway is required', validatorFn: 'required' },
@@ -163,22 +170,23 @@ export const kickStartTooltips = {
   re_password: `The root password will be how to log into each server and sensor after the kickstart process completes.  \
   Do not forget this password or you will not be able to complete the system installation.`,
   boot_drive: 'The boot drive is the disk name that will have the operating system installed during the kickstart process.  \
-  By default, the Supermicro will use sda and the HP DL160 will use sdb',
-  raid_drives: 'The raid drives is a comma separated list of drives that will be raid together in raid0.  \
+  If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
+  raid_drives: 'The raid drives is a comma separated list of drives that will be raid together in RAID 0.  \
   For example: sda,sdb',
   pxe_type: 'The PXE Type referes to the motherboards method of network booting.  \
   By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
   BIOS is sometimes called Legacy in the bios settings.',
-  data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process.',
+  data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process. \
+  If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
   dns: 'The DNS Server that MIPs use to resolve queries.',
   mip_pxe_type: "The laptop model determines the method used for booting. Match this with the MIP being Kickstarted.",
   luks_password: 'This is the password you will use to decrypt the disk.',
   confirm_luks_password: 'This is the password you will use to decrypt the disk.',
   timezone: 'The timezone set during Kickstart.',
-  os_raid: 'OS Level RAID is a data protection method that spreads data on multiple hard disks, balancing overlapping I/O operations \
-  improving performance and increasing the mean time between failures.',
+  os_raid: 'This will Software combine all the drives into a single RAID 0 pool.  The OS and Data partitions will be created on this pool.',
   upstream_dns: 'The upstream DNS server is used to forward any non-local DNS request outside the kit.  \
   This is needed if the kit needs access to the internet or mission partner network.',
   upstream_ntp: 'The upstream NTP server is used to sync time with sources outside the kit.  \
-  This is useful to keep the kit time settings in sync with internet or mission partner time sources.'
+  This is useful to keep the kit time settings in sync with internet or mission partner time sources.',
+  os_raid_root_size: 'The size of the root partition when using OS raid.'
 }

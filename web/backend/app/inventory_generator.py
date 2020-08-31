@@ -51,10 +51,11 @@ class KickstartInventoryGenerator:
             if node['os_raid']:
                 node['boot_drive'] = ""
                 node['data_drive'] = ""
-                raid_drives = node['raid_drives'].split(",")
-                node['raid_drives'] = raid_drives
+                node['raid_drives'] = node['raid_drives'].split(",")
             if not node['os_raid']:
                 node['raid_drives'] = []
+                node['boot_drive'] = node['boot_drive'].split(",")
+                node['data_drive'] = node['data_drive'].split(",")
 
 
     def generate(self) -> None:

@@ -44,5 +44,8 @@ def remove_console_logs() -> Response:
     :return: OK Response.
     """
     payload = request.get_json()
-    conn_mng.mongo_console.delete_many({'jobName': payload['jobName']})
+    query = {'jobName': payload['jobName']}
+    if payload['jobName'] == "Kit":
+        query =  { "jobName": { "$in": [payload['jobName'], "Stignode" ] } }
+    conn_mng.mongo_console.delete_many(query)
     return OK_RESPONSE

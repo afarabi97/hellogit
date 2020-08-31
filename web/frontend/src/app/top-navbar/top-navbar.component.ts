@@ -13,6 +13,7 @@ import { WebsocketService } from '../services/websocket.service';
 import { UserService } from '../user.service';
 import { NavBarService } from './navbar.service';
 import { getSideNavigationButtons, NavGroup } from './navigation';
+import { KitService } from '../system-setup/services/kit.service';
 
 @Component({
   selector: 'app-top-navbar',
@@ -30,6 +31,7 @@ export class TopNavbarComponent implements OnInit {
   public system_name: string;
   public sideNavigationButtons: Array<NavGroup>;
   public controllerMaintainer: boolean;
+  public kitStatus: boolean = false;
 
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
 
@@ -48,7 +50,8 @@ export class TopNavbarComponent implements OnInit {
               private sysNameSrv: WeaponSystemNameService,
               private ref: ChangeDetectorRef,
               private dialog: MatDialog,
-              private userService: UserService) {
+              private userService: UserService,
+              private kitSrv: KitService) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
@@ -74,10 +77,17 @@ export class TopNavbarComponent implements OnInit {
 
   private setSystemTheme() {
     this.system_name = this.sysNameSrv.getSystemName();
-    this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService);
+    this.kitSrv.getKitForm().subscribe(kitData => {
+      if(kitData != undefined && kitData["complete"] != undefined) {
+        this.kitStatus = kitData["complete"];
+      }
+      this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
+    });
     this.emitTheme();
     this.ref.detectChanges();
   }
+
+
 
   selectSystem() {
     let control = new DialogFormControl('Pick your system', null, Validators.required);
@@ -137,6 +147,16 @@ export class TopNavbarComponent implements OnInit {
   private socketRefresh() {
     this.socketSrv.getSocket().on('clockchange', (data: any) => {
       this.restartClock();
+    });
+
+    this.socketSrv.onBroadcast().subscribe((message: any) => {
+      if(message["role"] === "kit" && message["status"] === "COMPLETED") {
+        this.kitStatus = true;
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
+      } else if(message["role"] === "kit" && message["status"] === "IN_PROGRESS") {
+        this.kitStatus = false;
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
+      }
     });
   }
 }

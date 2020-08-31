@@ -341,7 +341,8 @@ export class KickstartComponent implements OnInit {
         boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : 'sda', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
         raid_drives: new FormControl(node && node.raid_drives ? node.raid_drives : 'sda,sdb', Validators.compose([validateFromArray(kickstart_validators.raid_drives)])),
         pxe_type: new FormControl(node ? node.pxe_type : 'BIOS', Validators.compose([validateFromArray(kickstart_validators.pxe_type)])),
-        os_raid: new FormControl(node && node.os_raid != null ? node.os_raid : false)
+        os_raid: new FormControl(node && node.os_raid != null ? node.os_raid : false),
+        os_raid_root_size: new FormControl(node && node.os_raid_root_size != null ? node.os_raid_root_size : 50)
       });
 
       formGroup = dip_group;

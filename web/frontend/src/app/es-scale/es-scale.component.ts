@@ -23,11 +23,13 @@ class SliderControl {
     this.hidden = false;
 
     if (this.type === "master"){
-      this.title = "Elastic Master Pod";
+      this.title = "Master";
     } else if (this.type === "data"){
-      this.title = "Elastic Data Pod";
+      this.title = "Data";
     } else if (this.type === "coordinating"){
-      this.title = "Elastic Coordinating Pod";
+      this.title = "Coordinating";
+    } else if (this.type === "ml"){
+      this.title = "Machine Learning";
     } else {
       this.title = "This is not supported and is a programming error.";
     }
@@ -91,15 +93,16 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
       if(response["status"] !== "Ready" && response["status"] !== "Unknown" && response["status"] !== "None") {
         this.scaleInProgressDialog();
         this.status = true;
-      }
-      if(response["status"] == "None") {
+      } else if(response["status"] == "None") {
         let reroute = () => this.router.navigate(['/kit_configuration'])
         this.snackbar.showSnackBar('Error - You cannot scale Elastic until you have a Kit deployed and Elastic is installed', -1, 'Kit Config', reroute);
-      }
-      if(response["status"] == "Unknown") {
+        this.loading = false;
+      } else if(response["status"] == "Unknown") {
         this.snackbar.showSnackBar('Error - Unknown Elastic Status', -1, 'Dismiss');
+        this.loading = false;
+      } else {
+        this.loading = false;
       }
-      this.loading = false;
     });
 
 
@@ -107,6 +110,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
     .subscribe((message: any) => {
       if(message["status"] === "COMPLETED") {
         this.status = false;
+        this.loading = false;
       }
     });
   }
@@ -117,6 +121,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
       this.elasticPodTypes.push(new SliderControl("master", data));
       this.elasticPodTypes.push(new SliderControl("data", data));
       this.elasticPodTypes.push(new SliderControl("coordinating", data));
+      this.elasticPodTypes.push(new SliderControl("ml", data));
     });
   }
 
@@ -125,6 +130,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   runScale() {
+    this.loading = true;
     let elastic = {}
     this.elasticPodTypes.forEach(pod => {
       elastic[pod.type] = pod.currentCount;

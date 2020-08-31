@@ -4,12 +4,12 @@
     file: /opt/tfplenum/bootstrap/playbooks/roles/sso/defaults/main.yml
 
 - name: Set Keycloak Clients Fact
-  set_fact:
-    ansible_controller_hostname: "controller.lan"
+  set_facts:
+    ansible_controller_hostname: "{{ system_name | lower }}-controller.lan"
   when: kit_domain is not defined
 
 - name: Set Keycloak Clients Fact
-  set_fact:
+  set_facts:
     ansible_controller_ip: "{{ ansible_default_ipv4.address }}"
   when: server_ip is not defined
 
@@ -33,7 +33,7 @@
   delay: 10
 
 - name: Set Keycloak Clients Fact
-  set_fact:
+  set_facts:
     keycloak_clients: "{{ keycloak_clients_cmd.stdout | from_json }}"
     redirectUris:
       - "https://{{ ansible_controller_hostname }}/*"
@@ -46,7 +46,7 @@
       saml_assertion_consumer_url_post: "https://{{ ansible_controller_hostname }}/Shibboleth.sso/SAML2/POST"
 
 - name: Set Controller Client ID
-  set_fact:
+  set_facts:
     client_id: "{{ item.id }}"
   with_items: "{{ keycloak_clients }}"
   when: "'controller.' in item.clientId"

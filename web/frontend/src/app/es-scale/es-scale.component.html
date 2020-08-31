@@ -33,7 +33,7 @@
     <mat-card-content>
       <ng-container *ngFor="let slider of elasticPodTypes; let i = index;">
         <div *ngIf="!slider.hidden" fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
-            <h2 id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-h2-slider-title' }}" class="example-h2">{{slider.title}}</h2>
+            <h2 id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-h2-slider-title' }}" class="example-h2">Elastic {{slider.title}} Pod</h2>
             <mat-slider id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-mat-slider-current-count' }}"
                         class="example-margin"
                         [max]=slider.maxCount
@@ -45,8 +45,8 @@
                         [disabled]="status">
             </mat-slider>
             <div fxLayout="row" fxLayoutAlign="space-between center">
-              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-count' }}">Current {{slider.type}} Node Count: {{slider.currentCount}}</h4>
-              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-maxcount' }}">Max {{slider.type}} Node Count: {{slider.maxCount}}</h4>
+              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-count' }}">Current {{slider.title}} Node Count: {{slider.currentCount}}</h4>
+              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-maxcount' }}">Max {{slider.title}} Node Count: {{slider.maxCount}}</h4>
             </div>
         </div>
       </ng-container>

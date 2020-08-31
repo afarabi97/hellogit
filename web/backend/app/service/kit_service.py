@@ -33,6 +33,6 @@ def perform_kit(command: str, cwd_dir: str, job_name: str="Kit"):
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
+        conn_mng.mongo_kit.update_one({"_id": KIT_ID}, {"$set": {"form.complete": True}})
     conn_mng.mongo_celery_tasks.delete_one({"_id": job_name})
-
     return ret_val

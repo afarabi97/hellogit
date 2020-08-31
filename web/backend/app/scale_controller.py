@@ -20,6 +20,7 @@ def scale_es() -> Response:
     master_count = None
     coordinating_count = None
     data_count = None
+    ml_count = None
     try:
         if "elastic" in payload:
             elastic = payload["elastic"]
@@ -29,6 +30,8 @@ def scale_es() -> Response:
                 coordinating_count = elastic["coordinating"]
             if "data" in elastic:
                 data_count = elastic["data"]
+            if "ml" in elastic:
+                ml_count = elastic["ml"]
 
         deploy_config = elastic_deploy.read()
         if "spec" in deploy_config:
@@ -42,6 +45,8 @@ def scale_es() -> Response:
                         n["count"] = coordinating_count
                     if n["name"] == "data":
                         n["count"] = data_count
+                    if n["name"] == "ml":
+                        n["count"] = ml_count
         elastic_deploy.update(deploy_config)
 
         return OK_RESPONSE

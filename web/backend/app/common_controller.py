@@ -77,11 +77,11 @@ def gather_device_facts() -> Response:
 
         return jsonify(cpus_available=node.cpu_cores,
                        memory_available=node.memory_gb,
-                       disks= json.dumps([disk. __dict__ for disk in node.disks]),
+                       disks= [disk. __dict__ for disk in node.disks],
                        hostname=node.hostname,
                        default_ipv4_settings=default_ipv4,
                        potential_monitor_interfaces=potential_monitor_interfaces,
-                       interfaces=json.dumps([interface. __dict__ for interface in node.interfaces]),
+                       interfaces=[interface. __dict__ for interface in node.interfaces],
                        product_name=product_name)
     except Exception as e:
         logger.exception(e)

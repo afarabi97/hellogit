@@ -19,21 +19,6 @@ export class KickstartService {
     console.log(something.constructor.name);
   }
 
-  private mapDeviceFacts(data) {
-    //TODO: is there a better way to do this? Look into map function later
-    if (data == undefined || data == null) {
-      return;
-    }
-
-    if (data.disks) {
-      data['disks'] = JSON.parse(data.disks);
-    }
-
-    if (data.interfaces) {
-      data['interfaces'] = JSON.parse(data.interfaces);
-    }
-  }
-
   getAvailableIPBlocks(): Observable<any> {
     const url = '/api/get_available_ip_blocks';
     return this.http.get(url).pipe();
@@ -48,7 +33,6 @@ export class KickstartService {
     const url = '/api/gather_device_facts';
     let post_payload = { "management_ip": management_ip };
     return this.http.post(url, post_payload, HTTP_OPTIONS).pipe(
-      tap(data => this.mapDeviceFacts(data)),
       catchError(this.handleError())
     );
   }

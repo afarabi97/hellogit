@@ -8,7 +8,7 @@ import json
 import os
 from typing import Dict, List, Tuple
 
-class Interface(object):
+class Interface():
     """
     An interface object which represents an interface on a server with the
     following properties:
@@ -35,7 +35,7 @@ class Interface(object):
         return "Interface: %s Ip: %s Mac: %s Speed: %d" % (self.name, self.ip_address, self.mac_address, self.speed)
 
 
-class Disk(object):
+class Disk():
     """
     A disk object which represents a logical disk on a server with the
     following properties:
@@ -89,7 +89,7 @@ class Disk(object):
                 self.name, self.size_gb, self.size_tb, self.has_root)
 
 
-class Node(object):
+class Node():
     """
     A node object which represents a server weather physical or virtual with the
     following properties:
@@ -183,7 +183,8 @@ class Node(object):
         partition_links = {}
         for i, k in ansible_devices.items():
             # We only want logical volume disks
-            if k['model'] != None and k['removable'] != "1":
+            if k['removable'] != "1" and ((len(k['holders']) > 0 and len(k['partitions']) == 0) or
+            (len(k['holders']) == 0 and len([a for a,b in k['partitions'].items() if len(b['holders']) > 0]) > 0)):
                 disk = Disk(i)
                 disk.set_size(k['size'])
                 disks.append(disk)

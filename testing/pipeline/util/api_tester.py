@@ -179,7 +179,7 @@ class KickstartPayloadGenerator:
     def _construct_node_part(self, node: NodeSettings) -> Dict:
         boot_drive = "sda"
         data_drive = "sdb"
-        return {
+        data = {
             "hostname": node.hostname,
             "ip_address": node.ipaddress,
             "mac_address": node.mng_mac,
@@ -188,6 +188,9 @@ class KickstartPayloadGenerator:
             "os_raid": node.os_raid,
             "pxe_type": node.boot_mode
         }
+        if node.os_raid:
+            data["raid_drives"] = boot_drive + "," + data_drive
+        return data
 
     def _construct_node_parts(self) -> List[Dict]:
         ret_val = []
@@ -280,8 +283,8 @@ class MIPConfigPayloadGenerator:
 class KitPayloadGenerator:
 
     def __init__(self, ctrl_settings: ControllerSetupSettings,
-                       kickstart_settings: KickstartSettings,
-                       kit_settings: KitSettings):
+                 kickstart_settings: KickstartSettings,
+                 kit_settings: KitSettings):
         self._dns_ips = ctrl_settings.node.dns_servers # type: List[str]
         self._controller_ip = ctrl_settings.node.ipaddress
         self._url = "https://" + self._controller_ip + "{}"
@@ -292,8 +295,6 @@ class KitPayloadGenerator:
     def _request_device_facts(self, node: NodeSettings) -> Dict:
         payload = {"management_ip": node.ipaddress}
         ret_val = post_request(self._url.format("/api/gather_device_facts"), payload)
-        ret_val["disks"] = json.loads(ret_val["disks"])
-        ret_val["interfaces"] = json.loads(ret_val["interfaces"])
         return ret_val
 
     def _set_device_facts_ip_map(self) -> None:
@@ -335,14 +336,14 @@ class KitPayloadGenerator:
         }
 
     def _construct_time_part(self) -> Dict:
-        t = datetime.utcnow()
+        time = datetime.utcnow()
         return {
             "date": {
-                "year": t.year,
-                "month": t.month,
-                "day": t.day
+                "year": time.year,
+                "month": time.month,
+                "day": time.day
             },
-            "time": "{}:{}:00".format(zero_pad(t.hour), zero_pad(t.minute)),
+            "time": "{}:{}:00".format(zero_pad(time.hour), zero_pad(time.minute)),
             "timezone": "UTC"
         }
 

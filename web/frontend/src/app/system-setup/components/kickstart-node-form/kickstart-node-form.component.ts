@@ -65,16 +65,19 @@ export class KickstartNodeFormComponent implements OnInit {
     const boot_drive = this.node.get('boot_drive');
     const data_drive = this.node.get('data_drive');
     const raid_drive = this.node.get('raid_drives');
+    const os_raid_root_size = this.node.get('os_raid_root_size');
     if (checked){
       this.isRaid = true;
       data_drive.disable();
       boot_drive.disable();
       raid_drive.enable();
+      os_raid_root_size.enable();
     } else {
       this.isRaid = false;
       data_drive.enable();
       boot_drive.enable();
       raid_drive.disable();
+      os_raid_root_size.disable();
     }
   }
 

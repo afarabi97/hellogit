@@ -1,23 +1,19 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-import json
-import os
-
+from typing import Dict, Tuple
+from flask import request, Response, jsonify
+from celery import chain
+from pymongo.collection import ReturnDocument
 from app import app, logger, conn_mng, CORE_DIR, STIGS_DIR
 from app.archive_controller import archive_form
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.kit_service import perform_kit
-from flask import request, Response, jsonify
-from pymongo.collection import ReturnDocument
-from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
-from shared.connection_mngs import KUBEDIR
-from shared.utils import decode_password
-from typing import Dict, Tuple, Union
-from celery import chain
 from app.service.system_info_service import get_system_name
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
+from shared.constants import KIT_ID, KICKSTART_ID
+from shared.utils import decode_password
 
 
 def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
@@ -34,7 +30,7 @@ def _replace_kit_inventory(kit_form: Dict) -> Tuple[bool, str]:
 
     current_kit_configuration = conn_mng.mongo_kit.find_one_and_replace({"_id": KIT_ID},
                                                                         {"_id": KIT_ID,
-                                                                            "form": kit_form},
+                                                                         "form": kit_form},
                                                                         upsert=True,
                                                                         return_document=ReturnDocument.AFTER)  # type: InsertOneResult
 
@@ -60,6 +56,7 @@ def execute_kit_inventory() -> Response:
     :return: Response object
     """
     payload = request.get_json()
+    payload['kitForm']['complete'] = False
     is_successful, root_password = _replace_kit_inventory(payload['kitForm'])
     if is_successful:
         conn_mng.mongo_catalog_saved_values.delete_many({})
@@ -71,10 +68,8 @@ def execute_kit_inventory() -> Response:
         cmd_to_execute_two = "make dip-stigs"
 
         results = chain(
-            perform_kit.si(cmd_to_execute_one,
-                    cwd_dir=str(CORE_DIR / "playbooks")),
-            perform_kit.si(cmd_to_execute_two,
-                    cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
+            perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
+            perform_kit.si(cmd_to_execute_two, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
         )()
 
         conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},

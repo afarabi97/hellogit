@@ -7,13 +7,14 @@ export interface NavLink {
   system: Array<string>;
   privs: boolean;
   target?: string;
+  kitStatus: boolean;
 }
 
 export interface NavGroup {
-  id: string,
-  label?: string,
-  system: Array<string>,
-  children: Array<NavLink>
+  id: string;
+  label?: string;
+  system: Array<string>;
+  children: Array<NavLink>;
 }
 
 function filterLinkSection(link: NavLink) {
@@ -31,45 +32,47 @@ let allSections: Array<NavGroup> = [
   { id: 'support', label: 'Support', system: ['DIP','MIP','GIP'], children: [] }
 ]
 
-export function getSideNavigationButtons(system_name: string, userService) {
+export function getSideNavigationButtons(system_name: string, userService, kitStatus: boolean) {
   let user = userService.getUser();
   let controller_admin = userService.isControllerAdmin();
   let controller_maintainer = userService.isControllerMaintainer();
   let operator = userService.isOperator();
   let realm_admin = userService.isRealmAdmin();
   let allLinks: Array<NavLink> = [
-    { label: user.displayName, url: `https://${window.location.hostname}/auth/realms/CVAH-SSO/account`, icon: 'account_circle', isExternalLink: true, section: 'general', system: ['DIP','MIP','GIP'], privs: true, target: "_blank" },
-    { label: 'Logout', url: `https://${window.location.hostname}/Shibboleth.sso/Logout`, icon: 'exit_to_app', isExternalLink: true, section: 'general', system: ['DIP','MIP','GIP'], privs: true, target: "_self" },
-    { label: 'Portal', url: '/portal', icon: 'dashboard', isExternalLink: false, section: 'general', system: ['DIP','MIP','GIP'], privs: true },
-    { label: 'SSO Admin', url: `https://${window.location.hostname}/auth/admin/CVAH-SSO/console`, icon: 'group', isExternalLink: true, section: 'system_setup', system: ['DIP','MIP','GIP'], privs: realm_admin, target: "_blank" },
-    { label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers', isExternalLink: false, section: 'system_setup', system: ['DIP','MIP','GIP'], privs: controller_admin },
-    { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['DIP','GIP'], privs: controller_admin },
-    { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: operator },
-    { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false, section: 'system_setup', system: ['DIP','GIP'], privs: controller_maintainer },
-    { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin },
-    { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin },
-    { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer },
-    { label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true },
-    { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: operator },
-    { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true },
-    { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', system: ['DIP','GIP'], privs: operator },
-    { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: ['DIP'], privs: operator },
-    { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer },
-    { label: 'Cold Log Ingest', url: '/logingest', icon: 'cloud_download', isExternalLink: false, section: 'tools', system: ['DIP','GIP'], privs: operator },
-    { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer },
-    { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank" },
-    { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin },
-    { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', system: ['DIP','MIP','GIP'], privs: operator }
+    { label: user.displayName, url: `https://${window.location.hostname}/auth/realms/CVAH-SSO/account`, icon: 'account_circle', isExternalLink: true, section: 'general', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false },
+    { label: 'Logout', url: `https://${window.location.hostname}/Shibboleth.sso/Logout`, icon: 'exit_to_app', isExternalLink: true, section: 'general', system: ['DIP','MIP','GIP'], privs: true, target: "_self", kitStatus: false },
+    { label: 'Portal', url: '/portal', icon: 'dashboard', isExternalLink: false, section: 'general', system: ['DIP','MIP','GIP'], privs: true, kitStatus: false },
+    { label: 'SSO Admin', url: `https://${window.location.hostname}/auth/admin/CVAH-SSO/console`, icon: 'group', isExternalLink: true, section: 'system_setup', system: ['DIP','MIP','GIP'], privs: realm_admin, target: "_blank", kitStatus: false },
+    { label: 'Kickstart Configuration', url: '/kickstart', icon: 'layers', isExternalLink: false, section: 'system_setup', system: ['DIP','MIP','GIP'], privs: controller_admin, kitStatus: false },
+    { label: 'Kit Configuration', url: '/kit_configuration', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['DIP','GIP'], privs: controller_admin, kitStatus: false },
+    { label: 'Install Windows Agents', url: '/windows_agent_deployer', icon: 'cloud_download', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: operator, kitStatus: true },
+    { label: 'Catalog', url: '/catalog', icon: 'apps', isExternalLink: false, section: 'system_setup', system: ['DIP','GIP'], privs: controller_maintainer, kitStatus: true },
+    { label: 'Add Node', url: '/add_node', icon: 'computer', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin, kitStatus: true },
+    { label: 'Upgrade', url: '/upgrade', icon: 'timeline', isExternalLink: false, section: 'system_setup', system: ['DIP'], privs: controller_admin, kitStatus: true },
+    { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer, kitStatus: true },
+    { label: 'Health', url: '/health', icon: 'local_hospital', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true, kitStatus: true },
+    { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: operator, kitStatus: true },
+    { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false, section: 'kubernetes', system: ['DIP','GIP'], privs: true, kitStatus: false },
+    { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', system: ['DIP','GIP'], privs: operator, kitStatus: true },
+    { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: ['DIP'], privs: operator, kitStatus: true },
+    { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer, kitStatus: false },
+    { label: 'Cold Log Ingest', url: '/logingest', icon: 'cloud_download', isExternalLink: false, section: 'tools', system: ['DIP','GIP'], privs: operator, kitStatus: true },
+    { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer, kitStatus: true },
+    { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false },
+    { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin, kitStatus: false },
+    { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', system: ['DIP','MIP','GIP'], privs: operator, kitStatus: false }
   ]
   let navigationButtons: Array<NavGroup> = [];
   allSections.forEach((section) => {
     if(section['system'].indexOf(system_name) > -1) {
-      allLinks.filter(filterLinkSection, section).forEach((link) => {
-        if(link['system'].indexOf(system_name) > -1 && link['privs']) {
-          section['children'].push(link as NavLink);
+      let children: Array<NavLink> = [];
+      allLinks.forEach((link) => {
+        if(link['section'] == section['id'] && link['system'].indexOf(system_name) > -1 && link['privs'] && ((link['kitStatus'] && kitStatus) || !link['kitStatus'])) {
+          children.push(link as NavLink);
         }
       });
-      if(section['children'].length > 0) {
+      if(children.length > 0) {
+        section['children'] = children;
         navigationButtons.push(section);
       }
     }

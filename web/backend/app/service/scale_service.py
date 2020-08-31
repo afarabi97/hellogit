@@ -86,6 +86,7 @@ def parse_nodes(nodes):
     master = 0
     data = 0
     coordinating_ingest = 0
+    ml = 0
 
     if nodes is not None:
         for node in nodes:
@@ -99,11 +100,13 @@ def parse_nodes(nodes):
                     data += 1
                 if "i" in role:
                     coordinating_ingest += 1
+                if "l" in role:
+                    ml += 1
         # if data is zero than we are working with an mdi cluster
         if master == 0 and data == 0:
             master = mdi
 
-    return { "master": master, "data": data, "coordinating": coordinating_ingest}
+    return { "master": master, "data": data, "coordinating": coordinating_ingest, "ml": ml}
 
 def get_namespaced_custom_object_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)
@@ -134,6 +137,7 @@ def es_cluster_status() -> str:
         deploy_master_count = 0
         deploy_coordinating_count = 0
         deploy_data_count = 0
+        deploy_ml_count = 0
         deploy_total_count = 0
 
         if "spec" in deploy_config:
@@ -147,6 +151,8 @@ def es_cluster_status() -> str:
                         deploy_coordinating_count = node["count"]
                     if node["name"] == "data":
                         deploy_data_count = node["count"]
+                    if node["name"] == "ml":
+                        deploy_ml_count = node["count"]
                     deploy_total_count += node["count"]
         nodes = get_es_nodes()
         es_node_count = None
@@ -159,6 +165,7 @@ def es_cluster_status() -> str:
                 and es_node_count["master"] ==  deploy_master_count
                 and es_node_count["data"] == deploy_data_count
                 and es_node_count["coordinating"] == deploy_coordinating_count
+                and es_node_count["ml"] == deploy_ml_count
                 and resp["status"]["phase"] == "Ready"
                 and resp["status"]["availableNodes"] == deploy_total_count):
             return resp["status"]["phase"]
@@ -228,6 +235,7 @@ def get_allowable_scale_count():
     coordinating_count = 0
     data_count = 0
     master_count = 0
+    ml_count = 0
     server_node_count = 0
 
     deploy_config = elastic_deploy.read()
@@ -249,6 +257,10 @@ def get_allowable_scale_count():
                         data_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
                         data_cpu_request = Q_(c["resources"]["requests"]["cpu"])
                         data_count = n["count"]
+                    if n["name"] == "ml":
+                        ml_memory_request = Q_(c["resources"]["requests"]["memory"]).to(ureg.Mi)
+                        ml_cpu_request = Q_(c["resources"]["requests"]["cpu"])
+                        ml_count = n["count"]
 
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
@@ -315,6 +327,7 @@ def get_allowable_scale_count():
     max_total_masters = 0
     max_total_coordinating = 0
     max_total_data = 0
+    max_total_ml = 0
     for i in request:
         for key, value in i.items():
             if master_count > 0:
@@ -347,7 +360,18 @@ def get_allowable_scale_count():
                 else:
                     max_total_data = data_min
 
+            if ml_count > 0:
+                es_ml_cpu_av = int((value["cpu_remaining"] / ml_cpu_request))
+                es_ml_mem_av = int((value["mem_remaining"] / ml_memory_request))
+                ml_min = min([es_ml_cpu_av, es_ml_mem_av])
+
+                if ml_min >= MAX_PER_NODE:
+                    max_total_ml = max_total_ml + MAX_PER_NODE
+                else:
+                    max_total_ml = ml_min
+
     return { "max_scale_count_master": max_total_masters,
             "max_scale_count_coordinating": max_total_coordinating,
             "max_scale_count_data": max_total_data,
+            "max_scale_count_ml": max_total_ml,
             "server_node_count": server_node_count }
