@@ -6,7 +6,7 @@ certfile="/tmp/webCA.crt"
 #   then echo "Please run as root or use sudo."
 #   exit
 # fi
-curl http://controller.{{ kit_domain }}/webCA.crt -o "${certfile}"
+curl http://{{ ansible_controller_hostname }}/webCA.crt -o "${certfile}"
 
 echo "Updating CentOS root trust store"
 sudo cp ${certfile} /etc/pki/ca-trust/source/anchors/webCA.crt

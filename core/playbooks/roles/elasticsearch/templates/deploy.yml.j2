@@ -144,13 +144,13 @@ spec:
   - secretName: s3-access-key
   - secretName: s3-secret-key
   nodeSets:
-{{ node_set.master(kit_domain, mdi, master_count, master_memory, master_num_procs, master_java_memory, elasticsearch_plugins, enable_ml)| indent(width=2,first=True) -}}
+{{ node_set.master(kit_domain, mdi, master_count, master_memory, master_num_procs, master_java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname)| indent(width=2,first=True) -}}
 {% if mdi == false -%}
-{{ node_set.data(kit_domain, data_count, data_memory, data_num_procs, data_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{{ node_set.data(kit_domain, data_count, data_memory, data_num_procs, data_java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {%- endif %}
-{{ node_set.coordinating(kit_domain, coordinating_count, coordinating_memory, coordinating_num_procs, coordinating_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{{ node_set.coordinating(kit_domain, coordinating_count, coordinating_memory, coordinating_num_procs, coordinating_java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {% if enable_ml -%}
-{{ node_set.ml(kit_domain, ml_count, ml_memory, ml_num_procs, ml_java_memory, elasticsearch_plugins, enable_ml) | indent(width=2,first=True) }}
+{{ node_set.ml(kit_domain, ml_count, ml_memory, ml_num_procs, ml_java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) | indent(width=2,first=True) }}
 {%- endif %}
 
 ---

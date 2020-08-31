@@ -10,6 +10,8 @@ zk_image: 'bitnami/zookeeper'
 zk_version: '3.6.1'
 zk_replicas: 1
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 
 ### proxy info
 proxy:

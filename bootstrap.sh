@@ -516,10 +516,12 @@ function prompt_for_system() {
         done
     fi
     export SYSTEM_NAME=$SYSTEM_NAME;
+    export BUILD_DATE=`date +"%FT%T%z"`
 cat <<EOF > /etc/tfplenum.ini
 [tfplenum]
 system_name = ${SYSTEM_NAME}
 version = ${DIP_VERSION}
+build_date = ${BUILD_DATE}
 EOF
 }
 

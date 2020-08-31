@@ -25,7 +25,7 @@ data:
               entityID property and adjust discoveryURL to point to discovery service.
               You can also override entityID on /Login query string, or in RequestMap/htaccess.
               -->
-              <SSO entityID="https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO">
+              <SSO entityID="{{ .Values.auth_base }}">
                 SAML2
               </SSO>
               <!-- SAML and local-only logout. -->

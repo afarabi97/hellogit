@@ -4,7 +4,7 @@ $certfile="$env:userprofile\Downloads\webCA.crt"
 
 Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -match $certname } | Remove-Item
 
-Invoke-WebRequest -Uri "http://controller.{{ kit_domain }}/webCA.crt" -OutFile $certfile
+Invoke-WebRequest -Uri "http://{{ ansible_controller_hostname }}/webCA.crt" -OutFile $certfile
 
 echo "Updating Windows root trust store"
 Import-Certificate -FilePath $certfile -CertStoreLocation Cert:\LocalMachine\Root

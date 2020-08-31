@@ -12,6 +12,7 @@ export class SupportComponent implements OnInit {
 
   version: string;
   commit_hash: string;
+  build_date: string;
 
   constructor(private navService: NavBarService,
               private title: Title)
@@ -22,6 +23,7 @@ export class SupportComponent implements OnInit {
     this.navService.getVersion().subscribe(versionObj => {
       this.version = versionObj.version;
       this.commit_hash = versionObj.commit_hash
+      this.build_date = versionObj.build_date
     });
   }
 }

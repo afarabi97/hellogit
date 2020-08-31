@@ -1,15 +1,15 @@
-from app import app, celery, logger
-from app.service.socket_service import NotificationMessage, NotificationCode
-from typing import Dict, Tuple, List
-from enum import Enum
-import traceback
-from elasticsearch import Elasticsearch
-from kubernetes import client, config
-import yaml, json, os
+import os
 from base64 import b64decode
 from time import sleep
 from collections import defaultdict
-from pint        import UnitRegistry
+from pint import UnitRegistry
+import traceback
+from elasticsearch import Elasticsearch
+from kubernetes import client, config
+
+from app import celery, logger
+from app.service.socket_service import NotificationMessage, NotificationCode
+from app.catalog_service import _get_domain
 from app.dao import elastic_deploy
 
 
@@ -24,30 +24,44 @@ KUBE_CONFIG_LOCATION = "/root/.kube/config"
 def get_elastic_password(name='tfplenum-es-elastic-user', namespace='default'):
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    v1 = client.CoreV1Api()
-    response = v1.read_namespaced_secret(name, namespace)
+    core_v1_api = client.CoreV1Api()
+    response = core_v1_api.read_namespaced_secret(name, namespace)
     password = b64decode(response.data['elastic']).decode('utf-8')
     return password
 
 def get_elastic_service_ip(name='elasticsearch', namespace='default'):
-    ip = None
+    ip_address = None
     port= None
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    v1 = client.CoreV1Api()
-    response = v1.read_namespaced_service(name, namespace)
+    core_v1_api = client.CoreV1Api()
+    response = core_v1_api.read_namespaced_service(name, namespace)
 
     # Try to get the external ip
-    ip = response.spec.external_i_ps
-    if ip is None:
-        ip = response.spec.load_balancer_ip
-    if ip is None:
-        ip = response.status.load_balancer.ingress[0].ip
+    ip_address = response.spec.external_i_ps
+    if ip_address is None:
+        ip_address = response.spec.load_balancer_ip
+    if ip_address is None:
+        ip_address = response.status.load_balancer.ingress[0].ip
 
     # Get the port
     port = response.spec.ports[0].port
 
-    return ip, port
+    return ip_address, port
+
+def get_elastic_fqdn(name='elasticsearch', namespace='default'):
+    fqdn = None
+    port= None
+    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
+        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
+    core_v1_api = client.CoreV1Api()
+    response = core_v1_api.read_namespaced_service(name, namespace)
+
+    fqdn =  "{name}.{domain}".format(name=name,domain=_get_domain())
+    # Get the port
+    port = response.spec.ports[0].port
+
+    return fqdn, port
 
 def get_es_nodes():
     nodes = None
@@ -57,14 +71,14 @@ def get_es_nodes():
         if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         password = get_elastic_password()
-        service_ip, port = get_elastic_service_ip()
-        if service_ip is not None and port is not None:
-            es = Elasticsearch(service_ip, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=False)
-            nodes = es.cat.nodes(format='json')
+        elastic_fqdn, port = get_elastic_fqdn()
+        if elastic_fqdn is not None and port is not None:
+            elastic = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+            nodes = elastic.cat.nodes(format='json')
         return nodes
-    except Exception as e:
+    except Exception as exec:
         traceback.print_exc()
-        logger.exception(e)
+        logger.exception(exec)
         return None
 
 def parse_nodes(nodes):
@@ -74,8 +88,8 @@ def parse_nodes(nodes):
     coordinating_ingest = 0
 
     if nodes is not None:
-        for n in nodes:
-            role = n["node.role"]
+        for node in nodes:
+            role = node["node.role"]
             if "m" in role and "d" in role and "i" in role:
                 mdi += 1
             else:
@@ -100,16 +114,16 @@ def get_namespaced_custom_object_status() -> str:
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
         api = client.CustomObjectsApi()
         resp = api.get_namespaced_custom_object_status(group=ELASTIC_OP_GROUP,
-            version=ELASTIC_OP_VERSION,
-            plural=ELASTIC_OP_PLURAL,
-            namespace=ELASTIC_OP_NAMESPACE,
-            name=ELASTIC_OP_NAME)
+                                                       version=ELASTIC_OP_VERSION,
+                                                       plural=ELASTIC_OP_PLURAL,
+                                                       namespace=ELASTIC_OP_NAMESPACE,
+                                                       name=ELASTIC_OP_NAME)
 
         return resp
-    except Exception as e:
+    except Exception as exec:
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)
-        notification.set_message(str(e))
+        notification.set_message(str(exec))
         notification.post_to_websocket_api()
         return "Unknown"
 
@@ -126,14 +140,14 @@ def es_cluster_status() -> str:
             spec = deploy_config["spec"]
             if "nodeSets" in spec:
                 node_sets = deploy_config["spec"]["nodeSets"]
-                for n in node_sets:
-                    if n["name"] == "master":
-                        deploy_master_count = n["count"]
-                    if n["name"] == "coordinating":
-                        deploy_coordinating_count = n["count"]
-                    if n["name"] == "data":
-                        deploy_data_count = n["count"]
-                    deploy_total_count += n["count"]
+                for node in node_sets:
+                    if node["name"] == "master":
+                        deploy_master_count = node["count"]
+                    if node["name"] == "coordinating":
+                        deploy_coordinating_count = node["count"]
+                    if node["name"] == "data":
+                        deploy_data_count = node["count"]
+                    deploy_total_count += node["count"]
         nodes = get_es_nodes()
         es_node_count = None
         if nodes:
@@ -149,17 +163,17 @@ def es_cluster_status() -> str:
                 and resp["status"]["availableNodes"] == deploy_total_count):
             return resp["status"]["phase"]
 
-        if resp == None:
+        if resp is None:
             return "None"
 
         if resp["status"]["phase"] != "Ready":
             return resp["status"]["phase"]
 
         return "Pending"
-    except Exception as e:
+    except Exception as exec:
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)
-        notification.set_message(str(e))
+        notification.set_message(str(exec))
         notification.post_to_websocket_api()
         return "Unknown"
 
@@ -180,7 +194,7 @@ def check_scale_status(application: str):
         sleep(5)
         while True:
             status = es_cluster_status()
-            if status != "Ready" and status != previous_status:
+            if status not in ["Ready", previous_status]:
                 notification = NotificationMessage(role=_JOB_NAME)
                 notification.set_message("{} scaling is {}.".format(application, status))
                 notification.set_status(NotificationCode.IN_PROGRESS.name)
@@ -195,9 +209,9 @@ def check_scale_status(application: str):
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
 
-    except Exception as e:
+    except Exception as exec:
         traceback.print_exc()
-        msg = "{} scaling failed with error {}.".format(application, str(e))
+        msg = "{} scaling failed with error {}.".format(application, str(exec))
         notification = NotificationMessage(role=_JOB_NAME)
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)

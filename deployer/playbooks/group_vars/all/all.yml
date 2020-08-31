@@ -6,8 +6,7 @@ tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
 core_install_dir: /opt/tfplenum/core
 tfplenum_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 BOOTSTRAP: false
-ansible_controller_hostname: "controller.{{ kit_domain }}"
-TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
-
+ansible_controller_hostname: "{{ system_name | lower }}-controller.{{ kit_domain }}"
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 ...

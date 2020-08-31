@@ -12,7 +12,7 @@ data:
     prop_replace 'nifi.flow.configuration.file' "./flowfile_repository/flow.xml.gz"
 
     # echo "Adding OIDC Settings"
-    # prop_replace 'nifi.security.user.oidc.discovery.url' "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/.well-known/openid-configuration"
+    # prop_replace 'nifi.security.user.oidc.discovery.url' "{{ .Values.auth_base }}/.well-known/openid-configuration"
     # prop_replace 'nifi.security.user.oidc.client.id' "nifi"
     # prop_replace 'nifi.security.user.oidc.client.secret' "${CLIENT_SECRET}"
     # prop_replace 'nifi.security.user.oidc.additional.scopes' "givenName,surname,displayName,roles,groups"

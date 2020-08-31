@@ -116,11 +116,11 @@ data:
         grantType = "authorization_code"
 
         # URL from where to get the access token
-        authorizationUrl = "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/openid-connect/auth"
-        tokenUrl = "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/openid-connect/token"
+        authorizationUrl = "{{ .Values.auth_base }}/protocol/openid-connect/auth"
+        tokenUrl = "{{ .Values.auth_base }}/protocol/openid-connect/token"
 
         # The endpoint from which to obtain user details using the OAuth token, after successful login
-        userUrl = "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/openid-connect/userinfo"
+        userUrl = "{{ .Values.auth_base }}/protocol/openid-connect/userinfo"
         scope = "openid"
       }
 

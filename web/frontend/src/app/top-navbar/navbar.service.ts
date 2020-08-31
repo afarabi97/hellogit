@@ -6,10 +6,12 @@ import { map } from 'rxjs/operators';
 class Version{
   version: string;
   commit_hash: string;
+  build_date: string;
 
-  constructor(version: string, commit_hash: string){
+  constructor(version: string, commit_hash: string, build_date: string){
     this.version = version;
     this.commit_hash = commit_hash;
+    this.build_date = build_date;
   }
 }
 
@@ -21,7 +23,7 @@ export class NavBarService {
   constructor(private http: HttpClient) { }
 
   private mapVersion(data): Version {
-    return new Version(data['version'], data['commit_hash'].substring(0,8));
+    return new Version(data['version'], data['commit_hash'].substring(0,8), data['build_date']);
   }
 
   getCurrentDIPTime(){

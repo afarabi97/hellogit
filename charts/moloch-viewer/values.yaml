@@ -2,6 +2,8 @@
 image: 'tfplenum/moloch'
 port: "8005"
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 # Username and password for Web login
 username: 'assessor'
 password: 'password'

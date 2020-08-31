@@ -41,7 +41,7 @@ data:
 
   saml.json: |
     {
-      "entryPoint":"https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml",
+      "entryPoint":"{{ .Values.auth_base }}/protocol/saml",
       "issuer":"https://wikijs.{{ .Values.domain }}/",
       "audience":"",
       "cert":"",

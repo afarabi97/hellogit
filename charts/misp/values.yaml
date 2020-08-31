@@ -3,6 +3,8 @@ mispImage: tfplenum/misp:2.4.129
 mispModulesImage: tfplenum/misp-modules:2.4.121
 python_image: tfplenum/python:3.8.3
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 
 # Database values
 mariadbImage: mariadb:10.5.4

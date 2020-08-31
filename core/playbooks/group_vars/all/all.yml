@@ -9,6 +9,7 @@ log_dir: /var/log/ansible/hosts/
 cluster_domain: cluster.local
 fqdn: default.svc.{{cluster_domain}}
 data_path: /data
+system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 
 # Redis
 redis_sentinel_port: 26379
@@ -68,7 +69,7 @@ package_list:
 pip_installs:
   - netaddr
 
-ansible_controller_hostname: "controller.{{ kit_domain }}"
+ansible_controller_hostname: "{{ system_name | lower }}-controller.{{ kit_domain }}"
 offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
 docker_registry_repo: "{{ ansible_controller_hostname }}"
 

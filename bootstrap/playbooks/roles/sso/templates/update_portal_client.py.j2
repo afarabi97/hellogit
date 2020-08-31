@@ -55,7 +55,7 @@ class UpdateKeycloakClient:
         ret_val = subprocess.check_output(get_clients_cmd)
         clients = json.loads(ret_val.strip())
         for client in clients:
-            if "https://controller." in client["clientId"]:
+            if "controller" in client["clientId"]:
                 self._client_id = client["id"]
                 print("Controller Keycloak CLient ID: "+self._client_id)
                 break

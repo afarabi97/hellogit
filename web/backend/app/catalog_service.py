@@ -1,19 +1,16 @@
-from celery import utils as celery_utils
-
-from app import app, celery, logger, conn_mng
-from typing import Dict, Tuple, List
-from enum import Enum
-from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
-from app.node_facts import get_system_info
-from shared.utils import decode_password
-import re
-from app.service.socket_service import NotificationMessage, NotificationCode
-import requests, json, yaml
-from app.service.job_service import run_command2
 from time import sleep, strftime
 import os
-import socket
+import requests
+import json
+import yaml
+from typing import List
+
+from app import celery, logger, conn_mng
+from app.service.socket_service import NotificationMessage, NotificationCode
+from app.service.system_info_service import get_system_name, get_auth_base
+from app.service.job_service import run_command2
+from shared.constants import KICKSTART_ID, KIT_ID
+from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -72,13 +69,13 @@ def get_nodes(details: bool=False) -> list:
 def get_node_apps(node_hostname: str) -> list:
     deployed_apps = []
     saved_values = list(conn_mng.mongo_catalog_saved_values.find({}))
-    for v in saved_values:
-        if "values" in v and "node_hostname" in v["values"]:
-            node_type = get_node_type(v["values"]["node_hostname"])
+    for val in saved_values:
+        if "values" in val and "node_hostname" in val["values"]:
+            node_type = get_node_type(val["values"]["node_hostname"])
             if node_type:
-                hostname = v["values"]["node_hostname"]
+                hostname = val["values"]["node_hostname"]
                 if hostname == node_hostname:
-                    deployed_apps.append(v["application"])
+                    deployed_apps.append(val["application"])
 
     return deployed_apps
 
@@ -93,7 +90,7 @@ def execute_kubelet_cmd(cmd: str) -> bool:
         with FabricConnectionWrapper() as ssh_conn:
             ssh_conn.run(cmd, hide=True)
         return True
-    except:
+    except Exception:
         return False
 
     return False
@@ -105,8 +102,7 @@ def get_repo_charts() -> list:
     : return (list): Returns a list of charts
     """
 
-    stdout, ret_code = run_command2(command="helm repo update",
-            working_dir=WORKING_DIR, use_shell=True)
+    stdout, ret_code = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0:
         print("helm repo cache updated.")
         logger.info("helm repo cache updated.")
@@ -118,12 +114,12 @@ def get_repo_charts() -> list:
         for key, value in charts.items():
             application = key
             if application not in _CHART_EXEMPTS:
-                for c in value:
+                for chart in value:
                     t_chart = {}
                     t_chart["application"] = application
-                    t_chart["version"] = c["version"]
-                    t_chart["appVersion"] = c["appVersion"]
-                    t_chart["description"] = c["description"]
+                    t_chart["version"] = chart["version"]
+                    t_chart["appVersion"] = chart["appVersion"]
+                    t_chart["description"] = chart["description"]
                     results.append(t_chart)
     except Exception as exc:
         logger.exception(exc)
@@ -132,16 +128,14 @@ def get_repo_charts() -> list:
 
 def _inspect_chart(application: str) -> dict:
     chart = {}
-    stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application,
-                working_dir=WORKING_DIR, use_shell=True)
+    stdout, ret_code = run_command2(command="helm inspect chart chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         chart = yaml.full_load(stdout.strip())
     return chart
 
 def _inspect_readme(application: str):
     appconfig = {}
-    stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application,
-                working_dir=WORKING_DIR, use_shell=True)
+    stdout, ret_code = run_command2(command="helm inspect readme chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         appconfig = json.loads(stdout.strip())
     return appconfig
@@ -174,13 +168,13 @@ def chart_info(application: str) -> dict:
     return None
 
 def _get_helm_list(application: str) -> dict:
-        chart_releases = None
-        stdout, ret_code = run_command2(command="helm list --all -o json --filter='" + application + "$'",
-        working_dir=WORKING_DIR, use_shell=True)
+    chart_releases = None
+    stdout, ret_code = run_command2(command="helm list --all -o json --filter='" + application + "$'",
+    working_dir=WORKING_DIR, use_shell=True)
 
-        if ret_code == 0 and stdout != '':
-            chart_releases = json.loads(stdout.strip())
-        return chart_releases
+    if ret_code == 0 and stdout != '':
+        chart_releases = json.loads(stdout.strip())
+    return chart_releases
 
 
 def get_app_state(application: str, namespace: str) -> list:
@@ -188,15 +182,15 @@ def get_app_state(application: str, namespace: str) -> list:
     try:
         chart_releases = _get_helm_list(application)
         if chart_releases:
-            for c in chart_releases:
+            for chart in chart_releases:
                 node = {}
                 node["application"] = application
-                node["appVersion"] = c["app_version"]
-                node["status"] = c["status"].upper()
-                node["deployment_name"] = c["name"]
+                node["appVersion"] = chart["app_version"]
+                node["status"] = chart["status"].upper()
+                node["deployment_name"] = chart["name"]
                 node["hostname"] = None
                 node["node_type"] = None
-                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": c["name"]})
+                saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": chart["name"]})
                 values = saved_values.get("values", None)
                 if values:
                     node_hostname = values.get("node_hostname", None)
@@ -212,19 +206,18 @@ def get_app_state(application: str, namespace: str) -> list:
 def get_values(application) -> dict:
     values = {}
     raw_values = None
-    stdout, ret_code = run_command2(command="helm inspect values chartmuseum/" + application,
-            working_dir=WORKING_DIR, use_shell=True)
+    stdout, ret_code = run_command2(command="helm inspect values chartmuseum/" + application, working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0 and stdout != '':
         try:
             raw_values = yaml.full_load(stdout.strip())
-        except:
+        except Exception:
             pass
 
     if raw_values:
         if isinstance(raw_values, str):
             for line in raw_values.splitlines():
-                k, v = line.strip().split(':')
-                values[k.strip()] = v.strip()
+                k, val = line.strip().split(':')
+                values[k.strip()] = val.strip()
         elif isinstance(raw_values, dict):
             values = raw_values
 
@@ -233,17 +226,22 @@ def get_values(application) -> dict:
 def generate_values(application: str, namespace: str, configs: list=None) -> list:
     try:
         values = get_values(application)
-        values['domain'] = _get_domain()
-    except Exception as e:
-        logger.exception(e)
+        if 'domain' in values:
+            values['domain'] = _get_domain()
+        if 'system_name' in values:
+            values['system_name'] = get_system_name()
+        if 'auth_base' in values:
+            values['auth_base'] = get_auth_base()
+    except Exception as exec:
+        logger.exception(exec)
     if configs:
         l_values = []
         for config in configs:
-            for node_hostname, v in config.items():
+            for node_hostname, value in config.items():
                 sensordict = {}
                 sensordict[node_hostname] = {}
                 c_values = values.copy()
-                for key, value in v.items():
+                for key, value in value.items():
                     c_values[key] = value
                 sensordict[node_hostname] = c_values
             l_values.append(sensordict)
@@ -263,11 +261,11 @@ def _write_values(deployment_name: str, value_items: dict) -> str:
 
 def _build_values(values: dict):
     try:
-        for h, v in values.items():
-            deployment_name = h
-            value_items = v
+        for name, val in values.items():
+            deployment_name = name
+            value_items = val
     except Exception as exc:
-            logger.error(exc)
+        logger.error(exc)
 
     return deployment_name, value_items
 
@@ -309,14 +307,14 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                 tpath = _write_values(deployment_name, value_items)
 
                 stdout, ret_code = run_command2(command="helm install " + deployment_name +
-                    " chartmuseum/" + application +
-                    " --namespace " + namespace +
-                    " --values " + tpath,
+                                                " chartmuseum/" + application +
+                                                " --namespace " + namespace +
+                                                " --values " + tpath,
                     working_dir=WORKING_DIR, use_shell=True)
 
                 if ret_code == 0 and stdout != '':
                     results = yaml.full_load(stdout.strip())
-                    job_watch = application_setup_job_watcher.delay(application=application, deployment_name=deployment_name, namespace=namespace, task_id=None)
+                    application_setup_job_watcher.delay(application=application, deployment_name=deployment_name, namespace=namespace, task_id=None)
                     # Send Update Notification to websocket
                     notification.set_status(status=results["STATUS"].upper())
                     notification.post_to_websocket_api()
@@ -392,8 +390,7 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                 if node_hostname:
                     execute_kubelet_cmd("kubectl label nodes " + node_hostname + " " + application + "-")
 
-                stdout, ret_code = run_command2(command="helm delete " + deployment_to_uninstall,
-                        working_dir=WORKING_DIR, use_shell=True)
+                stdout, ret_code = run_command2(command="helm delete " + deployment_to_uninstall, working_dir=WORKING_DIR, use_shell=True)
                 if ret_code == 0 and stdout != '':
                     # PVC deletion takes significatly longer than the other Resources and is the final thing to be removed
                     # Thus, once the PVC is gone, It has been completely removed
@@ -439,9 +436,9 @@ def check_deployment_pvc_deletetion(deployment_name: str):
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         while True:
             try:
-                pvc = kube_apiv1.read_namespaced_persistent_volume_claim_status(deployment_name+'-pvc','default',pretty=False)
+                kube_apiv1.read_namespaced_persistent_volume_claim_status(deployment_name+'-pvc','default',pretty=False)
                 sleep(5)
-            except Exception as e:
+            except Exception:
                 break
     return True
 
@@ -452,9 +449,9 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
     setup_job = None
 
     with KubernetesWrapper2(conn_mng) as api:
-        v1 = api.batch_V1_API
+        batch_v1_api = api.batch_V1_API
         try:
-            jobs = v1.list_namespaced_job(namespace=namespace,watch=False)
+            jobs = batch_v1_api.list_namespaced_job(namespace=namespace,watch=False)
             for job in jobs.items:
                 job_name = job.metadata.name
                 if job_name.startswith(deployment_name+'-setup'):
@@ -479,7 +476,7 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
             sleep(10)
             try:
                 # logger.info("Querying K8S: "+setup_job.metadata.name)
-                job = v1.read_namespaced_job(setup_job.metadata.name, namespace=namespace, pretty=False)
+                job = batch_v1_api.read_namespaced_job(setup_job.metadata.name, namespace=namespace, pretty=False)
                 # logger.info(job)
                 containers = job.spec.template.spec.containers
                 succeeded = job.status.succeeded
@@ -495,7 +492,7 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
                     notification.set_status(status=NotificationCode.COMPLETED.name)
                     notification.post_to_websocket_api()
                     break
-                elif active is None and failed is not None and failed > 0:
+                if active is None and failed is not None and failed > 0:
                     # Send Update Notification to websocket
                     notification.set_message(message='Setup Job Error')
                     notification.set_status(status=NotificationCode.ERROR.name)

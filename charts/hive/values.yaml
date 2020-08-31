@@ -14,3 +14,5 @@ read_write_user_username: user
 read_write_user_password: password!
 case_template: MISP
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO

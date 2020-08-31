@@ -84,9 +84,9 @@ spec:
         - name: ROOT_URL
           value: https://rocketchat.{{ .Values.domain }}
         - name: OVERWRITE_SETTING_SAML_Custom_Default_entry_point
-          value: "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml"
+          value: "{{ .Values.auth_base }}/protocol/saml"
         - name: OVERWRITE_SETTING_SAML_Custom_Default_idp_slo_redirect_url
-          value: "https://controller.{{ .Values.domain }}/auth/realms/CVAH-SSO/protocol/saml"
+          value: "{{ .Values.auth_base }}/protocol/saml"
         - name: OVERWRITE_SETTING_SAML_Custom_Default_issuer
           value: "https://rocketchat.{{ .Values.domain }}/_saml/metadata/keycloak"
         - name: OVERWRITE_SETTING_SAML_Custom_Default_cert

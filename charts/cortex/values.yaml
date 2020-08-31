@@ -12,3 +12,5 @@ org_admin_password: password!
 org_user_username: user_thehive
 misp_user: user_misp
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
