@@ -1,0 +1,449 @@
+[
+  {
+    "id": "datafeed-endpoint_anomalous_network_activity",
+    "body": {
+      "job_id": "endpoint_anomalous_network_activity",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.action": "ipv4_connection_attempt_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "term": {
+                      "destination.ip": "127.0.0.1"
+                    }
+                  },
+                  {
+                    "term": {
+                      "destination.ip": "127.0.0.53"
+                    }
+                  },
+                  {
+                    "term": {
+                      "destination.ip": "::1"
+                    }
+                  }
+                ],
+                "minimum_should_match": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_anomalous_network_port_activity",
+    "body": {
+      "job_id": "endpoint_anomalous_network_port_activity",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.action": "ipv4_connection_attempt_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "term": {
+                      "destination.ip": "::1"
+                    }
+                  },
+                  {
+                    "term": {
+                      "destination.ip": "127.0.0.1"
+                    }
+                  },
+                  {
+                    "term": {
+                      "destination.ip": "::"
+                    }
+                  },
+                  {
+                    "term": {
+                      "user.name_map.uid": "jenkins"
+                    }
+                  }
+                ],
+                "minimum_should_match": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_rare_user_type10_remote_login",
+    "body": {
+      "job_id": "endpoint_rare_user_type10_remote_login",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.type": "authentication_success"
+              }
+            },
+            {
+              "term": {
+                "endgame.logon_type": "10"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_suspicious_login_activity",
+    "body": {
+      "job_id": "endpoint_suspicious_login_activity",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.category": "authentication"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_rare_user_runas_event",
+    "body": {
+      "job_id": "endpoint_rare_user_runas_event",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "winlog.event_id": "4648"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_rare_process_by_host",
+    "body": {
+      "job_id": "endpoint_rare_process_by_host",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "terms": {
+                "event.action": [
+                  "exec_event",
+                  "creation_event"
+                ]
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_rare_dns_question",
+    "body": {
+      "job_id": "endpoint_rare_dns_question",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "endgame.event_type_full": "dns_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "filter": {
+                  "term": {
+                    "dns.question.type": "PTR"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_dns_tunneling",
+    "body": {
+      "job_id": "endpoint_dns_tunneling",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "endgame.event_type_full": "dns_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "filter": {
+                  "terms": {
+                    "dns.question.registered_domain": [
+                      "in-addr.arpa",
+                      "in-addr.arpa."
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_anomalous_user_name",
+    "body": {
+      "job_id": "endpoint_anomalous_user_name",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "terms": {
+                "event.action": [
+                  "exec_event",
+                  "creation_event"
+                ]
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_anomalous_process_creation",
+    "body": {
+      "job_id": "endpoint_anomalous_process_creation",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.action": "creation_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_anomalous_process_all_hosts",
+    "body": {
+      "job_id": "endpoint_anomalous_process_all_hosts",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "terms": {
+                "event.action": [
+                  "exec_event",
+                  "creation_event"
+                ]
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "term": {
+                      "user.name": "jenkins-worker"
+                    }
+                  },
+                  {
+                    "term": {
+                      "user.name": "jenkins-user"
+                    }
+                  },
+                  {
+                    "term": {
+                      "user.name": "jenkins"
+                    }
+                  },
+                  {
+                    "wildcard": {
+                      "process.name": {
+                        "wildcard": "jenkins*"
+                      }
+                    }
+                  }
+                ],
+                "minimum_should_match": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "datafeed-endpoint_anomalous_network_service",
+    "body": {
+      "job_id": "endpoint_anomalous_network_service",
+      "indices": [
+        "endgame-*"
+      ],
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+                "event.action": "ipv4_connection_accept_event"
+              }
+            },
+            {
+              "term": {
+                "agent.type": "endgame"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "term": {
+                      "process.name": "dnsmasq"
+                    }
+                  },
+                  {
+                    "term": {
+                      "process.name": "docker-proxy"
+                    }
+                  },
+                  {
+                    "term": {
+                      "process.name": "rpcinfo"
+                    }
+                  }
+                ],
+                "minimum_should_match": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

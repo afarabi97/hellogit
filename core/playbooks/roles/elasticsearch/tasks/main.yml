@@ -19,6 +19,6 @@
   when: inventory_hostname in groups['master_server']
   tags: es-post-install
 
-- import_tasks: "pipeline.yml"
+- import_tasks: "load_ml.yml"
   when: inventory_hostname in groups['master_server']
-  tags: zeek-pipeline
+  tags: load-ml

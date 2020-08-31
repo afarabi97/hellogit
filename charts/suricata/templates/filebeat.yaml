@@ -1,11 +1,11 @@
----
 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-filebeat
   labels:
-    component: suricata-logshipper
+    component: suricata-logshipper-bullshit
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,7 @@ spec:
         component: suricata-logshipper
     spec:
       containers:
-      - name: filebeat-suricata
+      - name: filebeat-suricata-alert
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         securityContext:
@@ -45,7 +45,154 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-alert*.json]']
+        {{ if .Values.flow }}
+      - name: filebeat-suricata-http
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-http"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-http*.json]']
+      - name: filebeat-suricata-dns
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-dns*.json]']
+      - name: filebeat-suricata-tls
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-tls*.json]']
+      - name: filebeat-suricata-flow
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-flow*.json]']
+      - name: filebeat-suricata-apps
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.suricata_log_path }}
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-apps"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-apps*.json]']
+        {{ end }}
       volumes:
       - name: data
         hostPath:
@@ -77,5 +224,4 @@ spec:
                 values:
                 - suricata-logshipper
             topologyKey: "kubernetes.io/hostname"
-
 ...

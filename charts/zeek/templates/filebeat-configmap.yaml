@@ -1,52 +1,33 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: misp-filebeat-cm
+  name: {{ .Release.Name }}-filebeat
   annotations:
     "helm.sh/hook": "pre-install"
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
-  misp.yml: |-
-    # Module: misp
-    # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.6/filebeat-module-misp.html
-    - module: misp
-      threat:
-        enabled: true
-        var.api_key: "${FILEBEAT_USER_API_KEY}"
-        var.json_objects_array: 'response.Attribute'
-        var.url: 'https://misp.default.svc.cluster.local/attributes/restSearch'
-        var.http_method: 'POST'
-        var.interval: '300s'
-        var.ssl: '{ verification_mode: none }'
-
-  filebeat.yml: |-
+  filebeat.yml: |
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
 
-    logging.level: info
-    logging.to_files: true
-    logging.files:
-      path: /usr/share/filebeat/logs
-      name: filebeat
-      keepfiles: 7
-      permissions: 0644
     #==================== Elasticsearch template setting ==========================
 
     setup.template.settings:
-      index.number_of_shards: 6
+      index.number_of_shards: {{ .Values.shards }}
       index.number_of_replicas: 1
       index.refresh_interval: 30s
-      index.merge.scheduler.max_thread_count: 1
+      #index.merge.scheduler.max_thread_count: 1
 
     setup.ilm:
-      policy_name: filebeat-misp
-      rollover_alias: filebeat-misp
+      policy_name: filebeat-zeek
+      rollover_alias: filebeat-zeek
 
     #============================== Kibana =====================================
 
     setup.dashboards.enabled: true
-    setup.kibana.host: "https://kibana.default.svc.cluster.local:443"
+    setup.kibana.host: "https://{{ .Values.kibana_fqdn }}:{{ .Values.kibana_port }}"
     setup.kibana.ssl.enabled: true
     setup.kibana.ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
@@ -55,6 +36,7 @@ data:
     # ssl.key: "/etc/ssl/certs/container/tls.key"
 
     #================================ Outputs =====================================
+
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
       hosts:
@@ -64,25 +46,25 @@ data:
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-      #ssl.certificate: "/etc/ssl/certs/container/tls.crt"
-      #ssl.key: "/etc/ssl/certs/container/tls.key"
+      # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+      # ssl.key: "/etc/ssl/certs/container/tls.key"
       worker: 6
       bulk_max_size: 4096
       compression_level: 3
       loadbalance: true
 
     queue.mem:
-     events: 65536
-     flush.min_events: 4096
-     flush.timeout: 30s
+      events: 65536
+      flush.min_events: 4096
+      flush.timeout: 30s
 
     monitoring:
-      enabled: false
+      enabled: true
       elasticsearch:
-       username: ${ELASTICSEARCH_USERNAME}
-       password: ${ELASTICSEARCH_PASSWORD}
-      username: ""
-      # ssl:
-        # ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-        # ssl.certificate: "/etc/ssl/certs/container/tls.crt"
-        # ssl.key: "/etc/ssl/certs/container/tls.key"
+        username: ${ELASTICSEARCH_USERNAME}
+        password: ${ELASTICSEARCH_PASSWORD}
+    #   username: ""
+    #   ssl:
+    #     ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
+    #     ssl.certificate: "/etc/ssl/certs/container/tls.crt"
+    #     ssl.key: "/etc/ssl/certs/container/tls.key"

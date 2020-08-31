@@ -14,3 +14,8 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{- define "createEsNodeList" -}}
+{{- $local := dict "first" true -}}
+{{- range $k, $v := $.Values.elastic_ingest_nodes -}}{{- if not $local.first -}},{{- end -}}https://{{- $.Values.es_user -}}:{{- $.Values.es_password -}}@{{- $v | replace "https://" "" -}}{{- $_ := set $local "first" false -}}{{- end -}}
+{{- end -}}

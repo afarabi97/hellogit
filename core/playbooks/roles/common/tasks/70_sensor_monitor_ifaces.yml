@@ -41,20 +41,22 @@
       - "management_interface != item"
 
   - block:
-      - name: Set on boot to yes
-        replace:
-          path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
-          regexp: "ONBOOT=no"
-          replace: "ONBOOT=yes"
-        with_items: "{{ sensor_monitor_interface }}"
 
-      - name: Turn off unnecessary listening NIC features
-        template:
-          src: templates/ethtool-setup.j2
-          dest: /etc/NetworkManager/dispatcher.d/30-ethtool
-          mode: 0755
-          owner: root
-          group: root
+    - name: Set on boot to yes
+      template:
+        src: "templates/ifcfg-monitor"
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+      with_items: "{{ sensor_monitor_interface }}"
+
+    - name: Restart network services on master server
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+        - network
+        - NetworkManager
+
     rescue:
       - fail:
           msg: |

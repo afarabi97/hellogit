@@ -11,6 +11,7 @@ fpc_path: "/data/pcap"
 
 # Kubernetes and docker info
 version: 2.2.3v2
+elastic_ingest_nodes: []
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 cpu_request: 100
 affinity_hostname: {}
@@ -28,7 +29,7 @@ packetThreads: 3
 pcapWriteMethod: "simple"
 pcapWriteSize: "2560000"
 dbBulkSize: "400000"
-maxESConns: "30"
+maxESConns: "60"
 maxESRequests: "500"
 packetsPerPoll: "500000"
 magicMode: "basic"
@@ -36,4 +37,3 @@ tpacketv3BlockSize: 8388608
 maxPacketsInQueue: "400000"
 es_user: moloch
 es_password: password
-

@@ -1,7 +1,7 @@
 apiVersion: v1
 name: zeek
 home: https://bitbucket.di2e.net/projects/THISISCVAH/repos/tfplenum/browse/charts/zeek
-version: 1.0.0
-appVersion: 3.1.1
-description: Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.
+version: 1.1.0
+appVersion: 3.2.0
+description: Zeek 3.2.0 with Filebeat (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.
 icon: https://www.zeek.org/images/bro-eyes.png

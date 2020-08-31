@@ -2,3 +2,5 @@
 
 kibana_dir: "{{ install_dir  }}/kibana"
 default_elastic_user: elastic
+elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+kibana_system_user: tfplenum-kibana-user

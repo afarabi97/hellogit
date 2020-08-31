@@ -19,5 +19,12 @@
   "groups": [
     "/All Users",
     "/Realm Admin"
+{% if system_name == 'DIP' or system_name == 'GIP' %}
+    ,"/ELK Superuser",
+    "/MISP Admin",
+    "/Rocket Chat Admin",
+    "/Hive Admin",
+    "/Cortex Super Admin"
+{% endif %}
   ]
 }

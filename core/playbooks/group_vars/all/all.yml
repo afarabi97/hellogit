@@ -77,6 +77,7 @@ docker_registry_repo: "{{ ansible_controller_hostname }}"
 # 0 == tiny  (old DL160s)
 # 1 == small (DL160s with extra memory)
 # 2 == large (R440s)
+# 3 == large (R440 Common Node)
 kit_size: -1
 
 # Local Provisioner

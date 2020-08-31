@@ -1,0 +1,81 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-filebeat
+  labels:
+    component: zeek-logshipper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: zeek-logshipper
+  template:
+    metadata:
+      labels:
+        component: zeek-logshipper
+    spec:
+      containers:
+      - name: filebeat
+        image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-logstash-user
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: /var/log/bro/current
+          readOnly: true
+        - name: configs
+          subPath: filebeat.yml
+          mountPath: /usr/share/filebeat/filebeat.yml
+          readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'zeek']
+      volumes:
+      - name: data
+        hostPath:
+          path: {{ .Values.zeek_log_path }}
+          type: DirectoryOrCreate
+      - name: configs
+        configMap:
+          name: {{ .Release.Name }}-filebeat
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - zeek-logshipper
+            topologyKey: "kubernetes.io/hostname"
+
+...

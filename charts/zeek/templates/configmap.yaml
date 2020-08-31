@@ -1,10 +1,10 @@
 {{- $d := dict "manager" (dict "type" "manager" "port" 47760) -}}
-{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47761) -}}
+{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47762) -}}
 {{- range $i, $e := until (.Values.zeek_loggers | int) -}}
-{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47762 $i)) -}}
+{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47761 $i)) -}}
 {{- range $interface_idx, $interface := $.Values.interfaces -}}
 {{- range $i, $e := until ($.Values.zeek_workers | int) -}}
-{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47762 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
+{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47763 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -75,6 +75,8 @@ data:
     @load frameworks/intel/do_notice
     @load frameworks/files/hash-all-files
 
+    redef Intel::read_files += { "{{ .Values.zeek_intel_dat }}" };
+
     # Load tfplenum scripts
     @load ./tfplenum
 
@@ -96,9 +98,11 @@ data:
 {{- end }}
     };
 
+    # JSON output
     @load tuning/json-logs
-    redef LogAscii::json_timestamps = JSON::TS_ISO8601;
+    #redef LogAscii::json_timestamps = JSON::TS_ISO8601;
     redef LogAscii::use_json = T;
+
 
     # Add some basic info to all the connection records.
     global sensor_name = ""; # Hostname for this box.
@@ -114,53 +118,6 @@ data:
             interface_name = subst_string(interface_full, "af_packet::", "");
             }
         }
-
-    type Extension: record {
-        stream:   string &log;
-        ## The name of the system that wrote this log. This
-        ## is defined in the  const so that
-        ## a system running lots of processes can give the
-        ## same value for any process that writes a log.
-        system:   string &log;
-        interface:   string &log;
-        ## The name of the process that wrote the log. In
-        ## clusters, this will typically be the name of the
-        ## worker that wrote the log.
-        proc:     string &log;
-    };
-    function add_log_extension(path: string): Extension
-    {
-        return Extension($stream = path,
-                        $system = sensor_name,
-                        $interface = interface_name,
-                        $proc   = peer_description);
-    }
-    redef Log::default_ext_func   = add_log_extension;
-    redef Log::default_ext_prefix = "@";
-    redef Log::default_scope_sep  = "_";
-
-    redef Kafka::topic_name = "zeek-raw";
-    redef Kafka::json_timestamps = JSON::TS_ISO8601;
-    redef Kafka::tag_json = F;
-
-    # Enable bro logging to kafka for all logs
-    event zeek_init() &priority=-5
-    {
-        for (stream_id in Log::active_streams)
-        {
-            if (|Kafka::logs_to_send| == 0 || stream_id in Kafka::logs_to_send)
-            {
-                local filter: Log::Filter = [
-                    $name = fmt("kafka-%s", stream_id),
-                    $writer = Log::WRITER_KAFKAWRITER,
-                    $config = table(["stream_id"] = fmt("%s", stream_id))
-                ];
-
-                Log::add_filter(stream_id, filter);
-            }
-        }
-    }
-
 
 ---
 
@@ -185,40 +142,3 @@ data:
   {{ base $path }}: |
 {{ $.Files.Get $path | indent 4 }}
 {{ end }}
-
----
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-beats-config
-  labels:
-    component: zeek
-data:
-  metricbeat.yml: |-
-    metricbeat.config.modules:
-      # Mounted `metricbeat-daemonset-modules` configmap:
-      path: ${path.config}/modules.d/*.yml
-      # Reload module configs as they change:
-      reload.enabled: false
-    metricbeat.modules:
-    - module: kafka
-      metricsets:
-      - partition
-      - consumergroup
-      period: 10s
-      hosts: ["localhost:9092"]
-    - module: system
-      enabled: false
-
-    output.elasticsearch:
-      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
-      username: ${ELASTICSEARCH_USERNAME}
-      password: ${ELASTICSEARCH_PASSWORD}
-      ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-
-    monitoring:
-      enabled: true
-      elasticsearch:
-        username: ${ELASTICSEARCH_USERNAME}
-        password: ${ELASTICSEARCH_PASSWORD}

@@ -1,10 +1,10 @@
 {{- $d := dict "manager" (dict "type" "manager" "port" 47760) -}}
-{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47761) -}}
+{{- $_ := set $d "proxy" (dict "type" "proxy" "port" 47762) -}}
 {{- range $i, $e := until (.Values.zeek_loggers | int) -}}
-{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47762 $i)) -}}
+{{- $_ := set $d (printf "logger-%d" $i) (dict "type" "logger" "logger_number" $i "port" (add 47761 $i)) -}}
 {{- range $interface_idx, $interface := $.Values.interfaces -}}
 {{- range $i, $e := until ($.Values.zeek_workers | int) -}}
-{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47762 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
+{{- $_ := set $d (printf "%s-%d" $interface $i) (dict "type" "worker" "interface" (printf "af_packet::%s" $interface) "port" (add 47763 ($.Values.zeek_loggers | int) $i (mul ($.Values.zeek_workers | int) $interface_idx))) -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -35,10 +35,13 @@ spec:
       - name: init-zeek
         image: "{{ .Values.image_name }}:{{ .Values.image_tag }}"
         imagePullPolicy: IfNotPresent
-        command: [ '/bin/touch', '-a', '/zeek/share/zeek/site/custom/__load__.zeek']
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "/bin/touch -a /opt/zeek/share/zeek/site/custom/__load__.zeek"
         volumeMounts:
         - name: custom-scripts
-          mountPath: /zeek/share/zeek/site/custom
+          mountPath: /opt/zeek/share/zeek/site/custom
       containers:
 {{- range $node, $config := $d }}
       - name: {{ $node }}
@@ -66,9 +69,6 @@ tries to restart.
                   - NET_ADMIN
                   - NET_RAW
                   - SYS_NICE
-        resources:
-          limits:
-            cpu: 1
 {{- else }}
         resources:
           requests:
@@ -76,23 +76,25 @@ tries to restart.
 {{- end }}
         volumeMounts:
         - name: custom-scripts
-          mountPath: /zeek/share/zeek/site/custom
+          mountPath: /opt/zeek/share/zeek/site/custom
           readOnly: true
         - name: default-scripts
           subPath: cluster-layout.zeek
-          mountPath: /zeek/share/zeek/site/cluster-layout.zeek
+          mountPath: /opt/zeek/share/zeek/site/cluster-layout.zeek
           readOnly: true
         - name: default-scripts
           subPath: local.zeek
-          mountPath: /zeek/share/zeek/site/local.zeek
-          readOnly: true
+          mountPath: /opt/zeek/share/zeek/site/local.zeek
         - name: scripts
-          mountPath: /zeek/share/zeek/site/tfplenum
+          mountPath: /opt/zeek/share/zeek/site/tfplenum
+          readOnly: true
+        - name: intel-dat
+          mountPath: {{ $.Values.zeek_intel_dat }}
           readOnly: true
 {{- if eq $config.type "logger" }}
         - name: logs
           mountPath: {{ $.Values.zeek_log_path }}
-        workingDir: {{ $.Values.zeek_log_path }}/{{ $config.logger_number }}
+        workingDir: {{ $.Values.zeek_log_path }}
 {{- end }}
         env:
         - name: CLUSTER_NODE
@@ -112,112 +114,6 @@ tries to restart.
         - "local.zeek"
         - "base/frameworks/cluster"
 {{- end }}
-      - name: zookeeper
-        imagePullPolicy: IfNotPresent
-        image: "{{ .Values.zookeeper_image_name }}:{{ .Values.zookeeper_image_tag }}"
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-        env:
-        - name: ALLOW_ANONYMOUS_LOGIN
-          value: "yes"
-        - name: ZOO_SERVERS
-          value: localhost:2888:3888
-        readinessProbe:
-          tcpSocket:
-            port: 2181
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
-        livenessProbe:
-          tcpSocket:
-            port: 2181
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
-        volumeMounts:
-        - name: zk-data
-          mountPath: /bitnami/zookeeper
-      - name: kafka
-        imagePullPolicy: IfNotPresent
-        image: "{{ .Values.kafka_image_name }}:{{ .Values.kafka_image_tag }}"
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-        ports:
-        - containerPort: 9092
-          name: server
-        env:
-        - name: ALLOW_PLAINTEXT_LISTENER
-          value: "yes"
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        - name: KAFKA_CFG_LISTENERS
-          value: "PLAINTEXT://:9092"
-        - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://$(POD_IP):9092"
-        - name: KAFKA_ZOOKEEPER_CONNECT
-          value: "localhost:2181"
-        - name: KAFKA_CFG_LOG_RETENTION_HOURS
-          value: {{ .Values.log_retention_hours | quote }}
-        - name: KAFKA_CFG_NUM_PARTITIONS
-          value: {{ .Values.num_partitions | quote }}
-        readinessProbe:
-          tcpSocket:
-            port: server
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          failureThreshold: 12
-          timeoutSeconds: 5
-        livenessProbe:
-          tcpSocket:
-            port: server
-          initialDelaySeconds: 120
-          timeoutSeconds: 5
-        volumeMounts:
-        - name: kafka-data
-          mountPath: /bitnami/kafka
-      - name: metricbeat
-        image: "{{ .Values.metricbeat_image_name }}:{{ .Values.metricbeat_image_tag }}"
-        args: ["-e"]
-        env:
-        - name: ELASTICSEARCH_HOST
-          value: {{ .Values.elastic_fqdn | quote }}
-        - name: ELASTICSEARCH_PORT
-          value: {{ .Values.elastic_port | quote }}
-        - name: ELASTICSEARCH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: tfplenum-logstash-user
-              key: username
-        - name: ELASTICSEARCH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: tfplenum-logstash-user
-              key: password
-        - name: ELASTIC_CLOUD_ID
-          value:
-        - name: ELASTIC_CLOUD_AUTH
-          value:
-        resources:
-          limits:
-            memory: 200Mi
-        volumeMounts:
-        - name: beats-config
-          mountPath: /usr/share/metricbeat/metricbeat.yml
-          subPath: metricbeat.yml
-          readOnly: true
-        - name: webca
-          mountPath: /etc/ssl/certs/container
-          readOnly: true
       restartPolicy: Always
       volumes:
       - name: logs
@@ -228,23 +124,16 @@ tries to restart.
         hostPath:
           path: {{ .Values.zeek_scripts }}
           type: DirectoryOrCreate
+      - name: intel-dat
+        hostPath:
+          path: {{ .Values.zeek_intel_dat }}
+          type: FileOrCreate
       - name: default-scripts
         configMap:
           name: {{ .Release.Name }}
       - name: scripts
         configMap:
           name: {{ .Release.Name }}-scripts
-      - name: zk-data
-        hostPath:
-          path: {{ .Values.zookeeper_path }}
-          type: DirectoryOrCreate
-      - name: kafka-data
-        hostPath:
-          path: {{ .Values.kafka_path }}
-          type: DirectoryOrCreate
-      - name: beats-config
-        configMap:
-          name: {{ .Release.Name }}-beats-config
       - name: webca
         secret:
           defaultMode: 420

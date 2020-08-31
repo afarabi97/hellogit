@@ -1,8 +1,6 @@
 kibana_fqdn: kibana.default.svc.cluster.local
 kibana_port: 443
-elastic_fqdn: elasticsearch.default.svc.cluster.local
-elastic_headless_fqdn: elasticsearch-headless.default.svc.cluster.local
-elastic_port: 9200
+elastic_ingest_nodes: []
 suricata_directory: /opt/tfplenum/suricata
 suricata_threads: 8
 home_net: ["192.168.0.0/16"]
@@ -18,3 +16,8 @@ filebeat_image_name: beats/filebeat
 filebeat_image_tag: 7.8.1
 pcapEnabled: false
 fpc_path: "/data/pcap"
+flow: false
+worker_num: 6
+bulk_max_size: 4096
+queue_mem_events: 65536
+shards: 6

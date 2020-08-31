@@ -37,21 +37,27 @@ spec:
         secretName: kibana-certificate
   count: 1
   config:
-    xpack.monitoring.ui.container.elasticsearch.enabled: true
-    #xpack.reporting.enabled: true
+    monitoring.ui.container.elasticsearch.enabled: false
+    reporting.enabled: true
     elasticsearch.requestTimeout: 100000
     elasticsearch.shardTimeout: 0
-    xpack.security.authc.providers: [saml,basic]
-    xpack.security.authc.saml.realm: saml1
-    xpack.security.public.protocol: https
-    xpack.security.public.hostname: kibana.{{ kit_domain }}
-    xpack.security.public.port: 443
-    server.xsrf.whitelist: [/api/security/v1/saml]
-  elasticsearchRef:
-    name: "tfplenum"
+    xpack.security.authc.providers:
+      saml.CVAH SSO:
+        order: 0
+        realm: "saml1"
+      basic.basic1:
+        order: 1
+    monitoring.kibana.collection.interval: 30000
+    elasticsearch.hosts:
+{% for node in coordinating_nodes %}
+    - https://{{ node }}.tfplenum-es-coordinating.default.svc.cluster.local:9200
+{% endfor %}
+    elasticsearch.username: {{ kibana_system_user }}
+    elasticsearch.ssl.certificateAuthorities: /etc/ssl/certs/container/ca.crt
   secureSettings:
   - secretName: kibana-key-secret-settings
   - secretName: kibana-alert-secret-settings
+  - secretName: kibana-elasticsearch-credentials
   podTemplate:
     spec:
       containers:
@@ -60,6 +66,16 @@ spec:
           requests:
             memory: {{ kibana_memory }}Gi
             cpu: {{ kibana_cpu }}
+        volumeMounts:
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      volumes:
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -81,9 +97,9 @@ spec:
     common.k8s.elastic.co/type: kibana
     kibana.k8s.elastic.co/name: tfplenum
   ports:
-  - name: http
+  - name: https
     port: {{ kibana_port }}
-    targetPort: http
+    targetPort: https
   type: LoadBalancer
 
 ...

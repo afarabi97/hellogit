@@ -33,7 +33,7 @@ data:
       metricsets:
       - node
       - node_stats
-      period: 10s
+      period: 30s
       hosts: ["localhost:9600"]
       xpack.enabled: true
       enabled: true
@@ -41,13 +41,10 @@ data:
       enabled: false
 
     output.elasticsearch:
-      hosts: ['https://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
+      hosts:
+      {{- range .Values.elastic_ingest_nodes }}
+        - {{ . }}
+      {{- end }}
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]
-
-    monitoring:
-      enabled: true
-      elasticsearch:
-        username: ${LOGSTASH_MONITOR_USERNAME}
-        password: ${LOGSTASH_MONITOR_PASSWORD}

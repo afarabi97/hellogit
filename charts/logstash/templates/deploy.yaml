@@ -57,10 +57,6 @@ spec:
         image: "{{ .Values.metricbeat_image_name }}:{{ .Values.metricbeat_image_tag }}"
         args: ["-e"]
         env:
-        - name: ELASTICSEARCH_HOST
-          value: {{ .Values.elastic_fqdn | quote }}
-        - name: ELASTICSEARCH_PORT
-          value: {{ .Values.elastic_port | quote }}
         - name: ELASTICSEARCH_USERNAME
           valueFrom:
             secretKeyRef:

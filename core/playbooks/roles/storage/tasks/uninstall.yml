@@ -67,8 +67,11 @@
   changed_when: results.rc == 0
   ignore_errors: true
   with_items:
-    - "{{ helm_list.stdout }}"
-  when: helm_list is defined and helm_list|length > 0 and inventory_hostname in groups['master_server']
+    - "{{ helm_list.stdout_lines }}"
+  when:
+    - inventory_hostname in groups['master_server']
+    - helm_list is defined
+    - helm_list.stdout_lines|length > 0
 
 - name: Remove orphaned PVs
   shell: |

@@ -97,7 +97,7 @@ export const kickstart_validators = {
   ],
   raid_drives: [
     { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
-    { ops: { pattern: /^([a-z]{2,3}[0-9]{0,3})(,[a-z]{2,3}[0-9]{0,3})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
+    { ops: { pattern: /^([a-z]{2,5}[0-9]{0,6}.*)(,[a-z]{2,5}[0-9]{0,6}.*)+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
   os_raid_root_size: [{ error_message: 'Root Data parition size is required', validatorFn: 'required' }],
   pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],

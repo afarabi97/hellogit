@@ -17,7 +17,7 @@
   register: es_password
   changed_when: es_password.rc == 0
   tags:
-    - zeek-pipeline
+    - load-ml
 
 - name: Check Elasticsearch endpoint is ready
   uri:
@@ -99,7 +99,7 @@
   with_items:
     - filebeat-suricata
     - filebeat-misp
-    - ecs-zeek
+    - filebeat-zeek
   register: policy_results
   until: policy_results.status == 200
   retries: 10
@@ -128,4 +128,8 @@
     - super_user
     - read_only
     - kibana_admin
+
+
+
+
 ...

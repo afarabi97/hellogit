@@ -1,33 +1,33 @@
 {{- $root := . -}}
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}
 data:
-  suricata.yaml: |
+  suricata.yaml:  |
+
     %YAML 1.1
     ---
     vars:
       address-groups:
-{{- if has "any" .Values.home_net }}
+        {{- if has "any" .Values.home_net }}
         HOME_NET: "any"
-{{- else }}
+        {{- else }}
         HOME_NET: "{{ .Values.home_net | toJson | replace "\"" "" }}"
-{{- end }}
-{{- if .Values.external_net }}
-{{- if has "any" .Values.external_net }}
+        {{- end }}
+        {{- if .Values.external_net }}
+        {{- if has "any" .Values.external_net }}
         EXTERNAL_NET: "any"
-{{- else if gt (len .Values.external_net) 0 }}
+        {{- else if gt (len .Values.external_net) 0 }}
         EXTERNAL_NET: "{{ .Values.external_net | toJson | replace "\"" "" }}"
-{{- else }}
+        {{- else }}
         EXTERNAL_NET: "!$HOME_NET"
-{{- end }}
-{{- else if has "any" .Values.home_net }}
+        {{- end }}
+        {{- else if has "any" .Values.home_net }}
         EXTERNAL_NET: "any"
-{{- else }}
+        {{- else }}
         EXTERNAL_NET: "!$HOME_NET"
-{{- end }}
+        {{- end }}
         HTTP_SERVERS: "$HOME_NET"
         SMTP_SERVERS: "$HOME_NET"
         SQL_SERVERS: "$HOME_NET"
@@ -50,78 +50,106 @@ data:
         MODBUS_PORTS: 502
         FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
         FTP_PORTS: 21
+        VXLAN_PORTS: 4789
+        TEREDO_PORTS: 3544
     default-log-dir: /var/log/suricata/
     stats:
       enabled: yes
-      interval: 8
-      decoder-events-prefix: "decoder.event"
+      interval: 60 
     outputs:
-      - fast:
-          enabled: no
-          filename: fast.log
-          append: yes
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
-          filename: eve-%Y-%m-%d-%H-%M.json
-          rotate-interval: {{ .Values.ids_log_rotate_interval }}s
+          filename: eve-alerts-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
           pcap-file: false
           community-id: true
           community-id-seed: 0
-          xff:
-            enabled: no
-            mode: extra-data
-            deployment: reverse
-            header: X-Forwarded-For
           types:
             - alert:
                 metadata: yes     # enable inclusion of app layer metadata with alert. Default yes
                 tagged-packets: yes
+      {{ if .Values.flow }}
+      - eve-log:
+          enabled: yes
+          filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+          filename: eve-http-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
+          pcap-file: false
+          community-id: true
+          community-id-seed: 0
+          types:
             - http:
-                extended: yes     # enable this for extended logging information
-            - dns:
+                extended: yes
+      - eve-log:
+          enabled: yes
+          filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+          filename: eve-dns-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
+          pcap-file: false
+          community-id: true
+          community-id-seed: 0
+          types:
+            - alert:
                 version: 2
+                enabled: yes
+                requests: yes
+                response: yes
+                formats: [detailed, grouped]
+                types: [a, aaaa, cname, mx, ns, ptr, txt]
+      - eve-log:
+          enabled: yes
+          filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+          filename: eve-tls-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
+          pcap-file: false
+          community-id: true
+          community-id-seed: 0
+          types:
             - tls:
-                extended: yes     # enable this for extended logging information
-            - files:
-                force-magic: no   # force logging magic on all logged files
+                extended: yes
+                session-resumption: no
+                custom: [subject, issuer, session_resumed, serial, fingerprint, sni, version, not_before, not_after, certificate, ja3, ja3s]
+      - eve-log:
+          enabled: yes
+          filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+          filename: eve-flow-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
+          pcap-file: false
+          community-id: true
+          community-id-seed: 0
+          types:
+            - flow:
+      - eve-log:
+          enabled: yes
+          filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+          filename: eve-apps-%Y-%m-%d-%H-%M.json
+          rotate-interval: 300s
+          pcap-file: false
+          community-id: true
+          community-id-seed: 0
+          types:
             - smtp:
+                extended: yes
+                custom: [received, x-mailer, x-originating-ip, relays, reply-to, bcc]
+                md5: [body, subject]
+            - files:
+                force-magic: no
+                force-hash: [mdt]
+            - dnp3
+            - ftp
             - nfs
             - smb
             - tftp
             - ikev2
             - krb5
+            - snmp
+            - sip
+            - ssh
             - dhcp:
                 enabled: yes
-                extended: no
-            - ssh
-            - stats:
-                totals: yes       # stats for all threads merged together
-                threads: no       # per thread stats
-                deltas: no        # include delta values
-            - flow
-      - unified2-alert:
-          enabled: no
-          filename: unified2.alert
-          xff:
-            enabled: no
-            mode: extra-data
-            deployment: reverse
-            header: X-Forwarded-For
-      - http-log:
-          enabled: no
-          filename: http.log
-          append: yes
-      - tls-log:
-          enabled: no  # Log TLS connections.
-          filename: tls.log # File to store TLS logs.
-          append: yes
-      - tls-store:
-          enabled: no
-      - dns-log:
-          enabled: no
-          filename: dns.log
-          append: yes
+                extended: no  
+      {{ end }}
       - pcap-log:
           enabled: {{ .Values.pcapEnabled }}
           filename: suri-%n-%t.pcap
@@ -129,57 +157,14 @@ data:
           compression: none
           mode: multi # normal, multi or sguil.
           use-stream-depth: no #If set to "yes" packets seen after reaching stream inspection depth are ignored. "no" logs all packets
-          honor-pass-rules: no # If set to "yes", flows in which a pass rule matched will stopped being logged.
+          honor-pass-rules: no # If set to "yes", flows in which a pass rule matched will stopped being logged
           dir: {{ .Values.fpc_path }}
-      - alert-debug:
-          enabled: no
-          filename: alert-debug.log
-          append: yes
-      - alert-prelude:
-          enabled: no
-          profile: suricata
-          log-packet-content: no
-          log-packet-header: yes
       - stats:
           enabled: yes
           filename: stats.log
           append: yes       # append to file (yes) or overwrite it (no)
           totals: yes       # stats for all threads merged together
           threads: no       # per thread stats
-      - syslog:
-          enabled: no
-          facility: local5
-      - drop:
-          enabled: no
-          filename: drop.log
-          append: yes
-      - file-store:
-          version: 2
-          enabled: no
-          xff:
-            enabled: no
-            mode: extra-data
-            deployment: reverse
-            header: X-Forwarded-For
-      - file-store:
-          enabled: no       # set to yes to enable
-          log-dir: files    # directory to store the files
-          force-magic: no   # force logging magic on all stored files
-          force-filestore: no # force storing of all files
-          include-pid: no # set to yes to include pid in file names
-      - file-log:
-          enabled: no
-          filename: files-json.log
-          append: yes
-          force-magic: no   # force logging magic on all logged files
-      - tcp-data:
-          enabled: no
-          type: file
-          filename: tcp-data.log
-      - http-body-data:
-          enabled: no
-          type: file
-          filename: http-data.log
       - lua:
           enabled: yes
           scripts-dir: /etc/suricata/lua-output/
@@ -189,18 +174,14 @@ data:
       default-log-level: notice
       default-output-filter:
       outputs:
-      - console:
-          enabled: yes
-      - file:
-          enabled: yes
-          level: info
-          filename: /var/log/suricata/suricata.log
-      - syslog:
-          enabled: no
-          facility: local5
-          format: "[%i] <%d> -- "
+        - console:
+            enabled: yes
+        - file:
+            enabled: yes
+            level: info
+            filename: /var/log/suricata/suricata.log
     af-packet:
-    {{- range $i, $val :=  .Values.interfaces }}
+        {{- range $i, $val :=  .Values.interfaces }}
       - interface: {{ $val }}
         threads: {{ $root.Values.suricata_threads }}
         cluster-id: {{ sub 99 $i }}
@@ -209,17 +190,22 @@ data:
         use-mmap: yes
         mmap-locked: yes
         tpacket-v3: yes
-    {{- end }}
-      - interface: default
+        #ring-size:2048  #default is calculated threads * max-pending-packets
+        block-size: 32768
+        buffer-size: 32768
+        {{- end }}
+    max-pending-packets: 4096 
     pcap:
-    {{- range  .Values.interfaces }}
+      {{- range  .Values.interfaces }}
       - interface: {{ . }}
-    {{- end }}
+      {{- end }}
       - interface: default
     pcap-file:
       checksum-checks: auto
     app-layer:
       protocols:
+        snmp:
+          enabled: yes
         krb5:
           enabled: yes
         ikev2:
@@ -229,9 +215,13 @@ data:
           detection-ports:
             dp: 443
           ja3-fingerprints: yes
+          encryption-handling: default
         dcerpc:
           enabled: yes
         ftp:
+          enabled: yes
+          memcap: 4gb
+        rdp:
           enabled: yes
         ssh:
           enabled: yes
@@ -289,7 +279,6 @@ data:
                 decompress-depth: 0
               double-decode-path: no
               double-decode-query: no
-            server-config:
         modbus:
           enabled: yes
           detection-ports:
@@ -317,9 +306,6 @@ data:
       enabled: auto
     legacy:
       uricontent: enabled
-    engine-analysis:
-      rules-fast-pattern: yes
-      rules: yes
     pcre:
       match-limit: 3500
       match-limit-recursion: 1500
@@ -338,19 +324,19 @@ data:
       vista: []
       windows2k3: []
     defrag:
-      memcap: 32mb
+      memcap: 16gb
       hash-size: 65536
       trackers: 65535 # number of defragmented flows to follow
       max-frags: 65535 # number of fragments to keep (higher than trackers)
       prealloc: yes
       timeout: 60
     flow:
-      memcap: 128mb
+      memcap: 16gb
       hash-size: 65536
       prealloc: 10000
       emergency-recovery: 30
     vlan:
-      use-for-tracking: false
+      use-for-tracking: true
     flow-timeouts:
       default:
         new: 30
@@ -385,11 +371,11 @@ data:
         emergency-established: 100
         emergency-bypassed: 50
     stream:
-      memcap: 64mb
-      checksum-validation: yes      # reject wrong csums
+      memcap: 16gb
+      checksum-validation: no      # reject wrong csums
       inline: auto                  # auto will use inline mode in IPS mode, yes or no set it statically
       reassembly:
-        memcap: 256mb
+        memcap: 16gb
         depth: 1mb                  # reassemble 1mb into a stream
         toserver-chunk-size: 2560
         toclient-chunk-size: 2560
@@ -401,116 +387,31 @@ data:
     decoder:
       teredo:
         enabled: true
-    detect:
-      profile: medium
-      custom-values:
-        toclient-groups: 3
-        toserver-groups: 25
-      sgh-mpm-context: auto
-      inspection-recursion-limit: 3000
-      prefilter:
-        default: mpm
-      grouping:
-      profiling:
+        ports: 3544 # syntax: '[3544, 1234]' or '3533' or 'any'
+    vxlan:
+      enabled: true
+      ports: 4789 # syntax: '[8472, 4789]' or '4789'
+      detect:
+        profile: medium
+        custom-values:
+          toclient-groups: 3
+          toserver-groups: 25
+        sgh-mpm-context: auto
+        inspection-recursion-limit: 3000
+        prefilter:
+          default: mpm
         grouping:
-          dump-to-disk: false
-          include-rules: false      # very verbose
-          include-mpm-stats: false
+        profiling:
+          grouping:
+            dump-to-disk: false
+            include-rules: false      # very verbose
+            include-mpm-stats: false
     mpm-algo: auto
     spm-algo: auto
-    threading:
-      set-cpu-affinity: no
-      cpu-affinity:
-        - management-cpu-set:
-            cpu: [ 0 ]  # include only these CPUs in affinity settings
-        - receive-cpu-set:
-            cpu: [ 0 ]  # include only these CPUs in affinity settings
-        - worker-cpu-set:
-            cpu: [ "all" ]
-            mode: "exclusive"
-            prio:
-              low: [ 0 ]
-              medium: [ "1-2" ]
-              high: [ 3 ]
-              default: "medium"
-      detect-thread-ratio: 1.0
     luajit:
       states: 128
-    profiling:
-      rules:
-        enabled: yes
-        filename: rule_perf.log
-        append: yes
-        limit: 10
-        json: yes
-      keywords:
-        enabled: yes
-        filename: keyword_perf.log
-        append: yes
-      prefilter:
-        enabled: yes
-        filename: prefilter_perf.log
-        append: yes
-      rulegroups:
-        enabled: yes
-        filename: rule_group_perf.log
-        append: yes
-      packets:
-        enabled: yes
-        filename: packet_stats.log
-        append: yes
-        csv:
-          enabled: no
-          filename: packet_stats.csv
-      locks:
-        enabled: no
-        filename: lock_stats.log
-        append: yes
-      pcap-log:
-        enabled: no
-        filename: pcaplog_stats.log
-        append: yes
-    nfq:
-    nflog:
-      - group: 2
-        buffer-size: 18432
-      - group: default
-        qthreshold: 1
-        qtimeout: 100
-        max-size: 20000
-    capture:
-    netmap:
-    - interface: eth2
-    - interface: default
-    pfring:
-      - interface: eth0
-        threads: auto
-        cluster-id: 99
-        cluster-type: cluster_flow
-      - interface: default
-    ipfw:
-    napatech:
-        hba: -1
-        use-all-streams: yes
-        streams: ["0-3"]
-    mpipe:
-      load-balance: dynamic
-      iqueue-packets: 2048
-      inputs:
-      - interface: xgbe2
-      - interface: xgbe3
-      - interface: xgbe4
-      stack:
-        size128: 0
-        size256: 9
-        size512: 0
-        size1024: 0
-        size1664: 7
-        size4096: 0
-        size10386: 0
-        size16384: 0
     default-rule-path: /etc/suricata/rules
     rule-files:
-    - suricata.rules
+      - suricata.rules
     classification-file: /etc/suricata/classification.config
     reference-config-file: /etc/suricata/reference.config

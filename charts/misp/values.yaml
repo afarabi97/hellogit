@@ -5,6 +5,7 @@ python_image: tfplenum/python:3.8.3
 domain: lan
 system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
+elastic_ingest_nodes: []
 
 # Database values
 mariadbImage: mariadb:10.5.4

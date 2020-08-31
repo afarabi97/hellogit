@@ -22,6 +22,60 @@
     - { name: "kibana-key-secret-settings", literal: "xpack.security.encryptionKey", key: "{{ encryption_key }}" }
     - { name: "kibana-alert-secret-settings", literal: "xpack.encryptedSavedObjects.encryptionKey", key: "{{ alert_encryption_key }}" }
 
+- name: Create Elasticsearch Coordinating Nodes
+  shell: |
+    kubectl get pods | grep tfplenum-es-coordinating | awk '{ print $1 }'
+  register: coordinating_pods
+  changed_when: coordinating_pods.rc == 0
+
+- name: Set Coordinating Nodes list
+  set_fact:
+    coordinating_nodes: "{{ coordinating_nodes|default([]) + [ item ] }}"
+  with_items: "{{ coordinating_pods.stdout_lines }}"
+
+- name: Get ES Password
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+  tags:
+    - kibana-saved-objects
+    - load-dashboards
+    - create-kibana-space
+
+- name: Create Kibana Sytem Password
+  set_fact:
+    kibana_system_pass: "{{ lookup('password', '/dev/null length=30 chars=ascii_letters,digits,hexdigits') }}"
+
+- name: Delete Kibana Sytem User
+  uri:
+    method: DELETE
+    url: "{{ elastic_url }}/_security/user/{{ kibana_system_user }}"
+    validate_certs: yes
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    status_code: 200, 201, 404, 400
+
+- name: Create Kibana Sytem User
+  uri:
+    method: POST
+    url: "{{ elastic_url }}/_security/user/{{ kibana_system_user }}"
+    validate_certs: yes
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body:
+      password: "{{ kibana_system_pass }}"
+      roles:
+        - kibana_system
+      full_name: TFplenum Kibana System
+    status_code: 200, 201
+
+- name: Set Elasticsearch Kibana Password
+  shell: |
+    kubectl create secret generic kibana-elasticsearch-credentials --from-literal=elasticsearch.password={{ kibana_system_pass }}
+  register: kibana_elastic_pass
+  changed_when: kibana_elastic_pass.rc == 0
+
 - name: Copy Kibana Templates
   template:
     src: "templates/{{ item }}.j2"
@@ -38,7 +92,7 @@
     src: "files/saved_objects/{{ item }}"
     dest: "{{ kibana_dir }}/{{ item }}"
   with_items:
-    - "config.ndjson"
+    - "endgame-canvas.ndjson"
     - "internal-config.ndjson"
     - "external-config.ndjson"
   tags:
@@ -56,15 +110,6 @@
   register: result
   changed_when: result.rc == 0
 
-- name: Get ES Password
-  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
-  register: es_password
-  changed_when: es_password.rc == 0
-  tags:
-    - kibana-saved-objects
-    - load-dashboards
-    - create-kibana-space
-
 - name: Wait for Kibana to become healthy
   uri:
     url: "https://{{ kibana_fqdn }}/api/status"
@@ -78,21 +123,9 @@
   retries: 60
   delay: 10
 
-- name: Delete all spaces
-  uri:
-    method: DELETE
-    url: "https://{{ kibana_fqdn }}/api/spaces/space/{{ item }}"
-    return_content: yes
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    force_basic_auth: yes
-    body_format: json
-    headers:
-      kbn-xsrf: true
-    body: "{{ item }}"
-    status_code: 204, 404, 400
-  with_items:
+- name: Delete spaces
+  include_tasks: delete_spaces.yml
+  loop:
     - hunt
     - audit
     - external
@@ -110,42 +143,25 @@
     body_format: json
     headers:
       kbn-xsrf: true
-    body: "{{ item }}"
+    body: "{\"id\": \"default\", \"name\": \"Hunt\", \"description\" : \"Default hunt space\", \"color\": \"#00BFB3\", \"initials\": \"H\" }"
     status_code: 200, 201
-  with_items:
-    - "{\"id\": \"default\", \"name\": \"Hunt\", \"description\" : \"Default hunt space\", \"color\": \"#00BFB3\", \"initials\": \"H\" }"
+  register: results
+  until: (results.status == 200)
+  retries: 10
+  delay: 5
   tags: create-kibana-space
 
 - name: Create External Kibana Space
-  uri:
-    method: POST
-    url: "https://{{ kibana_fqdn }}/api/spaces/space"
-    return_content: yes
-    validate_certs: no
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    force_basic_auth: yes
-    body_format: json
-    headers:
-      kbn-xsrf: true
-    body: "{{ item }}"
-    status_code: 200, 201
-  with_items:
-    - "{\"id\": \"external\", \"name\": \"External\", \"description\" : \"External Clients Space\", \"color\": \"#aabbcc\", \"initials\": \"EX\" }"
-    - "{\"id\": \"audit\", \"name\": \"Auditing\", \"description\" : \"Kit Auditbeat Space\", \"color\": \"#6092C0\", \"initials\": \"AB\" }"
+  include_tasks: create_spaces.yml
+  loop:
+    - { task_name: "Create External Space", body: "{\"id\": \"external\", \"name\": \"External\", \"description\" : \"External Clients Space\", \"color\": \"#aabbcc\", \"initials\": \"EX\" }" }
+    - { task_name: "Create Audit Space", body: "{\"id\": \"audit\", \"name\": \"Auditing\", \"description\" : \"Kit Auditbeat Space\", \"color\": \"#6092C0\", \"initials\": \"AB\" }" }
   tags: create-kibana-space
 
 - name: Load Saved Objects
-  shell: 'curl -k -X POST -u {{ default_elastic_user }}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}{{ item.space }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{ item.file }}' # noqa 204
-  args:
-    warn: false
-  retries: 5
-  delay: 10
-  register: saved_objects_results
-  until: saved_objects_results.rc == 0
-  changed_when: save_objects_results is defined
+  include_tasks: load_saved_objects.yml
   with_items:
-    - { file: "{{ kibana_dir }}/config.ndjson", space: "" }
+    - { file: "{{ kibana_dir }}/endgame-canvas.ndjson", space: "" }
     - { file: "{{ kibana_dir }}/internal-config.ndjson", space: "/s/audit" }
     - { file: "{{ kibana_dir }}/external-config.ndjson", space: "/s/external" }
   tags:

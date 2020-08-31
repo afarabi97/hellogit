@@ -24,7 +24,14 @@ spec:
         image: "{{ .Values.image }}:{{ .Values.version }}"
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
-        args: ["-c", "/data/moloch/db/db.pl --insecure https://{{ .Values.es_user }}:{{ .Values.es_password }}@{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }} sync-files {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }} /data/moloch/raw/"]
+        args: ["-c", "/data/moloch/db/db.pl --insecure https://$ELASTICSEARCH_USER:$ELASTICSEARCH_PASS@$ELASTICSEARCH_HOST:9200 sync-files {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }} /data/moloch/raw/"]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Values.elastic_fqdn | quote }}
+        - name: ELASTICSEARCH_USER
+          value: {{ .Values.es_user | quote }}
+        - name: ELASTICSEARCH_PASS
+          value: {{ .Values.es_password | quote }}
       containers:
       - name: capture
         image: "{{ .Values.image }}:{{ .Values.version }}"

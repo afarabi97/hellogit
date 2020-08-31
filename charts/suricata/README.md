@@ -12,6 +12,14 @@
       "name": "pcapEnabled"
     },
     {
+      "type": "checkbox",
+      "default_value": false,
+      "description": "Enable Protocol Analysis (Zeek has this feature enabled by default)",
+      "trueValue": true,
+      "falseValue": false,
+      "name": "flow"
+    },
+    {
       "type": "textinputlist",
       "default_value": "[\"192.168.0.0/24\"]",
       "description": "Enter your home/defended network in this format [\"home network IP 1\", \" home network IP 2\"] or [\"any\"]",
@@ -45,6 +53,15 @@
       "required": true,
       "regexp": "^\\d+$",
       "name": "suricata_threads",
+      "error_message": "Enter a valid number"
+    },
+    {
+      "type": "textinput",
+      "default_value": "6",
+      "description": "Enter the number of Suricata shards for Elastic",
+      "required": true,
+      "regexp": "^\\d+$",
+      "name": "shards",
       "error_message": "Enter a valid number"
     },
     {

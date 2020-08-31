@@ -39,7 +39,10 @@ data:
 
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
-      hosts: ["https://{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
+      hosts:
+      {{- range .Values.elastic_ingest_nodes }}
+        - {{ . }}
+      {{- end }}
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]

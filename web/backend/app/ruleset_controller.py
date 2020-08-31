@@ -254,7 +254,7 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Di
 
 
 @app.route('/api/upload_rule', methods=['POST'])
-@operator_required
+# @operator_required
 def upload_rule() -> Response:
     rule_set = json.loads(request.form['ruleSetForm'],
                           encoding="utf-8")

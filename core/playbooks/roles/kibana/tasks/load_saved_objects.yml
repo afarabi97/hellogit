@@ -1,0 +1,10 @@
+---
+- name: Loading {{ item.task_name }}
+  shell: 'curl -k -X POST -u {{ default_elastic_user }}:{{ es_password.stdout }} "https://{{ kibana_fqdn }}{{ item.space }}/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@{{ item.file }}' # noqa 204
+  retries: 5
+  delay: 10
+  register: saved_objects_results
+  until: saved_objects_results.rc == 0
+  args:
+    warn: false
+  changed_when: save_objects_results is defined

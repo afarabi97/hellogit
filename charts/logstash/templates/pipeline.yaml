@@ -10,49 +10,6 @@ metadata:
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
-  zeek.conf: |
-    input {
-{{- range $index, $cluster := .Values.kafka_clusters }}
-      kafka {
-        topics => ["zeek-raw"]
-        max_poll_records => "4096"
-        consumer_threads => {{$c}}
-        group_id => "logstash_bro_{{ $index }}"
-        client_id => "logstash_bro_${POD_NAME:default}"
-        bootstrap_servers => "{{ $cluster }}"
-        codec => json
-        auto_offset_reset => "earliest"
-      }
-{{- end }}
-    }
-
-    filter {
-      mutate {
-        rename => {
-          "@stream" => "[event][dataset]"
-          "@system" => "[observer][hostname]"
-          "@proc"   => "[observer][sub_process]"
-          "@interface"   => "[observer][interface]"
-        }
-      }
-    }
-
-    output {
-      # stdout { codec => rubydebug }
-      elasticsearch {
-        hosts => ["https://{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}"]
-        cacert => '/etc/ssl/certs/container/ca.crt'
-        ssl_certificate_verification => true
-        user => "${ELASTICSEARCH_USERNAME}"
-        password => "${ELASTICSEARCH_PASSWORD}"
-        ilm_rollover_alias => "ecs-zeek"
-        ilm_policy => "ecs-zeek"
-        ilm_pattern => "000001"
-        manage_template => false
-      }
-    }
-
-
   beats.conf: |
     input {
       beats {
@@ -80,7 +37,7 @@ data:
       if [@metadata][beat] == "filebeat" {
       if "" in [@metadata][index] {
           elasticsearch {
-            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            hosts => {{ .Values.elastic_ingest_nodes | toJson }}
             cacert => '/etc/ssl/certs/container/ca.crt'
             ssl_certificate_verification => true
             user => "${ELASTICSEARCH_USERNAME}"
@@ -93,7 +50,7 @@ data:
           }
         } else {
           elasticsearch {
-            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            hosts => {{ .Values.elastic_ingest_nodes | toJson }}
             cacert => '/etc/ssl/certs/container/ca.crt'
             ssl_certificate_verification => true
             user => "${ELASTICSEARCH_USERNAME}"
@@ -110,7 +67,7 @@ data:
       if [@metadata][beat] == "winlogbeat" {
         if "" in [@metadata][index] {
           elasticsearch {
-            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            hosts => {{ .Values.elastic_ingest_nodes | toJson }}
             cacert => '/etc/ssl/certs/container/ca.crt'
             ssl_certificate_verification => true
             user => "${ELASTICSEARCH_USERNAME}"
@@ -122,7 +79,7 @@ data:
           }
         } else {
           elasticsearch {
-            hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+            hosts => {{ .Values.elastic_ingest_nodes | toJson }}
             cacert => '/etc/ssl/certs/container/ca.crt'
             ssl_certificate_verification => true
             user => "${ELASTICSEARCH_USERNAME}"
@@ -137,7 +94,7 @@ data:
       }
       if [@metadata][beat] == "auditbeat" {
         elasticsearch {
-          hosts => ["https://elasticsearch.default.svc.cluster.local:9200"]
+          hosts => {{ .Values.elastic_ingest_nodes | toJson }}
           cacert => '/etc/ssl/certs/container/ca.crt'
           ssl_certificate_verification => true
           user => "${ELASTICSEARCH_USERNAME}"

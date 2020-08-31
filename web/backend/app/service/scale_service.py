@@ -85,8 +85,8 @@ def parse_nodes(nodes):
     mdi = 0
     master = 0
     data = 0
-    coordinating_ingest = 0
-    ml = 0
+    coordinating = 0
+    machine_learning = 0
 
     if nodes is not None:
         for node in nodes:
@@ -96,17 +96,17 @@ def parse_nodes(nodes):
             else:
                 if "m" in role:
                     master += 1
-                if "d" in role:
+                elif "d" in role and "i" in role:
                     data += 1
-                if "i" in role:
-                    coordinating_ingest += 1
-                if "l" in role:
-                    ml += 1
+                elif "l" in role:
+                    machine_learning += 1
+                elif  "m" not in role and  "d" not in role and "i" not in role and  "l" not in role:
+                    coordinating += 1
         # if data is zero than we are working with an mdi cluster
         if master == 0 and data == 0:
             master = mdi
 
-    return { "master": master, "data": data, "coordinating": coordinating_ingest, "ml": ml}
+    return { "master": master, "data": data, "coordinating": coordinating, "ml": machine_learning }
 
 def get_namespaced_custom_object_status() -> str:
     notification = NotificationMessage(role=_JOB_NAME)

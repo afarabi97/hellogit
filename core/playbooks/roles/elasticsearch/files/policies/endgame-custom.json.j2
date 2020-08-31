@@ -1,6 +1,6 @@
 {% set index_rollover_size = 90 %}
 {% if kit_size > 1 %}
-{% set index_rollover_size = 150 %}
+{% set index_rollover_size = (groups['servers']|length * 3) * 50 %}
 {% endif %}
 {
   "policy" : {
@@ -11,14 +11,6 @@
           "rollover" : {
             "max_size" : "{{ index_rollover_size }}gb",
             "max_age" : "365d"
-          }
-        }
-      },
-      "warm" : {
-        "min_age" : "0ms",
-        "actions" : {
-          "forcemerge" : {
-            "max_num_segments" : 1
           }
         }
       }

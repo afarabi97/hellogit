@@ -25,6 +25,10 @@ spec:
   - elasticsearch.{{ kit_domain }}
   - elasticsearch.{{ fqdn }}
   - elasticsearch-headless.{{ fqdn }}
+  - '*.tfplenum-es-master.{{ fqdn }}'
+  - '*.tfplenum-es-coordinating.{{ fqdn }}'
+  - '*.tfplenum-es-data.{{ fqdn }}'
+  - '*.tfplenum-es-ml.{{ fqdn }}'
   issuerRef:
     name: webca-issuer
     kind: Issuer

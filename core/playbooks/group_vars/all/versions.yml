@@ -5,7 +5,7 @@
 # VERSIONS
 rocketchat_version: "3.4.2"
 mongodb_version: "4.2.8"
-zeek_version: "3.1.1"
+zeek_version: "3.2.0"
 busybox_version: "1.31.1"
 coreos_version: "1688.5.3"
 k8s_coredns_version: "1.6.5"
@@ -28,7 +28,7 @@ hive_cortex_version: "3.0.1"
 hive_version: "3.4.0"
 zookeeper_image_version: 3.6.1
 kafka_image_version: 2.5.0
-elastic_operator: 1.0.1
+elastic_operator: 1.2.1
 redmine_version: "4.1.1"
 postgres_version: "12.3"
 nifi_version: 1.11.4

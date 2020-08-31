@@ -5,7 +5,7 @@ metadata:
 data:
   config.ini: |
     [default]
-    elasticsearch=https://{{ .Values.es_user }}:{{ .Values.es_password }}@{{ .Values.elastic_fqdn }}:{{ .Values.elastic_port }}
+    elasticsearch={{ include "createEsNodeList" . }}
     caTrustFile=/etc/ssl/certs/container/ca.crt
     rotateIndex=hourly6
     passwordSecret=default-password

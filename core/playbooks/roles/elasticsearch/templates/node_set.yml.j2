@@ -91,10 +91,12 @@ volumes:
 {{ config | indent(width=4,first=True) }}
     node.max_local_storage_nodes: "25"
     xpack.monitoring.collection.enabled: "true"
+    xpack.monitoring.collection.interval: 30s
     node.attr.node_name: ${NODE_NAME}
     cluster.routing.allocation.awareness.attributes: node_name
     script.cache.max_size: "500"
     script.max_compilations_rate: "256/1m"
+    thread_pool.write.queue_size: 1000
     xpack.ml.enabled: {{ enable_ml | string }}
     xpack.security.authc.token.enabled: true
     xpack.security.authc.realms.saml.saml1.order: 2
@@ -207,7 +209,7 @@ volumes:
 {% endmacro %}
 
 {% macro coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
-  {% set config = node_type(false, false, true, false) %}
+  {% set config = node_type(false, false, false, false) %}
   {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
 {{ node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) }}
 {% endmacro %}
@@ -219,7 +221,7 @@ volumes:
 {% endmacro %}
 
 {% macro gip_coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, ansible_controller_hostname) %}
-  {%- set config = gip_node_type(false, false, true, false) %}
+  {%- set config = gip_node_type(false, false, false, false) %}
   {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
 
   {{- node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, ansible_controller_hostname) }}

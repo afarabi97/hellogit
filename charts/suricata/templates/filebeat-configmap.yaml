@@ -15,10 +15,11 @@ data:
     #==================== Elasticsearch template setting ==========================
 
     setup.template.settings:
-      index.number_of_shards: 6
+      index.number_of_shards: {{ .Values.shards }}
       index.number_of_replicas: 1
       index.refresh_interval: 30s
       index.merge.scheduler.max_thread_count: 1
+      setup.template.overwrite: false
 
     setup.ilm:
       policy_name: filebeat-suricata
@@ -39,7 +40,10 @@ data:
 
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
-      hosts: ["https://{{ .Values.elastic_headless_fqdn }}:{{ .Values.elastic_port }}"]
+      hosts:
+      {{- range .Values.elastic_ingest_nodes }}
+        - {{ . }}
+      {{- end }}
       username: ${ELASTICSEARCH_USERNAME}
       password: ${ELASTICSEARCH_PASSWORD}
       ssl.certificate_authorities: ["/etc/ssl/certs/container/ca.crt"]

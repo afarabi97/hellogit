@@ -1,0 +1,49 @@
+---
+
+- set_fact:
+    detectors: "{{ lookup('file', 'files/ml-jobs/endgame_detectors.json') | from_json }}"
+    datafeeds: "{{ lookup('file', 'files/ml-jobs/endgame_datafeeds.json') | from_json }}"
+
+- name: Delete Datafeeds
+  uri:
+    url: "{{ elastic_url }}/_ml/datafeeds/{{ item.id }}"
+    method: DELETE
+    validate_certs: yes
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    status_code: 200, 201, 404
+  with_items: "{{ datafeeds }}"
+
+- name: Delete Detectors
+  uri:
+    url: "{{ elastic_url }}/_ml/anomaly_detectors/{{ item.id }}"
+    method: DELETE
+    validate_certs: yes
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    status_code: 200, 201, 404
+  with_items: "{{ detectors }}"
+
+- name: Load Detectors
+  uri:
+    url: "{{ elastic_url }}/_ml/anomaly_detectors/{{ item.id }}"
+    method: PUT
+    validate_certs: yes
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ item.body }}"
+    status_code: 200, 201
+  with_items: "{{ detectors }}"
+
+- name: Load Datafeeds
+  uri:
+    url: "{{ elastic_url }}/_ml/datafeeds/{{ item.id }}"
+    method: PUT
+    validate_certs: yes
+    user: elastic
+    password: "{{ es_password.stdout }}"
+    body_format: json
+    body: "{{ item.body }}"
+    status_code: 200, 201
+  with_items: "{{ datafeeds }}"

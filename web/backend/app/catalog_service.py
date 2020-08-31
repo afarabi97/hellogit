@@ -25,6 +25,38 @@ def _get_domain() -> str:
         return kickstart_configuration["form"]["domain"]
     return "lan"
 
+def _get_elastic_nodes(node_type="coordinating") -> list:
+    """
+    Get the different types of elastic nodes regardless of StatefulSet
+    All False -> Coordinating nodes
+    """
+    nodes = []
+    if node_type == "coordinating":
+        label_selector = ",".join([
+            "elasticsearch.k8s.elastic.co/node-master=false",
+            "elasticsearch.k8s.elastic.co/node-ingest=false",
+            "elasticsearch.k8s.elastic.co/node-data=false",
+            "elasticsearch.k8s.elastic.co/node-ml=false"
+        ])
+    elif node_type == "master":
+        label_selector = "elasticsearch.k8s.elastic.co/node-master=true"
+    elif node_type == "ingest":
+        label_selector = "elasticsearch.k8s.elastic.co/node-ingest=true"
+    elif node_type == "data":
+        label_selector = "elasticsearch.k8s.elastic.co/node-data=true"
+    elif node_type == "ml":
+        label_selector = "elasticsearch.k8s.elastic.co/node-ml=true"
+
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        try:
+            api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False,label_selector=label_selector)
+            for node in api_response.items:
+                name = node.metadata.name
+                stateful_set = node.metadata.labels["elasticsearch.k8s.elastic.co/statefulset-name"]
+                nodes.append("https://{name}.{set}.default.svc.cluster.local:9200".format(name=name,set=stateful_set))
+        except Exception:
+            nodes = ["elasticsearch.default.svc.cluster.local"]
+    return nodes
 
 def _get_chartmuseum_uri() -> str:
     return "https://chartmuseum.{domain}".format(domain=_get_domain())
@@ -232,6 +264,10 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['system_name'] = get_system_name()
         if 'auth_base' in values:
             values['auth_base'] = get_auth_base()
+        if 'elastic_coordinating_nodes' in values:
+            values['elastic_coordinating_nodes'] = _get_elastic_nodes(node_type="coordinating")
+        if 'elastic_ingest_nodes' in values:
+            values['elastic_ingest_nodes'] = _get_elastic_nodes(node_type="ingest")
     except Exception as exec:
         logger.exception(exec)
     if configs:
@@ -241,8 +277,8 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
                 sensordict = {}
                 sensordict[node_hostname] = {}
                 c_values = values.copy()
-                for key, value in value.items():
-                    c_values[key] = value
+                for key, t_value in value.items():
+                    c_values[key] = t_value
                 sensordict[node_hostname] = c_values
             l_values.append(sensordict)
 

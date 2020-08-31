@@ -10,6 +10,7 @@
     - "secret kibana-certificate"
     - "secret kibana-key-secret-settings"
     - "secret kibana-alert-secret-settings"
+    - "secret kibana-elasticsearch-credentials"
   register: result
   changed_when: result.rc == 0
 
