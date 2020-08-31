@@ -130,7 +130,7 @@ environment setup backend:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
-sonarqube analyze production code:
+sonarqube front-end code base:
   tags:
     - tfplenum-buildv2
   stage: code-analysis
@@ -141,21 +141,14 @@ sonarqube analyze production code:
     echo "TASK [setup: front-end] ********************************************************"
     ./web/setup/setup_frontend.sh
     echo "TASK [unit-test / coverage: front-end] *****************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/test_coverage_frontend.sh
-    sed -i "s#/opt/tfplenum#$PATH_PWD#g" $PATH_PWD/web/frontend/test-coverage/lcov.info
-    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/pylint_pytest_backend.sh
-    sed -i "s#backend/#$PATH_PWD/web/backend/#g" $PATH_PWD/web/setup/pylint-backend.txt
+    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD tfplenum/code-checker:1.1 $PATH_PWD/web/setup/test_coverage_frontend.sh
     echo "TASK [sonar-scanner: code-base ingestion] **************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\
-      -Dsonar.python.pylint.reportPath=$PATH_PWD/web/setup/pylint-backend.txt\
-      -Dsonar.exclusions=**/test-coverage/**\
-      -Dsonar.coverage.exclusions=**/test-coverage/**,$PATH_PWD/web/setup/\
       -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info\
       -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json\
-      -Dsonar.projectKey=tfplenum\
-      -Dsonar.sources=web/
+      -Dsonar.projectKey=tfplenum-frontend\
+      -Dsonar.sources=web/frontend/src/app/
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
@@ -164,7 +157,31 @@ sonarqube analyze production code:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
-sonarqube analyze test code:
+sonarqube back-end code base:
+  tags:
+    - tfplenum-buildv2
+  stage: code-analysis
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    PATH_PWD=$(pwd)
+    echo "TASK [pylint / pytest-cov: back-end] *******************************************"
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD tfplenum/code-checker:1.1 $PATH_PWD/web/setup/pylint_pytest_backend.sh
+    echo "TASK [sonar-scanner: code-base ingestion] **************************************"
+    sonar-scanner\
+      -Dsonar.qualitygate.wait=true\
+      -Dsonar.python.pylint.reportPath=$PATH_PWD/web/backend/pylint-backend.txt\
+      -Dsonar.projectKey=tfplenum-backend\
+      -Dsonar.sources=web/backend/
+  only:
+    variables:
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+
+sonarqube testing pipeline:
   tags:
     - tfplenum-buildv2
   stage: code-analysis
@@ -173,21 +190,13 @@ sonarqube analyze test code:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint: pipeline] ********************************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/testing/pipeline/pylint_pipeline.sh
-    sed -i "s#jobs/#$PATH_PWD/testing/pipeline/jobs/#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "s#models/#$PATH_PWD/testing/pipeline/models/#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "s#playbooks/#$PATH_PWD/testing/pipeline/playbooks/#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "s#templates/#$PATH_PWD/testing/pipeline/templates/#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "s#util/#$PATH_PWD/testing/pipeline/util/#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "s#baremetal_pipeline.py#$PATH_PWD/testing/pipeline/baremetal_pipeline.py#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
-    sed -i "/^pipeline.py/s#pipeline.py#$PATH_PWD/testing/pipeline/pipeline.py#g" $PATH_PWD/testing/pipeline/pylint-pipeline.txt
+    docker run -e PATH_PWD=$PATH_PWD --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD tfplenum/code-checker:1.1 $PATH_PWD/testing/pipeline/pylint_pipeline.sh
     echo "TASK [sonar-scanner: pipeline ingestion] ***************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\
       -Dsonar.python.pylint.reportPath=$PATH_PWD/testing/pipeline/pylint-pipeline.txt\
       -Dsonar.projectKey=tfplenum-test\
-      -Dsonar.sources=testing/
-  allow_failure: true
+      -Dsonar.sources=testing/pipeline/
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"

@@ -17,15 +17,11 @@ function run_cmd {
     fi
 }
 
-cat <<EOF > /etc/tfplenum.ini
-[tfplenum]
-system_name = DIP
-version = 3.4.0
-EOF
-
-pushd $TFPLENUM_DIR/web/ > /dev/null
+pushd / > /dev/null
 # runs python pylint checking
-run_cmd pylint --exit-zero --ignore=tests --rcfile=../pylint.rc backend/ > ./setup/pylint-backend.txt
+run_cmd pylint --exit-zero --ignore=tests --rcfile=$PATH_PWD/pylint.rc\
+  $PATH_PWD/web/backend/*.py $PATH_PWD/web/backend/**/*.py\
+  --msg-template="'{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" > $PATH_PWD/web/backend/pylint-backend.txt
 # TODO - Add Unit Test Section python backend
 popd > /dev/null
 
