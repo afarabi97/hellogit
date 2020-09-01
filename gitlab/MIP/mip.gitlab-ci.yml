@@ -3,32 +3,32 @@ Setup MIP Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Changing to the testing/pipeline directory."
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
-    setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
-    --network-block-index $MIP_NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --gateway "$VM_GATEWAY" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type "$BUILD_TYPE" \
-    --vm-template "$MIP_TEMPLATE_TO_CLONE" \
-    --disk-size "250" \
-    --vm-prefix "$VM_PREFIX-mip" \
-    --linked-clone "$LINKED_CLONE"
+    python3 testing/pipeline/pipeline.py             \
+    --system-name         "MIP"                      \
+    setup-controller                                 \
+    --vcenter-ipaddress   "$VCENTER_IPADDRESS"       \
+    --vcenter-datacenter  "$VCENTER_DATACENTER"      \
+    --vcenter-username    "$VCENTER_USERNAME"        \
+    --vcenter-password    "$VCENTER_PASSWORD"        \
+    --repo-username       "$REPO_USERNAME"           \
+    --repo-password       "$REPO_PASSWORD"           \
+    --repo-url            "$REPO_URL"                \
+    --portgroup           "$VCENTER_PORTGROUP"       \
+    --network-id          "$NETWORK_ID"              \
+    --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
+    --dns-servers         $DNS_SERVERS               \
+    --vm-folder           "$VMWARE_FOLDER"           \
+    --vm-datastore        "$VCENTER_DATASTORE"       \
+    --gateway             "$VM_GATEWAY"              \
+    --branch-name         "$CI_COMMIT_REF_NAME"      \
+    --run-type            "$BUILD_TYPE"              \
+    --vm-template         "$MIP_TEMPLATE_TO_CLONE"   \
+    --disk-size           "250"                      \
+    --vm-prefix           "$VM_PREFIX-mip"           \
+    --update-code         "$UPDATE_CODE"
   only:
     variables:
       - $PIPELINE == "nightly_build"
@@ -46,7 +46,7 @@ MIP Kickstart:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "MIP" \
@@ -57,7 +57,7 @@ MIP Kickstart:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-id "$NETWORK_ID" \
-    --network-block-index $MIP_NETWORK_BLOCK_INDEX \
+    --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
     --gateway "$VM_GATEWAY" \
@@ -83,7 +83,7 @@ Configure MIPs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" \
     run-mip-config --operator-type "$MIP_OPERATOR_TYPE"
@@ -101,7 +101,7 @@ Perform MIP STIGs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-stigs
   only:
@@ -115,7 +115,7 @@ Perform MIP Security Scans:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/run_acas.py \
     --ipaddress "$ACAS_IPADDRESS" \
@@ -137,9 +137,10 @@ MIP Cleanup:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "MIP" run-cleanup \
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" run-cleanup \
     --create-nightly "$CREATE_NIGHTLY" \
     --save-kit "$SAVE_KIT"
   only:

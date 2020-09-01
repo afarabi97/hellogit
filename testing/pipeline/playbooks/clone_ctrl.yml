@@ -35,8 +35,6 @@
 
     - name: "Cloning {{ node.template }} to {{ node.hostname }}"
       vmware_guest:
-        linked_clone: "{{ linked_clone }}"
-        snapshot_src: "baseline"
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
         password: "{{ vcenter.password }}"
@@ -66,10 +64,6 @@
         hardware:
           memory_mb: "{{ node.memory }}"
           num_cpus: "{{ node.cpu }}"
-        disk:
-          - size_gb: "{{ node.disk_size }}"
-            type: thin
-            datastore: "{{ node.datastore }}"
       delegate_to: localhost
 
     - name: "Make sure network adapter is connected"

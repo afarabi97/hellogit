@@ -3,7 +3,7 @@ Setup GIP Services VM:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
 
@@ -38,9 +38,10 @@ Perform GIP Servives STIGs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs --sub-system-name "SERVICES"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs \
+    --sub-system-name "SERVICES"
   only:
     variables:
       - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "yes"
@@ -50,7 +51,7 @@ GIP Cleanup:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup \
     --create-nightly "$CREATE_NIGHTLY"
@@ -66,7 +67,7 @@ Setup GIP Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "tfplenum-gip-cache-${CI_PIPELINE_ID}"
     echo "VM_PREFIX is $VM_PREFIX"
@@ -104,7 +105,7 @@ GIP Kickstart:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py \
@@ -138,7 +139,7 @@ GIP Kit:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "GIP" gip-setup run-gip-kit
   artifacts:

@@ -3,35 +3,35 @@ Setup DIP Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "tfplenum-dip-cache-${CI_PIPELINE_ID}"
 
     echo "VM_PREFIX is $VM_PREFIX"
     echo "TEMPLATE TO CLONE IS $DIP_TEMPLATE_TO_CLONE"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
+    python3 testing/pipeline/pipeline.py           \
+    --system-name         "DIP"                    \
+    setup-controller                               \
+    --vcenter-ipaddress   "$VCENTER_IPADDRESS"     \
+    --vcenter-username    "$VCENTER_USERNAME"      \
+    --vcenter-password    "$VCENTER_PASSWORD"      \
+    --vcenter-datacenter  "$VCENTER_DATACENTER"    \
+    --repo-username       "$REPO_USERNAME"         \
+    --repo-password       "$REPO_PASSWORD"         \
+    --repo-url            "$REPO_URL"              \
+    --portgroup           "$VCENTER_PORTGROUP"     \
+    --network-id          "$NETWORK_ID"            \
     --network-block-index $DIP_NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-template "$DIP_TEMPLATE_TO_CLONE" \
-    --gateway "$VM_GATEWAY" \
-    --vm-prefix "$VM_PREFIX-dip" \
-    --domain "$KIT_DOMAIN" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type "$BUILD_TYPE" \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --linked-clone "$LINKED_CLONE"
+    --dns-servers         $DNS_SERVERS             \
+    --vm-folder           "$VMWARE_FOLDER"         \
+    --vm-template         "$DIP_TEMPLATE_TO_CLONE" \
+    --gateway             "$VM_GATEWAY"            \
+    --vm-prefix           "$VM_PREFIX-dip"         \
+    --domain              "$KIT_DOMAIN"            \
+    --branch-name         "$CI_COMMIT_REF_NAME"    \
+    --run-type            "$BUILD_TYPE"            \
+    --vm-datastore        "$VCENTER_DATASTORE"     \
+    --update-code         "$UPDATE_CODE"
   artifacts:
     untracked: true
   only:
@@ -82,7 +82,7 @@ Create a standalone MinIO server:
     paths:
       - vcentersettings_minio.yml
       - nodesettings_minio.yml
-    expire_in: 6 hrs
+
 
 DIP Kickstart:
   needs: ["Setup DIP Controller"]
@@ -90,7 +90,7 @@ DIP Kickstart:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py \
@@ -133,7 +133,7 @@ DIP Kit:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-kit
   artifacts:
@@ -167,7 +167,7 @@ Perform DIP STIGs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
   only:
@@ -181,7 +181,7 @@ Perform DIP Security Scans:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/run_acas.py \
     --ipaddress "$ACAS_IPADDRESS" \
@@ -203,7 +203,7 @@ CVAH Catalog:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog suricata
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-viewer
@@ -224,13 +224,12 @@ CVAH Catalog:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
 
-
 DIP Run Python Unit Tests:
   tags:
     - tfplenum-buildv2
   stage: unit-test
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
   only:
@@ -244,7 +243,7 @@ System Function Testing:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
   only:
@@ -263,7 +262,7 @@ Simulate Power Failure:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" simulate-power-failure
   only:
@@ -277,7 +276,7 @@ System Function Testing2:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-integration-tests
   only:
@@ -296,7 +295,7 @@ DIP Cleanup:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup \
     --create-nightly "$CREATE_NIGHTLY"

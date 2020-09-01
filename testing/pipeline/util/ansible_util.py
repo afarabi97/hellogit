@@ -27,15 +27,26 @@ class Target:
 def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=None, targets: Union[Target, List[Target]]=None, tags=[], timeout=10):
     print("execute_playbook")
     loader = DataLoader()
-    print(playbooks)
-    context.CLIARGS = ImmutableDict(tags=tags, listtags=False, listtasks=False,
-                                    listhosts=False, syntax=False, connection='ssh',
-                                    module_path=None, forks=100, remote_user='xxx', private_key_file=None,
+    context.CLIARGS = ImmutableDict(tags=tags,
+                                    listtags=False,
+                                    listtasks=False,
+                                    listhosts=False,
+                                    syntax=False,
+                                    connection='ssh',
+                                    module_path=None,
+                                    forks=100,
+                                    remote_user='xxx',
+                                    private_key_file=None,
                                     ssh_common_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no',
                                     ssh_extra_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no',
-                                    sftp_extra_args=None, scp_extra_args=None, become=True,
-                                    become_method='sudo', become_user=getpass.getuser(), verbosity=True,
-                                    check=False, start_at_task=None,
+                                    sftp_extra_args=None,
+                                    scp_extra_args=None,
+                                    become=True,
+                                    become_method='sudo',
+                                    become_user=getpass.getuser(),
+                                    verbosity=True,
+                                    check=False,
+                                    start_at_task=None,
                                     timeout=timeout)
 
     inventory = InventoryManager(loader=loader)

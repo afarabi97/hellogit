@@ -1,37 +1,17 @@
-Clear Reposync Software Folders:
-  stage: pre-build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-
-    for folder in $REPO_SYNC_FOLDERS
-    do
-      rm -rf "$SOFTWARE_CPT_EXPORT_LOC/VMs/$folder"/*
-      mkdir -p "$SOFTWARE_CPT_EXPORT_LOC/VMs/$folder/"
-
-      rm -rf "$SOFTWARE_MDT_EXPORT_LOC/VMs/$folder"/*
-      mkdir -p "$SOFTWARE_MDT_EXPORT_LOC/VMs/$folder/"
-    done
-  only:
-    variables:
-      - $PIPELINE == "export-all"
-
-
 Export Reposync Server:
   stage: export
   needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "REPO" \
     run-export export-reposync-server \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:
@@ -44,13 +24,14 @@ Export Reposync Workstation:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "REPO" \
     run-export export-reposync-workstation \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
     variables:

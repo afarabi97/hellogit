@@ -3,7 +3,7 @@ analyze ansible test playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint testing/playbooks/site.yml
   allow_failure: true
@@ -20,7 +20,7 @@ analyze ansible bootstrap playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint bootstrap/playbooks/site.yml
   allow_failure: true
@@ -37,7 +37,7 @@ analyze ansible core playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint core/playbooks/site.yml
     ansible-lint core/playbooks/remove-node.yml
@@ -54,7 +54,7 @@ analyze ansible deployer playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint deployer/playbooks/site.yml
   allow_failure: true
@@ -70,7 +70,7 @@ analyze ansible stigs playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint stigs/playbooks/site.yml
   allow_failure: true
@@ -86,7 +86,7 @@ analyze ansible mip playbooks:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     ansible-lint mip/mip-core/site.yml
     ansible-lint mip/mip-deployer/site.yml
@@ -103,7 +103,7 @@ compile front-end:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
   only:
@@ -119,7 +119,7 @@ environment setup backend:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
   only:
@@ -135,7 +135,7 @@ sonarqube front-end code base:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [setup: front-end] ********************************************************"
@@ -162,7 +162,7 @@ sonarqube back-end code base:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint / pytest-cov: back-end] *******************************************"
@@ -186,7 +186,7 @@ sonarqube testing pipeline:
     - tfplenum-buildv2
   stage: code-analysis
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [pylint: pipeline] ********************************************************"

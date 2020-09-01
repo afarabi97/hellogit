@@ -4,8 +4,8 @@ Test Reposync Server VM:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
 
     python3 testing/pipeline/pipeline.py --system-name REPO test-server-repository-vm \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -36,8 +36,8 @@ Test Reposync Workstation VM:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
 
     python3 testing/pipeline/pipeline.py --system-name REPO test-workstation-repository-vm \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -67,8 +67,8 @@ Build Server Reposync VM for Export:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
 
     python3 testing/pipeline/pipeline.py --system-name REPO build-server-for-export \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -83,9 +83,8 @@ Build Server Reposync VM for Export:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --disk-size "1100" \
-    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE" \
-    --linked-clone "$LINKED_CLONE"
+    --disk-size "$REPO_SERVER_DISK_SIZE" \
+    --vm-template "$REPO_SERVER_TEMPLATE_TO_CLONE"
   retry: 2
   artifacts:
     untracked: true
@@ -100,8 +99,8 @@ Build Workstation Reposync VM for Export:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
 
     python3 testing/pipeline/pipeline.py --system-name REPO build-workstation-for-export \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
@@ -116,9 +115,8 @@ Build Workstation Reposync VM for Export:
     --vm-datastore "$VCENTER_DATASTORE" \
     --network-id "$NETWORK_ID" \
     --vm-prefix "$VM_PREFIX" \
-    --disk-size "1100" \
-    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE" \
-    --linked-clone "$LINKED_CLONE"
+    --disk-size "$REPO_WORKSTATION_DISK_SIZE" \
+    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE"
   retry: 2
   artifacts:
     untracked: true
@@ -133,8 +131,8 @@ Perform Reposync Server STIGs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
   artifacts:
     untracked: true
@@ -149,8 +147,8 @@ Perform Reposync Workstation STIGs:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"echo
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "WORKSTATION"
   artifacts:
     untracked: true

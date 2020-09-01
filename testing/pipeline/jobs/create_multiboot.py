@@ -429,19 +429,19 @@ class Multiboot_Create_Class:
 
 
 def Multiboot_Create(Argument_Path, Argument_File_Location, Argument_Drive_Device):
-    runner = Multiboot_Create_Class(Argument_Path, Argument_File_Location, Argument_Drive_Device)
-    Return_MB_Image = runner.Multiboot_Image
+    MB_Create = Multiboot_Create_Class(Argument_Path, Argument_File_Location, Argument_Drive_Device)
+    Return_MB_Image = MB_Create.Multiboot_Image
     os.system("rm --recursive --force {} 2>/dev/null 1>/dev/null".
-              format(runner.System_Output_Log))
-    runner.Copy_EXE_Files()
-    runner.Copy_ISO_Files_UEFI()
-    runner.Copy_ISO_Files_LEGACY()
-    runner.Fix_UEFI_GRUB_Mod_Files()
-    runner.UEFI_Menu.close()
-    runner.LEGACY_Menu.close()
-    runner.GRUB_LINUX_CONFIG.close()
+              format(MB_Create.System_Output_Log))
+    MB_Create.Copy_EXE_Files()
+    MB_Create.Copy_ISO_Files_UEFI()
+    MB_Create.Copy_ISO_Files_LEGACY()
+    MB_Create.Fix_UEFI_GRUB_Mod_Files()
+    MB_Create.UEFI_Menu.close()
+    MB_Create.LEGACY_Menu.close()
+    MB_Create.GRUB_LINUX_CONFIG.close()
     os.system("rm --recursive --force {} 2>/dev/null 1>/dev/null".
-              format(runner.System_Output_Log))
+              format(MB_Create.System_Output_Log))
     return Return_MB_Image
 
 def main():

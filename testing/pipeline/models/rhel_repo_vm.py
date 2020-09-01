@@ -15,7 +15,6 @@ class RHELRepoSettings(Model):
         self.subscription = None
         self.orgnumber = None
         self.activationkey = None
-        self.linked_clone = ''
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -25,8 +24,6 @@ class RHELRepoSettings(Model):
                             help="Organization number used to register RHEL server.")
         parser.add_argument("--activationkey", dest="activationkey", #required=True,
                             help="Activation key used to register RHEL server.")
-        parser.add_argument('--linked-clone', dest='linked_clone', default='no', required=False,
-                            help="Set this flag to RHEL repo as a Linked Clone.")
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, True)
 
@@ -48,4 +45,3 @@ class RHELRepoSettings(Model):
         self.subscription = namespace.subscription
         self.orgnumber = namespace.orgnumber
         self.activationkey = namespace.activationkey
-        self.linked_clone = namespace.linked_clone

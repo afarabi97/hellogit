@@ -52,7 +52,6 @@ class SubCmd:
     set_perms = 'set-perms'
     unset_perms = 'unset-perms'
     export_ctrl = 'export-ctrl'
-    generate_versions_file = 'generate-versions-file'
     export_mip_ctrl = 'export-mip-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
     export_reposync_server = 'export-reposync-server'

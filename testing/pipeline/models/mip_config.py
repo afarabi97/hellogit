@@ -17,3 +17,6 @@ class MIPConfigSettings(Model):
                             help="The password given to the accounts with predefined roles.")
         parser.add_argument('--operator-type', dest='mip_config_operator_type', default='MDT',
                             choices=['CPT', 'MDT'], help="Controls the type of MIP being created.")
+        parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True,
+                            help="The dns servers that will be used for nodes created.")
+

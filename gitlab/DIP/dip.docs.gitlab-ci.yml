@@ -1,34 +1,10 @@
-Clear DIP Docs Folders:
-  stage: pre-build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-
-    echo "$DOCS_FOLDERS"
-    for folder in $DOCS_FOLDERS
-    do
-      echo "$DIP_CPT_DOC_EXPORT_LOC/$folder"
-      rm -f "$DIP_CPT_DOC_EXPORT_LOC/$folder"/*
-      mkdir -p "$DIP_CPT_DOC_EXPORT_LOC/$folder/"
-
-      rm -f "$DIP_MDT_DOC_EXPORT_LOC/$folder"/*
-      mkdir -p "$DIP_MDT_DOC_EXPORT_LOC/$folder/"
-    done
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
-
-
 Build DIP Offline Documentation:
   stage: build
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP Offline Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-html-docs \
@@ -36,6 +12,7 @@ Build DIP Offline Documentation:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
@@ -50,10 +27,12 @@ Build DIP Offline Documentation:
 
 DIP Setup Documents:
   stage: docs
-  needs: ["Clear DIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP Setup Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
@@ -61,6 +40,7 @@ DIP Setup Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_SETUP_DOCS"
@@ -73,10 +53,12 @@ DIP Setup Documents:
 
 DIP User Documents:
   stage: docs
-  needs: ["Clear DIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP User Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
@@ -84,6 +66,7 @@ DIP User Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_USER_DOCS"
@@ -93,59 +76,67 @@ DIP User Documents:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 
+# TODO bring this back when we have training docs
+# DIP Training Documents:
+#   stage: docs
+#   needs: ["Clear Staging Environment"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "DIP Training Documents - Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "DIP" \
+#     run-export export-single-page-pdf \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
+#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --export-hash "$TFPLENUM_EXPORT_HASH" \
+#     --page-titles "$DIP_CONFLUENCE_TRAINING_DOCS"
+#   retry: 2
+#   only:
+#     variables:
+#       - $PIPELINE == "export-docs"
+#       - $PIPELINE == "export-all"
 
-DIP Training Documents:
-  stage: docs
-  needs: ["Clear DIP Docs Folders"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
-    --page-titles "$DIP_CONFLUENCE_TRAINING_DOCS"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
-
-
-DIP Architecture Documents:
-  stage: docs
-  needs: ["Clear DIP Docs Folders"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
-    --page-titles "$DIP_CONFLUENCE_ARCH_DOCS"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+# TODO bring this back when we have arch docs
+# DIP Architecture Documents:
+#   stage: docs
+#   needs: ["Clear Staging Environment"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "DIP ARCH Documents - Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "DIP" \
+#     run-export export-single-page-pdf \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
+#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --export-hash "$TFPLENUM_EXPORT_HASH" \
+#     --page-titles "$DIP_CONFLUENCE_ARCH_DOCS"
+#   retry: 2
+#   only:
+#     variables:
+#       - $PIPELINE == "export-docs"
+#       - $PIPELINE == "export-all"
 
 
 DIP Maintenance Documents:
   stage: docs
-  needs: ["Clear DIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP MAINT Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
@@ -153,6 +144,7 @@ DIP Maintenance Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_MAIN_DOCS"
@@ -162,12 +154,15 @@ DIP Maintenance Documents:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 
+
 DIP TroubleShooting Documents:
   stage: docs
-  needs: ["Clear DIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP Trouble Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
@@ -175,6 +170,7 @@ DIP TroubleShooting Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS"
@@ -187,10 +183,12 @@ DIP TroubleShooting Documents:
 
 DIP VDD Documents:
   stage: docs
-  needs: ["Clear DIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP VDD Documents - Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-single-page-pdf \
@@ -198,6 +196,7 @@ DIP VDD Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_VDD_DOCS"

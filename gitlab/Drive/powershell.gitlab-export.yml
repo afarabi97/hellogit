@@ -1,13 +1,22 @@
 Export Powershell Modules to App Store:
   stage: export
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "run the commnad that downloads the power modules and puts them in this folder $APP_STORE_CPT_EXPORT_LOC"
     echo "and also this folder $APP_STORE_MDT_EXPORT_LOC into $APP_STORE_DIRECTORY."
     ls scripts/
-    pwsh -File ./scripts/PSAddonInstaller.ps1 -Linux_Usage -PullOnly -T_Root "$APP_STORE_CPT_EXPORT_LOC" -T_Dir $APP_STORE_DIRECTORY
-    pwsh -File ./scripts/PSAddonInstaller.ps1 -Linux_Usage -PullOnly -T_Root "$APP_STORE_MDT_EXPORT_LOC" -T_Dir $APP_STORE_DIRECTORY
+    pwsh -File ./scripts/PSAddonInstaller.ps1 \
+    -Linux_Usage                              \
+    -PullOnly                                 \
+    -T_Root "$APP_STORE_CPT_EXPORT_LOC"       \
+    -T_Dir $APP_STORE_DIRECTORY
+    pwsh -File ./scripts/PSAddonInstaller.ps1 \
+    -Linux_Usage                              \
+    -PullOnly                                 \
+    -T_Root "$APP_STORE_MDT_EXPORT_LOC"       \
+    -T_Dir $APP_STORE_DIRECTORY
   only:
     variables:
       - $PIPELINE == "export-powershell-modules"

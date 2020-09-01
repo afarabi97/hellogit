@@ -1,32 +1,9 @@
-Clear MIP Docs Folders:
-  stage: pre-build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-
-    for folder in $DOCS_FOLDERS
-    do
-      rm -f "$MIP_CPT_DOC_EXPORT_LOC/$folder"/*
-      mkdir -p "$MIP_CPT_DOC_EXPORT_LOC/$folder/"
-
-      rm -f "$MIP_MDT_DOC_EXPORT_LOC/$folder"/*
-      mkdir -p "$MIP_MDT_DOC_EXPORT_LOC/$folder/"
-    done
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
-      - $PIPELINE == "export-all"
-
-
 Build MIP Offline Documentation:
   stage: build
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "MIP" \
@@ -35,6 +12,7 @@ Build MIP Offline Documentation:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
@@ -50,7 +28,7 @@ Build MIP Offline Documentation:
 
 MIP Setup Documents:
   stage: docs
-  needs: ["Clear MIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -61,6 +39,7 @@ MIP Setup Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
@@ -74,7 +53,7 @@ MIP Setup Documents:
 
 MIP User Documents:
   stage: docs
-  needs: ["Clear MIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -85,6 +64,7 @@ MIP User Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_USER_DOCS"
@@ -95,58 +75,60 @@ MIP User Documents:
       - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
 
+# TODO bring this back when we have training docs
+# MIP Training Documents:
+#   stage: docs
+#   needs: ["Clear Staging Environment"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "MIP" \
+#     run-export export-single-page-pdf \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
+#     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --export-hash "$TFPLENUM_EXPORT_HASH" \
+#     --page-titles "$MIP_CONFLUENCE_TRAINING_DOCS"
+#   retry: 2
+#   only:
+#     variables:
+#       - $PIPELINE == "export-docs"
+#       - $PIPELINE == "export-mip"
+#       - $PIPELINE == "export-all"
 
-MIP Training Documents:
-  stage: docs
-  needs: ["Clear MIP Docs Folders"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
-    run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
-    --page-titles "$MIP_CONFLUENCE_TRAINING_DOCS"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
-      - $PIPELINE == "export-all"
-
-
-MIP Architecture Documents:
-  stage: docs
-  needs: ["Clear MIP Docs Folders"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
-    run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
-    --page-titles "$MIP_CONFLUENCE_ARCH_DOCS"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-mip"
-      - $PIPELINE == "export-all"
+# TODO bring this back when we have arch docs
+# MIP Architecture Documents:
+#   stage: docs
+#   needs: ["Clear Staging Environment"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "MIP" \
+#     run-export export-single-page-pdf \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
+#     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --export-hash "$TFPLENUM_EXPORT_HASH" \
+#     --page-titles "$MIP_CONFLUENCE_ARCH_DOCS"
+#   retry: 2
+#   only:
+#     variables:
+#       - $PIPELINE == "export-docs"
+#       - $PIPELINE == "export-mip"
+#       - $PIPELINE == "export-all"
 
 
 MIP Maintenance Documents:
   stage: docs
-  needs: ["Clear MIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -157,6 +139,7 @@ MIP Maintenance Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_MAIN_DOCS"
@@ -170,7 +153,7 @@ MIP Maintenance Documents:
 
 MIP TroubleShooting Documents:
   stage: docs
-  needs: ["Clear MIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -181,6 +164,7 @@ MIP TroubleShooting Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS"
@@ -194,7 +178,7 @@ MIP TroubleShooting Documents:
 
 MIP VDD Documents:
   stage: docs
-  needs: ["Clear MIP Docs Folders"]
+  needs: ["Clear Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -205,6 +189,7 @@ MIP VDD Documents:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_VDD_DOCS"

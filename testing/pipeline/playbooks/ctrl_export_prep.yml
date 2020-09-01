@@ -15,8 +15,23 @@
         state: shutdown-guest
         validate_certs: no
         state_change_timeout: 300
+      ignore_errors: yes
       retries: 3
       delay: 5
+
+    - name: "Power off the VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        folder: "{{ node.folder }}"
+        state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
 
     - name: "Prepping the controller"
       vmware_guest:
@@ -75,10 +90,19 @@
         cdrom:
           type: none
           state: absent
-        disk:
-          - size_gb: "{{ node.disk_size }}"
-            type: thin
-            datastore: "{{ node.datastore }}"
+      delegate_to: localhost
+
+    - name: "Removing VM {{ node.hostname }}"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        state: absent
+        validate_certs: False
       delegate_to: localhost
 
     - name: Create a VM snapshot

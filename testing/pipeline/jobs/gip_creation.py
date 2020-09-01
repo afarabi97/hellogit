@@ -46,6 +46,8 @@ class GipCreationJob:
             [CLONE_CTRL], self.service_settings.to_dict())
         test_nodes_up_and_alive([self.service_settings.node], 30)
         self._run_setup_playbook()
-        with FabricConnectionWrapper(self.service_settings.node.username, self.service_settings.node.password, self.service_settings.node.ipaddress) as remote_shell:
+        with FabricConnectionWrapper(self.service_settings.node.username,
+                                     self.service_settings.node.password,
+                                     self.service_settings.node.ipaddress) as remote_shell:
           self._copy(ROOT_DIR + 'playbooks.zip', '/tmp', remote_shell)
           remote_shell.run('unzip -d /opt /tmp/playbooks.zip'  )

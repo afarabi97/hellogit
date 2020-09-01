@@ -12,9 +12,8 @@ from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport,
-                         generate_versions_file, MIPControllerExport,
-                         GIPServiceExport, ReposyncServerExport, ReposyncWorkstationExport,
-                         MinIOExport)
+                         MIPControllerExport, GIPServiceExport, ReposyncServerExport,
+                         ReposyncWorkstationExport, MinIOExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
@@ -64,26 +63,30 @@ class Runner:
 
     def _setup_args(self):
         parser = ArgumentParser(description="This application is used to run TFPlenum's CI pipeline. \
-                                                It can setup Kits, export docs, export controller OVA and does \
-                                                other various actions.")
+                                             It can setup Kits, export docs, export controller OVA and does \
+                                             other various actions.")
         subparsers = parser.add_subparsers(help='commands')
-        setup_ctrl_parser = subparsers.add_parser(SubCmd.setup_ctrl, help="This command is used to setup a controller \
-                                                                            either from scratch or is cloned from nightly")
+        setup_ctrl_parser = subparsers.add_parser(SubCmd.setup_ctrl,
+                                                  help="This command is used to setup a controller \
+                                                        either from scratch or is cloned from nightly")
         ControllerSetupSettings.add_args(setup_ctrl_parser)
         setup_ctrl_parser.set_defaults(which=SubCmd.setup_ctrl)
 
-        kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_kickstart, help="This command is used to Kickstart/PXE \
-                                                                                    boot the nodes for the DIP kit.")
+        kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_kickstart,
+                                                      help="This command is used to Kickstart/PXE \
+                                                            boot the nodes for the DIP kit.")
         KickstartSettings.add_args(kickstart_ctrl_parser)
         kickstart_ctrl_parser.set_defaults(which=SubCmd.run_kickstart)
 
-        mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart, help="This command is used to Kickstart/PXE \
-                                                                            boot the nodes for the MIP.")
+        mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart,
+                                                          help="This command is used to Kickstart/PXE \
+                                                                boot the nodes for the MIP.")
         MIPKickstartSettings.add_mip_args(mip_kickstart_ctrl_parser)
         mip_kickstart_ctrl_parser.set_defaults(which=SubCmd.run_mip_kickstart)
 
-        kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit, help="This command is used to run kit configuration \
-                                                                      for the DIP kit.")
+        kit_ctrl_parser = subparsers.add_parser(SubCmd.run_kit,
+                                                help="This command is used to Kickstart/PXE \
+                                                      boot the nodes for the DIP kit.")
         KitSettings.add_args(kit_ctrl_parser)
         kit_ctrl_parser.set_defaults(which=SubCmd.run_kit)
 
@@ -120,12 +123,13 @@ class Runner:
 
 
         mip_config_parser = subparsers.add_parser(
-            SubCmd.run_mip_config, help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
+            SubCmd.run_mip_config,
+            help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
         MIPConfigSettings.add_args(mip_config_parser)
         mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
 
-        gip_setup_parser = subparsers.add_parser(
-            SubCmd.gip_setup, help="Configures GIP VMs and other related commands.")
+        gip_setup_parser = subparsers.add_parser( SubCmd.gip_setup,
+                                                  help="Configures GIP VMs and other related commands.")
         gip_setup_subparsers = gip_setup_parser.add_subparsers(help="gip setup commands")
         GIPControllerSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
         GIPKickstartSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
@@ -236,29 +240,24 @@ class Runner:
                 executor = WorkstationExportJob(repo_settings)
                 executor.build_export()
             elif args.which == SubCmd.export_reposync_server:
-                server_repo_settings = YamlManager.load_reposync_settings_from_yaml(
-                    "server")
+                server_repo_settings = YamlManager.load_reposync_settings_from_yaml( "server")
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_server = ReposyncServerExport(
-                    server_repo_settings, export_settings.export_loc)
+                executor_server = ReposyncServerExport( server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
             elif args.which == SubCmd.export_reposync_workstation:
-                workstation_repo_settings = YamlManager.load_reposync_settings_from_yaml(
-                    "workstation")
+                workstation_repo_settings = YamlManager.load_reposync_settings_from_yaml( "workstation")
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-                executor_workstation = ReposyncWorkstationExport(
-                    workstation_repo_settings, export_settings.export_loc)
+                executor_workstation = ReposyncWorkstationExport( workstation_repo_settings,
+                                                                  export_settings.export_loc)
                 executor_workstation.export_reposync_workstation()
 
             elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()
                 export_settings = ExportSettings()
                 export_settings.from_namespace(args)
-
-                executor = GIPServiceExport(
-                    gip_service_settings, export_settings.export_loc)
+                executor = GIPServiceExport( gip_service_settings, export_settings.export_loc)
                 executor.export_gip_service_vm()
             elif args.which == SubCmd.setup_gip_ctrl:
                 gip_controller_settings = GIPControllerSettings()
@@ -275,9 +274,7 @@ class Runner:
                 gip_kickstart_settings = GIPKickstartSettings()
                 gip_kickstart_settings.from_namespace(args)
                 YamlManager.save_to_yaml(gip_kickstart_settings)
-
-                executor = GIPKickstartJob(
-                    controller_settings, gip_kickstart_settings)
+                executor = GIPKickstartJob( controller_settings, gip_kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_gip_kit:
                 gip_controller_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
@@ -289,9 +286,7 @@ class Runner:
 
                 controller_settings = gip_controller_settings.controller_settings
                 kit_settings = gip_kit_settings.kit_settings
-
-                executor = KitJob(controller_settings,
-                                  gip_kickstart_settings, kit_settings)
+                executor = KitJob(controller_settings, gip_kickstart_settings, kit_settings)
                 executor.run_kit()
             elif args.which == SubCmd.create_gip_service_vm:
                 service_settings = GIPServiceSettings()
@@ -309,9 +304,7 @@ class Runner:
                 executor.setup_controller()
 
             elif args.which == SubCmd.run_kickstart:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
-
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
                 kickstart_settings = KickstartSettings()
                 kickstart_settings.from_namespace(args)
                 YamlManager.save_to_yaml(kickstart_settings)
@@ -319,16 +312,13 @@ class Runner:
                 executor = KickstartJob(ctrl_settings, kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_kit:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 kit_settings = KitSettings()
                 kit_settings.from_kickstart(kickstart_settings)
                 YamlManager.save_to_yaml(kit_settings)
-
-                executor = KitJob(
-                    ctrl_settings, kickstart_settings, kit_settings)
+                executor = KitJob( ctrl_settings, kickstart_settings, kit_settings)
                 executor.run_kit()
             elif args.which == SubCmd.run_stigs:
                 stig_settings = STIGSettings()
@@ -337,12 +327,9 @@ class Runner:
                 executor.run_stig()
                 stig_settings.take_snapshot_for_certain_systems()
             elif args.which == SubCmd.run_unit_tests:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
-
-                executor = IntegrationTestsJob(
-                    ctrl_settings, kickstart_settings)
+                executor = IntegrationTestsJob( ctrl_settings, kickstart_settings)
                 executor.run_unit_tests()
             elif args.which == SubCmd.run_integration_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
@@ -397,10 +384,6 @@ class Runner:
                 executor = ControllerExport(
                     ctrl_settings, export_settings.export_loc)
                 executor.export_controller()
-            elif args.which == SubCmd.generate_versions_file:
-                export_settings = ExportSettings()
-                export_settings.from_namespace(args)
-                generate_versions_file(export_settings.export_loc)
             elif args.which == SubCmd.create_master_drive_hashes:
                 drive_hash_settings = DriveCreationHashSettings()
                 drive_hash_settings.from_namespace(args)

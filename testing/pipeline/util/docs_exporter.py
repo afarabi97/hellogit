@@ -389,7 +389,13 @@ class MyConfluenceExporter(Confluence):
         if export_format not in ["HTML", "PDF"]:
             raise ValueError("Export format can only be alist or ")
         content = self._get_content_page_ids(space, title)
-        return self._export_page_w_children(export_path, export_version, export_format, title, content, space, timeout_min)
+        return self._export_page_w_children(export_path,
+                                            export_version,
+                                            export_format,
+                                            title,
+                                            content,
+                                            space,
+                                            timeout_min)
 
     def set_permissions(self, title: str, space: str='THISISCVAH', is_restricted: bool=True):
         page_ids = self._get_content_page_ids(space, title)

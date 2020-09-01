@@ -135,7 +135,8 @@ EOF
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as client:
             self._run_pings_to_fix_network(client, flag)
-            self._update_code(client)
+            if self.ctrl_settings.is_update_code():
+                self._update_code(client)
 
     def setup_controller(self):
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())

@@ -1,36 +1,27 @@
-Clear DIP Software Folders:
-  stage: pre-build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I)"
-    echo "Current working directory is $(pwd)"
-
-    for folder in $DIP_SOFTWARE_FOLDERS
-    do
-      rm -rf "$SOFTWARE_CPT_EXPORT_LOC/$folder"/*
-      mkdir -p "$SOFTWARE_CPT_EXPORT_LOC/$folder/"
-
-      rm -rf "$SOFTWARE_MDT_EXPORT_LOC/$folder"/*
-      mkdir -p "$SOFTWARE_MDT_EXPORT_LOC/$folder/"
-    done
-  only:
-    variables:
-      - $PIPELINE == "export-all"
-
-
 Ship Phyical Stack Build:
   stage: build
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip infrastructure/
-    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
-    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
-    unzip "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" -d "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
-    unzip "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" -d "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
+    echo "Zipping PSB infrastructure"
+    zip -r physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip \
+           infrastructure/
+
+    rm -rf "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    rm -rf "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    mkdir -p "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    mkdir -p "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip \
+         "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    cp physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip \
+         "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER"
+    echo "Unzipping PSB infrastructure"
+    unzip -q "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" \
+          -d "$SOFTWARE_CPT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
+    unzip -q "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/physical-stack-build-$TFPLENUM_EXPORT_VERSION-$TFPLENUM_EXPORT_HASH.zip" \
+          -d "$SOFTWARE_MDT_EXPORT_LOC/$STACK_SOFTWARE_FOLDER/"
   only:
     variables:
       - $PIPELINE == "export-all"
@@ -42,7 +33,7 @@ Add Docs to DIP Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
@@ -51,6 +42,7 @@ Add Docs to DIP Controller:
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
@@ -68,13 +60,14 @@ Export DIP Controller:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export export-ctrl \
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:
@@ -88,13 +81,14 @@ Export DIP MinIO:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -I)"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "DIP" \
     run-export minio \
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:

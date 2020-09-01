@@ -68,6 +68,9 @@ def create_hashes(directory_to_walk: str):
                     relative_path = relative_path + "/"
 
                 for some_file in files:
+                    if some_file == "validate_drive.sh":
+                        continue
+
                     if some_file == "drive_md5_hashes.txt":
                         continue
 

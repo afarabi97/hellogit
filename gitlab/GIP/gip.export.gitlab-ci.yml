@@ -3,13 +3,14 @@ Export GIP Service VM:
   tags:
     - tfplenum-buildv2
   script: |
-    echo "IP of runner is $(hostname -i | awk '{print $2}')"
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
     run-export export-gip-service-vm \
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --mdt-export-path "$GIP_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --export-hash "$TFPLENUM_EXPORT_HASH"
   only:

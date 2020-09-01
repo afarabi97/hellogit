@@ -16,7 +16,7 @@ from models.export import ExportSettings, ExportLocSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.common import BasicNodeCreds, NodeSettings, VCenterSettings
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 from io import StringIO
 from util.ansible_util import (power_on_vms, revert_to_baseline_and_power_on_vms,
                                power_off_vms, power_off_vms_gracefully)
@@ -32,35 +32,31 @@ TESTING_DIR = PIPELINE_DIR + "/../"
 
 
 def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
+    staging_export_path = Path(export_loc.staging_export_path + '/')
+    staging_export_path.mkdir(parents=True, exist_ok=True)
+
     cpt_export_path = Path(export_loc.cpt_export_path + '/')
     cpt_export_path.mkdir(parents=True, exist_ok=True)
 
     mdt_export_path = Path(export_loc.mdt_export_path + '/')
     mdt_export_path.mkdir(parents=True, exist_ok=True)
 
-    return cpt_export_path, mdt_export_path
+    return cpt_export_path, mdt_export_path, staging_export_path
 
 
-def generate_versions_file(export_loc: ExportLocSettings):
-    cpt_export_path, mdt_export_path = create_export_path(export_loc)
-    hashes_content = StringIO()
-    proc = subprocess.Popen('git rev-parse HEAD', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    git_commit_hash, _ = proc.communicate()
+def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
+    if isinstance(some_path, str):
+        some_path = Path(some_path)
 
-    hashes_content.write("TFPlenum Version: {}\n".format(export_loc.export_version))
-    hashes_content.write("GIT Commit Hash: {}\n\n".format(git_commit_hash.decode('utf-8')))
-    for path in cpt_export_path.glob("**/*"):
-        # Increased chunk size to 30MB so this wont take an ICE age to hash.
-        hashes = hash_file(path, chunk_size=30000000)
-        hashes_content.write("{}\t\tmd5: {}\n\t\t\tsha1: {}\n\t\t\tsha256: {}\n\n"
-            .format(str(path.name), hashes["md5"], hashes["sha1"], hashes["sha256"]))
+    if not some_path.exists():
+        raise ValueError("{} does not exist.".format(str(some_path)))
 
-    cpt_file_path = str(cpt_export_path) + '/versions.txt'
-    mdt_file_path = str(mdt_export_path) + '/versions.txt'
-    with open(cpt_file_path, 'w') as fa:
-        fa.write(hashes_content.getvalue())
+    if not some_path.is_dir():
+        raise ValueError("{} is not a directory.".format(str(some_path)))
 
-    shutil.copy2(cpt_file_path, mdt_file_path)
+    for file_to_delete in some_path.glob(pattern):
+        logging.debug("Deleting {}".format(str(file_to_delete)))
+        file_to_delete.unlink()
 
 
 def prepare_for_export(username: str,
@@ -76,26 +72,55 @@ def prepare_for_export(username: str,
             remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
 
 
-class ExportOVF:
-    def __init__(self, source_locator, target_locator):
-        self.source_locator = source_locator
-        self.target_locator = target_locator
+def export(vcenter_settings: VCenterSettings,
+           export_loc: ExportLocSettings,
+           vm_release_name: str,
+           export_prefix: str):
+    """
+    Runs the ovftool command that is used to export our controller to an OVA file.
 
-    def export(self):
-        if (Path(self.target_locator).parent.exists() == False) or (Path(self.target_locator).parent.is_dir() == False):
-            raise ValueError("The target_locator is invalid.")
+    EX: ovftool --diskMode=thin \
+                --noSSLVerify \
+                --maxVirtualHardwareVersion=14 \
+                vi://david.navarro%40sil.local@172.16.20.106/SIL_Datacenter/vm/Navarro/dnavtest2-controller.lan \
+                ~/Desktop/controller.ova
+    :param destination: The destination to output too.
 
-        if Path(self.target_locator).exists() and Path(self.target_locator).is_file():
-            Path(self.target_locator).unlink()
+    :return:
+    """
+    cpt_export_path, mdt_export_path, staging_export_path = create_export_path(export_loc)
+    export_name = vm_release_name + ".ova"
+    staging_destination_path = "{}/{}".format(str(staging_export_path), export_name)
 
-        command = ['ovftool', '--noSSLVerify', '--diskMode=thin', self.source_locator, self.target_locator]
-        logging.info("Exporting OVA file to {target_locator}. This can take a few hours before it completes.".format(target_locator=self.target_locator))
-        process = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        sout, serr = process.communicate()
-        logging.info(sout)
-        os.chmod(self.target_locator, 0o644)
-        if serr:
-            logging.error(serr)
+    dest = Path(staging_destination_path)
+    if dest.exists() and dest.is_file():
+        dest.unlink()
+
+    username = vcenter_settings.username.replace("@", "%40")
+    cmd = ("ovftool --noSSLVerify --maxVirtualHardwareVersion=14 --diskMode=thin vi://{username}:'{password}'@{vsphere_ip}"
+            "/DEV_Datacenter/vm/{folder}/{vm_name} \"{destination}\""
+            .format(username=username,
+                    password=vcenter_settings.password,
+                    vsphere_ip=vcenter_settings.ipaddress,
+                    folder='Releases',
+                    vm_name=vm_release_name,
+                    destination=str(dest))
+            )
+    logging.info("Exporting OVA file to %s. This can take a few hours before it completes." % staging_destination_path)
+    proc = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    sout, serr = proc.communicate()
+    logging.info(sout)
+    os.chmod(str(dest), 0o644)
+    if serr:
+        logging.error(serr)
+
+    clear_based_on_pattern(str(cpt_export_path), export_prefix + "*")
+    clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
+
+    cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
+    mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
+    shutil.move(staging_destination_path, cpt_destination_path)
+    shutil.copy2(cpt_destination_path, mdt_destination_path)
 
 
 class MinIOExport:
@@ -114,22 +139,6 @@ class MinIOExport:
             'vmname': self._node.hostname
         }
 
-    @property
-    def cpt_export_path(self):
-        return "{export_path}/{export_name}".format(export_path=create_export_path(self._export_loc)[0], export_name=self._export_loc.render_export_name("MinIO"))
-
-    @property
-    def mdt_export_path(self):
-        return "{export_path}/{export_name}".format(export_path=create_export_path(self._export_loc)[1], export_name=self._export_loc.render_export_name("MinIO"))
-
-    @property
-    def source_locator(self):
-        return "vi://{username}:{password}@{hostname}/{datacenter}/vm/{folder}/{vmname}".format(**self._vsphere_locator_uri_parts())
-
-    @property
-    def target_locator(self):
-        return self.cpt_export_path
-
     def export(self):
         power_on_vms(self._vcenter, self._node)
         test_nodes_up_and_alive(self._node, 10)
@@ -138,9 +147,21 @@ class MinIOExport:
                            self._node.ipaddress,
                            False)
         power_off_vms_gracefully(self._vcenter, self._node)
-        ExportOVF(self.source_locator, self.target_locator).export()
-        logging.info(f"Copying MinIO OVA from {self.cpt_export_path} to {self.mdt_export_path}.")
-        shutil.copy2(self.cpt_export_path, self.mdt_export_path)
+        payload = {
+            "python_executable": sys.executable,
+            "vcenter": self._vcenter,
+            "node": self._node
+        }
+        export_prefix = "minio"
+        export_name = self._export_loc.render_export_name(export_prefix)
+        release_vm_name = export_name[0:len(export_name)-4]
+        payload["release_template_name"] = release_vm_name
+        execute_playbook([CTRL_EXPORT_PREP], payload)
+        export(self._vcenter,
+               self._export_loc,
+               release_vm_name,
+               export_prefix)
+
 
 class ControllerExport:
 
@@ -164,40 +185,8 @@ class ControllerExport:
 
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
-    def _export(self, destination: str, vm_release_name: str):
-        """
-        Runs the ovftool command that is used to export our controller to an OVA file.
-
-        EX: ovftool --noSSLVerify vi://david.navarro%40sil.local@172.16.20.106/SIL_Datacenter/vm/Navarro/dnavtest2-controller.lan ~/Desktop/controller.ova
-        :param destination: The destination to output too.
-
-        :return:
-        """
-        dest = Path(destination)
-        if dest.exists() and dest.is_file():
-            dest.unlink()
-
-        username = self.vcenter_settings.username.replace("@", "%40")
-        cmd = ("ovftool --noSSLVerify --diskMode=thin vi://{username}:'{password}'@{vsphere_ip}"
-               "/DEV_Datacenter/vm/{folder}/{vm_name} \"{destination}\""
-               .format(username=username,
-                       password=self.vcenter_settings.password,
-                       vsphere_ip=self.vcenter_settings.ipaddress,
-                       folder='Releases',
-                       vm_name=vm_release_name,
-                       destination=str(dest))
-              )
-        logging.info("Exporting OVA file to %s. This can take a few hours before it completes." % destination)
-        proc = subprocess.Popen(shlex.split(cmd), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        sout, serr = proc.communicate()
-        logging.info(sout)
-        os.chmod(str(dest), 0o644)
-        if serr:
-            logging.error(serr)
-
     def export_controller(self):
         logging.info("Exporting the controller to OVA.")
-        cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
@@ -205,15 +194,16 @@ class ControllerExport:
                            self.ctrl_settings.node.ipaddress)
 
         payload = self.ctrl_settings.to_dict()
-        export_name = self.export_loc.render_export_name("DIP_Controller")
+
+        export_prefix = "DIP_Controller"
+        export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
-
-        cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        self._export(cpt_destination_path, release_vm_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+        export(self.vcenter_settings,
+               self.export_loc,
+               release_vm_name,
+               export_prefix)
 
 
 class MIPControllerExport(ControllerExport):
@@ -222,8 +212,6 @@ class MIPControllerExport(ControllerExport):
 
     def export_mip_controller(self):
         logging.info("Exporting the controller to OVA.")
-        cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
-
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
@@ -231,15 +219,15 @@ class MIPControllerExport(ControllerExport):
                            self.ctrl_settings.node.ipaddress)
 
         payload = self.ctrl_settings.to_dict()
-        export_name = self.export_loc.render_export_name("MIP_Controller")
+        export_prefix = "MIP_Controller"
+        export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
-
-        cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        self._export(cpt_destination_path, release_vm_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+        export(self.vcenter_settings,
+               self.export_loc,
+               release_vm_name,
+               export_prefix)
 
 
 class GIPServiceExport(ControllerExport):
@@ -252,8 +240,6 @@ class GIPServiceExport(ControllerExport):
 
     def export_gip_service_vm(self):
         logging.info("Exporting the service vm to OVA.")
-        cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
-
         power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
@@ -262,15 +248,15 @@ class GIPServiceExport(ControllerExport):
                            False)
 
         payload = self.ctrl_settings.to_dict()
-        export_name = self.export_loc.render_export_name("GIP_Services")
+        export_prefix = "GIP_Services"
+        export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
-
-        cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        self._export(cpt_destination_path, release_vm_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+        export(self.vcenter_settings,
+               self.export_loc,
+               release_vm_name,
+               export_prefix)
 
 
 class ReposyncServerExport(ControllerExport):
@@ -279,8 +265,6 @@ class ReposyncServerExport(ControllerExport):
 
     def export_reposync_server(self):
         logging.info("Exporting the Reposync server VM to OVA.")
-        cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
-
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
@@ -289,15 +273,15 @@ class ReposyncServerExport(ControllerExport):
                            False)
 
         payload = self.ctrl_settings.to_dict()
-        export_name = self.export_loc.render_export_name("Reposync_Server")
+        export_prefix = "Reposync_Server"
+        export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
-
-        cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        self._export(cpt_destination_path, release_vm_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+        export(self.vcenter_settings,
+               self.export_loc,
+               release_vm_name,
+               export_prefix)
 
 
 class ReposyncWorkstationExport(ControllerExport):
@@ -306,8 +290,6 @@ class ReposyncWorkstationExport(ControllerExport):
 
     def export_reposync_workstation(self):
         logging.info("Exporting the Reposync workstation VM to OVA.")
-        cpt_export_path, mdt_export_path = create_export_path(self.export_loc)
-
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
@@ -316,15 +298,15 @@ class ReposyncWorkstationExport(ControllerExport):
                            False)
 
         payload = self.ctrl_settings.to_dict()
-        export_name = self.export_loc.render_export_name("Reposync_Workstation")
+        export_prefix = "Reposync_Workstation"
+        export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
-
-        cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
-        self._export(cpt_destination_path, release_vm_name)
-        shutil.copy2(cpt_destination_path, mdt_destination_path)
+        export(self.vcenter_settings,
+               self.export_loc,
+               release_vm_name,
+               export_prefix)
 
 
 class ConfluenceExport:
@@ -334,31 +316,40 @@ class ConfluenceExport:
         self.pdf_export_settings = export_settings.pdf_export
 
     def export_html_docs(self):
-        cpt_export_path, mdt_export_path = create_export_path(self.html_export_settings.export_loc)
+        cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.html_export_settings.export_loc)
         confluence = MyConfluenceExporter(url=self.html_export_settings.confluence.url,
                                           username=self.html_export_settings.confluence.username,
                                           password=self.html_export_settings.confluence.password)
-        cpt_html_docs_path = confluence.export_page_w_children(str(cpt_export_path),
-                                                              self.html_export_settings.export_loc.export_version,
-                                                              "HTML",
-                                                              self.html_export_settings.page_title)
-        pos = cpt_html_docs_path.rfind("/") + 1
-        file_name = cpt_html_docs_path[pos:]
+        stage_html_docs_path = confluence.export_page_w_children(str(staging_export_path),
+                                                                 self.html_export_settings.export_loc.export_version,
+                                                                 "HTML",
+                                                                 self.html_export_settings.page_title)
+        pos = stage_html_docs_path.rfind("/") + 1
+        file_name = stage_html_docs_path[pos:]
+
+        cpt_html_docs_path = "{}/{}".format(str(cpt_export_path), file_name)
         mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
+        clear_based_on_pattern(str(cpt_export_path), "*.zip")
+        clear_based_on_pattern(str(mdt_export_path), "*.zip")
+        shutil.move(stage_html_docs_path, cpt_html_docs_path)
         shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
 
     def export_pdf_docs(self):
-        cpt_export_path, mdt_export_path = create_export_path(self.pdf_export_settings.export_loc)
+        cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)
         confluence = MyConfluenceExporter(url=self.pdf_export_settings.confluence.url,
                                           username=self.pdf_export_settings.confluence.username,
                                           password=self.pdf_export_settings.confluence.password)
+        clear_based_on_pattern(str(cpt_export_path), "*.pdf")
+        clear_based_on_pattern(str(mdt_export_path), "*.pdf")
         for page_title in self.pdf_export_settings.page_titles_ary:
-            cpt_pdf_path = confluence.export_single_page_pdf(str(cpt_export_path),
-                                                             self.pdf_export_settings.export_loc.export_version,
-                                                             page_title)
-            pos = cpt_pdf_path.rfind("/") + 1
-            file_name = cpt_pdf_path[pos:]
+            stage_pdf_path = confluence.export_single_page_pdf(str(staging_export_path),
+                                                               self.pdf_export_settings.export_loc.export_version,
+                                                               page_title)
+            pos = stage_pdf_path.rfind("/") + 1
+            file_name = stage_pdf_path[pos:]
+            cpt_pdf_path = "{}/{}".format(str(cpt_export_path), file_name)
             mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
+            shutil.move(stage_pdf_path, cpt_pdf_path)
             shutil.copy2(cpt_pdf_path, mdt_pdf_path)
 
     def _push_file_and_unzip(self,

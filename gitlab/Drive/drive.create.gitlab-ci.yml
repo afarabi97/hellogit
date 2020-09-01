@@ -1,3 +1,16 @@
+Clear Staging Environment:
+  stage: clean-staging-env
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    rm -fv "${DRIVE_STAGING_FOLDER}/*"
+  only:
+    variables:
+      - $PIPELINE == "export-all"
+
+
 Hash Master CPT Drive:
   stage: hashfiles
   tags:
