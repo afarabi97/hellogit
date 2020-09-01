@@ -18,7 +18,7 @@ from pymongo.results import InsertOneResult, UpdateResult, DeleteResult
 from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
                               PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
                               RULE_TYPES, ZEEK_IMAGE_VERSION,
-                              BRO_RULE_DIR)
+                              ZEEK_RULE_DIR)
 from shared.utils import tar_folder
 from typing import Dict, Tuple, List, Union
 from werkzeug.utils import secure_filename
@@ -205,7 +205,7 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
         except KeyError:
             the_rule = conn_mng.mongo_rule.find_one({"_id": rule["_id"]})['rule']
 
-        filename = "custom.bro"
+        filename = "custom.zeek"
         filepath = '{}/{}'.format(tmpdirname, filename)
         if isinstance(the_rule, str):
             with Path(filepath).open('w') as fp:
@@ -221,7 +221,7 @@ def _validate_bro_rule(rule: Dict) -> Tuple[bool, str]:
                 "-v {tmp_dir}:{script_dir} localhost:5000/tfplenum/zeek:{version} "
                 "-S {script_dir}/{file_to_test}").format(tmp_dir=tmpdirname,
                                             version=ZEEK_IMAGE_VERSION,
-                                            script_dir=BRO_RULE_DIR,
+                                            script_dir=ZEEK_RULE_DIR,
                                             file_to_test=filename)
 
             stdoutput, ret_val = run_command2(cmd, use_shell=True)
@@ -254,7 +254,7 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Di
 
 
 @app.route('/api/upload_rule', methods=['POST'])
-# @operator_required
+@operator_required
 def upload_rule() -> Response:
     rule_set = json.loads(request.form['ruleSetForm'],
                           encoding="utf-8")
@@ -275,6 +275,7 @@ def upload_rule() -> Response:
                 else:
                     rule_or_rules = create_rule_from_file(Path(abs_save_path), rule_set)
             except InvalidRuleSyntax as e:
+                logger.error(str(e))
                 return jsonify({"error_message": str(e)})
     if rule_or_rules:
         return jsonify(rule_or_rules)
@@ -455,7 +456,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
 
 def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
     with tempfile.TemporaryDirectory() as rules_tmp_dir:
-        filename = "custom.bro"
+        filename = "custom.zeek"
         filepath = '{}/{}'.format(rules_tmp_dir, filename)
         with Path(filepath).open('w') as fp:
             fp.write(rule_content)
@@ -470,7 +471,7 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
                    "-r /pcaps/{pcap_name} {script_dir}/{file_to_test}").format(tmp_dir=rules_tmp_dir,
                                                                         pcap_dir=PCAP_UPLOAD_DIR,
                                                                         version=ZEEK_IMAGE_VERSION,
-                                                                        script_dir=BRO_RULE_DIR,
+                                                                        script_dir=ZEEK_RULE_DIR,
                                                                         pcap_name=pcap_name,
                                                                         results_dir=results_tmp_dir,
                                                                         file_to_test=filename)

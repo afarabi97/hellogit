@@ -34,7 +34,7 @@ ZEEK_IMAGE_VERSION = "3.2.0"
 BEATS_IMAGE_VERSIONS = "7.8.1"
 
 # The path inside of the docker container
-BRO_RULE_DIR = "/zeek/share/bro/site"
+ZEEK_RULE_DIR = "/opt/zeek/share/zeek/site/custom"
 
 NODE_TYPES = ["Server", "Sensor"]
 class TARGET_STATES(Enum):
