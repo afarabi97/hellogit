@@ -148,7 +148,16 @@ sonarqube front-end code base:
       -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info\
       -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json\
       -Dsonar.projectKey=tfplenum-frontend\
-      -Dsonar.sources=web/frontend/src/app/
+      -Dsonar.sources=web/frontend/src/app/> >(tee $PATH_PWD/web/frontend/sonar-report.txt) 2> >(tee $PATH_PWD/web/frontend/sonar-report.txt >&2)
+    echo "TASK [sonar-scanner: Exporting results to Confluence] **************************"
+    cat $PATH_PWD/web/frontend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/frontend/sonarlink.txt
+    cat $PATH_PWD/web/frontend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/frontend/scantime.txt
+    export TFPLENUM_FRONTEND_SCAN_LINK="$(cut -d' ' -f10 $PATH_PWD/web/frontend/sonarlink.txt)"
+    export TFPLENUM_FRONTEND_QUALITY_GATE_STATUS="$(cut -d' ' -f5 $PATH_PWD/web/frontend/sonarlink.txt)"
+    export TFPLENUM_FRONTEND_TOTAL_SCAN_TIME="$(cut -d' ' -f5 $PATH_PWD/web/frontend/scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_FRONTEND_SCAN_LINK -gs $TFPLENUM_FRONTEND_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_FRONTEND_TOTAL_SCAN_TIME -pk "tfplenum-frontend"
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
@@ -172,7 +181,16 @@ sonarqube back-end code base:
       -Dsonar.qualitygate.wait=true\
       -Dsonar.python.pylint.reportPath=$PATH_PWD/web/backend/pylint-backend.txt\
       -Dsonar.projectKey=tfplenum-backend\
-      -Dsonar.sources=web/backend/
+      -Dsonar.sources=web/backend/> >(tee $PATH_PWD/web/backend/sonar-report.txt) 2> >(tee $PATH_PWD/web/backend/sonar-report.txt >&2)
+    echo "TASK [sonar-scanner: Exporting results to Confluence] **************************"
+    cat $PATH_PWD/web/backend/sonar-report.txt | grep QUALITY >> $PATH_PWD/web/backend/sonarlink.txt
+    cat $PATH_PWD/web/backend/sonar-report.txt | grep -i "total time" >> $PATH_PWD/web/backend/scantime.txt
+    export TFPLENUM_BACKEND_SONAR_SCAN_LINK="$(cut -d' ' -f10 $PATH_PWD/web/backend/sonarlink.txt)"
+    export TFPLENUM_BACKEND_QUALITY_GATE_STATUS="$(cut -d' ' -f5 $PATH_PWD/web/backend/sonarlink.txt)"
+    export TFPLENUM_BACKEND_TOTAL_SCAN_TIME="$(cut -d' ' -f5 $PATH_PWD/web/backend/scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_BACKEND_SONAR_SCAN_LINK -gs $TFPLENUM_BACKEND_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_BACKEND_TOTAL_SCAN_TIME -pk "tfplenum-backend"
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
@@ -196,7 +214,16 @@ sonarqube testing pipeline:
       -Dsonar.qualitygate.wait=true\
       -Dsonar.python.pylint.reportPath=$PATH_PWD/testing/pipeline/pylint-pipeline.txt\
       -Dsonar.projectKey=tfplenum-test\
-      -Dsonar.sources=testing/pipeline/
+      -Dsonar.sources=testing/pipeline/> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt) 2> >(tee $PATH_PWD/testing/pipeline/sonar-report.txt >&2)
+    echo "TASK [sonar-scanner: Exporting results to Confluence] **************************"
+    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep QUALITY >> $PATH_PWD/testing/pipeline/sonarlink.txt
+    cat $PATH_PWD/testing/pipeline/sonar-report.txt | grep -i "total time" >> $PATH_PWD/testing/pipeline/scantime.txt
+    export TFPLENUM_SONAR_SCAN_LINK="$(cut -d' ' -f10 $PATH_PWD/testing/pipeline/sonarlink.txt)"
+    export TFPLENUM_QUALITY_GATE_STATUS="$(cut -d' ' -f5 $PATH_PWD/testing/pipeline/sonarlink.txt)"
+    export TFPLENUM_TOTAL_SCAN_TIME="$(cut -d' ' -f5 $PATH_PWD/testing/pipeline/scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_SONAR_SCAN_LINK -gs $TFPLENUM_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_TOTAL_SCAN_TIME -pk "tfplenum-test"
   only:
     variables:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
@@ -205,24 +232,3 @@ sonarqube testing pipeline:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
-# include:
-  # - template: Container-Scanning.gitlab-ci.yml
-
-# container_scanning:
-#   image:
-#     name: gitlab.sil.lab:5050/tfplenum/tfplenum/klair:2
-#     entrypoint: []
-#   variables:
-#     GIT_STRATEGY: clone
-#     CI_APPLICATION_REPOSITORY: gitlab.sil.lab:5050/tfplenum/tfplenum/zeek
-#     CI_APPLICATION_TAG: 3.0.0
-#   artifacts:
-#     paths:
-#       - gl-container-scanning-report.json
-#     reports:
-#       container_scanning: gl-container-scanning-report.json
-#   tags:
-#     - tfplenum-docker
-#   only:
-#     variables:
-#       - $PIPELINE == "code_quality"
