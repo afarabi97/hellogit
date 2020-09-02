@@ -9,8 +9,7 @@ from app import app, logger, conn_mng, CORE_DIR, STIGS_DIR
 from app.archive_controller import archive_form
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
-from app.service.kit_service import perform_kit
-from app.service.system_info_service import get_system_name
+from app.service.node_service import execute_kit
 from app.middleware import controller_admin_required
 from shared.constants import KIT_ID, KICKSTART_ID
 from shared.utils import decode_password
@@ -59,29 +58,9 @@ def execute_kit_inventory() -> Response:
     payload['kitForm']['complete'] = False
     is_successful, root_password = _replace_kit_inventory(payload['kitForm'])
     if is_successful:
+        task_id = execute_kit.delay(password=root_password)
         conn_mng.mongo_catalog_saved_values.delete_many({})
-        cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{password}'".format(password=root_password)
-        system_name = get_system_name()
-        if system_name == "GIP":
-            cmd_to_execute_one = "ansible-playbook site.yml -i inventory.yml -e ansible_ssh_pass='{password}' --skip-tags moloch".format(password=root_password)
-
-        cmd_to_execute_two = "make dip-stigs"
-
-        results = chain(
-            perform_kit.si(cmd_to_execute_one, cwd_dir=str(CORE_DIR / "playbooks")),
-            perform_kit.si(cmd_to_execute_two, cwd_dir=str(STIGS_DIR / "playbooks"), job_name="Stignode")
-        )()
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kit"},
-                                                         {"_id": "Kit", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Stignode"},
-                                                         {"_id": "Stignode", "task_id": str(
-                                                             results), "pid": ""},
-                                                         upsert=True)
-        return (jsonify(str(results)), 200)
+        return (jsonify(str(task_id)), 200)
 
     logger.error("Executing /api/execute_kit_inventory has failed.")
     return ERROR_RESPONSE

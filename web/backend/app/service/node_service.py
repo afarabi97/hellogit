@@ -4,9 +4,9 @@ from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
 from pathlib import Path
 from shared.constants import KICKSTART_ID, KIT_ID, ADDNODE_ID
+from app.service.system_info_service import get_system_name
 
-_JOB_NAME_NOTIFICATION = "kit"
-
+_JOB_NAME_NOTIFICATION = "Kit"
 
 def _remove_node_kick_inventory(node_to_remove):
     current_kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
@@ -48,6 +48,67 @@ def _execute_job(cmd_object: dict) -> int:
     return ret_val
 
 
+def execute_series(cmd_list: list) -> bool:
+    rc_list = []
+    for cmd in cmd_list:
+        rtn_code = _execute_job(cmd)
+        rc_list.append(rtn_code)
+        if rtn_code > 0:
+            break
+    # Commands were all successful return True
+    if sum(rc_list) == 0:
+        return True
+    # A command failed return False
+    if sum(rc_list) > 0:
+        return False
+    return False
+
+
+@celery.task
+def execute_kit(password: str):
+    notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
+    notification.set_and_send(message="{} started.".format(_JOB_NAME_NOTIFICATION),
+        status=NotificationCode.STARTED.name)
+
+    gip_tags = ""
+    system_name = get_system_name()
+    if system_name == "GIP":
+        gip_tags = "--skip-tags moloch"
+
+    command_list = [
+        {
+            "command": ("ansible-playbook site.yml -i inventory.yml "
+                        "-e ansible_ssh_pass='{playbook_pass}' {gip}"
+                        ).format(playbook_pass=password, gip=gip_tags),
+                        "cwd_dir": str(CORE_DIR / "playbooks"),
+                        "job_name": _JOB_NAME_NOTIFICATION
+        },
+        {
+            "command": "make dip-stigs",
+            "cwd_dir": str(STIGS_DIR / "playbooks"),
+            "job_name": _JOB_NAME_NOTIFICATION
+        }
+    ]
+
+    is_successful = execute_series(command_list)
+
+    msg = "{} job successfully completed.".format(_JOB_NAME_NOTIFICATION)
+    if is_successful:
+        notification.set_and_send(message=msg,
+            status=NotificationCode.COMPLETED.name)
+
+        # Kit completed successfully
+        conn_mng.mongo_kit.update_one({"_id": KIT_ID}, {"$set": {"form.complete": True}})
+
+    if not is_successful:
+        msg = "{} job failed.".format(_JOB_NAME_NOTIFICATION)
+        notification.set_and_send(message=msg,
+            status=NotificationCode.ERROR.name)
+
+    conn_mng.mongo_celery_tasks.delete_one({"_id": _JOB_NAME_NOTIFICATION})
+    return
+
+
 @celery.task
 def add_node(node_payload, password):
     node_hostname = None
@@ -55,10 +116,9 @@ def add_node(node_payload, password):
     if "hostname" in node_payload:
         node_hostname = node_payload['hostname']
 
-    notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION)
-    notification.set_message("Adding {} node job started.".format(node_hostname))
-    notification.set_status(NotificationCode.STARTED.name)
-    notification.post_to_websocket_api()
+    notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
+    notification.set_and_send(message="Adding {} node job started.".format(node_hostname),
+        status=NotificationCode.STARTED.name)
 
     command_list = [
         {
@@ -87,28 +147,22 @@ def add_node(node_payload, password):
             "job_name": "Addnode"
         }
     ]
-    rc_list = []
-    for cmd in command_list:
-        rtn_code = _execute_job(cmd)
-        rc_list.append(rtn_code)
-        if rtn_code > 0:
-            break
+
+    is_successful = execute_series(command_list)
 
     msg = "Adding {} node successfully completed.".format(node_hostname)
-    if sum(rc_list) == 0:
-        notification.set_message(msg)
-        notification.set_status(NotificationCode.COMPLETED.name)
-        notification.post_to_websocket_api()
+    if is_successful:
+        notification.set_and_send(message=msg,
+            status=NotificationCode.COMPLETED.name)
 
         # Remove the state of the add node wizard
         # Only remove add node wizard form on successful add node
         conn_mng.mongo_add_node_wizard.delete_one({"_id": ADDNODE_ID})
 
-    if sum(rc_list) > 0:
+    if not is_successful:
         msg = "Adding {} node failed.".format(node_hostname)
-        notification.set_message(msg)
-        notification.set_status(NotificationCode.ERROR.name)
-        notification.post_to_websocket_api()
+        notification.set_and_send(message=msg,
+            status=NotificationCode.ERROR.name)
         # Remove the node from kit form if the add node fails
         # This allows the user to retry the add node without duplicating the node in kit form
         _remove_node_kit_inventory(node_hostname)
@@ -117,11 +171,9 @@ def add_node(node_payload, password):
 
 @celery.task
 def remove_node(node, password):
-
-    notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION)
-    notification.set_message("Removing {} node job started.".format(node))
-    notification.set_status(NotificationCode.STARTED.name)
-    notification.post_to_websocket_api()
+    notification = NotificationMessage(role=_JOB_NAME_NOTIFICATION.lower())
+    notification.set_and_send(message="Removing {} node job started.".format(node),
+        status=NotificationCode.STARTED.name)
 
     cmd = {
         "command": ("ansible-playbook remove-node.yml -i inventory.yml "
@@ -137,13 +189,11 @@ def remove_node(node, password):
     if ret_val == 0:
         _remove_node_kit_inventory(node)
         _remove_node_kick_inventory(node)
-        notification.set_message(msg)
-        notification.set_status(NotificationCode.COMPLETED.name)
-        notification.post_to_websocket_api()
+        notification.set_and_send(message=msg,
+            status=NotificationCode.COMPLETED.name)
     if ret_val > 0:
         msg = "Removing {} node failed.".format(node)
-        notification.set_message(msg)
-        notification.set_status(NotificationCode.ERROR.name)
-        notification.post_to_websocket_api()
+        notification.set_and_send(message=msg,
+            status=NotificationCode.ERROR.name)
 
     return

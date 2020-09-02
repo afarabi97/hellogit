@@ -28,9 +28,6 @@ def get_console_logs(job_name: str) -> Response:
     """
     job_list =  {"jobName": job_name}
 
-    if job_name == "Kit":
-        job_list =  { "jobName": { "$in": [job_name, "Stignode" ] } }
-
     logs = list(conn_mng.mongo_console.find(job_list, {'_id': False}))
     return jsonify(logs)
 
@@ -45,7 +42,5 @@ def remove_console_logs() -> Response:
     """
     payload = request.get_json()
     query = {'jobName': payload['jobName']}
-    if payload['jobName'] == "Kit":
-        query =  { "jobName": { "$in": [payload['jobName'], "Stignode" ] } }
     conn_mng.mongo_console.delete_many(query)
     return OK_RESPONSE

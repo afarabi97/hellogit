@@ -51,6 +51,8 @@ class NotificationMessage(object):
         self.application = application
         self.timestamp = datetime.datetime.utcnow().isoformat()
         self.exception = ""
+        self.message = ""
+        self.status = ""
 
     def set_message(self, message: str) -> None:
         self.message = message
@@ -80,6 +82,14 @@ class NotificationMessage(object):
             socketio.emit(self.message_type, notification, broadcast=True)
         except Exception as exc:
             logger.exception(exc)
+
+    def set_and_send(self, message: str=None, status: str=None) -> None:
+        if message:
+            self.message = message
+        if status:
+            self.status = status
+        self.post_to_websocket_api()
+
 
 
 def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> None:
