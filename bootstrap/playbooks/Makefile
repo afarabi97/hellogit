@@ -44,6 +44,9 @@ build_helm_charts:
 sso:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t sso
 
+setup_ctrl_dns:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t setup_ctrl_dns
+
 dip_bootstrap:
 	@echo $(TFPLENUM_OS_TYPE)
 	@echo $(TFPLENUM_SERVER_IP)
