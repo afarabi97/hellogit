@@ -8,7 +8,7 @@ import { take, first, filter } from 'rxjs/operators';
 import { MatSlideToggle } from '@angular/material';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { CookieService } from '../../services/cookies.service';
-
+import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
 
 @Component({
   selector: 'app-catalog',
@@ -17,6 +17,7 @@ import { CookieService } from '../../services/cookies.service';
 })
 export class CatalogComponent implements OnInit {
   public charts: any;
+  private fip: string;
   public filteredCharts: Chart[];
   public ioConnection: any;
   public showCharts = { 'pmo': true, 'comm': false };
@@ -28,6 +29,7 @@ export class CatalogComponent implements OnInit {
   public commElement: MatSlideToggle;
 
   pmoSupportedApplications = ['cortex', 'hive', 'misp', 'logstash', 'moloch', 'moloch-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid'];
+  gipApplications = ['squid'];
 
   /**
    *Creates an instance of CatalogComponent.
@@ -39,6 +41,7 @@ export class CatalogComponent implements OnInit {
                private titleSvc: Title,
                public _WebsocketService:WebsocketService,
                private snackbar: SnackbarWrapper,
+               public nameService: WeaponSystemNameService,
                private cookieService: CookieService) { }
 
   /**
@@ -49,6 +52,11 @@ export class CatalogComponent implements OnInit {
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
     this._CatalogService.isLoading = false;
+    this.nameService.getSystemNameFromApi().subscribe(
+      data => {
+        this.fip = data["system_name"];        
+      }
+    );
     if(this.cookieService.get('chartFilter') != '') {
       let show = JSON.parse(this.cookieService.get('chartFilter'));
       this.showCharts['pmo'] = false;
@@ -63,6 +71,7 @@ export class CatalogComponent implements OnInit {
     this._CatalogService.get_all_application_statuses().subscribe(data => {
       this.charts = data;
       this.setPMOSupported(this.charts);
+      this.setTags(this.charts);
       this._CatalogService.isLoading = true;
       this.filterCharts();
     });
@@ -96,6 +105,25 @@ export class CatalogComponent implements OnInit {
         }
       }
     }
+  }
+
+  private setTags(charts: Chart[]) {
+    charts.forEach(chart => {
+      if (this.isGIPApplication(chart)) {
+        this.addTag(chart, 'GIP');
+      } 
+    })
+  }
+
+  private isGIPApplication(chart: Chart) {
+    return this.gipApplications.includes(chart.application);
+  }
+
+  private addTag(chart: Chart, tag: string) {
+    if (!chart.tags) {
+      chart.tags = new Set();
+    }
+    chart.tags.add(tag);
   }
 
   private filterPMOApplications(isChecked: boolean): Chart[] {
@@ -142,6 +170,11 @@ export class CatalogComponent implements OnInit {
     this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
       this.filterCommunityApplications(this.showCharts['comm'])
     ).sort((a, b) => a.application.localeCompare(b.application));
+    if ('DIP' === this.fip) {
+      this.filteredCharts = this.filteredCharts.filter(chart => {
+        return chart.tags ? !chart.tags.has('GIP') : true;
+      });
+    }
     this.updateCookie();
   }
 
@@ -149,3 +182,4 @@ export class CatalogComponent implements OnInit {
     this.cookieService.set('chartFilter', JSON.stringify(this.showCharts));
   }
 }
+

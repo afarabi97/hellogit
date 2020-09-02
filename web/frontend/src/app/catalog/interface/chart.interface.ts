@@ -12,6 +12,7 @@ export class Chart {
   description: string;
   pmoSupported: boolean;
   nodes?: INodeInfo[];
+  tags?: Set<string>;
 }
 
 /**
