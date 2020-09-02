@@ -1,7 +1,7 @@
 # Use public servers from the pool.ntp.org project.
 # Please consider joining the pool (http://www.pool.ntp.org/join.html).
 
-{% if upstream_ntp is defined and upstream_ntp|length %}
+{% if upstream_ntp is defined and upstream_ntp != None %}
 server {{ upstream_ntp }} iburst
 {% else %}
 pool 2.rhel.pool.ntp.org iburst

@@ -38,8 +38,10 @@
 
     - name: Set labrepo variable
       set_fact:
-        labrepo_check: "{{ labrepo_results.content|from_json }}"
+        labrepo_check: >-
+          {% if labrepo_results.status == 200 %}true{% else %}false{% endif %}
         cacheable: yes
+      when: labrepo_results is defined
       ignore_errors: yes
   tags: always
 

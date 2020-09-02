@@ -71,6 +71,7 @@ dip_packages:
   - openvpn
   - pkgconfig
   - perl
+  - pigz
   - policycoreutils-python
   - python2-pip
   - python36

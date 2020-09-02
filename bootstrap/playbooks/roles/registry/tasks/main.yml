@@ -37,7 +37,9 @@
 
 - name: Install Docker
   yum:
-    name: docker-ce
+    name:
+      - docker-ce
+      - pigz
     state: installed
 
 - name: Create directory docker directory
@@ -111,7 +113,6 @@
     image_list: "{{ local_image_list }}"
   when: labrepo_check
   tags: pull-docker-images
-
 
 - name: Download docker container images from docker hub # noqa 301
   command: "docker pull {{ item }}"

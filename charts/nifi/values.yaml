@@ -5,10 +5,6 @@ nifi_port: "8080"
 nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current
 path: '/data/nifi'
-### Zoo Keeper ###
-zk_image: 'bitnami/zookeeper'
-zk_version: '3.6.1'
-zk_replicas: 1
 domain: lan
 system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO

@@ -26,8 +26,6 @@ window_remote_installer_version: "1.2"
 hive_elastic_version: "6.8.9"
 hive_cortex_version: "3.0.1"
 hive_version: "3.4.0"
-zookeeper_image_version: 3.6.1
-kafka_image_version: 2.5.0
 elastic_operator: 1.2.1
 redmine_version: "4.1.1"
 postgres_version: "12.3"
@@ -51,8 +49,6 @@ kube_images:
   - { image: "docker.io/rocketchat/rocket.chat:{{ rocketchat_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/bitnami/mongodb:{{ mongodb_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/busybox:{{ busybox_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/bitnami/kafka:{{ kafka_image_version }}", for_dip: true, for_gip: false }
-  - { image: "docker.io/bitnami/zookeeper:{{ zookeeper_image_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/chartmuseum/chartmuseum:{{ chartmuseum_image_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/metallb/controller:{{ metallb_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/metallb/speaker:{{ metallb_version }}", for_dip: true, for_gip: true }

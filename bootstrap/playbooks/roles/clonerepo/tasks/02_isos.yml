@@ -14,7 +14,7 @@
     path: "{{ iso_rhel_path }}"
     checksum_algorithm: sha256
   register: iso_path_result2
-  when: BOOTSTRAP and ansible_distribution == 'RedHat'
+  when: ansible_distribution == 'RedHat'
 
 - name: Verify Rhel ISO Checksum
   fail:

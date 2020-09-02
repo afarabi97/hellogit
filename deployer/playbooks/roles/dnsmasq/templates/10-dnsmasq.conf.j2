@@ -6,6 +6,6 @@ interface={{ management_interface }}
 hostsdir={{ host_dir }}
 listen-address={{ server_ip }},127.0.0.1
 
-{% if upstream_dns is defined and upstream_dns|length %}
+{% if upstream_dns is defined and upstream_dns != None %}
 server={{ upstream_dns }}
 {% endif %}
