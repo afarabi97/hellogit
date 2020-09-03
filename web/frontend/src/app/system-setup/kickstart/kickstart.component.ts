@@ -3,6 +3,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MatDialog } from '@angular/material';
 import { Title } from '@angular/platform-browser';
 import { debounceTime } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { ArchiveSaveDialogComponent } from '../../archive-save-dialog/archive-save-dialog.component';
 import { ArchiveRestoreDialogComponent } from '../../archive-restore-dialog/archive-restore-dialog.component';
 import { ArchiveService } from '../../services/archive.service';
@@ -73,37 +74,36 @@ export class KickstartComponent implements OnInit {
   }
 
   private initDIP() {
-    this.kickStartSrv.gatherDeviceFacts("localhost")
-    .subscribe(data => {
-      this.kickStartSrv.getKickstartForm().subscribe((kickstart: any) => {
-        if (kickstart) {
-          this.openIPChangedModal(kickstart.controller_interface[0]);
-          this.initKickStartForm(kickstart);
-        }
-        this.loading = false;
-
-      });
-      if (data) {
-        this.default_ipv4_settings = data['default_ipv4_settings'];
-        this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
-        this.defaultDisk = data["disks"][0].name;
+    forkJoin({
+      localhost: this.kickStartSrv.gatherDeviceFacts("localhost"),
+      kickstart: this.kickStartSrv.getKickstartForm()
+    }).subscribe(data => {
+      this.loading = false;
+      if (data['localhost']) {
+        this.default_ipv4_settings = data['localhost']['default_ipv4_settings'];
+        this.controllers = data['localhost']["interfaces"].filter(controller => controller['ip_address']);
+        this.defaultDisk = data['localhost']["disks"][0].name;
+      }
+      if (data['kickstart']) {
+        this.openIPChangedModal(data['kickstart'].controller_interface[0]);
+        this.initKickStartForm(data['kickstart']);
       }
     });
   }
 
   private initMIP() {
-    this.kickStartSrv.gatherDeviceFacts("localhost")
-    .subscribe(data => {
-      this.kickStartSrv.getMIPKickstartForm().subscribe((kickstart: any) => {
-        if (kickstart) {
-          this.initKickStartForm(kickstart);
-        }
-        this.loading = false;
-      });
-      if (data) {
-        this.default_ipv4_settings = data['default_ipv4_settings'];
-        this.controllers = data["interfaces"].filter(controller => controller['ip_address']);
-        this.defaultDisk = data["disks"][0].name;
+    forkJoin({
+      localhost: this.kickStartSrv.gatherDeviceFacts("localhost"),
+      kickstart: this.kickStartSrv.getMIPKickstartForm()
+    }).subscribe(data => {
+      this.loading = false;
+      if (data['localhost']) {
+        this.default_ipv4_settings = data['localhost']['default_ipv4_settings'];
+        this.controllers = data['localhost']["interfaces"].filter(controller => controller['ip_address']);
+        this.defaultDisk = data['localhost']["disks"][0].name;
+      }
+      if (data['kickstart']) {
+        this.initKickStartForm(data['kickstart']);
       }
     });
   }

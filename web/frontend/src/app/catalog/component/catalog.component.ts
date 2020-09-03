@@ -28,9 +28,6 @@ export class CatalogComponent implements OnInit {
   @ViewChild('commElement', {static: false})
   public commElement: MatSlideToggle;
 
-  pmoSupportedApplications = ['cortex', 'hive', 'misp', 'logstash', 'moloch', 'moloch-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid'];
-  gipApplications = ['squid'];
-
   /**
    *Creates an instance of CatalogComponent.
    * @param {CatalogService} _CatalogService
@@ -54,7 +51,7 @@ export class CatalogComponent implements OnInit {
     this._CatalogService.isLoading = false;
     this.nameService.getSystemNameFromApi().subscribe(
       data => {
-        this.fip = data["system_name"];        
+        this.fip = data["system_name"];
       }
     );
     if(this.cookieService.get('chartFilter') != '') {
@@ -70,8 +67,6 @@ export class CatalogComponent implements OnInit {
     }
     this._CatalogService.get_all_application_statuses().subscribe(data => {
       this.charts = data;
-      this.setPMOSupported(this.charts);
-      this.setTags(this.charts);
       this._CatalogService.isLoading = true;
       this.filterCharts();
     });
@@ -95,45 +90,12 @@ export class CatalogComponent implements OnInit {
     this.ioConnection.unsubscribe();
   }
 
-  private setPMOSupported(charts: Chart[]){
-    for (let chart of charts){
-      chart.pmoSupported = false;
-      for (let appName of this.pmoSupportedApplications){
-        if (appName === chart.application){
-          chart.pmoSupported = true;
-          break;
-        }
-      }
-    }
-  }
-
-  private setTags(charts: Chart[]) {
-    charts.forEach(chart => {
-      if (this.isGIPApplication(chart)) {
-        this.addTag(chart, 'GIP');
-      } 
-    })
-  }
-
-  private isGIPApplication(chart: Chart) {
-    return this.gipApplications.includes(chart.application);
-  }
-
-  private addTag(chart: Chart, tag: string) {
-    if (!chart.tags) {
-      chart.tags = new Set();
-    }
-    chart.tags.add(tag);
-  }
-
   private filterPMOApplications(isChecked: boolean): Chart[] {
     let filteredCharts = [] as Chart[];
     if (isChecked){
       filteredCharts = this.charts.filter((obj,index,ary) => {
-        for (let appName of this.pmoSupportedApplications){
-          if (appName === obj.application){
-            return true;
-          }
+        if (obj.pmoSupported){
+          return true;
         }
         return false;
       });
@@ -145,10 +107,8 @@ export class CatalogComponent implements OnInit {
     let filteredCharts = [] as Chart[];
     if (isChecked){
       filteredCharts = this.charts.filter((obj,index,ary) => {
-        for (let appName of this.pmoSupportedApplications){
-          if (appName === obj.application){
-            return false;
-          }
+        if (obj.pmoSupported){
+          return false;
         }
         return true;
       });
@@ -170,11 +130,6 @@ export class CatalogComponent implements OnInit {
     this.filteredCharts = this.filterPMOApplications(this.showCharts['pmo']).concat(
       this.filterCommunityApplications(this.showCharts['comm'])
     ).sort((a, b) => a.application.localeCompare(b.application));
-    if ('DIP' === this.fip) {
-      this.filteredCharts = this.filteredCharts.filter(chart => {
-        return chart.tags ? !chart.tags.has('GIP') : true;
-      });
-    }
     this.updateCookie();
   }
 

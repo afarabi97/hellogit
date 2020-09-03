@@ -32,7 +32,7 @@ let allSections: Array<NavGroup> = [
   { id: 'support', label: 'Support', system: ['DIP','MIP','GIP'], children: [] }
 ]
 
-export function getSideNavigationButtons(system_name: string, userService, kitStatus: boolean) {
+export function getSideNavigationButtons(system_name: string, userService, kitStatus: boolean, html_spaces) {
   let user = userService.getUser();
   let controller_admin = userService.isControllerAdmin();
   let controller_maintainer = userService.isControllerMaintainer();
@@ -58,10 +58,15 @@ export function getSideNavigationButtons(system_name: string, userService, kitSt
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: ['DIP','MIP','GIP'], privs: controller_maintainer, kitStatus: false },
     { label: 'Cold Log Ingest', url: '/logingest', icon: 'cloud_download', isExternalLink: false, section: 'tools', system: ['DIP','GIP'], privs: operator, kitStatus: true },
     { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', system: ['DIP'], privs: controller_maintainer, kitStatus: true },
-    { label: 'THISISCVAH', url: `http://${window.location.hostname}/THISISCVAH`, icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false },
     { label: 'MIP Configuration', url: 'mip_config', icon: 'storage', isExternalLink: false, section: 'system_setup', system: ['MIP'], privs: controller_admin, kitStatus: false },
     { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', system: ['DIP','MIP','GIP'], privs: operator, kitStatus: false }
   ]
+
+  for (let index = 0; index < html_spaces.length; index++) {
+    const element = html_spaces[index];
+    allLinks.push({ label: element, url: encodeURI(`http://${window.location.hostname}/` + element), icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false });
+  }
+
   let navigationButtons: Array<NavGroup> = [];
   allSections.forEach((section) => {
     if(section['system'].indexOf(system_name) > -1) {

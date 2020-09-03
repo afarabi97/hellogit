@@ -22,11 +22,19 @@ export class ToolsService {
     return this.http.post(url, payload).pipe();
   }
 
-  uploadDocumentation(pcap_file: File): Observable<Object> {
+  uploadDocumentation(space_file: File, space_name): Observable<Object> {
     const url = '/api/update_documentation';
     const formData = new FormData();
-    formData.append('upload_file', pcap_file, pcap_file.name)
+    formData.append('upload_file', space_file, space_file.name);
+    formData.append('space_name', space_name);
+    console.log(space_file.name);
+    console.log(formData)
     return this.http.post(url, formData).pipe();
+  }
+
+  getspaces(): Observable<Object>{
+    const url = '/api/get_spaces';
+    return this.http.get(url, {});
   }
 
   change_state_of_remote_network_device(node: string, device: string, state: string): Observable<Object>{

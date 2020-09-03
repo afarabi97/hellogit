@@ -10,11 +10,11 @@
       </a>
     </mat-card-title>
   </mat-card-header>
-  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="start start">
+  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="space-around stretch">
     <div>
       <ol>
-        <li>Navigate to <strong>6 System Documentation/Releases</strong> on the DI2E confluence page. Click <a href="https://confluence.di2e.net/pages/viewpage.action?pageId=287884557">here</a> to access it.</li>
-        <li>Click on the top level <strong>6.3 CVAH 3.3</strong> documentation</li>
+        <li>Navigate to the required DI2E confluence space.</li>
+        <li>Use the PAGE TREE on the left menu to navigate to, and select the required page.</li>
         <li>Click on the <strong style="font-size: 16px;">...</strong> button in the top right.</li>
         <li>Click on <strong>Export to Html</strong> (Note: For offline documentation you can also select Export to PDF. You will need HTML documentation if you wanted to update the controller.)</li>
         <li>A modal popup will appear make sure "Export Profile" is set to No Profile.</li>
@@ -22,9 +22,25 @@
         <li>Click Export button. The download will take some time to complete, so grab a cup of coffee.</li>
         <li>Click on the <strong>Choose Zip File</strong> button at the bottom of this box.</li>
         <li>Navigate to where you saved the downloaded documentation and select it. More than likley it will be in your downloads folder.</li>
+        <li>Add a Space Name</li>
         <li>Click on the <strong>Upload &lt;documentation zip file&gt;</strong> button. Wait for confirmation message.</li>
-        <li>Finally select the <strong>THISISCVAH</strong> link in the navigation bar!</li>
+        <li>Finally select the <strong>Space Name</strong> link in the navigation bar!</li>
       </ol>
+    </div>
+    <div fxLayout="column" fxLayoutAlign="space-around stretch">
+      <form fxLayout="column" fxLayoutAlign="space-around stretch">
+        <mat-form-field>
+          <mat-label>Space Name</mat-label>
+          <input matInput [formControl]="spaceFormControl" [errorStateMatcher]="matcher"
+                 placeholder="THISISCVAH">
+          <mat-error *ngIf="spaceFormControl.hasError('email') && !spaceFormControl.hasError('required')">
+            Please enter a valid space name
+          </mat-error>
+          <mat-error *ngIf="spaceFormControl.hasError('required')">
+            Space name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+      </form>
     </div>
   </mat-card-content>
   <mat-card-actions *ngIf="isCardVisible">

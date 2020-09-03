@@ -4,15 +4,7 @@
             <div>TFPlenum
                 <span id="app-top-navbar-mat-drawer-container-mat-drawer-h3-div-span-system-name">{{ system_name }}</span> Controller
             </div>
-            <mat-list *ngIf="controllerMaintainer">
-                <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-h3-mat-list-mat-list-item" (click)="selectSystem()">
-                    <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-h3-mat-list-mat-list-item-mat-icon-laptop">laptop</mat-icon>
-                    <h4 mat-line>Select System</h4>
-                </mat-list-item>
-            </mat-list>
-            <mat-divider></mat-divider>
         </h3>
-        <span *ngIf="showLinkNames" id="app-top-navbar-mat-drawer-container-mat-drawer-span-version" class="version">v. {{ version }}</span>
         <mat-list>
             <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone">
                 <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-mat-icon-date-range"

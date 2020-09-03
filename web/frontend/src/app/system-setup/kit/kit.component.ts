@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { FormArray, FormGroup, FormControl, FormBuilder, AbstractControl } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
 import { KitFormTime, kitTooltips } from './kit-form';
@@ -134,14 +135,17 @@ export class KitComponent implements OnInit, AfterViewInit {
   private initalizeForm(): void {
     this.isGettingDeviceFacts = true;
     this.ref.detectChanges();
-    this.kickStartSrv.getKickstartForm().subscribe(kickstartData => {
-      if (!kickstartData) {
+    forkJoin({
+      kickstart: this.kickStartSrv.getKickstartForm(),
+      kitData: this.kitSrv.getKitForm(),
+    }).subscribe(data => {
+      if (!data['kickstart']) {
         let reroute = () => this.router.navigate(['/kickstart'])
         this.snackbar.showSnackBar('Error - You cannot create a Kit until you have a Kickstart configuration.', -1, 'Kickstart', reroute);
         return;
       }
-      this.kickstartForm = kickstartData;
-      this.kitSrv.getKitForm().subscribe(kitData => this.setupForm(kitData));
+      this.kickstartForm = data['kickstart'];
+      this.setupForm(data['kitData'])
     });
   }
 

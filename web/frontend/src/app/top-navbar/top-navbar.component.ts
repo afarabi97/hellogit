@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { interval } from 'rxjs';
-
+import { interval, forkJoin } from 'rxjs';
+import { ToolsService } from '../tools-form/tools.service';
 import { SystemNameClass } from '../classes';
 import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
@@ -31,6 +31,7 @@ export class TopNavbarComponent implements OnInit {
   public system_name: string;
   public sideNavigationButtons: Array<NavGroup>;
   public controllerMaintainer: boolean;
+  public html_spaces: Array<any> = [];
   public kitStatus: boolean = false;
 
   @Output() themeChanged: EventEmitter<any> = new EventEmitter();
@@ -51,13 +52,14 @@ export class TopNavbarComponent implements OnInit {
               private ref: ChangeDetectorRef,
               private dialog: MatDialog,
               private userService: UserService,
+              private toolSrv: ToolsService,
               private kitSrv: KitService) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
   ngOnInit() {
+    this.system_name = this.sysNameSrv.getSystemName();
     this.setSystemTheme();
-
     this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
     const clockCounter = interval(1000);
 
@@ -76,18 +78,24 @@ export class TopNavbarComponent implements OnInit {
   }
 
   private setSystemTheme() {
-    this.system_name = this.sysNameSrv.getSystemName();
-    this.kitSrv.getKitForm().subscribe(kitData => {
-      if(kitData != undefined && kitData["complete"] != undefined) {
-        this.kitStatus = kitData["complete"];
-      }
-      this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
-    });
+    this.buildNavBar();
     this.emitTheme();
     this.ref.detectChanges();
   }
 
-
+  public buildNavBar() {
+    this.sideNavigationButtons = getSideNavigationButtons(this.system_name, this.userService, false, []);
+    forkJoin({
+        html_spaces: this.toolSrv.getspaces(),
+        kitData: this.kitSrv.getKitForm()
+      }).subscribe(data => {
+        this.html_spaces = data['html_spaces'] as Array<any>;
+        if(data['kitData'] != undefined && data['kitData']["complete"] != undefined) {
+          this.kitStatus = data['kitData']["complete"] as boolean;
+        }
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name, this.userService, this.kitStatus, this.html_spaces);
+    });
+  }
 
   selectSystem() {
     let control = new DialogFormControl('Pick your system', null, Validators.required);
@@ -152,10 +160,10 @@ export class TopNavbarComponent implements OnInit {
     this.socketSrv.onBroadcast().subscribe((message: any) => {
       if(message["role"] === "kit" && message["status"] === "COMPLETED") {
         this.kitStatus = true;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus, this.html_spaces);
       } else if(message["role"] === "kit" && message["status"] === "IN_PROGRESS") {
         this.kitStatus = false;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus);
+        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus, this.html_spaces);
       }
     });
   }

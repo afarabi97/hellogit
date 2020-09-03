@@ -17,6 +17,7 @@ HELM_BINARY_PATH = "/usr/local/bin/helm"
 WORKING_DIR = "/root"
 _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
+_PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'moloch', 'moloch-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid']
 
 
 def _get_domain() -> str:
@@ -127,12 +128,20 @@ def execute_kubelet_cmd(cmd: str) -> bool:
 
     return False
 
+def get_system_charts():
+    system = get_system_name()
+    CHARTS = '/opt/tfplenum/bootstrap/playbooks/group_vars/all/chartmuseum.yml'
+    with open(CHARTS) as file:
+        charts = yaml.load(file, Loader=yaml.FullLoader)
+    return charts['{}_charts'.format(system.lower())]
+
 def get_repo_charts() -> list:
     """
     Returns a list of charts from helm repo
 
     : return (list): Returns a list of charts
     """
+    system_charts = get_system_charts()
 
     stdout, ret_code = run_command2(command="helm repo update", working_dir=WORKING_DIR, use_shell=True)
     if ret_code == 0:
@@ -145,13 +154,14 @@ def get_repo_charts() -> list:
         charts = json.loads(response.text)
         for key, value in charts.items():
             application = key
-            if application not in _CHART_EXEMPTS:
+            if application not in _CHART_EXEMPTS and application in system_charts:
                 for chart in value:
                     t_chart = {}
                     t_chart["application"] = application
                     t_chart["version"] = chart["version"]
                     t_chart["appVersion"] = chart["appVersion"]
                     t_chart["description"] = chart["description"]
+                    t_chart["pmoSupported"] = (application in _PMO_SUPPORTED_CHARTS)
                     results.append(t_chart)
     except Exception as exc:
         logger.exception(exc)

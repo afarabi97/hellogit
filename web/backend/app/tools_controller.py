@@ -18,7 +18,7 @@ from pymongo import ReturnDocument
 from werkzeug.utils import secure_filename
 
 from app import app, conn_mng, logger
-from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
 from app.dao import elastic_deploy
 from app.middleware import Auth, controller_maintainer_required
 from app.service.elastic_service import (Timeout, apply_es_deploy,
@@ -147,6 +147,7 @@ def update_documentation() -> Response:
     with tempfile.TemporaryDirectory() as upload_path: # type: str
         incoming_file = request.files['upload_file']
         filename = secure_filename(incoming_file.filename)
+        space_name = request.form['space_name']
 
         pos = filename.rfind('.') + 1
         if filename[pos:] != 'zip':
@@ -155,14 +156,35 @@ def update_documentation() -> Response:
         abs_save_path = str(upload_path) + '/' + filename
         incoming_file.save(abs_save_path)
 
-        extracted_path = "/var/www/html/THISISCVAH"
+        extracted_path = "/var/www/html/" + space_name
         shutil.rmtree(extracted_path, ignore_errors=True)
         Path(extracted_path).mkdir(parents=True, exist_ok=False)
 
         with zipfile.ZipFile(abs_save_path) as zip_ref:
             zip_ref.extractall(extracted_path)
 
+        ret = conn_mng.mongo_spaces.find_one({"_id": "spaces"})
+        if ret:
+            ret["space_names"].append(space_name)
+            conn_mng.mongo_spaces.find_one_and_replace({"_id": "spaces"}, ret)
+        else:
+            conn_mng.mongo_spaces.insert_one({"_id": "spaces", "space_names": [space_name]})
+
         return jsonify({"success_message": "Successfully updated confluence documentation!"})
+
+
+@app.route('/api/get_spaces', methods=['GET'])
+def get_spaces() -> Response:
+    """
+    Send all links in mongo_user_links.
+    :return: flask.Response containing all link data.
+    """
+
+    all_spaces = list(conn_mng.mongo_spaces.find({}))
+    try:
+        return jsonify(all_spaces[0]["space_names"])
+    except Exception:
+        return jsonify([])
 
 
 class KubernetesError(Exception):
