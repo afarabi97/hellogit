@@ -1,0 +1,132 @@
+---
+
+- name: Set Common Resources Allocations
+  set_fact:
+    mdi: False
+    master_count: 1
+    coordinating_count: 1
+    enable_ml: True
+
+- name: Multiple Masters if more than 2 servers are available
+  set_fact:
+    master_count: 3
+  when: groups['servers']|length > 2
+
+- name: Set Elastic Resource Allocations for DIP
+  block:
+  - name: Set Defaults
+    set_fact:
+      master_java_memory: 1
+      master_memory: 1
+      master_num_procs: "1000m"
+      data_java_memory: 1
+      data_memory: 1
+      data_num_procs: "1000m"
+      data_count: "{{ groups['servers']|length * 1 }}"
+      coordinating_java_memory: 1
+      coordinating_memory: 1
+      coordinating_num_procs: "1000m"
+      ml_count: 1
+      ml_memory: 1
+      ml_java_memory: 1
+      ml_num_procs: "1000m"
+  - name: R440 Common Node
+    set_fact:
+      master_java_memory: 15
+      master_memory: 15
+      master_num_procs: "3000m"
+      data_java_memory: 31
+      data_memory: 64
+      data_num_procs: "14000m"
+      data_count: "{{ groups['servers']|length * 3 }}"
+      coordinating_java_memory: 31
+      coordinating_memory: 45
+      coordinating_num_procs: "3000m"
+      ml_count: "{{ groups['servers']|length }}"
+      ml_memory: 64
+      ml_java_memory: 31
+      ml_num_procs: "8000m"
+    when: kit_size == 3
+  - name: R440 Legacy Node
+    set_fact:
+      master_java_memory: 15
+      master_memory: 15
+      master_num_procs: "3000m"
+      data_java_memory: 31
+      data_memory: 64
+      data_num_procs: "14000m"
+      data_count: "{{ groups['servers']|length * 3 }}"
+      coordinating_java_memory: 31
+      coordinating_memory: 45
+      coordinating_num_procs: "3000m"
+      ml_count: "{{ groups['servers']|length }}"
+      ml_memory: 64
+      ml_java_memory: 31
+      ml_num_procs: "8000m"
+    when: kit_size == 2
+  - name: CPT DL160
+    set_fact:
+      enable_ml: False
+      master_java_memory: 15
+      master_memory: 15
+      master_num_procs: "3000m"
+      data_java_memory: 31
+      data_memory: 64
+      data_num_procs: "12000m"
+      data_count: "{{ groups['servers']|length * 2 }}"
+      coordinating_java_memory: 31
+      coordinating_memory: 64
+      coordinating_num_procs: "3000m"
+    when: kit_size == 1
+  - name: MDT DL160
+    set_fact:
+      enable_ml: False
+      master_java_memory: 8
+      master_memory: 8
+      master_num_procs: "3000m"
+      data_java_memory: 24
+      data_memory: 24
+      data_num_procs: "12000m"
+      data_count: "{{ groups['servers']|length * 2 }}"
+      coordinating_java_memory: 8
+      coordinating_memory: 8
+      coordinating_num_procs: "3000m"
+    when: kit_size == 0
+  when: system_name == "DIP"
+
+- name: Set Elastic Resource Allocations for GIP
+  block:
+  - name: Set Defaults for VM Setup (for testing only)
+    set_fact:
+      master_memory: 4
+      master_java_memory: 2
+      master_num_procs: "2000m"
+      data_count: 6
+      data_memory: 4
+      data_java_memory: 2
+      data_num_procs: "4000m"
+      coordinating_memory: 2
+      coordinating_java_memory: 1
+      coordinating_num_procs: "2000m"
+      ml_memory: 2
+      ml_java_memory: 1
+      ml_num_procs: "2000m"
+      ml_count: 2
+  - name: GIP Gen1
+    set_fact:
+      set master_memory: 24
+      set master_java_memory: 24
+      set master_num_procs: "4000m"
+      set data_count: "{{ groups['servers']|length * 3 }}"
+      set data_memory: 31
+      set data_java_memory: 64
+      set data_num_procs: "14000m"
+      set coordinating_memory: 31
+      set coordinating_java_memory: 64
+      set coordinating_num_procs: "4000m"
+      set ml_memory: 64
+      set ml_java_memory: 31
+      set ml_num_procs: "8000m"
+      set ml_count: 4
+    when: kit_size == 100
+  when: system_name == "GIP"

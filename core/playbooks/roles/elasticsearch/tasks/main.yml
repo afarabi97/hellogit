@@ -12,6 +12,12 @@
 - import_tasks: "reset_data.yml"
 - import_tasks: "setup_data_dir.yml"
 
+- import_tasks: "resource_allocations.yml"
+  when: inventory_hostname in groups['master_server']
+  tags:
+    - es-post-install
+    - load-ml
+
 - import_tasks: "install.yml"
   when: inventory_hostname in groups['master_server']
 
@@ -20,5 +26,5 @@
   tags: es-post-install
 
 - import_tasks: "load_ml.yml"
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname in groups['master_server'] and enable_ml
   tags: load-ml

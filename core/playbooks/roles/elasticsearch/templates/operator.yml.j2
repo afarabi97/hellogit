@@ -2853,9 +2853,6 @@ spec:
           - name: WEBHOOK_SECRET
             value: "elastic-webhook-server-cert"
         resources:
-            limits:
-              cpu: 1
-              memory: 512Mi
             requests:
               cpu: 100m
               memory: 150Mi
@@ -2872,6 +2869,9 @@ spec:
           secret:
             defaultMode: 420
             secretName: "elastic-webhook-server-cert"
+      nodeSelector:
+        role: server
+
 ---
 # Source: eck/templates/webhook.yaml
 apiVersion: admissionregistration.k8s.io/v1beta1

@@ -2,11 +2,10 @@
     "id": "Logstash",
     "type": "chart",
     "node_affinity": "Server - Any",
-    "devDependent": "zeek",
     "formControls": [
         {
             "type": "textinput",
-            "default_value": "4",
+            "default_value": "2",
             "description": "Enter how many logstash replicas to run",
             "required": true,
             "regexp": "^\\d+$",

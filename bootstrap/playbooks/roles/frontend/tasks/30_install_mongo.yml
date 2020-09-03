@@ -24,3 +24,9 @@
   yum_repository:
     name: mongo
     state: absent
+
+# Issue with policycore causing mongod context errors
+- name: Set Permissive for mongod_t context
+  selinux_permissive:
+    name: mongod_t
+    permissive: true
