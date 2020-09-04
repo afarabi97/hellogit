@@ -17,6 +17,8 @@ class NodeNotFoundError(Exception):
 class HwKickstartSettings(Model):
     def __init__(self):
         super().__init__()
+        self.server_oob = ''
+        self.sensor_oob = ''
         self.node_defaults = None # type: NodeSettings
         self.servers = [] # type: List[HwNodeSettings]
         self.sensors = [] # type: List[HwNodeSettings]
@@ -24,6 +26,10 @@ class HwKickstartSettings(Model):
         self.dhcp_ip_block = ''
         self.timezone = 'UTC'
         self.domain = ''
+        self.upstream_dns = ''
+        self.upstream_ntp = ''
+        self.redfish_user = ''
+        self.redfish_password = ''
 
     def _validate_params(self):
         pass
@@ -37,7 +43,8 @@ class HwKickstartSettings(Model):
     def from_namespace(self, namespace: Namespace):
         self.server_oob = namespace.server_oob
         self.sensor_oob = namespace.sensor_oob
-
+        self.upstream_dns = namespace.upstream_dns
+        self.upstream_ntp = namespace.upstream_ntp
         self.node_defaults = HwNodeSettings()
         self.node_defaults.from_namespace(namespace)
         self.domain = self.node_defaults.domain
@@ -127,6 +134,8 @@ class HwKickstartSettings(Model):
                 help="Out of band management ips for servers")
         parser.add_argument("--sensor-oob", dest="sensor_oob", nargs="+", required=False,
                 help="Out of band management ips for servers")
+        parser.add_argument('--upstream-dns', dest='upstream_dns', help="Set an upstream dns server ip")
+        parser.add_argument('--upstream-ntp', dest='upstream_ntp', help="Set an upstream ntp server ip")
 
         HwNodeSettings.add_args(parser, False)
 

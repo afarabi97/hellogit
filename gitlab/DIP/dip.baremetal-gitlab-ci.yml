@@ -28,8 +28,6 @@ Setup Hardware DIP Controller:
     --repo-url "$REPO_URL" \
     --branch-name "$CI_COMMIT_REF_NAME" \
     --domain "$KIT_DOMAIN" \
-    --upstream-dns "$UPSTREAM_DNS" \
-    --upstream-ntp "$UPSTREAM_NTP" \
     --redfish-user "$REDFISH_USER" \
     --redfish-password "$REDFISH_PASSWORD"
   artifacts:
@@ -62,7 +60,9 @@ Hardware DIP Kickstart:
     --sensor-oob $SENSOR_OOB \
     --domain "$KIT_DOMAIN" \
     --redfish-user "$REDFISH_USER" \
-    --redfish-password "$REDFISH_PASSWORD"
+    --redfish-password "$REDFISH_PASSWORD" \
+    --upstream-dns "$UPSTREAM_DNS" \
+    --upstream-ntp "$UPSTREAM_NTP" 
   artifacts:
     untracked: true
   retry: 2
