@@ -25,6 +25,11 @@ def get_kit_domain():
 
 KIT_DOMAIN = get_kit_domain()
 
+
+def restart_dnsmasq() -> None:
+    subprocess.Popen('systemctl restart dnsmasq', shell=True)
+
+
 def convert(svcs) -> list:
     svc_list = []
     for svc in svcs:
@@ -69,6 +74,9 @@ def update_kube_hosts():
     if len(kube_svcs) > 0 and curr != kube_svcs:
         with open(HOST_FILE, 'w') as f:
             f.writelines(convert(kube_svcs))
+        restart_dnsmasq()
+
+
 
 
 def get_external_dns():
@@ -84,7 +92,7 @@ def update_dnsmasq_conf():
         if external_dns_ip not in org_file.read():
             with open(EXTERNAL_KUBE_DNS, 'w') as config_file:
                 config_file.write("server=/cluster.local/{}\n".format(external_dns_ip))
-            subprocess.Popen('systemctl restart dnsmasq', shell=True)
+            restart_dnsmasq()
 
 
 if __name__ == "__main__":
