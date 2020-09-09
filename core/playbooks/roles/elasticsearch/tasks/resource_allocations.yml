@@ -55,14 +55,14 @@
       data_java_memory: 31
       data_memory: 64
       data_num_procs: "14000m"
-      data_count: "{{ groups['servers']|length * 3 }}"
+      data_count: "{{ groups['servers']|length * 2 }}"
       coordinating_java_memory: 31
       coordinating_memory: 45
       coordinating_num_procs: "3000m"
       ml_count: "{{ groups['servers']|length }}"
       ml_memory: 64
       ml_java_memory: 31
-      ml_num_procs: "8000m"
+      ml_num_procs: "6000m"
     when: kit_size == 2
   - name: CPT DL160
     set_fact:
