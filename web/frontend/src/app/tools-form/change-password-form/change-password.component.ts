@@ -6,8 +6,6 @@ import { FormBuilder, Validators, FormGroup, FormControl, AbstractControl } from
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { COMMON_VALIDATORS } from '../../frontend-constants';
 import { validateFromArray } from '../../validators/generic-validators.validator';
-import { ModalDialogMatComponent } from 'src/app/modal-dialog-mat/modal-dialog-mat.component';
-import { DialogFormControl, DialogControlTypes } from 'src/app/modal-dialog-mat/modal-dialog-mat-form-types';
 import { UserService } from '../../user.service';
 
 

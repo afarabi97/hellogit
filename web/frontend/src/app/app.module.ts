@@ -13,6 +13,9 @@ import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { KickstartComponent } from './system-setup/kickstart/kickstart.component';
 import { AppRoutingModule } from './/app-routing.module';
 
+//Common components
+import { PasswordMessage } from './common/components/password-message';
+
 //Kit Page
 import { KitComponent } from './system-setup/kit/kit.component';
 import { TotalServerResourcesCardComponent } from './system-setup/components/total-server-resources-card/total-server-resources-card.component';
@@ -183,6 +186,7 @@ export function initializeSystemName(appLoadService: AppLoadService) {
     ModalTableComponent,
     AddNodeComponent,
     KickstartNodeFormComponent,
+    PasswordMessage,
     KitNodeFormComponent,
     ESScaleComponent,
     PodLogModalDialogComponent,

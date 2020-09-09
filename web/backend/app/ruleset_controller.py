@@ -437,7 +437,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
                    "-v {pcap_dir}:/pcaps/ "
                    "-v {results_dir}:/var/log/suricata/ "
                    "localhost:5000/tfplenum/suricata:{version} "
-                   "suricata -c /etc/suricata/suricata.yaml --set stats.enabled=true -r /pcaps/{pcap_name} -l /var/log/suricata/")\
+                   "-c /etc/suricata/suricata.yaml --set stats.enabled=true -r /pcaps/{pcap_name} -l /var/log/suricata/")\
                     .format(rules_dir=rules_tmp_dir,
                             pcap_dir=PCAP_UPLOAD_DIR,
                             results_dir=results_tmp_dir,

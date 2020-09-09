@@ -64,7 +64,7 @@ export function passwordValidator(validatorObject: validatorObject, control: Abs
   if(!/[0-9]/.test(control.value)) {
     return { password: validatorObject.error_message, error_message: "The password must have at least 1 digit"}
   }
-  
+
   if(!/[a-z]/.test(control.value)) {
     return { password: validatorObject.error_message, error_message: "The password must have at least 1 lowercase letter"}
   }
