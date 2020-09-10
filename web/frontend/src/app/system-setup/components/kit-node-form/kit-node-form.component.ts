@@ -48,8 +48,8 @@ export class KitNodeFormComponent implements OnInit {
    * @memberof KitNodeFormComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+    let hostname = this.node.get('hostname').value;
+    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}-${hostname}` : `${passedID}-${hostname}`;
   }
 
   public getTooltip(inputName: string): string {
