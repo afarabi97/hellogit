@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, AbstractControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToolsService } from '../tools.service';
-import { UserService } from '../../user.service';
+import { AbstractControl, FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { FormGroupControls } from 'src/app/validators/generic-validators.validator';
-import { FormControls } from 'src/app/catalog/interface/chart.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { TopNavbarComponent } from '../../top-navbar/top-navbar.component';
+import { UserService } from '../../user.service';
+import { ToolsService } from '../tools.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -27,6 +26,7 @@ export class UpdateDocsFormComponent implements OnInit {
   isCardVisible: boolean;
   controllerMaintainer: boolean;
   spaceFormControl: FormControl;
+  matcher: MyErrorStateMatcher;
   constructor(private snackBar: MatSnackBar,
     private toolSrv: ToolsService,
     private userService: UserService,
@@ -40,7 +40,7 @@ export class UpdateDocsFormComponent implements OnInit {
       Validators.maxLength(50),
       Validators.pattern('^[a-zA-Z]*$')
     ]);
-    let matcher = new MyErrorStateMatcher();
+    this.matcher = new MyErrorStateMatcher();
   }
 
   toggleCard() {
@@ -48,7 +48,7 @@ export class UpdateDocsFormComponent implements OnInit {
   }
 
   private displaySnackBar(message: string, duration_seconds: number = 60) {
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000 })
+    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000 });
   }
 
   uploadFile() {

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
+import { ObjectUtilsClass } from '../../../classes';
 import { MIP_PXE_TYPES, PXE_TYPES } from '../../../frontend-constants';
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
@@ -30,7 +31,9 @@ export class KickstartNodeFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isRaid = this.node.get('os_raid').value != null ? this.node.get('os_raid').value : false;
+    this.isRaid = ObjectUtilsClass.notUndefNull(this.node) &&
+                  ObjectUtilsClass.notUndefNull(this.node.get('os_raid')) &&
+                  ObjectUtilsClass.notUndefNull(this.node.get('os_raid').value) ? this.node.get('os_raid').value : false;
   }
 
   /**

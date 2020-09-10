@@ -7,7 +7,7 @@
             <mat-form-field id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-configuration-name-mat-form-field-config-name">
                 <mat-label>Config Name</mat-label>
                 <input matInput id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-configuration-name-mat-form-field-config-name-input" formControlName="config_name">
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-configuration-name-mat-form-field-config-name-mat-error">{{ getErrorMessage(newHostAgentForm.get("config_name ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-configuration-name-mat-form-field-config-name-mat-error">{{ getErrorMessage(newHostAgentForm.get("config_name")) }}</mat-error>
             </mat-form-field>
         </mat-step>
         <!-- Applications -->
@@ -18,7 +18,7 @@
                 <ng-container *ngIf="applications && appConfigs">
                     <ng-container *ngFor="let appConfig of appConfigs; let i = index;" [formGroup]="applications">
                         <mat-checkbox id="{{ 'agent-installer-dialog-div-mat-vertical-stepper-mat-step-applications-div-' + i + '-mat-checkbox-install-config-name' }}"
-                                      (change)="onApplicationChange($event, appConfig)" [formControlName]="appConfig[ 'name'] ">
+                                      (change)="onApplicationChange($event, appConfig)" [formControlName]="appConfig['name']">
                             Install {{ appConfig['name'] }}
                         </mat-checkbox>
                     </ng-container>
@@ -27,34 +27,34 @@
         </mat-step>
         <!-- Endgame Options -->
         <mat-step *ngIf="isEndgame()" id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options"
-                  label="Connect to Endgame Server" formGroupName="endgame_options" [stepControl]="newHostAgentForm.get( 'endgame_options')">
+                  label="Connect to Endgame Server" formGroupName="endgame_options" [stepControl]="newHostAgentForm.get('endgame_options')">
             <!-- Endgame Server IP -->
             <mat-form-field id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-ip">
                 <mat-label>Endgame Server IP</mat-label>
                 <input matInput id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-ip-input"
                        formControlName="endgame_server_ip">
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-ip-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_server_ip ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-ip-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_server_ip")) }}</mat-error>
             </mat-form-field>
             <!-- Endgame Server Username -->
             <mat-form-field id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-username">
                 <mat-label>Endgame Server Username</mat-label>
                 <input matInput id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-username-input"
                        formControlName="endgame_user_name">
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-username-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_user_name ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-username-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_user_name")) }}</mat-error>
             </mat-form-field>
             <!-- Endgame Server Password -->
             <mat-form-field id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-password">
                 <mat-label>Endgame Server Password</mat-label>
                 <input matInput id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-password-input"
                        formControlName="endgame_password" type="password">
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-password-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_password ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-password-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_password")) }}</mat-error>
             </mat-form-field>
             <!-- Endgame Server Port -->
             <mat-form-field id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-port">
                 <mat-label>Endgame Server Port</mat-label>
                 <input matInput id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-port-input"
                        formControlName="endgame_port">
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-port-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_port ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-mat-form-field-endgame-server-port-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_options.endgame_port")) }}</mat-error>
             </mat-form-field>
             <button mat-raised-button id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-options-button-connect"
                     (click)="getEndgameSensorProfiles(stepper)">Connect</button>
@@ -70,7 +70,7 @@
                                 id="{{ 'agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-agent-mat-form-field-sensor-profile-mat-select-mat-option-' + i + '-profile-name' }}"
                                 [value]="profile.value">{{ profile.name }}</mat-option>
                 </mat-select>
-                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-agent-mat-form-field-sensor-profile-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_sensor_id ")) }}</mat-error>
+                <mat-error id="agent-installer-dialog-div-mat-vertical-stepper-mat-step-endgame-agent-mat-form-field-sensor-profile-mat-error">{{ getErrorMessage(newHostAgentForm.get("endgame_sensor_id")) }}</mat-error>
             </mat-form-field>
         </mat-step>
 
@@ -89,7 +89,7 @@
                                            matTooltip="{{control?.description}}" formControlName="{{ control.name }}"
                                            placeholder="{{ control?.placeholder ? control.placeholder : control?.label ? control.name : null }}">
                                 </mat-form-field>
-                                <mat-error *ngIf="options.controls[config[ 'name']].controls[control.name].invalid"
+                                <mat-error *ngIf="options.controls[config['name']].controls[control.name].invalid"
                                            id="{{ 'agent-installer-dialog-div-mat-vertical-stepper-mat-step-' + i + '-options-form-div-' + j + '-div-mat-error' }}">
                                     <div id="{{ 'agent-installer-dialog-div-mat-vertical-stepper-mat-step-' + i + '-options-form-div-' + j + '-div-mat-error-div-error-message' }}">{{ control?.error_message }}</div>
                                 </mat-error>

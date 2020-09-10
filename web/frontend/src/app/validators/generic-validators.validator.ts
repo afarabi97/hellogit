@@ -68,11 +68,11 @@ export function passwordValidator(validatorObject: validatorObject, control: Abs
   if(!/[a-z]/.test(control.value)) {
     return { password: validatorObject.error_message, error_message: "The password must have at least 1 lowercase letter"}
   }
- 
+
   if (!/[A-Z]/.test(control.value)) {
     return { password: validatorObject.error_message, error_message: "The password must have at least 1 uppercase letter"}
   }
- 
+
   if (!/[^0-9a-zA-Z]/.test(control.value)) {
   return { password: validatorObject.error_message, error_message: "The password must have at least 1 symbol"}
   }
@@ -80,7 +80,6 @@ export function passwordValidator(validatorObject: validatorObject, control: Abs
   if ((new Set(control.value)).size < 8) {
     return { password: validatorObject.error_message, error_message: "The password must have at least 8 unique characters."}
   }
-  console.log(consecutive(control.value))
   if (consecutive(control.value)) {
     return { password: validatorObject.error_message, error_message: "The password must not have 3 consecutive characters that are the same"}
   }
@@ -88,23 +87,18 @@ export function passwordValidator(validatorObject: validatorObject, control: Abs
 }
 
 function consecutive(password) {
-  console.log("entering of call to consecutive function: "+password);
   let c;
   let same;
 
   for (let i = 0; i<= password.length; i++) {
-   console.log(password[i]);
     if (i == 0) {
       c = password[i];
       same = 1;
     } else {
-      console.log("comparing: "+c+" "+password[i]+","+(password[i]==c));
       if (c == password[i]) {
-        console.log("match character: "+password[i]);
         same += 1;
       } else {
         if (same > 2) {
-          console.log('testing greater than 2');
           return true;
         }
         same = 1;
@@ -112,7 +106,6 @@ function consecutive(password) {
       }
     }
   }
-  console.log("leaving consecutive call");
   return false
 }
 

@@ -104,11 +104,11 @@
             <section style="padding: 0.3em;" [formGroupName]="i">
               <ng-container *ngIf="system_name ==='DIP'">
                 <app-kit-node-form id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-app-kit-node-form-dip' }}"
-                                   mode="dip" [uniqueHTMLID]="'app-kit-form-dip'" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+                                   mode="dip" [uniqueHTMLID]="'app-kit-form-dip-' + i" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
               <ng-container *ngIf="system_name === 'GIP'">
                 <app-kit-node-form id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-app-kit-node-form-gip' }}"
-                                   mode="gip" [uniqueHTMLID]="'app-kit-form-gip'" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
+                                   mode="gip" [uniqueHTMLID]="'app-kit-form-gip-' + i" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
               <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
                 <button mat-button id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-div-button-remove' }}"

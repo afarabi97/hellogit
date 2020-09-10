@@ -14,3 +14,4 @@ backups/
 node_modules/
 
 package-lock\.json
+angular_debug.yml

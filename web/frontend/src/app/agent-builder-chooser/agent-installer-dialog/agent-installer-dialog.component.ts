@@ -12,6 +12,7 @@ import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { validateFromArray } from 'src/app/validators/generic-validators.validator';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AppConfig, ElementSpec } from '../agent-builder.service';
+import { ObjectUtilsClass } from '../../classes';
 
 
 @Component({
@@ -198,7 +199,8 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   public getErrorMessage(control: FormControl | AbstractControl): string {
-    return control.errors ? control.errors.error_message : '';
+    return ObjectUtilsClass.notUndefNull(control) &&
+           ObjectUtilsClass.notUndefNull(control.errors) ? control.errors.error_message : '';
   }
 
   // Custom packages
