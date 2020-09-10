@@ -35,7 +35,7 @@
       delegate_to: localhost
       with_items: "{{ nodes }}"
 
-    - name: "Setting poweredon state on nodes"
+    - name: "Setting {{ state }} state on nodes"
       ignore_errors: yes
       vmware_guest:
         datacenter: "{{ vcenter.datacenter }}"
@@ -45,7 +45,7 @@
         password: "{{ vcenter.password }}"
         name: "{{ item.hostname }}"
         folder: "{{ item.folder }}"
-        state: "poweredon"
+        state: "{{ state }}"
         validate_certs: False
       delegate_to: localhost
       with_items: "{{ nodes }}"

@@ -105,6 +105,13 @@ EOF
 
 }
 
+function clear_etc_hosts {
+    cat <<EOF > /etc/hosts
+# Ansible managed
+127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
+EOF
+}
+
 function wait_for_mongo {
     while true
     do
@@ -157,6 +164,7 @@ function cleanup_extra_files {
     rm -f /opt/tfplenum/deployer/playbooks/inventory.yml
     rm -f /opt/tfplenum/core/playbooks/inventory.yml
     rm -rf /opt/tfplenum/core/playbooks/files/*
+    rm -f /etc/pki/ca-trust/source/anchors/webCA.crt
 }
 
 function clear_history {
@@ -166,6 +174,7 @@ function clear_history {
 
 parse_command_line_args
 update_network_scripts
+clear_etc_hosts
 cleanup_extra_files
 reset_password
 clear_tfplenum_database

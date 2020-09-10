@@ -150,6 +150,7 @@ EOF
 
         take_snapshot(self.ctrl_settings.vcenter, self.ctrl_settings.node)
 
+
 class BaremetalControllerSetup(ControllerSetupJob):
 
     def __init__(self, baremetal_ctrl_settings: HwControllerSetupSettings):

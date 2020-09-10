@@ -76,6 +76,15 @@ def execute_playbook(playbooks: List, extra_vars: Dict={}, inventory_file: str=N
         exit(status_code)
 
 
+def revert_to_snapshot(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]], snapshot_name:str='baseline', state:str='present'):
+    if isinstance(nodes, NodeSettings):
+        nodes = [nodes]
+
+    nodes_ary = [node.to_dict() for node in nodes]
+    extra_vars = { 'nodes': nodes_ary, 'python_executable': sys.executable, 'state': state, 'vcenter': vcenter, 'snapshot_name': snapshot_name}
+    execute_playbook([REVERT_AND_POWER_CONTROL_NODES], extra_vars)
+
+
 def revert_to_baseline_and_power_on_vms(vcenter: VCenterSettings, nodes: Union[NodeSettings, List[NodeSettings]], snapshot_name:str='baseline'):
     if isinstance(nodes, NodeSettings):
         nodes = [nodes]

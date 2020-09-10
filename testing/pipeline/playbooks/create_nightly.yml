@@ -33,18 +33,6 @@
         folder: "/{{ vcenter.datacenter }}/vm/Templates"
         state: absent
 
-    - name: Create a snapshot of new "{{ controller }}"
-      vmware_guest_snapshot:
-        hostname: "{{ vcenter.ipaddress }}"
-        username: "{{ vcenter.username }}"
-        password: "{{ vcenter.password }}"
-        datacenter: "{{ vcenter.datacenter }}"
-        folder: "{{ node.folder }}"
-        name: "{{ node.hostname }}"
-        validate_certs: no
-        state: present
-        snapshot_name: "baseline"
-
     - name: Get VM "{{ node.hostname }}" uuid
       vmware_guest_info:
         hostname: "{{ vcenter.ipaddress }}"
@@ -67,6 +55,19 @@
         name: "{{ node.hostname }}"
         folder: "{{ node.folder }}"
         state: poweredoff
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: Revert to baseline snapshot of new "{{ controller }}"
+      vmware_guest_snapshot:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ node.hostname }}"
+        datacenter: "{{ vcenter.datacenter }}"
+        folder: "{{ node.folder }}"
+        state: revert
+        snapshot_name: "baseline"
         validate_certs: False
       delegate_to: localhost
 

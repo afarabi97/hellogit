@@ -58,6 +58,7 @@ infrastructure/Kit_*/
 controllersetupsettings_dip.yml
 controllersetupsettings_mip.yml
 kickstartsettings.yml
+kitsettings.yml
 mipkickstartsettings.yml
 catalogsettings.yml
 mipnodestoscan.txt
