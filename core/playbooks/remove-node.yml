@@ -84,11 +84,13 @@
         name: auditbeat
         state: stopped
         enabled: no
+      ignore_errors: yes
 
     - name: Remove auditbeat
       yum:
         name: auditbeat-{{ elastic_7_version }}
         state: absent
+      ignore_errors: yes
 
     - name: Removes a cron file from under /etc/cron.d
       cron:
@@ -103,13 +105,14 @@
       with_items:
         - /etc/auditbeat
         - /opt/metrics
+      ignore_errors: yes
 
 - name: Remove node from cluster
   hosts: master_server
   tasks:
     - name: remove-node | Drain node except daemonsets resource
       shell: |
-        kubectl drain --force --ignore-daemonsets --grace-period 300 --timeout 360s --delete-local-data {{ item }}
+        kubectl drain --force --ignore-daemonsets --grace-period 30 --timeout 60s --delete-local-data {{ item }}
       failed_when: false
       ignore_errors: yes
       with_items: "{{ groups['nodes_to_remove'] }}"

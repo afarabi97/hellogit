@@ -6,6 +6,7 @@
   yum:
     name: kubeadm
     state: present
+  ignore_errors: yes
 
 - name: Stop Kubelet
   systemd:
