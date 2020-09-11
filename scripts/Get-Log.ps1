@@ -1,21 +1,36 @@
 <#
 .Description
     This function will  retrieve the specified Logs from the local system and output them in evtx format before placing them in a compressed folder. Users can choose which EventLogs to query by specifying the LogType (comma separated string ONLY ADD SPACES IF IT IS APART OF THE EVENTLOGS PATH). Users can further query by date using the From  and To Parameters. If nothing is specified for these parameters, the query defaults to the beginning of today to the current moment.
-.Example
-    Extract and zip The Application, Security, System and Setup Event Logs into a directory named 'zipdirectory'. If that directory doesn't exist it will be made.
 
-    Get-Log -LogType "Application,Security,System,Setup" -ZipDirectory "C:\Users\your.user\zipdirectory"
 .Example
-    Extract and zip The Program-Telemetry and Application Event Logs from August 23, 2020 to the current time into a directory named 'zipdirectory'. Write a detailed output to the host. If zipdirectory doesn't exist it will be made.
+    <# Queries the default event logs (Application,Security,System,Setup) and places the output in the directory "C:\ColdLogs". If the directory "C:\ColdLogs" does not exist, create it. PLEASE NOTE: The default event logs are only applied as long as the user DOES NOT specifiy any LogType's to query.
 
-    .\Get-Log -LogType "Microsoft-Windows-Application-Experience/Program-Telemetry,Application" -From 20200823 -To Now -ZipDirectory "C:\Users\your.user\zipdirectory" -Explained
+        .\Get-Log.ps1 -ZipDirectory "C:\ColdLogs"
 .Example
-    Extract and zip the Application,Security and System Event Logs from the beginning of the day to the current time. Put the results in 'zipdirectory'
+    Queries the default event logs (Application,Security,System,Setup) and places the output in the directory "C:\ColdLogs". If the directory "C:\ColdLogs" does not exist, create it. The query will be from the beggining of August 23rd, 2020 to the current local date and time that the command is executed. The Switch, "-Explained", tells the script to output in verbose mode, which is useful for debugging. PLEASE NOTE: There are two valid inputs for the "-Now" Parameter. The first is a valid datetime string in the format "YYYYMMDD". The second and also the default for the switch is the word, "Now". It is case-insenstive.
 
-    .\Get-Log -LogType "Application,Security,System" -From Today -ZipDirectory "C:\Users\your.user\zipdirectory"
+        .\Get-Log.ps1 -From 20200823 -To Now -ZipDirectory "C:\ColdLogs" -Explained
+
+.Example
+    Queries the event logs (Microsoft-Windows-Application-Experience/Program-Telemetry,Application,Security,System,Setup) and places the output in the directory "C:\ColdLogs". The Query will be from the beginning of the current date to the current local date and time that the command is executed. PLEASE NOTE: There are two valid inputs for the "-From" Parameter. The first is a valid datetime string in the format "YYYYMMDD". The second and also the default for the "-From" switch is the word, "Today". It is case-insenstive.
+
+        .\Get-Log.ps1 -LogType "Microsoft-Windows-Application-Experience/Program-Telemetry,Application,Security,System,Setup" -From Today -ZipDirectory "C:\ColdLogs"
+.Example
+    Queries the event logs (Application,Security,System,Setup) and places the output in the directory "C:\Users\exampleuser\ColdLogs". If the directory "C:\Users\exampleuser\ColdLogs" does not exist, create it. The Query will be from start of the day to the time that the command is executed. The Switch, "-Save", tells the script to hold onto the initial directory that contains the files for each of the queried Event Logs. PLEASE NOTE: It will still ZIP the returned files and their corresponding directories.
+
+        Get-Log -LogType "Application,Security,System,Setup" -ZipDirectory "C:\Users\exampleuser\ColdLogs" -Save
+.Example
+    Queries the event logs (Microsoft-Windows-Application-Experience/Program-Telemetry,Application,Security,System,Setup) and places the output in the directory "C:\ColdLogs". The Query will be from the beginning of August 5th, 2020 to the end of the day on August 23rd, 2020. The Switch, "-Explained", tells the script to output in verbose mode, which is useful for debugging.
+
+        .\Get-Log -LogType "Microsoft-Windows-Application-Experience/Program-Telemetry,Application" -From -From 20200805 -To -To 20200823 -ZipDirectory "C:\ColdLogs" -Explained
+.Example
+    Queries the event logs (Application,Security,System) and places the output in the directory "C:\Users\your.user\zipdirectory".The Query will be from the beginning of the current date to the current local date and time that the command is executed.
+
+        .\Get-Log -LogType "Application,Security,System" -From Today -ZipDirectory "C:\Users\your.user\zipdirectory"
 .Synopsis
     This function will retrieve the specified Logs from the local system and output them in evtx format before placing them in a compressed folder. This is compatible with powershell version 2.0 and greater.
 #>
+
 #Requires -Version 2.0
 param(
     [CmdletBinding()]
@@ -163,13 +178,12 @@ function GetNumberOfItemsInZipFileItems($shellItems)
 
 function PerformZip {
     Set-Variable -Name "ZipPath" -value "$ZipDirectory\${Timestamp}_windows_events.zip" -scope script
-	
     if ("$($PSVersionTable.PSVersion)" -ge 4.0) {
         Compress-Archive -Path "$TimestampDirectory" -DestinationPath "$ZipPath" -Force
     } else {
 		Compress-ZipFile -ZipFilePath "$ZipPath" -FileOrDirectoryPathToAddToZipFile "$TimestampDirectory"
     }
- 
+
 }
 
 function Compress-ZipFile
@@ -179,45 +193,45 @@ function Compress-ZipFile
 	(
 		[parameter(Position=1,Mandatory=$true)]
 		[string]$FileOrDirectoryPathToAddToZipFile,
-		
+
 		[parameter(Position=2,Mandatory=$false)]
 		[string]$ZipFilePath
 	)
-	
+
 	BEGIN { }
 	END { }
 	PROCESS
-	{	
+	{
 		if (!(Test-Path -Path $ZipFilePath -PathType Leaf))
 		{ New-Item -Path $ZipFilePath -ItemType File > $null }
-		
+
 		# Get the Name of the file or directory to add to the Zip file.
 		$fileOrDirectoryNameToAddToZipFile = Split-Path -Path $FileOrDirectoryPathToAddToZipFile -Leaf
-		
+
 		# Get if we are adding a file or directory to the Zip file.
 		$itemToAddToZipIsAFile = Test-Path -Path $FileOrDirectoryPathToAddToZipFile -PathType Leaf
-		
+
 		# Get Shell object and the Zip File.
 		$shell = new-object -com shell.application
 		$zipShell = $shell.NameSpace($ZipFilePath)
 
 		# Start copying the file/directory into the Zip file since there won't be any conflicts. This is an asynchronous operation.
 		$zipShell.CopyHere($FileOrDirectoryPathToAddToZipFile)
-		
+
 		# The Copy operation is asynchronous, so wait until it is complete before continuing.
 		# Wait until we can see that the file/directory has been created.
-		while ($zipShell.ParseName($fileOrDirectoryNameToAddToZipFile) -eq $null)
+		while ($null -ne $zipShell.ParseName($fileOrDirectoryNameToAddToZipFile))
 		{ Start-Sleep -Milliseconds 100 }
-		
+
 		# If we are copying a directory into the Zip file, we want to wait until all of the files/directories have been copied.
 		if (!$itemToAddToZipIsAFile)
 		{
 			# Get the number of files and directories that should be copied into the Zip file.
 			$numberOfItemsToCopyIntoZipFile = (Get-ChildItem -Path $FileOrDirectoryPathToAddToZipFile -Recurse -Force).Count
-			
+
 			# Get a handle to the new directory we created in the Zip file.
 			$newDirectoryInZipFileShell = $zipShell.ParseName($fileOrDirectoryNameToAddToZipFile)
-			
+
 			# Wait until the new directory in the Zip file has the expected number of files and directories in it.
 			while ((GetNumberOfItemsInZipFileItems -shellItems $newDirectoryInZipFileShell.GetFolder.Items()) -lt $numberOfItemsToCopyIntoZipFile)
 			{ Start-Sleep -Milliseconds 100 }
