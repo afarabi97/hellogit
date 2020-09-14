@@ -131,14 +131,6 @@
     - misp
   tags: misp
 
-- name: Validate MongoDB
-  hosts:
-  - master_server
-  gather_facts: no
-  roles:
-    - mongodb
-  tags: mongodb
-
 - name: Validate RocketChat
   hosts:
   - master_server

@@ -13,7 +13,7 @@ from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
                             LogstashSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings,
-                            MongodbSettings, RocketchatSettings, CortexSettings)
+                            RocketchatSettings, CortexSettings)
 from models.mip_config import MIPConfigSettings
 from models.rhel_repo_vm import RHELRepoSettings
 from typing import Union
@@ -49,7 +49,6 @@ class YamlManager:
             cls.yaml.register_class(MispSettings)
             cls.yaml.register_class(HiveSettings)
             cls.yaml.register_class(CortexSettings)
-            cls.yaml.register_class(MongodbSettings)
             cls.yaml.register_class(RocketchatSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
@@ -92,7 +91,7 @@ class YamlManager:
         yaml_name = "{}_{}.yml".format(
             ctrl_obj.__name__.lower(), application.lower())
         return cls._load_from_yaml(yaml_name)
-        
+
     @classmethod
     def load_gip_ctrl_settings_from_yaml(cls) -> GIPControllerSettings:
         yaml_name = YAML_FILE.format(GIPControllerSettings.__name__.lower())

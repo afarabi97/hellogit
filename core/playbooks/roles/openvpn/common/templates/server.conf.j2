@@ -17,7 +17,7 @@ topology subnet
 
 server-bridge
 push "route-gateway {{ hostvars[groups['master_server'][0]].management_ipv4 }}"
-push "redirect-gateway def1"
+push "redirect-gateway autolocal"
 
 client-to-client
 

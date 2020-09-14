@@ -1,0 +1,4 @@
+# Managed by Ansible
+{% if external_kube_dns is defined %}
+server=/cluster.local/{{ external_kube_dns }}
+{% endif %}

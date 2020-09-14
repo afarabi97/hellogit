@@ -1,4 +1,6 @@
-# {{ ansible_managed }}
+# Ansible managed
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+
 {{ server_ip }} {{ ansible_controller_hostname }}
 
 # Network nodes as generated through Ansible.
@@ -7,3 +9,10 @@
 {{ hostvars[host]['ip'] }}  {{ host }} {{ hostvars[host]['inventory_hostname_short'] }}
 {% endif %}
 {% endfor %}
+
+{% if kube_hosts is defined %}
+# Kube Services
+{% for host in kube_hosts %}
+{{ host }}
+{% endfor %}
+{% endif %}

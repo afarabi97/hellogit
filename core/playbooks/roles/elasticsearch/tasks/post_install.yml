@@ -79,7 +79,7 @@
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('template', 'files/users/{{ item }}.json.j2') }}"
+    body: "{{ lookup('template', 'templates/users/{{ item }}.json.j2') }}"
     status_code: 200, 201
   with_items:
     - logstash_internal
@@ -94,7 +94,7 @@
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
     body_format: json
-    body: "{{ lookup('template', 'files/policies/{{ item }}.json.j2') }}"
+    body: "{{ lookup('template', 'templates/policies/default.json.j2') }}"
     status_code: 200, 201
   with_items:
     - filebeat-suricata

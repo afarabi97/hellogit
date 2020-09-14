@@ -129,12 +129,6 @@ class CortexSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "cortex"
 
-class MongodbSettings(Model):
-    def __init__(self):
-        self.node_hostname = "server"
-        self.affinity_hostname = "Server - Any"
-        self.deployment_name = "mongodb"
-
 
 class RocketchatSettings(Model):
     def __init__(self):
@@ -155,7 +149,6 @@ class CatalogSettings(Model):
         self.misp_settings = dict()
         self.hive_settings = dict()
         self.cortex_settings = dict()
-        self.mongodb_settings = dict()
         self.rocketchat_settings = dict()
 
     def set_from_kickstart(self,
@@ -204,9 +197,6 @@ class CatalogSettings(Model):
             elif namespace.which == SubCmd.hive:
                 self.hive_settings = HiveSettings()
                 self.hive_settings.from_namespace(namespace)
-            elif namespace.which == SubCmd.mongodb:
-                self.mongodb_settings = MongodbSettings()
-                self.mongodb_settings.from_namespace(namespace)
             elif namespace.which == SubCmd.rocketchat:
                 self.rocketchat_settings = RocketchatSettings()
                 self.rocketchat_settings.from_namespace(namespace)
@@ -262,11 +252,6 @@ class CatalogSettings(Model):
                                                 help="This subcommand can be used to install cortex on your Kit's sensors.")
         add_args_from_instance(cortex_parser, CortexSettings())
         cortex_parser.set_defaults(which=SubCmd.cortex)
-
-        mongodb_parser = subparsers.add_parser(SubCmd.mongodb,
-                                                help="This subcommand can be used to install mongodb on your Kit's sensors.")
-        add_args_from_instance(mongodb_parser, MongodbSettings())
-        mongodb_parser.set_defaults(which=SubCmd.mongodb)
 
         rocketchat_parser = subparsers.add_parser(SubCmd.rocketchat,
                                                 help="This subcommand can be used to install rocketchat on your Kit's sensors.")

@@ -54,16 +54,7 @@
       "regexp": "^\\d+$",
       "name": "suricata_threads",
       "error_message": "Enter a valid number"
-    },
-    {
-      "type": "textinput",
-      "default_value": "6",
-      "description": "Enter the number of Suricata shards for Elastic",
-      "required": true,
-      "regexp": "^\\d+$",
-      "name": "shards",
-      "error_message": "Enter a valid number"
-    },
+    },    
     {
       "type": "invisible",
       "name": "affinity_hostname"

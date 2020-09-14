@@ -42,7 +42,6 @@ class SubCmd:
     misp = "misp"
     hive = "hive"
     cortex = "cortex"
-    mongodb = "mongodb"
     rocketchat = "rocketchat"
 
     # run-export subcommands

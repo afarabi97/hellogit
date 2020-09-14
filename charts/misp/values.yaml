@@ -24,3 +24,4 @@ cortexIntegration: false
 # Filebeat values
 filebeat_image_name: beats/filebeat
 filebeat_image_tag: 7.8.1
+shards: {}

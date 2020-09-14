@@ -17,13 +17,13 @@
     state: present
   register: mng_iface
 
-- name: Load Configs into NM
+- name: Load Configs into NM # noqa 503
   shell: |
     nmcli conn reload
   register: nm_reload
   when: mng_iface.changed
 
-- name: Bring up the connections
+- name: Bring up the connections # noqa 503
   shell: |
     nmcli con up "`nmcli -g GENERAL.CONNECTION dev show {{ management_interface }}`"
   register: results

@@ -200,7 +200,7 @@
       copy:
         content: "[Unit]\nRefuseManualStop=no\n"
         dest: /etc/systemd/system/auditd.service.d/local.conf
-        
+
     - name: Restart the auditd service.
       systemd:
         state: restarted

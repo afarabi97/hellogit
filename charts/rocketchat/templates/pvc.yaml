@@ -1,24 +1,27 @@
-{{- if .Values.persistence.enabled -}}
-kind: PersistentVolumeClaim
+---
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "rocketchat.fullname" . }}
-  labels:
-    app.kubernetes.io/name: {{ include "rocketchat.name" . }}
-    helm.sh/chart: {{ include "rocketchat.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: {{ .Release.Name }}-pvc
 spec:
   accessModes:
-    - {{ .Values.persistence.accessMode | quote }}
+  - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.persistence.size | quote }}
-{{- if .Values.persistence.storageClass }}
-{{- if (eq "-" .Values.persistence.storageClass) }}
-  storageClassName: ""
-{{- else }}
-  storageClassName: "{{ .Values.persistence.storageClass }}"
-{{- end }}
-{{- end }}
-{{- end -}}
+      storage: 1Gi
+  storageClassName: fast-disks
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: fast-disks
+  volumeMode: Filesystem

@@ -15,7 +15,7 @@ data:
     #==================== Elasticsearch template setting ==========================
 
     setup.template.settings:
-      index.number_of_shards: 4
+      index.number_of_shards: {{ .Values.shards }}
       index.number_of_replicas: 1
       index.refresh_interval: 30s
       index.merge.scheduler.max_thread_count: 1

@@ -13,6 +13,7 @@ from typing import List
 from flask import send_file, Response, request, jsonify
 from bson import ObjectId
 from app.middleware import Auth, operator_required
+from shared.constants import KICKSTART_ID, KIT_ID
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
@@ -20,10 +21,18 @@ DISCLUDES = ("elasticsearch",
         "logstash",
         "chartmuseum",
         "elasticsearch-data",
-        "netflow-filebeat")
+        "netflow-filebeat",
+        "kube-dns-external")
 
 HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
+
+
+def _get_domain() -> str:
+    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    if "domain" in kickstart_configuration["form"]:
+        return kickstart_configuration["form"]["domain"]
+    return "lan"
 
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""
@@ -125,8 +134,7 @@ def _is_discluded(dns: str) -> bool:
     :return:
     """
     for item in DISCLUDES:
-        short_dns = dns.split('.')[0]
-        if short_dns == item:
+        if dns == item:
             return True
     return False
 
@@ -138,18 +146,19 @@ def get_portal_links() -> Response:
     :return:
     """
     try:
+        kit_domain = _get_domain()
         portal_links = []
-        with open('/etc/dnsmasq_hosts/kube_hosts', 'r') as file:
-            lines = file.readlines()
-            for line in lines:
-                try:
-                    ip_addr, dns = line.split(' ')
-                    if _is_discluded(dns):
+        with KubernetesWrapper2(conn_mng) as api:
+            kube_api = api.core_V1_API
+            services = kube_api.list_service_for_all_namespaces()
+            for service in services.items:
+                name = service.metadata.name
+                if service.status.load_balancer.ingress:
+                    svc_ip = service.status.load_balancer.ingress[0].ip
+                    if _is_discluded(name):
                         continue
-                    _append_portal_link(portal_links, dns, ip_addr)
-                except ValueError:
-                    pass
-        return jsonify(portal_links)
+                    _append_portal_link(portal_links, "{}.{}".format(name, kit_domain), svc_ip)
+            return jsonify(portal_links)
     except Exception as e:
         logger.exception(e)
         return jsonify([])

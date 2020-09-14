@@ -20,4 +20,4 @@ flow: false
 worker_num: 6
 bulk_max_size: 4096
 queue_mem_events: 65536
-shards: 6
+shards: {}

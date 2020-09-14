@@ -22,7 +22,7 @@
       data_java_memory: 1
       data_memory: 1
       data_num_procs: "1000m"
-      data_count: "{{ groups['servers']|length * 1 }}"
+      data_count: "{{ groups['servers']|length * 2 }}"
       coordinating_java_memory: 1
       coordinating_memory: 1
       coordinating_num_procs: "1000m"
@@ -114,19 +114,23 @@
       ml_count: 2
   - name: GIP Gen1
     set_fact:
-      set master_memory: 24
-      set master_java_memory: 24
-      set master_num_procs: "4000m"
-      set data_count: "{{ groups['servers']|length * 3 }}"
-      set data_memory: 31
-      set data_java_memory: 64
-      set data_num_procs: "14000m"
-      set coordinating_memory: 31
-      set coordinating_java_memory: 64
-      set coordinating_num_procs: "4000m"
-      set ml_memory: 64
-      set ml_java_memory: 31
-      set ml_num_procs: "8000m"
-      set ml_count: 4
+      master_memory: 24
+      master_java_memory: 24
+      master_num_procs: "4000m"
+      data_count: "{{ groups['servers']|length * 3 }}"
+      data_memory: 31
+      data_java_memory: 64
+      data_num_procs: "14000m"
+      coordinating_memory: 31
+      coordinating_java_memory: 64
+      coordinating_num_procs: "4000m"
+      ml_memory: 64
+      ml_java_memory: 31
+      ml_num_procs: "8000m"
+      ml_count: 4
     when: kit_size == 100
   when: system_name == "GIP"
+
+- name: Set Index Rollover Size
+  set_fact:
+    index_rollover_size: "{{ data_count * 50 }}"

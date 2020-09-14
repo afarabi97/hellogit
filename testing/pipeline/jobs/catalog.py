@@ -42,8 +42,6 @@ class CatalogJob:
                 self.runner.install_hive()
             elif application == SubCmd.cortex:
                 self.runner.install_cortex()
-            elif application == SubCmd.mongodb:
-                self.runner.install_mongodb()
             elif application == SubCmd.rocketchat:
                 self.runner.install_rocketchat()
             else:

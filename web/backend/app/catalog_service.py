@@ -278,6 +278,8 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['elastic_coordinating_nodes'] = _get_elastic_nodes(node_type="coordinating")
         if 'elastic_ingest_nodes' in values:
             values['elastic_ingest_nodes'] = _get_elastic_nodes(node_type="ingest")
+        if 'shards' in values:
+            values['shards'] = len(_get_elastic_nodes(node_type="data"))
     except Exception as exec:
         logger.exception(exec)
     if configs:

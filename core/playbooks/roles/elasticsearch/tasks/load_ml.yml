@@ -1,6 +1,7 @@
 ---
 
-- set_fact:
+- name: Set Detectors and Datafeeds
+  set_fact:
     detectors: "{{ lookup('file', 'files/ml-jobs/endgame_detectors.json') | from_json }}"
     datafeeds: "{{ lookup('file', 'files/ml-jobs/endgame_datafeeds.json') | from_json }}"
 

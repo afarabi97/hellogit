@@ -106,7 +106,7 @@
           - total_mem_gb >= 500
       when: system_name == "DIP"
     - debug:
-        msg: "Kit size: {{ kit_size_name }} ({{ kit_size}})"
+        msg: "Kit size: {{ kit_size_name }} ({{ kit_size }})"
 
 - name: Setup Repos
   hosts:
@@ -259,7 +259,6 @@
 - name: Configure kube master
   hosts:
     - master_server
-    - localhost
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

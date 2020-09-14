@@ -2,7 +2,7 @@
   "id": "netflow-filebeat",
   "type": "chart",
   "node_affinity": "Server - Any",
-  "formControls": [
+  "formControls": [   
     {
       "type": "invisible",
       "name": "affinity_hostname"

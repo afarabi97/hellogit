@@ -29,16 +29,7 @@
       "regexp": "^\\d+$",
       "name": "zeek_workers",
       "error_message": "Enter a valid number"
-    },   
-    {
-      "type": "textinput",
-      "default_value": "6",
-      "description": "Enter the number of Zeek shards for Elastic",
-      "required": true,
-      "regexp": "^\\d+$",
-      "name": "shards",
-      "error_message": "Enter a valid number"
-    },
+    },    
     {
       "type": "invisible",
       "default_value": "",

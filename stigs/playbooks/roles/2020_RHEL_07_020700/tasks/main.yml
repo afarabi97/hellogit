@@ -3,7 +3,7 @@
       - name: "RHEL-07-020700"
         command: "{{ find_command_base }} -print -quit"
         check_mode: no
-        changed_when: rhel_07_020700_audit.stdout != ""
+        changed_when: not rhel_07_020700_audit.stdout
         register: rhel_07_020700_audit
         with_items: "{{ rhel7stig_passwd }}"
         loop_control:

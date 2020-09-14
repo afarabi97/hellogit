@@ -1,7 +1,3 @@
-{% set index_rollover_size = 90 %}
-{% if kit_size > 1 %}
-{% set index_rollover_size = (groups['servers']|length * 3) * 50 %}
-{% endif %}
 {
   "policy" : {
     "phases" : {

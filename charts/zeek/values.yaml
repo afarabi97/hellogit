@@ -14,4 +14,4 @@ kibana_fqdn: kibana.default.svc.cluster.local
 kibana_port: 443
 filebeat_image_name: beats/filebeat
 filebeat_image_tag: 7.8.1
-shards: 6
+shards: {}

@@ -2,35 +2,20 @@
 ###################  Kubernetes Setup Master ###############
 #######################################################
 ---
-- block:
-  - name: Common Kube
-    import_role:
-      name: kubernetes/common
 
-  - name: set_fact kube_install_complete
-    set_fact:
-      kube_install_complete: true
-  - block:
-    - import_tasks: 00_preflight.yml
-    - import_tasks: install.yml
-    when: kube_install_complete
-  when: inventory_hostname in groups['master_server']
+- name: Common Kube
+  import_role:
+    name: kubernetes/common
+
+- name: set_fact kube_install_complete
+  set_fact:
+    kube_install_complete: true
+- block:
+  - import_tasks: 00_preflight.yml
+  - import_tasks: install.yml
+  when: kube_install_complete
 
 - import_tasks: 40_external_dns.yml
   tags: kube-dns
-
-- name: Add kube external to dnsmasq
-  script: /usr/bin/update-dns.py
-  args:
-    executable: /opt/tfplenum/web/tfp-env/bin/python3
-  when: inventory_hostname == "localhost"
-
-- name: update-dns cron
-  cron:
-    name: update-dns
-    user: root
-    job: "/opt/tfplenum/web/tfp-env/bin/python /usr/bin/update-dns.py"
-    state: present
-  when: inventory_hostname == "localhost"
 
 ...
