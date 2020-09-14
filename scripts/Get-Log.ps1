@@ -149,51 +149,80 @@ Function Format-FileSize() {
     Else { "" }
 }
 
+# Recursive function to calculate the total number of files and directories in the Zip file.
+function GetNumberOfItemsInZipFileItems($shellItems)
+{
+	[int]$totalItems = $shellItems.Count
+	foreach ($shellItem in $shellItems)
+	{
+		if ($shellItem.IsFolder)
+		{ $totalItems += GetNumberOfItemsInZipFileItems -shellItems $shellItem.GetFolder.Items() }
+	}
+	$totalItems
+}
+
 function PerformZip {
-    Set-Variable -Name "ZipPath" -value "$ZipDirectory/${Timestamp}_windows_events.zip" -scope script
+    Set-Variable -Name "ZipPath" -value "$ZipDirectory\${Timestamp}_windows_events.zip" -scope script
+	
     if ("$($PSVersionTable.PSVersion)" -ge 4.0) {
         Compress-Archive -Path "$TimestampDirectory" -DestinationPath "$ZipPath" -Force
     } else {
-        ZipFileCompat
+		Compress-ZipFile -ZipFilePath "$ZipPath" -FileOrDirectoryPathToAddToZipFile "$TimestampDirectory"
     }
-    # In a perfect world we would have a super simple script to do this but, we don't
-    # live in that world. The following is Powershell 4 and upward compatible
-    # Compress-Archive -Path "$TimestampDirectory" -DestinationPath "$ZipPath" -Force
+ 
 }
 
+function Compress-ZipFile
+{
+	[CmdletBinding()]
+	param
+	(
+		[parameter(Position=1,Mandatory=$true)]
+		[string]$FileOrDirectoryPathToAddToZipFile,
+		
+		[parameter(Position=2,Mandatory=$false)]
+		[string]$ZipFilePath
+	)
+	
+	BEGIN { }
+	END { }
+	PROCESS
+	{	
+		if (!(Test-Path -Path $ZipFilePath -PathType Leaf))
+		{ New-Item -Path $ZipFilePath -ItemType File > $null }
+		
+		# Get the Name of the file or directory to add to the Zip file.
+		$fileOrDirectoryNameToAddToZipFile = Split-Path -Path $FileOrDirectoryPathToAddToZipFile -Leaf
+		
+		# Get if we are adding a file or directory to the Zip file.
+		$itemToAddToZipIsAFile = Test-Path -Path $FileOrDirectoryPathToAddToZipFile -PathType Leaf
+		
+		# Get Shell object and the Zip File.
+		$shell = new-object -com shell.application
+		$zipShell = $shell.NameSpace($ZipFilePath)
 
-
-function ZipFileCompat {
-    if ($null -ne $ZipPath) {
-
-        #Prepare zip file
-        if(-not (test-path($ZipPath))) {
-            set-content $ZipPath ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
-            (Get-ChildItem $ZipPath).IsReadOnly = $false
-        }
-
-        # This part is pretty error prone. Just silently continue and
-        # we'll check afterwards
-
-        ###### START PRONE TO ERROR SECTION ######
-        $ErrorActionPreference = "SilentlyContinue"
-
-        $shellApplication = new-object -com shell.application
-        $zipPackage = $shellApplication.NameSpace($ZipPath)
-        $files = Get-ChildItem -Path $TimestampDirectory | Where-Object{! $_.PSIsContainer}
-
-        foreach($file in $files) {
-            $zipPackage.CopyHere($file.FullName)
-            #using this method, sometimes files can be 'skipped'
-            #this 'while' loop checks each file is added before moving to the next
-            while($null -eq $zipPackage.Items().Item($file.name)) {
-                Start-sleep -seconds 1
-            }
-        }
-
-        $ErrorActionPreference = "Continue"
-        ###### END PRONE TO ERROR SECTION ######
-    }
+		# Start copying the file/directory into the Zip file since there won't be any conflicts. This is an asynchronous operation.
+		$zipShell.CopyHere($FileOrDirectoryPathToAddToZipFile)
+		
+		# The Copy operation is asynchronous, so wait until it is complete before continuing.
+		# Wait until we can see that the file/directory has been created.
+		while ($zipShell.ParseName($fileOrDirectoryNameToAddToZipFile) -eq $null)
+		{ Start-Sleep -Milliseconds 100 }
+		
+		# If we are copying a directory into the Zip file, we want to wait until all of the files/directories have been copied.
+		if (!$itemToAddToZipIsAFile)
+		{
+			# Get the number of files and directories that should be copied into the Zip file.
+			$numberOfItemsToCopyIntoZipFile = (Get-ChildItem -Path $FileOrDirectoryPathToAddToZipFile -Recurse -Force).Count
+			
+			# Get a handle to the new directory we created in the Zip file.
+			$newDirectoryInZipFileShell = $zipShell.ParseName($fileOrDirectoryNameToAddToZipFile)
+			
+			# Wait until the new directory in the Zip file has the expected number of files and directories in it.
+			while ((GetNumberOfItemsInZipFileItems -shellItems $newDirectoryInZipFileShell.GetFolder.Items()) -lt $numberOfItemsToCopyIntoZipFile)
+			{ Start-Sleep -Milliseconds 100 }
+		}
+	}
 }
 
 function OpenZipDirectory {
