@@ -53,6 +53,13 @@
   set_fact:
     wireshark_files: "{{ wireshark_bins['files'] | map(attribute='path') | list }}"
 
+- name: Set Wireshark Binary Permissions
+  file:
+    path: "{{ item }}"
+    mode: '0750'
+    group: "{{ operator_group }}"
+  loop: "{{ wireshark_files }}"
+
 - name: Create symbolic links to /usr/bin for wireshark applications
   file:
     src: "{{ item }}"

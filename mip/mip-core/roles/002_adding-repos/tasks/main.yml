@@ -25,6 +25,6 @@
   file:
     path: /operator/.DO_NOT_DELETE
     state: directory
-    mode: '0700'
+    mode: '0755'
   when: not isMade.stat.exists
 ...
