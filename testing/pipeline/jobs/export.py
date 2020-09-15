@@ -62,12 +62,13 @@ def clear_based_on_pattern(some_path: Union[str, Path], pattern: str):
 def prepare_for_export(username: str,
                        password: str,
                        ctrl_ip: str,
-                       is_controller: bool=True):
+                       is_controller: bool=True,
+                       ctrl_type: str="dip"):
     with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
         remote_shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
         remote_shell.sudo('chmod 755 /tmp/reset_system.sh')
         if is_controller:
-            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192')
+            remote_shell.sudo('/tmp/reset_system.sh --reset-controller --iface=ens192 --hostname={}'.format(ctrl_type + "-controller.lan"))
         else:
             remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
 
@@ -191,7 +192,8 @@ class ControllerExport:
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress)
+                           self.ctrl_settings.node.ipaddress,
+                           ctrl_type="dip")
 
         payload = self.ctrl_settings.to_dict()
 
@@ -216,7 +218,8 @@ class MIPControllerExport(ControllerExport):
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress)
+                           self.ctrl_settings.node.ipaddress,
+                           ctrl_type="mip")
 
         payload = self.ctrl_settings.to_dict()
         export_prefix = "MIP_Controller"

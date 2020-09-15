@@ -147,19 +147,7 @@
   register: docker_push_results
   with_items:
     - "{{ image_list }}"
-  async: 3000
-  poll: 0
   tags: pull-docker-images
 
-- name: Waiting for docker images to push
-  async_status:
-    jid: "{{ async_result_item.ansible_job_id }}"
-  loop: "{{ docker_push_results.results }}"
-  loop_control:
-    loop_var: "async_result_item"
-  register: job_push_results
-  until: job_push_results.finished is defined and job_push_results.finished
-  retries: 240
-  tags: pull-docker-images
 
 ...

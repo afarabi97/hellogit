@@ -55,7 +55,6 @@ export class KickstartComponent implements OnInit {
 
   private setupKickstartForm() {
     this.system_name = this.sysNameSrv.getSystemName();
-    console.log(this.system_name)
     this.initKickStartForm();
     this.initializeView();
   }

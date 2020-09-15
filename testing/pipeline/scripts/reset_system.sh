@@ -27,6 +27,7 @@ arguments:
   --reset-controller    Resets a controller back to something that can be export.  Clears its database, history, resets its network configuration scripts, etc.
   --reset-node          Runs general reset on a node. Clears its database, history, resets its network configuration scripts, etc.
   --iface=<iface_name>  The name of the network interface to reset.
+  --hostname=<hostname> The hostname you wish to set the node to.
 "
 }
 
@@ -50,6 +51,10 @@ function parse_command_line_args {
             RESET_NODE=yes
             shift # past argument with no value
             ;;
+            --hostname=*)
+            HOST_NAME="${i#*=}"
+            shift # past argument=value
+            ;;
             *)
                 # Unknown commmand line flag
             ;;
@@ -71,7 +76,6 @@ function parse_command_line_args {
         echo "The --iface=<iface_name> name is required. Please add this flag into your command line and try again."
         exit 2
     fi
-
 
     echo "IFACE_NAME  = ${IFACE_NAME}"
     echo "RESET_CTRL  = $RESET_CONTROLLER"
@@ -172,12 +176,23 @@ function clear_history {
     cat /dev/null > /home/assessor/.bash_history
 }
 
+function change_hostname {
+    if [[ -z "$HOST_NAME" ]]; then
+        return
+    else
+        hostnamectl set-hostname "$HOST_NAME"
+    fi
+
+}
+
+
 parse_command_line_args
 update_network_scripts
 clear_etc_hosts
 cleanup_extra_files
 reset_password
 clear_tfplenum_database
+change_hostname
 clear_history
 
 echo "Cleanup complete!"
