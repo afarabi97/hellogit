@@ -15,7 +15,7 @@ const DIALOG_WIDTH = '800px';
   })
 export class LogIngestComponent implements OnInit {
   logToUpload: File;
-  logForm: FormGroup;
+public  logForm: FormGroup;
 
   constructor(private title: Title,
               private formBuilder: FormBuilder,
@@ -35,7 +35,7 @@ export class LogIngestComponent implements OnInit {
   initializeFormGroup() {
     this.logForm = this.formBuilder.group({
       module: new FormControl('', Validators.required),
-      index_suffix: new FormControl("cold-log", Validators.required),
+      index_suffix: new FormControl("cold-log", [Validators.maxLength(50), Validators.pattern('^[a-zA-Z0-9\-]+$')]),
       send_to_logstash: new FormControl()
     });
   }
@@ -53,7 +53,7 @@ export class LogIngestComponent implements OnInit {
       console.error(error);
     });
   }
-
+  
   setupWinlogBeat() {
     this.ingestSrv.getWinlogbeatConfiguration().subscribe(data => {
       let instructions = "Please fill out the form.";

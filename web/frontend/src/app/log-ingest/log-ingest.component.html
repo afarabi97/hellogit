@@ -24,7 +24,7 @@
           Upload Cold Log File
           <button mat-raised-button color="primary"
                   (click)="uploadFile()" style="float: right;"
-                  [disabled]="!logToUpload" name="upload_file">Upload
+                  [disabled]="!logToUpload || this.logForm.invalid" name="upload_file">Upload
             <span *ngIf="logToUpload">&nbsp;{{ logToUpload.name }}</span></button>
           <button mat-raised-button color="primary" style="float:right; margin-right: 10px;"
                   (click)="fileInput.click()">Choose Log File</button>
@@ -49,6 +49,7 @@
         <mat-form-field class="custom-suffix">
           <mat-label>Elasticsearch Index Suffix</mat-label>
           <input matInput maxlength="256" placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
+          <mat-error>Please re-type a new password that password does not meet password standards!</mat-error>
         </mat-form-field>
 
         <mat-checkbox formControlName="send_to_logstash"
