@@ -22,8 +22,10 @@ data:
     }
 
     filter {
-      mutate { add_field => { "[@metadata][index]" => "%{[@mymetadata][index_suffix]}" } }
-      mutate { remove_field => [ "@mymetadata" ] }
+      if "" in [@metadata][index] {
+        mutate { add_field => { "[@metadata][index]" => "%{[@mymetadata][index_suffix]}" } }
+        mutate { remove_field => [ "@mymetadata" ] }
+      }
     }
 
     output {

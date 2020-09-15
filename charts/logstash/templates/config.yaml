@@ -16,8 +16,6 @@ data:
     pipeline.batch.size: {{ .Values.batch_size }}
 
   pipelines.yml: |
-    - pipeline.id: zeek
-      path.config: "/usr/share/logstash/pipeline/zeek.conf"
     - pipeline.id: beats
       path.config: "/usr/share/logstash/pipeline/beats.conf"
 

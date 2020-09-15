@@ -18,11 +18,22 @@ winlogbeat.event_logs:
           id: sysmon
           file: ${path.home}/module/sysmon/config/winlogbeat-sysmon.js
 
+  - name: ForwardedEvents
+    tags: [forwarded]
+    processors:
+      - script:
+          when.equals.winlog.channel: Security
+          lang: javascript
+          id: security
+          file: ${path.home}/module/security/config/winlogbeat-security.js
+      - script:
+          when.equals.winlog.channel: Microsoft-Windows-Sysmon/Operational
+          lang: javascript
+          id: sysmon
+          file: ${path.home}/module/sysmon/config/winlogbeat-sysmon.js
+
 setup.template.settings:
   index.number_of_shards: 2
-
-setup.kibana:
-
 
 output.logstash:
   hosts: ["{{ template_ctx.winlog_beat_dest_ip }}:{{ template_ctx.winlog_beat_dest_port }}"]
@@ -31,9 +42,9 @@ output.logstash:
   ssl.key: "${path.home}/tls.key"
 
 processors:
-  - add_host_metadata: ~
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
   - add_cloud_metadata: ~
-  - add_docker_metadata: ~
 
 logging.to_files: true
 logging.files:

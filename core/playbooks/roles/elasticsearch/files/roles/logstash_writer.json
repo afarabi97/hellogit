@@ -12,13 +12,16 @@
     {
       "names": [
         "logstash-*",
-        "*beat*",
         ".monitoring-*",
-        "filebeat-*"
+        "filebeat-*",
+        "winlogbeat-*",
+        "auditbeat-*",
+        "*beat*"
       ],
       "privileges": [
         "write",
         "create",
+        "create_doc",
         "delete",
         "create_index",
         "manage",
