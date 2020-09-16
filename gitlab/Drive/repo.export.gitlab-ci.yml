@@ -11,8 +11,7 @@ Export Reposync Server:
     run-export export-reposync-server \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-hash "$TFPLENUM_EXPORT_HASH"
+    --staging-export-path "$DRIVE_STAGING_FOLDER" 
   only:
     variables:
       - $PIPELINE == "export-reposync"
@@ -31,8 +30,7 @@ Export Reposync Workstation:
     run-export export-reposync-workstation \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-hash "$TFPLENUM_EXPORT_HASH"
+    --staging-export-path "$DRIVE_STAGING_FOLDER" 
   only:
     variables:
       - $PIPELINE == "export-reposync"

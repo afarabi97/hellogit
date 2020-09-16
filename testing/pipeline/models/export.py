@@ -21,7 +21,6 @@ class ExportLocSettings(Model):
         self.mdt_export_path = './mdt'
         self.staging_export_path = './staging'
         self.export_version = 'RC'
-        self.export_hash = ''
 
     @property
     def export_date(self) -> str:
@@ -30,9 +29,9 @@ class ExportLocSettings(Model):
 
         return self.export_date_str.strftime("%m-%d-%Y")
 
-    def render_export_name(self, export_prefix: str, export_suffix: str=".ova") -> str:
+    def render_export_name(self, export_prefix: str, export_hash: str, export_suffix: str=".ova") -> str:
         return (export_prefix + "_" + self.export_version + "_" +
-                self.export_date + "_" + self.export_hash + export_suffix)
+                self.export_date + "_" + export_hash + export_suffix)
 
 
 class HtmlExportSettings(Model):

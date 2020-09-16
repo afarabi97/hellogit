@@ -15,7 +15,6 @@ Add Docs to MIP Controller:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   only:
     variables:
@@ -40,8 +39,7 @@ Export MIP Controller:
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH"
+    --export-version "$TFPLENUM_EXPORT_VERSION" 
   only:
     variables:
       - $PIPELINE == "export-mip"

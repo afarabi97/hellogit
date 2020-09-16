@@ -44,7 +44,6 @@ Add Docs to DIP Controller:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   only:
     variables:
@@ -68,8 +67,7 @@ Export DIP Controller:
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH"
+    --export-version "$TFPLENUM_EXPORT_VERSION" 
   only:
     variables:
       - $PIPELINE == "export-all"
@@ -89,8 +87,7 @@ Export DIP MinIO:
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH"
+    --export-version "$TFPLENUM_EXPORT_VERSION" 
   only:
     variables:
       - $PIPELINE == "export-minio"

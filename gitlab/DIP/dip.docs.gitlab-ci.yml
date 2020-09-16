@@ -14,7 +14,6 @@ Build DIP Offline Documentation:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   retry: 2
   artifacts:
@@ -42,7 +41,6 @@ DIP Setup Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_SETUP_DOCS"
   retry: 2
   only:
@@ -68,7 +66,6 @@ DIP User Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_USER_DOCS"
   retry: 2
   only:
@@ -94,7 +91,6 @@ DIP User Documents:
 #     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
 #     --staging-export-path "$DRIVE_STAGING_FOLDER" \
 #     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --export-hash "$TFPLENUM_EXPORT_HASH" \
 #     --page-titles "$DIP_CONFLUENCE_TRAINING_DOCS"
 #   retry: 2
 #   only:
@@ -120,7 +116,6 @@ DIP User Documents:
 #     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
 #     --staging-export-path "$DRIVE_STAGING_FOLDER" \
 #     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --export-hash "$TFPLENUM_EXPORT_HASH" \
 #     --page-titles "$DIP_CONFLUENCE_ARCH_DOCS"
 #   retry: 2
 #   only:
@@ -146,7 +141,6 @@ DIP Maintenance Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_MAIN_DOCS"
   retry: 2
   only:
@@ -172,7 +166,6 @@ DIP TroubleShooting Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS"
   retry: 2
   only:
@@ -198,7 +191,6 @@ DIP VDD Documents:
     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$DIP_CONFLUENCE_VDD_DOCS"
   retry: 2
   only:

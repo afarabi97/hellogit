@@ -14,7 +14,6 @@ Build MIP Offline Documentation:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
   retry: 2
   artifacts:
@@ -41,7 +40,6 @@ MIP Setup Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
   retry: 2
   only:
@@ -66,7 +64,6 @@ MIP User Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_USER_DOCS"
   retry: 2
   only:
@@ -91,7 +88,6 @@ MIP User Documents:
 #     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TRAINING_FOLDER" \
 #     --staging-export-path "$DRIVE_STAGING_FOLDER" \
 #     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --export-hash "$TFPLENUM_EXPORT_HASH" \
 #     --page-titles "$MIP_CONFLUENCE_TRAINING_DOCS"
 #   retry: 2
 #   only:
@@ -116,7 +112,6 @@ MIP User Documents:
 #     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_ARCH_FOLDER" \
 #     --staging-export-path "$DRIVE_STAGING_FOLDER" \
 #     --export-version "$TFPLENUM_EXPORT_VERSION" \
-#     --export-hash "$TFPLENUM_EXPORT_HASH" \
 #     --page-titles "$MIP_CONFLUENCE_ARCH_DOCS"
 #   retry: 2
 #   only:
@@ -141,7 +136,6 @@ MIP Maintenance Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_MAIN_DOCS"
   retry: 2
   only:
@@ -166,7 +160,6 @@ MIP TroubleShooting Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS"
   retry: 2
   only:
@@ -191,7 +184,6 @@ MIP VDD Documents:
     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --export-hash "$TFPLENUM_EXPORT_HASH" \
     --page-titles "$MIP_CONFLUENCE_VDD_DOCS"
   retry: 2
   only:

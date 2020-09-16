@@ -72,6 +72,16 @@ def prepare_for_export(username: str,
         else:
             remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
 
+def get_commit_hash(username: str, password: str, ctrl_ip: str, flag: bool):
+
+        if flag:
+            with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+                long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
+                short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
+            return str(short_hash)
+        else:
+            export_hash = ""
+            return export_hash
 
 def export(vcenter_settings: VCenterSettings,
            export_loc: ExportLocSettings,
