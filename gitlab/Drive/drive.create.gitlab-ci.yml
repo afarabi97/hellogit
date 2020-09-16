@@ -5,9 +5,15 @@ Clear Staging Environment:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    rm -fv "${DRIVE_STAGING_FOLDER}/*"
+    echo "Clear Staging Environment"
+    rm -fr "$DRIVE_STAGING_FOLDER/"
+    mkdir -p "$DRIVE_STAGING_FOLDER/"
+    rm -fr "$CPT_DOCUMENTATION_STAGING/" "$MDT_DOCUMENTATION_STAGING/"
+    mkdir -p "$CPT_DOCUMENTATION_STAGING/MIP" "$CPT_DOCUMENTATION_STAGING/DIP"
+    mkdir -p "$MPT_DOCUMENTATION_STAGING/MIP" "$MPT_DOCUMENTATION_STAGING/DIP"
   only:
     variables:
+      - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 
 
