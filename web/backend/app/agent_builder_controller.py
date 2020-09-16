@@ -97,7 +97,7 @@ def get_sensor_info() -> Response:
     url = 'https://{}/api/v1/auth/login'.format(address)
     header = { 'Content-Type': 'application/json' }
     resp = session.post(url, json = { 'username': endgame_user_name, 'password': endgame_password },
-                       headers = header, verify=False)
+                        headers = header, verify=False)
     if(resp.ok):
         auth_token = resp.json()['metadata']['token']
     else:

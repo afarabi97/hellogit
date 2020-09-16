@@ -40,9 +40,10 @@ class WinrmFileNotFound(Exception):
 
 
 class WinrmCommandFailure(Exception):
-     def __init__(self, message: str, results: Dict):
-        super(WinrmCommandFailure, self).__init__(message)
+     def __init__(self, message: str, results: Dict, results_list):
+        super(WinrmCommandFailure, self).__init__(message, )
         self.results = results
+        self.results_list = results_list
 
 
 class ProtocolNotSupported(Exception):
@@ -82,7 +83,7 @@ def execute_win_playbook(playbooks: List, extra_vars: Dict={},
     status_code = pbex.run()
     print(results_callback.summary)
     if status_code != 0:
-        raise WinrmCommandFailure("Failed with status_code {}. Run tail -f /var/log/celery/*.log for more information.".format(status_code), results_callback.summary)
+        raise WinrmCommandFailure("Failed with status_code {}. Run tail -f /var/log/celery/*.log for more information.".format(status_code), results_callback.summary, results_callback.results)
     return results_callback.summary
 
 

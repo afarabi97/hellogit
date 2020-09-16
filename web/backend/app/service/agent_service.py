@@ -16,6 +16,7 @@ from app.service.job_service import run_command2, run_command
 from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
+from kubernetes.client.rest import ApiException
 from shared.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
 from shared.connection_mngs import get_kubernetes_secret
 from shared.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
@@ -71,14 +72,14 @@ class EndgameAgentPuller:
     def _get_sensor_configuration(self):
         #Get data about current sensor configuration
         url = 'https://{}:{}/api/v1/deployment-profiles'.format(self._endgame_server_ip, self._endgame_port)
-        resp = self._session.get(url)
+        resp = self._session.get(url, verify=False)
         sensor_data = self._checkResponse(resp, lambda r : r.json()['data'][0])
         return sensor_data
 
     def _authenticate(self):
         url = 'https://{}:{}/api/v1/auth/login'.format(self._endgame_server_ip, self._endgame_port)
 
-        resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header)
+        resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header, verify=False)
         return self._checkResponse(resp, lambda r: r.json()['metadata']['token'])
 
     def _saveInstaller(self, resp, sensor_data, dst_folder: str):
@@ -98,7 +99,7 @@ class EndgameAgentPuller:
 
         #Download the Windows sensor software and save it to a file.
         url = 'https://{}:{}/api/v1/windows/installer/{}'.format(self._endgame_server_ip, self._endgame_port, installer_id)
-        resp = self._session.get(url)
+        resp = self._session.get(url, verify=False)
         self._saveInstaller(resp, sensor_data, dst_folder)
         return sensor_data['api_key']
 
@@ -331,8 +332,19 @@ class WinRunner:
     def _move_agent_installer(self) -> None:
         self._winapi.push_file(str(self._installer), "C:\\" + self._installer.name)
 
-    def notify_failure(self, action: str, host: str, err_msg: str):
-        self._notification.set_message("Failed to {} {} because of error: {}".format(action, host, err_msg))
+    def notify_failure(self, action: str, host: str, err_msg: str, ansible_error: str):
+        if ansible_error:
+            self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+        else:
+            self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+        self._notification.set_status(NotificationCode.ERROR.name)
+        self._notification.post_to_websocket_api()
+
+    def notify_login_network_failure(self, action: str, host: str, err_msg: str, ansible_error: str):
+        if ansible_error:
+            self._notification.set_message("Failed to {} {} because of the host was unreachable or the creds passed in were invalid. Error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+        else:
+            self._notification.set_message("Failed to {} {} because of the host was unreachable or the creds passed in were invalid. Error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
         self._notification.set_status(NotificationCode.ERROR.name)
         self._notification.post_to_websocket_api()
 
@@ -418,7 +430,8 @@ class WinRunner:
                 dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
                 for host in self._hostname_or_ip:
                     host_id = host.replace(".", "_")
-                    if ansible_err.results != {} and ansible_err.results[host_id]['failures'] == 0:
+                    print(ansible_err.results_list[host_id])
+                    if ansible_err.results != {} and ansible_err.results[host_id]['failures'] == 0 and ansible_err.results[host_id]['unreachable'] == 0:
                         if self._action == 'uninstall':
                             self.notify_success(self._action, host)
                             self._update_single_host_state(host, TARGET_STATES.uninstalled.value, dt_string)
@@ -426,8 +439,12 @@ class WinRunner:
                             self.notify_success(self._action, host)
                             self._update_single_host_state(host, TARGET_STATES.installed.value, dt_string)
                     else:
-                        self.notify_failure(self._action, str(host), str(ansible_err))
-                        self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+                        if ansible_err.results[host_id]['unreachable'] > 0:
+                            self.notify_login_network_failure(self._action, str(host), str(ansible_err), str(ansible_err.results_list[host_id]["failed"]))
+                            self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+                        else:
+                            self.notify_failure(self._action, str(host), str(ansible_err), str(ansible_err.results_list[host_id]["failed"]))
+                            self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
             else:
                 self.notify_failure(self._action, str(self._hostname_or_ip), str(ansible_err))
                 self._update_windows_host_state(TARGET_STATES.error.value)
