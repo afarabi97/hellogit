@@ -3,14 +3,14 @@
 - name: Set Common Resources Allocations
   set_fact:
     mdi: False
-    master_count: 1
+    master_count: 3
     coordinating_count: 1
     enable_ml: True
 
-- name: Multiple Masters if more than 2 servers are available
-  set_fact:
-    master_count: 3
-  when: groups['servers']|length > 2
+#- name: Multiple Masters if more than 2 servers are available
+#  set_fact:
+#    master_count: 3
+#  when: groups['servers']|length > 2
 
 - name: Set Elastic Resource Allocations for DIP
   block:
@@ -34,7 +34,7 @@
     set_fact:
       master_java_memory: 15
       master_memory: 15
-      master_num_procs: "3000m"
+      master_num_procs: "1000m"
       data_java_memory: 31
       data_memory: 64
       data_num_procs: "14000m"
@@ -51,7 +51,7 @@
     set_fact:
       master_java_memory: 15
       master_memory: 15
-      master_num_procs: "3000m"
+      master_num_procs: "1000m"
       data_java_memory: 31
       data_memory: 64
       data_num_procs: "14000m"
@@ -69,7 +69,7 @@
       enable_ml: False
       master_java_memory: 15
       master_memory: 15
-      master_num_procs: "3000m"
+      master_num_procs: "1000m"
       data_java_memory: 31
       data_memory: 64
       data_num_procs: "12000m"
@@ -83,7 +83,7 @@
       enable_ml: False
       master_java_memory: 8
       master_memory: 8
-      master_num_procs: "3000m"
+      master_num_procs: "1000m"
       data_java_memory: 24
       data_memory: 24
       data_num_procs: "12000m"

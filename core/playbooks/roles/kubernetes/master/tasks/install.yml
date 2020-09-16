@@ -7,7 +7,7 @@
 
 - import_tasks: 20_configure_dns.yml
 - import_tasks: 25_metallb.yml
-- import_tasks: 30_calicoctl_setup.yml
+#- import_tasks: 30_calicoctl_setup.yml
 - import_tasks: 35_create_service_accounts.yml
 
 - name: Propagate controller with cluster admin credentials

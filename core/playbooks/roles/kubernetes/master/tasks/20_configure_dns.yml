@@ -1,5 +1,23 @@
 ---
 
+# DNS template must be copied after dns_ip variable is populated
+- name: 'Install DNS template'
+  template:
+    src: "{{ item }}.yml.j2"
+    dest: "{{ kube_dir }}/{{ item }}.yml"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - coredns_config_map
+
+- name: Create DNS ConfigMap
+  shell: >
+    set -o pipefail && kubectl create configmap coredns --from-file Corefile={{ kube_dir }}/coredns_config_map.yml
+    --dry-run -o yaml | kubectl replace --force --namespace=kube-system -f -
+  register: result
+  changed_when: result.rc == 0
+
 - name: Update NodeSelector for CoreDNS to only deploy on server nodes
   shell:
     cmd: >

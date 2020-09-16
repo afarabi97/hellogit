@@ -6,12 +6,14 @@ nodeRegistration:
 localAPIEndpoint:
   advertiseAddress: "{{ hostvars[groups['master_server'][0]].management_ipv4 }}"
   bindPort: 6443
+
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: {{ k8s_version }}
 networking:
   serviceSubnet: {{ kube_service_addresses }}
+  podSubnet: {{ kube_pod_cidr }}
 {% if kube_virtual_ip is defined %}
 apiServer:
   certSANs:

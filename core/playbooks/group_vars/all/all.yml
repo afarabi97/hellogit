@@ -1,6 +1,6 @@
 ---
 # TFPlenum
-version: 3.3.0
+version: 3.4.0
 debug_enabled: true
 install_user: root
 install_group: root

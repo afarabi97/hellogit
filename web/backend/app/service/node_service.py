@@ -130,11 +130,27 @@ def add_node(node_payload, password):
            	            "job_name": "Addnode"
         }, {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-e ansible_ssh_pass='{playbook_pass}' -t genkeys,preflight,common,openvpn"
+                        "-e ansible_ssh_pass='{playbook_pass}' -t genkeys,preflight"
                         ).format(playbook_pass=password),
            	            "cwd_dir": str(CORE_DIR / "playbooks"),
            	            "job_name": "Addnode"
-        }, {
+        },
+        {
+            "command": ("ansible-playbook site.yml -i inventory.yml "
+                        "-e ansible_ssh_pass='{playbook_pass}' -t common "
+                        "--limit localhost,{node}"
+                        ).format(playbook_pass=password, node=node_hostname),
+           	            "cwd_dir": str(CORE_DIR / "playbooks"),
+           	            "job_name": "Addnode"
+        },
+        {
+            "command": ("ansible-playbook site.yml -i inventory.yml "
+                        "-e ansible_ssh_pass='{playbook_pass}' -t openvpn"
+                        ).format(playbook_pass=password),
+           	            "cwd_dir": str(CORE_DIR / "playbooks"),
+           	            "job_name": "Addnode"
+        },
+        {
             "command": ("ansible-playbook site.yml -i inventory.yml "
                         "-t certificate_authority/common,crio,kube-node,storage,logs,audit,node-health "
                         "--limit localhost,{node}"

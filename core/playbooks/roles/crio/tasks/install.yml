@@ -56,6 +56,17 @@
     - "/etc/cni/net.d/100-crio-bridge.conf"
     - "/etc/cni/net.d/10-crio-bridge.conf"
 
+- name: Configure CRIO CNI
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/cni/net.d/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - "100-crio-flannel.conf"
+    - "200-loopback.conf"
+
 - name: 'Configure CRIO Config'
   template:
     src: "templates/crio.conf.j2"
