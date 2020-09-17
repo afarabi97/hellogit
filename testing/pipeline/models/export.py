@@ -29,9 +29,16 @@ class ExportLocSettings(Model):
 
         return self.export_date_str.strftime("%m-%d-%Y")
 
-    def render_export_name(self, export_prefix: str, export_hash: str, export_suffix: str=".ova") -> str:
-        return (export_prefix + "_" + self.export_version + "_" +
-                self.export_date + "_" + export_hash + export_suffix)
+    def render_export_name(self,
+                           export_prefix: str,
+                           export_hash: str=None,
+                           export_suffix: str=".ova") -> str:
+        if export_hash:
+            return (export_prefix + "_" + self.export_version + "_" +
+                    self.export_date + "_" + export_hash + export_suffix)
+        else:
+            return (export_prefix + "_" + self.export_version + "_" +
+                    self.export_date + export_suffix)
 
 
 class HtmlExportSettings(Model):

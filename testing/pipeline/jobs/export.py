@@ -72,16 +72,16 @@ def prepare_for_export(username: str,
         else:
             remote_shell.sudo('/tmp/reset_system.sh --reset-node --iface=ens192')
 
-def get_commit_hash(username: str, password: str, ctrl_ip: str, flag: bool):
 
-        if flag:
-            with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
-                long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
-                short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
-            return str(short_hash)
-        else:
-            export_hash = ""
-            return export_hash
+def get_commit_hash(username: str,
+                    password: str,
+                    ctrl_ip: str):
+    short_hash = ""
+    with FabricConnectionWrapper(username, password, ctrl_ip) as remote_shell:
+        long_hash=remote_shell.run("cd /opt/tfplenum; git log | head -n 1 | awk '{print $2}'", hide=True).stdout.strip()
+        short_hash=remote_shell.run(f"cd /opt/tfplenum; git rev-parse --short {long_hash}").stdout.strip()
+    return str(short_hash)
+
 
 def export(vcenter_settings: VCenterSettings,
            export_loc: ExportLocSettings,
@@ -200,15 +200,17 @@ class ControllerExport:
         logging.info("Exporting the controller to OVA.")
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        commit_hash = get_commit_hash(self.ctrl_settings.node.username,
+                                      self.ctrl_settings.node.password,
+                                      self.ctrl_settings.node.ipaddress)
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
                            self.ctrl_settings.node.ipaddress,
                            ctrl_type="dip")
 
         payload = self.ctrl_settings.to_dict()
-
         export_prefix = "DIP_Controller"
-        export_name = self.export_loc.render_export_name(export_prefix)
+        export_name = self.export_loc.render_export_name(export_prefix, commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
@@ -226,6 +228,9 @@ class MIPControllerExport(ControllerExport):
         logging.info("Exporting the controller to OVA.")
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
+        commit_hash = get_commit_hash(self.ctrl_settings.node.username,
+                                      self.ctrl_settings.node.password,
+                                      self.ctrl_settings.node.ipaddress)
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
                            self.ctrl_settings.node.ipaddress,
@@ -233,7 +238,7 @@ class MIPControllerExport(ControllerExport):
 
         payload = self.ctrl_settings.to_dict()
         export_prefix = "MIP_Controller"
-        export_name = self.export_loc.render_export_name(export_prefix)
+        export_name = self.export_loc.render_export_name(export_prefix, commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
         execute_playbook([CTRL_EXPORT_PREP], payload)
@@ -309,9 +314,9 @@ class ReposyncWorkstationExport(ControllerExport):
                            self.ctrl_settings.node.password,
                            self.ctrl_settings.node.ipaddress,
                            False)
-
         payload = self.ctrl_settings.to_dict()
         export_prefix = "Reposync_Workstation"
+
         export_name = self.export_loc.render_export_name(export_prefix)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
