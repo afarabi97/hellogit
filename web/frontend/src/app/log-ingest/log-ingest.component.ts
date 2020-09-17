@@ -35,7 +35,7 @@ public  logForm: FormGroup;
   initializeFormGroup() {
     this.logForm = this.formBuilder.group({
       module: new FormControl('', Validators.required),
-      index_suffix: new FormControl("cold-log", [Validators.maxLength(50), Validators.pattern('^[a-zA-Z0-9\-]+$')]),
+      index_suffix: new FormControl("cold-log", [Validators.maxLength(50), Validators.pattern('^[a-zA-Z0-9\-\_]+$')]),
       send_to_logstash: new FormControl()
     });
   }
