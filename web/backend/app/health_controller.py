@@ -2,13 +2,14 @@
 Main module for handling all of the Kit Configuration REST calls.
 """
 from app import (app, logger, conn_mng, WEB_DIR)
+from app.models.kit_setup import (DIPKickstartForm, DIPKitForm, Node)
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 from app.service.job_service import run_command
 
 from flask import Response, jsonify
 from pathlib import Path
-from shared.connection_mngs import KubernetesWrapper, KUBEDIR
-from shared.constants import KIT_ID
+from app.utils.connection_mngs import KubernetesWrapper, KUBEDIR
+from app.utils.constants import KIT_ID
 from typing import List, Dict
 
 from kubernetes.client.models.v1_pod_list import V1PodList
@@ -16,7 +17,6 @@ from kubernetes.client.models.v1_node_list import V1NodeList
 
 
 PYTHON_PATH = str(WEB_DIR / 'tfp-env/bin/python')
-FABRIC_PATH = str(WEB_DIR / 'backend/fabfiles')
 
 
 def _get_mem_total(memory_str: str) -> int:
@@ -63,8 +63,8 @@ def describe_pod(pod_name: str, namespace: str) -> Response:
     :param pod_name: The name of the pod of cource.
                      You can get it with 'kubectl get pods' on the main server node.
     """
-    command = PYTHON_PATH + ' describe_kubernetes_pod.py %s %s' % (pod_name, namespace)
-    stdout = run_command(command, working_dir=FABRIC_PATH)
+    command = 'kubectl describe pod ' + pod_name + ' -n ' + namespace
+    stdout = run_command(command)
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 @app.route('/api/pod_logs/<pod_name>/<namespace>', methods=['GET'])
@@ -99,21 +99,21 @@ def describe_node(node_name: str) -> Response:
     :param node_name: The name of the node of cource.
                       You can get it with 'kubectl get nodes' on the main server node.
     """
-    command = PYTHON_PATH + ' describe_kubernetes_node.py %s' % node_name
-    stdout = run_command(command, working_dir=FABRIC_PATH)
+    command = 'kubectl describe node ' + node_name
+    stdout = run_command(command)
     return jsonify({'stdout': stdout, 'stderr': ''})
 
 
 def _get_node_type(hostname: str, nodes: List) -> str:
     if nodes:
-        for node in nodes:
-            if hostname == node['hostname'] and node["node_type"]:
-                return node["node_type"]
+        for node in nodes: # type: Node
+            if hostname == node.hostname and node.node_type:
+                return node.node_type
     return ""
 
 
 def _get_node_info(nodes: V1NodeList) -> List:
-    mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+    kit_form = DIPKitForm.load_from_db() # type: DIPKitForm
     ret_val = []
     for item in nodes.to_dict()['items']:
         try:
@@ -132,7 +132,7 @@ def _get_node_info(nodes: V1NodeList) -> List:
             item['status']['capacity']['memory'] = str(convert_kib_to_gib(_get_mem_total(item['status']['capacity']['memory']))) + "Gi"
             public_ip = item["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
             item["metadata"]["public_ip"] = public_ip
-            item["metadata"]["node_type"] = _get_node_type(item["metadata"]["name"], mongo_document['form']['nodes'])
+            item["metadata"]["node_type"] = _get_node_type(item["metadata"]["name"], kit_form.nodes)
             ret_val.append(item)
         except KeyError as e:
             item["metadata"]["public_ip"] = ''
@@ -150,7 +150,7 @@ class HealthNodeTotals:
     def __init__(self, pods: V1PodList, nodes: V1NodeList):
         self.pods = pods
         self.nodes = nodes
-        self.mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
+        self.kit_form = DIPKitForm.load_from_db() # type: DIPKitForm
         self.node_names = {}
         self.node_names["Unallocated"] = {'cpus_requested': 0, 'mem_requested': 0}
 
@@ -191,7 +191,7 @@ class HealthNodeTotals:
             for node in self.nodes.items:
                 if key == node.metadata.name:
                     self.node_names[key]['name'] = node.metadata.name
-                    self.node_names[key]['node_type'] = _get_node_type(node.metadata.name, self.mongo_document['form']['nodes'])
+                    self.node_names[key]['node_type'] = _get_node_type(node.metadata.name, self.kit_form.nodes)
 
                     try:
                         cpu_milli = _get_cpu_total(node.status.allocatable['cpu'])

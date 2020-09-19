@@ -6,7 +6,10 @@
     state: restarted
   with_items:
     - httpd
-    - tfplenum-frontend
+    - tfplenum-backend
     - mongod
     - redis
-    - celery
+    - "rqworker@1"
+    - "rqworker@2"
+    - "rqworker@3"
+    - "rqworker@4"

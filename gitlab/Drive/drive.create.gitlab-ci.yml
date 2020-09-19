@@ -79,7 +79,7 @@ Create Master CPT Drive:
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
     --multiboot-path "$MASTER_DRIVE_CPT_MULTIBOOT_PATH" \
     --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
-    --drive-creation-version "v$MAIN_FOLDER_VERSION"
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION"
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "yes"
@@ -100,7 +100,7 @@ Create Master MDT Drive:
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
     --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
     --multiboot-path "$MASTER_DRIVE_MDT_MULTIBOOT_PATH" \
-    --drive-creation-version "v$MAIN_FOLDER_VERSION"
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION"
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "yes"

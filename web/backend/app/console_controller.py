@@ -26,7 +26,6 @@ def get_console_logs(job_name: str) -> Response:
     :param job_name: The name of the job (EX: Kickstart or Kit)
     """
     job_list =  {"jobName": job_name}
-
     logs = list(conn_mng.mongo_console.find(job_list, {'_id': False}))
     return jsonify(logs)
 

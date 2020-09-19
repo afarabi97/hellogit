@@ -45,4 +45,3 @@ class GIPKitSettings(Model):
     def from_kickstart(self, gip_kickstart_settings: GIPKickstartSettings):
         self.kit_settings = KitSettings()
         self.kit_settings.from_kickstart(gip_kickstart_settings)
-        self.kit_settings.use_proxy_pool = True

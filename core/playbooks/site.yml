@@ -472,3 +472,12 @@
         tasks_from: winlogbeat_setup
   tags:
     - run-winlogbeat-setup
+
+- name: Setup extenral beats certificates.
+  hosts:
+    - localhost
+  gather_facts: no
+  any_errors_fatal: false
+  tasks:
+    - name: Setup external beats certs for deployment.
+      command: /opt/tfplenum/scripts/retrieve_beats_certs.py

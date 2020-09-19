@@ -52,7 +52,8 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   systemName: string;
   sideNavigationButtons: NavGroupInterface[];
   controllerMaintainer: boolean;
-  kitStatus: boolean;
+
+  public kitStatus: boolean;
   htmlSpaces: string[] = [];
   private clockCounter$_: Observable<number>;
   private ngUnsubscribe$_: Subject<void> = new Subject<void>();

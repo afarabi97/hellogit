@@ -8,7 +8,6 @@ from glob import glob
 import os
 
 import yaml
-from celery.result import AsyncResult
 from fabric.runners import Result
 from flask import Response, jsonify, request
 from kubernetes.client.models.v1_service import V1Service
@@ -21,44 +20,26 @@ from app import app, conn_mng, logger
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.dao import elastic_deploy
 from app.middleware import controller_maintainer_required
+from app.models.common import JobID
+from app.models.kit_setup import DIPKickstartForm, Node
 from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          setup_s3_repository,
                                          wait_for_elastic_cluster_ready)
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
-from app.service.time_service import TimeChangeFailure, change_time_on_kit
-from shared.connection_mngs import (FabricConnection,
+from app.utils.connection_mngs import (FabricConnection,
                                     FabricConnectionWrapper, KubernetesWrapper)
-from shared.constants import KICKSTART_ID
-from shared.utils import decode_password, encode_password
+from app.utils.constants import KICKSTART_ID
+from app.utils.utils import decode_password, encode_password
 
 from fabric import Connection
 
-REGISTRATION_JOB = None # type: AsyncResult
+
 _JOB_NAME = "tools"
 
 
 class AmmendedPasswordNotFound(Exception):
     pass
-
-
-@app.route('/api/change_kit_clock', methods=['POST'])
-@controller_maintainer_required
-def change_kit_clock() -> Response:
-    payload = request.get_json()
-    date_parts = payload['date'].split(' ')[0].split('/')
-    time_parts = payload['date'].split(' ')[1].split(':')
-    time_form = {'timezone': payload['timezone'],
-                 'date': { 'year': date_parts[2], 'month': date_parts[0], 'day': date_parts[1]},
-                 'time': '{}:{}:{}'.format(time_parts[0], time_parts[1], time_parts[2])
-               }
-
-    try:
-        change_time_on_kit(time_form)
-    except TimeChangeFailure as e:
-        return jsonify({"message": str(e)})
-
-    return jsonify({"message": "Successfully changed the clock on your Kit!"})
 
 
 @app.route('/api/get_current_dip_time', methods=['GET'])
@@ -84,31 +65,23 @@ def _get_ammended_password(ip_address_lookup: str, ammended_passwords: List[Dict
             return item["password"]
     raise AmmendedPasswordNotFound()
 
-def password_from_config(config):
-    return decode_password(config["form"]["root_password"])
+def update_password(config: DIPKickstartForm, password):
+    config.root_password = password
+    config.save_to_db()
 
-def update_password(config, password):
-    config["form"]["root_password"] = encode_password(password)
-    config["form"]["re_password"] = encode_password(password)
-    result = conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                        {"_id": KICKSTART_ID, "form": config["form"]},
-                                        upsert=False,
-                                        return_document=ReturnDocument.AFTER)
-    return result
 
 @app.route('/api/change_kit_password', methods=['POST'])
 @controller_maintainer_required
 def change_kit_password():
     payload = request.get_json()
 
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-
+    current_config = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
     if current_config == None:
         return (jsonify({"message": "Couldn't find kit configuration."}), 500)
 
-    for node in current_config["form"]["nodes"]:
+    for node in current_config.nodes: # type: Node
         try:
-            connection = Connection(node["ip_address"], "root", connect_kwargs={'key_filename': '/root/.ssh/id_rsa', 'allow_agent': False, 'look_for_keys': False})
+            connection = Connection(str(node.ip_address), "root", connect_kwargs={'key_filename': '/root/.ssh/id_rsa', 'allow_agent': False, 'look_for_keys': False})
             result = connection.run("echo '{}' | passwd --stdin root".format(payload["passwordForm"]["root_password"]), warn=True) # type: Result
 
             if result.return_code !=0:
@@ -120,7 +93,7 @@ def change_kit_password():
             connection.close()
 
         except AuthenticationException:
-            return (jsonify(node), 422)
+            return (jsonify(node.to_dict()), 422)
         except Exception as e:
             return (jsonify({"message": str(e)}), 500)
 
@@ -324,5 +297,5 @@ def snapshot():
     else:
         repository_settings = request.get_json()
         elasticsearch_ip = retrieve_service_ip_address("elasticsearch")
-        setup_s3_repository.delay(elasticsearch_ip, repository_settings)
-        return OK_RESPONSE
+        job = setup_s3_repository.delay(elasticsearch_ip, repository_settings)
+        return (jsonify(JobID(job).to_dict()), 200)

@@ -3,19 +3,28 @@ Main module for handling all of the Kickstart Configuration REST calls.
 """
 import json
 
-from app import (app, logger, conn_mng, DEPLOYER_DIR)
-from app.archive_controller import archive_form
+from app import (app, logger, conn_mng, DEPLOYER_DIR, KIT_SETUP_NS)
 from app.inventory_generator import KickstartInventoryGenerator, MIPKickstartInventoryGenerator
 from app.service.job_service import run_command
 from app.service.kickstart_service import perform_kickstart
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, jsonify, Response
+from flask_restplus import Resource
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
-from shared.constants import KICKSTART_ID, ADDNODE_ID
-from shared.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
-from typing import Dict
+from app.utils.constants import KICKSTART_ID, ADDNODE_ID
+from app.utils.utils import netmask_to_cidr, filter_ip, encode_password, decode_password
+from typing import Dict, List, Union
 from app.middleware import Auth, controller_admin_required
+from app.models import DBModelNotFound, PostValidationError
+from app.models.common import JobID, COMMON_ERROR_DTO
+from app.models.kit_setup import (DIPKickstartForm, Node, DIPKickstartSchema,
+                                  NodeSchema, AddNodeWizard, AddNodeWizardSchema,
+                                  MIPKickstartForm, MIP, MIPSchema, MIPKickstartSchema)
+
+from marshmallow.exceptions import ValidationError
+from rq.job import Job
+
 
 def _is_valid_ip(ip_address: str) -> bool:
     """
@@ -34,245 +43,117 @@ def _is_valid_ip(ip_address: str) -> bool:
     return False
 
 
-def save_kickstart_to_mongo(kickstart_form: Dict) -> None:
-    """
-    Saves Kickstart to mongo database.
+@KIT_SETUP_NS.route("/add_node_wizard")
+class AddNodeWizardCtrl(Resource):
 
-    :param kickstart_form: Dictionary for the Kickstart form
-    """
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_config:
-        archive_form(current_config['form'], True, conn_mng.mongo_kickstart_archive)
-
-    kickstart_form["re_password"] = encode_password(kickstart_form["re_password"])
-    kickstart_form["root_password"] = encode_password(kickstart_form["root_password"])
-
-    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                                  {"_id": KICKSTART_ID, "form": kickstart_form},
-                                                  upsert=True)  # type: InsertOneResult
-
-def save_mip_kickstart_to_mongo(kickstart_form: Dict) -> None:
-    """
-    Saves Kickstart to mongo database.
-
-    :param kickstart_form: Dictionary for the Kickstart form
-    """
-    current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if current_config:
-        archive_form(current_config['form'], True, conn_mng.mongo_kickstart_archive)
-
-    kickstart_form["re_password"] = encode_password(kickstart_form["re_password"])
-    kickstart_form["root_password"] = encode_password(kickstart_form["root_password"])
-
-    kickstart_form["luks_password"] = encode_password(kickstart_form["luks_password"])
-    kickstart_form["confirm_luks_password"] = encode_password(kickstart_form["confirm_luks_password"])
-
-    conn_mng.mongo_kickstart.find_one_and_replace({"_id": KICKSTART_ID},
-                                                  {"_id": KICKSTART_ID, "form": kickstart_form},
-                                                  upsert=True)  # type: InsertOneResult
-
-
-
-@app.route('/api/test123', methods=['GET'])
-def test123() -> Response:
-    t = {'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff', 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
-    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": "add_node_wizard"}, {"_id": "add_node_wizard", "form": t, "step": 3}, upsert=True)
-    return OK_RESPONSE
-
-
-@app.route('/api/get_add_node_wizard_state', methods=['GET'])
-def get_add_node_wizard_state() -> Response:
-    ret_val = conn_mng.mongo_add_node_wizard.find_one({"_id": ADDNODE_ID})
-    return jsonify(ret_val)
-
-class IndexNotFound(Exception):
-    pass
-
-
-def _get_index(kickstart_form: Dict, new_node: Dict) -> int:
-    #{'hostname': 'sensor3.lan', 'ip_address': '172.16.77.27', 'mac_address': 'aa:bb:cc:dd:ee:ff',
-    # 'data_drive': 'sdb', 'boot_drive': 'sda', 'pxe_type': 'BIOS', 'continue': False}
-    for index, node in enumerate(kickstart_form["nodes"]):
-        if node['hostname'] == new_node['hostname'] and node['ip_address'] == new_node['ip_address'] and node['os_raid']:
-            return index
-    raise IndexNotFound()
-
-
-def _handle_add_node(add_node_payload: Dict) -> Dict:
-    # This code executes when the payload is from the add node wizard on the frontend.
-    kickstart_form = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})["form"]
-    add_node_state = conn_mng.mongo_add_node_wizard.find_one({"_id": ADDNODE_ID})
-    if add_node_state:
-        #If a node already exists, check if it exists and remove it from the node collection
+    @KIT_SETUP_NS.response(200, 'AddNodeWizard Model', AddNodeWizard.DTO)
+    def get(self):
         try:
-            index = _get_index(kickstart_form, add_node_state["form"])
-            del kickstart_form["nodes"][index]
-        except IndexNotFound:
-            pass
-
-    kickstart_form["nodes"].append(add_node_payload)
-    kickstart_form["re_password"] = decode_password(kickstart_form["re_password"])
-    kickstart_form["root_password"] = decode_password(kickstart_form["root_password"])
-    conn_mng.mongo_add_node_wizard.find_one_and_replace({"_id": ADDNODE_ID}, {"_id": ADDNODE_ID, "form": add_node_payload, "step": 3}, upsert=True)
-    return kickstart_form
+            add_node_wizard = AddNodeWizard.load_from_db()
+            schema = AddNodeWizardSchema()
+            return schema.dump(add_node_wizard)
+        except DBModelNotFound:
+            return {}, 200
 
 
-@app.route('/api/generate_kickstart_inventory', methods=['POST'])
-@controller_admin_required
-def generate_kickstart_inventory() -> Response:
-    """
-    Generates the Kickstart inventory file from a JSON object that was posted from the
-    Angular frontend component.
+@KIT_SETUP_NS.route("/kickstart")
+class DIPKickstartCtrl(Resource):
 
-    :return:
-    """
-    payload = request.get_json()
+    def _execute_kickstart_job(self, kickstart_form: DIPKickstartForm, tags: List[str]) -> Dict:
+        schema = DIPKickstartSchema()
+        kickstart_generator = KickstartInventoryGenerator(schema.dump(kickstart_form))
+        kickstart_generator.generate()
+        cmd_to_execute = ("ansible-playbook site.yml -i inventory.yml -t {tags}".format(tags=",".join(tags)))
+        result = perform_kickstart.delay(cmd_to_execute)
+        return JobID(result).to_dict()
 
-    tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles']
-    if 'nodes' in payload:
-        kickstart_form = payload
-        tags.append('update_portal_client')
-        if not kickstart_form['continue']:
-            invalid_ips = []
-            for node in kickstart_form["nodes"]:
-                if not _is_valid_ip(node["ip_address"]):
-                    invalid_ips.append(node["ip_address"])
+    @KIT_SETUP_NS.response(200, 'DIPKickstartForm Model', DIPKickstartForm.DTO)
+    def get(self):
+        try:
+            kickstart_form = DIPKickstartForm.load_from_db()
+            schema = DIPKickstartSchema()
+            return schema.dump(kickstart_form)
+        except DBModelNotFound:
+            return {}, 200
 
-            invalid_ips_len = len(invalid_ips)
-            if invalid_ips_len > 0:
-                if invalid_ips_len == 1:
-                    return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
-                                                .format(', '.join(invalid_ips)))
-                else:
-                    return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
-                                                .format(', '.join(invalid_ips)))
-    else:
-        kickstart_form = _handle_add_node(payload)
+    @KIT_SETUP_NS.expect(DIPKickstartForm.DTO)
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @controller_admin_required
+    def post(self):
+        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles']
+        new_kickstart = None
+        try:
+            new_kickstart = DIPKickstartForm.load_from_request(KIT_SETUP_NS.payload)
+            new_kickstart.post_validation()
+        except ValidationError as e:
+            return e.normalized_messages(), 400
+        except PostValidationError as e:
+            return {"post_validation": e.errors_msgs}, 400
 
-    #logger.debug(json.dumps(kickstart_form, indent=4, sort_keys=True))
-    save_kickstart_to_mongo(kickstart_form)
-    kickstart_generator = KickstartInventoryGenerator(kickstart_form)
-    kickstart_generator.generate()
-    cmd_to_execute = ("ansible-playbook site.yml -i inventory.yml -t {tags}".format(tags=",".join(tags)))
-    task_id = perform_kickstart.delay(cmd_to_execute)
-    conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kickstart"},
-                                                     {"_id": "Kickstart", "task_id": str(task_id), "pid": ""},
-                                                     upsert=True)
-    return (jsonify(str(task_id)), 200)
+        new_kickstart.save_to_db(delete_kit=True)
+        return self._execute_kickstart_job(new_kickstart, tags)
 
+    @KIT_SETUP_NS.expect(Node.DTO)
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @KIT_SETUP_NS.doc(description="Adds a node to the Kickstart configuration and reruns the deployers playbook.")
+    @controller_admin_required
+    def put(self):
+        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles','update_portal_client']
+        schema = NodeSchema()
+        new_node = None
+        try:
+            kickstart_form = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+            new_node = Node.load_from_request(KIT_SETUP_NS.payload)
+            kickstart_form.nodes.append(new_node)
+            kickstart_form.post_validation()
+            wizard = AddNodeWizard(3, new_node)
+            wizard.save_to_db()
+        except ValidationError as e:
+            return e.normalized_messages(), 400
+        except PostValidationError as e:
+            return {"post_validation": e.errors_msgs}, 400
+        except DBModelNotFound as e:
+            return {"post_validation": [str(e)]}, 400
 
-@app.route('/api/generate_mip_kickstart_inventory', methods=['POST'])
-@controller_admin_required
-def generate_mip_kickstart_inventory() -> Response:
-    kickstart_form = request.get_json()
-
-    if not kickstart_form['continue']:
-        invalid_ips = []
-        for node in kickstart_form["nodes"]:
-            if not _is_valid_ip(node["ip_address"]):
-                invalid_ips.append(node["ip_address"])
-
-        invalid_ips_len = len(invalid_ips)
-        if invalid_ips_len > 0:
-            if invalid_ips_len == 1:
-                return jsonify(error_message="The IP {} is already being used on this network. Please use a different IP address."
-                                                .format(', '.join(invalid_ips)))
-            else:
-                return jsonify(error_message="The IPs {} are already being used on this network. Please use different IP addresses."
-                                                .format(', '.join(invalid_ips)))
-
-    save_mip_kickstart_to_mongo(kickstart_form)
-
-    kickstart_form["root_password"] = decode_password(kickstart_form["root_password"])
-    kickstart_form["re_password"] = decode_password(kickstart_form["re_password"])
-
-    kickstart_form["luks_password"] = decode_password(kickstart_form["luks_password"])
-    kickstart_form["confirm_luks_password"] = decode_password(kickstart_form["confirm_luks_password"])
-
-    kickstart_generator = MIPKickstartInventoryGenerator(kickstart_form)
-    kickstart_generator.generate()
-
-    cmd_to_execute = ("ansible-playbook site.yml -t 'kickstart,profiles' -i inventory.yml")
-
-    task_id = perform_kickstart.delay(cmd_to_execute, 'MIP')
-    conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kickstart"},
-                                                     {"_id": "Kickstart", "task_id": str(task_id), "pid": ""},
-                                                     upsert=True)
-    return (jsonify(str(task_id)), 200)
-
-@app.route('/api/update_kickstart_ctrl_ip/<new_ctrl_ip>', methods=['PUT'])
-@controller_admin_required
-def update_kickstart_ctrl_ip(new_ctrl_ip: str) -> Response:
-    """
-    Updates the Kickstart controller IP address in the mongo form.
-
-    :return:
-    """
-    ret_val = conn_mng.mongo_kickstart.find_one_and_update({"_id": KICKSTART_ID},
-                                                           {'$set': {'form.controller_interface': [new_ctrl_ip]}},
-                                                            return_document=ReturnDocument.AFTER,
-                                                            upsert=False
-                                                          )
-    if ret_val:
-        return jsonify(ret_val["form"])
-    return jsonify(error_message='Failed to update IP {} on Kickstart configuration page.')
+        kickstart_form.save_to_db()
+        return self._execute_kickstart_job(kickstart_form, tags)
 
 
-@app.route('/api/get_kickstart_form', methods=['GET'])
-def get_kickstart_form() -> Response:
-    """
-    Gets the Kickstart form that was generated by the user on the Kickstart
-    configuration page.
+@KIT_SETUP_NS.route("/mip_kickstart")
+class MIPKickstartCtrl(Resource):
 
-    :return:
-    """
-    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    def _execute_kickstart_job(self, kickstart_form: MIPKickstartForm) -> Dict:
+        schema = MIPKickstartSchema()
+        kickstart_generator = MIPKickstartInventoryGenerator(kickstart_form)
+        kickstart_generator.generate()
+        cmd_to_execute = ("ansible-playbook site.yml -t 'kickstart,profiles' -i inventory.yml")
+        result = perform_kickstart.delay(cmd_to_execute, 'MIP')
+        return JobID(result).to_dict()
 
-    if mongo_document is None:
-        return OK_RESPONSE
+    @KIT_SETUP_NS.response(200, 'MIPKickstartForm Model', MIPKickstartForm.DTO)
+    def get(self):
+        try:
+            kickstart_form = MIPKickstartForm.load_from_db()
+            schema = MIPKickstartSchema()
+            return schema.dump(kickstart_form)
+        except DBModelNotFound:
+            return {}, 200
 
-    mongo_document['_id'] = str(mongo_document['_id'])
-    mongo_document["form"]["root_password"] = decode_password(mongo_document["form"]["root_password"])
-    mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
+    @KIT_SETUP_NS.expect(MIPKickstartForm.DTO)
+    @KIT_SETUP_NS.response(200, 'JobID Model', JobID.DTO)
+    @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
+    @controller_admin_required
+    def post(self):
+        new_kickstart = None
+        try:
+            new_kickstart = MIPKickstartForm.load_from_request(KIT_SETUP_NS.payload)
+            new_kickstart.post_validation()
+        except ValidationError as e:
+            return e.normalized_messages(), 400
+        except PostValidationError as e:
+            return {"post_validation": e.errors_msgs}, 400
 
-    return jsonify(mongo_document["form"])
-
-@app.route('/api/get_mip_kickstart_form', methods=['GET'])
-def get_mip_kickstart_form() -> Response:
-    """
-    Gets the MIP Kickstart form that was generated by the user on the Kickstart
-    configuration page.
-
-    :return:
-    """
-    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-
-    if mongo_document is None:
-        return OK_RESPONSE
-
-    mongo_document['_id'] = str(mongo_document['_id'])
-    mongo_document["form"]["root_password"] = decode_password(mongo_document["form"]["root_password"])
-    mongo_document["form"]["re_password"] = decode_password(mongo_document["form"]["re_password"])
-    mongo_document["form"]["luks_password"] = decode_password(mongo_document["form"]["luks_password"])
-    mongo_document["form"]["confirm_luks_password"] = decode_password(mongo_document["form"]["confirm_luks_password"])
-
-    return jsonify(mongo_document["form"])
-
-
-@app.route('/api/get_unused_ip_addrs', methods=['POST'])
-def get_unused_ip_addrs() -> Response:
-    """
-    Gets unused IP Addresses from a given network.
-    :return:
-    """
-    payload = request.get_json()
-    cidr = netmask_to_cidr(payload['netmask'])
-    if cidr <= 24:
-        command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % payload['mng_ip']
-    else:
-        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (payload['mng_ip'], cidr)
-
-    stdout_str = run_command(command, use_shell=True)
-    available_ip_addresses = stdout_str.split('\n')
-    available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
-    return jsonify(available_ip_addresses)
+        new_kickstart.save_to_db()
+        return self._execute_kickstart_job(new_kickstart)

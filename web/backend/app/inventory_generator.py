@@ -9,8 +9,9 @@ from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR
 from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
+from app.models.kit_setup import DIPKickstartForm, MIPKickstartForm, DIPKitForm
 from app.resources import NodeResourcePool
-from shared.constants import NODE_TYPES
+from app.utils.constants import NODE_TYPES
 
 
 JINJA_ENV = Environment(
@@ -27,18 +28,6 @@ class KickstartInventoryGenerator:
     def __init__(self, json_dict: Dict):
         self._template_ctx = json_dict
 
-    def _map_dl160_and_supermicro(self) -> None:
-        """
-        Maps the DL160 and SuperMicro values to the appropriate values for the
-        inventory file.
-        :return:
-        """
-        for node in self._template_ctx["nodes"]:
-            if node['pxe_type'] == "SuperMicro":
-                node['pxe_type'] = "BIOS"
-            elif node['pxe_type'] == "DL160":
-                node['pxe_type'] = "UEFI"
-
     def _set_dhcp_range(self):
         self._template_ctx['dhcp_start'] = self._template_ctx['dhcp_range']
         pos = self._template_ctx['dhcp_range'].rfind('.') + 1
@@ -49,21 +38,16 @@ class KickstartInventoryGenerator:
     def _set_raid(self):
         for node in self._template_ctx["nodes"]:
             if node['os_raid']:
-                node['boot_drive'] = ""
-                node['data_drive'] = ""
-                node['raid_drives'] = node['raid_drives'].split(",")
+                node['boot_drives'] = ""
+                node['data_drives'] = ""
             if not node['os_raid']:
                 node['raid_drives'] = []
-                node['boot_drive'] = node['boot_drive'].split(",")
-                node['data_drive'] = node['data_drive'].split(",")
-
 
     def generate(self) -> None:
         """
         Generates the Kickstart inventory file in
         :return:
         """
-        self._map_dl160_and_supermicro()
         self._set_dhcp_range()
         self._set_raid()
         template = JINJA_ENV.get_template('kickstart_inventory.yml')
@@ -80,10 +64,9 @@ class KitInventoryGenerator:
     """
     The KitInventory generator class
     """
-    def __init__(self, kit_form: Dict, kickstart_form: Dict):
-        self._template_ctx = kit_form
-        self._kickstart_form = kickstart_form
-
+    def __init__(self, kit_form: DIPKitForm, kickstart: DIPKickstartForm):
+        self._kickstart = kickstart
+        self._template_ctx = kit_form.to_dict()
         self._servers_list = get_servers_from_list(self._template_ctx["nodes"])
         self._sensors_list = get_sensors_from_list(self._template_ctx["nodes"])
         self._server_res = NodeResourcePool(self._servers_list)
@@ -118,22 +101,12 @@ class KitInventoryGenerator:
         """
         self._set_sensor_type_counts()
         self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr'] + "/27"
-        if self._template_ctx['dns_ip'] is None:
-            self._template_ctx['dns_ip'] = ''
 
         if "remove_node" not in self._template_ctx:
             self._template_ctx["remove_node"] = ''
 
-
-    def _set_domain(self) -> None:
-        """
-        Sets the domain for the kit.
-
-        :return:
-        """
-        if "domain" in self._kickstart_form:
-            self._template_ctx["domain"] = self._kickstart_form["domain"]
-
+    def _set_domain(self):
+        self._template_ctx['domain'] = self._kickstart.domain
 
     def generate(self) -> None:
         """
@@ -153,8 +126,8 @@ class KitInventoryGenerator:
             kit_file.write(kit_template)
 
 class MIPKickstartInventoryGenerator:
-    def __init__(self, json_dict: Dict):
-        self._template_ctx = json_dict
+    def __init__(self, mip_kickstart: MIPKickstartForm):
+        self._template_ctx = mip_kickstart.to_dict()
 
     def _map_mip_model(self) -> None:
         for node in self._template_ctx["nodes"]:
@@ -177,7 +150,6 @@ class MIPKickstartInventoryGenerator:
         self._map_mip_model()
         self._set_dhcp_range()
         template = JINJA_ENV.get_template('mip_kickstart_inventory.yml')
-        print(self._template_ctx)
         kickstart_template = template.render(self._template_ctx)
 
         if not os.path.exists(str(MIP_KICK_DIR)):

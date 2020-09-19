@@ -20,11 +20,12 @@ class SuricataSettings(Model):
         self.interfaces = ""
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings, HwNodeSettings]):
-        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
-        self.affinity_hostname = node_fqdn
-        self.deployment_name = "{}-{}".format(node_settings.hostname, "suricata")
-        self.node_hostname = node_fqdn
+        self.affinity_hostname = node_settings.hostname
+        pos = node_settings.hostname.rfind(".")
+        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "suricata")
+        self.node_hostname = node_settings.hostname
         self.interfaces = node_settings.monitoring_interface
+
 
 class MolochCaptureSettings(Model):
     def __init__(self):
@@ -42,10 +43,10 @@ class MolochCaptureSettings(Model):
         self.interfaces = ""
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
-        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
-        self.affinity_hostname = node_fqdn
-        self.deployment_name = "{}-{}".format(node_settings.hostname, "moloch")
-        self.node_hostname = node_fqdn
+        self.affinity_hostname = node_settings.hostname
+        pos = node_settings.hostname.rfind(".")
+        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "moloch")
+        self.node_hostname = node_settings.hostname
         self.interfaces = node_settings.monitoring_interface
 
 
@@ -76,28 +77,21 @@ class ZeekSettings(Model):
         self.interfaces = ""
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
-        node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
-        self.affinity_hostname = node_fqdn
-        self.deployment_name = "{}-{}".format(node_settings.hostname, "zeek")
-        self.node_hostname = node_fqdn
+        self.affinity_hostname = node_settings.hostname
+        pos = node_settings.hostname.rfind(".")
+        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "zeek")
+        self.node_hostname = node_settings.hostname
         self.interfaces = node_settings.monitoring_interface
+
 
 class LogstashSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
-        self.kafka_clusters = []
         self.replicas = 1
         self.heap_size = 2
         self.deployment_name = "logstash"
         self.external_fqdn = ""
         self.external_ip = ""
-
-
-    def set_from_kickstart(self, kickstart_settings: Union[KickstartSettings,HwNodeSettings]):
-        self.kafka_clusters = []
-        for sensor in kickstart_settings.sensors: # type: NodeSettings
-            dep_name = "{}-{}".format(sensor.hostname, "zeek")
-            self.kafka_clusters.append(dep_name + ".default.svc.cluster.local:9092")
 
 
 class WikijsSettings(Model):
@@ -137,11 +131,13 @@ class RocketchatSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "rocketchat"
 
+
 class MattermostSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "mattermost"
+
 
 class NifiSettings(Model):
     def __init__(self):
@@ -149,17 +145,21 @@ class NifiSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "nifi"
 
+
 class RedmineSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "redmine"
 
+
 class NetflowFilebeatSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "netflow-filebeat"
+
+
 class CatalogSettings(Model):
 
     def __init__(self):
@@ -206,7 +206,6 @@ class CatalogSettings(Model):
 
             if namespace.which == SubCmd.logstash:
                 logstash_settings = LogstashSettings()
-                logstash_settings.set_from_kickstart(kickstart_settings)
                 logstash_settings.from_namespace(namespace)
                 self.logstash_settings = logstash_settings
 

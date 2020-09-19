@@ -24,7 +24,7 @@ Setup DIP Controller:
     --network-block-index $DIP_NETWORK_BLOCK_INDEX \
     --dns-servers         $DNS_SERVERS             \
     --vm-folder           "$VMWARE_FOLDER"         \
-    --vm-password         "$DEFAULT_VM_PASSWORD"   \
+    --vm-password         "$DEFAULT_TEMPLATE_PASSWORD"   \
     --vm-template         "$DIP_TEMPLATE_TO_CLONE" \
     --gateway             "$VM_GATEWAY"            \
     --vm-prefix           "$VM_PREFIX-dip"         \
@@ -63,7 +63,7 @@ Create a standalone MinIO server:
       --network-block-index "$DIP_NETWORK_BLOCK_INDEX"
       --dns-servers $DNS_SERVERS
       --vm-folder "$VMWARE_FOLDER"
-      --vm-password "$DEFAULT_VM_PASSWORD"
+      --vm-password "$DEFAULT_TEMPLATE_PASSWORD"
       --vm-template "$MINIO_TEMPLATE_TO_CLONE"
       --gateway "$VM_GATEWAY"
       --vm-prefix "$VM_PREFIX-dip"
@@ -89,7 +89,7 @@ Create a standalone MinIO server:
 
 
 DIP Kickstart:
-  needs: ["Setup DIP Controller"]
+  needs: ["Run Python Unit Tests", "Setup DIP Controller"]
   stage: kickstart
   tags:
     - tfplenum-buildv2
@@ -243,14 +243,14 @@ CVAH Catalog Community Apps:
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-dip-mip"
 
-DIP Run Python Unit Tests:
+Run Python Unit Tests:
   tags:
     - tfplenum-buildv2
   stage: unit-test
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    # python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-unit-tests
   only:
     variables:
       - $PIPELINE == "developer-dip"

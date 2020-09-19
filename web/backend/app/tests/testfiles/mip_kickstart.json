@@ -1,0 +1,29 @@
+{
+  "controller_interface": "10.40.12.145",
+  "root_password": "mypassword1!Afoobar",
+  "luks_password": "mypassword1!Afoobar",
+  "netmask": "255.255.255.0",
+  "gateway": "10.40.12.1",
+  "dns": "10.10.101.11",
+  "dhcp_range": "10.40.12.153",
+  "nodes": [
+    {
+      "hostname": "server1",
+      "ip_address": "10.40.12.146",
+      "mac_address": "00:0a:29:6e:7f:ff",
+      "pxe_type": "NVMe"
+    },
+    {
+      "hostname": "server2",
+      "ip_address": "10.40.12.147",
+      "mac_address": "00:0a:29:6e:7f:f3",
+      "pxe_type": "SCSI/SATA/USB"
+    },
+    {
+      "hostname": "sensor1",
+      "ip_address": "10.40.12.148",
+      "mac_address": "00:0a:29:6e:7f:f2",
+      "pxe_type": "NVMe"
+    }
+  ]
+}

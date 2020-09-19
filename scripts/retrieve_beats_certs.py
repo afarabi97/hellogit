@@ -6,7 +6,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 AGENT_PKGS_DIR = SCRIPT_DIR + '/../agent_pkgs/'
 
 sys.path.append(SCRIPT_DIR + "/../web/backend/")
-from shared.connection_mngs import get_kubernetes_secret, MongoConnectionManager, KubernetesSecret
+from app.utils.connection_mngs import get_kubernetes_secret, MongoConnectionManager, KubernetesSecret
 from app.service.job_service import run_command2
 from pathlib import Path
 

@@ -40,6 +40,7 @@ export function getSideNavigationButtons(system_name: string, userService: UserS
     { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', system: SYSTEM_NAMES_DIP_GIP, privs: operator, kitStatus: true },
     { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: SYSTEM_NAMES_DIP, privs: operator, kitStatus: true },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: SYSTEM_NAMES_ALL, privs: controller_maintainer, kitStatus: false },
+    { label: 'API Docs', url: '/api/docs', icon: 'web', isExternalLink: true, section: 'tools', system: SYSTEM_NAMES_ALL, privs: controller_maintainer, kitStatus: false },
     { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', system: SYSTEM_NAMES_DIP, privs: controller_maintainer, kitStatus: true },
     { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', system: SYSTEM_NAMES_DIP, privs: controller_maintainer, kitStatus: true },
     { label: 'Cold Log Ingest', url: '/logingest', icon: 'cloud_download', isExternalLink: false, section: 'Elastic', system: SYSTEM_NAMES_DIP_GIP, privs: operator, kitStatus: true },

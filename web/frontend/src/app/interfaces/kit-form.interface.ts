@@ -8,8 +8,6 @@ import { NodeInterface } from './node.interface';
  */
 export interface KitFormInterface {
   complete: boolean;
-  dns_ip?: string;
   kubernetes_services_cidr: string;
   nodes: NodeInterface[];
-  use_proxy_pool: boolean;
 }

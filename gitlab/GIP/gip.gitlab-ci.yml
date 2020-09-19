@@ -18,7 +18,7 @@ Setup GIP Services VM:
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --gateway "$VM_GATEWAY" \
     --dns-servers $DNS_SERVERS \
@@ -101,7 +101,7 @@ Setup GIP Controller:
     --network-block-index $GIP_NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --vm-template "$GIP_TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX-gip" \

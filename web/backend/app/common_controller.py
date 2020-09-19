@@ -3,19 +3,21 @@ This is the main module for all the shared REST calls
 """
 import os, signal
 
-from app import app, logger, conn_mng, celery
-from app.archive_controller import archive_form
+from app import app, logger, conn_mng, api
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.job_service import run_command
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.node_facts import get_system_info
+from app.models.common import COMMON_RETURNS
+from app.models.kit_setup import DIPKickstartForm, DBModelNotFound, DIPKitForm, Node, MIPKickstartForm
+from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup
 from flask import request, jsonify, Response
-from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
-from shared.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
+from flask_restplus import Resource
+from app.utils.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
+from app.utils.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple
 from app.service.system_info_service import get_system_name
 from app.middleware import Auth, controller_admin_required, login_required_roles
-
+from marshmallow.exceptions import ValidationError
 
 @app.route('/api/get_system_name', methods=['GET'])
 def get_system_name_api():
@@ -27,7 +29,7 @@ def get_system_name_api():
 
 
 @app.route('/api/metrics', methods=['POST'])
-@login_required_roles(['metrics'], all_roles_req=False)
+# @login_required_roles(['metrics'], all_roles_req=False)
 def replace_metrics():
     data = request.get_json()
     status = 200
@@ -44,81 +46,29 @@ def replace_metrics():
 
 MIN_MBPS = 1000
 
-@app.route('/api/gather_device_facts/<management_ip>', methods=['GET'])
-@controller_admin_required
-def gather_device_facts(management_ip) -> Response:
-    """
-    Gathers device facts or sends back a HTTP error to the
-    user if something fails.
 
-    :return: A jsonified response object.
-    """
-    try:
-        current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-        if current_config:
-            password = decode_password(current_config["form"]["root_password"])
-        else:
-            password = ''
+@api.route("/api/gather_device_facts/<management_ip>")
+@api.doc(params={'management_ip': "The IP we wish to get additional information from."})
+class DeviceFactsCtrl(Resource):
 
-        node, default_ipv4, product_name = get_system_info(management_ip, password)
-        potential_monitor_interfaces = []
-        for interface in node.interfaces:
-            if interface.ip_address != management_ip:
-                potential_monitor_interfaces.append(interface.name)
-
-        return jsonify(cpus_available=node.cpu_cores,
-                       memory_available=node.memory_gb,
-                       disks= [disk. __dict__ for disk in node.disks],
-                       hostname=node.hostname,
-                       default_ipv4_settings=default_ipv4,
-                       potential_monitor_interfaces=potential_monitor_interfaces,
-                       interfaces=[interface. __dict__ for interface in node.interfaces],
-                       product_name=product_name)
-    except Exception as e:
-        logger.exception(e)
-        return jsonify(error_message=str(e)), 400
-
-
-def check_pid(pid):
-    """ Check For the existence of a unix pid. """
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
-
-
-@app.route('/api/kill_job', methods=['POST'])
-@controller_admin_required
-def kill_job() -> Response:
-    """
-    Kills the job before it finishes processing.
-
-    :return: OK response on success or server 500 on failure.
-    """
-    payload = request.get_json()
-    try:
-        job_name = payload['jobName']
-        task = conn_mng.mongo_celery_tasks.find_one({"_id": job_name})
-        if task:
-            celery.control.revoke(task["task_id"], terminate=True, signal='SIGKILL')
-            if check_pid(task["pid"]):
-                os.kill(task["pid"], signal.SIGTERM)
-
-            # Delete task from mongodb
-            conn_mng.mongo_celery_tasks.delete_one({"_id": job_name})
-
-            # Send notification that the task has been cancelled
-            notification = NotificationMessage(role=job_name.lower())
-            notification.set_message("%s cancelled." % job_name.capitalize())
-            notification.set_status(NotificationCode.CANCELLED.name)
-            notification.post_to_websocket_api()
-
-        return OK_RESPONSE
-    except Exception as e:
-        logger.exception(e)
-    return ERROR_RESPONSE
+    @api.response(200, "DeviceFacts", DeviceFacts.DTO)
+    @api.doc(description="")
+    def get(self, management_ip: str):
+        try:
+            try:
+                current_config = DIPKickstartForm.load_from_db()
+            except ValidationError:
+                current_config = MIPKickstartForm.load_from_db()
+            device_facts = create_device_facts_from_ansible_setup(
+                                management_ip, current_config.root_password)
+            return device_facts.to_dict()
+        except DBModelNotFound as e:
+            device_facts = create_device_facts_from_ansible_setup(
+                                management_ip, "")
+            return device_facts.to_dict()
+        except Exception as e:
+            logger.exception(e)
+            return {"error_message": str(e)}, 400
 
 
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
@@ -205,54 +155,66 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     return available_ip_blocks
 
 
-@app.route('/api/get_available_ip_blocks', methods=['GET'])
-def get_available_ip_blocks() -> Response:
-    """
-    Grabs available /28 or 16 host blocks from a /24, /25, /26, or /27
-    IP subnet range.
+@api.route("/api/get_available_ip_blocks")
+class IPBlocks(Resource):
 
-    :return:
-    """
-    mongo_document = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if mongo_document is None:
-        return jsonify([])
-
-    mng_ip = mongo_document["form"]["controller_interface"][0]
-    netmask = mongo_document["form"]["netmask"]
-    available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
-    return jsonify(available_ip_blocks)
-
-
-@app.route('/api/get_ip_blocks/<controller_ip>/<netmask>', methods=['GET'])
-def get_ip_blocks(controller_ip: str, netmask: str) -> Response:
-    available_ip_blocks = _get_available_ip_blocks(controller_ip, netmask)
-    return jsonify(available_ip_blocks)
+    @api.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
+    @api.doc(description="Gets available IP blocks based on controllers "
+                         "IP Address and netmask.")
+    def get(self):
+        try:
+            kickstart_form = DIPKickstartForm.load_from_db()
+            mng_ip = str(kickstart_form.controller_interface)
+            netmask = str(kickstart_form.netmask)
+            available_ip_blocks = _get_available_ip_blocks(mng_ip, netmask)
+            return available_ip_blocks
+        except DBModelNotFound as e:
+            return {}
 
 
-@app.route('/api/archive_configurations_and_clear', methods=['DELETE'])
-@controller_admin_required
-def archive_configurations_and_clear() -> Response:
-    """
-    Archives both configurations and then clears them.
+@api.route("/api/get_ip_blocks/<ip_or_network_id>/<netmask>")
+@api.doc(params={'ip_or_network_id': "An IP within the subnet you wish to scan"
+                                    " for available IP blocks.",
+                 'netmask': 'The range you wish to scan. EX: 255.255.255.0'})
+class IPBlocksGeneric(Resource):
 
-    :return
-    """
-    kickstart_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if kickstart_config:
-        archive_form(kickstart_config['form'], True, conn_mng.mongo_kickstart_archive)
-        conn_mng.mongo_kickstart.delete_one({"_id": KICKSTART_ID})
-
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        archive_form(kit_configuration['form'], True, conn_mng.mongo_kit_archive)
-        conn_mng.mongo_kit.delete_one({"_id": KIT_ID})
-
-    return OK_RESPONSE
+    @api.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
+    @api.doc(description="Gets available IP blocks based on "
+                         "IP Address and netmask.")
+    def get(self, ip_or_network_id: str, netmask: str):
+        available_ip_blocks = _get_available_ip_blocks(ip_or_network_id, netmask)
+        return available_ip_blocks
 
 
-def _get_mng_ip_and_mac(node: Dict) -> Tuple[str, str]:
+@api.route("/api/get_unused_ip_addrs/<ip_or_network_id>/<netmask>")
+@api.doc(params={'ip_or_network_id': "An IP within the subnet you wish to scan"
+                                    " for available IP blocks.",
+                 'netmask': 'The range you wish to scan. EX: 255.255.255.0'})
+class UnusedIPAddresses(Resource):
+
+    @api.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_addresses"])
+    @api.doc(description="Gets available IP blocks based on "
+                         "IP Address and netmask.")
+    def get(self, ip_or_network_id: str, netmask: str):
+        """
+        Gets unused IP Addresses from a given network.
+        :return:
+        """
+        cidr = netmask_to_cidr(netmask)
+        if cidr <= 24:
+            command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % ip_or_network_id
+        else:
+            command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (ip_or_network_id, cidr)
+
+        stdout_str = run_command(command, use_shell=True)
+        available_ip_addresses = stdout_str.split('\n')
+        available_ip_addresses = [x for x in available_ip_addresses if not filter_ip(x)]
+        return jsonify(available_ip_addresses)
+
+
+def _get_mng_ip_and_mac(node: Node) -> Tuple[str, str]:
     try:
-        iface = node['deviceFacts']['default_ipv4_settings']
+        iface = node.deviceFacts['default_ipv4_settings']
         return iface['address'], iface['macaddress']
     except KeyError:
         pass
@@ -262,16 +224,16 @@ def _get_mng_ip_and_mac(node: Dict) -> Tuple[str, str]:
 @app.route('/api/get_sensor_hostinfo', methods=['GET'])
 def get_sensor_hostinfo() -> Response:
     ret_val = []
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        for node in kit_configuration['form']['nodes']:
-            if node["node_type"] == NODE_TYPES[1]:
-                host_simple = {}
-                mng_ip, mac = _get_mng_ip_and_mac(node)
-                host_simple['hostname'] = node['hostname']
-                host_simple['management_ip'] = mng_ip
-                host_simple['mac'] = mac
-                ret_val.append(host_simple)
+    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
+
+    for node in kit_configuration.nodes:
+        if node.node_type == NODE_TYPES[1]:
+            host_simple = {}
+            mng_ip, mac = _get_mng_ip_and_mac(node)
+            host_simple['hostname'] = node.hostname
+            host_simple['management_ip'] = mng_ip
+            host_simple['mac'] = mac
+            ret_val.append(host_simple)
 
     return jsonify(ret_val)
 

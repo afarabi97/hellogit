@@ -1,12 +1,15 @@
-from app import celery, logger, DEPLOYER_DIR, conn_mng, MIP_KICK_DIR
+from app import rq_logger, DEPLOYER_DIR, conn_mng, MIP_KICK_DIR, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
+from rq.decorators import job
 from pathlib import Path
 
 _JOB_NAME = "kickstart"
 
-@celery.task
+
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def perform_kickstart(command: str, platform='DIP'):
+    rq_logger.info("Kickstart job started with command {}".format(command))
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("%s started." % _JOB_NAME.capitalize())
     notification.set_status(NotificationCode.STARTED.name)
@@ -31,9 +34,11 @@ def perform_kickstart(command: str, platform='DIP'):
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
+        rq_logger.error("Kickstart job failed.")
     else:
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
-    conn_mng.mongo_celery_tasks.delete_one({"_id": _JOB_NAME.capitalize()})
+        rq_logger.info("Kickstart job completed successfully.")
+
     return ret_val

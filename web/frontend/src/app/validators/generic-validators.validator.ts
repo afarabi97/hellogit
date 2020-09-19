@@ -56,6 +56,9 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
 }
 
 export function passwordValidator(validatorObject: validatorObject, control: AbstractControl): ValidationErrors | null {
+  if (!control.value){
+    return null;
+  }
 
   if (control.value.length < 15) {
     return { password: validatorObject.error_message, error_message: "The password must be at least 15 characters"};
@@ -175,8 +178,8 @@ export function validateIPAddress(validatorObject: validatorObject, control: Abs
       let controller_interface = ops.parentFormGroup.get('controller_interface');
       let netmask = ops.parentFormGroup.get('netmask');
       // start validating using previous validation
-      if (controller_interface.value[0] !== undefined && pat.test(control.value)) {
-        if (!isIpv4InSubnet(control.value, controller_interface.value[0], netmask.value)) {
+      if (controller_interface.value !== undefined && pat.test(control.value)) {
+        if (!isIpv4InSubnet(control.value, controller_interface.value, netmask.value)) {
           error = new errorObject({ control: control, error_message: `The value ${control.value} is not in the correct subnet` })
         }
 

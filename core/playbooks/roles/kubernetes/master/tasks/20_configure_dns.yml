@@ -1,6 +1,5 @@
 ---
 
-# DNS template must be copied after dns_ip variable is populated
 - name: 'Install DNS template'
   template:
     src: "{{ item }}.yml.j2"

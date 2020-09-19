@@ -1,0 +1,11 @@
+{
+  "hostname": "sensor2",
+  "ip_address": "10.40.12.149",
+  "mac_address": "00:0a:29:6e:7f:b2",
+  "data_drives": ["sdb"],
+  "boot_drives": ["sda"],
+  "raid_drives": ["sda","sdb"],
+  "pxe_type": "BIOS",
+  "os_raid": false,
+  "os_raid_root_size": 0
+}

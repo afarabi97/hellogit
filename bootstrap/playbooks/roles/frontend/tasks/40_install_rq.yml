@@ -1,0 +1,21 @@
+---
+
+- name: rq | copy service
+  copy:
+    src: files/rqworker@.service
+    dest: /etc/systemd/system/rqworker@.service
+
+- name: rq | Reload systemd
+  systemd:
+    daemon-reload: yes
+
+- name: rq | Enable Service
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: stopped
+  with_items:
+    - "rqworker@1"
+    - "rqworker@2"
+    - "rqworker@3"
+    - "rqworker@4"

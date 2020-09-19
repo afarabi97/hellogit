@@ -12,6 +12,6 @@ export interface NodeInterface {
   hostname: string;
   is_master_server?: boolean;
   is_remote?: boolean;
-  management_ip_address: string;
+  ip_address: string;
   node_type: string;
 }

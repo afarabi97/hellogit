@@ -10,7 +10,6 @@ class KitSettings(Model):
     def __init__(self):
         super().__init__()
         self.kubernetes_cidr = ''
-        self.use_proxy_pool = False
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -18,7 +17,7 @@ class KitSettings(Model):
         pass
 
     def from_kickstart(self, kickstart_settings: KickstartSettings):
-       self.kubernetes_cidr = IPAddressManager(kickstart_settings.node_defaults.network_id, 
+       self.kubernetes_cidr = IPAddressManager(kickstart_settings.node_defaults.network_id,
                                                 kickstart_settings.node_defaults.network_block_index).get_kubernetes_ip_block()
 
 class HwKitSettings(Model):
@@ -26,7 +25,6 @@ class HwKitSettings(Model):
     def __init__(self):
         super().__init__()
         self.kubernetes_cidr = ''
-        self.use_proxy_pool = False
 
     def from_kickstart(self, hwkickstart_settings: HwKickstartSettings):
         ip_base = '.'.join(hwkickstart_settings.dhcp_ip_block.split('.')[:-1])

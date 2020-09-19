@@ -30,7 +30,7 @@ all:
     # Below are networking options for node static addressing.
     # dns:  This is the ip address of the dns server.  By default we recommend using the ansible controller.
     # Default: ansible controllers ip address
-    dns: {{ template_ctx["controller_interface"][0] }}
+    dns: {{ template_ctx["controller_interface"] }}
 
     # gateway: This is used to configure the nodes with a default gateway.
     # Default: null
@@ -43,7 +43,7 @@ all:
     # The following variables are used for kickstart options.
     # root_password: Sets root password for each node.
     # Define: empty
-    root_password: {{ template_ctx.root_password }}
+    root_password: "{{ template_ctx.root_password }}"
     # timezone: Set the timezone for each node.
     # Define: America/Chicago
     timezone: {{ template_ctx.timezone | default('UTC') }}
@@ -59,7 +59,7 @@ all:
 
     # server_ip: ansible controller ip address used to define kickstart server
     # Default: ansible controller ip address
-    server_ip: {{ template_ctx["controller_interface"][0] }}
+    server_ip: {{ template_ctx["controller_interface"] }}
 
   children:
     nodes:
@@ -67,15 +67,15 @@ all:
         servers:
           hosts:
             {% for node in template_ctx.nodes %}
-            {{ node.hostname }}.{{ template_ctx.domain }}:
+            {{ node.hostname }}:
               ip: {{ node.ip_address }}
               mac: {{ node.mac_address }}
               boot_drive:
-              {%- for drive in node.boot_drive %}
+              {%- for drive in node.boot_drives %}
                 - {{ drive | lower() }}
               {%- endfor %}
               data_drive:
-              {%- for drive in node.data_drive %}
+              {%- for drive in node.data_drives %}
                 - {{ drive | lower() }}
               {%- endfor %}
               pxe_type: {{ node.pxe_type | lower() }}

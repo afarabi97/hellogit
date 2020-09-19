@@ -1,14 +1,15 @@
 import traceback
 
-from app import celery
+from app import REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import run_command2
+from rq.decorators import job
 from typing import List
 
 _JOB_NAME = "tools"
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def bounce_pods(associated_pods: List):
     notification = NotificationMessage(role=_JOB_NAME)
     for pod in associated_pods:

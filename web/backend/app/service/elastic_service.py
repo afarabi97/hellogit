@@ -2,12 +2,13 @@ import io
 import yaml
 import traceback
 
-from app import celery, conn_mng
+from app import conn_mng, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from datetime import datetime, timedelta
 from elasticsearch.exceptions import TransportError
 from fabric import Connection
-from shared.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
+from rq.decorators import job
+from app.utils.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
 from time import sleep
 from typing import Dict
 import json
@@ -71,7 +72,7 @@ def get_secret(name, namespace='default'):
         raise ConfigNotFound
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    api_instance = client.CoreV1Api() 
+    api_instance = client.CoreV1Api()
     api_response = api_instance.read_namespaced_secret(name, namespace)
     return api_response
 
@@ -117,7 +118,7 @@ def get_number_of_elasticsearch_nodes():
     for node in node_sets:
         count = node['count']
         total += count
-    
+
     return total
 
 def wait_for_elastic_cluster_ready(minutes=10):
@@ -144,7 +145,7 @@ def wait_for_elastic_cluster_ready(minutes=10):
         else:
             sleep(10)
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def setup_s3_repository(service_ip: str, repository_settings: Dict):
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("Updating the Elastic S3 repository settings.")

@@ -2,9 +2,9 @@ import os
 import shlex
 import subprocess
 
-from app import logger, conn_mng
+from app import conn_mng, rq_logger
 from app.service.socket_service import log_to_console
-from shared.constants import DATE_FORMAT_STR
+from app.utils.constants import DATE_FORMAT_STR
 from datetime import datetime
 from typing import Callable, Tuple
 from uuid import uuid4
@@ -48,18 +48,8 @@ class AsyncJob:
         self._use_shell = use_shell
 
     def _run_output_func(self, msg: bytes, is_stderr=False) -> None:
+        rq_logger.debug(msg.strip("\n"))
         self._output_fn(self._job_name, self._job_id, msg)
-
-    def _save_job(self, job_retval: int) -> None:
-        message = "Failed"
-        if job_retval == 0:
-            message = "Success"
-        conn_mng.mongo_last_jobs.find_one_and_replace({"_id": self._job_name},
-                                                    {"_id": self._job_name,
-                                                    "return_code": job_retval,
-                                                    "date_completed": datetime.utcnow().strftime(DATE_FORMAT_STR),
-                                                    "message": message},
-                                                    upsert=True)  # type: InsertOneResult
 
     @property
     def job_name(self):
@@ -77,10 +67,6 @@ class AsyncJob:
                                 stderr=subprocess.PIPE,
                                 cwd=self._working_dir,
                                 env=my_env)
-        task = conn_mng.mongo_celery_tasks.find_one({"_id": self._job_name})
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": self._job_name},
-                                                         {"_id": self._job_name, "task_id": task["task_id"], "pid": proc.pid},
-                                                         upsert=True)
         def check_io():
             while True:
                 output = proc.stdout.readline().decode()
@@ -93,7 +79,6 @@ class AsyncJob:
             check_io()
 
         ret_code = proc.poll()
-        self._save_job(ret_code)
         return ret_code
 
 def run_command(command: str,

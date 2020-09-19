@@ -5,13 +5,13 @@ all:
     dhcp_start: {{ dhcp_start }}
     dhcp_end: {{ dhcp_end }}
 
-    luks_password: {{ luks_password }}
-    root_password: {{ root_password }}
+    luks_password: "{{ luks_password }}"
+    root_password: "{{ root_password }}"
     timezone: 'UTC'
 
     default_boot_drive: sda
     default_root_partition: 3
-    server_ip: {{ controller_interface[0] }}
+    server_ip: {{ controller_interface }}
     netmask: {{ netmask }}
     gateway: {{ gateway }}
     dns: {{ dns }}

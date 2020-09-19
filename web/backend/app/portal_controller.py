@@ -4,12 +4,13 @@ Main module that controls the REST calls for the portal page.
 from app import (app, conn_mng, logger)
 from app.common import ERROR_RESPONSE, cursor_to_json_response
 from flask import jsonify, Response
-from shared.connection_mngs import  KubernetesWrapper2, get_elastic_password
+from app.utils.connection_mngs import  KubernetesWrapper2, get_elastic_password
 from typing import List
 from flask import Response, request, jsonify
 from bson import ObjectId
 from app.middleware import operator_required
-from shared.constants import KICKSTART_ID
+from app.models.kit_setup import DIPKickstartForm
+from app.utils.constants import KICKSTART_ID
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
@@ -25,10 +26,8 @@ HTTP_STR = 'http://'
 
 
 def _get_domain() -> str:
-    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if "domain" in kickstart_configuration["form"]:
-        return kickstart_configuration["form"]["domain"]
-    return "lan"
+    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+    return kickstart_configuration.domain
 
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""

@@ -13,7 +13,7 @@ Test Reposync Server VM:
     --vcenter-password "$VCENTER_PASSWORD" \
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -46,7 +46,7 @@ Test Reposync Workstation VM:
     --vcenter-password "$VCENTER_PASSWORD" \
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -78,7 +78,7 @@ Build Server Reposync VM for Export:
     --vcenter-password "$VCENTER_PASSWORD" \
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -111,7 +111,7 @@ Build Workstation Reposync VM for Export:
     --vcenter-password "$VCENTER_PASSWORD" \
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_VM_PASSWORD" \
+    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \

@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from shared.constants import NODE_TYPES
+from app.utils.constants import NODE_TYPES
 
 
 def get_servers_from_list(nodes: List) -> List:

@@ -5,9 +5,9 @@
     name: common
     tasks_from: pip
 
-- name: Stop tfplenum-frontend service
+- name: Stop tfplenum-backend service
   systemd:
-    name: tfplenum-frontend
+    name: tfplenum-backend
     enabled: yes
     state: stopped
   ignore_errors: yes

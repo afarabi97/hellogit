@@ -131,24 +131,12 @@
   when: labrepo_check
   tags: pull-docker-images
 
-- name: Download docker container images from docker hub # noqa 301
-  command: "docker pull {{ item }}"
+- name: Download docker containers from nexus 10 at a time.
+  vars:
+    durations: "{{ item }}"
+  include: pull_docker_batch.yml
   with_items:
-    - "{{ image_list }}"
-  async: 3000
-  poll: 0
-  register: dockerio_pull_results
-  tags: pull-docker-images
-
-- name: Waiting for docker hub images to download
-  async_status:
-    jid: "{{ async_result_item.ansible_job_id }}"
-  loop: "{{ dockerio_pull_results.results }}"
-  loop_control:
-    loop_var: "async_result_item"
-  register: job_results
-  until: job_results.finished is defined and job_results.finished
-  retries: 240
+    - "{{ image_list | batch(10) | list }}"
   tags: pull-docker-images
 
 - name: Tag local images for upload to registry
@@ -159,10 +147,12 @@
     - "{{ image_list }}"
   tags: pull-docker-images
 
-- name: Upload local images to registry # noqa 301
-  command: "docker push localhost:{{ firewall_port }}/{{ item[item.find('/')+1:] }}"
-  register: docker_push_results
+- name: Push docker containers to docker registry in batch of ten items
+  vars:
+    durations: "{{ item }}"
+  include: push_docker_batch.yml
   with_items:
-    - "{{ image_list }}"
+    - "{{ image_list | batch(10) | list }}"
   tags: pull-docker-images
+
 ...

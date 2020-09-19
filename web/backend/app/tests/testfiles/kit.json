@@ -1,0 +1,199 @@
+{
+  "kubernetes_services_cidr": "10.40.12.153",
+  "nodes": [
+    {
+      "hostname": "server1",
+      "ip_address": "10.40.12.146",
+      "mac_address": "00:0a:29:6e:7f:ff",
+      "data_drives": ["sdb"],
+      "boot_drives": ["sda"],
+      "raid_drives": ["sda","sdb"],
+      "pxe_type": "BIOS",
+      "os_raid": false,
+      "os_raid_root_size": 0,
+      "is_master_server": true,
+      "node_type": "Server",
+      "deviceFacts": {
+        "cpus_available": 16,
+        "default_ipv4_settings": {
+          "address": "10.40.12.146",
+          "alias": "br0",
+          "broadcast": "10.40.12.255",
+          "gateway": "10.40.12.1",
+          "interface": "br0",
+          "macaddress": "00:0a:29:6e:7f:ff",
+          "mtu": 1500,
+          "netmask": "255.255.255.0",
+          "network": "10.40.12.0",
+          "type": "bridge"
+        },
+        "disks": [
+          {
+            "has_root": true,
+            "name": "sda",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          },
+          {
+            "has_root": false,
+            "name": "sdb",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          }
+        ],
+        "hostname": "navarro-server1.lan",
+        "interfaces": [
+          {
+            "ip_address": "",
+            "mac_address": "ce:65:2a:98:51:29",
+            "name": "tap0",
+            "speed": 10
+          },
+          {
+            "ip_address": "10.40.12.146",
+            "mac_address": "00:0a:29:6e:7f:ff",
+            "name": "br0",
+            "speed": 0
+          },
+          {
+            "ip_address": "",
+            "mac_address": "00:0a:29:6e:7f:ff",
+            "name": "ens192",
+            "speed": 10000
+          }
+        ],
+        "management_ip": "10.40.12.146",
+        "memory_available": 15.5107421875,
+        "memory_gb": 15.5107421875,
+        "memory_mb": 15883,
+        "potential_monitor_interfaces": [
+          "tap0",
+          "ens192"
+        ],
+        "product_name": "VMware Virtual Platform"
+      }
+    },
+    {
+      "hostname": "server2",
+      "ip_address": "10.40.12.147",
+      "mac_address": "00:0a:29:6e:7f:f3",
+      "data_drives": ["sdb"],
+      "boot_drives": ["sda"],
+      "raid_drives": ["sda","sdb"],
+      "pxe_type": "BIOS",
+      "os_raid": false,
+      "os_raid_root_size": 0,
+      "is_master_server": false,
+      "node_type": "Server",
+      "deviceFacts": {
+        "cpus_available": 16,
+        "default_ipv4_settings": {
+          "address": "10.40.12.147",
+          "alias": "ens192",
+          "broadcast": "10.40.12.255",
+          "gateway": "10.40.12.1",
+          "interface": "ens192",
+          "macaddress": "00:0a:29:4e:37:ec",
+          "mtu": 1500,
+          "netmask": "255.255.255.0",
+          "network": "10.40.12.0",
+          "type": "ether"
+        },
+        "disks": [
+          {
+            "has_root": true,
+            "name": "sda",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          },
+          {
+            "has_root": false,
+            "name": "sdb",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          }
+        ],
+        "hostname": "navarro-server2.lan",
+        "interfaces": [
+          {
+            "ip_address": "10.40.12.147",
+            "mac_address": "00:0a:29:4e:37:ec",
+            "name": "ens192",
+            "speed": 10000
+          }
+        ],
+        "management_ip": "10.40.12.147",
+        "memory_available": 15.509765625,
+        "memory_gb": 15.509765625,
+        "memory_mb": 15882,
+        "potential_monitor_interfaces": [],
+        "product_name": "VMware Virtual Platform"
+      }
+    },
+    {
+      "hostname": "sensor1",
+      "ip_address": "10.40.12.148",
+      "mac_address": "00:0a:29:6e:7f:f2",
+      "data_drives": ["sdb"],
+      "boot_drives": ["sda"],
+      "raid_drives": ["sda","sdb"],
+      "pxe_type": "BIOS",
+      "os_raid": false,
+      "os_raid_root_size": 0,
+      "is_master_server": false,
+      "node_type": "Sensor",
+      "deviceFacts": {
+        "cpus_available": 16,
+        "default_ipv4_settings": {
+          "address": "10.40.12.148",
+          "alias": "ens192",
+          "broadcast": "10.40.12.255",
+          "gateway": "10.40.12.1",
+          "interface": "ens192",
+          "macaddress": "00:0a:29:1f:d4:8e",
+          "mtu": 1500,
+          "netmask": "255.255.255.0",
+          "network": "10.40.12.0",
+          "type": "ether"
+        },
+        "disks": [
+          {
+            "has_root": true,
+            "name": "sda",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          },
+          {
+            "has_root": false,
+            "name": "sdb",
+            "size_gb": 50,
+            "size_tb": 0.048828125
+          }
+        ],
+        "hostname": "navarro-sensor1.lan",
+        "interfaces": [
+          {
+            "ip_address": "",
+            "mac_address": "00:0a:29:fc:5f:e8",
+            "name": "ens224",
+            "speed": 10000
+          },
+          {
+            "ip_address": "10.40.12.148",
+            "mac_address": "00:0a:29:1f:d4:8e",
+            "name": "ens192",
+            "speed": 10000
+          }
+        ],
+        "management_ip": "10.40.12.148",
+        "memory_available": 15.509765625,
+        "memory_gb": 15.509765625,
+        "memory_mb": 15882,
+        "potential_monitor_interfaces": [
+          "ens224"
+        ],
+        "product_name": "VMware Virtual Platform"
+      }
+    }
+  ]
+}

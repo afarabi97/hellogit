@@ -1,8 +1,8 @@
 from werkzeug.wrappers import Request, Response
 from functools import wraps
 from app.common import FORBIDDEN_RESPONSE
-from shared.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMIN_ROLE, CONTROLLER_MAINTAINER_ROLE
-import jwt, os, glob
+from app.utils.constants import OPERATOR_ROLE, CONTROLLER_ADMIN_ROLE, REALM_ADMIN_ROLE, CONTROLLER_MAINTAINER_ROLE
+import jwt, os, glob, yaml
 
 JWT_DIR = "/opt/sso-idp/jwt/"
 MIME_TYPE = 'application/json'
@@ -107,20 +107,32 @@ class AuthMiddleware():
                         user[attr] = request.headers[attr].split(";")
             return user
 
-        if get_authorization_type(request) == "Bearer":
-            try:
-                user = create_user_data_from_bearer(request)
-            except jwt.ExpiredSignatureError:
-                res = Response('Authorization failed. API key is expired.', mimetype=MIME_TYPE, status=401)
-                return res(environ, start_response)
-            except KeyNotFound:
-                res = Response('Authorization failed. No public key to validate API key', mimetype=MIME_TYPE, status=401)
-                return res(environ, start_response)
-            except Exception:
-                res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
-                return res(environ, start_response)
-        else:
-            user = create_user_data(request)
+        try:
+            if os.environ['IS_DEBUG_SERVER'] == "yes":
+                DEBUG_FILE = '/opt/tfplenum/web/angular_debug.yml'
+                if os.path.isfile(DEBUG_FILE):
+                    with open(DEBUG_FILE, 'r') as stream:
+                        try:
+                            user = yaml.safe_load(stream)
+                        except yaml.YAMLError as exc:
+                            print(exc)
+            else:
+                raise KeyError()
+        except KeyError:
+            if get_authorization_type(request) == "Bearer":
+                try:
+                    user = create_user_data_from_bearer(request)
+                except jwt.ExpiredSignatureError:
+                    res = Response('Authorization failed. API key is expired.', mimetype=MIME_TYPE, status=401)
+                    return res(environ, start_response)
+                except KeyNotFound:
+                    res = Response('Authorization failed. No public key to validate API key', mimetype=MIME_TYPE, status=401)
+                    return res(environ, start_response)
+                except Exception:
+                    res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
+                    return res(environ, start_response)
+            else:
+                user = create_user_data(request)
 
         if "uid" in user and user["uid"] != "":
             environ['user'] = user

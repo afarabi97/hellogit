@@ -15,6 +15,7 @@ export class ServerStdoutComponent implements OnInit {
   @ViewChild('console')
   private consoleDiv: ElementRef;
   private jobName: string;
+  private jobId: string;
   public scrollStatus: Boolean = true;
 
   messages: Array<{msg: string, color: string}>;
@@ -40,7 +41,9 @@ export class ServerStdoutComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.jobName = params['id'];
+      console.log(params);
+      this.jobName = params['jobName'];
+      this.jobId = params['id'];
 
       this.stdoutService.getConsoleOutput(this.jobName).subscribe(data => {
         for (let item in data){
@@ -113,7 +116,7 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   killJob() {
-    this.stdoutService.killJob(this.jobName).subscribe();
+    this.stdoutService.killJob(this.jobId).subscribe();
   }
 
   pauseScroll() {

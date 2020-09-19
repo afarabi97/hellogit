@@ -31,75 +31,31 @@ export class SystemSetupService {
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
   }
 
-
-  openKickstartConsole(): void {
-    this.router.navigate(['/stdout/Kickstart']);
+  openKickstartConsole(job_id: string="Kickstart"): void {
+    this.router.navigate([`/stdout/Kickstart/${job_id}`]);
   }
 
-  /**
-   * overrides the kickstart on submit
-   *
-   * @private
-   * @memberof KickstartFormComponent
-   */
-  private continueAnyways(kickstartFormOrSingleNodeForm: FormGroup) {
-    let payload = kickstartFormOrSingleNodeForm.getRawValue();
-    payload['continue'] = true;
-    this.kickStartSrv.generateKickstartInventory(payload)
-      .subscribe(data => {
-        this.openKickstartConsole();
-      });
-  }
-
-  public executeKickstart(kickstartFormOrSingleNodeForm: FormGroup) {
-    let payload = kickstartFormOrSingleNodeForm.getRawValue();
-    payload['continue'] = false;
+  public executeKickstart(kickstartForm: FormGroup) {
+    let payload = kickstartForm.getRawValue();
     this.kickStartSrv.generateKickstartInventory(payload).subscribe(data => {
-      if (data !== null && data['error_message']) {
-        let message = data['error_message'];
-        let title = "Kickstart Error";
-        let option1 = "Cancel";
-        let option2 = "Continue";
-        this.matDialog.open(ConfirmDailogComponent, {
-          width: '35%',
-          data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
-        }).afterClosed().subscribe(response => {
-          if (response == option2) {
-            this.continueAnyways(kickstartFormOrSingleNodeForm);
-          }
-        });
-      } else {
-        this.openKickstartConsole()
-      }
+      this.openKickstartConsole(data["job_id"]);
     });
   }
 
-  private continueMIPAnyways(kickstartFormOrSingleNodeForm: FormGroup) {
-    let payload = kickstartFormOrSingleNodeForm.getRawValue();
-    payload['continue'] = true;
-    this.kickStartSrv.generateMIPKickstartInventory(payload)
-      .subscribe(data => {
-        this.openKickstartConsole();
-      });
+  public putKickstartNode(node: FormGroup): void {
+    let payload = node.getRawValue();
+    this.kickStartSrv.putKickstartNode(payload).subscribe(data => {
+      this.openKickstartConsole(data["job_id"]);
+    });
   }
 
   public executeMIPKickstart(kickstartForm: FormGroup) {
     let payload = kickstartForm.getRawValue();
-    payload['continue'] = false;
+    delete payload['re_password'];
+    delete payload['confirm_luks_password'];
     this.kickStartSrv.generateMIPKickstartInventory(payload).subscribe(data => {
       if (data !== null && data['error_message']) {
-        let message = data['error_message'];
-        let title = "Kickstart Error";
-        let option1 = "Cancel";
-        let option2 = "Continue";
-        this.matDialog.open(ConfirmDailogComponent, {
-          width: '35%',
-          data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
-        }).afterClosed().subscribe(response => {
-          if (response == option2) {
-            this.continueMIPAnyways(kickstartForm);
-          }
-        });
+        console.error(data);
       } else {
         this.openKickstartConsole()
       }

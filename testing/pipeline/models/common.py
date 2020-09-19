@@ -43,9 +43,9 @@ class NodeSettings(Model):
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
-            self.hostname = "{}-{}".format(vm_prefix, node_type)
+            self.hostname = "{}-{}.{}".format(vm_prefix, node_type, self.domain)
         else:
-            self.hostname = "{}-{}{}".format(vm_prefix, node_type, index)
+            self.hostname = "{}-{}{}.{}".format(vm_prefix, node_type, index, self.domain)
 
     def from_namespace(self, namespace: Namespace, node_type: str=None):
         self.dns_servers = namespace.dns_servers
@@ -170,7 +170,7 @@ class HwNodeSettings(Model):
         self.monitoring_interface = ''
 
     def set_hostname(self, node_type: str="ctrl", index: int=0):
-        self.hostname = "{}{}".format(node_type, index+1)
+        self.hostname = "{}{}.{}".format(node_type, index + 1, self.domain)
 
     def from_namespace(self, namespace: Namespace, node_type: str=None):
         self.dns_servers = namespace.dns_servers
@@ -206,7 +206,7 @@ class HwNodeSettings(Model):
         parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
         parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.", required=True)
         parser.add_argument("--node-username", dest="username", help="The username for ctrl and node.", default="root")
-        parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", default="d2UuYXJlLnRmcGxlbnVt")
+        parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", required=True)
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")

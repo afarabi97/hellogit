@@ -61,3 +61,8 @@ mipkickstartsettings.yml
 catalogsettings.yml
 mipnodestoscan.txt
 dipnodestoscan.txt
+mipconfigsettings.yml
+kubernetes_config
+hwcontrollersetupsettings_dip.yml
+hwkickstartsettings.yml
+hwkitsettings.yml

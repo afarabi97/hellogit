@@ -4,11 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { debounceTime } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
-import { ArchiveSaveDialogComponent } from '../../archive-save-dialog/archive-save-dialog.component';
-import { ArchiveRestoreDialogComponent } from '../../archive-restore-dialog/archive-restore-dialog.component';
 import { ArchiveService } from '../../services/archive.service';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { CTRL_SELECTED, KICKSTART_ID } from '../../frontend-constants';
+import { CTRL_SELECTED } from '../../frontend-constants';
 import { KickstartService } from '../services/kickstart.service';
 import { kickStartTooltips, kickstart_validators } from './kickstart-form';
 import { AllValidationErrors, FormGroupControls, getFormValidationErrors, validateFromArray } from '../../validators/generic-validators.validator';
@@ -26,7 +24,6 @@ import { TIMEZONES2 } from '../../constants/cvah.constants';
 export class KickstartComponent implements OnInit {
   public availableIPs: string[] = [];
   public controllers: any[] = [];
-  private defaultDisk: string;
   public dhcp_range_options: string[] = [];
   private default_ipv4_settings;
   public kickStartFormGroup: FormGroup;
@@ -81,10 +78,8 @@ export class KickstartComponent implements OnInit {
       if (data['localhost']) {
         this.default_ipv4_settings = data['localhost']['default_ipv4_settings'];
         this.controllers = data['localhost']["interfaces"].filter(controller => controller['ip_address']);
-        this.defaultDisk = data['localhost']["disks"][0].name;
       }
       if (data['kickstart']) {
-        this.openIPChangedModal(data['kickstart'].controller_interface[0]);
         this.initKickStartForm(data['kickstart']);
       }
     });
@@ -99,7 +94,6 @@ export class KickstartComponent implements OnInit {
       if (data['localhost']) {
         this.default_ipv4_settings = data['localhost']['default_ipv4_settings'];
         this.controllers = data['localhost']["interfaces"].filter(controller => controller['ip_address']);
-        this.defaultDisk = data['localhost']["disks"][0].name;
       }
       if (data['kickstart']) {
         this.initKickStartForm(data['kickstart']);
@@ -158,7 +152,7 @@ export class KickstartComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   public getOpenIP(): void {
-    let mng_ip = this.kickStartFormGroup.get('controller_interface').value[0];
+    let mng_ip = this.kickStartFormGroup.get('controller_interface').value;
     let netmask = this.kickStartFormGroup.get('netmask');
     if (mng_ip.length === 0 || netmask.invalid) {
       return;
@@ -181,7 +175,7 @@ export class KickstartComponent implements OnInit {
     }
     // add one noode to the formArray at this point because uniqueArray needs to exist for validation reference
     const nodesFormArray = this.kickStartFormGroup.get('nodes') as FormArray;
-    if (kickstartForm) {
+    if (kickstartForm && kickstartForm.nodes) {
       kickstartForm.nodes.map((node, index) => {
         nodesFormArray.push(this.newNodeFormGroup(node, index));
       });
@@ -189,12 +183,12 @@ export class KickstartComponent implements OnInit {
       nodesFormArray.push(this.newNodeFormGroup(undefined, 0));
       nodesFormArray.push(this.newNodeFormGroup(undefined, 1));
     }
-    const controller_interface = this.kickStartFormGroup.get('controller_interface') as FormArray;
-    if (kickstartForm) {
-      if (controller_interface.at(0).dirty && this.kickStartFormGroup.get('netmask').touched && this.kickStartFormGroup.get('netmask').valid) {
+    const controller_interface = this.kickStartFormGroup.get('controller_interface') as FormGroup;
+    if (kickstartForm && Object.keys(kickstartForm).length > 0) {
+      if (controller_interface.dirty && this.kickStartFormGroup.get('netmask').touched && this.kickStartFormGroup.get('netmask').valid) {
         this.getAvaliableIPBlock(this.kickStartFormGroup);
       }
-      if (controller_interface.at(0).valid && this.kickStartFormGroup.get('netmask').valid) {
+      if (controller_interface.valid && this.kickStartFormGroup.get('netmask').valid) {
         this.getAvaliableIPBlock(this.kickStartFormGroup);
         this.getOpenIP();
       }
@@ -211,10 +205,10 @@ export class KickstartComponent implements OnInit {
    */
   private newkickStartForm(kickstartForm?): FormGroup {
     const root_password = new FormControl(kickstartForm ? kickstartForm.root_password : '');
-    const re_password = new FormControl(kickstartForm ? kickstartForm.re_password : '', );
+    const re_password = new FormControl(kickstartForm ? kickstartForm.root_password : '', );
 
     const kickstartFormGroup = this.fb.group({
-      controller_interface: this.fb.array([new FormControl(kickstartForm ? kickstartForm.controller_interface[0] : '', Validators.compose([validateFromArray(kickstart_validators.controller_interface)]))]),
+      controller_interface: new FormControl(kickstartForm ? kickstartForm.controller_interface : '', Validators.compose([validateFromArray(kickstart_validators.controller_interface)])),
       root_password: root_password,
       re_password: re_password,
       nodes: this.fb.array([]),
@@ -246,7 +240,7 @@ export class KickstartComponent implements OnInit {
 
     kickstartFormGroup.addControl('dhcp_range', new FormControl(kickstartForm ? kickstartForm.dhcp_range : '', Validators.compose([validateFromArray(kickstart_validators.dhcp_range, { parentFormGroup: kickstartFormGroup })])));
     // reset the dhcp range when on change
-    let controller_interface = kickstartFormGroup.get('controller_interface') as FormArray;
+    let controller_interface = kickstartFormGroup.get('controller_interface') as FormGroup;
     this.onControllerChanges(kickstartFormGroup, controller_interface);
     this.onNetmaskChanges(kickstartFormGroup, controller_interface);
     return kickstartFormGroup;
@@ -266,10 +260,10 @@ export class KickstartComponent implements OnInit {
    * @param {FormArray} controller_interface
    * @memberof KickstartFormComponent
    */
-  private onControllerChanges(kickstartFormGroup: FormGroup, controller_interface: FormArray): void {
+  private onControllerChanges(kickstartFormGroup: FormGroup, controller_interface: FormGroup): void {
     // reset the dhcp range when on change
-    controller_interface.at(0).valueChanges.pipe(debounceTime(1500)).subscribe(value => {
-      if (controller_interface.at(0).dirty && kickstartFormGroup.get('netmask').touched && kickstartFormGroup.get('netmask').valid) {
+    controller_interface.valueChanges.pipe(debounceTime(1500)).subscribe(value => {
+      if (controller_interface.dirty && kickstartFormGroup.get('netmask').touched && kickstartFormGroup.get('netmask').valid) {
         this.getAvaliableIPBlock(kickstartFormGroup);
       }
     });
@@ -283,10 +277,10 @@ export class KickstartComponent implements OnInit {
    * @param {FormArray} controller_interface
    * @memberof KickstartFormComponent
    */
-  private onNetmaskChanges(kickstartFormGroup: FormGroup, controller_interface: FormArray): void {
+  private onNetmaskChanges(kickstartFormGroup: FormGroup, controller_interface: FormGroup): void {
     // when netmask and controller_interface are valid, request the ipBlocks
     kickstartFormGroup.get('netmask').valueChanges.pipe(debounceTime(1500)).subscribe(value => {
-      if (controller_interface.at(0).valid && kickstartFormGroup.get('netmask').valid) {
+      if (controller_interface.valid && kickstartFormGroup.get('netmask').valid) {
         this.getAvaliableIPBlock(kickstartFormGroup);
         this.getOpenIP();
       }
@@ -303,9 +297,14 @@ export class KickstartComponent implements OnInit {
    * @memberof KickstartFormComponent
    */
   private getAvaliableIPBlock(kickstartFormGroup): void {
-    const controller_interface = kickstartFormGroup.get('controller_interface').value[0];
+    const controller_interface = kickstartFormGroup.get('controller_interface').value;
     const netmask = kickstartFormGroup.get('netmask').value
-    this.kickStartSrv.getAvailableIPBlocks2(controller_interface, netmask).subscribe((ipblocks: string[]) => this.dhcp_range_options = ipblocks);
+    if (controller_interface && netmask){
+      this.kickStartSrv.getAvailableIPBlocks2(controller_interface,
+                                              netmask).subscribe((ipblocks: string[]) => {
+        this.dhcp_range_options = ipblocks
+      });
+    }
   }
 
   /**
@@ -332,13 +331,37 @@ export class KickstartComponent implements OnInit {
     let formGroup: FormGroup;
 
     if (this.system_name === "DIP" || this.system_name === "GIP") {
+
+      let data_drives = 'sdb';
+      if (node && node.data_drives){
+        if (Array.isArray(node.data_drives)){
+          data_drives = node.data_drives.join()
+        } else {
+          data_drives = node.data_drives;
+        }
+      }
+
+      let boot_drives = 'sda';
+      if (node && node.boot_drives){
+        if (Array.isArray(node.boot_drives && node.boot_drives.length > 0)){
+          boot_drives = node.boot_drives.join()
+        }
+      }
+
+      let raid_drives = 'sda,sdb';
+      if (node && node.raid_drives){
+        if (Array.isArray(node.raid_drives && node.raid_drives.length > 0)){
+          raid_drives = node.raid_drives.join()
+        }
+      }
+
       let dip_group = this.fb.group({
         hostname: new FormControl(node ? node.hostname : '', Validators.compose([validateFromArray(kickstart_validators.hostname, { uniqueArray: nodes, formControlName: 'hostname', index: index })])),
         ip_address: new FormControl(node ? node.ip_address : '', Validators.compose([validateFromArray(kickstart_validators.ip_address, { uniqueArray: nodes, formControlName: 'ip_address', parentFormGroup: this.kickStartFormGroup, index: index })])),
         mac_address: new FormControl(node ? node.mac_address : '', Validators.compose([validateFromArray(kickstart_validators.mac_address, { uniqueArray: nodes, formControlName: 'mac_address', index: index })])),
-        data_drive: new FormControl(node && node.data_drive ? node.data_drive : 'sdb', Validators.compose([validateFromArray(kickstart_validators.data_drive)])),
-        boot_drive: new FormControl(node ? node.boot_drive : this.defaultDisk ? this.defaultDisk : 'sda', Validators.compose([validateFromArray(kickstart_validators.boot_drive)])),
-        raid_drives: new FormControl(node && node.raid_drives ? node.raid_drives : 'sda,sdb', Validators.compose([validateFromArray(kickstart_validators.raid_drives)])),
+        data_drives: new FormControl(data_drives, Validators.compose([validateFromArray(kickstart_validators.data_drives)])),
+        boot_drives: new FormControl(boot_drives, Validators.compose([validateFromArray(kickstart_validators.boot_drives)])),
+        raid_drives: new FormControl(raid_drives, Validators.compose([validateFromArray(kickstart_validators.raid_drives)])),
         pxe_type: new FormControl(node ? node.pxe_type : 'BIOS', Validators.compose([validateFromArray(kickstart_validators.pxe_type)])),
         os_raid: new FormControl(node && node.os_raid != null ? node.os_raid : false),
         os_raid_root_size: new FormControl(node && node.os_raid_root_size != null ? node.os_raid_root_size : 50)
@@ -453,41 +476,6 @@ export class KickstartComponent implements OnInit {
     return kickStartTooltips[inputName];
   }
 
-  /**
-   * Opens a ArchiveSaveDialogComponent in a MatDialog
-   *
-   * @memberof KickstartFormComponent
-   */
-  public openSaveArchive(): void {
-    const data = {
-      title: 'Kickstart',
-      archive: {
-        comment: '',
-        config_id: KICKSTART_ID,
-        form: this.kickStartFormGroup.getRawValue()
-      }
-    };
-    const callbackfn = (response) => this.archiveSrv.archiveForm(response).subscribe(archive => archive);
-    this.openDialog(ArchiveSaveDialogComponent, data, callbackfn);
-  }
-
-  /**
-   * Opens FormRestoreComponent in a MatDialog
-   *
-   * @memberof KickstartFormComponent
-   */
-  public openRestore(): void {
-    this.archiveSrv.getArchivedForms(KICKSTART_ID).subscribe(archives => {
-      let data = {
-        title: 'Kickstart',
-        config_id: KICKSTART_ID,
-        display_columns: ['select', 'archived_date', 'comment', 'actions'],
-        archives: archives
-      };
-      let callbackfn = (response) => this.initKickStartForm(response[0].form);
-      this.openDialog(ArchiveRestoreDialogComponent, data, callbackfn);
-    });
-  }
 
   /**
    * Executes a Kickstart Form
@@ -520,57 +508,11 @@ export class KickstartComponent implements OnInit {
   }
 
   /**
-   * Opens the IP Change Modal in the event we have a controller IP change detection.
-   *
-   * @param oldIP - The current configuration IP address.
-   */
-  private openIPChangedModal(oldIP: string) {
-    //The kickstartfomr interface selections was refreshed before we
-    //Map an old form to an exisiting one.
-    let openmodal = true;
-    for (let newip of this.controllers) {
-      if (oldIP === newip.ip_address) {
-        openmodal = false;
-        break;
-      }
-    }
-    if (openmodal) {
-      let networkIP = this.default_ipv4_settings['network'];
-      let netmask = this.default_ipv4_settings['netmask'];
-      let newIP = this.default_ipv4_settings['address'];
-      if (isIpv4InSubnet(oldIP, networkIP, netmask)) {
-        this.kickStartSrv.updateKickstartCtrlIP(newIP).subscribe(data => {
-          if (data !== null && data['error_message']) {
-            this.snackbarWrapper.showSnackBar('Failed to update IP Address on current Kickstart page', -1, 'Close');
-          } else {
-            // set new ip
-            const interface_controller = this.kickStartFormGroup.get('interface_controller').value as FormArray;
-            interface_controller.removeAt(0);
-            interface_controller.push(new FormControl(newIP));
-
-            this.snackbarWrapper.showSnackBar('Controller IP change detected! \
-            Since the old controller IP is in the same subnet as the new IP we automatically \
-            changed the Kickstart data so no action is necessary.', -1, 'Dismiss');
-          }
-        });
-      } else {
-        this.kickStartSrv.archiveConfigurationsAndClear().subscribe(() => {
-          this.clearKickstartFormGroup();
-          this.snackbarWrapper.showSnackBar('Controller IP change detected! \
-          Since the old controller IP is not in the same subnet as the new IP we automatically \
-          archived your old Kickstart and Kit configurations.  You will need to setup a new DIP \
-          from scratch on this new IP range.', -1, 'Dismiss');
-        });
-      }
-    }
-  }
-
-  /**
    * sets the gateway based on controller_interface
    *
    */
   public setGateway(): void {
-    let controller_interface = this.kickStartFormGroup.get('controller_interface').value[0];
+    let controller_interface = this.kickStartFormGroup.get('controller_interface').value;
     let gateway = controller_interface.split('.');
     this.kickStartFormGroup.get('gateway').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
     this.getAvaliableIPBlock(this.kickStartFormGroup);
@@ -579,7 +521,7 @@ export class KickstartComponent implements OnInit {
 
   public setDNS(): void {
     if (this.system_name === 'MIP') {
-      let controller_interface = this.kickStartFormGroup.get('controller_interface').value[0];
+      let controller_interface = this.kickStartFormGroup.get('controller_interface').value;
       let gateway = controller_interface.split('.');
       this.kickStartFormGroup.get('dns').setValue(`${gateway[0]}.${gateway[1]}.${gateway[2]}.1`);
     }

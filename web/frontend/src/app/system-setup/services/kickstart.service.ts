@@ -25,8 +25,8 @@ export class KickstartService {
   }
 
   getAvailableIPBlocks2(controller_ip: string, netmask: string): Observable<Object> {
-    const url = `/api/get_ip_blocks/${controller_ip}/${netmask}`;
-    return this.http.get(url).pipe();
+      const url = `/api/get_ip_blocks/${controller_ip}/${netmask}`;
+      return this.http.get(url).pipe();
   }
 
   gatherDeviceFacts(management_ip: string): Observable<Object> {
@@ -35,23 +35,40 @@ export class KickstartService {
   }
 
   generateKickstartInventory(kickStartForm: Object) {
-    const url = '/api/generate_kickstart_inventory';
+    const url = '/api/kickstart';
+    for(let node of kickStartForm['nodes']){
+      node["boot_drives"] = node["boot_drives"].split(',')
+      node["data_drives"] = node["data_drives"].split(',')
+      node["raid_drives"] = node["raid_drives"].split(',')
+    }
 
+    delete kickStartForm["re_password"];
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
       catchError(this.handleError('generateKickstartInventory'))
     );
   }
 
-  generateMIPKickstartInventory(kickStartForm: Object) {
-    const url = '/api/generate_mip_kickstart_inventory';
+  putKickstartNode(node: Object) {
+    const url = '/api/kickstart';
 
+    node["boot_drives"] = node["boot_drives"].split(',')
+    node["data_drives"] = node["data_drives"].split(',')
+    node["raid_drives"] = node["raid_drives"].split(',')
+
+    return this.http.put(url, node, HTTP_OPTIONS).pipe(
+      catchError(this.handleError('generateKickstartInventory'))
+    );
+  }
+
+  generateMIPKickstartInventory(kickStartForm: Object) {
+    const url = '/api/mip_kickstart';
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
       catchError(this.handleError('generateMIPKickstartInventory'))
     );
   }
 
   getKickstartForm() {
-    const url = '/api/get_kickstart_form';
+    const url = '/api/kickstart';
     return this.http.get(url)
       .pipe(
         catchError(this.handleError())
@@ -59,7 +76,7 @@ export class KickstartService {
   }
 
   getMIPKickstartForm() {
-    const url = '/api/get_mip_kickstart_form';
+    const url = '/api/mip_kickstart';
     return this.http.get(url)
       .pipe(
         catchError(this.handleError())
@@ -67,22 +84,11 @@ export class KickstartService {
   }
 
   getUnusedIPAddresses(mng_ip: string, netmask: string): Observable<Object> {
-    const url = '/api/get_unused_ip_addrs';
-    let post_payload = { 'mng_ip': mng_ip, 'netmask': netmask };
-    return this.http.post(url, post_payload, HTTP_OPTIONS)
+    const url = `/api/get_unused_ip_addrs/${mng_ip}/${netmask}`;
+    return this.http.get(url)
       .pipe(
         catchError(this.handleError())
       );
-  }
-
-  updateKickstartCtrlIP(ip_address: string): Observable<Object> {
-    const url = `/api/update_kickstart_ctrl_ip/${ip_address}`;
-    return this.http.put(url, null).pipe();
-  }
-
-  archiveConfigurationsAndClear(): Observable<Object> {
-    const url = '/api/archive_configurations_and_clear';
-    return this.http.delete(url).pipe();
   }
 
   /**

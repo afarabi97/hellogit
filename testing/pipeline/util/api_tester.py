@@ -42,50 +42,6 @@ def zero_pad(num: int) -> str:
     return str(num)
 
 
-def wait_for_mongo_job(job_name: str, mongo_ip: str, minutes_timeout: int):
-    """
-    Connects to a mongo database and waits for a specific job name to complete.
-
-    Example record in mongo it is looking for:
-    { "_id" : "Kickstart", "return_code" : 0, "date_completed" : "2018-11-27 22:24:07", "message" : "Successfully executed job." }
-
-    :param job_name: The name of the job.
-    :param mongo_ip: The IP Address of the mongo instance.
-    :param timeout: The timeout in minutes.
-    :return:
-    """
-    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
-    with MongoConnectionManager(mongo_ip) as mongo_manager:
-        while True:
-            if future_time <= datetime.utcnow():
-                logging.error("The {} took way too long.".format(job_name))
-                exit(3)
-
-            result = mongo_manager.mongo_last_jobs.find_one({"_id": job_name})
-            if result:
-                if result["return_code"] != 0:
-                    logging.error(
-                        "{name} failed with message: {message}".format(name=result["_id"], message=result["message"]))
-
-                    # get console logs for latest run
-                    console = mongo_manager.mongo_console
-                    latest_console = console.find_one(
-                        {'jobName': job_name},
-                        sort=[('_id', pymongo.DESCENDING)]
-                    )
-                    latest_job_id = latest_console['jobid']
-                    logs = console.find({'jobid': latest_job_id, 'jobName': job_name})
-                    for line in logs:
-                        print(line['log'], end="")
-
-                    exit(2)
-                else:
-                    logging.info("{name} Job completed successfully".format(name=job_name))
-                break
-            else:
-                logging.info("Waiting for {} to complete sleeping 5 seconds then rechecking.".format(job_name))
-                sleep(5)
-
 class APIFailure(Exception):
     pass
 
@@ -112,7 +68,27 @@ def post_request(url: str, payload: Dict) -> Union[List, Dict]:
     if response.status_code == 200:
         return response.json()
     else:
+        pprint(response.json())
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
+
+
+def wait_for_job_to_finish(job_name: str, url: str, minutes_timeout: int):
+    future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
+
+    while True:
+        if future_time <= datetime.utcnow():
+            print("The {} took way too long.".format(job_name))
+            exit(3)
+
+        logging.info("Waiting for {} to complete sleeping 5 seconds then rechecking.".format(job_name))
+        sleep(5)
+        response_dict = get_request(url.format(job_name))
+        if response_dict["status"] == 'finished':
+            return
+        elif response_dict["status"] == 'failed':
+            logging.error("Job failed horribly.  See /var/log/tfplenum/rq.log for details.")
+            exit(2)
+
 
 def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
     """
@@ -185,10 +161,12 @@ class KickstartPayloadGenerator:
             "hostname": node.hostname,
             "ip_address": node.ipaddress,
             "mac_address": node.mng_mac,
-            "boot_drive": boot_drive,
-            "data_drive": data_drive,
+            "boot_drives": [boot_drive],
+            "data_drives": [data_drive],
+            "raid_drives": [boot_drive, data_drive],
             "os_raid": node.os_raid,
-            "pxe_type": node.boot_mode
+            "pxe_type": node.boot_mode,
+            "os_raid_root_size": 0
         }
         if node.os_raid:
             data["raid_drives"] = boot_drive + "," + data_drive
@@ -209,13 +187,8 @@ class KickstartPayloadGenerator:
             "gateway": self._kickstart_settings.node_defaults.gateway,
             "netmask": self._kickstart_settings.node_defaults.netmask,
             "root_password": self._kickstart_settings.node_defaults.password,
-            "re_password": self._kickstart_settings.node_defaults.password,
-            "timezone": self._kickstart_settings.timezone,
-            "controller_interface": [
-                self._ctrl_settings.node.ipaddress
-            ],
+            "controller_interface":  self._ctrl_settings.node.ipaddress,
             "nodes": self._construct_node_parts(),
-            "continue": True,
             "domain": self._ctrl_settings.node.domain,
             "upstream_dns": self._kickstart_settings.upstream_dns,
             "upstream_ntp": self._kickstart_settings.upstream_ntp
@@ -249,14 +222,9 @@ class MIPKickstartPayloadGenerator:
             "gateway": self._mip_kickstart_settings.node_defaults.gateway,
             "netmask": self._mip_kickstart_settings.node_defaults.netmask,
             "root_password": self._mip_kickstart_settings.node_defaults.password,
-            "re_password": self._mip_kickstart_settings.node_defaults.password,
             "luks_password": self._mip_kickstart_settings.node_defaults.luks_password,
-            "confirm_luks_password": self._mip_kickstart_settings.node_defaults.luks_password,
-            "controller_interface": [
-                self._ctrl_settings.node.ipaddress
-            ],
+            "controller_interface": self._ctrl_settings.node.ipaddress,
             "nodes": self._construct_node_parts(),
-            "continue": True,
             "dns": self._mip_kickstart_settings.node_defaults.dns_servers[0]
         }
 
@@ -312,12 +280,15 @@ class KitPayloadGenerator:
                              "It must be %s" % str(NodeSettings.valid_server_types))
 
         is_master = node.node_type == NodeSettings.valid_node_types[0]
-        node_fqdn = "{}.{}".format(node.hostname, node.domain)
+        # node_fqdn = "{}.{}".format(node.hostname, node.domain)
         return {
             "node_type": "Server",
-            "hostname": node_fqdn,
-            "management_ip_address": node.ipaddress,
+            "hostname": node.hostname,
+            "ip_address": node.ipaddress,
             "is_master_server": is_master,
+            'mac_address': node.mng_mac,
+            'os_raid': node.os_raid,
+            'pxe_type': node.boot_mode,
             "deviceFacts": self._device_facts_map[node.ipaddress]
         }
 
@@ -326,13 +297,14 @@ class KitPayloadGenerator:
             raise ValueError("You passed an invalid node type inot this methods. "
                              "It must be %s" % str(NodeSettings.valid_sensor_types))
 
-        is_remote = node.node_type == NodeSettings.valid_node_types[1]
-        node_fqdn = "{}.{}".format(node.hostname, node.domain)
+        # node_fqdn = "{}.{}".format(node.hostname, node.domain)
         return {
             "node_type": SENSOR,
-            "hostname": node_fqdn,
-            "management_ip_address": node.ipaddress,
-            "is_remote": is_remote,
+            "hostname": node.hostname,
+            "ip_address": node.ipaddress,
+            'mac_address': node.mng_mac,
+            'os_raid': node.os_raid,
+            'pxe_type': node.boot_mode,
             "deviceFacts": self._device_facts_map[node.ipaddress]
         }
 
@@ -367,12 +339,8 @@ class KitPayloadGenerator:
             node_parts.append(srv_part)
 
         return {
-            "kitForm": {
-                "nodes": node_parts,
-                "kubernetes_services_cidr": self._kit_settings.kubernetes_cidr,
-                "dns_ip": None,
-                "use_proxy_pool": self._kit_settings.use_proxy_pool
-            }
+            "nodes": node_parts,
+            "kubernetes_services_cidr": self._kit_settings.kubernetes_cidr
         }
 
     def generate(self) -> Dict:
@@ -393,15 +361,15 @@ class CatalogPayloadGenerator:
         self._device_facts_map = {}
 
     def _request_device_facts(self, node: NodeSettings) -> Dict:
-        kit_form = None
+        nodes = None
         ret_val = None
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
-            kit_form = mongo_manager.mongo_kit.find_one({"_id": "kit_form"})["form"]
+            nodes = mongo_manager.mongo_node.find()
 
-        if kit_form:
-            for kit_node in kit_form["nodes"]:
-                node_fqdn = "{}.{}".format(node.hostname, node.domain)
-                if kit_node["hostname"] == node_fqdn:
+        if nodes:
+            for kit_node in nodes:
+                # node_fqdn = "{}.{}".format(node.hostname, node.domain)
+                if kit_node["hostname"] == node.hostname:
                     ret_val = kit_node["deviceFacts"]
                     break
 
@@ -493,7 +461,7 @@ class CatalogPayloadGenerator:
                                     "hostname" : "server",
                                     "node_type" : "Server",
                                     "deployment_name": deployment_name,
-                                    "management_ip_address": server.ipaddress}
+                                    "ip_address": server.ipaddress}
                     all_parts.append(device_facts)
         if node_affinity == 'Sensor':
             for sensor in self._kickstart_settings.sensors: # type: NodeSettings
@@ -503,7 +471,7 @@ class CatalogPayloadGenerator:
                                 "hostname" : sensor.hostname,
                                 "node_type" : node_affinity,
                                 "deployment_name": deployment_name,
-                                "management_ip_address": sensor.ipaddress,
+                                "ip_address": sensor.ipaddress,
                                 "is_remote": False}
                 all_parts.append(device_facts)
 
@@ -537,6 +505,7 @@ class CatalogPayloadGenerator:
             },
             "configs": self._construct_config_part(node_affinity, role)
         }
+        print_json(payload)
         ret_val = post_request(self._url.format("/api/catalog/generate_values"), payload)
         values_payload = {
             "role": role,
@@ -547,6 +516,7 @@ class CatalogPayloadGenerator:
             },
             "values": ret_val
         }
+        print_json(values_payload)
         return values_payload
 
     def generate(self, role: str, process: str, node_affinity: str) -> Dict:
@@ -655,29 +625,27 @@ class APITester:
         wait_for_deployments_to_ready(deployments, self._kickstart_settings.get_master_kubernetes_server(), 10)
         wait_for_jobs_to_complete(deployments, self._kickstart_settings.get_master_kubernetes_server(), 10)
 
-    @retry()
+    # @retry()
     def run_kit_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_kit.drop()
-            mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kit_payload_generator.generate()
         print("Kit config payload")
         pprint(payload)
-        post_request(self._url.format("/api/execute_kit_inventory"), payload)
-        wait_for_mongo_job("Kit", self._controller_ip, 60)
+        response_dict = post_request(self._url.format("/api/kit"), payload)
+        wait_for_job_to_finish("Kit", self._url.format("/api/job/" + response_dict['job_id']), 60)
         _clean_up(wait=0)
 
     def run_kickstart_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_kickstart.drop()
-            mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kickstart_payload_generator.generate()
         print("Kickstart payload")
         pprint(payload)
-        post_request(self._url.format("/api/generate_kickstart_inventory"), payload)
-        wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+        response_dict = post_request(self._url.format("/api/kickstart"), payload)
+        wait_for_job_to_finish("Kickstart", self._url.format("/api/job/" + response_dict['job_id']), 30)
         _clean_up(wait=0)
 
 
@@ -692,19 +660,17 @@ class MIPAPITester(APITester):
     def run_mip_kickstart_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_kickstart.drop()
-            mongo_manager.mongo_last_jobs.drop()
 
         payload = self._kickstart_payload_generator.generate()
-        post_request(self._url.format("/api/generate_mip_kickstart_inventory"), payload)
-        wait_for_mongo_job("Kickstart", self._controller_ip, 30)
+        response_dict = post_request(self._url.format("/api/mip_kickstart"), payload)
+        wait_for_job_to_finish("MIP Kickstart", self._url.format("/api/job/" + response_dict['job_id']), 30)
         _clean_up(wait=0)
 
     def run_mip_config_api_call(self) -> None:
         with MongoConnectionManager(self._controller_ip) as mongo_manager:
             mongo_manager.mongo_mip_config.drop()
-            mongo_manager.mongo_last_jobs.drop()
 
         payload = self._mip_config_payload_generator.generate()
-        post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
-        wait_for_mongo_job("Mipconfig", self._controller_ip, 180)
+        response_dict = post_request(self._url.format("/api/execute_mip_config_inventory"), payload)
+        wait_for_job_to_finish("MIP Kit", self._url.format("/api/job/" + response_dict['job_id']), 180)
         _clean_up(wait=0)

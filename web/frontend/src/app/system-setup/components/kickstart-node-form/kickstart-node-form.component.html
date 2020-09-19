@@ -42,30 +42,30 @@
     <mat-form-field *ngIf="!isRaid" id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive') }}">
       <mat-label>Boot Drive</mat-label>
       <input matInput id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive-input') }}"
-             placeholder="Enter a Boot Drive" formControlName="boot_drive" matTooltip="{{ getTooltip('boot_drive') }}"/>
-      <mat-icon matSuffix *ngIf="node.get('boot_drive')?.valid &&
-                                 node.get('boot_drive')?.touched"
+             placeholder="Enter a Boot Drive" formControlName="boot_drives" matTooltip="{{ getTooltip('boot_drives') }}"/>
+      <mat-icon matSuffix *ngIf="node.get('boot_drives')?.valid &&
+                                 node.get('boot_drives')?.touched"
                 id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive-mat-icon-check-circle') }}"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="node.get('boot_drive')?.invalid &&
-                                 node.get('boot_drive')?.touched"
+      <mat-icon matSuffix *ngIf="node.get('boot_drives')?.invalid &&
+                                 node.get('boot_drives')?.touched"
                 id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive-mat-icon-error') }}"color="warn">error</mat-icon>
-      <mat-error id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive-mat-error') }}">{{ getErrorMessage(node.get("boot_drive"))}}</mat-error>
+      <mat-error id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-boot-drive-mat-error') }}">{{ getErrorMessage(node.get("boot_drives"))}}</mat-error>
     </mat-form-field>
     <!-- Data Drive -->
     <mat-form-field *ngIf="!isRaid" id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive') }}">
       <mat-label>Data Drive</mat-label>
       <input matInput id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive-input') }}"
-             placeholder="Enter a Data Drive" formControlName="data_drive" matTooltip="{{ getTooltip('data_drive') }}"/>
-      <mat-icon *ngIf="node.get('data_drive')?.valid &&
-                       node.get('data_drive')?.touched"
+             placeholder="Enter a Data Drive" formControlName="data_drives" matTooltip="{{ getTooltip('data_drives') }}"/>
+      <mat-icon *ngIf="node.get('data_drives')?.valid &&
+                       node.get('data_drives')?.touched"
                 id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive-mat-icon-check-circle') }}"
                 color="primary">check_circle</mat-icon>
-      <mat-icon matSuffix *ngIf="node.get('data_drive')?.invalid &&
-                                 node.get('data_drive')?.touched"
+      <mat-icon matSuffix *ngIf="node.get('data_drives')?.invalid &&
+                                 node.get('data_drives')?.touched"
                 id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive-mat-icon-error') }}"
                 color="warn">error</mat-icon>
-      <mat-error id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive-mat-error') }}">{{ getErrorMessage(node.get("data_drive"))}}</mat-error>
+      <mat-error id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-data-drive-mat-error') }}">{{ getErrorMessage(node.get("data_drives"))}}</mat-error>
     </mat-form-field>
     <!-- Raid Drives -->
     <mat-form-field *ngIf="isRaid" id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-raid-drives') }}">

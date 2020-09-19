@@ -6,12 +6,14 @@ import yaml
 from typing import List
 from datetime import timedelta, datetime
 
-from app import celery, logger, conn_mng
+from app import logger, rq_logger, conn_mng, REDIS_CLIENT
+from app.models.kit_setup import DIPKickstartForm, DIPKitForm
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.system_info_service import get_system_name, get_auth_base
 from app.service.job_service import run_command2
-from shared.constants import KICKSTART_ID, KIT_ID
-from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
+from rq.decorators import job
+from app.utils.constants import KICKSTART_ID, KIT_ID
+from app.utils.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -22,10 +24,8 @@ _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'moloch', 'moloch
 
 
 def _get_domain() -> str:
-    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-    if "domain" in kickstart_configuration["form"]:
-        return kickstart_configuration["form"]["domain"]
-    return "lan"
+    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+    return kickstart_configuration.domain
 
 def _get_elastic_nodes(node_type="coordinating") -> list:
     """
@@ -70,12 +70,11 @@ def get_node_type(hostname: str) -> str:
 
     """
     nodes = []
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        nodes = kit_configuration['form']['nodes']
-        node_list = list(filter(lambda node: node['hostname'] == hostname, nodes))
-        if len(node_list) == 1:
-            return node_list[0]['node_type']
+    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
+    nodes = kit_configuration.nodes
+    node_list = list(filter(lambda node: node.hostname == hostname, nodes))
+    if len(node_list) == 1:
+        return node_list[0].node_type
     return None
 
 
@@ -85,19 +84,19 @@ def get_nodes(details: bool=False) -> list:
 
     """
     nodes = []
-    kit_configuration = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
-    if kit_configuration:
-        for node in kit_configuration['form']['nodes']:
-            host_simple = {}
-            if not details:
-                host_simple['hostname'] = node['hostname']
-                host_simple['status'] = None
-                host_simple['application'] = None
-                host_simple['version'] = None
-                host_simple['node_type'] = node['node_type']
-            if details:
-                host_simple = node
-            nodes.append(host_simple)
+    kit_configuration = DIPKitForm.load_from_db() # type: DIPKitForm
+
+    for node in kit_configuration.nodes:
+        host_simple = {}
+        if not details:
+            host_simple['hostname'] = node.hostname
+            host_simple['status'] = None
+            host_simple['application'] = None
+            host_simple['version'] = None
+            host_simple['node_type'] = node.node_type
+        if details:
+            host_simple = node.to_dict()
+        nodes.append(host_simple)
     return nodes
 
 def get_node_apps(node_hostname: str) -> list:
@@ -322,7 +321,7 @@ def _build_values(values: dict):
     return deployment_name, value_items
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
     response = []
 
@@ -337,6 +336,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
         deployment_name, value_items = _build_values(value)
 
         if deployment_name and value_items:
+            # TODO start here on Monday this is totally messed up as it does not have the FQDN
             node_hostname = value_items.get("node_hostname", None)
             if node_hostname is None:
                 node_hostname = deployment_name
@@ -387,7 +387,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                         notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
-                    logger.exception(results)
+                    rq_logger.exception(results)
                     # Send Update Notification to websocket
                     notification.set_status(status=NotificationCode.ERROR.name)
                     notification.set_exception(exception=results)
@@ -396,21 +396,21 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     os.remove(tpath)
                 sleep(1)
             except Exception as exc:
-                logger.error(exc)
+                rq_logger.error(exc)
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
         else:
             err = "Error unable to parse values from request"
-            logger.exception(err)
+            rq_logger.exception(err)
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
             notification.post_to_websocket_api()
     return response
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def delete_helm_apps (application: str, namespace: str, nodes: List):
     # Send Update Notification to websocket
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.DELETING.name.capitalize(), application=application.capitalize())
@@ -463,7 +463,7 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                     notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
-                    logger.exception(exc)
+                    rq_logger.exception(exc)
                     # Send Update Notification to websocket
                     notification.set_status(status=NotificationCode.ERROR.name)
                     notification.set_exception(exception=exc)
@@ -471,14 +471,14 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
                 response.append(results)
                 sleep(1)
             except Exception as exc:
-                logger.exception(exc)
+                rq_logger.exception(exc)
                 # Send Update Notification to websocket
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
         else:
             err = "Error unable to determine deployment name please try again"
-            logger.exception(err)
+            rq_logger.exception(err)
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
@@ -490,6 +490,13 @@ def delete_helm_apps (application: str, namespace: str, nodes: List):
     notification.post_to_websocket_api()
     return response
 
+
+@job('default', connection=REDIS_CLIENT, timeout="30m")
+def reinstall_helm_apps(application: str, namespace: str, nodes: List, node_affinity: str, values: List):
+    delete_helm_apps(application=application, namespace=namespace, nodes=nodes)
+    install_helm_apps(application=application, namespace=namespace, node_affinity=node_affinity, values=values)
+
+
 def check_deployment_pvc_deletetion(deployment_name: str):
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         while True:
@@ -500,6 +507,7 @@ def check_deployment_pvc_deletetion(deployment_name: str):
                 break
     return True
 
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def application_setup_job_watcher(application: str, deployment_name: str, namespace: str = 'default', timeout_minutes: int=10) -> bool:
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
     setup_job = None
@@ -512,9 +520,10 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
                 job_name = job.metadata.name
                 if job_name.startswith(deployment_name+'-setup'):
                     setup_job = job
+                    rq_logger.info("Found Job "+setup_job.metadata.name)
                     break
         except Exception as exc:
-            logger.exception(exc)
+            rq_logger.exception(exc)
             # Send Update Notification to websocket
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=exc)

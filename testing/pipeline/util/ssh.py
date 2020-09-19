@@ -147,7 +147,7 @@ def wait_for_connection(host: str, port: int, minutes_timeout: int):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
     reachable = False
-    while not reachable:      
+    while not reachable:
         if future_time <= datetime.utcnow():
             raise Exception("timed out")
         try:

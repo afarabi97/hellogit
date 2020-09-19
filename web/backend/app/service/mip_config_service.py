@@ -1,10 +1,11 @@
-from app import celery, conn_mng, MIP_CONFIG_DIR
+from app import conn_mng, MIP_CONFIG_DIR, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
+from rq.decorators import job
 
 _JOB_NAME = "mipconfig"
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="300m")
 def perform_mip_config(command: str):
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("%s started." % _JOB_NAME.capitalize())
@@ -29,6 +30,5 @@ def perform_mip_config(command: str):
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
-    conn_mng.mongo_celery_tasks.delete_one({"_id": _JOB_NAME.capitalize()})
 
     return ret_val

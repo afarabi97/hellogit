@@ -17,8 +17,8 @@ from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
-from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR
-from shared.utils import encode_password, fix_hostname, sanitize_dictionary
+from app.utils.constants import TARGET_STATES, AGENT_UPLOAD_DIR
+from app.utils.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
 
 from contextlib import ExitStack
@@ -288,22 +288,10 @@ def _create_and_run_celery_tasks(payload: Dict,
         _authenticate_with_kinit(username, password, dns_suffix)
 
     if target_config["protocol"] == "ntlm":
-        # tasks = []
-        # pos = 0
-        # count = 0
-        # result = []
-        # while True:
-        #     count += 3
-        #     block = targets[pos: count]
-        #     pos += 3
-        #     if len(block) == 0:
-        #         break
-        #     tasks.append(perform_agent_reinstall.si(payload, block, do_uninstall_only))
-        # chain(*tasks)()
-        perform_agent_reinstall.apply_async(args=[payload, targets, do_uninstall_only], kwargs={}, time_limit=600, soft_time_limit=580)
+        perform_agent_reinstall.delay(payload, targets, do_uninstall_only)
     else:
         for hostname_or_ip in targets:
-            perform_agent_reinstall.apply_async(args=[payload, hostname_or_ip, do_uninstall_only], kwargs={}, time_limit=120, soft_time_limit=110)
+            perform_agent_reinstall.delay(payload, hostname_or_ip, do_uninstall_only)
 
 
 @app.route('/api/uninstall_agents', methods=['POST'])

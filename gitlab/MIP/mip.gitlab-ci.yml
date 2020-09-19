@@ -21,7 +21,7 @@ Setup MIP Controller:
     --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers         $DNS_SERVERS               \
     --vm-folder           "$VMWARE_FOLDER"           \
-    --vm-password         "$DEFAULT_VM_PASSWORD"     \
+    --vm-password         "$DEFAULT_TEMPLATE_PASSWORD"     \
     --vm-datastore        "$VCENTER_DATASTORE"       \
     --gateway             "$VM_GATEWAY"              \
     --branch-name         "$CI_COMMIT_REF_NAME"      \

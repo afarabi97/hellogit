@@ -3,7 +3,7 @@ import { FormArray, FormGroup, FormControl, FormBuilder, AbstractControl } from 
 import { forkJoin, Observable } from 'rxjs';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
-import { KitFormTime, kitTooltips } from './kit-form';
+import {  kitTooltips } from './kit-form';
 import { KitService } from '../services/kit.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -21,7 +21,6 @@ import { UserService } from '../../services/user.service';
 })
 export class KitComponent implements OnInit, AfterViewInit {
   avaiable_ip_addrs: string[];
-  executeKitForm: KitFormTime;
   kickstartForm;
   kitFormGroup: FormGroup;
   nodes: FormArray;
@@ -68,13 +67,15 @@ export class KitComponent implements OnInit, AfterViewInit {
   }
 
   generateInventory(): void{
-    this.kitSrv.generateKit(this.kitFormGroup.getRawValue()).subscribe(data => {
+    this.kitSrv.generateKit(this.kitFormGroup.getRawValue(), this.kickstartForm).subscribe(data => {
       this.snackbar.showSnackBar('Inventory file generated successfully. To finish the Kit installation, you will need to cd /opt/tfplenum/core/playbooks then run make.', -1, 'Dismiss');
     });
   }
 
   executeKit(): void{
-    this.kitSrv.executeKit(this.kitFormGroup.getRawValue()).subscribe(data => this.openConsole());
+    this.kitSrv.executeKit(this.kitFormGroup.getRawValue(), this.kickstartForm).subscribe(data => {
+      this.openConsole(data['job_id'])
+    });
   }
 
   /**
@@ -82,14 +83,14 @@ export class KitComponent implements OnInit, AfterViewInit {
    *
    * @memberof KitFormComponent
    */
-  public openConsole(): void {
+  public openConsole(job_id: string): void {
     this.isGettingDeviceFacts = false;
-    this.router.navigate(['/stdout/Kit']);
+    this.router.navigate([`/stdout/Kit/${job_id}`]);
   }
 
-  public openRemoveNodeConsole(): void {
+  public openRemoveNodeConsole(job_id: string): void {
     this.isGettingDeviceFacts = false;
-    this.router.navigate(['/stdout/Removenode']);
+    this.router.navigate([`/stdout/Removenode/${job_id}`]);
   }
 
   /**
@@ -101,7 +102,10 @@ export class KitComponent implements OnInit, AfterViewInit {
    */
   private setupForm(kitData: any): void {
     this.isGettingDeviceFacts = false;
-    if (kitData === null || kitData === undefined) {
+    if (kitData === null || kitData === undefined ||
+        //Checks if the object is empty.
+        (Object.keys(kitData).length === 0 && kitData.constructor === Object))
+    {
       this.getNodeDeviceFacts(this.kickstartForm['nodes']);
       this.setKubernetesCIDRRange();
     } else {
@@ -141,7 +145,7 @@ export class KitComponent implements OnInit, AfterViewInit {
         return;
       }
       this.kickstartForm = data['kickstart'];
-      this.setupForm(data['kitData'])
+      this.setupForm(data['kitData']);
     });
   }
 
@@ -249,7 +253,7 @@ export class KitComponent implements OnInit, AfterViewInit {
     if (data){
       let nodes = this.kitFormGroup.get('nodes') as FormArray;
       data['error'] = undefined
-      let newNode = this.kitSrv.newKitNodeForm(data);
+      let newNode = this.kitSrv.newKitNodeForm(data, undefined);
       this.updateNodesList(node_index, newNode);
       this.nodes = nodes;
     }
@@ -259,7 +263,7 @@ export class KitComponent implements OnInit, AfterViewInit {
     let kit_domain = this.kickstartForm.domain
     let newNode = this.kitSrv.newKitNodeForm({
       hostname: kickstartNodes[node_index].hostname+'.'+kit_domain,
-      management_ip_address: kickstartNodes[node_index].ip_address,
+      ip_address: kickstartNodes[node_index].ip_address,
       error: error.error
     });
     this.updateNodesList(node_index, newNode);
@@ -348,7 +352,7 @@ export class KitComponent implements OnInit, AfterViewInit {
         this.kitFormGroup.get("remove_node").setValue(hostname);
 
         this.kitSrv.executeRemoveNode(this.kitFormGroup.getRawValue()).subscribe( result => {
-          this.openRemoveNodeConsole();
+          this.openRemoveNodeConsole(result['job_id']);
         });
       }
     });

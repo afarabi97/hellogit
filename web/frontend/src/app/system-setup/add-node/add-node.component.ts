@@ -19,7 +19,7 @@ import { UserService } from '../../services/user.service';
 
 const add_node_validators = {
   hostname: [
-    { ops: { pattern: /^[a-z]([a-z0-9-]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters, should NOT include domain. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
   ip_address: [
@@ -29,8 +29,8 @@ const add_node_validators = {
     { error_message: 'Mac Address is required', validatorFn: 'required' },
     { ops: { pattern: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/ }, error_message: 'You must enter a valid MAC Address.', validatorFn: 'pattern' }
   ],
-  boot_drive: [{ error_message: 'Boot Drive is required', validatorFn: 'required' }],
-  data_drive: [{ error_message: 'Data Drive is required', validatorFn: 'required' }],
+  boot_drives: [{ error_message: 'Boot Drive is required', validatorFn: 'required' }],
+  data_drives: [{ error_message: 'Data Drive is required', validatorFn: 'required' }],
   pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
   raid_drives: [
     { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
@@ -85,8 +85,8 @@ export class AddNodeComponent implements OnInit {
       hostname: new FormControl('', Validators.compose([validateFromArray(add_node_validators.hostname)])),
       ip_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.ip_address)])),
       mac_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.mac_address)])),
-      data_drive: new FormControl('sdb', Validators.compose([validateFromArray(add_node_validators.data_drive)])),
-      boot_drive: new FormControl('sda', Validators.compose([validateFromArray(add_node_validators.boot_drive)])),
+      data_drives: new FormControl('sdb', Validators.compose([validateFromArray(add_node_validators.data_drives)])),
+      boot_drives: new FormControl('sda', Validators.compose([validateFromArray(add_node_validators.boot_drives)])),
       pxe_type: new FormControl('BIOS', Validators.compose([validateFromArray(add_node_validators.pxe_type)])),
       os_raid: new FormControl(false),
       raid_drives: new FormControl('sda,sdb', Validators.compose([validateFromArray(add_node_validators.raid_drives)])),
@@ -94,13 +94,14 @@ export class AddNodeComponent implements OnInit {
     });
 
     this.addNodeSrv.getAddNodeWizardState().subscribe(data => {
-      if (data && data['form']){
-        let node = data["form"];
+      console.log(data);
+      if (data && data['kickstart_node']){
+        let node = data["kickstart_node"];
         this.node.get('hostname').setValue(node['hostname']);
         this.node.get('ip_address').setValue(node['ip_address']);
         this.node.get('mac_address').setValue(node['mac_address']);
-        this.node.get('data_drive').setValue(node['data_drive']);
-        this.node.get('boot_drive').setValue(node['boot_drive']);
+        this.node.get('data_drives').setValue(node['data_drives'].join());
+        this.node.get('boot_drives').setValue(node['boot_drives'].join());
         this.node.get('pxe_type').setValue(node['pxe_type']);
         this.node.get('os_raid').setValue(node['os_raid']);
         this.node.get('raid_drives').setValue(node['raid_drives']);
@@ -119,7 +120,7 @@ export class AddNodeComponent implements OnInit {
     this.kickStartSrv.getKickstartForm().subscribe(data => {
       if (data){
         this.kickstartForm = data;
-        let mng_ip = data['controller_interface'][0];
+        let mng_ip = data['controller_interface'];
         let netmask = data['netmask'];
         this.kickStartSrv.getUnusedIPAddresses(mng_ip, netmask).subscribe((data: string[]) => {
            this.availableIPs = data;
@@ -160,7 +161,7 @@ export class AddNodeComponent implements OnInit {
       dialogRef.afterClosed().subscribe(
         result => {
           if(result == doItText) {
-            this.systemSetupSrv.executeKickstart(this.node);
+            this.systemSetupSrv.putKickstartNode(this.node);
           }
         }
       );
@@ -181,14 +182,14 @@ export class AddNodeComponent implements OnInit {
       dialogRef.afterClosed().subscribe(
         result => {
           if(result == doItText) {
-            this.kitSrv.executeAddNode(this.kitNode.getRawValue()).subscribe(data => this.openKitConsole());
+            this.kitSrv.executeAddNode(this.kitNode.getRawValue()).subscribe(data => this.openKitConsole(data['job_id']));
           }
         }
       );
   }
 
-  openKitConsole(): void {
-    this.router.navigate(['/stdout/Addnode']);
+  openKitConsole(job_id:string): void {
+    this.router.navigate([`/stdout/Addnode/${job_id}`]);
   }
 
   stepChanged(step: StepperSelectionEvent) {
@@ -220,7 +221,7 @@ export class AddNodeComponent implements OnInit {
     let kit_domain = this.kickstartForm['domain'];
     this.kitNode = this.systemSetupSrv.kitSrv.newKitNodeForm({
       hostname: this.node.get('hostname').value+'.'+kit_domain,
-      management_ip_address: this.node.get('ip_address').value,
+      ip_address: this.node.get('ip_address').value,
       error: error.error
     });
   }

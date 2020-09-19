@@ -26,7 +26,7 @@
 
 - import_tasks: 30_install_mongo.yml
 - import_tasks: 35_install_redis.yml
-- import_tasks: 40_install_celery.yml
+- import_tasks: 40_install_rq.yml
 - import_tasks: 45_restart_services.yml
   tags: restart_frontend_services
 - import_tasks: 55_preload_pcaps.yml

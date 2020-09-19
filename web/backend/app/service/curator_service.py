@@ -1,11 +1,12 @@
 import curator
 import os
 from elasticsearch import Elasticsearch
-from app import celery
+from app import REDIS_CLIENT
 from app.curator_ext import ExtClose, ExtDeleteIndices
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
 from app.service.scale_service import get_elastic_password, get_elastic_fqdn
+from rq.decorators import job
 
 
 _JOB_NAME = "curator"
@@ -27,7 +28,7 @@ def _empty_index(msg: str) -> None:
     notification.post_to_websocket_api()
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def execute_curator(action, index_list, units, age):
 
     notification = NotificationMessage(role=_JOB_NAME)

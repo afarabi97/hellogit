@@ -1,0 +1,247 @@
+{
+  "nodes":[
+     {
+        "node_type":"Server",
+        "hostname":"dnavtest2-server1.lan",
+        "ip_address":"172.16.77.34",
+        "is_master_server":true,
+        "deviceFacts": {
+          "cpus_available": 16,
+          "default_ipv4_settings": {
+              "address": "172.16.77.34",
+              "alias": "br0",
+              "broadcast": "172.16.77.255",
+              "gateway": "172.16.77.1",
+              "interface": "br0",
+              "macaddress": "00:50:56:86:96:ad",
+              "mtu": 1500,
+              "netmask": "255.255.255.0",
+              "network": "172.16.77.0",
+              "type": "bridge"
+          },
+          "disks": [
+              {
+                  "has_root": true,
+                  "name": "sda",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              },
+              {
+                  "has_root": false,
+                  "name": "sdb",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              },
+              {
+                  "has_root": false,
+                  "name": "sdc",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              }
+          ],
+          "hostname": "dnavtest2-server1.lan",
+          "interfaces": [
+              {
+                  "ip_address": "",
+                  "mac_address": "c6:b3:4e:76:fb:a8",
+                  "name": "tap0",
+                  "speed": 10
+              },
+              {
+                  "ip_address": "172.16.77.34",
+                  "mac_address": "00:50:56:86:96:ad",
+                  "name": "br0",
+                  "speed": 0
+              },
+              {
+                  "ip_address": "",
+                  "mac_address": "00:50:56:86:96:ad",
+                  "name": "ens192",
+                  "speed": 10000
+              }
+          ],
+          "memory_available": 15.5107421875,
+          "potential_monitor_interfaces": [
+              "tap0",
+              "ens192"
+          ]
+        }
+     },
+     {
+        "node_type":"Server",
+        "hostname":"dnavtest2-server2.lan",
+        "ip_address":"172.16.77.34",
+        "is_master_server":false,
+        "deviceFacts": {
+          "cpus_available": 16,
+          "default_ipv4_settings": {
+              "address": "172.16.77.34",
+              "alias": "br0",
+              "broadcast": "172.16.77.255",
+              "gateway": "172.16.77.1",
+              "interface": "br0",
+              "macaddress": "00:50:56:86:96:ad",
+              "mtu": 1500,
+              "netmask": "255.255.255.0",
+              "network": "172.16.77.0",
+              "type": "bridge"
+          },
+          "disks": [
+              {
+                  "has_root": true,
+                  "name": "sda",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              },
+              {
+                  "has_root": false,
+                  "name": "sdb",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              },
+              {
+                  "has_root": false,
+                  "name": "sdc",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              }
+          ],
+          "hostname": "dnavtest2-server2.lan",
+          "interfaces": [
+              {
+                  "ip_address": "",
+                  "mac_address": "c6:b3:4e:76:fb:a8",
+                  "name": "tap0",
+                  "speed": 10
+              },
+              {
+                  "ip_address": "172.16.77.34",
+                  "mac_address": "00:50:56:86:96:ad",
+                  "name": "br0",
+                  "speed": 0
+              },
+              {
+                  "ip_address": "",
+                  "mac_address": "00:50:56:86:96:ad",
+                  "name": "ens192",
+                  "speed": 10000
+              }
+          ],
+          "memory_available": 15.5107421875,
+          "potential_monitor_interfaces": [
+              "tap0",
+              "ens192"
+          ]
+        }
+     },
+     {
+      "node_type":"Sensor",
+      "hostname":"dnavtest2-sensor1.lan",
+      "ip_address":"172.16.77.35",
+      "is_remote":false,
+      "deviceFacts": {
+        "cpus_available": 12,
+        "default_ipv4_settings": {
+            "address": "172.16.77.35",
+            "alias": "ens192",
+            "broadcast": "172.16.77.255",
+            "gateway": "172.16.77.1",
+            "interface": "ens192",
+            "macaddress": "00:50:56:86:86:f4",
+            "mtu": 1500,
+            "netmask": "255.255.255.0",
+            "network": "172.16.77.0",
+            "type": "ether"
+        },
+        "disks": [
+            {
+                "has_root": true,
+                "name": "sda",
+                "size_gb": 20,
+                "size_tb": 0.01953125
+            },
+            {
+                "has_root": false,
+                "name": "sdb",
+                "size_gb": 20,
+                "size_tb": 0.01953125
+            }
+        ],
+        "hostname": "dnavtest2-sensor1.lan",
+        "interfaces": [
+            {
+                "ip_address": "169.254.0.1",
+                "mac_address": "00:50:56:86:0b:73",
+                "name": "ens224",
+                "speed": 10000
+            },
+            {
+                "ip_address": "172.16.77.35",
+                "mac_address": "00:50:56:86:86:f4",
+                "name": "ens192",
+                "speed": 10000
+            }
+        ],
+        "memory_available": 11.57421875,
+        "potential_monitor_interfaces": [
+            "ens224"
+        ]
+      }
+     },
+     {
+        "node_type":"Sensor",
+        "hostname":"dnavtest2-sensor2.lan",
+        "ip_address":"172.16.77.36",
+        "is_remote":false,
+        "deviceFacts": {
+          "cpus_available": 180,
+          "default_ipv4_settings": {
+              "address": "172.16.77.36",
+              "alias": "ens192",
+              "broadcast": "172.16.77.255",
+              "gateway": "172.16.77.1",
+              "interface": "ens192",
+              "macaddress": "00:50:56:86:86:f4",
+              "mtu": 1500,
+              "netmask": "255.255.255.0",
+              "network": "172.16.77.0",
+              "type": "ether"
+          },
+          "disks": [
+              {
+                  "has_root": true,
+                  "name": "sda",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              },
+              {
+                  "has_root": false,
+                  "name": "sdb",
+                  "size_gb": 20,
+                  "size_tb": 0.01953125
+              }
+          ],
+          "hostname": "dnavtest2-sensor2.lan",
+          "interfaces": [
+              {
+                  "ip_address": "169.254.0.1",
+                  "mac_address": "00:50:56:86:0b:73",
+                  "name": "ens224",
+                  "speed": 10000
+              },
+              {
+                  "ip_address": "172.16.77.36",
+                  "mac_address": "00:50:56:86:86:f4",
+                  "name": "ens192",
+                  "speed": 10000
+              }
+          ],
+          "memory_available": 500.57421875,
+          "potential_monitor_interfaces": [
+              "ens224"
+          ]
+      }
+     }
+  ],
+  "kubernetes_services_cidr":"172.16.88.32"
+}

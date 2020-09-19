@@ -25,30 +25,55 @@ export class KitService {
   ) {}
 
   getKitForm(): Observable<any> {
-    const url = '/api/get_kit_form';
+    const url = '/api/kit';
     return this.http.get<KitFormInterface>(url)
                     .pipe(map((response: KitFormInterface) => new KitFormClass(response)), catchError(() => of(undefined)));
   }
 
-  executeKit(kitForm: Object) {
-    const url = '/api/execute_kit_inventory';
-    let payload: Object = { 'kitForm': kitForm };
-    return this.http.post(url, payload, HTTP_OPTIONS).pipe(
+  private processKitForm(kitForm: Object, kickstartForm: Object){
+    //TODO this is horrible and should be refactored in kit.componet.ts
+    for (const kickNode of kickstartForm['nodes']){
+      for (const node of kitForm['nodes']){
+        // let kickHostname = kickNode["hostname"] + "." + kickstartForm["domain"];
+        if (kickNode["hostname"] == node['hostname']){
+          node['hostname'] = kickNode["hostname"];
+          node['pxe_type'] = kickNode['pxe_type'];
+          node['os_raid'] = kickNode['os_raid'];
+          node['mac_address'] = kickNode['mac_address'];
+          node['ip_address'] = kickNode['ip_address'];
+          node['error'] = '';
+          node['_id'] = kickNode['_id'];
+
+          node['boot_drives'] = kickNode['boot_drives'];
+          node['os_raid'] = kickNode['os_raid'];
+          node['os_raid_root_size'] = kickNode['os_raid_root_size'];
+          node['raid_drives'] = kickNode['raid_drives'];
+          node['data_drives'] = kickNode['data_drives'];
+        }
+      }
+    }
+    delete kitForm['remove_node'];
+  }
+
+  executeKit(kitForm: Object, kickstartForm: Object) {
+    const url = '/api/kit';
+    this.processKitForm(kitForm, kickstartForm);
+    return this.http.post(url, kitForm, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))
     );
   }
 
-  generateKit(kitForm: Object) {
+  generateKit(kitForm: Object, kickstartForm: Object) {
     const url = '/api/generate_kit_inventory';
-    let payload: Object = { 'kitForm': kitForm };
-    return this.http.post(url, payload, HTTP_OPTIONS).pipe(
+    this.processKitForm(kitForm, kickstartForm);
+    return this.http.post(url, kitForm, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))
     );
   }
 
   executeAddNode(kitForm: Object) {
-    const url = '/api/execute_add_node';
-    return this.http.post(url, kitForm, HTTP_OPTIONS).pipe(
+    const url = '/api/kit';
+    return this.http.put(url, kitForm, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))
     );
   }
@@ -66,7 +91,7 @@ export class KitService {
   public handleError(result: HttpErrorResponse ) {
     if (result.error && result.error["error_message"]){
       this.snackbarWrapper.showSnackBar(result.error["error_message"], -1, 'Dismiss');
-    } else if (result.message) {
+    } else {
       this.snackbarWrapper.showSnackBar(result.message, -1, 'Dismiss');
     }
     return new Observable();
@@ -148,7 +173,7 @@ export class KitService {
     let genericNode = this.formBuilder.group({
       node_type: new FormControl(node && node.node_type ? node.node_type : default_node_type, Validators.compose([validateFromArray(kit_validators.node_type)])),
       hostname: new FormControl(node ? node.hostname : ''),
-      management_ip_address: node ? node.management_ip_address ? node.management_ip_address : node.default_ipv4_settings.address : '',
+      ip_address: node ? node.ip_address ? node.ip_address : node.default_ipv4_settings.address : '',
       deviceFacts: node && node.deviceFacts ? node.deviceFacts : node,
       error: node && node.error ? node.error : undefined
     });
@@ -176,19 +201,12 @@ export class KitService {
    */
 
   public newKitFormGroup(kitForm?: KitForm, isDisabled = true): FormGroup {
-    let use_proxy_pool = false;
-
-    if (this.system_name === "GIP") {
-      use_proxy_pool = true;
-    }
 
     const kitFormGroup = this.formBuilder.group({
       nodes: this.formBuilder.array([]),
       kubernetes_services_cidr: new FormControl(kitForm ? kitForm.kubernetes_services_cidr : '',
         Validators.compose([validateFromArray(kit_validators.kubernetes_services_cidr)])),
-      dns_ip: new FormControl(''),
-      remove_node: new FormControl(''),
-      use_proxy_pool: new FormControl(use_proxy_pool)
+      remove_node: new FormControl('')
     });
 
     this.system_name = this.system_nameSrv.getSystemName();

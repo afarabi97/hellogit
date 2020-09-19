@@ -1,11 +1,12 @@
 import json
 import traceback
 
-from app import celery
+from app import REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from typing import Dict, List
-from shared.connection_mngs import FabricConnectionManager
-from shared.constants import PCAP_UPLOAD_DIR
+from rq.decorators import job
+from app.utils.connection_mngs import FabricConnectionManager
+from app.utils.constants import PCAP_UPLOAD_DIR
 from pathlib import Path
 
 
@@ -16,7 +17,7 @@ class ReplayObject:
         self.ifaces = payload['ifaces'] # type: List[str]
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def replay_pcap_srv(payload: Dict, root_password: str):
     replay = ReplayObject(payload)
     notification = NotificationMessage(role="pcap")

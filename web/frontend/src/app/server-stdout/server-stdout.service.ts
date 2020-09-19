@@ -5,7 +5,7 @@ import { WebsocketService } from '../services/websocket.service';
 
 
 export interface Message {
-  message: string;
+  message: string
 }
 
 
@@ -15,7 +15,7 @@ export interface Message {
 export class ServerStdoutService {
 
   constructor(private http: HttpClient,
-    private srvSocket: WebsocketService) {
+              private srvSocket: WebsocketService) {
   }
 
   sendMessage(msg: string){
@@ -35,14 +35,13 @@ export class ServerStdoutService {
     return this.http.get(url).pipe();
   }
 
-  removeConsoleOutput(id_obj: {jobName: string; jobid: string}){
+  removeConsoleOutput(id_obj: {jobName: string, jobid: string}){
     const url = '/api/remove_console_output';
     return this.http.post(url, id_obj);
   }
 
-  killJob(jobName: string){
-    const url = '/api/kill_job';
-    const payload = { jobName: jobName };
-    return this.http.post(url, payload);
+  killJob(jobId: string){
+    const url = `/api/job/${jobId}`;
+    return this.http.delete(url);
   }
 }

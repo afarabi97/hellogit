@@ -16,7 +16,7 @@ import { ObjectUtilitiesClass } from '../classes';
   }
 })
 export class MIPConfigComponent implements OnInit {
-  
+
   @Input() uniqueHTMLID: string;
   nodes: any = null;
   loading: boolean;
@@ -122,13 +122,14 @@ export class MIPConfigComponent implements OnInit {
 
     const formValue = this.form.value;
     this.mipSrv.executeMIP(formValue).subscribe(data => {
-      this.router.navigate(['/stdout/Mipconfig']);
+      console.log(data);
+      this.openConsole(data['job_id']);
     });
 
   }
 
-  openConsole() {
-    this.router.navigate(['/stdout/Mipconfig']);
+  openConsole(job_id: string) {
+    this.router.navigate([`/stdout/Mipconfig/${job_id}`]);
   }
 
   /**

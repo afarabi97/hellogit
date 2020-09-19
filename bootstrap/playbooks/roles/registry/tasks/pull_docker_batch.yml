@@ -1,0 +1,19 @@
+- name: Download docker container images from docker hub # noqa 301
+  command: "docker pull {{ async_item }}"
+  with_items:
+    - "{{ durations }}"
+  async: 3000
+  poll: 0
+  register: dockerio_pull_results
+  loop_control:
+    loop_var: "async_item"
+
+- name: Waiting for docker hub images to download
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  loop: "{{ dockerio_pull_results.results }}"
+  loop_control:
+    loop_var: "async_result_item"
+  register: job_results
+  until: job_results.finished is defined and job_results.finished
+  retries: 240

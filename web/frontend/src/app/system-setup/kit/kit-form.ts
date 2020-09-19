@@ -130,29 +130,6 @@ export const kit_validators = {
     ],
 }
 
-export class KitFormTime {
-    date: {
-        year: string,
-        month: string,
-        day: string
-    };
-    time: string;
-    timezone: string;
-    constructor(datetime: string, timezone: string) {
-        let dateParts = datetime.split(' ')[0].split("/");
-        let timeParts = datetime.split(' ')[1].split(":");
-        let timeStr = timeParts[0] + ":" + timeParts[1] + ":" + timeParts[2];
-
-        this.date = {
-          'year': dateParts[2],
-          'month': dateParts[0],
-          'day': dateParts[1]
-        };
-
-        this.time = timeStr;
-        this.timezone = timezone;
-    }
-}
 
 export const kitTooltips = {
     node_type: 'The Node Type refers to whether or not the node is a server or sensor',
@@ -170,12 +147,11 @@ export const kitTooltips = {
 export class KitForm {
     nodes: KitFormNode[];
     kubernetes_services_cidr: string;
-    dns_ip: string;
 }
 export class KitFormNode {
     node_type: string;
     hostname: string;
-    management_ip_address: string;
+    ip_address: string;
     deviceFacts: any;
     is_master_server?: string;
     default_ipv4_settings?: any;

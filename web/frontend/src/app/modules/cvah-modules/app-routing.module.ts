@@ -20,7 +20,6 @@ import { SystemHealthComponent } from '../../system-health/system-health.compone
 import { AddNodeComponent } from '../../system-setup/add-node/add-node.component';
 import { KickstartComponent } from '../../system-setup/kickstart/kickstart.component';
 import { KitComponent } from '../../system-setup/kit/kit.component';
-import { UpgradeComponent } from '../../system-setup/upgrade/upgrade.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
 
 const routes: Routes = [
@@ -31,7 +30,7 @@ const routes: Routes = [
   { path: 'kickstart', component: KickstartComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'kit_configuration', component: KitComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },
-  { path: 'stdout/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ]  },
+  { path: 'stdout/:jobName/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ]  },
   { path: 'registry', component: RegistryComponent },
   { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'rulesets', component: PolicyManagementComponent, canActivate: [ OperatorRequiredGuard ] },
@@ -39,7 +38,6 @@ const routes: Routes = [
   { path: 'catalog', component: CatalogComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'tools', component: ToolsFormComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'application/:id', component : CatalogPageComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
-  { path: 'upgrade', component: UpgradeComponent, canActivate: [ ControllerAdminRequiredGuard ]},
   { path: 'add_node', component: AddNodeComponent, canActivate: [ ControllerAdminRequiredGuard ]},
   { path: 'es_scale', component: ESScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'mip_config', component: MIPConfigComponent, canActivate: [ ControllerAdminRequiredGuard ] },

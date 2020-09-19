@@ -1,7 +1,7 @@
 import json
 from app import conn_mng
 from app.models import Model
-from shared.constants import WINDOWS_COLD_LOG_CONFIG_ID
+from app.utils.constants import WINDOWS_COLD_LOG_CONFIG_ID
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.datastructures import FileStorage

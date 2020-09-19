@@ -1,4 +1,4 @@
-from app import celery
+from app import REDIS_CLIENT
 import io
 import json
 import logging
@@ -7,20 +7,47 @@ import sys
 import traceback
 
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_ruleset_refresh
-from shared.connection_mngs import (FabricConnection, MongoConnectionManager,
-                                 KubernetesWrapper, objectify)
+from app.utils.db_mngs import MongoConnectionManager
+from app.utils.connection_mngs import (FabricConnection, KubernetesWrapper)
 from fabric.runners import Result
 from fabric import Connection
-from fabfiles import (KIT_ID, decode_password, KICKSTART_ID,
-                      RULESET_STATES, NODE_TYPES, RULE_TYPES)
-from fabfiles.utils import get_suricata_pod_name, get_bro_pod_name
+from app.models.kit_setup import DIPKickstartForm, DIPKitForm, Node
+from app.utils.constants import (KIT_ID, KICKSTART_ID,
+                                 RULESET_STATES, NODE_TYPES, RULE_TYPES)
 from logging.handlers import RotatingFileHandler
 from pymongo.results import UpdateResult
+from rq.decorators import job
 from typing import List, Dict
 
 
 SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
 BRO_CUSTOM_DIR = "/opt/tfplenum/zeek/scripts/"
+
+
+def _get_pod_name(ip_address: str,
+                  component: str,
+                  mongo_conn: MongoConnectionManager=None) -> str:
+    with KubernetesWrapper(mongo_conn) as kube_apiv1:
+        api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False)
+        for pod in api_response.to_dict()['items']:
+            if ip_address == pod['status']['host_ip']:
+                try:
+                    if component == pod['metadata']['labels']['component']:
+                        return pod['metadata']['name']
+                except KeyError:
+                    pass
+
+    raise ValueError("Failed to find %s pod name." % component)
+
+
+def get_suricata_pod_name(ip_address: str,
+                          mongo_conn: MongoConnectionManager=None) -> str:
+    return _get_pod_name(ip_address, 'suricata', mongo_conn)
+
+
+def get_bro_pod_name(ip_address: str,
+                     mongo_conn: MongoConnectionManager=None) -> str:
+    return _get_pod_name(ip_address, 'zeek', mongo_conn)
 
 
 class RuleSyncError(Exception):
@@ -50,13 +77,13 @@ class RuleSynchronization():
                 return True
         return False
 
-    def _clear_enabled_rulesets(self, kit: Dict):
+    def _clear_enabled_rulesets(self, kit: DIPKitForm):
         ids_to_reset = []
-        for node in kit["form"]["nodes"]:
-            if node["node_type"] != NODE_TYPES[1]:
+        for node in kit.nodes:
+            if node.node_type != NODE_TYPES[1]:
                 continue
 
-            ip_address = node['deviceFacts']['default_ipv4_settings']['address']
+            ip_address = node.deviceFacts['default_ipv4_settings']['address']
             for rule_set in self.rule_sets:
                 if not self._is_sensor_in_ruleset(ip_address, rule_set):
                     continue
@@ -228,9 +255,9 @@ class RuleSynchronization():
 
             with MongoConnectionManager() as mongo:
                 self.mongo = mongo
-                kit = self.mongo.mongo_kit.find_one({"_id": KIT_ID})
-                kickstart_form = mongo.mongo_kickstart.find_one({"_id": KICKSTART_ID})
-                password = decode_password(kickstart_form['form']['root_password'])
+                kit = DIPKitForm.load_from_db() # type: DIPKitForm
+                kickstart_form = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+                password = kickstart_form.root_password
                 self.rule_sets = list(self.mongo.mongo_ruleset.find({}))
                 self._clear_enabled_rulesets(kit)
 
@@ -238,12 +265,12 @@ class RuleSynchronization():
                 self.notification.set_status(status=NotificationCode.IN_PROGRESS.name)
                 self.notification.set_message("Rule synchronization in progress.")
                 self.notification.post_to_websocket_api()
-                for node in kit["form"]["nodes"]:
-                    if node["node_type"] != NODE_TYPES[1]:
+                for node in kit.nodes: # type: Node
+                    if node.node_type != NODE_TYPES[1]:
                         continue
 
-                    ip_address = node['deviceFacts']['default_ipv4_settings']['address']
-                    hostname = node['deviceFacts']['hostname']
+                    ip_address = node.deviceFacts['default_ipv4_settings']['address']
+                    hostname = node.deviceFacts['hostname']
                     with FabricConnection(ip_address, password) as fabric:
                         try:
                             print("Synchronizing Suricata signatures for {}.".format(hostname))
@@ -279,7 +306,7 @@ class RuleSynchronization():
             traceback.print_exc()
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def perform_rulesync():
     rs = RuleSynchronization()
     rs.sync_rulesets()

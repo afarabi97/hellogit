@@ -10,17 +10,18 @@ import os
 import traceback
 import zipfile
 
-from app import celery, conn_mng, AGENT_PKGS_DIR
+from app import conn_mng, AGENT_PKGS_DIR, REDIS_CLIENT, rq_logger
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_page_refresh
 from app.service.job_service import run_command2, run_command
 from bson import ObjectId
 from datetime import datetime
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from kubernetes.client.rest import ApiException
-from shared.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
-from shared.connection_mngs import get_kubernetes_secret
-from shared.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
-from shared.utils import fix_hostname, decode_password, zip_package
+from rq.decorators import job
+from app.utils.constants import TARGET_STATES, DATE_FORMAT_STR, AGENT_UPLOAD_DIR, PLAYBOOK_DIR
+from app.utils.connection_mngs import get_kubernetes_secret
+from app.utils.tfwinrm_util import WindowsConnectionManager, WinrmCommandFailure
+from app.utils.utils import fix_hostname, decode_password, zip_package
 from urllib3.connectionpool import log
 from pathlib import Path
 from pprint import PrettyPrinter
@@ -80,7 +81,7 @@ class EndgameAgentPuller:
         url = 'https://{}:{}/api/v1/auth/login'.format(self._endgame_server_ip, self._endgame_port)
 
         resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header, verify=False)
-        return self._check_esponse(resp, lambda r: r.json()['metadata']['token'])
+        return self._check_response(resp, lambda r: r.json()['metadata']['token'])
 
     def _save_installer(self, resp, sensor_data, dst_folder: str):
 
@@ -172,12 +173,6 @@ class AgentBuilder:
                                 application_name: str,
                                 folder_to_copy: str):
         if kubernetes_dir.exists() and kubernetes_dir.is_dir():
-            kubernetes_scripts = kubernetes_dir.glob('*')
-            for script in kubernetes_scripts:
-                stdout, ret_val = run_command2("kubectl apply -f {}".format(script))
-                if ret_val != 0:
-                    print("Failed to run kubectl apply command with error code {} and {}".format(ret_val, stdout))
-
             try:
                 secret = get_kubernetes_secret(conn_mng, '{}-agent-certificate'.format(application_name))
                 secret.write_to_file(folder_to_copy)
@@ -336,7 +331,7 @@ class WinRunner:
         if ansible_error:
             self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
         else:
-            self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+            self._notification.set_message("Failed to {} {} because of error: {}".format(action, host, err_msg))
         self._notification.set_status(NotificationCode.ERROR.name)
         self._notification.post_to_websocket_api()
 
@@ -399,7 +394,7 @@ class WinRunner:
         else:
             raise ValueError("The protocol passed in is not supported.")
 
-    def notify_ansible_failure(self, hosts, callback):  
+    def notify_ansible_failure(self, hosts, callback):
         dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
         for host in hosts:
             host_id = host.replace(".", "_")
@@ -443,20 +438,20 @@ class WinRunner:
 
             self._set_end_state()
         except WinrmCommandFailure as ansible_err:
-            traceback.print_exc()
+            rq_logger.exception(ansible_err)
             if isinstance(self._hostname_or_ip, list) and ansible_err.results:
                 self.notify_ansible_failure(self._hostname_or_ip, ansible_err)
             else:
                 self.notify_failure(self._action, str(self._hostname_or_ip), "", str(ansible_err))
                 self._update_windows_host_state(TARGET_STATES.error.value)
         except Exception as e:
-            traceback.print_exc()
+            rq_logger.exception(e)
             self.notify_failure(self._action, str(self._hostname_or_ip), str(e))
             self._update_windows_host_state(TARGET_STATES.error.value)
         return 0
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def perform_agent_reinstall(configs: Dict, hostname_or_ip: Union[str, List], do_uninstall_only: bool) -> int:
     try:
         runner = WinRunner(hostname_or_ip, configs, do_uninstall_only)

@@ -71,7 +71,7 @@ import { IP_CONSTRAINT } from '../../frontend-constants';
 
 export const kickstart_validators = {
   hostname: [
-    { ops: { pattern: /^[a-z]([a-z0-9-]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters, should NOT include domain. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
+    { ops: { pattern: /^[a-z]([a-z0-9-.]){4,51}$/ }, error_message: 'Hostname must be alphanumeric, less than 51 characters. Special characters are not allowed with the exception of dashes (IE -).', validatorFn: 'pattern' },
     { error_message: (value) => `Duplicate hostnames found: ${value}. Node must have a unique hostnames.`, validatorFn: 'unique' },
     { error_message: 'Hostname is required', validatorFn: 'required' }
   ],
@@ -87,11 +87,11 @@ export const kickstart_validators = {
     { ops: { pattern: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/ }, error_message: 'You must enter a valid MAC Address.', validatorFn: 'pattern' }
 
   ],
-  boot_drive: [
+  boot_drives: [
     { error_message: 'Boot Drive is required', validatorFn: 'required' },
     { ops: { pattern: /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})*$/}, error_message: 'Boot Drive must be a single drive or a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
-  data_drive: [
+  data_drives: [
     { error_message: 'Data Drive is required', validatorFn: 'required' },
     { ops: { pattern:  /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})*$/}, error_message: 'Data Drive must be a single drive or a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
   ],
@@ -166,14 +166,14 @@ export const kickStartTooltips = {
   Do not forget this password or you will not be able to complete the system installation.`,
   re_password: `The root password will be how to log into each server and sensor after the kickstart process completes.  \
   Do not forget this password or you will not be able to complete the system installation.`,
-  boot_drive: 'The boot drive is the disk name that will have the operating system installed during the kickstart process.  \
+  boot_drives: 'The boot drive is the disk name that will have the operating system installed during the kickstart process.  \
   If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
   raid_drives: 'The raid drives is a comma separated list of drives that will be raid together in RAID 0.  \
   For example: sda,sdb',
   pxe_type: 'The PXE Type referes to the motherboards method of network booting.  \
   By default, the Supermicro uses BIOS and the HP DL160s use UEFI.\
   BIOS is sometimes called Legacy in the bios settings.',
-  data_drive: 'The data drive is the disk name that will have the data partition configured during the kickstart process. \
+  data_drives: 'The data drive is the disk name that will have the data partition configured during the kickstart process. \
   If there are multiple drives (comma seperated), they will be combined into a RAID 0 pool',
   dns: 'The DNS Server that MIPs use to resolve queries.',
   mip_pxe_type: "The hard drive type determines the hard drive name used for booting. Match this with the MIP being Kickstarted.",

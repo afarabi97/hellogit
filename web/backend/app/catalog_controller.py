@@ -2,9 +2,11 @@ from app import app, logger, conn_mng
 from app.common import ERROR_RESPONSE, JSONEncoder
 from flask import jsonify, request, Response
 from typing import List
-from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps
+from app.catalog_service import (delete_helm_apps, install_helm_apps, get_app_state,
+                                 get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps,
+                                 reinstall_helm_apps)
 from app.middleware import controller_maintainer_required
-from celery import chain
+from app.models.common import JobID
 from typing import Set, List
 
 NAMESPACE = "default"
@@ -61,9 +63,9 @@ def install() -> Response:
     values = payload["values"]
 
     if process == "install":
-        results = install_helm_apps.delay(
+        job = install_helm_apps.delay(
             application, NAMESPACE, node_affinity=node_affinity, values=values)  # type: list
-        return (jsonify(str(results)), 200)
+        return (jsonify(JobID(job).to_dict()), 200)
 
     logger.error("Executing /api/catalog/install has failed.")
     return ERROR_RESPONSE
@@ -84,9 +86,9 @@ def delete() -> Response:
     nodes = processdic["selectedNodes"]
 
     if process == "uninstall":
-        results = delete_helm_apps.delay(
+        job = delete_helm_apps.delay(
             application, NAMESPACE, nodes)  # type: Response
-        return jsonify(str(results))
+        return jsonify(JobID(job).to_dict())
 
     logger.error("Executing /api/catalog/delete has failed.")
     return ERROR_RESPONSE
@@ -109,9 +111,9 @@ def reinstall() -> Response:
     values = payload["values"]
 
     if process == "reinstall":
-        results = chain(delete_helm_apps.si(application=application, namespace=NAMESPACE, nodes=nodes),
-                        install_helm_apps.si(application=application, namespace=NAMESPACE, node_affinity=node_affinity, values=values))()
-        return jsonify(str(results))
+        job = reinstall_helm_apps.delay(application=application, namespace=NAMESPACE, nodes=nodes,
+                                        node_affinity=node_affinity, values=values)
+        return jsonify(JobID(job).to_dict())
 
     logger.error("Executing /api/catalog/delete has failed.")
     return ERROR_RESPONSE

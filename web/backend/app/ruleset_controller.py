@@ -4,6 +4,7 @@ import json
 
 from app import (app, logger, conn_mng, get_next_sequence)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.models.common import JobID
 from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
 from datetime import datetime
@@ -13,11 +14,11 @@ from pathlib import Path
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
 from pymongo.results import InsertOneResult, DeleteResult
-from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
+from app.utils.constants import (RULESET_STATES, DATE_FORMAT_STR,
                               PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
                               RULE_TYPES, ZEEK_IMAGE_VERSION,
                               ZEEK_RULE_DIR)
-from shared.utils import tar_folder
+from app.utils.utils import tar_folder
 from typing import Dict, Tuple, List, Union
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile
@@ -398,8 +399,8 @@ def delete_ruleset(ruleset_id: str) -> Response:
 @app.route('/api/sync_rulesets', methods=['GET', 'POST'])
 @operator_required
 def sync_rulesets_api() -> Response:
-    perform_rulesync.delay()
-    return OK_RESPONSE
+    job = perform_rulesync.delay()
+    return (jsonify(JobID(job).to_dict()), 200)
 
 
 @app.route('/api/validate_rule', methods=['POST'])

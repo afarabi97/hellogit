@@ -1,12 +1,14 @@
 from app import app, conn_mng
 from app.common import OK_RESPONSE, ERROR_RESPONSE
-from shared.constants import KICKSTART_ID
+from app.models.common import JobID
+from app.models.kit_setup import DIPKickstartForm
+from app.utils.constants import KICKSTART_ID
 from app.service.pcap_service import replay_pcap_srv
 from datetime import datetime
 from flask import jsonify, request, Response
 from pathlib import Path
-from shared.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
-from shared.utils import hash_file, decode_password
+from app.utils.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
+from app.utils.utils import hash_file
 from werkzeug.utils import secure_filename
 from app.middleware import operator_required
 
@@ -61,10 +63,10 @@ def delete_pcap(pcap_name: str) -> Response:
 @operator_required
 def replay_pcap() -> Response:
     payload = request.get_json()
-    kickstart_configuration = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
+    kickstart_configuration = DIPKickstartForm.load_from_db() #type: DIPKickstartForm
     if kickstart_configuration:
-        root_password = decode_password(kickstart_configuration["form"]["root_password"])
-        replay_pcap_srv.delay(payload, root_password)
-        return OK_RESPONSE
+        root_password = kickstart_configuration.root_password
+        job = replay_pcap_srv.delay(payload, root_password)
+        return (jsonify(JobID(job).to_dict()), 200)
 
     return ERROR_RESPONSE

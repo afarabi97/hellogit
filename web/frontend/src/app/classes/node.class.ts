@@ -14,7 +14,7 @@ export class NodeClass implements NodeInterface {
   hostname: string;
   is_master_server?: boolean;
   is_remote?: boolean;
-  management_ip_address: string;
+  ip_address: string;
   node_type: string;
   status?: StatusClass;
 
@@ -30,7 +30,7 @@ export class NodeClass implements NodeInterface {
     this.hostname = nodeInterface.hostname;
     this.is_master_server = nodeInterface.is_master_server;
     this.is_remote = nodeInterface.is_remote;
-    this.management_ip_address = nodeInterface.management_ip_address;
+    this.ip_address = nodeInterface.ip_address;
     this.node_type = nodeInterface.node_type;
   }
 }

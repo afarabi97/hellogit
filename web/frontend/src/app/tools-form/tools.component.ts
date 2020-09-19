@@ -56,33 +56,4 @@ export class ToolsFormComponent implements OnInit {
     return this.resetClock.get('timezone') as FormControl;
   }
 
-  private displaySnackBar(message: string, duration_seconds: number = 60){
-    this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
-  }
-
-  openConfirmResetClockDialog(){
-
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
-      width: DIALOG_WIDTH,
-      data: { "paneString": "Are you sure you want to the system clock on your entire Kit setup?",
-              "paneTitle": "Change Clock", "option1": "Cancel", "option2": option2 },
-    });
-
-    dialogRef.afterClosed().subscribe(response => {
-      const err_msg = "Failed to change the time on your DIP for an unknown reason.  Check /var/log/tfplenum/*.log for more details.";
-      if (response === option2) {
-        this.displaySnackBar("Initiated a change clock task. Please wait for confirmation of changes.");
-        this.toolsSrv.changeKitClock(this.resetClock.value).subscribe(data => {
-          if (data && data['message']){
-            this.displaySnackBar(data['message']);
-          } else {
-            this.displaySnackBar(err_msg);
-          }
-        }, err => {
-          this.displaySnackBar(err_msg);
-        });
-      }
-    });
-  }
 }

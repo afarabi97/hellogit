@@ -18,7 +18,7 @@ data:
       avoid-buggy-ips: true
       addresses:
       - {{ kubernetes_services_cidr | ipaddr('2') | ipaddr('address') }}-{{ kubernetes_services_cidr | ipaddr('-1') | ipaddr('address') }}
-{% if use_proxy_pool %}
+{% if system_name == "GIP" %}
     - name: proxy
       protocol: layer2
       addresses:

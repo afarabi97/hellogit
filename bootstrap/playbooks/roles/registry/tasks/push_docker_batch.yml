@@ -1,0 +1,19 @@
+- name: Upload local images to registry # noqa 301
+  command: "docker push localhost:{{ firewall_port }}/{{ async_item[async_item.find('/')+1:] }}"
+  register: docker_push_results
+  with_items:
+    - "{{ durations }}"
+  async: 3000
+  poll: 0
+  loop_control:
+    loop_var: "async_item"
+
+- name: Waiting for docker images to push
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  loop: "{{ docker_push_results.results }}"
+  loop_control:
+    loop_var: "async_result_item"
+  register: job_push_results
+  until: job_push_results.finished is defined and job_push_results.finished
+  retries: 240

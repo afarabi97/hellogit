@@ -331,7 +331,11 @@ class Runner:
                 executor.run_robot()
             elif args.which == SubCmd.run_unit_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
-                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
+                try:
+                    kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
+                except FileNotFoundError:
+                    kickstart_settings = None
+
                 executor = IntegrationTestsJob( ctrl_settings, kickstart_settings)
                 executor.run_unit_tests()
             elif args.which == SubCmd.run_integration_tests:

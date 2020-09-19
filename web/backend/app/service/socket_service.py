@@ -1,12 +1,13 @@
 import datetime
 
-from app import app, conn_mng, logger
+from app import app, conn_mng, rq_logger, REDIS
 from enum import Enum
 from flask_socketio import SocketIO
 from uuid import uuid4
+from pymongo.results import InsertOneResult
 
 
-socketio = SocketIO(message_queue=app.config['CELERY_BROKER_URL'])
+socketio = SocketIO(message_queue=REDIS)
 
 _DEFAULT_MESSAGE_TYPE = "broadcast"
 
@@ -81,7 +82,7 @@ class NotificationMessage(object):
                 notification["_id"] = str(result.inserted_id)
             socketio.emit(self.message_type, notification, broadcast=True)
         except Exception as exc:
-            logger.exception(exc)
+            rq_logger.exception(exc)
 
     def set_and_send(self, message: str=None, status: str=None) -> None:
         if message:
@@ -89,7 +90,6 @@ class NotificationMessage(object):
         if status:
             self.status = status
         self.post_to_websocket_api()
-
 
 
 def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> None:
@@ -118,7 +118,7 @@ def log_to_console(job_name: str, jobid: str, text: str, color: str=None) -> Non
         log['color'] = color
 
     socketio.emit('message', log, broadcast=True)
-    conn_mng.mongo_console.insert_one(log)
+    res = conn_mng.mongo_console.insert_one(log)
 
 
 def notify_page_refresh():

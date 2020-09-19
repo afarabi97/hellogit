@@ -4,17 +4,17 @@ import shutil
 import tempfile
 import traceback
 
-from app import app, celery, logger, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
+from app import app, rq_logger, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
 from app.service.job_service import run_command2
 from app.service.scale_service import get_elastic_password, get_elastic_service_ip
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
-from celery.task import Task
-from shared.tfwinrm_util import (configure_and_run_winlogbeat_for_cold_log_ingest, install_winlogbeat_for_cold_log_ingest)
-from shared.utils import zip_package
+from rq.decorators import job
+from app.utils.tfwinrm_util import (configure_and_run_winlogbeat_for_cold_log_ingest, install_winlogbeat_for_cold_log_ingest)
+from app.utils.utils import zip_package, TfplenumTempDir
 from pathlib import Path
-from shared.constants import BEATS_IMAGE_VERSIONS
+from app.utils.constants import BEATS_IMAGE_VERSIONS
 from typing import List, Dict
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 
@@ -25,6 +25,10 @@ INSTALL_WINLOGBEAT_JOB_NAME = "winlogbeat_install"
 
 def print_command(cmd: str, work_dir: str):
     sout, ret_val = run_command2(cmd, work_dir)
+    rq_logger.debug(cmd)
+    rq_logger.debug("return_code: {}".format(ret_val))
+    rq_logger.debug(sout)
+    print(cmd)
     print("return_code: {}".format(ret_val))
     print(sout)
 
@@ -147,7 +151,7 @@ class ColdLogsProcessor:
     def process_windows_event_logs(self, log_files: List[str]) -> int:
         self._setup_class_members(log_files, "windows")
         self._set_winlogbeat_index()
-        with tempfile.TemporaryDirectory() as tmp_directory:
+        with TfplenumTempDir() as tmp_directory:
             log_path = "/log"
             Path(tmp_directory + log_path).mkdir(exist_ok=True)
             self._copy_logs_to_dir(tmp_directory + log_path)
@@ -191,7 +195,7 @@ class ColdLogsProcessor:
         return mount_section
 
     def process_linux_logs(self, log_files: List[str], module: str='system'):
-        with tempfile.TemporaryDirectory() as tmp_directory:
+        with TfplenumTempDir() as tmp_directory:
             self._setup_class_members(log_files, module)
             self._set_filebeat_index()
             self._generate_filebeat_template(tmp_directory)
@@ -206,42 +210,12 @@ class ColdLogsProcessor:
                        container_section +
                        module_section)
 
+            rq_logger.debug(run_cmd)
             job = AsyncJob(JOB_NAME.capitalize(), run_cmd, use_shell=True)
             return job.run_asycn_command()
 
 
-def only_one(function=None, key="", timeout=None):
-    """Enforce only one celery task at a time."""
-
-    def _dec(run_func):
-        """Decorator."""
-
-        def _caller(*args, **kwargs):
-            """Caller."""
-            ret_value = None
-            have_lock = False
-            lock = REDIS_CLIENT.lock(key, timeout=timeout)
-            try:
-                have_lock = lock.acquire(blocking=False)
-                if have_lock:
-                    ret_value = run_func(*args, **kwargs)
-                else:
-                    notification = NotificationMessage(role=JOB_NAME)
-                    notification.set_message("Failed to run task as another Windows Cold Log Ingest job is already running.  Please try again later.")
-                    notification.set_status(NotificationCode.ERROR.name)
-                    notification.post_to_websocket_api()
-            finally:
-                if have_lock:
-                    lock.release()
-
-            return ret_value
-
-        return _caller
-
-    return _dec(function) if function is not None else _dec
-
-
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def process_cold_logs(model_dict: Dict,
                       logs: List[str],
                       tmpdirname: str):
@@ -277,9 +251,8 @@ def process_cold_logs(model_dict: Dict,
             notification.set_message(msg)
             notification.set_status(NotificationCode.COMPLETED.name)
             notification.post_to_websocket_api()
-        conn_mng.mongo_celery_tasks.delete_one({"_id": JOB_NAME.capitalize()})
     except Exception as e:
-        traceback.print_exc()
+        rq_logger.exception(e)
         msg = "{} job failed with {}.".format(desc, str(e))
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)
@@ -287,19 +260,10 @@ def process_cold_logs(model_dict: Dict,
     finally:
         shutil.rmtree(tmpdirname)
 
-
-class ProcessWinlogbeatColdLogs(Task):
-    """A task."""
-
-    @only_one(key="WinlogbeatTaskLock", timeout=60 * 5)
-    def run(self, model_dict: Dict,
-                  logs: List[str],
-                  tmpdirname: str):
-        """Run task."""
-        process_cold_logs(model_dict, logs, tmpdirname)
+    rq_logger.exception("YAY success")
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_winlogbeat_srv():
     try:
         model = WinlogbeatInstallModel()
@@ -324,10 +288,8 @@ def install_winlogbeat_srv():
             notification.post_to_websocket_api()
 
     except Exception as e:
-        traceback.print_exc()
+        rq_logger.exception(e)
         msg = "{} job failed with {}.".format(desc, str(e))
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
-
-    conn_mng.mongo_celery_tasks.delete_one({"_id": INSTALL_WINLOGBEAT_JOB_NAME})

@@ -86,7 +86,7 @@ class OfflineLogProcessor:
                                      json=windows_install_form)
 
         if response.status_code != 200:
-            print("Failed to initalize install Winlogbeat celery task.")
+            print("Failed to initalize install Winlogbeat rq task.")
         else:
             print("Successfully kicked off Winlogbeat install.")
 

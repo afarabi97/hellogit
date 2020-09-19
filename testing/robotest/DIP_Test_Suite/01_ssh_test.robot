@@ -105,9 +105,9 @@ Accept DoD Banner
     [Documentation]  This function is made to accept the DoD Banner
     Log Location
     SeleniumLibrary.Capture Page Screenshot  filename=accept-banner-screenshot-{index}.png
-    Wait Until Page Contains    ${DOD_TERMS_CONDITIONS}
+    Sleep 20s
     Click DoD Accept Button
-    Wait Until Page Contains    ${UPDATE_PASSWORD_TITLE}
+    Sleep 20s
 
 Enter Login Username And Password
     [Tags]      THISISCVAH-7528

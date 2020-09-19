@@ -38,6 +38,10 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.kickstart
 
     @property
+    def mongo_node(self) -> Collection:
+        return self._tfplenum_database.nodes
+
+    @property
     def mongo_configurations(self) -> Collection:
         """
         Returns a mongo object that be used for storing misc configuration information.
@@ -65,24 +69,6 @@ class MongoConnectionManager(object):
         return self._tfplenum_database.mip_config
 
     @property
-    def mongo_kit_archive(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
-
-        :return:
-        """
-        return self._tfplenum_database.kit_archive
-
-    @property
-    def mongo_kickstart_archive(self) -> Collection:
-        """
-        Returns a mongo object that can do database manipulations.
-
-        :return:
-        """
-        return self._tfplenum_database.kickstart_archive
-
-    @property
     def mongo_console(self) -> Collection:
         """
         Returns a mongo object that can do database manipulations.
@@ -90,13 +76,6 @@ class MongoConnectionManager(object):
         :return:
         """
         return self._tfplenum_database.console
-
-    @property
-    def mongo_last_jobs(self) -> Collection:
-        """
-        Returns a mongo object that can do manipulate the last jobs completed by the system.
-        """
-        return self._tfplenum_database.last_jobs
 
     @property
     def mongo_portal(self) -> Collection:

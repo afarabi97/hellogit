@@ -26,17 +26,6 @@ class IntegrationTestsJob:
                  kickstart_settings: Union[KickstartSettings, HwKickstartSettings]):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings
-        try:
-            api_key = get_api_key(ctrl_settings)
-        except Exception as e:
-            logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
-            logging.error(e)
-            exit(1)
-        try:
-            root_ca = get_web_ca(ctrl_settings)
-        except Exception as e:
-            logging.error(e)
-            logging.error('Falling back to verify=False.')
 
     def _replay_pcaps(self):
         headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
@@ -52,7 +41,21 @@ class IntegrationTestsJob:
             if response.status_code != 200 or response2.status_code != 200 or response3.status_code != 200:
                 raise Exception("Failed to replay pcap.")
 
+    def _set_api_keys_to_environment(self):
+        try:
+            api_key = get_api_key(self.ctrl_settings)
+        except Exception as e:
+            logging.error('SSH to controller failed.  Unable to get API Key.  Exiting.')
+            logging.error(e)
+            exit(1)
+        try:
+            root_ca = get_web_ca(self.ctrl_settings)
+        except Exception as e:
+            logging.error(e)
+            logging.error('Falling back to verify=False.')
+
     def run_integration_tests(self):
+        self._set_api_keys_to_environment()
         wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
         self._replay_pcaps()
         _clean_up(wait = 0)
@@ -68,18 +71,13 @@ class IntegrationTestsJob:
             ansible-playbook -i /opt/tfplenum/core/playbooks/inventory.yml -e ansible_ssh_pass='" +
                 self.kickstart_settings.servers[0].password + "' site.yml")
 
-        error = False
         with FabricConnectionWrapper(self.ctrl_settings.node.username,
                                      self.ctrl_settings.node.password,
                                      self.ctrl_settings.node.ipaddress) as ctrl_cmd:
             with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
                 ctrl_cmd.run(cmd_to_mkdir)
             with ctrl_cmd.cd("/opt/tfplenum/testing/playbooks"):
-                try:
-                    ctrl_cmd.run(cmd_to_execute, shell=True)
-                except UnexpectedExit as e:
-                    print(e)
-                    error = True
+                ctrl_cmd.run(cmd_to_execute, shell=True)
 
             reports_string_ = ctrl_cmd.run(cmd_to_list_reports).stdout.strip()
             reports = reports_string_.replace("\r","").split("\n")
@@ -87,22 +85,17 @@ class IntegrationTestsJob:
                 filename = report.replace(reports_source + "/", "")
                 ctrl_cmd.get(report, reports_destination + filename)
 
-        if error:
-            raise Exception("Tests failed.")
-
         return True
 
     def run_unit_tests(self):
+        power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         ctrl_node = self.ctrl_settings.node
         with FabricConnectionWrapper(ctrl_node.username,
                                      ctrl_node.password,
                                      ctrl_node.ipaddress) as ctrl_shell:
-            with ctrl_shell.cd("/opt/tfplenum/web/backend/tests"):
-                ctrl_shell.run("/opt/tfplenum/web/tfp-env/bin/python controller_test.py")
-                ctrl_shell.run("zip -r htmlcov.zip htmlcov/")
-                ctrl_shell.run("mv htmlcov/ /var/www/html/")
-
-            ctrl_shell.get("/opt/tfplenum/web/backend/tests/htmlcov.zip", "./htmlcov.zip")
+            with ctrl_shell.cd("/opt/tfplenum/web/backend/"):
+                ctrl_shell.run("/opt/tfplenum/web/tfp-env/bin/python run_unit_tests.py")
 
         print("Navigate to http://{}/htmlcov/ to see full unit test coverage report.".format(ctrl_node.ipaddress))
         _clean_up(wait = 0)
@@ -117,11 +110,30 @@ class PowerFailureJob:
         self.kickstart_settings = kickstart_settings
 
     def simulate_power_failure(self):
-        self.kickstart_settings.nodes.append(self.ctrl_settings.node)
+        power_off_vms(self.kickstart_settings.vcenter, self.ctrl_settings.node)
         power_off_vms(self.kickstart_settings.vcenter, self.kickstart_settings.nodes)
-        power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.nodes)
-        test_nodes_up_and_alive(self.kickstart_settings.nodes, 30)
-        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 30)
+
+        # Wait for controller to come up first
+        power_on_vms(self.kickstart_settings.vcenter, self.ctrl_settings.node)
+        test_nodes_up_and_alive(self.ctrl_settings.node, 20)
+
+        # Power on kubernetes master server and wait for it to come up before other nodes.
+        power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.get_master_kubernetes_server())
+        test_nodes_up_and_alive(self.kickstart_settings.get_master_kubernetes_server(), 20)
+
+        # Power on the remaining kubernetes servers.
+        remaining_srvs_to_power_on = []
+        for server in self.kickstart_settings.servers: # type: NodeSettings
+            if server.node_type != NodeSettings.valid_node_types[0]:
+                remaining_srvs_to_power_on.append(server)
+
+        power_on_vms(self.kickstart_settings.vcenter, remaining_srvs_to_power_on)
+        test_nodes_up_and_alive(remaining_srvs_to_power_on, 20)
+
+        # Power on the remaining kubernetes sensors.
+        power_on_vms(self.kickstart_settings.vcenter, self.kickstart_settings.sensors)
+        test_nodes_up_and_alive(self.kickstart_settings.sensors, 20)
+        wait_for_pods_to_be_alive(self.kickstart_settings.get_master_kubernetes_server(), 20)
 
 class HwPowerFailureJob:
 

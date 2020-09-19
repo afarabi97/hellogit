@@ -14,7 +14,7 @@ Setup Hardware DIP Controller:
     --esxi-ipaddress "$ESXI_IPADDRESS" \
     --esxi-username "$ESXI_USERNAME" \
     --esxi-password "$ESXI_PASSWORD" \
-    --node-password "$NODE_PASSWORD" \
+    --node-password "$DEFAULT_TEMPLATE_PASSWORD" \
     --vm-datastore "$ESXI_DATASTORE" \
     --ctrl-path "$DIP_CONTROLLER_PATH" \
     --ctrl-name "$CONTROLLER_OVA" \
@@ -47,7 +47,7 @@ Hardware DIP Kickstart:
     python3 testing/pipeline/baremetal_pipeline.py \
     --system-name "DIP" \
     run-kickstart \
-    --node-password "$NODE_PASSWORD" \
+    --node-password "$DEFAULT_VM_PASSWORD" \
     --vm-datastore "$ESXI_DATASTORE" \
     --ctrl-path "$DIP_CONTROLLER_PATH" \
     --ctrl-name "$CONTROLLER_OVA" \
@@ -55,7 +55,6 @@ Hardware DIP Kickstart:
     --template "$DIP_TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
     --ipaddress "$CONTROLLER_IPADDRESS" \
-    --gateway "$CONTROLLER_GATEWAY" \
     --dns-servers $CONTROLLER_DNS_SERVERS \
     --server-oob $SERVER_OOB \
     --sensor-oob $SENSOR_OOB \
@@ -100,7 +99,7 @@ Remote Node Automation:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/baremetal_pipeline.py \
-    --system-name "DIP" run-remote-node 
+    --system-name "DIP" run-remote-node
   only:
     variables:
       - $RUN_REMOTE_NODE == "yes" && $PIPELINE == "hw-developer-dip"

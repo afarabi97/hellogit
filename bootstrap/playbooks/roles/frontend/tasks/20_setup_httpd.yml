@@ -59,18 +59,18 @@
     - /etc/httpd/conf.d/ssl.conf
     - /etc/httpd/conf.d/welcome.conf
 
-- name: Create tfplenum-frontend service
+- name: Create tfplenum-backend service
   copy:
-    src: files/tfplenum-frontend.service
-    dest: /etc/systemd/system/tfplenum-frontend.service
+    src: files/tfplenum-backend.service
+    dest: /etc/systemd/system/tfplenum-backend.service
 
 - name: Reload systemd
   systemd:
     daemon-reload: yes
 
-- name: Stop tfplenum-frontend service
+- name: Stop tfplenum-backend service
   systemd:
-    name: tfplenum-frontend
+    name: tfplenum-backend
     enabled: yes
     state: stopped
   ignore_errors: yes

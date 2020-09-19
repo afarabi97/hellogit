@@ -103,7 +103,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
       if (this.chart.id === "squid") {
         this._CatalogService.getNodes().subscribe(nodes => {
-          this.gip_number = nodes[0].management_ip_address.split('.')[1];
+          this.gip_number = nodes[0].ip_address.split('.')[1];
         });
       }
       if(this.chart.id === "hive") {

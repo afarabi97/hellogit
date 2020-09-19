@@ -10,19 +10,11 @@ all:
     #############################
     # General System Settings   #
     #############################
-
-    # The IP address of the system DNS server. You may define this or it will default
-    # to using the master server's management IP. We suggest you leave it to default
-    # unless you have a specific reason to use a different DNS server. Keep in mind
-    # you will need to manually provide all required DNS entries on your separate
-    # DNS Server or the kit will break.
-    dns_ip: {{ template_ctx.dns_ip }}
     kit_domain: {{ template_ctx.domain }}
 
     #############################
     # Kubernetes Settings       #
     #############################
-    use_proxy_pool: {{ template_ctx.use_proxy_pool | default(false) }}
 
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
     # This includes cockpit, Moloch viewer, Kibana, elastichq, and
@@ -84,7 +76,7 @@ all:
 
               # This is the management IP address of the node. Ex: 192.168.1.198
               # This is the address Ansible will use to communicate with.
-              management_ipv4: "{{ node.management_ip_address }}"
+              management_ipv4: "{{ node.ip_address }}"
 
             {% endif %}
           {% endfor %}
@@ -111,7 +103,7 @@ all:
               sys_mem_reserve: {{ node.reservations.sys_mem_reserve }}
               kube_cpu_reserve: {{ node.reservations.kube_cpu_reserve }}
               kube_mem_reserve: {{ node.reservations.kube_mem_reserve }}
-              management_ipv4: {{ node.management_ip_address }}
+              management_ipv4: {{ node.ip_address }}
               is_master: {{ node.is_master_server }}
               is_control_plane_node: false
             {% endif %}

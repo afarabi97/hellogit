@@ -35,7 +35,6 @@ import { LogIngestComponent } from './log-ingest/log-ingest.component';
 import { ToolsFormComponent } from './tools-form/tools.component';
 import { ChangePasswordFormComponent } from './tools-form/change-password-form/change-password.component';
 import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
-import { KitClockFormComponent } from './tools-form/change-kit-clock-form/change-kitclock.component';
 import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form/node-maintenance.component';
 import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
 
@@ -81,9 +80,6 @@ import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.componen
 
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 
-// Upgrade
-import { UpgradeComponent } from './system-setup/upgrade/upgrade.component';
-
 // classes
 import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
@@ -94,10 +90,6 @@ import { CookieService } from './services/cookies.service';
 
 // Kickstart Form
 import { UnusedIpAddressAutoCompleteComponent } from './system-setup/components/unused-ipaddress-autocomplete-ctrl.component';
-
-// Archives
-import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-restore-dialog.component';
-import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-dialog.component';
 
 // Date-Time
 import { DateTimeModule } from './modules/date-time/date-time.module';
@@ -141,8 +133,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     TopNavbarComponent,
     KickstartComponent,
     UnusedIpAddressAutoCompleteComponent,
-    ArchiveRestoreDialogComponent,
-    ArchiveSaveDialogComponent,
     KitComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
@@ -151,7 +141,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     PortalComponent,
     SupportComponent,
     ToolsFormComponent,
-    KitClockFormComponent,
     ChangePasswordFormComponent,
     UpdateDocsFormComponent,
     NodeMaintenanceFormComponent,
@@ -180,7 +169,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     ConfirmDailogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
-    UpgradeComponent,
     ReplayPcapDialog,
     ModalTableComponent,
     AddNodeComponent,
@@ -228,8 +216,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     PolicyManagementUploadDialog,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
-    ArchiveRestoreDialogComponent,
-    ArchiveSaveDialogComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
     AgentTargetDialogComponent,

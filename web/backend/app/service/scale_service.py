@@ -7,10 +7,11 @@ import traceback
 from elasticsearch import Elasticsearch
 from kubernetes import client, config
 
-from app import celery, logger
+from app import logger, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.catalog_service import _get_domain
 from app.dao import elastic_deploy
+from rq.decorators import job
 
 
 _JOB_NAME = "scale"
@@ -185,7 +186,7 @@ def es_cluster_status() -> str:
         return "Unknown"
 
 
-@celery.task
+@job('default', connection=REDIS_CLIENT, timeout="30m")
 def check_scale_status(application: str):
     notification = NotificationMessage(role=_JOB_NAME)
     notification.set_message("%s scaling started." % application)
@@ -226,7 +227,7 @@ def check_scale_status(application: str):
 
 def get_allowable_scale_count():
     ureg = UnitRegistry()
-    ureg.load_definitions('/opt/tfplenum/web/backend/shared/kubernetes_units')
+    ureg.load_definitions('/opt/tfplenum/web/backend/app/utils/kubernetes_units')
     data = {}
     request = []
     Q_ = ureg.Quantity

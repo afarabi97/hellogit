@@ -3,13 +3,13 @@ import shutil
 import tempfile
 import zipfile
 
-from app import app, conn_mng
+from app import app
+from app.models.common import JobID
 from app.models.cold_log import (ColdLogUploadModel, WinlogbeatInstallModel)
 from app.service.cold_log_service import (process_cold_logs,
                                           install_winlogbeat_srv,
-                                          JOB_NAME,
-                                          INSTALL_WINLOGBEAT_JOB_NAME,
-                                          ProcessWinlogbeatColdLogs)
+                                          process_cold_logs)
+from app.utils.utils import TfplenumTempDir
 from flask import jsonify, request, Response
 
 
@@ -32,7 +32,8 @@ def upload_cold_log_file() -> Response:
         except ValueError:
             return jsonify({"error_message": "Failed to upload Windows file because Winlogbeat has not been setup for cold log ingest."})
 
-    tmpdirname = tempfile.mkdtemp()
+    new_dir = TfplenumTempDir()
+    tmpdirname = new_dir.file_path_str
     try:
         abs_save_path = tmpdirname + '/' + model.filename
         model.upload_file.save(abs_save_path)
@@ -51,19 +52,15 @@ def upload_cold_log_file() -> Response:
         else:
             logs = [abs_save_path]
 
-        if model.is_linux():
-            task_id = process_cold_logs.delay(model.to_dict(), logs, tmpdirname)
-        elif model.is_windows():
-            task_id = ProcessWinlogbeatColdLogs.delay(model.to_dict(), logs, tmpdirname)
-
-        conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": JOB_NAME.capitalize()},
-                                                         {"_id": JOB_NAME.capitalize(), "task_id": str(task_id), "pid": ""},
-                                                         upsert=True)
+        job = process_cold_logs.delay(model.to_dict(), logs, tmpdirname)
     except Exception as e:
-        shutil.rmtree(tmpdirname)
+        try:
+            shutil.rmtree(tmpdirname)
+        except FileNotFoundError:
+            pass
         raise e
 
-    return (jsonify(str(task_id)), 200)
+    return (jsonify(JobID(job).to_dict()), 200)
 
 
 @app.route("/api/get_winlogbeat_configuration", methods=['GET'])
@@ -87,9 +84,5 @@ def install_winlogbeat() -> Response:
     model = WinlogbeatInstallModel()
     model.from_request(request.get_json())
     model.save_to_mongo()
-    task_id = install_winlogbeat_srv.delay()
-    conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": INSTALL_WINLOGBEAT_JOB_NAME},
-                                                     {"_id": INSTALL_WINLOGBEAT_JOB_NAME,
-                                                     "task_id": str(task_id), "pid": ""},
-                                                     upsert=True)
-    return (jsonify(str(task_id)), 200)
+    job = install_winlogbeat_srv.delay()
+    return (jsonify(JobID(job).to_dict()), 200)
