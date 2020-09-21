@@ -1,35 +1,23 @@
-import { Component, OnInit, Input, ViewChild,
-         ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
-import { ConfigmapsService } from '../configmaps/configmaps.service';
 import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-elasticconfig-editor',
-  templateUrl: './elasticconfig-editor.component.html',
-  styleUrls: ['./elasticconfig-editor.component.css']
+  templateUrl: './elasticconfig-editor.component.html'
 })
-export class ElasticEditorComponent implements OnInit {
-
-  @ViewChild('editorCard', {static: false})
-  private editorCard: ElementRef;
-
-  @ViewChild('outerCard', {static: false})
-  private outerCard: ElementRef;
-
-  @Input()
-  public text: string;
-
-  @Output()
-  closeNoSaveEvent: EventEmitter<any> = new EventEmitter();
-
-  @Output()
-  closeSaveEvent: EventEmitter<any> = new EventEmitter();
-
-  numbers: Array<number>;
+export class ElasticEditorComponent implements AfterViewInit {
+  @Input() text: string;
+  @Output() closeNoSaveEvent: EventEmitter<string> = new EventEmitter<string>();
+  @Output() closeSaveEvent: EventEmitter<string> = new EventEmitter<string>();
+  numbers: number[];
   controllerMaintainer: boolean;
+  @ViewChild('editorCard', {static: false}) private editorCard: ElementRef;
+  @ViewChild('outerCard', {static: false}) private outerCard: ElementRef;
 
-  constructor( private confirmer: ConfirmActionPopup, private configMapSrv: ConfigmapsService, private userService: UserService) {
+  constructor(private confirmer: ConfirmActionPopup,
+              private userService: UserService) {
     this.numbers = new Array(500).fill(true);
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
@@ -43,15 +31,12 @@ export class ElasticEditorComponent implements OnInit {
      this.resizeEditor();
   }
 
-  ngOnInit() {
-  }
-
   ngAfterViewInit() {
     this.resizeEditor();
   }
 
   private resizeEditor(){
-    let height: string = "";
+    let height = "";
     if (window.innerHeight > 400){
       height = (window.innerHeight - 130) + "px";
     } else {
@@ -68,12 +53,12 @@ export class ElasticEditorComponent implements OnInit {
       "Close",
       "Closed without saving.",
       "",
-      () => { this.closeWithoutSaving("") }
+      () => this.closeWithoutSaving('')
     );
   }
 
   openSaveDialog(){
-    let confirmText = 'Are you sure you want to save this configuration? Doing so will update the Elasticsearch configuration and may cause interuption to services for a few minutes.';
+    const confirmText = 'Are you sure you want to save this configuration? Doing so will update the Elasticsearch configuration and may cause interuption to services for a few minutes.';
 
     this.confirmer.confirmAction(
       "Close and save",
@@ -81,11 +66,11 @@ export class ElasticEditorComponent implements OnInit {
       "Save",
       "Saved Elastic Config",
       "Could not save.",
-      () => { this.closeAndSave() }
+      () => this.closeAndSave()
     );
   }
 
-  closeWithoutSaving(event: any){
+  closeWithoutSaving(event: string){
     this.closeNoSaveEvent.emit(event);
   }
 
