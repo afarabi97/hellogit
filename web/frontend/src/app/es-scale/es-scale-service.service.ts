@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable} from 'rxjs';
 
 export const HTTP_OPTIONS = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -14,13 +13,13 @@ export class ESScaleServiceService {
 
   constructor(private http: HttpClient) { }
 
-  postElaticNodes(podCount): Observable<Object> {
+  postElasticNodes(podCount): Observable<Object> {
     const url = '/api/scale/elastic';
-    let payload = { "elastic" : podCount };
+    const payload = { "elastic" : podCount };
     return this.http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
-  getElaticNodes(): Observable<Object> {
+  getElasticNodes(): Observable<Object> {
     const url = '/api/scale/elastic/nodes';
     return this.http.get(url).pipe();
   }
@@ -42,7 +41,7 @@ export class ESScaleServiceService {
 
   postElasticFullConfig(config): Observable<Object> {
     const url = '/api/scale/elastic/advanced';
-    let payload = { "elastic" : config };
+    const payload = { "elastic" : config };
     return this.http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 

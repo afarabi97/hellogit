@@ -36,7 +36,7 @@ class SliderControl {
 
     if (data){
       this.currentCount = data["elastic"][type];
-      let name = "max_scale_count_" + type;
+      const name = `max_scale_count_ ${type}`;
       this.maxCount = data["elastic"][type] + data["elastic"][name];
     } else {
       this.currentCount = 0;
@@ -53,7 +53,6 @@ class SliderControl {
 @Component({
   selector: 'app-es-scale',
   templateUrl: './es-scale.component.html',
-  styleUrls: ['./es-scale.component.scss']
 })
 export class ESScaleComponent implements OnInit, AfterViewInit {
   public nodes: FormArray;
@@ -93,11 +92,11 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
       if(response["status"] !== "Ready" && response["status"] !== "Unknown" && response["status"] !== "None") {
         this.scaleInProgressDialog();
         this.status = true;
-      } else if(response["status"] == "None") {
-        let reroute = () => this.router.navigate(['/kit_configuration'])
+      } else if(response["status"] === "None") {
+        const reroute = () => this.router.navigate(['/kit_configuration'])
         this.snackbar.showSnackBar('Error - You cannot scale Elastic until you have a Kit deployed and Elastic is installed', -1, 'Kit Config', reroute);
         this.loading = false;
-      } else if(response["status"] == "Unknown") {
+      } else if(response["status"] === "Unknown") {
         this.snackbar.showSnackBar('Error - Unknown Elastic Status', -1, 'Dismiss');
         this.loading = false;
       } else {
@@ -116,7 +115,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.EsScaleSrv.getElaticNodes().subscribe(data => {
+    this.EsScaleSrv.getElasticNodes().subscribe(data => {
       this.elasticPodTypes.length = 0; // clear the array without dereferencing it.
       this.elasticPodTypes.push(new SliderControl("master", data));
       this.elasticPodTypes.push(new SliderControl("data", data));
@@ -131,12 +130,12 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
 
   runScale() {
     this.loading = true;
-    let elastic = {}
+    const elastic = {}
     this.elasticPodTypes.forEach(pod => {
       elastic[pod.type] = pod.currentCount;
     });
 
-    this.EsScaleSrv.postElaticNodes(elastic).subscribe(response => {
+    this.EsScaleSrv.postElasticNodes(elastic).subscribe(response => {
       setTimeout(() => {
         this.EsScaleSrv.deployElastic().subscribe(response => {
           this.status = true;
@@ -147,9 +146,9 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   scaleInProgressDialog() {
-    let message = "Elastic Scaling is currnetly in progress";
-    let title = "Elastic Scaling";
-    let option2 = "Okay";
+    const message = "Elastic Scaling is currnetly in progress";
+    const title = "Elastic Scaling";
+    const option2 = "Okay";
 
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
@@ -158,10 +157,10 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
 
   }
   runDialog() {
-    let message = "Are you sure that you want to change the Elastic Scaling configuration, This will take some time";
-    let title = "Elastic Scaling";
-    let option1 = "Close";
-    let option2 = "Okay";
+    const message = "Are you sure that you want to change the Elastic Scaling configuration, This will take some time";
+    const title = "Elastic Scaling";
+    const option1 = "Close";
+    const option2 = "Okay";
 
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
@@ -180,9 +179,9 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   cantRunDialog() {
-    let message = "Elastic Scaling is currently in progress so you can not change these configuration at this time";
-    let title = "Elastic Scaling";
-    let option2 = "Okay";
+    const message = "Elastic Scaling is currently in progress so you can not change these configuration at this time";
+    const title = "Elastic Scaling";
+    const option2 = "Okay";
 
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
