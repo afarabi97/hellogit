@@ -53,17 +53,13 @@ def index_management() -> Response:
 
     if "action" not in payload or payload["action"] not in ["DeleteIndices", "CloseIndices"]:
         return (jsonify({ "message": "Invalid value for action" }), 400)
-    #if "age" not in payload or payload["age"] <= 0:
-    #    return (jsonify({ "message": "Invalid value for age" }), 400)
     if "index_list" not in payload or payload["index_list"] is None:
         return (jsonify("Index required"), 400)
     if len(payload["index_list"]) < 1:
         return (jsonify("Index list is empty"), 400)
-    #if "units" not in payload or payload["units"] not in ["minutes","hours","days","weeks","months","years"]:
-    #    return (jsonify({ "message": "Invalid value for units" }), 400)
 
-    units = "minutes" # payload["units"]
-    age = "1" # payload["age"]
+    units = "minutes"
+    age = "1"
     action = payload["action"]
     index_list = payload["index_list"]
     execute_curator.delay(action, index_list, units, age)

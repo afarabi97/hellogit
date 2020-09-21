@@ -2,11 +2,10 @@
 Controller responsible for handling the scrolling
 console box when we kick off jobs.
 """
-from app import app, socketio, conn_mng, logger
+from app import app, socketio, conn_mng
 from app.common import OK_RESPONSE
 from flask import request, jsonify, Response
-from flask_socketio import emit
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
 
 
 @socketio.on('connect')

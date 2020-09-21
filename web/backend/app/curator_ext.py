@@ -1,6 +1,6 @@
 import curator
 from curator import utils
-from elasticsearch.exceptions import ConflictError, RequestError
+from elasticsearch.exceptions import ConflictError
 
 
 class ExtDeleteIndices(curator.DeleteIndices):
