@@ -1,25 +1,18 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (app, logger, conn_mng, WEB_DIR, CORE_DIR)
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app import (app, logger, conn_mng, WEB_DIR)
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 from app.service.job_service import run_command
-from datetime import datetime
 
-from fabric.runners import Result
-from flask import request, Response, jsonify
+from flask import Response, jsonify
 from pathlib import Path
-from shared.connection_mngs import KubernetesWrapper, KubernetesWrapper2, KUBEDIR
+from shared.connection_mngs import KubernetesWrapper, KUBEDIR
 from shared.constants import KIT_ID
-from shared.utils import decode_password, get_json_from_url, normalize_epoc_or_unixtimestamp
-from time import sleep
 from typing import List, Dict
 
 from kubernetes.client.models.v1_pod_list import V1PodList
 from kubernetes.client.models.v1_node_list import V1NodeList
-
-import socket
 
 
 PYTHON_PATH = str(WEB_DIR / 'tfp-env/bin/python')

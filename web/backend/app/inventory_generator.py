@@ -9,7 +9,7 @@ from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app import TEMPLATE_DIR, DEPLOYER_DIR, CORE_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR
 from app.calculations import (get_sensors_from_list, get_servers_from_list,
                               server_and_sensor_count)
-from app.resources import NodeResourcePool, NodeResources
+from app.resources import NodeResourcePool
 from shared.constants import NODE_TYPES
 
 
