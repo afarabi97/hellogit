@@ -8,8 +8,7 @@ import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-configmap-editor',
-  templateUrl: './configmap-editor.component.html',
-  styleUrls: ['./configmap-editor.component.css']
+  templateUrl: './configmap-editor.component.html'
 })
 export class ConfigmapEditorComponent implements OnInit {
 
@@ -65,7 +64,7 @@ export class ConfigmapEditorComponent implements OnInit {
   private resizeEditor() {
     let height: string = "";
     if (window.innerHeight > 400) {
-      height = (window.innerHeight - 130) + "px";
+      height = `${(window.innerHeight - 130)}px`;
     } else {
       height = "100px";
     }
@@ -94,7 +93,7 @@ export class ConfigmapEditorComponent implements OnInit {
       let confirmText = 'Are you sure you want to save this configuration? Doing so will cause ';
 
       for (let index = 0; index < this.associatedPods.length; index++) {
-        let podName = this.associatedPods[index].podName;
+        const podName = this.associatedPods[index].podName;
         confirmText = confirmText.concat(podName);
         if (index !== (this.associatedPods.length - 1)) {
           confirmText = confirmText.concat(", ")
@@ -107,7 +106,7 @@ export class ConfigmapEditorComponent implements OnInit {
         "Close and save",
         confirmText,
         "Save",
-        "Saved configuration file " + this.title,
+        `Saved configuration file ${this.title}`,
         "Could not save.",
         () => { this.closeAndSave() }
       );
