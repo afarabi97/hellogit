@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, Inject, AfterViewInit } from '@angular/core';
-import { MatPaginator, MatTableDataSource } from '@angular/material';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
-import { ArchiveService } from 'src/app/services/archive.service';
+import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef, MatPaginator, MatTableDataSource } from '@angular/material';
+import { ArchiveService } from '../services/archive.service';
+
 @Component({
   selector: 'app-kickstart-form-restore',
   templateUrl: './archive-restore-dialog.component.html',
@@ -13,13 +13,11 @@ export class ArchiveRestoreDialogComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(false, []);
   showSelectedRow: boolean;
-
-  @ViewChild(MatPaginator, {static: false})
-  paginator: MatPaginator;
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
 
   constructor(public dialogRef: MatDialogRef<ArchiveRestoreDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data,
-    private archiveService: ArchiveService) { }
+              @Inject(MAT_DIALOG_DATA) public data,
+              private archiveService: ArchiveService) { }
 
   ngOnInit() {
     this.dataSource.data = this.data.archives;
@@ -32,16 +30,15 @@ export class ArchiveRestoreDialogComponent implements OnInit, AfterViewInit {
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+    return this.selection.selected.length === this.dataSource.data.length;
   }
 
   checkboxLabel(row?): string {
     if (!row) {
       return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
+    } else {
+      return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
     }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
   viewSelectedItem(row) {
@@ -51,7 +48,7 @@ export class ArchiveRestoreDialogComponent implements OnInit, AfterViewInit {
       if (this.selection.selected.length > 0) {
         this.selection.deselect(this.selection.selected[0]);
       }
-      this.selection.select(row)
+      this.selection.select(row);
     }
   }
 
