@@ -183,7 +183,7 @@
             </mat-form-field>
           </ng-container>
           <!-- Root Password -->
-          <app-password-message></app-password-message>
+          <app-password-message id="app-kickstart-form-div-mat-card-mat-card-content-section-app-password-message"></app-password-message>
           <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-root-password">
             <mat-label>Root Password</mat-label>
             <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-root-password-input"
@@ -218,29 +218,35 @@
           </mat-form-field>
           <div fxLayout="column" fxLayoutAlign="start stretch">
             <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
-              <mat-form-field>
+              <!-- Upstream DNS Server -->
+              <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-dns-server">
                 <mat-label>Upstream DNS Server</mat-label>
-                <input matInput
+                <input matInput  id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-dns-server-input"
                        placeholder="Enter your kit's upstream DNS server here." formControlName="upstream_dns" matTooltip="{{ getTooltip('upstream_dns') }}"/>
                 <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_dns').valid &&
                                            kickStartFormGroup.get('upstream_dns').touched"
+                          id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-dns-server-mat-icon-check-circle"
                           color="primary">check_circle</mat-icon>
                 <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_dns').invalid &&
                                            kickStartFormGroup.get('upstream_dns').touched"
+                          id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-dns-server-mat-icon-error"
                           color="warn">error</mat-icon>
-                <mat-error >{{ getErrorMessage(kickStartFormGroup.get("upstream_dns")) }}</mat-error>
+                <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-dns-server-mat-error">{{ getErrorMessage(kickStartFormGroup.get("upstream_dns")) }}</mat-error>
               </mat-form-field>
-              <mat-form-field>
+              <!-- Upstream NTP Server -->
+              <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-ntp-server">
                 <mat-label>Upstream NTP Server</mat-label>
-                <input matInput
+                <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-ntp-server-input"
                        placeholder="Enter your kit's upstream NTP server here." formControlName="upstream_ntp" matTooltip="{{ getTooltip('upstream_ntp') }}"/>
                 <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_ntp').valid &&
                                            kickStartFormGroup.get('upstream_ntp').touched"
+                          id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-ntp-server-mat-icon-check-circle"
                           color="primary">check_circle</mat-icon>
                 <mat-icon matSuffix *ngIf="kickStartFormGroup.get('upstream_ntp').invalid &&
                                            kickStartFormGroup.get('upstream_ntp').touched"
+                          id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-ntp-server-mat-icon-error"
                           color="warn">error</mat-icon>
-                <mat-error >{{ getErrorMessage(kickStartFormGroup.get("upstream_ntp")) }}</mat-error>
+                <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-div-mat-form-field-upstream-ntp-server-mat-error">{{ getErrorMessage(kickStartFormGroup.get("upstream_ntp")) }}</mat-error>
               </mat-form-field>
             </ng-container>
           </div>

@@ -18,44 +18,51 @@
   </mat-card>
   <br>
   <br>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          Upload Cold Log File
-          <button mat-raised-button color="primary"
-                  (click)="uploadFile()" style="float: right;"
-                  [disabled]="!logToUpload || this.logForm.invalid" name="upload_file">Upload
-            <span *ngIf="logToUpload">&nbsp;{{ logToUpload.name }}</span></button>
-          <button mat-raised-button color="primary" style="float:right; margin-right: 10px;"
-                  (click)="fileInput.click()">Choose Log File</button>
-          <input hidden (change)="handleFileInput($event.target.files)" #fileInput type="file" id="log_file_uploader">
-          <button mat-raised-button color="primary"
-                  (click)="setupWinlogBeat()"
-                  style="float: right; margin-right: 10px;"
-                  name="upload_file">Setup Winlogbeat</button>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content [formGroup]="logForm">
-        <mat-form-field appearance="fill">
-          <mat-label>Select Log Type</mat-label>
-          <mat-select disableRipple formControlName="module">
-          <mat-option value="apache">Apache</mat-option>
-          <mat-option value="auditd">Auditd</mat-option>
-          <mat-option value="system">System</mat-option>
-          <mat-option value="suricata">Suricata</mat-option>
-          <mat-option value="windows">Windows event logs</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field class="custom-suffix">
-          <mat-label>Elasticsearch Index Suffix</mat-label>
-          <input matInput maxlength="256" placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
-          <mat-error>Please re-type a new password that password does not meet password standards!</mat-error>
-        </mat-form-field>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Upload Cold Log File
+        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload"
+                color="primary" (click)="uploadFile()" style="float: right;"
+                [disabled]="!logToUpload || this.logForm.invalid" name="upload_file">Upload
+          <span *ngIf="logToUpload" id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload-span-name">&nbsp;{{ logToUpload.name }}</span>
+        </button>
+        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-choose-log-file"
+                color="primary" style="float:right; margin-right: 10px;"
+                (click)="fileInput.click()">Choose Log File
+        </button>
+        <input hidden #fileInput id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-input-hidden-file"
+               (change)="handleFileInput($event.target.files)" type="file">
+        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-setup-winlogbeat"
+                color="primary" (click)="setupWinlogBeat()" style="float: right; margin-right: 10px;"
+                name="upload_file">Setup Winlogbeat
+        </button>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content [formGroup]="logForm">
+      <!-- Select Log Type -->
+      <mat-form-field id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type" appearance="fill">
+        <mat-label>Select Log Type</mat-label>
+        <mat-select disableRipple id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select" formControlName="module">
+          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-apache" value="apache">Apache</mat-option>
+          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-auditd" value="auditd">Auditd</mat-option>
+          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-system" value="system">System</mat-option>
+          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-suricata" value="suricata">Suricata</mat-option>
+          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-windows-event-logs" value="windows">Windows event logs</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- Elasticsearch Index Suffix -->
+      <mat-form-field id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix" class="custom-suffix">
+        <mat-label>Elasticsearch Index Suffix</mat-label>
+        <input matInput id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-input"
+               maxlength="256" placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
+        <mat-error id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-mat-error">Please re-type a new password that password does not meet password standards!</mat-error>
+      </mat-form-field>
 
-        <mat-checkbox formControlName="send_to_logstash"
-         matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
-          (Optional) Send data through logstash instead of sending it directly to elasticsearch.
-        </mat-checkbox>
-      </mat-card-content>
-    </mat-card>
+      <mat-checkbox id="app-log-ingest-div-mat-card-mat-card-content-mat-checkbox-custom-logstash-processors" formControlName="send_to_logstash"
+                    matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
+        (Optional) Send data through logstash instead of sending it directly to elasticsearch.
+      </mat-checkbox>
+    </mat-card-content>
+  </mat-card>
 </div>

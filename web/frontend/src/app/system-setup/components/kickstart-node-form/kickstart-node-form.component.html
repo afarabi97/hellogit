@@ -75,15 +75,15 @@
              matTooltip="{{ getTooltip('raid_drives') }}" />
     </mat-form-field>
     <!-- Root Partition Size -->
-    <mat-form-field *ngIf="isRaid" id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-raid-drives') }}">
-      <mat-label>Root Partition Size (GB)</mat-label>
+    <mat-form-field *ngIf="isRaid" id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-raid-root-size') }}">
+      <mat-label>Raid Root Partition Size (GB)</mat-label>
       <input matInput id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-form-field-raid-root-size') }}"
              placeholder="Enter the size of the Root Partition" formControlName="os_raid_root_size" type="number" min="50"
              matTooltip="{{ getTooltip('os_raid_root_size') }}" />
     </mat-form-field>
 
     <mat-checkbox disableRipple *ngIf="system_name==='DIP'"
-                  id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-checkbox-enable-raid') }}"
+                  id="{{ generateUniqueHTMLID('app-kickstart-node-form-form-mat-checkbox-raid-all-drives') }}"
                   style="padding-bottom: 25px;" (change)="checkRaidChanged($event)"
                   formControlName="os_raid" matTooltip="{{ getTooltip('os_raid') }}">
       Software RAID all drives

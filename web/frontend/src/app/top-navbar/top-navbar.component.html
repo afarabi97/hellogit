@@ -1,11 +1,12 @@
 <mat-drawer-container autosize hasBackdrop="false">
     <mat-drawer #drawer mode="side" opened="true">
         <h3 *ngIf="showLinkNames">
-            <div>TFPlenum
-                <span id="app-top-navbar-mat-drawer-container-mat-drawer-h3-div-span-system-name">{{ system_name }}</span> Controller
+            <div>
+                <span id="app-top-navbar-mat-drawer-container-mat-drawer-h3-div-span-system-name">TFPLENUM {{ system_name }}</span> Controller
             </div>
         </h3>
         <mat-list>
+            <!-- TIMEZONE -->
             <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone">
                 <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-timezone-mat-icon-date-range"
                           matTooltip="{{ time | date:'MM-dd-yy HH:mm:ss' }} {{ timezone }}">date_range</mat-icon>
@@ -16,7 +17,7 @@
                          style="color:lightgreen;">{{ timezone }}</div>
                 </div>
             </mat-list-item>
-
+            <!-- NOTIFICATIONS -->
             <mat-list-item id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications"
                            (click)="openNotifications()">
                 <mat-icon mat-list-icon id="app-top-navbar-mat-drawer-container-mat-drawer-mat-list-mat-list-item-notifications-mat-icon" class="notification-icon">

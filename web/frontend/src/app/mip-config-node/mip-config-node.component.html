@@ -6,14 +6,14 @@
         <mat-list>
             <!-- Hostname -->
             <mat-list-item>
-                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-computer">computer</mat-icon>
+                <mat-icon mat-list-icon>computer</mat-icon>
                 <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-hostname">
                     Hostname: {{ node['hostname'] }}
                 </h4>
             </mat-list-item>
             <!-- Address -->
             <mat-list-item>
-                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-router">router</mat-icon>
+                <mat-icon mat-list-icon>router</mat-icon>
                 <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-address">
                     Address: {{ node['default_ipv4_settings']['address'] }}
                 </h4>
@@ -22,21 +22,21 @@
         <mat-list>
             <!-- CPU -->
             <mat-list-item>
-                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-developer-board">developer_board</mat-icon>
+                <mat-icon mat-list-icon>developer_board</mat-icon>
                 <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-cpus-available">
                     cpus_available: {{node['cpus_available'] | number:'1.0-2'}}
                 </h4>
             </mat-list-item>
             <!-- Memory -->
             <mat-list-item>
-                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-memory">memory</mat-icon>
+                <mat-icon mat-list-icon>memory</mat-icon>
                 <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-memory-available">
                     memory_avaiable: {{ node['memory_available'] | number:'1.0-2' }} GB
                 </h4>
             </mat-list-item>
             <!-- Storage -->
             <mat-list-item>
-                <mat-icon mat-list-icon id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-mat-icon-storage">storage</mat-icon>
+                <mat-icon mat-list-icon>storage</mat-icon>
                 <h4 mat-line id="app-mip-config-node-mat-card-mat-card-content-mat-list-mat-list-item-h4-div-storage">
                     boot_drive: {{ getBootDrive()['size_gb'] }} GB
                 </h4>

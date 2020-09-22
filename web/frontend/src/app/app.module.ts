@@ -14,7 +14,7 @@ import { KickstartComponent } from './system-setup/kickstart/kickstart.component
 import { AppRoutingModule } from './/app-routing.module';
 
 //Common components
-import { PasswordMessage } from './common/components/password-message';
+import { PasswordMessageComponent } from './common/components/password-message.component';
 
 //Kit Page
 import { KitComponent } from './system-setup/kit/kit.component';
@@ -186,7 +186,7 @@ export function initializeSystemName(appLoadService: AppLoadService) {
     ModalTableComponent,
     AddNodeComponent,
     KickstartNodeFormComponent,
-    PasswordMessage,
+    PasswordMessageComponent,
     KitNodeFormComponent,
     ESScaleComponent,
     PodLogModalDialogComponent,
@@ -206,7 +206,6 @@ export function initializeSystemName(appLoadService: AppLoadService) {
     FlexLayoutModule,
     InjectorModule,
     DateTimeModule
-    // HttpModule
   ],
   providers: [
     SnackbarWrapper,
