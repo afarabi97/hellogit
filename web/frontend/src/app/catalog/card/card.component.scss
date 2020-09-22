@@ -1,79 +1,76 @@
-.supportedLabel{
+.supportedLabel {
   color: lightgreen;
   font-weight: bold;
 }
 
-.supportedLabel2{
+.supportedLabel2 {
   color: lightblue;
   font-weight: bold;
 }
 
 .project-card {
-  // background:#fff;
-  box-shadow:0 .13em 3px .04em rgba(0,0,0,.12);
-  cursor:pointer;
-  display:block;
-  font-weight:400;
-  transition:box-shadow .1s ease-out;
-  user-select:none;
-  // background:linear-gradient(to right,#444444 0,#222222 100%);overflow:hidden;
-    background:#272727;
+  box-shadow: 0 .13em 3px .04em rgba(0, 0, 0, .12);
+  cursor: pointer;
+  display: block;
+  font-weight: 400;
+  transition: box-shadow .1s ease-out;
+  user-select: none;
+  background: #272727;
 }
-.project-card:hover{
-  box-shadow:0 .2em 6px .1em rgba(0,0,0,.15);
+.project-card:hover {
+  box-shadow: 0 .2em 6px .1em rgba(0, 0, 0, .15);
 }
-.project-card .card-header{
-  // background:#f7f7f7;
-  background:linear-gradient(to right,#222222 0,#444444 100%);overflow:hidden;
-  position:relative;
+.project-card .card-header {
+  background: linear-gradient(to right,#222222 0,#444444 100%);
+  overflow: hidden;
+  position: relative;
   color: white;
 }
-.project-card .card-header > div{
-  display:flex;
-  flex-direction:column;
-  height:120px;
-  justify-content:center;
-  padding:0 20px;
+.project-card .card-header > div {
+  display: flex;
+  flex-direction: column;
+  height: 120px;
+  justify-content: center;
+  padding: 0 20px;
 }
-.project-card .card-header h3{
-  float:left;
-  font-size:24px;
-  line-height:32px;
-  margin:0 81px 0 0;
-  max-height:95px;
-  overflow:hidden;
-  position:relative;
+.project-card .card-header h3 {
+  float: left;
+  font-size: 24px;
+  line-height: 32px;
+  margin: 0 81px 0 0;
+  max-height: 95px;
+  overflow: hidden;
+  position: relative;
 }
-.project-card .card-body{
-  padding:20px;
-  color:white;
+.project-card .card-body {
+  padding: 20px;
+  color: white;
 }
 
-  @-webkit-keyframes zoom-out-and-in{
-    0%,
-    100%{
-      transform:scale(1);
-    }
-    80%{
-      transform:scale(.95);
-    }
+@-webkit-keyframes zoom-out-and-in {
+  0%,
+  100% {
+    transform:scale(1);
   }
+  80% {
+    transform:scale(.95);
+  }
+}
 
-  @keyframes zoom-out-and-in{
-    0%,
-    100%{
-      transform:scale(1);
-    }
-    80%
-    {
-      transform:scale(.95);
-    }
+@keyframes zoom-out-and-in {
+  0%,
+  100% {
+    transform:scale(1);
   }
+  80% {
+    transform:scale(.95);
+  }
+}
 
-  .body {
-    font-size:16px;
-    min-height:136px;
-    margin:0;
-    overflow:hidden;
-    color:white;
-  }
+.body {
+  font-size: 16px;
+  min-height: 136px;
+  margin: 0;
+  overflow: hidden;
+  color: white;
+}

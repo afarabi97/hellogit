@@ -1,9 +1,10 @@
-import { CardComponent } from './card.component';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { NodeBackgroundComponent } from '../node-background/node-background.component';
-import { CapitalizeFirstPipe } from '../../custom-pipes/capitalize.pipe';
-import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+
+import { CapitalizeFirstPipe } from '../../custom-pipes/capitalize.pipe';
+import { NodeBackgroundComponent } from '../node-background/node-background.component';
+import { CardComponent } from './card.component';
 
 describe('CardComponent', () => {
   let component: CardComponent;
@@ -40,9 +41,7 @@ describe('CardComponent', () => {
       const application = debug.query(By.css('h3')).nativeElement;
       const text = application.firstChild;
       expect(text.data).toEqual('Logstash');
-    })
-  
+    });
   }));
-
 });
 

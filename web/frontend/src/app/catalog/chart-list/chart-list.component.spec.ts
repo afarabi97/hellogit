@@ -118,10 +118,11 @@ describe('ChartListComponent', () => {
         const cards = debug.queryAll(By.directive(CardComponent));
         expect(cards.length).toEqual(12);
 
-        for (let i in cards) {
-          expect(cards[i].componentInstance.chart).toEqual(charts[i]);
+        for (const i in cards) {
+          if (cards.hasOwnProperty(i)) {
+            expect(cards[i].componentInstance.chart).toEqual(charts[i]);
+          }
         }
-    })
+    });
   }));
-
 });

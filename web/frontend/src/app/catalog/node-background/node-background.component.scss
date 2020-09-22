@@ -1,117 +1,117 @@
-.node-graphic{
-  color:#dedede;
-  display:block;
-  margin:0 -33px 0 0;
-  position:absolute;
-  right:0;
-  top:0
+.node-graphic {
+  color: #dedede;
+  display: block;
+  margin: 0 -33px 0 0;
+  position: absolute;
+  right: 0;
+  top: 0
 }
-.svg{display:block;
-  fill:currentColor;
-  -o-object-fit:contain;
-  object-fit:contain;
-  transition:.3s ease-in .25s
+.svg {
+  display: block;
+  fill: currentColor;
+  -o-object-fit: contain;
+  object-fit: contain;
+  transition: .3s ease-in .25s
 }
-.node-graphic div, .node-graphic svg{
-  height:100%;
-  position:absolute;
-  width:100%
-}
-
-.node-graphic .base, .node-graphic.zoomed .deeper, .node-graphic.zoomed .deepest{
-  opacity:.8;
-  transform:scale(1.6) rotate(-69deg);
-  transition:.55s cubic-bezier(.165,.84,.44,1);
+.node-graphic div, .node-graphic svg {
+  height: 100%;
+  position: absolute;
+  width: 100%
 }
 
-.node-graphic .deeper{
-  opacity:0;
-  transform:scale(0) rotate(-145deg);
+.node-graphic .base, .node-graphic.zoomed .deeper, .node-graphic.zoomed .deepest {
+  opacity: .8;
+  transform: scale(1.6) rotate(-69deg);
+  transition: .55s cubic-bezier(.165, .84, .44, 1);
 }
 
-.node-graphic.zoomed .deeper{
-  opacity:1;
-  transform:scale(1.6) rotate(-120deg);
+.node-graphic .deeper {
+  opacity: 0;
+  transform: scale(0) rotate(-145deg);
 }
 
-.node-graphic.zoomed{
-  margin:0 -33px 0 0!important;
+.node-graphic.zoomed .deeper {
+  opacity: 1;
+  transform: scale(1.6) rotate(-120deg);
 }
 
-.node-graphic.zoomed .base{
-  opacity:0;
-  transform:scale(2.7) rotate(-69deg);
+.node-graphic.zoomed {
+  margin: 0 -33px 0 0 !important;
 }
 
-.node-graphic .deepest{
-  display:none;
+.node-graphic.zoomed .base {
+  opacity: 0;
+  transform: scale(2.7) rotate(-69deg);
 }
 
-.node-graphic.hero{
-  background:0 0;
-  right:27px;
+.node-graphic .deepest {
+  display: none;
 }
 
-.node-graphic.hero::after{
-  display:none;
+.node-graphic.hero {
+  background: 0 0;
+  right: 27px;
 }
 
-.node-graphic.hero .no-fill{
-  color:#dedede;
+.node-graphic.hero::after {
+  display: none;
 }
 
-.node-graphic.two{
-  margin:20px -38px 0 0;
+.node-graphic.hero .no-fill {
+  color: #dedede;
 }
 
-.node-graphic.two .base{
-  transform:scale(1.6) rotate(-27deg);
+.node-graphic.two {
+  margin: 20px -38px 0 0;
 }
 
-.node-graphic.two.zoomed .base{
-  transform:scale(2.7) rotate(-27deg);
+.node-graphic.two .base {
+  transform: scale(1.6) rotate(-27deg);
 }
 
-.node-graphic.three .base{
-  margin:-16px -33px 0 0;
-  transform:scale(1.5) rotate(-120deg);
+.node-graphic.two.zoomed .base {
+  transform: scale(2.7) rotate(-27deg);
 }
 
-.node-graphic.three.zoomed .base{
-  transform:scale(2.7) rotate(-120deg);
+.node-graphic.three .base {
+  margin: -16px -33px 0 0;
+  transform: scale(1.5) rotate(-120deg);
 }
 
-.node-graphic.three .deeper{
-  transform:scale(0) rotate(-80deg);
+.node-graphic.three.zoomed .base {
+  transform: scale(2.7) rotate(-120deg);
 }
 
-.node-graphic.three.zoomed .deeper{
-  margin:20px -5px 0 0;
-  transform:scale(1.7) rotate(-30deg);
+.node-graphic.three .deeper {
+  transform: scale(0) rotate(-80deg);
 }
 
-.node-graphic.hero.zoomed{
-  margin:-118px 0 0!important;
+.node-graphic.three.zoomed .deeper {
+  margin: 20px -5px 0 0;
+  transform: scale(1.7) rotate(-30deg);
 }
 
-.node-graphic.hero .deeper{
-  transform:scale(0) rotate(20deg);
+.node-graphic.hero.zoomed {
+  margin: -118px 0 0 !important;
 }
 
-.node-graphic.hero.zoomed .deeper{
-  margin:0;
-  transform:scale(1.1) rotate(-26deg);
+.node-graphic.hero .deeper {
+  transform: scale(0) rotate(20deg);
 }
 
-.node-graphic.hero .deepest{
-  display:block;
-  margin:185px 0 0 -232px;
-  transform:scale(.6) rotate(-268deg);
+.node-graphic.hero.zoomed .deeper {
+  margin: 0;
+  transform: scale(1.1) rotate(-26deg);
 }
 
-.node-graphic.hero.zoomed .deepest{
-  margin:139px 0 0 -300px;
-  transform:scale(1.1) rotate(-268deg);
-  transition-delay:.2s
+.node-graphic.hero .deepest {
+  display: block;
+  margin: 185px 0 0 -232px;
+  transform: scale(.6) rotate(-268deg);
 }
 
+.node-graphic.hero.zoomed .deepest {
+  margin: 139px 0 0 -300px;
+  transform: scale(1.1) rotate(-268deg);
+  transition-delay: .2s
+}

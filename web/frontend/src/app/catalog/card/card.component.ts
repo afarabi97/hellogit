@@ -12,9 +12,15 @@ export class CardComponent {
   // Unique ID passed from parent component to create unique element ids
   @Input() uniqueHTMLID: string;
   @Input() chart: Chart;
-  public color: string = '#e74c3c';
-  public hoverColor: string = '#222222';
-  public hovered: boolean = false;
+  color: string;
+  hoverColor: string;
+  hovered: boolean;
+
+  constructor() {
+    this.color = '#e74c3c';
+    this.hoverColor = '#222222';
+    this.hovered = false;
+  }
 
   /**
    * Used for generating unique element id for html
@@ -24,7 +30,6 @@ export class CardComponent {
    * @memberof CardComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-
     return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 

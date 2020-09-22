@@ -1,12 +1,12 @@
-import { Component, ChangeDetectorRef, OnInit, AfterViewInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { ChartInfo, INodeInfo } from '../interface/chart.interface';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { MatStepper } from '@angular/material/stepper';
-import { CatalogService, config } from '../services/catalog.service';
-import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
+
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ChartInfo, INodeInfo } from '../interface/chart.interface';
+import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-catalog-page',
@@ -17,25 +17,25 @@ import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.comp
   }
 })
 export class CatalogPageComponent implements OnInit, AfterViewInit {
-  public processFormGroup: FormGroup;
-  public configFormGroup: FormGroup;
-  public valueFormGroup: FormGroup;
-  public nodeList: Array<INodeInfo> = [];
-  public isReady: boolean = false;
-  public isLoading: boolean = true;
-  public processList: Array<any> = [];
-  public chart: ChartInfo;
-  public nodes: any;
-  public isAdvance: boolean = false;
-  public content: any;
-  public savedValues: any;
-  public statuses: any;
-  public configArray: Array<any> = [];
-  public kafkaArray: Array<any> = [];
-  public cortexDisable: boolean = true;
-  public mispDisable: boolean = true;
-  public hiveDisable: boolean = true;
-  public gip_number: number;
+  processFormGroup: FormGroup;
+  configFormGroup: FormGroup;
+  valueFormGroup: FormGroup;
+  nodeList: INodeInfo[] = [];
+  isReady: boolean;
+  isLoading: boolean;
+  processList: any[] = [];
+  chart: ChartInfo;
+  nodes: any;
+  isAdvance: boolean;
+  content: any;
+  savedValues: any;
+  statuses: any;
+  configArray: any[] = [];
+  kafkaArray: any[] = [];
+  cortexDisable: boolean;
+  mispDisable: boolean;
+  hiveDisable: boolean;
+  gip_number: number;
 
   /**
    *Creates an instance of CatalogPageComponent.
@@ -47,12 +47,18 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @param {MatSnackBar} snackBar
    * @memberof CatalogPageComponent
    */
-  constructor(  private _formBuilder: FormBuilder,
-                private _CatalogService: CatalogService,
-                private cdRef: ChangeDetectorRef,
-                private router: Router,
-                private snackBar: MatSnackBar,
-                public dialog: MatDialog, ) {
+  constructor(private _formBuilder: FormBuilder,
+              private _CatalogService: CatalogService,
+              private cdRef: ChangeDetectorRef,
+              private router: Router,
+              private snackBar: MatSnackBar,
+              public dialog: MatDialog, ) {
+    this.isReady = false;
+    this.isLoading = true;
+    this.isAdvance = false;
+    this.cortexDisable = true;
+    this.mispDisable = true;
+    this.hiveDisable = true;
 
     this.processFormGroup = this._formBuilder.group({
       'selectedProcess': new FormControl(''),
@@ -303,10 +309,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   getValuesFile() {
-    let configArray = [];
+    const configArray = [];
     Object.keys(this.configFormGroup.value).map( key => {
-      let hostname = this.configFormGroup.value[key];
-      let object = {};
+      const hostname = this.configFormGroup.value[key];
+      const object = {};
       object[key] = hostname;
       if(object[key].home_net) {
         object[key].home_net = JSON.parse(object[key].home_net);
@@ -373,12 +379,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
               deployments.values.node_hostname === nodes.hostname &&
               nodes.hostname === configs[nodes.hostname].node_hostname ))
               || this.chart.node_affinity === "Server - Any") {
-            let savedObj = deployments.values;
-            let configObj = configs[nodes.hostname];
+            const savedObj = deployments.values;
+            const configObj = configs[nodes.hostname];
             const ob = Object.assign({}, savedObj, configObj);
             this.setValues(ob, nodes);
           }
-        })
+        });
       });
     });
   }
@@ -392,11 +398,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   setValues(ob: any, nodes: any) {
     const values = JSON.stringify(ob, undefined, 2);
-    let formControl = this.valueFormGroup.get(ob.deployment_name);
+    const formControl = this.valueFormGroup.get(ob.deployment_name);
     if (!formControl) {
       this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
     } else {
-      formControl.setValue(values)
+      formControl.setValue(values);
     }
     this.valueFormGroup.controls[ob.deployment_name].disable();
     nodes.deployment_name = ob.deployment_name;
@@ -499,10 +505,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this.valueFormGroup.controls[nodes.deployment_name].setValue(JSON.parse(value));
     });
 
-    let valueArray = [];
+    const valueArray = [];
     Object.keys(this.valueFormGroup.value).map( key => {
-      let deployment_name = this.valueFormGroup.value[key];
-      let object = {};
+      const deployment_name = this.valueFormGroup.value[key];
+      const object = {};
       object[key] = deployment_name;
       valueArray.push(object);
     });
@@ -534,7 +540,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   initConfigFormControl(hostname: string, value?: FormGroup): FormGroup {
-    let nodeControls = this._formBuilder.group({});
+    const nodeControls = this._formBuilder.group({});
     if (this.chart.formControls) {
       this.chart.formControls.map( control => {
         if (control.type === "textinput") {
@@ -548,7 +554,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
               control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
               control.required ? Validators.required : Validators.nullValidator])));
           } else {
-            let strValue = JSON.stringify(value[control.name]);
+            const strValue = JSON.stringify(value[control.name]);
             nodeControls.addControl(control.name, new FormControl( value ? strValue : control.default_value, Validators.compose([
               control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
               control.required ? Validators.required : Validators.nullValidator])));
@@ -564,8 +570,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
             nodeControls.controls[control.name].setValue(value[control.name], {onlySelf: true});
           }
         } else if (control.type === "kafka-cluster-cluster") {
-            let strValue = JSON.stringify(this.kafkaArray);
-            nodeControls.addControl(control.name, new FormControl( strValue ));
+          const strValue = JSON.stringify(this.kafkaArray);
+          nodeControls.addControl(control.name, new FormControl( strValue ));
         } else if (control.type === "cortex-checkbox") {
             nodeControls.addControl(control.name, new FormControl( { value: !this.cortexDisable, disabled: this.cortexDisable} ));
         } else if (control.type === "misp-checkbox") {
@@ -588,13 +594,13 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
   setupKafkaArray() {
     let kafkaValues;
-    let array = [];
+    const array = [];
 
     this._CatalogService.getByString("zeek/saved_values").subscribe(values => {
       kafkaValues = values.length !== 0 ? values : null;
       if(values !== null) {
         values.map( value => {
-          let val = value.deployment_name + ".default.svc.cluster.local:9092";
+          const val = value.deployment_name + ".default.svc.cluster.local:9092";
           array.push(val);
         });
       }
@@ -647,7 +653,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     let deployment_name;
     this.chart.node_affinity === "Server - Any" ? deployment_name = application : deployment_name = new_hostname + '-' + application;
     if( value !== undefined) {
-      return value.deployment_name !== deployment_name ? value.deployment_name : deployment_name
+      return value.deployment_name !== deployment_name ? value.deployment_name : deployment_name;
     } else {
       return deployment_name;
     }

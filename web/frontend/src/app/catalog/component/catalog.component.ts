@@ -1,32 +1,26 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Chart } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
-import { Title } from '@angular/platform-browser';
-import { Notification } from '../../notifications/interface/notifications.interface';
-import { WebsocketService } from '../../services/websocket.service';
-import { take, first, filter } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material';
-import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { Title } from '@angular/platform-browser';
+
+import { Notification } from '../../notifications/interface/notifications.interface';
 import { CookieService } from '../../services/cookies.service';
 import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
+import { WebsocketService } from '../../services/websocket.service';
+import { Chart } from '../interface/chart.interface';
+import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss']
 })
-export class CatalogComponent implements OnInit {
-  public charts: any;
-  private fip: string;
-  public filteredCharts: Chart[];
-  public ioConnection: any;
-  public showCharts = { 'pmo': true, 'comm': false };
-
-  @ViewChild('pmoElement', {static: false})
-  public pmoElement: MatSlideToggle;
-
-  @ViewChild('commElement', {static: false})
-  public commElement: MatSlideToggle;
+export class CatalogComponent implements OnInit, OnDestroy {
+  charts: any;
+  filteredCharts: Chart[];
+  ioConnection: any;
+  showCharts = { 'pmo': true, 'comm': false };
+  @ViewChild('pmoElement', {static: false})  public pmoElement: MatSlideToggle;
+  @ViewChild('commElement', {static: false}) public commElement: MatSlideToggle;
 
   /**
    *Creates an instance of CatalogComponent.
@@ -36,8 +30,7 @@ export class CatalogComponent implements OnInit {
    */
    constructor(public _CatalogService: CatalogService,
                private titleSvc: Title,
-               public _WebsocketService:WebsocketService,
-               private snackbar: SnackbarWrapper,
+               public _WebsocketService: WebsocketService,
                public nameService: WeaponSystemNameService,
                private cookieService: CookieService) { }
 
@@ -49,13 +42,8 @@ export class CatalogComponent implements OnInit {
   ngOnInit() {
     this.titleSvc.setTitle("Catalog");
     this._CatalogService.isLoading = false;
-    this.nameService.getSystemNameFromApi().subscribe(
-      data => {
-        this.fip = data["system_name"];
-      }
-    );
-    if(this.cookieService.get('chartFilter') != '') {
-      let show = JSON.parse(this.cookieService.get('chartFilter'));
+    if(this.cookieService.get('chartFilter') !== '') {
+      const show = JSON.parse(this.cookieService.get('chartFilter'));
       this.showCharts['pmo'] = false;
       this.showCharts['comm'] = false;
       if(show['pmo']) {
