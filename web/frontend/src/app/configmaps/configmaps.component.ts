@@ -12,8 +12,7 @@ import { UserService } from '../user.service';
 const DIALOG_WIDTH = '800px';
 @Component({
   selector: 'app-configmaps',
-  templateUrl: './configmaps.component.html',
-  styleUrls: ['./configmaps.component.css']
+  templateUrl: './configmaps.component.html'
 })
 export class ConfigmapsComponent implements OnInit {
 
@@ -67,8 +66,8 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   objectKeys(obj: any) {
-    let ret_val = [];
-    for (let item of Object.keys(obj)){
+    const ret_val = [];
+    for (const item of Object.keys(obj)){
         ret_val.push(item);
     }
     return ret_val;
@@ -79,7 +78,7 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   addConfigMap() {
-    let acdForm = this.formBuilder.group({
+    const acdForm = this.formBuilder.group({
       namespace: new DialogFormControl("Namespace", "", [Validators.minLength(3), Validators.required]),
       name: new DialogFormControl("Name", "",
       [Validators.minLength(3),
@@ -99,7 +98,7 @@ export class ConfigmapsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(
       result => {
-        let form = result as FormGroup;
+        const form = result as FormGroup;
         if(form && form.valid) {
           this.addNewConfigMap(form.getRawValue());
         }
@@ -108,27 +107,27 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   removeConfigMap(configName: string, config: Object) {
-    let configIndex = this._getConfigIndex(config);
+    const configIndex = this._getConfigIndex(config);
     this.isDeleteConfigMap = true;
     this.activeConfigMapIndex = configIndex;
     this.confirmer.confirmAction(
-      "Delete " + configName,
-      "Are you sure you want to delete " + configName + "?\nAll data entries will be removed and this could cause your "
-      + "system to break if you don't know what you are doing.",
+      `Delete ${configName}`,
+      `Are you sure you want to delete ${configName}?
+      All data entries will be removed and this could cause your system to break if you don't know what you are doing.`,
       "Delete",
-      "Deleting "+ configName,
-      "Could not delete " + configName,
+      `Deleting ${configName}`,
+      `Could not delete ${configName}`,
       () => { this.confirmDeleteSubmission() }
     );
 
   }
 
   editConfigMapData(configDataName: string, config: Object){
-    let configMapIndex = this._getConfigIndex(config)
-    this.activeConfigDataTitle = "Editing " + configDataName;
+    const configMapIndex = this._getConfigIndex(config)
+    this.activeConfigDataTitle = `Editing ${configDataName}`;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
-    let metadata = this.configMaps[this.activeConfigMapIndex]['metadata'];
+    const metadata = this.configMaps[this.activeConfigMapIndex]['metadata'];
     this.activeConfigMapName = metadata['name'];
 
     this.configMapSrv.getConfigMap(metadata['namespace'], metadata['name'], this.activeConfigDataKey).subscribe(data => {
@@ -140,7 +139,7 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   addNewConfigMapData(formSubmission: Object){
-    this.activeConfigDataTitle = "Editing " + formSubmission['name'];
+    this.activeConfigDataTitle = `Editing ${formSubmission['name']}`;
     this.activeConfigDataKey = formSubmission['name'];
     if (!this.configMaps[this.activeConfigMapIndex]['data']){
       this.configMaps[this.activeConfigMapIndex]['data'] = {}
@@ -152,37 +151,37 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   addNewConfigMap(formSubmission: Object){
-    let newConfigMap = {'metadata': {'name': formSubmission['name'],
+    const newConfigMap = {'metadata': {'name': formSubmission['name'],
                                   'creation_timestamp': '',
                                   'namespace': formSubmission['namespace']},
                      'data': {}};
     this.configMapSrv.createConfigMap(newConfigMap).subscribe(data => {
       this.configMaps.splice(0, 0, data);
       this.isConfigMapVisible.splice(0, 0, true);
-      this.displaySnackBar("Successfully added " + formSubmission['name']);
+      this.displaySnackBar(`Successfully added ${formSubmission['name']}`);
       this.ngOnInit();
     }, error => {
-      this.displaySnackBar("Failed to save configmap. REASON: " + error["statusText"]);
+      this.displaySnackBar(`Failed to save configmap. REASON: ${error["statusText"]}`);
     });
   }
 
   removeConfigMapData(configDataName: string, config: Object){
-    let configMapIndex = this._getConfigIndex(config);
+    const configMapIndex = this._getConfigIndex(config);
     this.isDeleteConfigMapData = true;
     this.activeConfigDataKey = configDataName;
     this.activeConfigMapIndex = configMapIndex;
-    this.confirmer.confirmAction("Delete " + configDataName,
+    this.confirmer.confirmAction(`Delete ${configDataName}`,
                        "Are you sure you want to remove this data entry from the config map?",
                        "Delete",
-                       "Deleting "+ configDataName,
-                       "Could not delete " + configDataName,
+                       `Deleting ${configDataName}`,
+                       `Could not delete ${configDataName}`,
                        () => { this.confirmDeleteSubmission() });
   }
 
   addConfigMapData(config: Object){
-    let configMapIndex = this._getConfigIndex(config);
+    const configMapIndex = this._getConfigIndex(config);
     this.activeConfigMapIndex = configMapIndex;
-    let acdForm = this.formBuilder.group({
+    const acdForm = this.formBuilder.group({
       name: new DialogFormControl("Name", "",
         [Validators.minLength(3), Validators.required, Validators.pattern('^[A-z_0-9]+$')])
     });
@@ -197,7 +196,7 @@ export class ConfigmapsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(
       result => {
-        let form = result as FormGroup;
+        const form = result as FormGroup;
         if(form && form.valid) {
           this.addNewConfigMapData(form.getRawValue());
         }
@@ -206,28 +205,28 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   private deleteConfigMapData() {
-    let copy = JSON.parse(JSON.stringify(this.configMaps));
+    const copy = JSON.parse(JSON.stringify(this.configMaps));
     delete copy[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.configMapSrv.saveConfigMap(copy[this.activeConfigMapIndex]).subscribe(data => {
       if (data) {
         delete this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
-        this.displaySnackBar("Successfully deleted " + this.activeConfigDataKey + " configmap data.");
+        this.displaySnackBar(`Successfully deleted ${this.activeConfigDataKey} configmap data.`);
       }
     }, error => {
-      this.displaySnackBar("Failed to delete config map data REASON: " + error["statusText"]);
+      this.displaySnackBar(`Failed to delete config map data REASON: ${error["statusText"]}`);
     });
   }
 
   private deleteConfigMap(){
-    let name = this.configMaps[this.activeConfigMapIndex]['metadata']['name'];
-    let namespace = this.configMaps[this.activeConfigMapIndex]['metadata']['namespace'];
+    const name = this.configMaps[this.activeConfigMapIndex]['metadata']['name'];
+    const namespace = this.configMaps[this.activeConfigMapIndex]['metadata']['namespace'];
     this.configMapSrv.deleteConfigMap(namespace, name).subscribe(data => {
       this.configMaps.splice(this.activeConfigMapIndex, 1);
       this.isConfigMapVisible.splice(this.activeConfigMapIndex, 1);
       this.ngOnInit();
-      this.displaySnackBar("Successfully deleted " + name);
+      this.displaySnackBar(`Successfully deleted ${name}`);
     }, error => {
-      this.displaySnackBar("Failed to delete config map REASON: " + error["statusText"]);
+      this.displaySnackBar(`Failed to delete config map REASON: ${error["statusText"]}`);
     });
   }
 
@@ -249,7 +248,7 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   toggleDataDropDown(configMap: Object) {
-    let index = this._getConfigIndex(configMap);
+    const index = this._getConfigIndex(configMap);
     this.isConfigMapVisible[index] = !this.isConfigMapVisible[index];
   }
 
@@ -267,24 +266,24 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   checkConfigMapVisibility(config: Object): boolean {
-    let index = this._getConfigIndex(config);
+    const index = this._getConfigIndex(config);
     return this.isConfigMapVisible[index];
   }
 
   saveAndCloseEditor(dataToSave: {configData: string, associatedPods: Array<{podName:string, namespace: string}>}){
 
-    let previous_config_map = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
+    const previous_config_map = this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey];
     this.isUserEditing = false;
     this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = dataToSave.configData;
     this.configMapSrv.saveConfigMap(this.configMaps[this.activeConfigMapIndex], dataToSave.associatedPods).subscribe(data => {
       if (data){
-        this.displaySnackBar("Successfully saved " + data['name'] + " config map, " + this.activeConfigDataKey +
-                             ". Check notification manager for pod bounce status.");
+        this.displaySnackBar(`Successfully saved ${data['name']} config map, ${this.activeConfigDataKey}.
+                              Check notification manager for pod bounce status.`);
       }
     }, error => {
       this.configMaps[this.activeConfigMapIndex]['data'][this.activeConfigDataKey] = previous_config_map;
-      this.displaySnackBar("Failed to save configmap " + this.activeConfigDataKey
-                              + ". REASON: " + error["statusText"]);
+      this.displaySnackBar(`Failed to save configmap ${this.activeConfigDataKey}.
+                            REASON: ${error["statusText"]}`);
     });
   }
 }

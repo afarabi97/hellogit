@@ -29,7 +29,7 @@ export class ConfigmapsService {
 
   saveConfigMap(configMap: Object, associatedPods: Array<{podName:string, namespace: string}>=[]): Observable<Object> {
     const url = '/api/save_config_map';
-    let payload = {configMap: configMap, associatedPods: associatedPods}
+    const payload = {configMap: configMap, associatedPods: associatedPods}
     return this.http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
