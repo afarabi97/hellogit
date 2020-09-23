@@ -584,7 +584,39 @@
 				<time>1584065261</time>
 				<username>assessor@10.101.32.243</username>
 			</created>
-			<disabled></disabled>
+		</rule>
+        <rule>
+			<id></id>
+			<tracker>1584065238</tracker>
+			<type>pass</type>
+			<interface>opt2</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<address>Endgame</address>
+			</source>
+			<destination>
+				<address>Kibana</address>
+				<port>Kibana_Port</port>
+			</destination>
+			<descr><![CDATA[Allow Endgame on DMZ access to Kibana on Controller]]></descr>
+			<updated>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</updated>
+			<created>
+				<time>1584065261</time>
+				<username>assessor@10.101.32.243</username>
+			</created>
 		</rule>
 		<rule>
 			<id></id>
@@ -618,7 +650,6 @@
 				<time>1584065261</time>
 				<username>assessor@10.101.32.243</username>
 			</created>
-			<disabled></disabled>
 		</rule>
 		<rule>
 			<id></id>
@@ -652,7 +683,6 @@
 				<time>1584065078</time>
 				<username>assessor@10.101.32.243</username>
 			</updated>
-			<disabled></disabled>
 		</rule>
 		<rule>
 			<id></id>
@@ -677,7 +707,7 @@
 				<address>Endgame</address>
 				<port>443</port>
 			</destination>
-			<descr><![CDATA[NAT Port forwards 4400 -&gt; 443 (Endgame)]]></descr>
+			<descr><![CDATA[NAT Port forwards Endgame Sensor 443 -&gt; 443 (Endgame)]]></descr>
 			<associated-rule-id>nat_5a2e9ece0171e0.75722137</associated-rule-id>
 			<created>
 				<time>1513004750</time>
@@ -743,6 +773,7 @@
 			<destination>
 				<any></any>
 			</destination>
+            <log></log>
 			<descr><![CDATA[Explicit Deny All]]></descr>
 			<created>
 				<time>1512377647</time>
@@ -1049,6 +1080,39 @@
 				<username>assessor@10.101.32.50</username>
 			</updated>
 		</rule>
+        <rule>
+			<id></id>
+			<tracker>1600878192</tracker>
+			<type>pass</type>
+			<interface>lan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>udp</protocol>
+			<source>
+				<any></any>
+			</source>
+			<destination>
+				<address>Controller</address>
+				<port>53</port>
+			</destination>
+			<descr><![CDATA[Allow DNS traffic through from management interface to internal]]></descr>
+			<created>
+				<time>1600878095</time>
+				<username>assessor@10.107.32.50</username>
+			</created>
+			<updated>
+				<time>1600878192</time>
+				<username>assessor@10.107.32.50</username>
+			</updated>
+		</rule>
 		<rule>
 			<id></id>
 			<tracker>1512469802</tracker>
@@ -1070,6 +1134,7 @@
 			<destination>
 				<any></any>
 			</destination>
+            <log></log>
 			<descr><![CDATA[Explicit Deny All]]></descr>
 			<created>
 				<time>1512469802</time>
@@ -1225,6 +1290,39 @@
 				<username>assessor@10.101.32.243</username>
 			</updated>
 		</rule>
+        <rule>
+			<id></id>
+			<tracker>1600883292</tracker>
+			<type>pass</type>
+			<interface>opt1</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<address>Controller</address>
+			</source>
+			<destination>
+				<address>MPNet</address>
+				<port>WinRM</port>
+			</destination>
+			<descr><![CDATA[Allows Internal to MPNet using WinRM protocols]]></descr>
+			<created>
+				<time>1600883251</time>
+				<username>Easy Rule</username>
+			</created>
+			<updated>
+				<time>1600883435</time>
+				<username>assessor@10.10.102.205</username>
+			</updated>
+		</rule>
 		<rule>
 			<id></id>
 			<tracker>1512379350</tracker>
@@ -1246,6 +1344,7 @@
 			<destination>
 				<any></any>
 			</destination>
+			<log></log>
 			<descr><![CDATA[Explicit Deny All]]></descr>
 			<created>
 				<time>1512379350</time>
@@ -1372,6 +1471,7 @@
 			<destination>
 				<any></any>
 			</destination>
+            <log></log>
 			<descr><![CDATA[Explicit Deny All]]></descr>
 			<created>
 				<time>1556575753</time>
@@ -1515,6 +1615,20 @@
 			<descr><![CDATA[Elastic RESTful API]]></descr>
 			<detail><![CDATA[Default Elastic]]></detail>
 		</alias>
+        <alias>
+			<name>Kibana</name>
+			<type>host</type>
+			<address>kibana.lan</address>
+			<descr><![CDATA[Alias for Kibana Service IP]]></descr>
+			<detail><![CDATA[Kibana hostname]]></detail>
+		</alias>
+        <alias>
+			<name>Kibana_Port</name>
+			<type>port</type>
+			<address>443</address>
+			<descr><![CDATA[Allows Endgame to communicate with Kibana and populates it with dashboard upon configuring it with Elasticstreaming.]]></descr>
+			<detail><![CDATA[Port when Kibana is installed]]></detail>
+		</alias>
 		<alias>
 			<name>Endgame</name>
 			<type>host</type>
@@ -1525,7 +1639,7 @@
 		<alias>
 			<name>Endgame_Forwarding_Port</name>
 			<type>port</type>
-			<address>4400</address>
+			<address>443</address>
 			<descr><![CDATA[Allows Endgame clients to communicate to the Endgame server through port forwarding]]></descr>
 			<detail><![CDATA[Arbitrary port set in sensor configuration]]></detail>
 		</alias>

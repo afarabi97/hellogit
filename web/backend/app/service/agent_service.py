@@ -332,7 +332,7 @@ class WinRunner:
     def _move_agent_installer(self) -> None:
         self._winapi.push_file(str(self._installer), "C:\\" + self._installer.name)
 
-    def notify_failure(self, action: str, host: str, err_msg: str, ansible_error: str):
+    def notify_failure(self, action: str, host: str, err_msg: str, ansible_error: str=None):
         if ansible_error:
             self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
         else:
@@ -446,7 +446,7 @@ class WinRunner:
                             self.notify_failure(self._action, str(host), str(ansible_err), str(ansible_err.results_list[host_id]["failed"]))
                             self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
             else:
-                self.notify_failure(self._action, str(self._hostname_or_ip), str(ansible_err))
+                self.notify_failure(self._action, str(self._hostname_or_ip), "", str(ansible_err))
                 self._update_windows_host_state(TARGET_STATES.error.value)
         except Exception as e:
             traceback.print_exc()
