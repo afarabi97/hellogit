@@ -5,8 +5,9 @@ DIP Robot Tests:
   script: |
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
+    CONFLUENCE_PASSWORD_DECRYPTED=$CONFLUENCE_PASSWORD | base64 -d
     mkdir -p $(pwd)/testing/robotest-output
-    docker run --rm -e JIRA_USERNAME=$CONFLUENCE_USERNAME -e JIRA_PASSWORD=$CONFLUENCE_PASSWORD -e JIRA_PROJECT_KEY=$JIRA_PROJECT_KEY -i --network="host" \
+    docker run --rm -e JIRA_USERNAME=$CONFLUENCE_USERNAME -e JIRA_PASSWORD=$CONFLUENCE_PASSWORD_DECRYPTED -e JIRA_PROJECT_KEY=$JIRA_PROJECT_KEY -i --network="host" \
     -v $(pwd)/testing/robotest:/usr/src/robot/tests \
     -v $(pwd)/testing/robotest-output:/usr/src/robot/output tfplenum/robot-automator:1.1.0 \
     pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
