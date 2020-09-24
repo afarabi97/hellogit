@@ -86,7 +86,7 @@ class LogstashSettings(Model):
         self.node_hostname = "server"
         self.kafka_clusters = []
         self.replicas = 1
-        self.heap_size = 6
+        self.heap_size = 2
         self.deployment_name = "logstash"
         self.external_fqdn = ""
         self.external_ip = ""

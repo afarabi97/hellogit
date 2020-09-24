@@ -41,23 +41,23 @@
   notify:
     - restart kubelet
 
-- name: Write kubelet environment config file (kubeadm)
-  template:
-    src: "kubelet.env.j2"
-    dest: "{{ kube_config_dir }}/kubelet.env"
-    backup: yes
-  notify: restart kubelet
+# - name: Write kubelet environment config file (kubeadm)
+#   template:
+#     src: "kubelet.env.j2"
+#     dest: "{{ kube_config_dir }}/kubelet.env"
+#     backup: yes
+#   notify: restart kubelet
 
-- name: Write kubelet config file
-  template:
-    src: "kubelet-config.yml.j2"
-    dest: "{{ kube_config_dir }}/kubelet-config.yaml"
-  notify: restart kubelet
+# - name: Write kubelet config file
+#   template:
+#     src: "kubelet-config.yml.j2"
+#     dest: "{{ kube_config_dir }}/kubelet-config.yaml"
+#   notify: restart kubelet
 
 - name: Modified service file
   template:
     src: "templates/kubelet.service.j2"
-    dest: "/etc/systemd/system/kubelet.service"
+    dest: "/usr/lib/systemd/system/kubelet.service"
     group: root
     owner: root
     mode: 0644

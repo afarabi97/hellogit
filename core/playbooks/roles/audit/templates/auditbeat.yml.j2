@@ -48,7 +48,8 @@ auditbeat.modules:
 - module: system
   datasets:
     - process # Started and stopped processes
-    - socket  # Opened and closed sockets
+    # Sockets are currently broken in auditbeat causing auditbeat to crashloop
+    #- socket  # Opened and closed sockets
   period: 2s
   state.period: 12h
 

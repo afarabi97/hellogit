@@ -88,61 +88,61 @@
 - import_tasks: 030590.yml
 
 # DISA-STIG-RHEL-07-030610
-- import_tasks: 030610.yml
+#- import_tasks: 030610.yml
 
 # DISA-STIG-RHEL-07-030620
-- import_tasks: 030620.yml
+#- import_tasks: 030620.yml
 
 # DISA-STIG-RHEL-07-030630
-- import_tasks: 030630.yml
+#- import_tasks: 030630.yml
 
 # DISA-STIG-RHEL-07-030640
-- import_tasks: 030640.yml
+#- import_tasks: 030640.yml
 
 # DISA-STIG-RHEL-07-030650
-- import_tasks: 030650.yml
+#- import_tasks: 030650.yml
 
 # DISA-STIG-RHEL-07-030660
-- import_tasks: 030660.yml
+#- import_tasks: 030660.yml
 
 # DISA-STIG-RHEL-07-030670
-- import_tasks: 030670.yml
+#- import_tasks: 030670.yml
 
 # DISA-STIG-RHEL-07-030680
-- import_tasks: 030680.yml
+#- import_tasks: 030680.yml
 
 # DISA-STIG-RHEL-07-030690
-- import_tasks: 030690.yml
+#- import_tasks: 030690.yml
 
 # DISA-STIG-RHEL-07-030700
 - import_tasks: 030700.yml
 
 # DISA-STIG-RHEL-07-030710
-- import_tasks: 030710.yml
+#- import_tasks: 030710.yml
 
 # DISA-STIG-RHEL-07-030720
-- import_tasks: 030720.yml
+#- import_tasks: 030720.yml
 
 # DISA-STIG-RHEL-07-030740
 - import_tasks: 030740.yml
 
 # DISA-STIG-RHEL-07-030750
-- import_tasks: 030750.yml
+#- import_tasks: 030750.yml
 
 # DISA-STIG-RHEL-07-030760
-- import_tasks: 030760.yml
+#- import_tasks: 030760.yml
 
 # DISA-STIG-RHEL-07-030770
-- import_tasks: 030770.yml
+#- import_tasks: 030770.yml
 
 # DISA-STIG-RHEL-07-030780
-- import_tasks: 030780.yml
+#- import_tasks: 030780.yml
 
 # DISA-STIG-RHEL-07-030800
-- import_tasks: 030800.yml
+#- import_tasks: 030800.yml
 
 # DISA-STIG-RHEL-07-030810
-- import_tasks: 030810.yml
+#- import_tasks: 030810.yml
 
 # DISA-STIG-RHEL-07-030819
 - import_tasks: 030819.yml
@@ -227,5 +227,5 @@
     - name: Start the auditbeat service
       systemd:
         name: auditbeat
-        state: stopped
+        state: started
   when: system_name == "DIP"

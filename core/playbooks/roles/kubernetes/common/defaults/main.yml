@@ -1,6 +1,6 @@
 ---
 
-kube_cert_dir: /etc/kubernetes/ssl
+kube_cert_dir: /etc/kubernetes/pki
 cgroup_manager: cgroupfs
 kubelet_kubelet_cgroups: "/systemd/system.slice"
 kubelet_runtime_cgroups: "/systemd/system.slice"

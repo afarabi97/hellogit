@@ -4,7 +4,7 @@ echo "Disabling openvpn client"
 systemctl stop crio kubelet
 # Reset crio service file
 sed -i '/^After=openvpn-client.service/ d' /usr/lib/systemd/system/crio.service
-sed -i '/^After=openvpn-client.service/ d'  /etc/systemd/system/kubelet.service
+sed -i '/^After=openvpn-client.service/ d' /usr/lib/systemd/system/kubelet.service
 systemctl daemon-reload
 # Disable openvpn-client service
 systemctl disable openvpn-client
