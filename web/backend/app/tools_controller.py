@@ -1,6 +1,4 @@
 import io
-import json
-import logging
 import shutil
 import tempfile
 import zipfile
@@ -18,22 +16,21 @@ from pymongo import ReturnDocument
 from werkzeug.utils import secure_filename
 
 from app import app, conn_mng, logger
-from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
+from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.dao import elastic_deploy
-from app.middleware import Auth, controller_maintainer_required
+from app.middleware import controller_maintainer_required
 from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          setup_s3_repository,
                                          wait_for_elastic_cluster_ready)
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.service.time_service import TimeChangeFailure, change_time_on_kit
-from shared.connection_mngs import (FabricConnection, FabricConnectionManager,
+from shared.connection_mngs import (FabricConnection,
                                     FabricConnectionWrapper, KubernetesWrapper)
 from shared.constants import KICKSTART_ID
 from shared.utils import decode_password, encode_password
 
 from fabric import Connection
-import crypt
 
 REGISTRATION_JOB = None # type: AsyncResult
 _JOB_NAME = "tools"
@@ -193,8 +190,8 @@ def retrieve_service_ip_address(service_name: str) -> str:
 
 class RemoteNetworkDevice(object):
     def __init__(self, node, device):
-      self._node = node
-      self._device = device
+        self._node = node
+        self._device = device
 
     def set_up(self):
         with FabricConnection(self._node) as shell:

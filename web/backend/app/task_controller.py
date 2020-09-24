@@ -1,8 +1,6 @@
 from app import app, conn_mng
-from flask import jsonify, Response
-import json
-from bson import ObjectId
-from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
+from flask import Response
+from app.common import OK_RESPONSE, JSONEncoder
 
 
 @app.route('/api/tasks', methods=['GET'])

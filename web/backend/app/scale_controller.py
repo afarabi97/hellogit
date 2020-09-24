@@ -1,12 +1,12 @@
 
-from app import app, logger, CORE_DIR
-from app.common import ERROR_RESPONSE, OK_RESPONSE, FORBIDDEN_RESPONSE
+from app import app, logger
+from app.common import ERROR_RESPONSE, OK_RESPONSE
 from flask import request, jsonify, Response
 import traceback
-from app.service.scale_service import es_cluster_status, check_scale_status, get_es_nodes, parse_nodes, get_allowable_scale_count
+from app.service.scale_service import es_cluster_status, get_es_nodes, parse_nodes, get_allowable_scale_count
 from app.dao import elastic_deploy
-import yaml, json
-from app.middleware import Auth, controller_maintainer_required
+import yaml
+from app.middleware import controller_maintainer_required
 
 @app.route('/api/scale/elastic', methods=['POST'])
 @controller_maintainer_required
@@ -16,44 +16,34 @@ def scale_es() -> Response:
 
     :return (Response): Returns a Reponse object
     """
-    payload = request.get_json()
-    master_count = None
-    coordinating_count = None
-    data_count = None
-    ml_count = None
+    def scale(deployment, name, count):
+        if count:
+            for node_set in deployment['spec']['nodeSets']:
+                if node_set['name'] == name:
+                    node_set['count'] = count
+    
+    def get_new_count_from_payload(payload, name):
+        if payload.get('elastic', None):
+            return payload['elastic'].get(name, None)
+        else:
+            return None
+
     try:
-        if "elastic" in payload:
-            elastic = payload["elastic"]
-            if "master" in elastic:
-                master_count = elastic["master"]
-            if "coordinating" in elastic:
-                coordinating_count = elastic["coordinating"]
-            if "data" in elastic:
-                data_count = elastic["data"]
-            if "ml" in elastic:
-                ml_count = elastic["ml"]
+        deployment = elastic_deploy.read()
 
-        deploy_config = elastic_deploy.read()
-        if "spec" in deploy_config:
-            spec = deploy_config["spec"]
-            if "nodeSets" in spec:
-                node_sets = deploy_config["spec"]["nodeSets"]
-                for n in node_sets:
-                    if n["name"] == "master":
-                        n["count"] = master_count
-                    if n["name"] == "coordinating":
-                        n["count"] = coordinating_count
-                    if n["name"] == "data":
-                        n["count"] = data_count
-                    if n["name"] == "ml":
-                        n["count"] = ml_count
-        elastic_deploy.update(deploy_config)
+        scale(deployment, 'master', get_new_count_from_payload(request.get_json(), 'master'))
+        scale(deployment, 'coordinating', get_new_count_from_payload(request.get_json(), 'coordinating'))
+        scale(deployment, 'ml', get_new_count_from_payload(request.get_json(), 'ml'))
+        scale(deployment, 'data', get_new_count_from_payload(request.get_json(), 'data'))
 
+        elastic_deploy.update(deployment)
         return OK_RESPONSE
+
     except Exception as e:
         logger.exception(e)
         traceback.print_exc()
         return ERROR_RESPONSE
+
     return OK_RESPONSE
 
 @app.route('/api/scale/elastic/advanced', methods=['POST'])
