@@ -10,11 +10,9 @@ from shared.utils import encode_password, decode_password
 from datetime import datetime
 from flask import request, jsonify, Response
 from pymongo.collection import Collection
-from pymongo.results import InsertOneResult, DeleteResult
 from shared.constants import KICKSTART_ID, KIT_ID, DATE_FORMAT_STR
 from typing import Dict
-from pprint import PrettyPrinter
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
 
 
 def _get_mongo_collections(config_id: str):

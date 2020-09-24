@@ -2,33 +2,25 @@
 Main module for handling Agent Builder REST calls.
 """
 
-import os
 import requests
 import urllib3
-import sys
 import shutil
-import tempfile
-import copy
-import zipfile
 
-from app import (app, logger, conn_mng, CORE_DIR, TEMPLATE_DIR, AGENT_PKGS_DIR)
-from app.common import OK_RESPONSE, ERROR_RESPONSE, cursor_to_json_response
+from app import (app, logger, conn_mng, TEMPLATE_DIR, AGENT_PKGS_DIR)
+from app.common import cursor_to_json_response
 from app.service.job_service import run_command2
 from app.service.agent_service import (perform_agent_reinstall,
                                        build_agent_if_not_exists)
-from app.middleware import Auth, operator_required
+from app.middleware import operator_required
 from bson import ObjectId
-from celery import chain, group, chord
 from copy import copy
 from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
 from pymongo import ReturnDocument
 from shared.constants import TARGET_STATES, AGENT_UPLOAD_DIR
-from shared.connection_mngs import MongoConnectionManager
 from shared.utils import encode_password, fix_hostname, sanitize_dictionary
 from typing import Dict, List, Union
-from werkzeug.utils import secure_filename
 
 from contextlib import ExitStack
 from json.decoder import JSONDecodeError
