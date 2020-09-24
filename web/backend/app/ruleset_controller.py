@@ -1,9 +1,8 @@
 import os
-import subprocess
 import tempfile
 import json
 
-from app import (app, logger, conn_mng, get_next_sequence, WEB_DIR)
+from app import (app, logger, conn_mng, get_next_sequence)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
@@ -11,10 +10,9 @@ from datetime import datetime
 from flask import jsonify, request, Response, send_file
 from io import StringIO
 from pathlib import Path
-from pymongo.collection import Collection
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
-from pymongo.results import InsertOneResult, UpdateResult, DeleteResult
+from pymongo.results import InsertOneResult, DeleteResult
 from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
                               PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
                               RULE_TYPES, ZEEK_IMAGE_VERSION,
@@ -22,8 +20,8 @@ from shared.constants import (RULESET_STATES, DATE_FORMAT_STR,
 from shared.utils import tar_folder
 from typing import Dict, Tuple, List, Union
 from werkzeug.utils import secure_filename
-from zipfile import ZipFile, BadZipFile
-from app.middleware import Auth, operator_required
+from zipfile import ZipFile
+from app.middleware import operator_required
 
 
 CHUNK_SIZE = 5000000
