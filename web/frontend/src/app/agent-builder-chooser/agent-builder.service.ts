@@ -44,7 +44,7 @@ export class WindowsCreds {
 
   constructor(obj: Object){
     this.user_name = obj['user_name'];
-    this.password = obj['password']
+    this.password = obj['password'];
   }
 }
 
@@ -74,7 +74,7 @@ export class Ntlm {
   is_ssl: boolean;
   port: string;
 
-  constructor(ntlm: Ntlm){
+  constructor(ntlm: Ntlm) {
     if (ntlm){
       this.is_ssl = ntlm.is_ssl;
       this.port = ntlm.port;
@@ -91,7 +91,7 @@ export class SMB {
   domain_name: string;
   port: string;
 
-  constructor(smb: SMB){
+  constructor(smb: SMB) {
     if (smb){
       this.port = smb.port;
       this.domain_name = smb.domain_name;
@@ -109,10 +109,10 @@ export class IpTargetList {
   ntlm: Ntlm;
   kerberos: Kerberos;
   smb: SMB;
-  targets: Array<Host> = new Array<Host>();
+  targets: Host[] = [];
 
   constructor(configs: IpTargetList) {
-    this.targets = new Array<Host>();
+    this.targets = [];
     if (configs){
       this._id = configs._id;
       this.name = configs.name;
@@ -122,8 +122,8 @@ export class IpTargetList {
       this.smb = new SMB(configs.smb);
 
       if (configs.targets){
-        for (let host of configs.targets){
-          this.targets.push(new Host(host, this._id))
+        for (const host of configs.targets){
+          this.targets.push(new Host(host, this._id));
         }
       }
     } else {
@@ -204,8 +204,8 @@ export class AgentBuilderService {
   }
 
   private mapIPTargets(configs: Object): Array<IpTargetList> {
-    let ipTarget = new Array<IpTargetList>();
-    for (let config of configs as Array<Object>){
+    const ipTarget = new Array<IpTargetList>();
+    for (const config of configs as Array<Object>){
       ipTarget.push(this.mapIpTarget(config));
     }
     return ipTarget;
@@ -219,8 +219,8 @@ export class AgentBuilderService {
   }
 
   private mapInstallConfigs(configs: Object): Array<AgentInstallerConfig> {
-    let installConfigs = new Array<AgentInstallerConfig>();
-    for (let config of configs as Array<Object>){
+    const installConfigs = new Array<AgentInstallerConfig>();
+    for (const config of configs as Array<Object>){
       installConfigs.push(this.mapInstallConfig(config));
     }
     return installConfigs;
@@ -234,47 +234,47 @@ export class AgentBuilderService {
 }
 
   getAgentInstaller(payload: Object) : Observable<any> {
-    let url = '/api/generate_windows_installer';
+    const url = '/api/generate_windows_installer';
     return this.http.post(url, payload, { responseType: 'blob' }).pipe();
   }
 
   saveConfig(payload) : Observable<Array<AgentInstallerConfig>> {
-    let url = '/api/save_agent_installer_config';
+    const url = '/api/save_agent_installer_config';
     return this.http.post(url, payload).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   deleteConfig(payload) : Observable<Array<AgentInstallerConfig>> {
-    let url = '/api/delete_agent_installer_config/' + payload;
+    const url = '/api/delete_agent_installer_config/' + payload;
     return this.http.delete(url).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   getSavedConfigs() : Observable<Array<AgentInstallerConfig>> {
-    let url = '/api/get_agent_installer_configs'
+    const url = '/api/get_agent_installer_configs';
     return this.http.get(url).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
   }
 
   getIpTargetList(): Observable<Array<IpTargetList>> {
-    let url = '/api/get_agent_installer_target_lists';
+    const url = '/api/get_agent_installer_target_lists';
     return this.http.get(url).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
   }
 
   saveIpTargetList(payload: IpTargetList): Observable<Array<IpTargetList>> {
-    let url = '/api/save_agent_installer_target_list';
+    const url = '/api/save_agent_installer_target_list';
     return this.http.post(url, payload).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
   }
 
   addHostToIPTargetList(target_config_id: string, host: Object) : Observable<IpTargetList | ErrorMessage> {
-    let url = `/api/add_host/${target_config_id}`;
+    const url = `/api/add_host/${target_config_id}`;
 
     return this.http.post(url, host, HTTP_OPTIONS).pipe(
       map(data => this.mapIPTargetOrError(data))
@@ -282,14 +282,14 @@ export class AgentBuilderService {
   }
 
   removeHostFromIpTargetList(target_id: string, host: Host): Observable<SuccessMessage | ErrorMessage> {
-    let url = `/api/delete_host/${target_id}`;
+    const url = `/api/delete_host/${target_id}`;
     return this.http.post(url, host, HTTP_OPTIONS).pipe(
       map(data => this.mapSuccessOrError(data))
     );
   }
 
   deleteIpTargetList(payload: string): Observable<Array<IpTargetList>> {
-    let url = '/api/delete_agent_installer_target_list/' + payload;
+    const url = '/api/delete_agent_installer_target_list/' + payload;
     return this.http.delete(url).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );
@@ -298,33 +298,33 @@ export class AgentBuilderService {
   installAgents(payload: {'installer_config': AgentInstallerConfig,
                           'target_config': IpTargetList,
                           'windows_domain_creds': WindowsCreds }): Observable<any> {
-    let url = '/api/install_agents';
-    return this.http.post(url, payload)
+    const url = '/api/install_agents';
+    return this.http.post(url, payload);
   }
 
   uninstallAgents(payload: {'installer_config': AgentInstallerConfig,
                             'target_config': IpTargetList,
                             'windows_domain_creds': WindowsCreds }): Observable<any> {
-    let url = '/api/uninstall_agents';
-    return this.http.post(url, payload)
+    const url = '/api/uninstall_agents';
+    return this.http.post(url, payload);
   }
 
   uninstallAgent(payload: {'installer_config': AgentInstallerConfig,
                            'target_config': IpTargetList,
                            'windows_domain_creds': WindowsCreds },
                            target: Host): Observable<any> {
-    let url = '/api/uninstall_agent';
+    const url = '/api/uninstall_agent';
     payload['target'] = target;
-    return this.http.post(url, payload)
+    return this.http.post(url, payload);
   }
 
   reinstallAgent(payload: {'installer_config': AgentInstallerConfig,
                            'target_config': IpTargetList,
                            'windows_domain_creds': WindowsCreds },
                            target: Host){
-    let url = '/api/reinstall_agent';
+    const url = '/api/reinstall_agent';
     payload['target'] = target;
-    return this.http.post(url, payload)
+    return this.http.post(url, payload);
   }
 
   checkLogStashInstalled(): Observable<Object> {

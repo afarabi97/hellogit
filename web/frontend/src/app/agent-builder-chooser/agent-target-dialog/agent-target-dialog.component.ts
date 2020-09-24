@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { MatCheckboxChange } from '@angular/material/checkbox'
-import { FormBuilder, FormControl,
-         FormGroup, Validators } from '@angular/forms';
-import { validateFromArray } from '../../validators/generic-validators.validator';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatRadioChange } from '@angular/material';
-import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialogRef } from '@angular/material/dialog';
+
+import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { validateFromArray } from '../../validators/generic-validators.validator';
 
 
 const WINRM_PORT = "5985";
@@ -23,25 +23,21 @@ export class AgentTargetDialogComponent implements OnInit {
   kerberosForm: FormGroup;
   ntlmForm: FormGroup;
   smbForm: FormGroup;
-
   isNegOrNTLM: boolean;
   isKerberos: boolean;
   isSMB: boolean;
-  sensor_profiles: Array<{name: string, value: string}>
+  sensor_profiles: Array<{name: string, value: string}> = [];
   dnsInstructions: string;
 
-  constructor(
-    private fb: FormBuilder,
-    public dialogRef: MatDialogRef<AgentTargetDialogComponent>
-  ) {
-    this.sensor_profiles = new Array();
+  constructor(private fb: FormBuilder,
+              public dialogRef: MatDialogRef<AgentTargetDialogComponent>) {
     this.isNegOrNTLM = false;
     this.isKerberos = false;
     this.isSMB = false;
     this.dnsInstructions = "The \"Windows DNS Suffix\" is optional. If you do not include it, you will need to use the IP address of the Windows target(s). \
                             If you leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate \
                             fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If add the Windows DNS suffix, \
-                            you will only need to specifiy the Windows hostnames when filling out the targets for this configuration."
+                            you will only need to specifiy the Windows hostnames when filling out the targets for this configuration.";
   }
 
   onNoClick(): void {
@@ -97,7 +93,7 @@ export class AgentTargetDialogComponent implements OnInit {
   }
 
   changePortIfNotDirty(event: MatCheckboxChange){
-    let port_ctrl = this.ntlmForm.controls['port'] as FormControl;
+    const port_ctrl = this.ntlmForm.controls['port'] as FormControl;
     if (!port_ctrl.dirty){
       if (event.checked){
         this.ntlmForm.controls['port'].setValue(WINRM_PORT_SSL);
@@ -123,11 +119,11 @@ export class AgentTargetDialogComponent implements OnInit {
                            "protocol": this.newTargetAgentForm.value["protocol"],
                            "kerberos": this.kerberosForm.value,
                            "ntlm": this.ntlmForm.value,
-                           "smb": this.smbForm.value } );
+                           "smb": this.smbForm.value });
   }
 
   public getErrorMessage(form: FormGroup, control_name: string): string {
-    let control = form.get(control_name);
+    const control = form.get(control_name);
     return control.errors ? control.errors.error_message : '';
   }
 }

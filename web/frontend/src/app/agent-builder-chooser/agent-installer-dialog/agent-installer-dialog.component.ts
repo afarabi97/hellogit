@@ -1,19 +1,15 @@
-import { Component, OnInit, Inject, Input } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { MatCheckboxChange } from '@angular/material/checkbox'
-import { FormBuilder, FormControl,
-         FormGroup, Validators,
-         AbstractControl,
-         ValidationErrors} from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { EndgameService } from './endgame.service'
+import { Component, Inject, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material';
-import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
-import { validateFromArray } from 'src/app/validators/generic-validators.validator';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AppConfig, ElementSpec } from '../agent-builder.service';
-import { ObjectUtilsClass } from '../../classes';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { ObjectUtilsClass } from '../../classes';
+import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { validateFromArray } from '../../validators/generic-validators.validator';
+import { AppConfig, ElementSpec } from '../agent-builder.service';
+import { EndgameService } from './endgame.service';
 
 @Component({
   selector: 'agent-installer-dialog',
@@ -24,32 +20,27 @@ export class AgentInstallerDialogComponent implements OnInit {
   newHostAgentForm: FormGroup;
   externalIPToolTip: string;
   endgame_server_reachable: boolean;
-  sensor_profiles: Array<{name: string, value: string}>;
-
+  sensor_profiles: Array<{name: string, value: string}> = [];
   // Custom packages
-  appConfigs: Array<AppConfig>;
-  appNames: Array<string>;
+  appConfigs: AppConfig[];
+  appNames: string[];
   configs: {[key: string]: AppConfig};
-  applicableConfigs: Array<AppConfig>;
+  applicableConfigs: AppConfig[];
   applications: FormGroup;
   options: FormGroup;
   formElements = ['textinput', 'checkbox'];
 
-  constructor(
-    private fb: FormBuilder,
-    public dialogRef: MatDialogRef<AgentInstallerDialogComponent>,
-    private endgameSrv: EndgameService,
-    private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
+  constructor(private fb: FormBuilder,
+              public dialogRef: MatDialogRef<AgentInstallerDialogComponent>,
+              private endgameSrv: EndgameService,
+              private snackBar: MatSnackBar,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
     this.endgame_server_reachable = false;
-    this.sensor_profiles = new Array();
   }
 
   onNoClick(): void {
     this.dialogRef.close();
   }
-
 
   /**
    * Ensures that at least one application is selected before form vailidates appropriatley.
@@ -61,14 +52,14 @@ export class AgentInstallerDialogComponent implements OnInit {
     }
 
     if (control.get('customPackages')) {
-      return null
+      return null;
     }
 
     return {"custom_error": "At least one application needs to be selected"};
   }
 
   ngOnInit() {
-    let required = Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]);
+    const required = Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]);
 
     this.newHostAgentForm = this.fb.group(
       {
@@ -88,28 +79,27 @@ export class AgentInstallerDialogComponent implements OnInit {
 
     // Custom packages
     this.appConfigs = this.data;
-    let appNames = [];
-    let configs = {};
+    const configs = {};
 
-    for (let config of this.appConfigs) {
-        let name = config['name'];
-        appNames.push(name);
-        configs[name] = config;
-    }
+    this.appNames = this.appConfigs.map((appConfig: AppConfig) => {
+      const name = appConfig.name;
+      configs[name] = appConfig;
 
-    this.appNames = appNames;
+      return name;
+    });
+
     this.configs = configs;
     this.applicableConfigs = [];
-    this.applications = this.createPackageControls(appNames);
+    this.applications = this.createPackageControls(this.appNames);
 
   }
 
   toggleEndgameValidators(event: MatCheckboxChange) {
-    let sensor_id = this.newHostAgentForm.get('endgame_sensor_id');
-    let server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
-    let user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
-    let password = this.newHostAgentForm.get('endgame_options.endgame_password')
-    let port = this.newHostAgentForm.get('endgame_options.endgame_port');
+    const sensor_id = this.newHostAgentForm.get('endgame_sensor_id');
+    const server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
+    const user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
+    const password = this.newHostAgentForm.get('endgame_options.endgame_password');
+    const port = this.newHostAgentForm.get('endgame_options.endgame_port');
 
     if (event.checked) {
       sensor_id.setValidators(Validators.compose([ validateFromArray(COMMON_VALIDATORS.required)]));
@@ -145,7 +135,7 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   private getSensorName(): string {
-    for (let profile of this.sensor_profiles){
+    for (const profile of this.sensor_profiles){
       if (profile.value === this.newHostAgentForm.get('endgame_sensor_id').value){
         return profile.name;
       }
@@ -161,18 +151,17 @@ export class AgentInstallerDialogComponent implements OnInit {
   getEndgameSensorProfiles(stepper: MatStepper) {
     this.endgame_server_reachable = false;
 
-    let password = this.newHostAgentForm.get('endgame_options.endgame_password');
-    let server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
-    let user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
-    let port = this.newHostAgentForm.get('endgame_options.endgame_port');
+    const password = this.newHostAgentForm.get('endgame_options.endgame_password');
+    const server_ip = this.newHostAgentForm.get('endgame_options.endgame_server_ip');
+    const user_name = this.newHostAgentForm.get('endgame_options.endgame_user_name');
+    const port = this.newHostAgentForm.get('endgame_options.endgame_port');
 
     if(password.valid &&
        server_ip.valid &&
        user_name.valid &&
-       port.valid)
-    {
+       port.valid) {
 
-      let endgame_options = {
+      const endgame_options = {
         'endgame_password': password.value,
         'endgame_server_ip': server_ip.value,
         'endgame_user_name': user_name.value,
@@ -184,8 +173,8 @@ export class AgentInstallerDialogComponent implements OnInit {
           this.endgame_server_reachable = true;
           this.sensor_profiles = new Array();
 
-          for (let profile of profile_data){
-            this.sensor_profiles.push({name: profile['name'], value: profile['id']})
+          for (const profile of profile_data){
+            this.sensor_profiles.push({name: profile['name'], value: profile['id']});
           }
           stepper.next();
           this.snackBar.open("Successfully connected to Endgame.", "Close", { duration: 5000});
@@ -205,8 +194,8 @@ export class AgentInstallerDialogComponent implements OnInit {
 
   // Custom packages
   private createPackageControls(appNames) {
-    let controls = {};
-    for (let appName of appNames) {
+    const controls = {};
+    for (const appName of appNames) {
         controls[appName] = new FormControl(false);
     }
 
@@ -214,29 +203,27 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   private createTextinputControl(spec: ElementSpec) {
-      let validators = [];
-      let regexp = spec['regexp'];
-      let required = spec['required'];
-      let default_value = spec['default_value'] || null;
+    const validators = [];
+    const regexp = spec['regexp'];
+    const required = spec['required'];
+    const default_value = spec['default_value'] || null;
 
-      if (regexp)
-      {
-          let pattern = Validators.pattern(regexp);
-          validators.push(pattern);
+      if (regexp) {
+        const patternValidator = Validators.pattern(regexp);
+          validators.push(patternValidator);
       }
 
-      if (required)
-      {
-          let required = Validators.required;
-          validators.push(required);
+      if (required) {
+        const requiredValidator = Validators.required;
+          validators.push(requiredValidator);
       }
 
-      let control = new FormControl(default_value, validators);
+      const control = new FormControl(default_value, validators);
       return control;
   }
 
   private createCheckboxControl(spec: ElementSpec) {
-      let default_value = spec['default_value'] || null;
+    const default_value = spec['default_value'] || null;
       return new FormControl(default_value);
   }
 
@@ -258,20 +245,20 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   private getFormSpec(appConfig: AppConfig) {
-      let formSpec = appConfig['form'];
+    const formSpec = appConfig['form'];
       return formSpec ? formSpec.filter((elementSpec: ElementSpec) => this.formElements.includes(elementSpec.type)) : [];
   }
 
   private createFormGroup(appConfig: AppConfig) {
       // Removes any unknown elements.
-      let formSpec = this.getFormSpec(appConfig);
+      const formSpec = this.getFormSpec(appConfig);
 
       if (formSpec.length > 0) {
-          let controls = {};
+        const controls = {};
 
-          for (let elementSpec of formSpec) {
-              let name = elementSpec.name
-              controls[name] = this.createControl(elementSpec);
+          for (const elementSpec of formSpec) {
+            const name = elementSpec.name;
+            controls[name] = this.createControl(elementSpec);
           }
 
           return new FormGroup(controls);
@@ -281,11 +268,11 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   onApplicationChange(event: MatCheckboxChange, appConfig: AppConfig) {
-    let checked = event.checked;
-    let name = appConfig['name'];
+    const checked = event.checked;
+    const name = appConfig.name;
 
     if (checked) {
-        let form = this.createFormGroup(appConfig);
+      const form = this.createFormGroup(appConfig);
 
         if (form) {
             if (this.options) {
@@ -297,21 +284,14 @@ export class AgentInstallerDialogComponent implements OnInit {
         }
     } else {
         if (this.options) {
-            this.options.removeControl(name)
+            this.options.removeControl(name);
             if (Object.keys(this.options.controls).length === 0) {
                 this.options = null;
                 this.newHostAgentForm.removeControl('customPackages');
             }
         }
     }
-
-    let applicableConfigs = [];
-    if(this.options) {
-        for (let name in this.options.controls) {
-            applicableConfigs.push(this.configs[name]);
-        }
-    }
-    this.applicableConfigs = applicableConfigs;
+    this.applicableConfigs = this.options ? Object.keys(this.options.controls).map((key: string) => this.configs[key]) : [];
 
   }
 }

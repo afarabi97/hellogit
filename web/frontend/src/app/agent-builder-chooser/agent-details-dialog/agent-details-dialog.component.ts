@@ -1,40 +1,25 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDialogRef } from '@angular/material/dialog';
-import { AppConfig, AgentInstallerConfig } from '../agent-builder.service';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+import { AgentInstallerConfig, AppConfig } from '../agent-builder.service';
 
 @Component({
     selector: 'agent-details-dialog',
     templateUrl: 'agent-details-dialog.component.html',
     styleUrls: ['./agent-details-dialog.component.scss']
   })
-export class AgentDetailsDialogComponent implements OnInit {
-  appConfigs: Array<AppConfig>;
+export class AgentDetailsDialogComponent {
+  appConfigs: AppConfig[];
   config: AgentInstallerConfig;
 
   constructor(public dialogRef: MatDialogRef<AgentDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ){
-    let config = data['config'];
-    let appConfigs = data['appConfigs'];
-
-    let customPackages = config['customPackages'];
-    let packageNames = [];
-
-    if (customPackages) {
-      for (let packageName in customPackages) {
-        packageNames.push(packageName);
-      }
-      this.appConfigs = appConfigs.filter(e => {return packageNames.includes(e.name)});
-    } else {
-      this.appConfigs = [];
-    }
-
-    this.config = config;
-    
+              @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.config = data['config'];
+    const appConfigs = data['appConfigs'];
+    const customPackages = this.config.customPackages;
+    const packageNames = customPackages ? Object.keys(customPackages) : [];
+    this.appConfigs = customPackages ? appConfigs.filter(e => packageNames.includes(e.name)) : [];
   }
-
-  ngOnInit() {}
 
   onClose(): void {
     this.dialogRef.close();
