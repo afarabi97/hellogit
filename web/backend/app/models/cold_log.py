@@ -20,12 +20,12 @@ class ColdLogUploadModel(Model):
     def from_request(self,
                      payload: ImmutableMultiDict,
                      form: ImmutableMultiDict):
-        coldLogForm = json.loads(form['coldLogForm'], encoding="utf-8")
-        self.module = coldLogForm["module"]
-        self.index_suffix = coldLogForm["index_suffix"]
+        cold_log_form = json.loads(form['coldLogForm'], encoding="utf-8")
+        self.module = cold_log_form["module"]
+        self.index_suffix = cold_log_form["index_suffix"]
         self.upload_file = payload['upload_file']
         self.filename = secure_filename(self.upload_file.filename)
-        self.send_to_logstash = coldLogForm["send_to_logstash"]
+        self.send_to_logstash = cold_log_form["send_to_logstash"]
 
     def from_dictionary(self, payload: Dict):
         self.module = payload["module"]
