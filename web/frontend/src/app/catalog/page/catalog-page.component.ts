@@ -632,7 +632,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this._CatalogService.getNodes().subscribe((nodes: NodeClass[]) => {
       this.nodes = nodes;
       let status: string;
-      this.nodes.sort(this.sortSvc.node_alphanum).forEach((node: NodeClass) => {
+      this.nodes.sort(this.sortSvc.node_alphanum);
+      this.nodes.forEach((node: NodeClass) => {
         node.status = this.statuses.filter((sc: StatusClass) => node.hostname === sc.hostname || node.hostname.includes(sc.hostname))[0];
         if (this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue && node.node_type === this.serverValue)) {
           status = ObjectUtilsClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;
@@ -654,7 +655,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
                                                       });
               break;
             default:
-              this.processList = this.processList.map((p: ProcessInterface) => { p.children.push(node); return p; });
+              this.processList = this.processList.map((p: ProcessInterface) => {
+                                                    p.children.push(node);
+                                                    return p;
+                                                  });
               break;
           }
         }

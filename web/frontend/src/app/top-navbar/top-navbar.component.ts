@@ -107,7 +107,7 @@ export class TopNavbarComponent implements OnInit {
     controlFormControlConfig.label = 'Pick your system';
     controlFormControlConfig.formState = null;
     controlFormControlConfig.validatorOrOpts = Validators.required;
-    let control = new DialogFormControl(controlFormControlConfig);
+    const control = new DialogFormControl(controlFormControlConfig);
     control.options = ['DIP', 'MIP', 'GIP'];
 
     control.controlType = DialogControlTypes.dropdown;

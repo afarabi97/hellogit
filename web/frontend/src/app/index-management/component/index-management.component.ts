@@ -66,7 +66,7 @@ export class IndexManagementComponent {
     }
 
     isEmptyFun() {
-      this.indexManagementList.value.index_list.length !== 0 ? this.isEmpty = true : this.isEmpty = false;
+      this.isEmpty = this.indexManagementList.value.index_list.length !== 0
     }
 
     goBack(stepper: MatStepper) {
@@ -87,7 +87,7 @@ export class IndexManagementComponent {
     }
 
     goForwardList(stepper: MatStepper) {
-      let object = {action: this.indexManagementActions.value.action, index_list: this.indexManagementList.value.index_list};
+      const object = {action: this.indexManagementActions.value.action, index_list: this.indexManagementList.value.index_list};
       this._indexManagementSrv.indexManagement(object).subscribe(
       data => {
           this._indexManagementSrv.displaySnackBar(data["message"]);

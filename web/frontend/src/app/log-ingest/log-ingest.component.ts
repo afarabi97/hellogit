@@ -20,7 +20,7 @@ const DIALOG_WIDTH = '800px';
   })
 export class LogIngestComponent implements OnInit {
   logToUpload: File;
-public  logForm: FormGroup;
+  logForm: FormGroup;
 
   constructor(private title: Title,
               private formBuilder: FormBuilder,
@@ -50,8 +50,8 @@ public  logForm: FormGroup;
       if (data["error_message"]){
         this.ingestSrv.displaySnackBar(data["error_message"]);
       } else {
-        this.ingestSrv.displaySnackBar("Successfully uploaded " + this.logToUpload.name +
-        ". Open the notification manager to track its progress.");
+        this.ingestSrv.displaySnackBar(`Successfully uploaded ${this.logToUpload.name}. 
+                                        Open the notification manager to track its progress.`);
       }
     }, error => {
       this.ingestSrv.displaySnackBar("Failed to initiate upload for an unknown reason.");
@@ -101,7 +101,7 @@ public  logForm: FormGroup;
       winrmTransportSpaceFormControlConfig.tooltip = undefined;
       winrmTransportSpaceFormControlConfig.controlType = DialogControlTypes.dropdown;
       winrmTransportSpaceFormControlConfig.options = ['ntlm', 'basic'];
-      let winlogBeatSetupForm = this.formBuilder.group({
+      const winlogBeatSetupForm = this.formBuilder.group({
         windows_host: new DialogFormControl(windowsHostSpaceFormControlConfig),
         username: new DialogFormControl(usernameSpaceFormControlConfig),
         password: new DialogFormControl(passwordSpaceFormControlConfig),
@@ -122,12 +122,12 @@ public  logForm: FormGroup;
 
       dialogRef.afterClosed().subscribe(
         result => {
-          let form = result as FormGroup;
+          const form = result as FormGroup;
           if(form && form.valid) {
             this.ingestSrv.setupWinlogbeat(form.value).subscribe(data => {
               console.log(data);
-              this.ingestSrv.displaySnackBar("Successfully Kicked off Winlogbeat setup for Cold Log Ingest. \
-                                              Open the notification manager to track its progress.");
+              this.ingestSrv.displaySnackBar(`Successfully Kicked off Winlogbeat setup for Cold Log Ingest.
+                                              Open the notification manager to track its progress.`);
             }, error => {
               this.ingestSrv.displaySnackBar("Failed to initiate upload for an unknown reason.");
               console.error(error);
