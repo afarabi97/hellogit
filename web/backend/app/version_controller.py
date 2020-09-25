@@ -1,6 +1,6 @@
 
 import subprocess
-from flask import jsonify, request, Response
+from flask import jsonify, Response
 
 from app import app
 from app.service.system_info_service import get_version, get_build_date

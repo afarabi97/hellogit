@@ -1,9 +1,8 @@
-from app import app, logger, conn_mng
-from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
+from app import app
 from flask import jsonify, request, Response
 from app.service.upgrade_service import get_upgrade_paths, upgrade
 import requests
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
 
 
 @app.route('/api/upgrade/paths', methods=['POST'])
