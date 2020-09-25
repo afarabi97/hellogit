@@ -13,7 +13,6 @@ from app.service.agent_service import (perform_agent_reinstall,
                                        build_agent_if_not_exists)
 from app.middleware import operator_required
 from bson import ObjectId
-from copy import copy
 from flask import send_file, Response, request, jsonify, json
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from pathlib import Path
