@@ -1,5 +1,5 @@
 from app import app
-from flask import jsonify, request, Response
+from flask import jsonify, request
 from app.service.upgrade_service import get_upgrade_paths, upgrade
 import requests
 from app.middleware import controller_admin_required
