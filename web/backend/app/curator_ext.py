@@ -63,7 +63,30 @@ class ExtClose(curator.Close):
                     delete_aliases=delete_aliases,
                     skip_flush=skip_flush,
                     ignore_sync_failures=ignore_sync_failures)
-
+    
+    def _delete_aliases(self, index):
+        self.loggit.debug('Deleting aliases from: {0}'.format(lst))
+        try:
+            self.client.indices.delete_alias(index=utils.to_csv(index), name='_all')
+            self.loggit.debug('Deleted aliases from: {0}'.format(index))
+        except Exception as err:
+            self.loggit.warn(
+                'Some indices may not have had aliases.  Exception:'
+                ' {0}'.format(err)
+            )
+            raise err
+    
+    def _flush_synced(self, index):
+        try:
+            self.client.indices.flush_synced(index=utils.to_csv(index), ignore_unavailable=True)
+        except ConflictError as err:
+            if self.ignore_sync_failures:
+                self.loggit.warn(
+                    'Ignoring flushed sync failures: '
+                    '{0} {1}'.format(err.error, err.info)
+                )
+            else:
+                raise ConflictError(err.status_code, err.error, err.info)
 
     def do_action(self):
         """
@@ -77,36 +100,14 @@ class ExtClose(curator.Close):
             )
         )
         try:
-            index_lists = utils.chunk_index_list(self.index_list.indices)
-            for lst in index_lists:
-                lst_as_csv = utils.to_csv(lst)
-                self.loggit.debug('CSV list of indices to close: {0}'.format(lst_as_csv))
+            for lst in utils.chunk_index_list(self.index_list.indices):
+                self.loggit.debug('CSV list of indices to close: {0}'.format(utils.to_csv(lst)))
                 if self.delete_aliases:
                     self.loggit.info('Deleting aliases from indices before closing.')
-                    self.loggit.debug('Deleting aliases from: {0}'.format(lst))
-                    try:
-                        self.client.indices.delete_alias(index=lst_as_csv, name='_all')
-                        self.loggit.debug('Deleted aliases from: {0}'.format(lst))
-                    except Exception as err:
-                        self.loggit.warn(
-                            'Some indices may not have had aliases.  Exception:'
-                            ' {0}'.format(err)
-                        )
-                        return err
+                    self._delete_aliases(lst)
                 if not self.skip_flush:
-                    try:
-                        self.client.indices.flush_synced(index=lst_as_csv, ignore_unavailable=True)
-                    except ConflictError as err:
-                        if not self.ignore_sync_failures:
-                            raise ConflictError(err.status_code, err.error, err.info)
-                        else:
-                            self.loggit.warn(
-                                'Ignoring flushed sync failures: '
-                                '{0} {1}'.format(err.error, err.info)
-                            )
-                self.client.indices.close(index=lst_as_csv, ignore_unavailable=True)
+                    self._flush_synced(lst)
+                self.client.indices.close(index=utils.to_csv(lst), ignore_unavailable=True)
             return True
         except Exception as exc:
             return exc
-            #utils.report_failure(exc)
-
