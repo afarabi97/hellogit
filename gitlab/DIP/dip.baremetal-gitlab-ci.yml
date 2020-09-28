@@ -62,7 +62,12 @@ Hardware DIP Kickstart:
     --redfish-user "$REDFISH_USER" \
     --redfish-password "$REDFISH_PASSWORD" \
     --upstream-dns "$UPSTREAM_DNS" \
-    --upstream-ntp "$UPSTREAM_NTP" 
+    --upstream-ntp "$UPSTREAM_NTP" \
+    --management-password "$MANAGEMENT_PASSWORD" \
+    --mp-external-ip "$MP_EXTERNAL_IP" \
+    --pfsense-ip "$PFSENSE_IP" \
+    --switch-ip "$SWITCH_IP" \
+    --run-remote-node "$RUN_REMOTE_NODE"
   artifacts:
     untracked: true
   retry: 2

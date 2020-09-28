@@ -3,6 +3,7 @@ from argparse import Namespace, ArgumentParser
 from models import Model, add_args_from_instance
 from models.common import VCenterSettings, NodeSettings
 from models.common import HwNodeSettings
+from models.remote_node import RemoteNodeSettings
 from typing import Dict
 from models.constants import SubCmd
 from util.network import IPAddressManager
@@ -19,7 +20,7 @@ class HwKickstartSettings(Model):
         super().__init__()
         self.server_oob = ''
         self.sensor_oob = ''
-        self.node_defaults = None # type: NodeSettings
+        self.node_defaults = None # type: HwNodeSettings
         self.servers = [] # type: List[HwNodeSettings]
         self.sensors = [] # type: List[HwNodeSettings]
         self.nodes = [] # type: List[HwNodeSettings]
@@ -30,6 +31,7 @@ class HwKickstartSettings(Model):
         self.upstream_ntp = ''
         self.redfish_user = ''
         self.redfish_password = ''
+        self.remote_node = None # type: RemoteNodeSettings
 
     def _validate_params(self):
         pass
@@ -41,8 +43,8 @@ class HwKickstartSettings(Model):
         return info
 
     def from_namespace(self, namespace: Namespace):
-        self.server_oob = namespace.server_oob
-        self.sensor_oob = namespace.sensor_oob
+        self.server_oob = [server_oob.strip() for server_oob in namespace.server_oob]
+        self.sensor_oob = [sensor_oob.strip() for sensor_oob in namespace.sensor_oob]
         self.upstream_dns = namespace.upstream_dns
         self.upstream_ntp = namespace.upstream_ntp
         self.node_defaults = HwNodeSettings()
@@ -50,6 +52,9 @@ class HwKickstartSettings(Model):
         self.domain = self.node_defaults.domain
         self.redfish_user = self.node_defaults.redfish_user
         self.redfish_password = self.node_defaults.redfish_password
+        #These settings only pertain to remote node
+        self.remote_node = RemoteNodeSettings()
+        self.remote_node.from_namespace(namespace)
 
         ip_base = '.'.join(namespace.gateway.split('.')[:-1]) + '.'
         self.dhcp_ip_block = ip_base + '192'
@@ -138,6 +143,7 @@ class HwKickstartSettings(Model):
         parser.add_argument('--upstream-ntp', dest='upstream_ntp', help="Set an upstream ntp server ip")
 
         HwNodeSettings.add_args(parser, False)
+        RemoteNodeSettings.add_args(parser)
 
 class KickstartSettings(Model):
     def __init__(self):

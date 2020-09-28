@@ -181,7 +181,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
     def get_controller_name(self):
         for name in self.get_vm_list():
-            if "DIP" in name or "dip" in name or "controller" in name or "Controller" in name:
+            if "DIP" in name or "dip" in name:
                 return name
 
     def copy_controller(self,build_type) -> None:

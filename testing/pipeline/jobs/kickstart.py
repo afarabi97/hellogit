@@ -6,6 +6,8 @@ from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKicksta
 from models.ctrl_setup import ControllerSetupSettings
 from models.ctrl_setup import HwControllerSetupSettings
 from models.common import NodeSettings
+from models.remote_node import RemoteNodeSettings
+from jobs.remote_node import RemoteNode
 from typing import List
 from util.ansible_util import execute_playbook, power_on_vms
 from util.api_tester import APITester, MIPAPITester
@@ -14,6 +16,7 @@ from util.ssh import test_nodes_up_and_alive
 from util import redfish_util as redfish
 import time
 import sys
+import os
 
 TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../templates/'
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
@@ -55,6 +58,11 @@ class HwKickstartJob:
         write_to_file([self.ctrl_settings.node.ipaddress, master_server.ipaddress, sensor_node.ipaddress], "dipnodestoscan.txt")
 
     def run_kickstart(self):
+        #This will only excute if remote is set to yes
+        if self.kickstart_settings.remote_node.run_remote_node:
+            remote_node = RemoteNode(self.ctrl_settings, self.kickstart_settings)
+            remote_node.change_external_to_internal()
+
         self._open_mongo_port()
         runner = APITester(self.ctrl_settings, self.kickstart_settings)
         runner.run_kickstart_api_call()

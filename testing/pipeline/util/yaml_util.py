@@ -4,6 +4,7 @@ import sys
 import ruamel.yaml
 from typing import Union
 from models.common import NodeSettings, HwNodeSettings, VCenterSettings, Model, RepoSettings, ESXiSettings
+from models.remote_node import RemoteNodeSettings
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettings, HwKitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
@@ -57,6 +58,7 @@ class YamlManager:
             cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(GIPKitSettings)
             cls.yaml.register_class(RHELRepoSettings)
+            cls.yaml.register_class(RemoteNodeSettings)
 
 
     @classmethod
