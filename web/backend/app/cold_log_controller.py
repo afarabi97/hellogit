@@ -4,7 +4,6 @@ import tempfile
 import zipfile
 
 from app import app, conn_mng
-from app.common import OK_RESPONSE
 from app.models.cold_log import (ColdLogUploadModel, WinlogbeatInstallModel)
 from app.service.cold_log_service import (process_cold_logs,
                                           install_winlogbeat_srv,

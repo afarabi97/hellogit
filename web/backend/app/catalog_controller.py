@@ -1,14 +1,9 @@
-from app import app, socketio, logger, conn_mng
-from app.common import OK_RESPONSE, ERROR_RESPONSE, JSONEncoder
-from flask import jsonify, request, Response, send_file
-from typing import Dict, Tuple, List
-from shared.connection_mngs import FabricConnectionWrapper, KitFormNotFound
-from shared.constants import KICKSTART_ID
+from app import app, logger, conn_mng
+from app.common import ERROR_RESPONSE, JSONEncoder
+from flask import jsonify, request, Response
+from typing import List
 from app.catalog_service import delete_helm_apps, install_helm_apps, get_app_state, get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps
-from app.middleware import Auth, controller_maintainer_required
-import json
-from bson import ObjectId
-import requests
+from app.middleware import controller_maintainer_required
 from celery import chain
 from typing import Set, List
 
