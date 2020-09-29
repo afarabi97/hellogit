@@ -19,7 +19,3 @@ mongoImage:
 admin_user: admin
 admin_pass: password!
 admin_email: admin@dip.local
-
-
-mongodbUrl: mongodb://rocketchat:password@localhost:27017/rocketchat
-mongodbOplogUrl: mongodb://root:password@localhost:27017/local?replicaSet=rs0&authSource=admin

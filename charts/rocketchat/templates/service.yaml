@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rocketchat
+  name: {{ .Release.Name }}
   labels:
-    component: rocketchat
+    component: {{ .Release.Name }}
 spec:
   selector:
     component: {{ .Release.Name }}
@@ -14,4 +14,21 @@ spec:
     protocol: TCP
     targetPort: https
   type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-mongodb
+  labels:
+    component: {{ .Release.Name }}-mongodb
+spec:
+  selector:
+    component: {{ .Release.Name }}-mongodb
+  ports:
+  - name: mongodb
+    port: 27017
+    protocol: TCP
+    targetPort: mongodb
+  type: ClusterIP
 
