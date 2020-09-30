@@ -56,7 +56,7 @@ class EndgameAgentPuller:
         self._endgame_pass = endgame_pass
         self._content_header = { 'Content-Type': 'application/json' }
 
-    def _checkResponse(self, resp, action):
+    def _check_response(self, resp, action):
         if(resp.ok):
             return action(resp)
         else:
@@ -73,16 +73,16 @@ class EndgameAgentPuller:
         #Get data about current sensor configuration
         url = 'https://{}:{}/api/v1/deployment-profiles'.format(self._endgame_server_ip, self._endgame_port)
         resp = self._session.get(url, verify=False)
-        sensor_data = self._checkResponse(resp, lambda r : r.json()['data'][0])
+        sensor_data = self._check_response(resp, lambda r : r.json()['data'][0])
         return sensor_data
 
     def _authenticate(self):
         url = 'https://{}:{}/api/v1/auth/login'.format(self._endgame_server_ip, self._endgame_port)
 
         resp = self._session.post(url, json = { 'username': self._endgame_user, 'password': self._endgame_pass }, headers = self._content_header, verify=False)
-        return self._checkResponse(resp, lambda r: r.json()['metadata']['token'])
+        return self._check_esponse(resp, lambda r: r.json()['metadata']['token'])
 
-    def _saveInstaller(self, resp, sensor_data, dst_folder: str):
+    def _save_installer(self, resp, sensor_data, dst_folder: str):
 
         cd = resp.headers.get('Content-Disposition')
         installer_name = cgi.parse_header(cd)[1]['filename']
@@ -90,7 +90,7 @@ class EndgameAgentPuller:
         with open(installer_path, 'wb') as f:
             f.write(resp.content)
 
-    def getAgentPkg(self, installer_id: str, dst_folder: str) -> str:
+    def get_agent_pkg(self, installer_id: str, dst_folder: str) -> str:
         auth_token = self._authenticate()
 
         auth_header = { "Authorization": "JWT {}".format(auth_token) }
@@ -100,7 +100,7 @@ class EndgameAgentPuller:
         #Download the Windows sensor software and save it to a file.
         url = 'https://{}:{}/api/v1/windows/installer/{}'.format(self._endgame_server_ip, self._endgame_port, installer_id)
         resp = self._session.get(url, verify=False)
-        self._saveInstaller(resp, sensor_data, dst_folder)
+        self._save_installer(resp, sensor_data, dst_folder)
         return sensor_data['api_key']
 
 
@@ -152,7 +152,7 @@ class AgentBuilder:
                                           decode_password(self._installer_config['endgame_password']),
                                           self._installer_config['endgame_port'].strip())
 
-        api_token = agent_puller.getAgentPkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
+        api_token = agent_puller.get_agent_pkg(self._installer_config['endgame_sensor_id'], folder_to_copy)
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/install.ps1", {"api_token": api_token})
         self._create_config(AGENT_PKGS_DIR / "endgame/templates/uninstall.ps1", {"api_token": api_token})
         self._copy_package(folder_to_copy, dst_folder)
@@ -199,9 +199,9 @@ class AgentBuilder:
         self._copy_package(folder_to_copy, str(dst_folder))
 
     def _package_generic_all(self, dst_folder: Path):
-        customPackages = self._installer_config.get('customPackages', None)
-        if customPackages:
-            for name, tpl_context in customPackages.items():
+        custom_packages = self._installer_config.get('customPackages', None)
+        if custom_packages:
+            for name, tpl_context in custom_packages.items():
                 package = self._packages.get(name, None)
                 if package:
                     folder = package['folder']
@@ -399,14 +399,31 @@ class WinRunner:
         else:
             raise ValueError("The protocol passed in is not supported.")
 
+    def notify_ansible_failure(self, hosts, callback):  
+        dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+        for host in hosts:
+            host_id = host.replace(".", "_")
+            if callback.results != {} and callback.results[host_id]['failures'] == 0 and callback.results[host_id]['unreachable'] == 0:
+                if self._action == 'uninstall':
+                    self.notify_success(self._action, host)
+                    self._update_single_host_state(host, TARGET_STATES.uninstalled.value, dt_string)
+                else:
+                    self.notify_success(self._action, host)
+                    self._update_single_host_state(host, TARGET_STATES.installed.value, dt_string)
+            else:
+                if callback.results[host_id]['unreachable'] > 0:
+                    self.notify_login_network_failure(self._action, str(host), str(callback), str(callback.results_list[host_id]["failed"]))
+                    self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+                else:
+                    self.notify_failure(self._action, str(host), str(callback), str(callback.results_list[host_id]["failed"]))
+                    self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+
     def execute(self) -> int:
         self._notification.set_message("%s %s for %s in progress." % (_JOB_NAME.capitalize(), self._action, str(self._hostname_or_ip)) )
         self._notification.set_status(NotificationCode.IN_PROGRESS.name)
         self._notification.post_to_websocket_api()
-
         try:
             self._initalize_winapi()
-
             if self._target_config["protocol"] == "smb":
                 try:
                     self._build_agents()
@@ -423,28 +440,12 @@ class WinRunner:
                     self._winapi.uninstall_agent_pkg(self._installer)
                 else:
                     self._winapi.reinstall_agent_pkg(self._installer)
+
             self._set_end_state()
         except WinrmCommandFailure as ansible_err:
             traceback.print_exc()
             if isinstance(self._hostname_or_ip, list) and ansible_err.results:
-                dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-                for host in self._hostname_or_ip:
-                    host_id = host.replace(".", "_")
-                    print(ansible_err.results_list[host_id])
-                    if ansible_err.results != {} and ansible_err.results[host_id]['failures'] == 0 and ansible_err.results[host_id]['unreachable'] == 0:
-                        if self._action == 'uninstall':
-                            self.notify_success(self._action, host)
-                            self._update_single_host_state(host, TARGET_STATES.uninstalled.value, dt_string)
-                        else:
-                            self.notify_success(self._action, host)
-                            self._update_single_host_state(host, TARGET_STATES.installed.value, dt_string)
-                    else:
-                        if ansible_err.results[host_id]['unreachable'] > 0:
-                            self.notify_login_network_failure(self._action, str(host), str(ansible_err), str(ansible_err.results_list[host_id]["failed"]))
-                            self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
-                        else:
-                            self.notify_failure(self._action, str(host), str(ansible_err), str(ansible_err.results_list[host_id]["failed"]))
-                            self._update_single_host_state(host, TARGET_STATES.error.value, dt_string)
+                self.notify_ansible_failure(self._hostname_or_ip, ansible_err)
             else:
                 self.notify_failure(self._action, str(self._hostname_or_ip), "", str(ansible_err))
                 self._update_windows_host_state(TARGET_STATES.error.value)
@@ -457,9 +458,6 @@ class WinRunner:
 
 @celery.task
 def perform_agent_reinstall(configs: Dict, hostname_or_ip: Union[str, List], do_uninstall_only: bool) -> int:
-    # print(json.dumps(configs, indent=4, sort_keys=True))
-    # print(hostname_or_ip)
-    # print(do_uninstall_only)
     try:
         runner = WinRunner(hostname_or_ip, configs, do_uninstall_only)
         return runner.execute()
