@@ -65,7 +65,7 @@ class ExtClose(curator.Close):
                     ignore_sync_failures=ignore_sync_failures)
     
     def _delete_aliases(self, index):
-        self.loggit.debug('Deleting aliases from: {0}'.format(lst))
+        self.loggit.debug('Deleting aliases from: {0}'.format(index))
         try:
             self.client.indices.delete_alias(index=utils.to_csv(index), name='_all')
             self.loggit.debug('Deleted aliases from: {0}'.format(index))

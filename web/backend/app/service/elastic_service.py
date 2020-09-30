@@ -29,7 +29,8 @@ ELASTIC_OP_PLURAL = "elasticsearches"
 KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
 class ConfigNotFound(Exception):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION), *args, **kwargs)
 
 class Timeout(Exception):
     pass
@@ -67,7 +68,7 @@ def string_to_base64(message):
 
 def get_secret(name, namespace='default'):
     if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+        raise ConfigNotFound
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     api_instance = client.CoreV1Api() 
@@ -76,7 +77,7 @@ def get_secret(name, namespace='default'):
 
 def patch_secret(name, body, namespace='default'):
     if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+        raise ConfigNotFound
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     api_instance = client.CoreV1Api()
@@ -96,7 +97,7 @@ def create_s3_repository_settings(bucket, endpoint, protocol):
 
 def get_elasticsearch_status():
     if not os.path.isfile(KUBE_CONFIG_LOCATION):
-        raise ConfigNotFound("Config file does not exist: {}".format(KUBE_CONFIG_LOCATION))
+        raise ConfigNotFound
     if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
         config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
     api_instance = client.CustomObjectsApi()

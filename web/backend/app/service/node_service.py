@@ -106,7 +106,6 @@ def execute_kit(password: str):
             status=NotificationCode.ERROR.name)
 
     conn_mng.mongo_celery_tasks.delete_one({"_id": _JOB_NAME_NOTIFICATION})
-    return
 
 
 @celery.task
@@ -182,7 +181,6 @@ def add_node(node_payload, password):
         # Remove the node from kit form if the add node fails
         # This allows the user to retry the add node without duplicating the node in kit form
         _remove_node_kit_inventory(node_hostname)
-    return
 
 
 @celery.task
@@ -212,4 +210,3 @@ def remove_node(node, password):
         notification.set_and_send(message=msg,
             status=NotificationCode.ERROR.name)
 
-    return
