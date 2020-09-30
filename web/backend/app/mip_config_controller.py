@@ -1,11 +1,11 @@
-from app import app, MIP_CONFIG_DIR, conn_mng
+from app import app, conn_mng
 from flask import request, Response, jsonify
 from app.inventory_generator import MIPConfigInventoryGenerator
 from app.service.mip_config_service import perform_mip_config
 from shared.constants import KICKSTART_ID, MIP_CONFIG_ID
 from shared.utils import decode_password
 from pymongo import ReturnDocument
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
 
 @app.route('/api/execute_mip_config_inventory', methods=['POST'])
 @controller_admin_required

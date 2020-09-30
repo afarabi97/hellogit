@@ -1,12 +1,12 @@
 from app.service.node_service import add_node, remove_node
-from app.middleware import Auth, controller_admin_required
+from app.middleware import controller_admin_required
 from flask import request, Response, jsonify
-from app import app, logger, conn_mng, CORE_DIR, STIGS_DIR
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app import app, logger, conn_mng
+from app.common import ERROR_RESPONSE
 from app.kit_controller import _replace_kit_inventory
-from shared.constants import KIT_ID, KICKSTART_ID, ADDNODE_ID
+from shared.constants import KIT_ID, KICKSTART_ID
 from shared.utils import decode_password
-from typing import Dict, Tuple, Union
+from typing import Tuple
 
 @app.route('/api/execute_add_node', methods=['POST'])
 @controller_admin_required
