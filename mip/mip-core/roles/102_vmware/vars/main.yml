@@ -3,4 +3,4 @@
  vmware_dir: /cvah/vm
  vmware_home_dir: /home/{{ user }}/.vmware
  vmware_desktop_app: vmware-workstation.desktop
- vmware_license: WM095-DZA84-M8UD5-0NJH5-0HA74
+ vmware_license: TH285-2ZT8N-N86D9-0FJUQ-2JU55
