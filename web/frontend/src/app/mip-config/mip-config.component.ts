@@ -38,19 +38,19 @@ export class MIPConfigComponent implements OnInit {
 
   onEnable() {
     this.form.enable();
-    let passwords = <FormArray> this.form.get('passwords');
+    const passwords = this.form.get('passwords') as FormArray;
     passwords.disable();
     passwords.at(5).enable();
   }
 
   onClear() {
     this.form.get('type').setValue(this.default_type);
-    let assessor_pw = {'password': '', 'confirm_password': '', 'name': 'assessor_pw'};
-    let usaf_admin_pw = {'password': '', 'confirm_password': '', 'name': 'usaf_admin_pw'};
-    let admin_pw = {'password': '', 'confirm_password': '', 'name': 'admin_pw'};
-    let auditor_pw = {'password': '', 'confirm_password': '', 'name': 'auditor_pw'};
-    let maintainer_pw = {'password': '', 'confirm_password': '', 'name': 'maintainer_pw'};
-    let global_pw = {'password': '', 'confirm_password': '', 'name': 'global_pw'};
+    const assessor_pw = {'password': '', 'confirm_password': '', 'name': 'assessor_pw'};
+    const usaf_admin_pw = {'password': '', 'confirm_password': '', 'name': 'usaf_admin_pw'};
+    const admin_pw = {'password': '', 'confirm_password': '', 'name': 'admin_pw'};
+    const auditor_pw = {'password': '', 'confirm_password': '', 'name': 'auditor_pw'};
+    const maintainer_pw = {'password': '', 'confirm_password': '', 'name': 'maintainer_pw'};
+    const global_pw = {'password': '', 'confirm_password': '', 'name': 'global_pw'};
     this.form.get('passwords').setValue([assessor_pw, usaf_admin_pw, admin_pw, auditor_pw, maintainer_pw, global_pw]);
     this.form.get('singlePassword').setValue(true);
   }
@@ -71,17 +71,17 @@ export class MIPConfigComponent implements OnInit {
 
     this.getMIPKickstartForm().subscribe(form => {
       if (form) {
-        let error = 'error_message' in form;
+        const error = 'error_message' in form;
         if (error) {
           this.loading = false;
           return;
         } else {
-          let addressess = [];
+          const addressess = [];
           this.boot_drives = {};
 
-          for (let node of form['nodes']) {
-              let hostname = node['hostname'];
-              let model = node['pxe_type'];
+          for (const node of form['nodes']) {
+            const hostname = node['hostname'];
+            const model = node['pxe_type'];
               if (model === 'SCSI/SATA/USB') {
                 this.boot_drives[hostname] = 'sda';
               }
@@ -98,7 +98,6 @@ export class MIPConfigComponent implements OnInit {
         }
       } else {
         this.loading = false;
-        return;
       }
     })
   }
@@ -108,9 +107,9 @@ export class MIPConfigComponent implements OnInit {
   }
 
   private getDeviceFacts(addresses: Array<string>) {
-      let observables = [];
-      for (let address of addresses) {
-          let observable = this.kickStartSrv.gatherDeviceFacts(address);
+    const observables = [];
+      for (const address of addresses) {
+        const observable = this.kickStartSrv.gatherDeviceFacts(address);
           observables.push(observable);
       }
 
@@ -120,7 +119,7 @@ export class MIPConfigComponent implements OnInit {
   runPlaybook() {
     this.mipSrv.cacheDeviceFacts(this.nodes).subscribe(data => {});
 
-    let formValue = this.form.value;
+    const formValue = this.form.value;
     this.mipSrv.executeMIP(formValue).subscribe(data => {
       this.router.navigate(['/stdout/Mipconfig']);
     });

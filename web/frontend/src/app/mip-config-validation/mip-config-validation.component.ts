@@ -6,7 +6,6 @@ import { AllValidationErrors, getFormValidationErrors, FormGroupControls } from 
 @Component({
   selector: 'app-mip-config-validation',
   templateUrl: './mip-config-validation.component.html',
-  styleUrls: ['./mip-config-validation.component.scss'],
   host: {
     'class': 'app-mip-config-validation'
   }

@@ -6,7 +6,6 @@ import { validateFromArray } from '../validators/generic-validators.validator';
 @Component({
   selector: 'app-mip-config-password',
   templateUrl: './mip-config-password.component.html',
-  styleUrls: ['./mip-config-password.component.scss'],
   host: {
     'class': 'app-mip-config-password'
   }
@@ -54,33 +53,33 @@ export class MIPConfigPasswordComponent implements OnInit, OnChanges {
     }
 
     createControls() {
-      let passwords = <FormArray> this.form.get('passwords');
+      const passwords = this.form.get('passwords') as FormArray;
       this.password_index = passwords.length;
 
-      let capitalizedName = this.capitalize(this.name);
+      const capitalizedName = this.capitalize(this.name);
 
-      let vpassword = [
+      const vpassword = [
         { ops: { pattern: /^.{6,}$/ }, error_message: `You must enter a ${this.name} password with a minimum length of 6 characters.`, validatorFn: 'pattern' },
         { error_message: `${capitalizedName} password is required.`, validatorFn: 'required' }
       ];
 
-      let vconfirm_password = [
+      const vconfirm_password = [
         { ops: { pattern: /^.{6,}$/ }, error_message: `You must enter a ${this.name} password with a minimum length of 6 characters.`, validatorFn: 'pattern' },
         { error_message: `The passwords for ${this.name} do not match. Please retype them carefully.`, validatorFn: 'fieldMatch' },
         { error_message: `Retyping ${this.name} password is required.`, validatorFn: 'required' }
       ];
 
-      let password = new FormControl(null, Validators.compose([validateFromArray(vpassword)]));
-      let confirm_password = new FormControl(null, Validators.compose([validateFromArray(vconfirm_password, { parentControl: password })]));
-      let name = new FormControl(this.name);
+      const password = new FormControl(null, Validators.compose([validateFromArray(vpassword)]));
+      const confirm_password = new FormControl(null, Validators.compose([validateFromArray(vconfirm_password, { parentControl: password })]));
+      const name = new FormControl(this.name);
 
-      let controls = {
+      const controls = {
           'password': password,
           'confirm_password': confirm_password,
           'name': name
       }
 
-      let formGroup = new FormGroup(controls);
+      const formGroup = new FormGroup(controls);
 
       passwords.push(formGroup);
       passwords.disable();
