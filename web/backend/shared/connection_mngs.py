@@ -1,11 +1,10 @@
-import json
 import os
 
 from base64 import b64decode
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
-from elasticsearch.exceptions import RequestError, ConflictError
+from elasticsearch.exceptions import ConflictError
 from fabric import Connection, Config
 from kubernetes import client, config
 from kubernetes.client.models.v1_secret import V1Secret
@@ -17,7 +16,7 @@ from pymongo import MongoClient
 from shared.constants import KIT_ID, DATE_FORMAT_STR, KICKSTART_ID, NODE_TYPES
 from shared.utils import decode_password
 from time import sleep
-from typing import Dict, Tuple, List
+from typing import Dict, List
 
 
 KUBEDIR = "/root/.kube"

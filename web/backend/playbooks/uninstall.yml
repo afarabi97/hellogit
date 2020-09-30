@@ -2,9 +2,9 @@
 - name: Uninstall TFPlenum Agent Package
   hosts: windows_targets
   connection: local
-  become: yes
+  become: true
   become_user: "{{ goto_user }}"
-  gather_facts: no
+  gather_facts: false
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
@@ -48,3 +48,4 @@
       win_file:
         path: C:\agents.zip
         state: absent
+...

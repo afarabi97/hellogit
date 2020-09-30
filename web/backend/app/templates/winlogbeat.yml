@@ -1,3 +1,4 @@
+---
 winlogbeat.event_logs:
   {% for log_name in template_ctx.log_names %}
   - name: 'C:/coldlog/log/{{ log_name }}'

@@ -2,9 +2,9 @@
 - name: Install Winlogbeat on Internal server
   hosts: windows_targets
   connection: local
-  become: yes
+  become: true
   become_user: "{{ goto_user }}"
-  gather_facts: no
+  gather_facts: false
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
@@ -12,11 +12,11 @@
       win_service:
         name: winlogbeat
         state: stopped
-      ignore_errors: yes
+      ignore_errors: true
 
-    - name:  Remove old installation if it exists.
+    - name: Remove old installation if it exists.
       win_file:
-        path:  "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/"
+        path: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/"
         state: absent
 
     - name: Copy winlogbeat-{{ beats_version }}-windows-x86_64.zip over to {{ ansible_host }}
@@ -29,7 +29,8 @@
         src: "C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
         dest: "C:/Program Files/"
 
-    - name:  Delete C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip
+    - name: Delete C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip
       win_file:
-        path:  "C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
+        path: "C:/winlogbeat-{{ beats_version }}-windows-x86_64.zip"
         state: absent
+...

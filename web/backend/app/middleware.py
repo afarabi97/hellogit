@@ -37,6 +37,9 @@ def get_public_key_from_kid(kid):
                 break
     return key
 
+class KeyNotFound(Exception):
+    pass
+
 class AuthMiddleware():
     '''
     Simple WSGI middleware
@@ -47,53 +50,78 @@ class AuthMiddleware():
 
     def __call__(self, environ, start_response):
         request = Request(environ)
-        user = {}
-        attributes = {
-            "uid": "single",
-            "givenName": "single",
-            "surname": "single",
-            "displayName": "single",
-            "email": "single",
-            "roles": "multi",
-            "memberOf": "multi",
-            "clientRoles": "multi",
-        }
-        if 'Authorization' in request.headers:
-            auth = request.headers['Authorization'].split(' ')
-            if auth[0] == "Bearer":
+
+        def get_authorization_type(request):
+            authorization = request.headers.get("Authorization", None)
+            if authorization:
                 try:
-                    token = auth[1]
-                    header = jwt.get_unverified_header(token)
-                except IndexError:
-                    res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
-                    return res(environ, start_response)
-                if "kid" in header:
-                    kid = header['kid']
-                    pub_key = get_public_key_from_kid(kid)
-                    if not pub_key:
-                        res = Response('Authorization failed. No public key to validate API key', mimetype=MIME_TYPE, status=401)
-                        return res(environ, start_response)
-                    public_key = pub_key['n']
-                    try:
-                        user = jwt.decode(token, public_key, algorithms='RS256')
-                        user['using_api_key'] = True
-                    except jwt.ExpiredSignatureError:
-                        # Signature has expired
-                        #logger.exception(e)
-                        res = Response('Authorization failed. API key is expired.', mimetype=MIME_TYPE, status=401)
-                        return res(environ, start_response)
-                    except Exception:
-                        # Signature has expired
-                        #logger.exception(e)
-                        res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
-                        return res(environ, start_response)
-        else:
+                    authorization_type, authorization_credentials = authorization.split(' ')
+                    return authorization_type
+                except ValueError:
+                    return None
+            else:
+                return None
+
+        def get_token(request):
+            return request.headers['Authorization'].split(' ')[1]
+
+        def get_kid_from_token(token):
+            header = jwt.get_unverified_header(token)
+            return header.get('kid', None)
+
+        def get_public_key(token):
+            kid = get_kid_from_token(token)
+            if kid:
+                public_key = get_public_key_from_kid(kid)
+                if public_key:
+                    return public_key['n']
+                else:
+                    raise KeyNotFound("No public key to validate API key.")
+            else:
+                return None
+
+        def create_user_data_from_bearer(request):
+            token = get_token(request)
+            public_key = get_public_key(token)
+            user = jwt.decode(token, public_key, algorithms='RS256')
+            user['using_api_key'] = True
+            return user
+
+        def create_user_data(request):
+            user = {}
+            attributes = {
+                "uid": "single",
+                "givenName": "single",
+                "surname": "single",
+                "displayName": "single",
+                "email": "single",
+                "roles": "multi",
+                "memberOf": "multi",
+                "clientRoles": "multi",
+            }
             for attr in attributes:
                 if attr in request.headers:
                     if attributes[attr] == "single":
                         user[attr] = request.headers[attr]
                     elif attributes[attr] == "multi":
                         user[attr] = request.headers[attr].split(";")
+            return user
+
+        if get_authorization_type(request) == "Bearer":
+            try:
+                user = create_user_data_from_bearer(request)
+            except jwt.ExpiredSignatureError:
+                res = Response('Authorization failed. API key is expired.', mimetype=MIME_TYPE, status=401)
+                return res(environ, start_response)
+            except KeyNotFound:
+                res = Response('Authorization failed. No public key to validate API key', mimetype=MIME_TYPE, status=401)
+                return res(environ, start_response)
+            except Exception:
+                res = Response('Authorization failed. See logs', mimetype=MIME_TYPE, status=401)
+                return res(environ, start_response)
+        else:
+            user = create_user_data(request)
+
         if "uid" in user and user["uid"] != "":
             environ['user'] = user
             Auth.set_current_user(user)

@@ -4,7 +4,7 @@ all:
     dhcp: true
     dhcp_start: {{ dhcp_start }}
     dhcp_end: {{ dhcp_end }}
- 
+
     luks_password: {{ luks_password }}
     root_password: {{ root_password }}
     timezone: 'UTC'
@@ -18,7 +18,7 @@ all:
 
   children:
     mips:
-      hosts: 
+      hosts:
         {% for node in nodes %}
         {{ node.hostname }}:
           ip: {{ node.ip_address }}
@@ -31,5 +31,5 @@ all:
           {%- if node.model == "NVMe" %}
           boot_drive: nvme0n1
           root_partition: 'p3'
-          {%- endif %}    
+          {%- endif %}
         {% endfor %}

@@ -2,9 +2,9 @@
 - name: Configure Winlogbeat and Run it for cold log ingest
   hosts: windows_targets
   connection: local
-  become: yes
+  become: true
   become_user: "{{ goto_user }}"
-  gather_facts: no
+  gather_facts: false
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
@@ -12,7 +12,7 @@
       win_service:
         name: winlogbeat
         state: stopped
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Remove coldlog directory on {{ ansible_host }}
       win_file:
@@ -37,20 +37,20 @@
 
     - name: Copy Winlogbeat template
       win_copy:
-        remote_src: yes
+        remote_src: true
         src: "C:/coldlog/winlogbeat.yml"
         dest: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/winlogbeat.yml"
 
     - name: Copy Certificates
       win_copy:
-        remote_src: yes
+        remote_src: true
         src: "C:/coldlog/{{ item }}"
         dest: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/{{ item }}"
       with_items:
         - "ca.crt"
         - "tls.crt"
         - "tls.key"
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Run Winlogbeat and process the logs
       win_shell: |
@@ -58,3 +58,4 @@
       args:
         chdir: "C:/Program Files/winlogbeat-{{ beats_version }}-windows-x86_64/"
       register: install_results
+...

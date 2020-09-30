@@ -7,7 +7,6 @@ import hashlib
 import os
 import requests
 import shutil
-import tarfile
 import zipfile
 
 from datetime import datetime

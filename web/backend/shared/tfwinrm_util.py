@@ -11,8 +11,6 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.inventory.manager import InventoryManager
 from ansible.vars.manager import VariableManager
 from base64 import b64encode
-from datetime import datetime, timedelta
-from enum import Enum
 from pathlib import Path
 from pypsexec.client import Client as SMBClient
 from pypsexec.exceptions import SCMRException
@@ -21,7 +19,6 @@ from shared.utils import fix_hostname
 from shared.ansible_collector import CallbackModule
 from smbprotocol.exceptions import SMBException, SMBResponseException
 from smb.SMBConnection import SMBConnection
-from time import sleep
 from typing import Tuple, Union, List, Dict
 
 
@@ -40,7 +37,7 @@ class WinrmFileNotFound(Exception):
 
 
 class WinrmCommandFailure(Exception):
-     def __init__(self, message: str, results: Dict, results_list):
+    def __init__(self, message: str, results: Dict, results_list):
         super(WinrmCommandFailure, self).__init__(message, )
         self.results = results
         self.results_list = results_list

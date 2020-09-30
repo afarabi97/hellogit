@@ -1,13 +1,10 @@
 import coverage
-import json
 import os
-import requests
 import sys
 import unittest
 import multiprocessing
 
 from requests.models import Response
-from pprint import pprint
 from time import sleep
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -16,15 +13,12 @@ sys.path.append(SCRIPT_DIR + '/../')
 
 from app.kickstart_controller import save_kickstart_to_mongo
 from app.kit_controller import _replace_kit_inventory
-from pathlib import Path
 from app.service.job_service import run_command2
 from app import conn_mng, socketio, app
-from flask_socketio import SocketIO
 from tests.integration.base_test_setup import BaseTestCase
 from tests.integration.ruleset_tests import TestRulesetController
 from tests.integration.pcap_tests import TestPcapController
 from tests.integration.cold_log_tests import TestColdLogController
-from typing import Dict, List
 
 class TestKickstartController(BaseTestCase):
 
