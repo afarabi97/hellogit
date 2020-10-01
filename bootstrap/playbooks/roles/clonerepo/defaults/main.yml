@@ -26,4 +26,4 @@ mcafee_gip_file: CPT_McAfee_Update.tar
 cpt_archive: cpt-cvah-mod.tar.gz
 mdt_archive: mdt-cvah.tar.gz
 
-download_archives: false
+download_archives: true
