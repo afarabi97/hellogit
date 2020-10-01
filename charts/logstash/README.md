@@ -22,10 +22,6 @@
             "error_message": "Enter valid number"
         },
         {
-            "type": "invisible",
-            "name": "node_hostname"
-        },        
-        {
             "type": "textinput",
             "default_value": "",
             "description": "If you have a DIP setup with a PF Sense firewall, please enter the external IP Address of that here otherwise leave it blank.",
@@ -42,6 +38,10 @@
             "regexp": "^(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]\\.)+[a-zA-Z]{2,63}$)$",
             "name": "external_fqdn",
             "error_message": "Enter valid FQDN"
+        },
+        {
+            "type": "invisible",
+            "name": "node_hostname"
         }
     ]
 }

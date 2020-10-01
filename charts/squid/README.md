@@ -5,10 +5,6 @@
     "formControls": [
         {
             "type": "invisible",
-            "name": "affinity_hostname"
-        },
-        {
-            "type": "invisible",
             "name": "node_hostname"
         }
     ]

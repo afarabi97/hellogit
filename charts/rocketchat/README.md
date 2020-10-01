@@ -4,10 +4,6 @@
     "node_affinity": "Server - Any",
     "formControls": [
         {
-          "type": "invisible",
-          "name": "node_hostname"
-        },
-        {
           "type": "textinput",
           "default_value": "admin@dip.local",
           "description": "Enter RocketChat Admin email.",
@@ -33,6 +29,10 @@
           "regexp": "",
           "name": "admin_user",
           "error_message": "Enter a value"
+        },
+        {
+          "type": "invisible",
+          "name": "node_hostname"
         }
     ]
 }

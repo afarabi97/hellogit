@@ -1,6 +1,11 @@
 {
-    "id": "redmine",
-    "type": "chart",
-    "node_affinity": "Server - Any",
-    "formControls": []
+  "id": "redmine",
+  "type": "chart",
+  "node_affinity": "Server - Any",
+  "formControls": [
+    {
+      "type": "invisible",
+      "name": "node_hostname"
+    }
+  ]
 }

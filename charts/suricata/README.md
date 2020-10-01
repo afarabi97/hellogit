@@ -54,7 +54,7 @@
       "regexp": "^\\d+$",
       "name": "suricata_threads",
       "error_message": "Enter a valid number"
-    },    
+    },
     {
       "type": "invisible",
       "name": "affinity_hostname"
