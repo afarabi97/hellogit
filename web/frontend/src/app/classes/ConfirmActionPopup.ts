@@ -48,7 +48,7 @@ export class ConfirmActionPopup {
         }
       },
       error => {
-          this.displaySnackBar(failText + ", received error: " + error);
+          this.displaySnackBar(`${failText}, received error: ${error}`);
       }
     );
   }

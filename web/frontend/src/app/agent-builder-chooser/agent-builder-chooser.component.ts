@@ -7,6 +7,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
+import { ObjectUtilsClass } from '../classes';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { COMMON_VALIDATORS } from '../frontend-constants';
 import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
@@ -67,11 +68,13 @@ export class AgentBuilderChooserComponent implements OnInit {
       const status = data as Array<Object>;
       if (status && status.length > 0){
         if (status[0]["status"] !== "DEPLOYED"){
-          this.displaySnackBar("Logstash is not in a deployed state.  Please check the system health page or try to reinstall Logstash on the catalog page.");
+          this.displaySnackBar("Logstash is not in a deployed state. Please check the system health page or try to reinstall Logstash on the catalog page.");
         }
       } else {
-        this.displaySnackBar("Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. \
-          Please go to the Catalog page and install it.  Failing to install it will cause Winlogbeats and Endgame agent data capture to Elasticsearch to fail.");
+        const message = "Before using this page, it is recommended that you install Logstash on your Kubernetes cluster. " +
+                        "Please go to the Catalog page and install it. Failing to install it will cause Winlogbeats and " +
+                        "Endgame agent data capture to Elasticsearch to fail.";
+        this.displaySnackBar(message);
       }
     });
 
@@ -82,8 +85,6 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.getSavedConfigs();
     this.getSavedTargetConfigs();
     this.socketRefresh();
-    
-    this.refreshStateChanges();
   }
 
   updateSelectedConfig(config) {
@@ -98,14 +99,12 @@ export class AgentBuilderChooserComponent implements OnInit {
     this.targetConfigs.data[index]['state']['hostList'].data = targets;
   }
 
-  toggleHostListExpansion(row, dataIndex) {
-    const expanded = row['state']['expanded'];
-    row['state']['expanded'] = !expanded;
+  toggleHostListExpansion(row) {
+    row['state']['expanded'] = !row['state']['expanded'];
   }
 
-  isHostListExpanded(row, index) {
-    const expanded = row['state']['expanded'];
-    return expanded;
+  isHostListExpanded(row) {
+    return row['state']['expanded'];
   }
 
   getHostList(hostList, paginator) {
@@ -130,10 +129,10 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   private setSavedConfigs(configs: Array<AgentInstallerConfig>) {
-      this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
-      this.configs.paginator = this.installerConfigPaginator;
-      this.config_selection = null;
-      this.ref.detectChanges();
+    this.configs = new MatTableDataSource<AgentInstallerConfig>(configs);
+    this.configs.paginator = this.installerConfigPaginator;
+    this.config_selection = null;
+    this.ref.detectChanges();
   }
 
 
@@ -149,7 +148,6 @@ export class AgentBuilderChooserComponent implements OnInit {
 
       rows.push(row);
     }
-
     const targetConfigs = new MatTableDataSource<any>(rows);
     targetConfigs.paginator = this.targetConfigPaginator;
 
@@ -159,7 +157,7 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   private socketRefresh(){
-    this.socketSrv.getSocket().on('refresh', (data: any) => {
+    this.socketSrv.getSocket().on('refresh', (_data: any) => {
       this.refreshStateChanges();
     });
   }
@@ -207,22 +205,18 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   downloadInstaller(config) {
     this.is_downloading = true;
-    this.displaySnackBar("Initiated executable download for " +
-                         config.config_name + ". Please wait until it is completed.");
+    this.displaySnackBar(`Initiated executable download for ${config.config_name}. Please wait until it is completed.`);
 
     const payload = {
-      'installer_config': config,
-      'target_config': null,
-      'windows_domain_creds': null
+      installer_config: config,
+      target_config: null,
+      windows_domain_creds: null
     };
 
     this.agentBuilderSvc.getAgentInstaller(payload).subscribe(
       installer_response => {
         try {
-          const installer_blob =
-          new Blob([installer_response], {
-            type: 'zip'
-          });
+          const installer_blob = new Blob([installer_response], { type: 'zip' });
           FileSaver.saveAs(installer_blob, 'agents.zip');
           this.displaySnackBar("Download complete. Check your Downloads directory for the file.");
         } finally {
@@ -232,7 +226,7 @@ export class AgentBuilderChooserComponent implements OnInit {
       err => {
         try {
           console.error(err);
-          const notification_text = 'Could not build agent installer: ' + err['statusText'];
+          const notification_text = `Could not build agent installer: ${err['statusText']}`;
           this.displaySnackBar(notification_text);
         } finally {
           this.is_downloading = false;
@@ -242,26 +236,21 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   execute(title, instructions, callback) {
     const username = new DialogFormControl("Domain username", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
-    const password = new DialogFormControl("Domain Password", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]), undefined, undefined, DialogControlTypes.password);
-
-    const controlsConfig = {
-      user_name: username,
-      password: password
-    };
-
+    const password = new DialogFormControl("Domain Password", '',
+                           Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]), undefined, undefined, DialogControlTypes.password);
+    const controlsConfig = { user_name: username, password: password };
     const dialogForm = this.fb.group(controlsConfig);
-
-    const dialogData = { title: title,
-                       instructions: instructions,
-                       dialogForm: dialogForm,
-                       confirmBtnText: "Execute" };
-
+    const dialogData = {
+      title: title,
+      instructions: instructions,
+      dialogForm: dialogForm,
+      confirmBtnText: "Execute"
+    };
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
       data: dialogData
     });
-
     const closed = dialogRef.afterClosed();
 
     closed.subscribe(result => {
@@ -271,6 +260,10 @@ export class AgentBuilderChooserComponent implements OnInit {
         const rawValue = form.getRawValue();
         const credentials = new WindowsCreds(rawValue);
         return callback(credentials);
+      } else {
+        // void function does nothing only used to handle code smell
+        // consistent return only used for if
+        return function(): void {};
       }
     });
 
@@ -278,10 +271,7 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   installAgents(config, target) {
     const title = "Install Windows hosts";
-    const instructions = "Executing this form will attempt to install the selected executable \
-                          configuration on all Windows hosts within your target configuration. \
-                          Are you sure you want to do this?";
-
+    const instructions = this.dialogMessage_('install');
 
     this.execute(title, instructions, credentials => {
       const payload = {
@@ -289,14 +279,13 @@ export class AgentBuilderChooserComponent implements OnInit {
         'target_config': target['config'],
         'windows_domain_creds': credentials
       };
-
       const response = this.agentBuilderSvc.installAgents(payload);
 
       response.subscribe(
         data => {
           this.displaySnackBar(data['message']);
         },
-        error => {
+        _error => {
           this.displaySnackBar("Failed initiate install task for an unknown reason.");
         }
       );
@@ -305,24 +294,21 @@ export class AgentBuilderChooserComponent implements OnInit {
 
   uninstallAgents(config, target) {
     const title = "Uninstall Windows hosts";
-    const instructions = "Executing this form will attempt to uninstall the selected executable \
-                          configuration on all Windows hosts within your target configuration. \
-                          Are you sure you want to do this?";
-
+    const instructions = this.dialogMessage_('uninstall');
 
     this.execute(title, instructions, credentials => {
       const payload = {
-        'installer_config': config,
-        'target_config': target['config'],
-        'windows_domain_creds': credentials
+        installer_config: config,
+        target_config: target['config'],
+        windows_domain_creds: credentials
       };
-
       const response = this.agentBuilderSvc.uninstallAgents(payload);
+
       response.subscribe(
         data => {
           this.displaySnackBar(data['message']);
         },
-        err => {
+        _error => {
           this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target hosts.");
         }
       );
@@ -330,25 +316,22 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   reinstallAgent(config, target, host) {
-    const title = "Reinstall Windows host " + host.hostname;
-    const instructions = "Executing this form will attempt to reinstall the selected executable \
-                          on " + host.hostname + ". \
-                          Are you sure you want to do this?";
+    const title = `Reinstall Windows host ${host.hostname}`;
+    const instructions = this.dialogMessage_('reinstall', host.hostname);
 
     this.execute(title, instructions, credentials => {
       const payload = {
-        'installer_config': config,
-        'target_config': target,
-        'windows_domain_creds': credentials
+        installer_config: config,
+        target_config: target,
+        windows_domain_creds: credentials
       };
-
       const response = this.agentBuilderSvc.reinstallAgent(payload, host);
 
       response.subscribe(
         data => {
           this.displaySnackBar(data['message']);
         },
-        error => {
+        _error => {
           this.displaySnackBar("Failed initiate reinstall on host for an unknown reason.");
         }
       );
@@ -356,16 +339,14 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   uninstallAgent(config, target, host) {
-    const title = "Uninstall Windows host " + host.hostname;
-    const instructions = "Executing this form will attempt to uninstall the selected executable \
-                          on " + host.hostname + ". \
-                          Are you sure you want to do this?";
+    const title = `Uninstall Windows host ${host.hostname}`;
+    const instructions = this.dialogMessage_('uninstall', host.hostname);
 
     this.execute(title, instructions, credentials => {
       const payload = {
-        'installer_config': config,
-        'target_config': target,
-        'windows_domain_creds': credentials
+        installer_config: config,
+        target_config: target,
+        windows_domain_creds: credentials
       };
 
       const response = this.agentBuilderSvc.uninstallAgent(payload, host);
@@ -374,7 +355,7 @@ export class AgentBuilderChooserComponent implements OnInit {
         data => {
           this.displaySnackBar(data['message']);
         },
-        err => {
+        _error => {
           this.displaySnackBar("Failed to execute uninstall action as this Agent is already uninstalled on target host.");
         }
       );
@@ -385,19 +366,23 @@ export class AgentBuilderChooserComponent implements OnInit {
     const option2 = "Confirm";
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": "Are you sure you want to delete " + config.config_name + "?",
-              "paneTitle": "Remove configuration " + config.config_name + "?", "option1": "Cancel", "option2": option2 },
+      data: {
+        paneString: `Are you sure you want to delete ${config.config_name}?`,
+        paneTitle: `Remove configuration ${config.config_name}?`,
+        option1: "Cancel",
+        option2: option2
+      },
     });
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
         this.agentBuilderSvc.deleteConfig(config['_id']).subscribe(config_list => {
           this.setSavedConfigs(config_list);
-          this.displaySnackBar(config.config_name + " was deleted successfully.");
+          this.displaySnackBar(`${config.config_name} was deleted successfully.`);
         },
-        err => {
+        error => {
           this.displaySnackBar("Failed to delete configuration.");
-          console.error("Delete config error:", err);
+          console.error("Delete config error:", error);
         });
       }
     });
@@ -407,20 +392,24 @@ export class AgentBuilderChooserComponent implements OnInit {
     const option2 = "Confirm";
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": 'Before deleting this target configuration, it is strongly advised to first do a "Batch Uninstall". '
-            + 'Please make sure all agents have been uninstalled successfully. This action cannot be undone.',
-              "paneTitle": 'Remove configuration ' + config.name + '?', "option1": "Cancel", "option2": option2 },
+      data: {
+        paneString: 'Before deleting this target configuration, it is strongly advised to first do a "Batch Uninstall". ' +
+                    'Please make sure all agents have been uninstalled successfully. This action cannot be undone.',
+        paneTitle: `Remove configuration ${config.name}?`,
+        option1: "Cancel",
+        option2: option2
+      },
     });
 
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
         this.agentBuilderSvc.deleteIpTargetList(config.name).subscribe(configs => {
           this.setTargetConfigs(configs);
-          this.displaySnackBar(config.name + " was deleted successfully.");
+          this.displaySnackBar(`${config.name} was deleted successfully.`);
         },
-        err => {
+        error => {
           this.displaySnackBar("Failed to delete target.");
-          console.error("Dete config error:", err);
+          console.error("Dete config error:", error);
         });
       }
     });
@@ -447,9 +436,9 @@ export class AgentBuilderChooserComponent implements OnInit {
             this.setSavedConfigs(configs);
             this.displaySnackBar("Saved configuration successfully.");
           },
-          err => {
-            this.displaySnackBar("Failed to save configuration.  " + err.message);
-            console.error("Save config error:", err);
+          error => {
+            this.displaySnackBar(`Failed to save configuration. ${error.message}`);
+            console.error("Save config error:", error);
           }
         );
       }
@@ -460,19 +449,21 @@ export class AgentBuilderChooserComponent implements OnInit {
     const dialogRef = this.dialog.open(AgentTargetDialogComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: { }
+      data: {}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result){
-        const name = (result as IpTargetList).name;
-        this.agentBuilderSvc.saveIpTargetList(result as IpTargetList).subscribe(configs => {
-          this.setTargetConfigs(configs);
-          this.displaySnackBar(name + " was saved successfully.");
-        }, err => {
-          this.displaySnackBar("Failed to save new configuration.");
-          console.error("Save config error:", err);
-        });
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          const name = (result as IpTargetList).name;
+          this.agentBuilderSvc.saveIpTargetList(result as IpTargetList).subscribe(configs => {
+            this.setTargetConfigs(configs);
+            this.displaySnackBar(`${name} was saved successfully.`);
+      },
+      error => {
+        this.displaySnackBar("Failed to save new configuration.");
+        console.error("Save config error:", error);
+      });
       }
     });
   }
@@ -509,10 +500,12 @@ export class AgentBuilderChooserComponent implements OnInit {
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH,
       maxHeight: DIALOG_MAX_HEIGHT,
-      data: { title: "Add new Windows hosts",
-              instructions: "Enter a Windows hostname for each line or copy and paste from a text file.",
-              dialogForm: dialogForm,
-              confirmBtnText: "Add Windows hosts" }
+      data: {
+        title: "Add new Windows hosts",
+        instructions: "Enter a Windows hostname for each line or copy and paste from a text file.",
+        dialogForm: dialogForm,
+        confirmBtnText: "Add Windows hosts"
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -523,9 +516,9 @@ export class AgentBuilderChooserComponent implements OnInit {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);
           } else {
-            let targets: Array<Host>;
-            const additionalTargets = data.targets as Array<Host>;
-            let distinct: Array<Host>;
+            const additionalTargets: Host[] = data.targets;
+            let targets: Host[] = [];
+            let distinct: Host[] = [];
 
             if (targetConfig.targets) {
               targets = targetConfig.targets;
@@ -533,7 +526,6 @@ export class AgentBuilderChooserComponent implements OnInit {
               hostList.data = distinct;
               targetConfig.targets = distinct;
             } else {
-              targets = new Array<Host>();
               hostList.data = additionalTargets;
               targetConfig.targets = additionalTargets;
             }
@@ -545,19 +537,22 @@ export class AgentBuilderChooserComponent implements OnInit {
     });
   }
 
-  isFirstHost(host: Host, host_index: number, hosts: Array<Host>) {
-    const _host_index = hosts.findIndex(_host => {
-      return _host.hostname.toLowerCase() === host.hostname.toLowerCase();
-    });
-    return _host_index === host_index;
+  isFirstHost(host: Host, hostIndex: number, hosts: Host[]) {
+    const hostIndexFromHosts: number = hosts.findIndex((h: Host) => h.hostname.toLowerCase() === host.hostname.toLowerCase());
+
+    return hostIndexFromHosts === hostIndex;
   }
 
-  openRemoveHostModal(target_config: IpTargetList, host_table: MatTable<MatTableDataSource<Host>>, host_list: MatTableDataSource<Host>, host: Host, host_index: number) {
+  openRemoveHostModal(target_config: IpTargetList, hostList: MatTableDataSource<Host>, host: Host, hostIndex: number) {
     const option2 = "Confirm";
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": 'Before deleting this ' + host.hostname + ', it is strongly advised to uninstall first. This action cannot be undone.',
-              "paneTitle": 'Remove configuration ' + host.hostname + '?', "option1": "Cancel", "option2": option2 },
+      data: {
+        paneString: `Before deleting this ${host.hostname}, it is strongly advised to uninstall first. This action cannot be undone.`,
+        paneTitle: `Remove configuration ${host.hostname}?`,
+        option1: "Cancel",
+        option2: option2
+      },
     });
 
     dialogRef.afterClosed().subscribe(response => {
@@ -568,20 +563,34 @@ export class AgentBuilderChooserComponent implements OnInit {
           } else {
             this.displaySnackBar(data.success_message);
 
-            const newHostList = host_list.data.filter((_host, index) => {
-              return index !== host_index;
-            });
+            const newHostList = hostList.data.filter((_host, index) => index !== hostIndex);
 
-            host_list.data = newHostList;
-            target_config['targets'] = newHostList;
+            hostList.data = newHostList;
+            target_config.targets = newHostList;
           }
         },
-        err => {
+        error => {
           this.displaySnackBar("Failed to delete configuration.");
-          console.error("Delete config error:", err);
+          console.error("Delete config error:", error);
         });
       }
     });
   }
 
+  /**
+   * Used for returning message used for dialog windows
+   *
+   * @private
+   * @param {string} softwareAction
+   * @param {string} [hostName]
+   * @returns {string}
+   * @memberof AgentBuilderChooserComponent
+   */
+  private dialogMessage_(softwareAction: string, hostName?: string): string {
+    const middleMessage: string = !ObjectUtilsClass.notUndefNull(hostName) ?
+      ' configuration on all Windows hosts within your target configuration. ' : ` on ${hostName}`;
+
+    return `Executing this form will attempt to ${softwareAction} the selected executable
+           ${middleMessage}. Are you sure you want to do this?`;
+  }
 }

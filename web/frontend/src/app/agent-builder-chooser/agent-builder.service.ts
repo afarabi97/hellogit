@@ -1,8 +1,7 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HttpHeaders } from '@angular/common/http';
 
 export const HTTP_OPTIONS = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -246,7 +245,7 @@ export class AgentBuilderService {
   }
 
   deleteConfig(payload) : Observable<Array<AgentInstallerConfig>> {
-    const url = '/api/delete_agent_installer_config/' + payload;
+    const url = `/api/delete_agent_installer_config/${payload}`;
     return this.http.delete(url).pipe(
       map(data => this.mapInstallConfigs(data as Array<Object>))
     );
@@ -289,7 +288,7 @@ export class AgentBuilderService {
   }
 
   deleteIpTargetList(payload: string): Observable<Array<IpTargetList>> {
-    const url = '/api/delete_agent_installer_target_list/' + payload;
+    const url = `/api/delete_agent_installer_target_list/${payload}`;
     return this.http.delete(url).pipe(
       map(data => this.mapIPTargets(data as Array<Object>))
     );

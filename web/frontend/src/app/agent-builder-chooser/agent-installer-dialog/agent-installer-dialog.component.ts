@@ -202,7 +202,7 @@ export class AgentInstallerDialogComponent implements OnInit {
     return new FormGroup(controls);
   }
 
-  private createTextinputControl(spec: ElementSpec) {
+  private createTextinputControl(spec: ElementSpec): FormControl {
     const validators = [];
     const regexp = spec['regexp'];
     const required = spec['required'];
@@ -218,8 +218,7 @@ export class AgentInstallerDialogComponent implements OnInit {
           validators.push(requiredValidator);
       }
 
-      const control = new FormControl(default_value, validators);
-      return control;
+      return new FormControl(default_value, validators);
   }
 
   private createCheckboxControl(spec: ElementSpec) {

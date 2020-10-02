@@ -34,10 +34,10 @@ export class AgentTargetDialogComponent implements OnInit {
     this.isNegOrNTLM = false;
     this.isKerberos = false;
     this.isSMB = false;
-    this.dnsInstructions = "The \"Windows DNS Suffix\" is optional. If you do not include it, you will need to use the IP address of the Windows target(s). \
-                            If you leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate \
-                            fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If add the Windows DNS suffix, \
-                            you will only need to specifiy the Windows hostnames when filling out the targets for this configuration.";
+    this.dnsInstructions = 'The \"Windows DNS Suffix\" is optional. If you do not include it, you will need to use the IP address of the Windows target(s). ' +
+                           'If you leave out the \"Windows DNS Suffix\" you will need to make sure each host you enter has the appropriate ' +
+                           'fully qualified domain name with the suffix attached (EX: <Windows hostname>.<DNS suffix>).  If add the Windows DNS suffix, ' +
+                           'you will only need to specifiy the Windows hostnames when filling out the targets for this configuration.';
   }
 
   onNoClick(): void {

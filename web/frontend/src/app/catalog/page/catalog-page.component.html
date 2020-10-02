@@ -28,13 +28,13 @@
                             id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-mat-form-field-process-mat-select-mat-option-' + i }}" [value]="process.process">{{process.name}}</mat-option>
               </mat-select>
             </mat-form-field>
-            <div *ngIf="chart?.node_affinity !== 'Server - Any'">
+            <div *ngIf="chart?.node_affinity !== serverAnyValue">
               <h5>Node Selection</h5>
               <!-- Node Selection -->
               <mat-form-field id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node">
                 <mat-label>Select A Node</mat-label>
-                <mat-select id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
-                            (selectionChange)="getConfig(stepper, false)" formControlName="selectedNodes" multiple required>
+                <mat-select #matSelectNode id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
+                            (selectionChange)="getConfig(stepper, matSelectNode)" formControlName="selectedNodes" multiple required>
                   <mat-option *ngFor="let node of filterByInput(processFormGroup.value.selectedProcess); let j = index;"
                               id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-' + j }}"
                               [value]="node">{{node.hostname}}</mat-option>
@@ -66,7 +66,7 @@
                         <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
                                matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                         <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                       </mat-form-field>
                     </div>
                     <!-- checkbox -->
@@ -93,7 +93,7 @@
                           <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                           <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                         </mat-form-field>
                       </div>
                     </div>
@@ -119,7 +119,7 @@
                         <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-input' }}"
                                matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                         <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                       </mat-form-field>
                     </div>
                   </div>
@@ -152,14 +152,18 @@
       <button mat-button id="app-catalog-page-div-mat-card-div-button-back"
               color="warn" style="margin-right: 10px;" (click)="goBack(stepper)" [disabled]="stepper.selectedIndex === 0">Back</button>
       <button mat-button *ngIf="stepper.selectedIndex === 0"
-              id="app-catalog-page-div-mat-card-div-button-next" color="primary" (click)="goForward(stepper)"
+              id="app-catalog-page-div-mat-card-div-button-next" color="primary" style="margin-right: 10px;" (click)="goForward(stepper)"
               [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
       <button mat-button *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 1 ))"
-              id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" (click)="getConfig(stepper)" [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
-      <button mat-button color="primary" *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
-              id="app-catalog-page-div-mat-card-div-button-next-get-values" (click)="getValues(stepper)" [disabled]="(configFormGroup.invalid)">Next</button>
+              id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="getConfig(stepper)"
+              [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
+      <button mat-button *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
+              id="app-catalog-page-div-mat-card-div-button-next-get-values" color="primary" style="margin-right: 10px;"
+              (click)="getValues(stepper)" [disabled]="(configFormGroup.invalid)">Next</button>
       <button mat-raised-button *ngIf="stepper.selectedIndex === 3 || processFormGroup.value.selectedProcess === 'uninstall'"
-              id="app-catalog-page-div-mat-card-div-button-run" color="primary" (click)="runChart(stepper)" [disabled]="valueFormGroup.invalid">Run</button>
+              id="app-catalog-page-div-mat-card-div-button-run" color="primary" style="margin-right: 10px;" (click)="runChart(stepper)"
+              [disabled]="valueFormGroup.invalid">Run</button>
+      <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
     </div>
   </mat-card>
 </div>

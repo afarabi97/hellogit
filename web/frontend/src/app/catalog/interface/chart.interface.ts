@@ -77,4 +77,4 @@ export interface INodeInfo {
   node_type: string;
   process_list?: Array<any>;
   appVersion: string;
-};
+}

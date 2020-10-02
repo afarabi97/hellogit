@@ -36,12 +36,7 @@ export class ElasticEditorComponent implements AfterViewInit {
   }
 
   private resizeEditor(){
-    let height = "";
-    if (window.innerHeight > 400){
-      height = (window.innerHeight - 130) + "px";
-    } else {
-      height = "100px";
-    }
+    const height = `${window.innerHeight > 400 ? window.innerHeight - 130 : '100'}px`;
     this.outerCard.nativeElement.style.maxHeight = height;
     this.outerCard.nativeElement.style.height = height;
   }
@@ -58,7 +53,9 @@ export class ElasticEditorComponent implements AfterViewInit {
   }
 
   openSaveDialog(){
-    const confirmText = 'Are you sure you want to save this configuration? Doing so will update the Elasticsearch configuration and may cause interuption to services for a few minutes.';
+    const confirmText = 'Are you sure you want to save this configuration? ' +
+                        'Doing so will update the Elasticsearch configuration ' +
+                        'and may cause interuption to services for a few minutes.';
 
     this.confirmer.confirmAction(
       "Close and save",

@@ -1,12 +1,15 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { MatDialog, MatSelect, MatSnackBar } from '@angular/material';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
+import { NodeClass, ObjectUtilsClass, StatusClass } from '../../classes';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { ChartInfo, INodeInfo } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
+import { PROCESS_LIST, DEPLOYED, UNKNOWN, INSTALL, REINSTALL, UNINSTALL } from '../constants/catalog.constants';
+import { ProcessInterface } from '../interface';
 
 @Component({
   selector: 'app-catalog-page',
@@ -17,25 +20,26 @@ import { CatalogService } from '../services/catalog.service';
   }
 })
 export class CatalogPageComponent implements OnInit, AfterViewInit {
+  readonly serverAnyValue = 'Server - Any';
   processFormGroup: FormGroup;
   configFormGroup: FormGroup;
   valueFormGroup: FormGroup;
-  nodeList: INodeInfo[] = [];
+  nodeList: NodeClass[] = [];
   isReady: boolean;
   isLoading: boolean;
-  processList: any[] = [];
+  processList: ProcessInterface[] = PROCESS_LIST;
   chart: ChartInfo;
-  nodes: any;
+  nodes: NodeClass[];
   isAdvance: boolean;
   content: any;
   savedValues: any;
-  statuses: any;
+  statuses: StatusClass[];
   configArray: any[] = [];
   kafkaArray: any[] = [];
   cortexDisable: boolean;
   mispDisable: boolean;
   hiveDisable: boolean;
-  gip_number: number;
+  gip_number: string;
 
   /**
    *Creates an instance of CatalogPageComponent.
@@ -76,34 +80,17 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   ngOnInit() {
     if(this._CatalogService.chart === undefined) {
-      this.router.navigate(['/catalog']);
+      this.navigateToCatalog();
     } else {
       this.chart = this._CatalogService.chart;
-      this.processList = [
-      {
-        "process": "install",
-        "name": "Install",
-        "children": []
-
-      },
-      {
-        "process":"uninstall",
-        "name": "Uninstall",
-        "children": []
-      },
-      {
-        "process":"reinstall",
-        "name": "Reinstall",
-        "children": []
-      }];
       this.isDevDependent();
 
-      this._CatalogService.getByString("chart/" + this.chart.id + "/status").subscribe(statusGroup => {
+      this._CatalogService.getByString(`chart/${this.chart.id}/status`).subscribe((statusGroup: StatusClass[]) => {
         this.statuses = statusGroup;
-          this.manageState();
+        this.manageState_();
       });
 
-      this._CatalogService.getByString(this.chart.id + "/saved_values").subscribe(values => {
+      this._CatalogService.getByString(`${this.chart.id}/saved_values`).subscribe(values => {
         this.savedValues = values.length !== 0 ? values : null;
       });
 
@@ -123,19 +110,27 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Used for naviagting router back to catalog page
+   *
+   * @memberof CatalogPageComponent
+   */
+  navigateToCatalog(): void {
+    this.router.navigate(['/catalog']);
+  }
+
+  /**
    * checks to see if there is a dependent on the chart (ie need another chart installed first to work)
    *
    * @memberof CatalogPageComponent
    */
   isDevDependent() {
     if(this.chart.devDependent) {
-      this._CatalogService.getByString("chart/" + this.chart.devDependent + "/status").subscribe(status => {
+      this._CatalogService.getByString(`chart/${this.chart.devDependent}/status`).subscribe(status => {
         if(status.length === 0 ) {
-          const message = "This chart is dependent on " + this.chart.devDependent + " and it is not installed, are you sure you want to continue.";
-          const title = this.chart.id + " is dependent on " + this.chart.devDependent;
+          const message = `This chart is dependent on ${this.chart.devDependent} and it is not installed, are you sure you want to continue.`;
+          const title = `${this.chart.id} is dependent on ${this.chart.devDependent}`;
           const option1 = "Take Me Back";
           const option2 = "Continue ";
-
           const dialogRef = this.dialog.open(ConfirmDailogComponent, {
             width: '35%',
             data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
@@ -143,7 +138,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
 
           dialogRef.afterClosed().subscribe(result => {
             if( result === option1) {
-              this.router.navigate(['/catalog']);
+              this.navigateToCatalog();
             }
           });
         }
@@ -170,55 +165,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   AdvanceConfiguration(sensor) {
-    this.valueFormGroup.controls[sensor.deployment_name].disabled ? this.valueFormGroup.controls[sensor.deployment_name].enable() : this.valueFormGroup.controls[sensor.deployment_name].disable();
-  }
-
-  /**
-   * manages the state of the nodes
-   * probably a better way to do this but since micah keeps change
-   * it up on me i stopped refactoring and just made it work
-   * @param {INodeInfo} node
-   * @returns
-   * @memberof CatalogPageComponent
-   */
-  manageState(): void {
-    this._CatalogService.getNodes().subscribe(nodes => {
-      this.nodes = nodes;
-      this.nodes.map( node => {
-        this.statuses.map( status => {
-          if ( node.hostname === status.hostname) {
-            node.status = status;
-          }
-        });
-          if( (this.chart.node_affinity === node.node_type)) {
-            const status = node.status ? node.status.status : undefined;
-            switch(status) {
-              case 'DEPLOYED':
-                this.processList.map( process => {
-                  switch(process.process) {
-                    case 'reinstall':
-                      process.children.push(node);
-                      break;
-                    case 'uninstall':
-                      process.children.push(node);
-                      break;
-                  }
-                });
-                break;
-              case 'UNKNOWN':
-              case undefined:
-                this.processList.map( process => {
-                  switch(process.process) {
-                    case 'install':
-                      process.children.push(node);
-                      break;
-                  }
-                });
-                break;
-            }
-        }
-      });
-    });
+    this.valueFormGroup.controls[sensor.deployment_name].disabled ?
+                                   this.valueFormGroup.controls[sensor.deployment_name].enable() :
+                                   this.valueFormGroup.controls[sensor.deployment_name].disable();
   }
 
   /**
@@ -228,12 +177,13 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @returns
    * @memberof CatalogPageComponent
    */
-  filterByInput(input) {
-    this.processList.map(process => {
-      if (process.process === input) {
-        this.nodeList = process.children;
+  filterByInput(selectedProcess: string) {
+    this.processList.forEach((p: ProcessInterface) => {
+      if (p.process === selectedProcess) {
+        this.nodeList = p.children;
       }
     });
+
     return this.nodeList;
   }
 
@@ -263,13 +213,16 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @param {MatStepper} stepper
    * @memberof CatalogPageComponent
    */
-  getConfig(stepper: MatStepper) {
+  getConfig(stepper: MatStepper, matSelect?: MatSelect) {
     this.serverAny();
-    this.configReady();
-    if (this.isReady === true ) {
-      this.makeFormgroup(stepper);
+    if (this.configReady()) {
+      if (ObjectUtilsClass.notUndefNull(matSelect)) {
+        matSelect.close();
+        this.makeFormgroup(stepper);
+      } else {
+        this.makeFormgroup(stepper);
+      }
     }
-
   }
 
   /**
@@ -278,7 +231,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   serverAny() {
-    if(this.chart.node_affinity === "Server - Any") {
+    if(this.chart.node_affinity === this.serverAnyValue) {
       this.nodes.map( node => {
         if (node.is_master_server === true) {
           node.hostname = "server";
@@ -299,8 +252,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   getValues(stepper: MatStepper) {
     this.getValuesFile();
-    //TODO: dirty fix, need something better
-    setTimeout(function(){ stepper.next();}, 1000);
+    const callBackFunction: () => void = function(): void {
+                                          stepper.next();
+                                        };
+    // TODO - dirty fix, need something better
+    setTimeout(callBackFunction, 1000);
   }
 
   /**
@@ -329,7 +285,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     if(this.savedValues !== null) {
       this.savedValues.map( values => {
         this.processFormGroup.value.selectedNodes.map( nodes => {
-          if (values.values.node_hostname === nodes.hostname || this.chart.node_affinity === "Server - Any") {
+          if (values.values.node_hostname === nodes.hostname || this.chart.node_affinity === this.serverAnyValue) {
             this.compareValues();
           } else {
             this.getValuesCall();
@@ -378,7 +334,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
               (configs[nodes.hostname].node_hostname === deployments.values.node_hostname &&
               deployments.values.node_hostname === nodes.hostname &&
               nodes.hostname === configs[nodes.hostname].node_hostname ))
-              || this.chart.node_affinity === "Server - Any") {
+              || this.chart.node_affinity === this.serverAnyValue) {
             const savedObj = deployments.values;
             const configObj = configs[nodes.hostname];
             const ob = Object.assign({}, savedObj, configObj);
@@ -456,36 +412,24 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   runChart() {
-    let valueArray;
     switch (this.processFormGroup.value.selectedProcess) {
       case 'install':
-        valueArray = this.makeValueArray();
-        this._CatalogService.installHelm(this.chart.id, this.processFormGroup.value, valueArray).subscribe(data => {
-          this.snackBar.open(this.chart.id +  " Installation Queued", 'OK', {
-            duration: 5000,
-          });
-        });
+        this._CatalogService.installHelm(this.chart.id, this.processFormGroup.value, this.makeValueArray())
+          .subscribe(_data => this.snackBar.open(`${this.chart.id} Installation Queued`, 'OK', { duration: 5000 }));
         break;
       case 'uninstall':
         this.serverAny();
         this.addDeploymentName();
-        this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.value).subscribe(data => {
-          this.snackBar.open(this.chart.id +  " Deletetion Queued", 'OK', {
-            duration: 5000,
-          });
-        });
+        this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.value)
+          .subscribe(_data => this.snackBar.open(`${this.chart.id} Deletetion Queued`, 'OK', { duration: 5000 }));
         break;
       case 'reinstall':
-        valueArray = this.makeValueArray();
-        this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.value, valueArray).subscribe(data => {
-          this.snackBar.open( this.chart.id +  " Reinstallation Queued", 'OK', {
-            duration: 5000,
-          });
-        });
+        this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.value, this.makeValueArray())
+          .subscribe(_data => this.snackBar.open(`${this.chart.id} Reinstallation Queued`, 'OK', { duration: 5000 }));
         break;
       default:
     }
-    this.router.navigate(['/catalog']);
+    this.navigateToCatalog();
     this._CatalogService.isLoading = false;
   }
 
@@ -498,21 +442,19 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   makeValueArray(): Array<any> {
     this.processFormGroup.controls['node_affinity'].setValue(this.chart.node_affinity);
-    this.processFormGroup.value.selectedNodes.map(nodes => {
-      this.valueFormGroup.controls[nodes.deployment_name].disable();
-      const hostname_ctrl = this.valueFormGroup.controls[nodes.deployment_name] as FormGroup;
-      const value = hostname_ctrl.value;
-      this.valueFormGroup.controls[nodes.deployment_name].setValue(JSON.parse(value));
+    this.processFormGroup.value.selectedNodes.map((node: NodeClass) => {
+      this.valueFormGroup.controls[node.deployment_name].disable();
+      const hostname_ctrl: Object = this.valueFormGroup.controls[node.deployment_name].value;
+      this.valueFormGroup.controls[node.deployment_name].setValue(JSON.parse(hostname_ctrl.toString()));
     });
 
-    const valueArray = [];
-    Object.keys(this.valueFormGroup.value).map( key => {
+    return Object.keys(this.valueFormGroup.value).map( key => {
       const deployment_name = this.valueFormGroup.value[key];
       const object = {};
       object[key] = deployment_name;
-      valueArray.push(object);
+
+      return object;
     });
-    return valueArray;
   }
 
 
@@ -540,46 +482,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   initConfigFormControl(hostname: string, value?: FormGroup): FormGroup {
-    const nodeControls = this._formBuilder.group({});
+    const nodeControls: FormGroup = this._formBuilder.group({});
     if (this.chart.formControls) {
       this.chart.formControls.map( control => {
-        if (control.type === "textinput") {
-          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
-            control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
-            control.required ? Validators.required : Validators.nullValidator])));
-        } else if (control.type ==="textinputlist") {
-
-          if(value === undefined || typeof value[control.name] === "string") {
-            nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value, Validators.compose([
-              control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
-              control.required ? Validators.required : Validators.nullValidator])));
-          } else {
-            const strValue = JSON.stringify(value[control.name]);
-            nodeControls.addControl(control.name, new FormControl( value ? strValue : control.default_value, Validators.compose([
-              control.regexp !== null ? Validators.pattern(control.regexp) : Validators.nullValidator,
-              control.required ? Validators.required : Validators.nullValidator])));
-          }
-
-        } else if (control.type === "invisible") {
-          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : hostname));
-        } else if (control.type === "checkbox") {
-          nodeControls.addControl(control.name, new FormControl( value ? value[control.name] : control.default_value));
-        } else if (control.type === "interface") {
-          nodeControls.addControl(control.name, new FormControl([]));
-          if(value) {
-            nodeControls.controls[control.name].setValue(value[control.name], {onlySelf: true});
-          }
-        } else if (control.type === "kafka-cluster-cluster") {
-          const strValue = JSON.stringify(this.kafkaArray);
-          nodeControls.addControl(control.name, new FormControl( strValue ));
-        } else if (control.type === "cortex-checkbox") {
-            nodeControls.addControl(control.name, new FormControl( { value: !this.cortexDisable, disabled: this.cortexDisable} ));
-        } else if (control.type === "misp-checkbox") {
-            nodeControls.addControl(control.name, new FormControl( { value: !this.mispDisable, disabled: this.mispDisable} ));
-        } else {
-          nodeControls.addControl(control.name, new FormControl([]));
-        }
-
+        nodeControls.addControl(control.name, this.getFormControl_(control, hostname, value));
       });
     }
     const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname, value);
@@ -593,14 +499,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   }
 
   setupKafkaArray() {
-    let kafkaValues;
     const array = [];
 
     this._CatalogService.getByString("zeek/saved_values").subscribe(values => {
-      kafkaValues = values.length !== 0 ? values : null;
       if(values !== null) {
         values.map( value => {
-          const val = value.deployment_name + ".default.svc.cluster.local:9092";
+          const val = `${value.deployment_name}.default.svc.cluster.local:9092`;
           array.push(val);
         });
       }
@@ -650,14 +554,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   makeRegexGreatAgain(application: string, node_hostname: string, value?: any): string {
     const new_hostname = node_hostname.split('.')[0];
-    let deployment_name;
-    this.chart.node_affinity === "Server - Any" ? deployment_name = application : deployment_name = new_hostname + '-' + application;
-    if( value !== undefined) {
-      return value.deployment_name !== deployment_name ? value.deployment_name : deployment_name;
-    } else {
-      return deployment_name;
-    }
-    // return deployment_name;
+    const deployment_name = this.chart.node_affinity === this.serverAnyValue ? application : `${new_hostname}-${application}`;
+
+    return ObjectUtilsClass.notUndefNull(value) && value.deployment_name !== deployment_name ?
+             value.deployment_name : deployment_name;
   }
 
   /**
@@ -667,22 +567,20 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   configReady(): boolean {
-    if ((this.processFormGroup.value.selectedProcess === 'install' || this.processFormGroup.value.selectedProcess === 'reinstall') && (this.processFormGroup.value.selectedNodes.length !== 0 || this.chart.node_affinity === "Server - Any") ) {
-      return this.isReady = true;
-    } else {
-      return this.isReady = false;
-    }
+    this.isReady = (this.processFormGroup.value.selectedProcess === 'install' || this.processFormGroup.value.selectedProcess === 'reinstall') &&
+                   (this.processFormGroup.value.selectedNodes.length !== 0 || this.chart.node_affinity === this.serverAnyValue);
+
+    return this.isReady;
   }
 
   /**
    * Gets the error message of the control
    *
    * @param {*} control
-   * @param {string} hostname
    * @returns {string}
    * @memberof CatalogPageComponent
    */
-  getErrorMessage(control, hostname: string): string {
+  getErrorMessage(control): string {
     return control.error_message;
   }
 
@@ -713,5 +611,95 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     } else {
       controlValue.setValue(control.falseValue);
     }
+  }
+
+  /**
+   * Used for setting the install, reinstall, uninstall capability for an application
+   *
+   * @private
+   * @memberof CatalogPageComponent
+   */
+  private manageState_(): void {
+    this._CatalogService.getNodes().subscribe((nodes: NodeClass[]) => {
+      this.nodes = nodes;
+      let status: string;
+      this.nodes.forEach((node: NodeClass) => {
+        this.statuses.forEach((sc: StatusClass) => {
+          if (node.hostname === sc.hostname || node.hostname.includes(sc.hostname)) {
+            node.status = sc;
+          } else {
+            node.status = undefined;
+          }
+        });
+        if ((this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue)) &&
+            !ObjectUtilsClass.notUndefNull(status)) {
+          status = ObjectUtilsClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;
+          switch(status) {
+            case DEPLOYED:
+              this.processList = this.processList.filter((p: ProcessInterface) => p.process !== INSTALL)
+                                                 .map((p: ProcessInterface) => {
+                                                   p.children = [];
+                                                   p.children.push(node);
+                                                   return p;
+                                                 });
+              break;
+            case UNKNOWN:
+            default:
+              this.processList = this.processList.filter((p: ProcessInterface) => p.process !== REINSTALL)
+                                                 .filter((p: ProcessInterface) => p.process !== UNINSTALL)
+                                                 .map((p: ProcessInterface) => {
+                                                   p.children = [];
+                                                   p.children.push(node);
+                                                   return p;
+                                                 });
+              break;
+          }
+        }
+      });
+    });
+  }
+
+  private getFormControl_(control, hostname: string, value?: FormGroup): FormControl {
+    switch (control.type) {
+      case 'textinput':
+        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
+                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value, this.getValidators_(control));
+      case 'textinputlist':
+        if (value === undefined || typeof value[control.name] === "string") {
+          return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
+                                 ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value, this.getValidators_(control));
+        } else {
+          return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
+                                 ObjectUtilsClass.notUndefNull(value[control.name]) ? JSON.stringify(value[control.name]) : control.default_value, this.getValidators_(control));
+        }
+      case 'invisible':
+        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
+                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : hostname);
+      case 'checkbox':
+        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
+                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value);
+      case 'interface':
+        const formControl: FormControl = new FormControl([]);
+        if (ObjectUtilsClass.notUndefNull(value) &&
+            ObjectUtilsClass.notUndefNull(value[control.name])) {
+          formControl.setValue(value[control.name], { onlySelf: true } );
+        }
+        return formControl;
+      case 'kafka-cluster-cluster':
+        return new FormControl(JSON.stringify(this.kafkaArray));
+      case 'cortex-checkbox':
+        return new FormControl({ value: !this.cortexDisable, disabled: this.cortexDisable });
+      case 'misp-checkbox':
+        return new FormControl({ value: !this.mispDisable, disabled: this.mispDisable });
+      default:
+        return new FormControl([]);
+    }
+  }
+
+  private getValidators_(control): ValidatorFn {
+    return Validators.compose([
+      ObjectUtilsClass.notUndefNull(control.regexp) ? Validators.pattern(control.regexp) : Validators.nullValidator,
+      control.required ? Validators.required : Validators.nullValidator
+    ]);
   }
 }

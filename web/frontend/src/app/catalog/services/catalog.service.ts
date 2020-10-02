@@ -1,13 +1,14 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
+import { NodeClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
+import { NodeInterface } from '../../interfaces';
 import { ApiService, EntityConfig } from '../../services/tfplenum.service';
 
 export const config: EntityConfig = { entityPart: 'catalog/', type: 'Catalog' };
-
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
@@ -34,13 +35,13 @@ export class CatalogService extends ApiService<any> {
   /**
    * Return a single entity by Id
    * @param {number} id
-   * @returns {Observable<T>}
+   * @returns {Observable<NodeClass[]>}
    */
-  getNodes(): Observable<Object> {
+  getNodes(): Observable<NodeClass[]> {
     const url = "/api/nodes";
-    return this._http.get<Object>(url).pipe(
-      catchError(error => this.handleError(url, error))
-    );
+    return this._http.get<NodeInterface[]>(url)
+                     .pipe(map((response: NodeInterface[]) => response.map((n: NodeInterface) => new NodeClass(n))),
+                           catchError(error => this.handleError(url, error)));
   }
 
   getValuesFile(role, process, configsArray ): Observable<Object>{
@@ -61,6 +62,7 @@ export class CatalogService extends ApiService<any> {
   installHelm(role, process, values): Observable<Object>{
     const url = '/api/catalog/install';
     const payload = { role: role, process: process, values: values };
+    console.log('payload: ', payload)
       return this._http.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
@@ -95,7 +97,7 @@ export class CatalogService extends ApiService<any> {
   }
 
   getinstalledapps(hostname): Observable<Object>{
-    const url = '/api/catalog/' + hostname + '/apps';
+    const url = `/api/catalog/${hostname}/apps`;
     return this._http.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );

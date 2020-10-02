@@ -25,9 +25,9 @@ export class ChartListComponent{
    * @memberof ChartListComponent
    */
   onSelectCard(chart: Chart) {
-    this._CatalogService.getByString("chart/" + chart.application + "/info" ).subscribe(data => {
+    this._CatalogService.getByString(`chart/${chart.application}/info`).subscribe(data => {
       this._CatalogService.chart = data;
-      this.router.navigate(['/application/' + chart.application]);
+      this.router.navigate([`/application/${chart.application}`]);
     });
   }
 
