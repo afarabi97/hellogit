@@ -11,7 +11,7 @@ Export GIP Service VM:
     --cpt-export-path "$GIP_EXPORT_LOC" \
     --mdt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" 
+    --export-version "$TFPLENUM_EXPORT_VERSION"
   only:
     variables:
       - $PIPELINE == "export-gip-service"

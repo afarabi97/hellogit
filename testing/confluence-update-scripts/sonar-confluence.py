@@ -1,21 +1,18 @@
 # coding: utf-8
 import argparse
-import getpass
 import datetime
 import json
-import keyring
 import requests
 import lxml.html
-import sys, os
+import sys, os, io
 import re
-import pandas as pd
 from datetime import datetime
 from lxml.html import HtmlElement
 from typing import List
 import base64
 
-# Globals
-
+# Globals:
+page_server = "https://confluence.di2e.net"
 BASE_URL = "/rest/api/content"
 VIEW_URL = "/pages/viewpage.action?pageId="
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36"
@@ -23,26 +20,31 @@ CONTENT_TYPE = "application/json"
 date = datetime.now()
 current_date = date.today().strftime("%m/%d/%Y")
 current_time = date.today().strftime("%H:%M:%S")
+
+# Args:
 input_username = str(sys.argv[2])
-input_password = sys.argv[4] #change input_password to = str(sys.argv[4]) if using text-based password;
-                             #else leave as sys.argv[4]
+input_password = sys.argv[4] #change input_password to = str(sys.argv[4]) if only using text-based password;
+                             #else leave as sys.argv[4] because 'str' will not apply to base64 encoded input that it expects
+                             #further below in get_login() function.
 branch_name = str(sys.argv[6])
 sonar_link = str(sys.argv[8])
 quality_gate_status = str(sys.argv[10])
 total_scan_time = str(sys.argv[12])
 project_Key = str(sys.argv[14])
+screen_shot = str(sys.argv[16])
 
-DEVEL_PAGE_ID = 849576805 #<-Keep this static; refers to Confluence page with table
-MASTER_PAGE_ID = 853279989 #<-Keep this static; refers to Confluence page with table
-FEATURE_PAGE_ID = 853280003 #<-Keep this static; refers to Confluence page with table
+# Confluence Page ID; Keep these static; refers to Confluence page with table:
+devel_page_id = 849576805
+master_page_id = 853279989
+feature_page_id = 853280003
 
-def return_branch(branch_name):
+def return_pageid(branch_name):
     if re.match('devel', branch_name):
-        return DEVEL_PAGE_ID
+        return devel_page_id
     elif re.match('master', branch_name):
-        return MASTER_PAGE_ID
+        return master_page_id
     else:
-        return FEATURE_PAGE_ID
+        return feature_page_id
 
 def b64decode_string(input_password):
     ret_val = base64.b64decode(input_password.encode())
@@ -60,9 +62,7 @@ def get_page_ancestors(auth, page_id, server):
     )
         return r.json()["ancestors"]
     except Exception as e:
-        print("No Page Ancestors: ", e)
         sys.exit(0)
-
 
 def get_page_info(auth, page_id, server):
     url = "{server}{base}/{page_id}".format(
@@ -76,10 +76,7 @@ def get_page_info(auth, page_id, server):
     )
         return r.json()
     except Exception as e:
-        print("No Page: ", e)
         sys.exit(0)
-
-
 
 def convert_db_to_view(auth2, html, server):
     url = "{server}/rest/api/contentbody/convert/view".format(server=server)
@@ -93,9 +90,7 @@ def convert_db_to_view(auth2, html, server):
     )
         return r.json()
     except Exception as e:
-        print("Can't Convert page to dbview: ", e)
         sys.exit(0)
-
 
 def convert_view_to_db(auth2, html, server):
     url = "{server}/rest/api/contentbody/convert/storage".format(server=server)
@@ -105,13 +100,11 @@ def convert_view_to_db(auth2, html, server):
         url,
         data=json.dumps(data2),
         auth=auth2,
-        headers={"Content-Type": CONTENT_TYPE},
+        headers={"Content-Type": CONTENT_TYPE}
     )
         return r.json()
     except Exception as e:
-        print("Can't Convert view to db: ", e)
         sys.exit(0)
-
 
 def write_data(auth, html, page_id, server):
     try:
@@ -136,12 +129,9 @@ def write_data(auth, html, page_id, server):
         )
         our_headers = {"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT}
         r = requests.put(url, data=data, auth=auth, headers=our_headers)
-        print("Visit scan results: https://confluence.di2e.net/pages/viewpage.action?pageId=%d" % (page_id))
         return r
     except Exception as e:
-        print("Unable to write data to page: ", e)
         sys.exit(0)
-
 
 def read_data(auth, page_id, server):
     url = "{server}{base}/{page_id}?expand=body.storage".format(
@@ -155,11 +145,17 @@ def read_data(auth, page_id, server):
     )
         return r
     except Exception as e:
-        print("Unable to read data: ", e)
         sys.exit(0)
 
+def get_pic_file_name(filename):
+     fn = os.path.basename(filename)
+     return fn
 
 def patch_html2(auth, options):
+    page_id = return_pageid(branch_name)
+    server = globals()['page_server']
+    info = get_page_info(auth, page_id, server)
+    page_title = info["title"]
     json_text = read_data(auth, options.page_id, options.server).text
     json2 = json.loads(json_text)
     html_storage_txt = json2["body"]["storage"]["value"]
@@ -172,14 +168,18 @@ def patch_html2(auth, options):
     quality_gate = globals()["quality_gate_status"]
     tot_scan_time = globals()["total_scan_time"]
     pkey = globals()["project_Key"]
-    my_custom_row = f"""<tr role="row">
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{date}</td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{time}</td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{branch}</td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{pkey}</td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;"><a class="external-link" href="{link}" rel="nofollow">{link}</a></td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{quality_gate}</td>
-        <td class="confluenceTd" style="text-align: center;" colspan="1" data-mce-style="text-align: center;">{tot_scan_time}</td>
+    scan_pic_name = get_pic_file_name(globals()['screen_shot'])
+    my_custom_row = f"""<tr>
+        <td colspan="1" style="text-align: center;">{date}</td>
+        <td colspan="1" style="text-align: center;">{time}</td>
+        <td colspan="1" style="text-align: center;">{branch}</td>
+        <td colspan="1" style="text-align: center;">{pkey}</td>
+        <td colspan="1" style="text-align: center;"><a class="external-link" href="{link}" rel="nofollow">{link}</a></td>
+        <td colspan="1" style="text-align: center;">{quality_gate}</td>
+        <td colspan="1" style="text-align: center;">{tot_scan_time}</td>
+        <td colspan="1" style="text-align: center;" class="confluenceTd">
+        <div class="content-wrapper"><p><img height="250" src="/download/attachments/{page_id}/{scan_pic_name}" 
+        data-image-height="393" data-image-width="611"></p></div></td>
         </tr>"""
 
     new_row = lxml.html.fromstring(my_custom_row)
@@ -188,6 +188,19 @@ def patch_html2(auth, options):
     json2["body"]["storage"]["value"] = html_string
     write_data(auth, json2["body"]["storage"]["value"], options.page_id, options.server)
 
+def upload_image(auth):
+    pg_id = return_pageid(globals()['branch_name'])
+    img = globals()['screen_shot']
+    url = "{server}{base}/{page_id}".format(
+        server=globals()['page_server'], base=globals()['BASE_URL'], page_id= pg_id
+    ) + '/child/attachment'
+    headers = {"X-Atlassian-Token": "nocheck"}
+    content_type = 'image/jpeg'
+    files = {'file': (img, open(img, 'rb'),content_type)} #assumes file is in same dir
+    try:
+        r = requests.post(url, headers=headers, files=files, auth=auth)
+    except Exception as e:
+        sys.exit(0)
 
 def get_login():
     username = globals()["input_username"]
@@ -223,7 +236,7 @@ def main():
         "-pg",
         "--page-id",
         dest="page_id",
-        default=return_branch(branch_name),
+        default=return_pageid(branch_name),
         required=False,
         type=int,
         help="Specify the Confluence page ID to Write onto; Found on address-bar, when on confluence page edit"
@@ -273,12 +286,21 @@ def main():
         type=str,
         help="Project Key"
     )
+    parser.add_argument(
+        "-ss",
+        "--screen-shot",
+        dest="screen_shot",
+        default="",
+        required=True,
+        type=str,
+        help="Screenshot to upload"
+    )
     options = parser.parse_args()
     if options.server.endswith("/"):
         options.server = options.server[:-1]
     auth = get_login()
+    upload_image(auth)
     patch_html2(auth, options)
-
 
 if __name__ == "__main__":
     main()

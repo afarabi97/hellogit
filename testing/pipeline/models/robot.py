@@ -71,6 +71,7 @@ class RobotSettings(Model):
         self._get_model_settings_from_yaml()
 
 
+
     def _get_model_settings_from_yaml(self):
         if self.system_name == 'DIP':
             self.model_settings = YamlManager.load_ctrl_settings_from_yaml(self.system_name)
@@ -108,3 +109,5 @@ class RobotSettings(Model):
         # 5.    Calculated Variables That Are Necessary To Run Robot on a specific machine
         self.command += f"-v HOST:{self.ipaddress} -v HOST_USERNAME:{self.username} -v HOST_PASSWORD:{self.password} "
         # 6.    TODO: All the variables passed to robot framework via gitlab
+
+        print("COMMAND:", self.command)

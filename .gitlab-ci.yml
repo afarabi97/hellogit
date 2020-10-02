@@ -194,6 +194,7 @@ variables:
 
 stages:
   - code-analysis
+  - publish-to-confluence
   - clean-staging-env
   - build
   - docs
@@ -230,6 +231,7 @@ default:
 
 include:
   - local: gitlab/code-analysis.yml
+  - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml
   - local: gitlab/DIP/dip.export.gitlab-ci.yml
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml

@@ -1,0 +1,43 @@
+
+publish sonarqube results:
+  tags:
+    - tfplenum-buildv2
+  stage: publish-to-confluence
+  script: |
+    echo "Current working directory is $(pwd)"
+    PATH_PWD=$(pwd)
+    echo "TASK [sonar-scanner: Exporting Front-End results to Confluence] **************************"
+    export TFPLENUM_FRONTEND_SONAR_SCAN_LINK="$(cut -d ' ' -f10 web/frontend/frontend-sonarlink.txt)"
+    export TFPLENUM_FRONTEND_QUALITY_GATE_STATUS="$(cut -d ' ' -f5 web/frontend/frontend-sonarlink.txt)"
+    export TFPLENUM_FRONTEND_TOTAL_SCAN_TIME="$(cut -d ' ' -f5 web/frontend/frontend-scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_FRONTEND_SONAR_SCAN_LINK -gs $TFPLENUM_FRONTEND_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_FRONTEND_TOTAL_SCAN_TIME -pk "tfplenum-frontend" -ss $PATH_PWD/web/frontend/frontend-screenshot-$CI_COMMIT_SHORT_SHA.png
+    sleep 2
+    echo "TASK [sonar-scanner: Exporting Back-end results to Confluence] **************************"
+    export TFPLENUM_BACKEND_SONAR_SCAN_LINK="$(cut -d ' ' -f10 web/backend/backend-sonarlink.txt)"
+    export TFPLENUM_BACKEND_QUALITY_GATE_STATUS="$(cut -d ' ' -f5 web/backend/backend-sonarlink.txt)"
+    export TFPLENUM_BACKEND_TOTAL_SCAN_TIME="$(cut -d ' ' -f5 web/backend/backend-scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_BACKEND_SONAR_SCAN_LINK -gs $TFPLENUM_BACKEND_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_BACKEND_TOTAL_SCAN_TIME -pk "tfplenum-backend" -ss $PATH_PWD/web/backend/backend-screenshot-$CI_COMMIT_SHORT_SHA.png
+    sleep 2
+    echo "TASK [sonar-scanner: Exporting Testing results to Confluence] **************************"
+    export TFPLENUM_SONAR_SCAN_LINK="$(cut -d' ' -f10 testing/pipeline/testing-sonarlink.txt)"
+    export TFPLENUM_QUALITY_GATE_STATUS="$(cut -d' ' -f5 testing/pipeline/testing-sonarlink.txt)"
+    export TFPLENUM_TOTAL_SCAN_TIME="$(cut -d' ' -f5 testing/pipeline/testing-scantime.txt)"
+    python3 $PATH_PWD/testing/confluence-update-scripts/sonar-confluence.py -u $CONFLUENCE_USERNAME \
+    -pw $CONFLUENCE_PASSWORD -b $CI_COMMIT_REF_NAME -l $TFPLENUM_SONAR_SCAN_LINK -gs $TFPLENUM_QUALITY_GATE_STATUS \
+    -tt $TFPLENUM_TOTAL_SCAN_TIME -pk "tfplenum-test" -ss $PATH_PWD/testing/pipeline/tfplenum-screenshot-$CI_COMMIT_SHORT_SHA.png
+  only:
+    variables:
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
+  dependencies:
+    - sonarqube front-end code base
+    - sonarqube back-end code base
+    - sonarqube testing pipeline
+  allow_failure: true

@@ -6,6 +6,7 @@ DIP Robot Tests:
     echo "IP of runner is $(hostname -I)"
     echo "Current working directory is $(pwd)"
     CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
+    mkdir -p $PATHPWD/tests/dip_test_suite/
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-robot \
     --tfplenum-robot-container "nexus.sil.lab/tfplenum/robot-automator:1.5.1" \
     --jira-username "$CONFLUENCE_USERNAME" \
