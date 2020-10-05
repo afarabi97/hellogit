@@ -1,6 +1,7 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
 import { DialogControlTypes, DialogFormControl } from './modal-dialog-mat-form-types';
 
 @Component({
@@ -8,7 +9,7 @@ import { DialogControlTypes, DialogFormControl } from './modal-dialog-mat-form-t
   templateUrl: './modal-dialog-mat.component.html',
   styleUrls: ['./modal-dialog-mat.component.scss']
 })
-export class ModalDialogMatComponent implements OnInit {
+export class ModalDialogMatComponent {
   title: string;
   instructions: string;
   dialogForm: FormGroup;
@@ -16,21 +17,19 @@ export class ModalDialogMatComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ModalDialogMatComponent>,
               @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, instructions: string, dialogForm: FormGroup, confirmBtnText: string})
-  {
-      this.title = backingObject.title;
-      this.instructions = backingObject.instructions;
-      this.dialogForm = backingObject.dialogForm;
-      this.confirmBtnText = backingObject.confirmBtnText;
+              public backingObject: { title: string, instructions: string, dialogForm: FormGroup, confirmBtnText: string}) {
+    this.title = backingObject.title;
+    this.instructions = backingObject.instructions;
+    this.dialogForm = backingObject.dialogForm;
+    this.confirmBtnText = backingObject.confirmBtnText;
   }
 
-  ngOnInit() {}
-
   objectValues(obj: any) {
-    let ret_val = [];
-    for (let item of Object.values(obj)){
-        ret_val.push(item);
+    const ret_val = [];
+    for (const item of Object.values(obj)){
+      ret_val.push(item);
     }
+
     return ret_val;
   }
 
@@ -58,7 +57,7 @@ export class ModalDialogMatComponent implements OnInit {
     return control.controlType === DialogControlTypes.dropdown;
   }
 
-  public getErrorMessage(control: DialogFormControl): string {
+  getErrorMessage(control: DialogFormControl): string {
     return control.errors ? control.errors.error_message : '';
   }
 

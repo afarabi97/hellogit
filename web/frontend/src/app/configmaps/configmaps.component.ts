@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfigmapsService } from './configmaps.service';
-import { Title } from '@angular/platform-browser';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { Title } from '@angular/platform-browser';
+
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
+import { DialogFormControl, DialogFormControlConfigClass } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { UserService } from '../user.service';
+import { ConfigmapsService } from './configmaps.service';
 
 const DIALOG_WIDTH = '800px';
 @Component({
@@ -78,12 +79,21 @@ export class ConfigmapsComponent implements OnInit {
   }
 
   addConfigMap() {
+    const nameSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    nameSpaceFormControlConfig.label = 'Namespace';
+    nameSpaceFormControlConfig.formState = '';
+    nameSpaceFormControlConfig.validatorOrOpts = [Validators.minLength(3), Validators.required];
+    const nameFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    nameFormControlConfig.label = 'Name';
+    nameFormControlConfig.formState = '';
+    nameFormControlConfig.validatorOrOpts = [
+      Validators.minLength(3),
+      Validators.required,
+      Validators.pattern('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$')
+    ];
     const acdForm = this.formBuilder.group({
-      namespace: new DialogFormControl("Namespace", "", [Validators.minLength(3), Validators.required]),
-      name: new DialogFormControl("Name", "",
-      [Validators.minLength(3),
-       Validators.required,
-       Validators.pattern('^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$')])
+      namespace: new DialogFormControl(nameSpaceFormControlConfig),
+      name: new DialogFormControl(nameFormControlConfig)
     });
 
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
@@ -181,9 +191,12 @@ export class ConfigmapsComponent implements OnInit {
   addConfigMapData(config: Object){
     const configMapIndex = this._getConfigIndex(config);
     this.activeConfigMapIndex = configMapIndex;
+    const nameFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    nameFormControlConfig.label = 'Name';
+    nameFormControlConfig.formState = '';
+    nameFormControlConfig.validatorOrOpts = [Validators.minLength(3), Validators.required, Validators.pattern('^[A-z_0-9]+$')];
     const acdForm = this.formBuilder.group({
-      name: new DialogFormControl("Name", "",
-        [Validators.minLength(3), Validators.required, Validators.pattern('^[A-z_0-9]+$')])
+      name: new DialogFormControl(nameFormControlConfig)
     });
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH,

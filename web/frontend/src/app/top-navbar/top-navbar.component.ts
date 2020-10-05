@@ -1,19 +1,24 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { interval, forkJoin } from 'rxjs';
-import { ToolsService } from '../tools-form/tools.service';
+import { forkJoin, interval } from 'rxjs';
+
 import { SystemNameClass } from '../classes';
-import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import {
+  DialogControlTypes,
+  DialogFormControl,
+  DialogFormControlConfigClass
+} from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { WeaponSystemNameService } from '../services/weapon-system-name.service';
 import { WebsocketService } from '../services/websocket.service';
+import { KitService } from '../system-setup/services/kit.service';
+import { ToolsService } from '../tools-form/tools.service';
 import { UserService } from '../user.service';
 import { NavBarService } from './navbar.service';
 import { getSideNavigationButtons, NavGroup } from './navigation';
-import { KitService } from '../system-setup/services/kit.service';
 
 @Component({
   selector: 'app-top-navbar',
@@ -98,7 +103,11 @@ export class TopNavbarComponent implements OnInit {
   }
 
   selectSystem() {
-    let control = new DialogFormControl('Pick your system', null, Validators.required);
+    const controlFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    controlFormControlConfig.label = 'Pick your system';
+    controlFormControlConfig.formState = null;
+    controlFormControlConfig.validatorOrOpts = Validators.required;
+    let control = new DialogFormControl(controlFormControlConfig);
     control.options = ['DIP', 'MIP', 'GIP'];
 
     control.controlType = DialogControlTypes.dropdown;

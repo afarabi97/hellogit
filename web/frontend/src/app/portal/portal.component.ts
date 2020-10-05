@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { PortalService, UserLinkInterface } from './portal.service';
-import { Title } from '@angular/platform-browser';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component'
-import { DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { validateFromArray } from '../validators/generic-validators.validator';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Title } from '@angular/platform-browser';
+
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { DialogFormControl, DialogFormControlConfigClass } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { UserService } from '../user.service';
+import { validateFromArray } from '../validators/generic-validators.validator';
+import { PortalService, UserLinkInterface } from './portal.service';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -71,13 +72,22 @@ export class PortalComponent implements OnInit {
   }
 
   addUserLink() {
+    const nameFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    nameFormControlConfig.label = 'Link Name';
+    nameFormControlConfig.formState = '';
+    nameFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(target_config_validators.required)]);
+    const urlFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    urlFormControlConfig.label = 'Link URL';
+    urlFormControlConfig.formState = '';
+    urlFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(target_config_validators.url)]);
+    const descriptionFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    descriptionFormControlConfig.label = 'Link Description';
+    descriptionFormControlConfig.formState = '';
+    descriptionFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(target_config_validators.required)]);
     let dialogForm = this.fb.group({
-      name: new DialogFormControl("Link Name", '',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
-      url: new DialogFormControl("Link URL", '',
-            Validators.compose([validateFromArray(target_config_validators.url)])),
-      description: new DialogFormControl("Link description", '',
-            Validators.compose([validateFromArray(target_config_validators.required)])),
+      name: new DialogFormControl(nameFormControlConfig),
+      url: new DialogFormControl(urlFormControlConfig),
+      description: new DialogFormControl(descriptionFormControlConfig),
     });
 
     let dialogData = { title: "Add Link",

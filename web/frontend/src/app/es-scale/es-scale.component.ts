@@ -1,13 +1,13 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormArray, FormBuilder } from '@angular/forms';
-import { ESScaleServiceService } from './es-scale-service.service';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { FormArray } from '@angular/forms';
 import { MatDialog } from '@angular/material';
-import { WebsocketService } from '../services/websocket.service';
-import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { Router } from '@angular/router';
-import { UserService } from '../user.service';
 
+import { SnackbarWrapper } from '../classes/snackbar-wrapper';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { WebsocketService } from '../services/websocket.service';
+import { UserService } from '../user.service';
+import { ESScaleServiceService } from './es-scale-service.service';
 
 class SliderControl {
   title: string;
@@ -55,34 +55,38 @@ class SliderControl {
   templateUrl: './es-scale.component.html',
 })
 export class ESScaleComponent implements OnInit, AfterViewInit {
-  public nodes: FormArray;
-  public newArray: Array<any> = [];
-  public max = 6;
-  public min = 3;
-  public step = 1;
-  public thumbLabel = false;
-  public value = 0;
-  public status: boolean = false;
-  public ioConnection: any;
-  public elasticPodTypes: Array<SliderControl>;
-  public isUserEditing: boolean;
-  public elasticConfig: string;
-  public loading: boolean;
-  public controllerMaintainer: boolean;
-
+  readonly elasticScaling = 'Elastic Scaling';
+  nodes: FormArray;
+  newArray: any[] = [];
+  ioConnection: any;
+  elasticPodTypes: SliderControl[] = [];
+  max: number;
+  min: number;
+  step: number;
+  value: number;
+  thumbLabel: boolean;
+  elasticConfig: string;
+  status: boolean;
+  isUserEditing: boolean;
+  loading: boolean;
+  controllerMaintainer: boolean;
   masterSlider: SliderControl;
 
   constructor(private EsScaleSrv: ESScaleServiceService,
-              private formBuilder: FormBuilder,
               public dialog: MatDialog,
               public _WebsocketService: WebsocketService,
               private snackbar: SnackbarWrapper,
               private router: Router,
               private userService: UserService) {
-    this.elasticPodTypes = new Array<SliderControl>();
+    this.max = 6;
+    this.min = 3;
+    this.step = 1;
+    this.value = 0;
     this.isUserEditing = false;
-    this.elasticConfig = "";
+    this.elasticConfig = '';
     this.loading = true;
+    this.status = false;
+    this.thumbLabel = false;
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
@@ -93,7 +97,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
         this.scaleInProgressDialog();
         this.status = true;
       } else if(response["status"] === "None") {
-        const reroute = () => this.router.navigate(['/kit_configuration'])
+        const reroute = () => this.router.navigate(['/kit_configuration']);
         this.snackbar.showSnackBar('Error - You cannot scale Elastic until you have a Kit deployed and Elastic is installed', -1, 'Kit Config', reroute);
         this.loading = false;
       } else if(response["status"] === "Unknown") {
@@ -130,41 +134,43 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
 
   runScale() {
     this.loading = true;
-    const elastic = {}
+    const elastic = {};
     this.elasticPodTypes.forEach(pod => {
       elastic[pod.type] = pod.currentCount;
     });
 
-    this.EsScaleSrv.postElasticNodes(elastic).subscribe(response => {
-      setTimeout(() => {
-        this.EsScaleSrv.deployElastic().subscribe(response => {
-          this.status = true;
-        });
-      }, 5000);
-
-    });
+    this.EsScaleSrv.postElasticNodes(elastic).subscribe(_pe => this.deployElastic_());
   }
 
   scaleInProgressDialog() {
-    const message = "Elastic Scaling is currnetly in progress";
-    const title = "Elastic Scaling";
+    const message = `${this.elasticScaling} is currnetly in progress`;
+    const title = this.elasticScaling;
     const option2 = "Okay";
 
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
-      data: {"paneString": message, "paneTitle": title,  "option2": option2},
+      data: {
+        paneString: message,
+        paneTitle: title,
+        option2: option2
+      }
     });
-
   }
+
   runDialog() {
-    const message = "Are you sure that you want to change the Elastic Scaling configuration, This will take some time";
-    const title = "Elastic Scaling";
+    const message = `Are you sure that you want to change the ${this.elasticScaling} configuration, This will take some time`;
+    const title = this.elasticScaling;
     const option1 = "Close";
     const option2 = "Okay";
 
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
-      data: {"paneString": message, "paneTitle": title,"option1": option1,  "option2": option2},
+      data: {
+        paneString: message,
+        paneTitle: title,
+        option1: option1,
+        option2: option2
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -179,13 +185,17 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   cantRunDialog() {
-    const message = "Elastic Scaling is currently in progress so you can not change these configuration at this time";
-    const title = "Elastic Scaling";
+    const message = `${this.elasticScaling} is currently in progress so you can not change these configuration at this time`;
+    const title = this.elasticScaling;
     const option2 = "Okay";
 
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
-      data: {"paneString": message, "paneTitle": title, "option2": option2},
+      data: {
+        paneString: message,
+        paneTitle: title,
+        option2: option2
+      }
     });
   }
 
@@ -198,18 +208,18 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
 
   saveAndCloseEditor(configData: string){
     this.isUserEditing = false;
-    this.EsScaleSrv.postElasticFullConfig(configData).subscribe(data => {
-      setTimeout(() => {
-        this.EsScaleSrv.deployElastic().subscribe(response => {
-          this.status = true;
-        });
-      }, 5000);
-    }, error => {
-
-    });
+    this.EsScaleSrv.postElasticFullConfig(configData).subscribe(_pe => this.deployElastic_());
   }
 
   closeEditor(event: any) {
     this.isUserEditing = false;
+  }
+
+  private deployElastic_(): void {
+    setTimeout(() => {
+      this.EsScaleSrv.deployElastic().subscribe(_de => {
+        this.status = true;
+      });
+    }, 5000);
   }
 }

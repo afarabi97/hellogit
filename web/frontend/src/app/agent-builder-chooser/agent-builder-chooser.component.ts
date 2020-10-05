@@ -10,7 +10,11 @@ import * as FileSaver from 'file-saver';
 import { ObjectUtilsClass } from '../classes';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { COMMON_VALIDATORS } from '../frontend-constants';
-import { DialogControlTypes, DialogFormControl } from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import {
+  DialogControlTypes,
+  DialogFormControl,
+  DialogFormControlConfigClass
+} from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { WebsocketService } from '../services/websocket.service';
 import { validateFromArray } from '../validators/generic-validators.validator';
@@ -235,10 +239,25 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   execute(title, instructions, callback) {
-    const username = new DialogFormControl("Domain username", '', Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]));
-    const password = new DialogFormControl("Domain Password", '',
-                           Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]), undefined, undefined, DialogControlTypes.password);
-    const controlsConfig = { user_name: username, password: password };
+    const userNameFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    userNameFormControlConfig.label = 'Domain username';
+    userNameFormControlConfig.formState = '';
+    userNameFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
+    const passwordFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    passwordFormControlConfig.label = 'Domain Password';
+    passwordFormControlConfig.formState = '';
+    passwordFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
+    passwordFormControlConfig.asyncValidator = undefined;
+    passwordFormControlConfig.tooltip = undefined;
+    passwordFormControlConfig.controlType = DialogControlTypes.password;
+    const username = new DialogFormControl(userNameFormControlConfig);
+    const password = new DialogFormControl(passwordFormControlConfig);
+
+    const controlsConfig = {
+      user_name: username,
+      password: password
+    };
+
     const dialogForm = this.fb.group(controlsConfig);
     const dialogData = {
       title: title,
@@ -489,12 +508,15 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openAddWindowsHostModal(targetConfig: IpTargetList, hostList: MatTableDataSource<Host>) {
+    const hostnamesFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    hostnamesFormControlConfig.label = 'Windows Hostname';
+    hostnamesFormControlConfig.formState = '';
+    hostnamesFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
+    hostnamesFormControlConfig.asyncValidator = undefined;
+    hostnamesFormControlConfig.tooltip = 'The application will attempt to install agents to the Windows machines specified.';
+    hostnamesFormControlConfig.controlType = DialogControlTypes.textarea;
     const dialogForm = this.fb.group({
-      hostnames: new DialogFormControl("Windows Hostname", '',
-                                       Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]),
-                                       undefined,
-                                       "The application will attempt to install agents to the Windows machines specified.",
-                                       DialogControlTypes.textarea)
+      hostnames: new DialogFormControl(hostnamesFormControlConfig)
     });
 
     const dialogRef = this.dialog.open(ModalDialogMatComponent, {

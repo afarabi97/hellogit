@@ -1,10 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogFormControl, DialogControlTypes } from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { Title } from '@angular/platform-browser';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { LogIngestService } from './log-ingest.service';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
+
+import {
+  DialogControlTypes,
+  DialogFormControl,
+  DialogFormControlConfigClass
+} from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { LogIngestService } from './log-ingest.service';
 
 const DIALOG_WIDTH = '800px';
 
@@ -53,30 +58,56 @@ public  logForm: FormGroup;
       console.error(error);
     });
   }
-  
+
   setupWinlogBeat() {
     this.ingestSrv.getWinlogbeatConfiguration().subscribe(data => {
       let instructions = "Please fill out the form.";
       if (data["windows_host"]){
         instructions = "Winlogbeat is already setup but you may re run the setup if there is a problem."
       }
+
+      const windowsHostSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      windowsHostSpaceFormControlConfig.label = 'Hostname or IP Address';
+      windowsHostSpaceFormControlConfig.formState = data['windows_host'] ? data['windows_host'] : '';
+      windowsHostSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      const usernameSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      usernameSpaceFormControlConfig.label = 'Username';
+      usernameSpaceFormControlConfig.formState = data['username'] ? data['username'] : '';
+      usernameSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      const passwordSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      passwordSpaceFormControlConfig.label = 'Password';
+      passwordSpaceFormControlConfig.formState = data['password'] ? data['password'] : '';
+      passwordSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      passwordSpaceFormControlConfig.asyncValidator = undefined;
+      passwordSpaceFormControlConfig.tooltip = undefined;
+      passwordSpaceFormControlConfig.controlType = DialogControlTypes.password;
+      const winrmPortSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      winrmPortSpaceFormControlConfig.label = 'WinRM Port';
+      winrmPortSpaceFormControlConfig.formState = data['winrm_port'] ? data['winrm_port'] : 5985;
+      winrmPortSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      const winrmSchemeSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      winrmSchemeSpaceFormControlConfig.label = 'WinRM Scheme';
+      winrmSchemeSpaceFormControlConfig.formState = data['winrm_scheme'] ? data['winrm_scheme'] : 'http';
+      winrmSchemeSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      winrmSchemeSpaceFormControlConfig.asyncValidator = undefined;
+      winrmSchemeSpaceFormControlConfig.tooltip = undefined;
+      winrmSchemeSpaceFormControlConfig.controlType = DialogControlTypes.dropdown;
+      winrmSchemeSpaceFormControlConfig.options = ['http', 'https'];
+      const winrmTransportSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+      winrmTransportSpaceFormControlConfig.label = 'WinRM Transport';
+      winrmTransportSpaceFormControlConfig.formState = data['winrm_transport'] ? data['winrm_transport'] : 'ntlm';
+      winrmTransportSpaceFormControlConfig.validatorOrOpts = [Validators.required];
+      winrmTransportSpaceFormControlConfig.asyncValidator = undefined;
+      winrmTransportSpaceFormControlConfig.tooltip = undefined;
+      winrmTransportSpaceFormControlConfig.controlType = DialogControlTypes.dropdown;
+      winrmTransportSpaceFormControlConfig.options = ['ntlm', 'basic'];
       let winlogBeatSetupForm = this.formBuilder.group({
-        windows_host: new DialogFormControl("Hostname or IP Address", data["windows_host"] ? data["windows_host"] : "", [Validators.required]),
-        username: new DialogFormControl("Username", data["username"] ? data["username"] : "", [Validators.required]),
-        password: new DialogFormControl("Password", data["password"] ? data["password"] : "", [Validators.required], undefined, undefined, DialogControlTypes.password),
-        winrm_port: new DialogFormControl("WinRM Port", data["winrm_port"] ? data["winrm_port"] : 5985, [Validators.required]),
-        winrm_scheme: new DialogFormControl("WinRM Scheme", data["winrm_scheme"] ? data["winrm_scheme"] : "http",
-                                            [Validators.required],
-                                            undefined,
-                                            undefined,
-                                            DialogControlTypes.dropdown,
-                                            ["http", "https"]),
-        winrm_transport: new DialogFormControl("WinRM Scheme", data["winrm_transport"] ? data["winrm_transport"] : "ntlm",
-                                               [Validators.required],
-                                               undefined,
-                                               undefined,
-                                               DialogControlTypes.dropdown,
-                                               ["ntlm", "basic"]),
+        windows_host: new DialogFormControl(windowsHostSpaceFormControlConfig),
+        username: new DialogFormControl(usernameSpaceFormControlConfig),
+        password: new DialogFormControl(passwordSpaceFormControlConfig),
+        winrm_port: new DialogFormControl(winrmPortSpaceFormControlConfig),
+        winrm_scheme: new DialogFormControl(winrmSchemeSpaceFormControlConfig),
+        winrm_transport: new DialogFormControl(winrmTransportSpaceFormControlConfig),
       });
 
       const dialogRef = this.dialog.open(ModalDialogMatComponent, {
