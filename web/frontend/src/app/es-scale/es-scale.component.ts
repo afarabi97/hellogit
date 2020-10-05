@@ -36,7 +36,7 @@ class SliderControl {
 
     if (data){
       this.currentCount = data["elastic"][type];
-      const name = `max_scale_count_ ${type}`;
+      const name = `max_scale_count_${type}`;
       this.maxCount = data["elastic"][type] + data["elastic"][name];
     } else {
       this.currentCount = 0;
