@@ -1,13 +1,7 @@
 """
 This is the main module for all the shared REST calls
 """
-import configparser
-import json
 import os, signal
-import shutil
-import tempfile
-import zipfile
-import configparser
 
 from app import app, logger, conn_mng, celery
 from app.archive_controller import archive_form
@@ -15,13 +9,12 @@ from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.job_service import run_command
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.node_facts import get_system_info
-from fabric.runners import Result
 from flask import request, jsonify, Response
 from shared.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from shared.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple
 from app.service.system_info_service import get_system_name
-from app.middleware import Auth, controller_admin_required, login_required_roles, controller_maintainer_required
+from app.middleware import Auth, controller_admin_required, login_required_roles
 
 
 @app.route('/api/get_system_name', methods=['GET'])

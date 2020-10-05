@@ -1,19 +1,13 @@
 """
 Main module for handling all of the config map REST calls.
 """
-import json
-import requests
-import multiprocessing
 from app import app, logger, conn_mng
 from app.common import ERROR_RESPONSE, OK_RESPONSE
 from app.service.configmap_service import bounce_pods
 from flask import jsonify, Response, request
-from kubernetes import client, config
 from kubernetes.client.models.v1_pod_list import V1PodList
-from kubernetes.client.models.v1_pod import V1Pod
-from shared.connection_mngs import KubernetesWrapper, KitFormNotFound, objectify
 from typing import Dict, List
-from app.middleware import Auth, controller_maintainer_required
+from app.middleware import controller_maintainer_required
 
 
 @app.route('/api/get_associated_pods/<config_map_name>', methods=['GET'])
