@@ -145,7 +145,8 @@ export class KitService {
       node_type: new FormControl(node && node.node_type ? node.node_type : default_node_type, Validators.compose([validateFromArray(kit_validators.node_type)])),
       hostname: new FormControl(node ? node.hostname : ''),
       management_ip_address: node ? node.management_ip_address ? node.management_ip_address : node.default_ipv4_settings.address : '',
-      deviceFacts: node && node.deviceFacts ? node.deviceFacts : node
+      deviceFacts: node && node.deviceFacts ? node.deviceFacts : node,
+      error: node && node.error ? node.error : undefined
     });
 
     if (this.system_name === 'DIP') {
@@ -188,36 +189,36 @@ export class KitService {
 
     this.system_name = this.system_nameSrv.getSystemName();
 
-        //Cycle validation messages per system name/ type
+    //Cycle validation messages per system name/ type
 
-        if (this.system_name == 'GIP') {
-          kitFormGroup.setValidators(Validators.compose([
-            validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-            ValidateServerCpuMem
-          ]));
-        };
-        if (this.system_name == 'DIP') {
-          kitFormGroup.setValidators(Validators.compose([
-            validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
-            validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-            validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
-            ValidateServerCpuMem
-          ]));
-        };
-        if (this.system_name =='MIP') {
-          kitFormGroup.setValidators(Validators.compose([
-            ValidateServerCpuMem
-          ]));
-        };
+    if (this.system_name == 'GIP') {
+      kitFormGroup.setValidators(Validators.compose([
+        validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+        ValidateServerCpuMem
+      ]));
+    };
+    if (this.system_name == 'DIP') {
+      kitFormGroup.setValidators(Validators.compose([
+        validateFromArray(kit_validators.kit_form_one_master, { minRequired: 1, minRequiredValue: true, minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'is_master_server' }),
+        validateFromArray(kit_validators.kit_form_one_sensor, { minRequired: 1, minRequiredValue: 'Sensor', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+        validateFromArray(kit_validators.kit_form_one_server, { minRequired: 2, minRequiredValue: 'Server', minRequiredArray: kitFormGroup.get('nodes'), minRequireControl: 'node_type' }),
+        ValidateServerCpuMem
+      ]));
+    };
+    if (this.system_name =='MIP') {
+      kitFormGroup.setValidators(Validators.compose([
+        ValidateServerCpuMem
+      ]));
+    };
 
-        if (kitForm) {
-          const nodes = kitFormGroup.get('nodes') as FormArray;
-          kitForm.nodes.map(node => nodes.push(this.newKitNodeForm(node)));
-          if (isDisabled) {
-            nodes.disable();
-            kitFormGroup.disable();
-          }
-        }
+    if (kitForm) {
+      const nodes = kitFormGroup.get('nodes') as FormArray;
+      kitForm.nodes.map(node => nodes.push(this.newKitNodeForm(node)));
+      if (isDisabled) {
+        nodes.disable();
+        kitFormGroup.disable();
+      }
+    }
     return kitFormGroup;
   }
 }

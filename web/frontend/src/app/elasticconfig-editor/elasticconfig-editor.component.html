@@ -13,12 +13,12 @@
         </div>
       </div>
     </mat-card-content>
-    <mat-card-footer style="padding: 0em 2em 2em 2em;">
+    <mat-card-footer style="padding: 0em 2em 2em 2em;" fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button id="app-elasticconfig-editor-div-mat-card-mat-card-footer-button-close-without-saving"
               color="warn" (click)="openCloseDialog()">Close without Saving
       </button>
       <button mat-raised-button id="app-elasticconfig-editor-div-mat-card-mat-card-footer-button-save-and-close"
-              [disabled]="!controllerMaintainer" color="primary" style="float: right;" (click)="openSaveDialog()">Save and Close
+              [disabled]="!controllerMaintainer" color="primary" (click)="openSaveDialog()">Save and Close
       </button>
     </mat-card-footer>
   </mat-card>

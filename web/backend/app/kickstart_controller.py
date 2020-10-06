@@ -128,8 +128,10 @@ def generate_kickstart_inventory() -> Response:
     """
     payload = request.get_json()
 
+    tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles']
     if 'nodes' in payload:
         kickstart_form = payload
+        tags.append('update_portal_client')
         if not kickstart_form['continue']:
             invalid_ips = []
             for node in kickstart_form["nodes"]:
@@ -151,7 +153,7 @@ def generate_kickstart_inventory() -> Response:
     save_kickstart_to_mongo(kickstart_form)
     kickstart_generator = KickstartInventoryGenerator(kickstart_form)
     kickstart_generator.generate()
-    cmd_to_execute = ("ansible-playbook site.yml -i inventory.yml -t preflight,setup,update_portal_client,chrony,dnsmasq,kickstart,profiles")
+    cmd_to_execute = ("ansible-playbook site.yml -i inventory.yml -t {tags}".format(tags=",".join(tags)))
     task_id = perform_kickstart.delay(cmd_to_execute)
     conn_mng.mongo_celery_tasks.find_one_and_replace({"_id": "Kickstart"},
                                                      {"_id": "Kickstart", "task_id": str(task_id), "pid": ""},

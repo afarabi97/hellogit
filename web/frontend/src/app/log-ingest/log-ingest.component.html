@@ -20,23 +20,23 @@
   <br>
   <mat-card>
     <mat-card-header>
-      <mat-card-title>
-        Upload Cold Log File
-        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload"
-                color="primary" (click)="uploadFile()" style="float: right;"
-                [disabled]="!logToUpload || this.logForm.invalid" name="upload_file">Upload
-          <span *ngIf="logToUpload" id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload-span-name">&nbsp;{{ logToUpload.name }}</span>
-        </button>
-        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-choose-log-file"
-                color="primary" style="float:right; margin-right: 10px;"
-                (click)="fileInput.click()">Choose Log File
-        </button>
-        <input hidden #fileInput id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-input-hidden-file"
-               (change)="handleFileInput($event.target.files)" type="file">
-        <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-setup-winlogbeat"
-                color="primary" (click)="setupWinlogBeat()" style="float: right; margin-right: 10px;"
-                name="upload_file">Setup Winlogbeat
-        </button>
+      <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+        <div>Upload Cold Log File</div>
+        <div>
+          <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-setup-winlogbeat"
+                  color="primary" (click)="setupWinlogBeat()" style="margin-right: 10px;" name="upload_file">Setup Winlogbeat
+          </button>
+          <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-choose-log-file"
+                  color="primary" style="margin-right: 10px;" (click)="fileInput.click()">Choose Log File
+          </button>
+          <input hidden #fileInput id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-input-hidden-file"
+                (change)="handleFileInput($event.target.files)" type="file">
+          <button mat-raised-button id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload"
+                  color="primary" (click)="uploadFile()"
+                  [disabled]="!logToUpload || this.logForm.invalid" name="upload_file">Upload
+            <span *ngIf="logToUpload" style="font-weight: bold;" id="app-log-ingest-div-mat-card-mat-card-header-mat-card-title-button-upload-span-name"> {{ logToUpload.name }}</span>
+          </button>
+        </div>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content [formGroup]="logForm">

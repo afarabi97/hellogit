@@ -27,7 +27,7 @@ export class TotalSystemResourceCardComponent implements OnChanges {
 
   setValues(nodes) {
     nodes.map(node => {
-      if (node.deviceFacts) {
+      if (node.deviceFacts && this.validDeviceFacts(node.deviceFacts) && Object.keys(node.deviceFacts).length > 0)  {
         this.systemResources.cpuCoresAvailable += node.deviceFacts['cpus_available'];
         this.systemResources.memoryAvailable += node.deviceFacts['memory_available'];
         node.deviceFacts.disks.map(disk => {
@@ -38,6 +38,10 @@ export class TotalSystemResourceCardComponent implements OnChanges {
         });
       }
     });
+  }
+
+  private validDeviceFacts(deviceFacts) {
+    return deviceFacts['cpus_available'] !== undefined && deviceFacts['memory_available'] !== undefined &&  deviceFacts['disks'] !== undefined;
   }
 }
 

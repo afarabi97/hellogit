@@ -17,8 +17,8 @@
   <br>
   <mat-card>
     <mat-card-header>
-      <mat-card-title>
-        Step 1: Create a Windows installer configuration.
+      <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+        <div>Step 1: Create a Windows installer configuration.</div>
         <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-header-mat-card-title-button-add-installer-config"
                 color="primary" [disabled]="appConfigs ? false : true" (click)="addNewConfiguration()">Add Installer Config</button>
       </mat-card-title>
@@ -96,7 +96,7 @@
       <mat-paginator id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-content-mat-paginator"
                      #installerConfigPaginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-download-installer"
               color="primary" (click)="downloadInstaller(config_selection)" [disabled]="config_selection ? is_downloading : true">
         <em id="app-agent-builder-chooser-div-mat-card-installer-configuration-mat-card-actions-button-download-installer-em-cloud-download"
@@ -109,8 +109,8 @@
   <br>
   <mat-card>
     <mat-card-header>
-      <mat-card-title>
-        Step 2 (optional): Add remote targets
+      <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+        <div>Step 2 (optional): Add remote targets</div>
         <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-header-mat-card-title-button-add-target-config"
                 color="primary" (click)="openAddNewTargetConfigModal()">Add Target Config</button>
       </mat-card-title>
@@ -237,14 +237,14 @@
 
     </mat-card-content>
 
-    <mat-card-actions>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-deploy-installer"
               color="primary" (click)="installAgents(config_selection, target_selection)" [disabled]="!(config_selection && target_selection)">
         <em id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-deploy-installer-em-cloud-upload"
             class="material-icons">cloud_upload</em>Deploy Installer
       </button>
       <button mat-raised-button id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-batch-uninstall"
-              color="warn" style="float: right;" [disabled]="!(config_selection && target_selection)" (click)="uninstallAgents(config_selection, target_selection)">
+              color="warn" [disabled]="!(config_selection && target_selection)" (click)="uninstallAgents(config_selection, target_selection)">
         <em id="app-agent-builder-chooser-div-mat-card-remote-targets-mat-card-actions-button-batch-uninstall-em-delete-sweep"
             class="material-icons">delete_sweep</em>Batch Uninstall
       </button>

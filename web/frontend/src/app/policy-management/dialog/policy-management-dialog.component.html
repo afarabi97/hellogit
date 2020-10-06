@@ -36,15 +36,17 @@
         </div>
       </div>
     </mat-card-content>
-    <mat-card-footer>
+    <mat-card-footer fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-stroked-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-close-without-saving"
               color="warn" (click)="openCloseDialog()">Close without saving</button>
-      <button mat-raised-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-save-and-close"
-              color="primary" [disabled]="!ruleGroup.valid" style="float: right;" (click)="openSaveDialog()">Save and close</button>
-      <button mat-stroked-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-validate-syntax"
-              color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid" style="float: right; margin-right: 10px;" (click)="validateRule()">Validate Syntax</button>
-      <button mat-stroked-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-test-against-pcap"
-              color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid" style="float: right; margin-right: 10px;" (click)="testAgainstPCAP()">Test against PCAP</button>
+      <div>
+        <button mat-stroked-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-test-against-pcap"
+                color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid" style="margin-right: 10px;" (click)="testAgainstPCAP()">Test against PCAP</button>
+        <button mat-stroked-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-validate-syntax"
+                color="accent" class="btn-secondary" [disabled]="!ruleGroup.valid" style="margin-right: 10px;" (click)="validateRule()">Validate Syntax</button>
+        <button mat-raised-button id="policy-management-dialog-div-mat-card-mat-card-footer-button-save-and-close"
+                color="primary" [disabled]="!ruleGroup.valid" (click)="openSaveDialog()">Save and close</button>
+      </div>
     </mat-card-footer>
   </mat-card>
 </div>

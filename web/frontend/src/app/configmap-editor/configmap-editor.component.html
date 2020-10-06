@@ -15,19 +15,23 @@
                 </div>
             </div>
         </mat-card-content>
-        <mat-card-footer style="padding: 0em 2em 2em 2em;">
-            <button mat-raised-button *ngIf="controllerMaintainer"
+        <mat-card-footer style="padding: 0em 2em 2em 2em;" fxLayout="row" fxLayoutAlign="space-between center">
+            <div>
+              <button mat-raised-button *ngIf="controllerMaintainer"
                     id="app-configmap-editor-div-mat-card-mat-card-footer-button-close-without-saving"
                     color="warn" (click)="openCloseDialog()">Close without Saving
-            </button>
-            <button mat-raised-button *ngIf="controllerMaintainer"
-                    id="app-configmap-editor-div-mat-card-mat-card-footer-button-save-and-close"
-                    color="primary" style="float: right;" (click)="openSaveDialog()">Save and Close
-            </button>
-            <button mat-raised-button *ngIf="!controllerMaintainer"
-                    id="app-configmap-editor-div-mat-card-mat-card-footer-button-close"
-                    color="primary" (click)="closeWithoutSaving( '')">Close
-           </button>
+              </button>
+              <button mat-raised-button *ngIf="!controllerMaintainer"
+                      id="app-configmap-editor-div-mat-card-mat-card-footer-button-close"
+                      color="primary" (click)="closeWithoutSaving('')">Close
+              </button>
+            </div>
+            <div>
+              <button mat-raised-button *ngIf="controllerMaintainer"
+               id="app-configmap-editor-div-mat-card-mat-card-footer-button-save-and-close"
+                color="primary" (click)="openSaveDialog()">Save and Close
+              </button>
+            </div>
         </mat-card-footer>
     </mat-card>
 </div>

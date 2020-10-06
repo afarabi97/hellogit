@@ -1,12 +1,15 @@
 <div class="main-content2">
     <mat-card>
         <mat-card-header>
-            <mat-card-title>
-                <span class="PortalTitle">Portal</span>
-                <button mat-raised-button id="app-portal-div-mat-card-mat-card-header-mat-card-title-button-add-link"
-                        color="primary" style="float:right;" (click)="addUserLink()" [disabled]="!operator">
+            <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+                <div fxFlex></div>
+                <div fxFlex >Portal</div>
+                <div fxFlex fxLayout="row" fxLayoutAlign="end center">
+                  <button mat-raised-button id="app-portal-div-mat-card-mat-card-header-mat-card-title-button-add-link"
+                        color="primary" (click)="addUserLink()" [disabled]="!operator">
                     <mat-icon id="app-portal-div-mat-card-mat-card-header-mat-card-title-button-add-link-mat-icon-add">add</mat-icon>Add Link
-                </button>
+                  </button>
+                </div>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>

@@ -110,7 +110,11 @@ clearpart --all
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive[0] }}
 {% endif %}
 part /boot --fstype="xfs" --size=500 --ondrive={{ boot_drive[0] }}
+{% if data_drive == boot_drive %}
+part pv.01 --fstype="lvmpv" --size=1 --maxsize=50000 --grow --ondisk={{ boot_drive[0] }}
+{% else %}
 part pv.01 --fstype="lvmpv" --size=1 --grow --ondisk={{ boot_drive[0] }}
+{% endif %}
 volgroup vg_root pv.01
 logvol / --fstype="xfs" --name=root --vgname=vg_root --grow --percent=20
 logvol /tmp --fstype="xfs" --name=tmp --vgname=vg_root --grow --percent=5

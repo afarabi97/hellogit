@@ -51,9 +51,9 @@ def replace_metrics():
 
 MIN_MBPS = 1000
 
-@app.route('/api/gather_device_facts', methods=['POST'])
+@app.route('/api/gather_device_facts/<management_ip>', methods=['GET'])
 @controller_admin_required
-def gather_device_facts() -> Response:
+def gather_device_facts(management_ip) -> Response:
     """
     Gathers device facts or sends back a HTTP error to the
     user if something fails.
@@ -61,8 +61,6 @@ def gather_device_facts() -> Response:
     :return: A jsonified response object.
     """
     try:
-        payload = request.get_json()
-        management_ip = payload.get('management_ip')
         current_config = conn_mng.mongo_kickstart.find_one({"_id": KICKSTART_ID})
         if current_config:
             password = decode_password(current_config["form"]["root_password"])
@@ -85,7 +83,7 @@ def gather_device_facts() -> Response:
                        product_name=product_name)
     except Exception as e:
         logger.exception(e)
-        return jsonify(error_message=str(e))
+        return jsonify(error_message=str(e)), 400
 
 
 def check_pid(pid):

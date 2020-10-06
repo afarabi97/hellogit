@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatSelectChange } from '@angular/materia
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { IHostInfo } from '../interface/rule.interface';
 import { RuleSet } from '../interface/ruleSet.interface';
+import { SortingService } from '../../services/sorting.service';
 
 /* Services */
 import { PolicyManagementService } from '../services/policy-management.service';
@@ -25,6 +26,7 @@ export class PolicyManagementAddDialog  implements OnInit {
   constructor( public dialogRef: MatDialogRef<PolicyManagementAddDialog>,
                private formBuilder: FormBuilder,
                public policySrv: PolicyManagementService,
+               private sortSvc: SortingService,
                @Inject(MAT_DIALOG_DATA) public data: any) {
     this.clearanceLevels = policySrv.clearanceLevels
     this.ruleType = policySrv.ruleType
@@ -51,7 +53,7 @@ export class PolicyManagementAddDialog  implements OnInit {
             this.sensorListSelection.push(item["hostname"]);
           }
         }
-
+        this.sensorListSelection.sort(this.sortSvc.alphanum);
         if (this.sensorListSelection.length === 0){
           this.policySrv.displaySnackBar("No sensors have " + application + " installed. To fix this go to \
                                           the catalog page and install the desired application.");

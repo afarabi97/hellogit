@@ -31,7 +31,7 @@
                 color="primary" (click)="openConsole()">Open Console</button>
         <div>
           <button mat-stroked-button id="app-kit-form-div-mat-card-mat-card-actions-button-clear"
-                  color="warn" (click)="clearkitFormGroup()" [disabled]="kitFormGroup.disabled">Clear</button>
+                  color="warn" (click)="clearkitFormGroup()" [disabled]="kitFormGroup.disabled" style="margin-right: 10px;">Clear</button>
           <button mat-raised-button id="app-kit-form-div-mat-card-mat-card-actions-button-enable"
                   color="primary" (click)="kitFormGroup.enable()">Enable</button>
         </div>
@@ -110,9 +110,13 @@
                 <app-kit-node-form id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-app-kit-node-form-gip' }}"
                                    mode="gip" [uniqueHTMLID]="'app-kit-form-gip-' + i" [node]="node" [formArray]="kitFormGroup.get('nodes').controls"></app-kit-node-form>
               </ng-container>
-              <div fxLayout="row" fxLayoutAlign="end center" *ngIf="node.controls.node_type.value == 'Sensor'">
+              <div fxLayout="row" fxLayoutAlign="end center">
                 <button mat-button id="{{ 'app-kit-form-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-section-div-button-remove' }}"
-                        color="warn"  (click)="canRemove(i)">Remove</button>
+                        *ngIf="node.controls.node_type.value == 'Sensor'" color="warn" [disabled]="kitFormGroup.disabled"
+                        (click)="canRemove(i)">Remove</button>
+                <button mat-icon-button color="accent" [disabled]="kitFormGroup.disabled" (click)="refreshDeviceFacts(i)" matTooltip="Refresh device facts" matTooltipPosition="above">
+                  <span class="material-icons" >refresh</span>
+                </button>
               </div>
             </section>
           </mat-expansion-panel>

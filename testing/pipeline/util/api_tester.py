@@ -293,8 +293,7 @@ class KitPayloadGenerator:
         self._device_facts_map = {}
 
     def _request_device_facts(self, node: NodeSettings) -> Dict:
-        payload = {"management_ip": node.ipaddress}
-        ret_val = post_request(self._url.format("/api/gather_device_facts"), payload)
+        ret_val = get_request(self._url.format("/api/gather_device_facts/"+node.ipaddress))
         return ret_val
 
     def _set_device_facts_ip_map(self) -> None:
@@ -357,13 +356,13 @@ class KitPayloadGenerator:
 
     def _construct_kit_payload(self) -> Dict:
         node_parts = []
-        for server in self._kickstart_settings.servers:
-            srv_part = self._construct_server_part(server)
-            node_parts.append(srv_part)
-
         for sensor in self._kickstart_settings.sensors:
             ses_part = self._construct_sensor_part(sensor)
             node_parts.append(ses_part)
+
+        for server in self._kickstart_settings.servers:
+            srv_part = self._construct_server_part(server)
+            node_parts.append(srv_part)
 
         return {
             "kitForm": {

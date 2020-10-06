@@ -15,17 +15,19 @@
     <br>
     <mat-card>
         <mat-card-header>
-            <mat-card-title>
-                PCAP Test Files
-                <button mat-raised-button id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload"
-                        color="primary" (click)="uploadFile()" style="float: right;" [disabled]="!pcapToUpload" name="execute_kickstart">Upload
-                    <span *ngIf="pcapToUpload" id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload-span-pcap-to-upload">&nbsp;{{ pcapToUpload.name }}</span>
-                </button>
+          <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+              <div>Test Files</div>
+              <div>
                 <button mat-raised-button id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-choose-pcap-file"
-                        color="primary" style="float:right; margin-right: 10px;" (click)="fileInput.click()">Choose PCAP File</button>
+                        color="primary" style="margin-right: 10px;" (click)="fileInput.click()">Choose PCAP File</button>
+                <button mat-raised-button id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload"
+                  color="primary" (click)="uploadFile()" [disabled]="!pcapToUpload" name="execute_kickstart">Upload
+                  <span *ngIf="pcapToUpload" id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-button-upload-span-pcap-to-upload" style="font-weight: bold;"> {{ pcapToUpload.name }}</span>
+                </button>
                 <input hidden #fileInput id="app-pcap-form-div-mat-card-mat-card-header-mat-card-title-input-hidden-file"
-                       (change)="handleFileInput($event.target.files)" type="file"accept=".pcap,.PCAP">
-            </mat-card-title>
+                        (change)="handleFileInput($event.target.files)" type="file"accept=".pcap,.PCAP">
+              </div>
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <table mat-table [dataSource]="pcaps" aria-describedby="PCAP Replay Table">

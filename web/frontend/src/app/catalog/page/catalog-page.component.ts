@@ -10,6 +10,7 @@ import { ChartInfo, INodeInfo } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
 import { PROCESS_LIST, DEPLOYED, UNKNOWN, INSTALL, REINSTALL, UNINSTALL } from '../constants/catalog.constants';
 import { ProcessInterface } from '../interface';
+import { SortingService } from '../../services/sorting.service';
 
 @Component({
   selector: 'app-catalog-page',
@@ -56,7 +57,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
               private cdRef: ChangeDetectorRef,
               private router: Router,
               private snackBar: MatSnackBar,
-              public dialog: MatDialog, ) {
+              public dialog: MatDialog,
+              private sortSvc: SortingService) {
     this.isReady = false;
     this.isLoading = true;
     this.isAdvance = false;
@@ -631,6 +633,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
             node.status = undefined;
           }
         });
+        this.nodes.sort(this.sortSvc.node_alphanum);
         if ((this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue)) &&
             !ObjectUtilsClass.notUndefNull(status)) {
           status = ObjectUtilsClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;

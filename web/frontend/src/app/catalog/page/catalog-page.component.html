@@ -48,83 +48,101 @@
           <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview">
             <form>
               <ng-template matStepLabel>Configuration Overview</ng-template>
-              <div *ngFor="let sensor of processFormGroup.value.selectedNodes; let k = index;" [formGroup]="configFormGroup">
-                <h4 id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-h4-hostname' }}">{{ sensor.hostname | capitalizeFirst }}</h4>
-                <!-- Deployment Name-->
-                <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" formGroupName="{{sensor.hostname}}">
-                  <!-- Deployment Name -->
-                  <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name' }}">
-                    <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name-input' }}"
-                           formControlName="deployment_name" placeholder="Deployment Name" required>
-                  </mat-form-field>
-                </div>
-                <div *ngIf="chart?.formControls">
-                  <div *ngFor="let control of chart.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
-                    <!-- Text Input -->
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
-                      <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
-                        <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
-                               matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                        <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+              <mat-accordion multi="true">
+                <mat-expansion-panel *ngFor="let sensor of processFormGroup.value.selectedNodes; let k = index;" expanded="true" style="background-color: #5555;" [formGroup]="configFormGroup">
+                  <mat-expansion-panel-header>
+                      <mat-panel-title> {{ sensor.hostname }} </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <section>
+                    <!-- Deployment Name-->
+                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" formGroupName="{{sensor.hostname}}">
+                      <!-- Deployment Name -->
+                      <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name' }}">
+                        <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-mat-form-field-deployment-name-input' }}"
+                              formControlName="deployment_name" placeholder="Deployment Name" required>
                       </mat-form-field>
                     </div>
-                    <!-- checkbox -->
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
-                      <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
-                                    formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                    matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                    </div>
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
-                      <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
-                                    formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                    matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                    </div>
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
-                      <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
-                                    formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                    matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                    </div>
-
-                    <!-- Text Input List -->
-                    <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
-                      <div fxLayout="column" fxLayoutAlign="start center">
-                        <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list' }}" style="width: 100%;">
-                          <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
-                                 matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                          <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
-                        </mat-form-field>
-                      </div>
-                    </div>
-                    <!-- Interface -->
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
-                      <div *ngFor="let sensorint of nodeList; let m = index;">
-                        <div *ngIf="sensorint === sensor">
-                          <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface' }}">
-                            <mat-label id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-label' }}">{{ control.name | capitalizeFirst }}</mat-label>
-                            <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
-                                        formControlName="{{control.name}}" multiple required>
-                              <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
-                                          id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
-                                          [value]="interface">{{interface}}</mat-option>
-                            </mat-select>
+                    <div *ngIf="chart?.formControls">
+                      <div *ngFor="let control of chart.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
+                        <!-- Text Input -->
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
+                          <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
+                            <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
+                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                            <mat-error *ngIf="isInvalidForm(sensor, control)"
+                                      id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+                          </mat-form-field>
+                        </div>
+                        <div *ngIf="chart?.formControls">
+                          <div *ngFor="let control of chart.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
+                            <!-- Text Input -->
+                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
+                              <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
+                                <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
+                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                                <mat-error *ngIf="isInvalidForm(sensor, control)"
+                                          id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
+                              </mat-form-field>
+                            </div>
+                            <!-- checkbox -->
+                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
+                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
+                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                            </div>
+                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
+                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
+                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                            </div>
+                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
+                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
+                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Text Input List -->
+                        <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
+                          <div fxLayout="column" fxLayoutAlign="start center">
+                            <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list' }}" style="width: 100%;">
+                              <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-input' }}"
+                                    matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                              <mat-error *ngIf="isInvalidForm(sensor, control)"
+                                        id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-mat-form-field-control-name-text-list-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                        <!-- Interface -->
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
+                          <div *ngFor="let sensorint of nodeList; let m = index;">
+                            <div *ngIf="sensorint === sensor">
+                              <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface' }}">
+                                <mat-label id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-label' }}">{{ control.name | capitalizeFirst }}</mat-label>
+                                <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
+                                            formControlName="{{control.name}}" multiple required>
+                                  <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
+                                              id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
+                                              [value]="interface">{{interface}}</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Kafka -->
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'kafka-cluster-cluster'">
+                          <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka' }}">
+                            <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-input' }}"
+                                  matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
+                            <mat-error *ngIf="isInvalidForm(sensor, control)"
+                                      id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                           </mat-form-field>
                         </div>
                       </div>
                     </div>
-                    <!-- Kafka -->
-                    <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'kafka-cluster-cluster'">
-                      <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka' }}">
-                        <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-input' }}"
-                               matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                        <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                   id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
-                      </mat-form-field>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  </section>
+                </mat-expansion-panel>
+              </mat-accordion>
             </form>
           </mat-step>
         </div>

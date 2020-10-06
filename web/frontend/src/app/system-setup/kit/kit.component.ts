@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { FormArray, FormGroup, FormControl, FormBuilder, AbstractControl } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from '../../validators/generic-validators.validator';
 import { KickstartService } from '../services/kickstart.service';
 import { KitFormTime, kitTooltips } from './kit-form';
@@ -28,6 +28,7 @@ export class KitComponent implements OnInit, AfterViewInit {
   kickstartForm;
   kitFormGroup: FormGroup;
   nodes: FormArray;
+  loading_nodes: Array<Boolean> = [];
 
   isGettingDeviceFacts: boolean;
   system_name: string;
@@ -62,7 +63,6 @@ export class KitComponent implements OnInit, AfterViewInit {
   hasRetrievedDeviceFacts(): boolean {
     let nodes = this.kitFormGroup.get('nodes') as FormArray;
     for (let control of nodes.controls) {
-      // console.log(control.get('deviceFacts').value);
       if (!control.get('deviceFacts').value){
         return false;
       }
@@ -210,29 +210,77 @@ export class KitComponent implements OnInit, AfterViewInit {
   private getNodeDeviceFacts(kickstartNodes: any[]): void {
     this.isGettingDeviceFacts = true;
     this.ref.detectChanges();
-    for (let i = 0; i < kickstartNodes.length; i++){
+    for (let i = 0; i < kickstartNodes.length; i++) {
+      this.loading_nodes[i] = false;
       this.kickStartSrv.gatherDeviceFacts(kickstartNodes[i].ip_address).subscribe(data => {
-        if (data){
-          let nodes = this.kitFormGroup.get('nodes') as FormArray;
-          let newNode = this.kitSrv.newKitNodeForm(data);
-          nodes.push(newNode);
-          this.nodes = nodes;
-
-          if (i === (kickstartNodes.length - 1)){
-            this.isGettingDeviceFacts = false;
-            let node = this.nodes.at(0);
-            let control = node.get('is_master_server');
-            if (control){
-              control.setValue(true);
-            }
+        this.gatherFactsSuccess(i, data);
+      }, error => {
+        this.gatherFactsError(i, error);
+      }).add(() => {
+        this.loading_nodes[i] = true;
+        if (this.loading_nodes.length == kickstartNodes.length && this.loading_nodes.every(Boolean)) {
+          this.isGettingDeviceFacts = false;
+          let node = this.nodes.at(0);
+          let control = node.get('is_master_server');
+          if (control){
+            control.setValue(true);
           }
-
-          this.ref.detectChanges();
+          this.snackbar.showSnackBar('Gathering facts completed for all nodes', -1, 'Dismiss');
         }
+        this.ref.detectChanges();
       });
     }
   }
 
+  public refreshDeviceFacts(index: number): void {
+    this.isGettingDeviceFacts = true;
+    let kickstartNodes = this.kickstartForm.nodes;
+    this.ref.detectChanges();
+    this.kickStartSrv.gatherDeviceFacts(kickstartNodes[index].ip_address).subscribe(data => {
+      this.gatherFactsSuccess(index, data);
+    }, error => {
+      this.gatherFactsError(index, error);
+    }).add(() => {
+      this.isGettingDeviceFacts = false;
+      this.snackbar.showSnackBar('Gathering facts completed for '+kickstartNodes[index].hostname, -1, 'Dismiss');
+      this.ref.detectChanges();
+    });
+  }
+
+  private gatherFactsSuccess(node_index, data) {
+    let kickstartNodes = this.kickstartForm.nodes;
+    let kit_domain = this.kickstartForm.domain
+    if (data){
+      let nodes = this.kitFormGroup.get('nodes') as FormArray;
+      data['error'] = undefined
+      let newNode = this.kitSrv.newKitNodeForm(data);
+      this.updateNodesList(node_index, newNode);
+      this.nodes = nodes;
+    }
+  }
+  private gatherFactsError(node_index, error) {
+    let kickstartNodes = this.kickstartForm.nodes;
+    let kit_domain = this.kickstartForm.domain
+    let newNode = this.kitSrv.newKitNodeForm({
+      hostname: kickstartNodes[node_index].hostname+'.'+kit_domain,
+      management_ip_address: kickstartNodes[node_index].ip_address,
+      error: error.error
+    });
+    this.updateNodesList(node_index, newNode);
+  }
+
+  private updateNodesList(node_index, newNode) {
+    let kickstartNodes = this.kickstartForm.nodes;
+    let kit_domain = this.kickstartForm.domain
+    let nodes = this.kitFormGroup.get('nodes') as FormArray;
+    if(nodes.at(node_index) && nodes.at(node_index).get('hostname').value == kickstartNodes[node_index].hostname+'.'+kit_domain) {
+      nodes.removeAt(node_index);
+      nodes.insert(node_index, newNode);
+    } else {
+      nodes.insert(node_index, newNode);
+    }
+    this.nodes = nodes;
+  }
   /**
    * returns AllValidationError
    *

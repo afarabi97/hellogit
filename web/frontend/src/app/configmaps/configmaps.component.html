@@ -1,10 +1,10 @@
 <div *ngIf="!isUserEditing" class="main-content2">
     <mat-card>
         <mat-card-header>
-            <mat-card-title>
-                Config Maps
+            <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+                <div>Config Maps</div>
                 <button mat-raised-button id="app-configmaps-div-mat-card-mat-card-header-mat-card-title-button-add-config-map"
-                        color="primary" style="float: right;" (click)="addConfigMap()" [disabled]="!controllerMaintainer">Add Config Map</button>
+                        color="primary" (click)="addConfigMap()" [disabled]="!controllerMaintainer">Add Config Map</button>
             </mat-card-title>
         </mat-card-header>
 

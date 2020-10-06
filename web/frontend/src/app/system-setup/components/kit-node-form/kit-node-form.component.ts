@@ -28,6 +28,7 @@ export class KitNodeFormComponent implements OnInit {
   isSystemDIP: boolean = false;
   isSystemGIP: boolean = false;
   isSystemMIP: boolean = false;
+  nodeError: boolean = false;
 
   constructor(
     private sysNameSrv: WeaponSystemNameService
@@ -38,6 +39,10 @@ export class KitNodeFormComponent implements OnInit {
 
   ngOnInit() {
     this.getSystem();
+    this.nodeError = this.node.get("error").value != undefined
+    if(this.nodeError) {
+      this.node.disable();
+    }
   }
 
   /**

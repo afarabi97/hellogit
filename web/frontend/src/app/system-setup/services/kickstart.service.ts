@@ -30,11 +30,8 @@ export class KickstartService {
   }
 
   gatherDeviceFacts(management_ip: string): Observable<Object> {
-    const url = '/api/gather_device_facts';
-    let post_payload = { "management_ip": management_ip };
-    return this.http.post(url, post_payload, HTTP_OPTIONS).pipe(
-      catchError(this.handleError())
-    );
+    const url = `/api/gather_device_facts/${management_ip}`;
+    return this.http.get(url).pipe();
   }
 
   generateKickstartInventory(kickStartForm: Object) {

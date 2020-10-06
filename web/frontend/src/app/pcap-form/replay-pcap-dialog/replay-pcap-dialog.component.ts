@@ -6,6 +6,7 @@ import { PcapService } from '../pcap.service';
 import { HostInfo } from '../../policy-management/interface/rule.interface';
 import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 import { validateFromArray } from 'src/app/validators/generic-validators.validator';
+import { SortingService } from '../../services/sorting.service';
 
 @Component({
   selector: 'replay-pcap-dialog',
@@ -21,6 +22,7 @@ export class ReplayPcapDialog implements OnInit {
                private formBuilder: FormBuilder,
                private policySrv: PolicyManagementService,
                private pcapSrv: PcapService,
+               private sortSvc: SortingService,
                @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
     this.selectableSensors = [];
     this.selectableIfaces = [];
@@ -33,6 +35,7 @@ export class ReplayPcapDialog implements OnInit {
       for (let host of hosts) {
         this.selectableSensors.push({hostname: host.hostname, management_ip: host.management_ip});
       }
+      this.selectableSensors.sort(this.sortSvc.node_alphanum);
     });
 
     this.initializeForm();

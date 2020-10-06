@@ -15,6 +15,7 @@ export class ServerStdoutComponent implements OnInit {
   @ViewChild('console', {static: false})
   private consoleDiv: ElementRef;
   private jobName: string;
+  public scrollStatus: Boolean = true;
 
   messages: Array<{msg: string, color: string}>;
   constructor(private stdoutService: ServerStdoutService,
@@ -71,13 +72,15 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   public scrollToBottom(){
-    this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;
+    if(this.scrollStatus) {
+      this.consoleDiv.nativeElement.scrollTop = this.consoleDiv.nativeElement.scrollHeight;
+    }
   }
 
   private resizeConsole(){
     let height: string = "";
     if (window.innerHeight > 400){
-      height = (window.innerHeight - 60) + "px";
+      height = (window.innerHeight - 64) + "px";
     } else {
       height = "100px";
     }
@@ -111,5 +114,9 @@ export class ServerStdoutComponent implements OnInit {
 
   killJob() {
     this.stdoutService.killJob(this.jobName).subscribe();
+  }
+
+  pauseScroll() {
+    this.scrollStatus = !this.scrollStatus;
   }
 }

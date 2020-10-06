@@ -1,5 +1,5 @@
 <ng-container *ngIf="node">
-  <ng-container *ngIf="node.get('deviceFacts')">
+  <ng-container *ngIf="node.get('deviceFacts').value">
     <div fxLayout="row" fxLayoutAlign="space-between stretch" fxLayoutGap="20px"
          fxLayout.xs="column" [formGroup]="node">
       <mat-card style="border: none;" fxFlex="30%">
@@ -8,18 +8,18 @@
             <mat-list-item>
               <mat-icon mat-list-icon>developer_board</mat-icon>
               <h4 mat-line id="{{ generateUniqueHTMLID('app-kit-node-form-div-mat-card-mat-card-content-mat-list-mat-list-item-developer-board-h4-cpu-cores-available') }}">
-                CPU Cores Available: {{node.get('deviceFacts').value.cpus_available | number:'1.0-2'}} </h4>
+                CPU Cores Available: {{ node.get('deviceFacts').value.cpus_available | number:'1.0-2' }} </h4>
             </mat-list-item>
             <mat-list-item>
               <mat-icon mat-list-icon>memory</mat-icon>
               <h4 mat-line id="{{ generateUniqueHTMLID('app-kit-node-form-div-mat-card-mat-card-content-mat-list-mat-list-item-memory-h4-memory-available') }}">
-                Memory Available: {{node.get('deviceFacts').value.memory_available | number:'1.0-2' }} GB
+                Memory Available: <span *ngIf="node.get('deviceFacts').value.memory_available">{{ node.get('deviceFacts').value.memory_available | number:'1.0-2' }} GB</span>
               </h4>
             </mat-list-item>
             <mat-list-item>
               <mat-icon mat-list-icon>router</mat-icon>
               <h4 mat-line id="{{ generateUniqueHTMLID('app-kit-node-form-div-mat-card-mat-card-content-mat-list-mat-list-item-router-h4-ip-address') }}">
-                IP Address: {{node.get('deviceFacts').value.default_ipv4_settings?.address}}
+                IP Address: {{ node.get('management_ip_address').value }}
               </h4>
             </mat-list-item>
           </mat-list>
@@ -44,6 +44,9 @@
                           matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master Server</mat-checkbox>
           </div>
         </ng-container>
+        <div *ngIf="nodeError">
+          {{ node.get('error').value.error_message }}
+        </div>
       </div>
     </div>
   </ng-container>
