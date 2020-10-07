@@ -1,10 +1,9 @@
 from app import app, conn_mng
 from app.common import JSONEncoder
-from flask import jsonify, Response
-import json
+from flask import Response
 from bson import ObjectId
-from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.middleware import Auth, controller_maintainer_required
+from app.common import OK_RESPONSE
+from app.middleware import controller_maintainer_required
 
 
 @app.route('/api/notifications', methods=['GET'])

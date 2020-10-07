@@ -1,17 +1,14 @@
-import hashlib
-from app import app, logger, conn_mng
+from app import app, conn_mng
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from shared.constants import KICKSTART_ID
 from app.service.pcap_service import replay_pcap_srv
 from datetime import datetime
 from flask import jsonify, request, Response
 from pathlib import Path
-from pymongo.results import InsertOneResult
 from shared.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
 from shared.utils import hash_file, decode_password
 from werkzeug.utils import secure_filename
-from bson import ObjectId
-from app.middleware import Auth, operator_required
+from app.middleware import operator_required
 
 
 @app.route('/api/get_pcaps', methods=['GET'])

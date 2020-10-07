@@ -1,19 +1,15 @@
 """
 Main module that controls the REST calls for the portal page.
 """
-import json
-
 from app import (app, conn_mng, logger)
-from app.common import OK_RESPONSE, ERROR_RESPONSE, cursor_to_json_response
-from fabric.runners import Result
+from app.common import ERROR_RESPONSE, cursor_to_json_response
 from flask import jsonify, Response
-from shared.connection_mngs import FabricConnectionWrapper, KubernetesWrapper2, get_elastic_password
-from shared.constants import PORTAL_ID
+from shared.connection_mngs import  KubernetesWrapper2, get_elastic_password
 from typing import List
-from flask import send_file, Response, request, jsonify
+from flask import Response, request, jsonify
 from bson import ObjectId
-from app.middleware import Auth, operator_required
-from shared.constants import KICKSTART_ID, KIT_ID
+from app.middleware import operator_required
+from shared.constants import KICKSTART_ID
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
