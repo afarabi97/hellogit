@@ -1,13 +1,13 @@
 """
 Main module for handling all of the config map REST calls.
 """
-from app import app, logger, conn_mng
-from app.common import ERROR_RESPONSE, OK_RESPONSE
-from app.service.configmap_service import bounce_pods
+from typing import Dict, List
 from flask import jsonify, Response, request
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
-from typing import Dict, List
+from app import app, logger, conn_mng
+from app.common import ERROR_RESPONSE, OK_RESPONSE
+from app.service.configmap_service import bounce_pods
 from app.middleware import controller_maintainer_required
 from shared.connection_mngs import KubernetesWrapper, KitFormNotFound
 

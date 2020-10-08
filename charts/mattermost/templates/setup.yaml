@@ -18,15 +18,15 @@ data:
     cat /mattermost/config/config.json.tmp | jq '.ServiceSettings.SiteURL = "https://mattermost.{{ .Values.domain }}"' |
                                              jq '.ServiceSettings.ConnectionSecurity = "TLS"' |
                                              jq '.ServiceSettings.TLSCertFile = "/etc/ssl/certs/container/tls.crt"' |
-                                             jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/container/tls.key"' > /mattermost/config/config.json
+                                             jq '.ServiceSettings.TLSKeyFile = "/etc/ssl/certs/container/tls.key"' |
+                                             jq '.GitLabSettings.Enable = true' |
+                                             jq '.GitLabSettings.Secret = "'${OPEN_ID_SECRET}'"' |
+                                             jq '.GitLabSettings.Id = "mattermost"' |
+                                             jq '.GitLabSettings.Scope = ""' |
+                                             jq '.GitLabSettings.AuthEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/auth"' |
+                                             jq '.GitLabSettings.TokenEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/token"' |
+                                             jq '.GitLabSettings.UserApiEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/userinfo"' > /mattermost/config/config.json
 
-                                             # jq '.GitLabSettings.Enable = false' |
-                                             # jq '.GitLabSettings.Secret = "'${OPEN_ID_SECRET}'"' |
-                                             # jq '.GitLabSettings.Id = "mattermost"' |
-                                             # jq '.GitLabSettings.Scope = ""' |
-                                             # jq '.GitLabSettings.AuthEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/auth"' |
-                                             # jq '.GitLabSettings.TokenEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/token"' |
-                                             # jq '.GitLabSettings.UserApiEndpoint = "{{ .Values.auth_base }}/protocol/openid-connect/userinfo"' |
                                              # jq '.SamlSettings.Enable = true' |
                                              # jq '.SamlSettings.SignRequest = true' |
                                              # jq '.SamlSettings.IdpUrl = "{{ .Values.auth_base }}/protocol/saml"' |

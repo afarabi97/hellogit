@@ -47,6 +47,7 @@ variables:
   MIP_ACAS_SCAN_TO_RUN: "MIP Dynamic Scan"
   RUN_ACAS: "no"
   RUN_INTEGRATION: "no"
+  COMMUNITY_APPS: "no"
   RUN_CODE_CHECKS: "yes"
   RUN_POWER_FAILURE: "no"
   RUN_BREAKINGPOINT : "no"

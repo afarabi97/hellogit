@@ -200,7 +200,7 @@ Perform DIP Security Scans:
   artifacts:
     untracked: true
 
-CVAH Catalog:
+CVAH Catalog PMO Apps:
   stage: catalog
   tags:
     - tfplenum-buildv2
@@ -217,13 +217,28 @@ CVAH Catalog:
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog misp
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog hive
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog rocketchat
-    # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall wikijs
-    # python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog --process reinstall suricata
   only:
     variables:
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-all"
       - $RUN_INTEGRATION == "yes" && $PIPELINE == "developer-dip-mip"
+
+CVAH Catalog Community Apps:
+  stage: catalog
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog mattermost
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog nifi
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog redmine
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog netflow-filebeat
+  only:
+    variables:
+      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_INTEGRATION == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "developer-dip-mip"
 
 DIP Run Python Unit Tests:
   tags:

@@ -44,6 +44,14 @@ class CatalogJob:
                 self.runner.install_cortex()
             elif application == SubCmd.rocketchat:
                 self.runner.install_rocketchat()
+            elif application == SubCmd.mattermost:
+                self.runner.install_mattermost()
+            elif application == SubCmd.nifi:
+                self.runner.install_nifi()
+            elif application == SubCmd.redmine:
+                self.runner.install_redmine()
+            elif application == SubCmd.netflow_filebeat:
+                self.runner.install_netflow_filebeat()
             else:
                 logging.info("Cannot install "+application.title()+". The function has not been coded")
         elif process == SubCmd.reinstall:

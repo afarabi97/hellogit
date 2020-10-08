@@ -16,7 +16,7 @@
 
 - name: Check Kibana Dashboards
   uri:
-    url: "{{ elastic_uri }}/.kibana/_search?q=type:dashboard+AND+\"Bro\""
+    url: "{{ elastic_uri }}/.kibana/_search?q=type:dashboard"
     return_content: yes
     validate_certs: no
     user: "{{ elastic_username }}"
@@ -26,6 +26,6 @@
 
 - name: Test | Check Kibana Dashboards
   assert:
-    that: results_kd.json.hits.total > 25
+    that: results_kd.json.hits.total.value > 200
     msg: "Kibana Dashboards are not loaded properly"
 ...

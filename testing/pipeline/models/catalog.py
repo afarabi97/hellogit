@@ -137,7 +137,29 @@ class RocketchatSettings(Model):
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "rocketchat"
 
+class MattermostSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "mattermost"
 
+class NifiSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "nifi"
+
+class RedmineSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "redmine"
+
+class NetflowFilebeatSettings(Model):
+    def __init__(self):
+        self.node_hostname = "server"
+        self.affinity_hostname = "Server - Any"
+        self.deployment_name = "netflow-filebeat"
 class CatalogSettings(Model):
 
     def __init__(self):
@@ -151,6 +173,10 @@ class CatalogSettings(Model):
         self.hive_settings = dict()
         self.cortex_settings = dict()
         self.rocketchat_settings = dict()
+        self.mattermost_settings = dict()
+        self.nifi_settings = dict()
+        self.redmine_settings = dict()
+        self.netflow_filebeat_settings = dict()
 
     def set_from_kickstart(self,
                            kickstart_settings: Union[KickstartSettings,HwKickstartSettings],
@@ -201,6 +227,18 @@ class CatalogSettings(Model):
             elif namespace.which == SubCmd.rocketchat:
                 self.rocketchat_settings = RocketchatSettings()
                 self.rocketchat_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.mattermost:
+                self.mattermost_settings = MattermostSettings()
+                self.mattermost_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.nifi:
+                self.nifi_settings = NifiSettings()
+                self.nifi_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.redmine:
+                self.redmine_settings = RedmineSettings()
+                self.redmine_settings.from_namespace(namespace)
+            elif namespace.which == SubCmd.netflow_filebeat:
+                self.netflow_filebeat_settings = NetflowFilebeatSettings()
+                self.netflow_filebeat_settings.from_namespace(namespace)
 
     @staticmethod
     def add_args(parser: ArgumentParser):
@@ -245,16 +283,36 @@ class CatalogSettings(Model):
         misp_parser.set_defaults(which=SubCmd.misp)
 
         hive_parser = subparsers.add_parser(SubCmd.hive,
-                                                help="This subcommand can be used to install hive on your Kit's sensors.")
+                                                help="This subcommand can be used to install hive on your Kit's servers.")
         add_args_from_instance(hive_parser, HiveSettings())
         hive_parser.set_defaults(which=SubCmd.hive)
 
         cortex_parser = subparsers.add_parser(SubCmd.cortex,
-                                                help="This subcommand can be used to install cortex on your Kit's sensors.")
+                                                help="This subcommand can be used to install cortex on your Kit's servers.")
         add_args_from_instance(cortex_parser, CortexSettings())
         cortex_parser.set_defaults(which=SubCmd.cortex)
 
         rocketchat_parser = subparsers.add_parser(SubCmd.rocketchat,
-                                                help="This subcommand can be used to install rocketchat on your Kit's sensors.")
+                                                help="This subcommand can be used to install rocketchat on your Kit's servers.")
         add_args_from_instance(rocketchat_parser, RocketchatSettings())
         rocketchat_parser.set_defaults(which=SubCmd.rocketchat)
+
+        mattermost_parser = subparsers.add_parser(SubCmd.mattermost,
+                                                help="This subcommand can be used to install mattermost on your Kit's servers.")
+        add_args_from_instance(mattermost_parser, MattermostSettings())
+        mattermost_parser.set_defaults(which=SubCmd.mattermost)
+
+        nifi_parser = subparsers.add_parser(SubCmd.nifi,
+                                                help="This subcommand can be used to install nifi on your Kit's servers.")
+        add_args_from_instance(nifi_parser, NifiSettings())
+        nifi_parser.set_defaults(which=SubCmd.nifi)
+
+        redmine_parser = subparsers.add_parser(SubCmd.redmine,
+                                                help="This subcommand can be used to install redmine on your Kit's servers.")
+        add_args_from_instance(redmine_parser, RedmineSettings())
+        redmine_parser.set_defaults(which=SubCmd.redmine)
+
+        netflow_filebeat_parser = subparsers.add_parser(SubCmd.netflow_filebeat,
+                                                help="This subcommand can be used to install redmine on your Kit's servers.")
+        add_args_from_instance(netflow_filebeat_parser, NetflowFilebeatSettings())
+        netflow_filebeat_parser.set_defaults(which=SubCmd.netflow_filebeat)

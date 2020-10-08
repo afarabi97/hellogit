@@ -4,18 +4,18 @@ boostrap_sso_vars: "/opt/tfplenum/bootstrap/playbooks/roles/sso/defaults/main.ym
 saml_apps:
   - "kibana"
   - "misp"
-#  - "redmine"
   - "wikijs"
   - "rocketchat"
-#  - "mattermost"
   - "moloch"
   - "nifi"
+#  - "redmine"
+#  - "mattermost"
 
 openid_apps:
   - "cortex"
   - "hive"
+  - "mattermost"
 #  - "nifi"
-#  - "mattermost"
 
 all_apps: "{{ saml_apps + openid_apps }}"
 

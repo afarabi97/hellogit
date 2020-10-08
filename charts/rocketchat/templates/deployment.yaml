@@ -100,7 +100,7 @@ spec:
         - name: OVERWRITE_SETTING_SAML_Custom_Default_button_label_text
           value: Login with SAML
         - name: OVERWRITE_SETTING_SAML_Custom_Default_generate_username
-          value: "True"
+          value: "False"
         - name: OVERWRITE_SETTING_SAML_Custom_Default_username_normalize
           value: Lowercase
         - name: OVERWRITE_SETTING_SAML_Custom_Default_immutable_property

@@ -44,6 +44,10 @@ class SubCmd:
     hive = "hive"
     cortex = "cortex"
     rocketchat = "rocketchat"
+    mattermost = "mattermost"
+    nifi = "nifi"
+    redmine = "redmine"
+    netflow_filebeat = "netflow-filebeat"
 
     # run-export subcommands
     export_html_docs = 'export-html-docs'

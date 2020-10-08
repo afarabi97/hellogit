@@ -3,12 +3,20 @@
     "localization": {
       "locales": [
         {
+          "code": "af",
+          "name": "Afrikaans",
+          "nativeName": "Afrikaans",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-25T02:05:58.000Z"
+        },
+        {
           "code": "ar",
           "name": "Arabic",
           "nativeName": "العربية",
           "isRTL": true,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "hy",
@@ -16,7 +24,7 @@
           "nativeName": "Հայերեն",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "bn",
@@ -24,7 +32,7 @@
           "nativeName": "বাংলা",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-17T05:50:30.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "bg",
@@ -32,7 +40,7 @@
           "nativeName": "български език",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "ca",
@@ -40,7 +48,7 @@
           "nativeName": "català",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "zh",
@@ -48,7 +56,7 @@
           "nativeName": "中文 (Zhōngwén)",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-10-02T11:25:46.000Z"
         },
         {
           "code": "zh-tw",
@@ -56,7 +64,23 @@
           "nativeName": "中文 (Zhōngwén)",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
+        },
+        {
+          "code": "hr",
+          "name": "Croatian",
+          "nativeName": "hrvatski jezik",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-25T02:05:58.000Z"
+        },
+        {
+          "code": "pap-cw",
+          "name": "Papiamento",
+          "nativeName": "",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-29T16:53:22.000Z"
         },
         {
           "code": "cs",
@@ -64,7 +88,7 @@
           "nativeName": "čeština",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T07:16:44.000Z"
         },
         {
           "code": "da",
@@ -72,7 +96,7 @@
           "nativeName": "dansk",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-10-04T15:17:17.000Z"
         },
         {
           "code": "nl",
@@ -80,7 +104,7 @@
           "nativeName": "Nederlands",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "en",
@@ -88,7 +112,7 @@
           "nativeName": "English",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "eo",
@@ -96,7 +120,7 @@
           "nativeName": "Esperanto",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "et",
@@ -104,7 +128,7 @@
           "nativeName": "eesti",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "fi",
@@ -112,7 +136,7 @@
           "nativeName": "suomi",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "fr",
@@ -120,7 +144,7 @@
           "nativeName": "français",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:47:44.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "de",
@@ -128,7 +152,7 @@
           "nativeName": "Deutsch",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T21:31:46.000Z"
+          "updatedAt": "2020-09-30T09:46:34.000Z"
         },
         {
           "code": "el",
@@ -136,7 +160,15 @@
           "nativeName": "ελληνικά",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
+        },
+        {
+          "code": "ht-ht",
+          "name": "Haitian Creole",
+          "nativeName": "Kreyòl ayisyen",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "he",
@@ -144,7 +176,15 @@
           "nativeName": "עברית",
           "isRTL": true,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
+        },
+        {
+          "code": "hi-in",
+          "name": "Hindi (India)",
+          "nativeName": "हिन्दी",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "hu",
@@ -152,7 +192,15 @@
           "nativeName": "magyar",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-17T17:30:50.000Z"
+          "updatedAt": "2020-10-02T08:56:09.000Z"
+        },
+        {
+          "code": "is-is",
+          "name": "Icelandic (Iceland)",
+          "nativeName": "Íslenska",
+          "isRTL": false,
+          "createdAt": "2017-10-31T01:01:54.000Z",
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "id",
@@ -160,7 +208,7 @@
           "nativeName": "Bahasa Indonesia",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "it",
@@ -168,7 +216,7 @@
           "nativeName": "italiano",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "ja",
@@ -176,7 +224,7 @@
           "nativeName": "日本語 (にほんご)",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T04:09:43.000Z"
+          "updatedAt": "2020-09-29T11:41:56.000Z"
         },
         {
           "code": "ko",
@@ -184,7 +232,7 @@
           "nativeName": "한국어",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-17T06:36:17.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "lv",
@@ -192,7 +240,7 @@
           "nativeName": "latviešu valoda",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "lt",
@@ -200,7 +248,7 @@
           "nativeName": "lietuvių kalba",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "mn",
@@ -208,7 +256,7 @@
           "nativeName": "монгол",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "nb",
@@ -216,7 +264,7 @@
           "nativeName": "Norsk bokmål",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "nn",
@@ -224,7 +272,7 @@
           "nativeName": "Norsk nynorsk",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "fa",
@@ -232,7 +280,7 @@
           "nativeName": "فارسی",
           "isRTL": true,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "pl",
@@ -240,7 +288,7 @@
           "nativeName": "język polski",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "pt",
@@ -248,7 +296,7 @@
           "nativeName": "português",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "pt-br",
@@ -256,7 +304,7 @@
           "nativeName": "português",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "ro",
@@ -264,7 +312,7 @@
           "nativeName": "limba română",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "ru",
@@ -272,7 +320,7 @@
           "nativeName": "русский язык",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "sr",
@@ -280,7 +328,7 @@
           "nativeName": "српски језик",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T15:37:45.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "sk",
@@ -288,7 +336,7 @@
           "nativeName": "slovenčina",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "sl",
@@ -296,7 +344,7 @@
           "nativeName": "slovenski jezik",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "es",
@@ -304,7 +352,7 @@
           "nativeName": "español",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "sv",
@@ -312,7 +360,7 @@
           "nativeName": "Svenska",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-10-03T08:35:41.000Z"
         },
         {
           "code": "th",
@@ -320,7 +368,7 @@
           "nativeName": "ไทย",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "tr",
@@ -328,7 +376,7 @@
           "nativeName": "Türkçe",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "uk",
@@ -336,7 +384,7 @@
           "nativeName": "українська мова",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         },
         {
           "code": "vi",
@@ -344,7 +392,7 @@
           "nativeName": "Tiếng Việt",
           "isRTL": false,
           "createdAt": "2017-10-31T01:01:54.000Z",
-          "updatedAt": "2020-05-16T02:46:52.000Z"
+          "updatedAt": "2020-09-25T02:05:58.000Z"
         }
       ]
     }

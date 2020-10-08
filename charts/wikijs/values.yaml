@@ -1,12 +1,13 @@
 # Default values for mattermost
-wikijsImage: requarks/wiki:2.4.107
-python_image: tfplenum/python:3.8.3
+wikijsImage: requarks/wiki:2.5.159
+python_image: tfplenum/python:3.9.0
+busyboxImage: busybox:1.32.0
 domain: lan
 system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 
 # database variables
-mariadbImage: mariadb:10.5.4
+mariadbImage: mariadb:10.5.6
 sqlDatabase: wikijs-db
 sqlUsername: wikijs
 sqlRootPassword: AIz#8-QlVpUHHckzuxnfv7cn0

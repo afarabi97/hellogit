@@ -1,15 +1,18 @@
 # Default values for mattermost
-mattermostImage: mattermost/mattermost-prod-app:5.24.2
-python_image: tfplenum/python:3.8.3
+mattermostImage: mattermost/mattermost-prod-app:5.28.1
+python_image: tfplenum/python:3.9.0
+busyboxImage: busybox:1.32.0
 domain: lan
+system_name: dip
+auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 
 # database variables
-mariadbImage: mariadb:10.5.4
+mariadbImage: mariadb:10.5.6
 sqlDatabase: mattermost-db
 sqlUsername: mmuser
 sqlPassword: mmuser_password
 sqlRootPassword: mmuser_password
-admin_user: admin
+admin_user: local_admin
 admin_pass: 1qaz@WSX1qaz@WSX
-admin_email: admin@dip.local
+admin_email: local_admin@dip.local
 team_name: CPT

@@ -1,67 +1,110 @@
 {
-  "clientId": "https://mattermost.{{ kit_domain }}/",
+  "clientId": "mattermost",
   "name": "Mattermost",
-  "rootUrl": "https://mattermost.{{ kit_domain }}/",
-  "adminUrl": "",
+  "description": "Mattermost",
+  "rootUrl": "https://mattermost.{{ kit_domain }}",
+  "adminUrl": "https://mattermost.{{ kit_domain }}",
   "surrogateAuthRequired": false,
   "enabled": true,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
+  "secret": "{{ openid_secrets.mattermost }}",
   "redirectUris": [
     "https://mattermost.{{ kit_domain }}/*"
   ],
-  "webOrigins": [],
+  "webOrigins": [
+    "https://mattermost.{{ kit_domain }}"
+  ],
   "notBefore": 0,
   "bearerOnly": false,
   "consentRequired": false,
   "standardFlowEnabled": true,
   "implicitFlowEnabled": false,
-  "directAccessGrantsEnabled": false,
-  "serviceAccountsEnabled": false,
+  "directAccessGrantsEnabled": true,
+  "serviceAccountsEnabled": true,
+  "authorizationServicesEnabled": true,
   "publicClient": false,
-  "frontchannelLogout": true,
-  "protocol": "saml",
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
   "attributes": {
     "saml.assertion.signature": "true",
-    "saml_assertion_consumer_url_redirect": "https://mattermost.{{ kit_domain }}/login/sso/saml",
     "saml.force.post.binding": "false",
     "saml.multivalued.roles": "false",
-    "saml_single_logout_service_url_post": "",
-    "saml.encrypt": "true",
-    "saml_assertion_consumer_url_post": "https://mattermost.{{ kit_domain }}/login/sso/saml",
-    "saml.server.signature": "true",
-    "saml_idp_initiated_sso_url_name": "wikijs",
+    "saml.encrypt": "false",
+    "saml.server.signature": "false",
     "saml.server.signature.keyinfo.ext": "false",
     "exclude.session.state.from.auth.response": "false",
-    "saml.signing.certificate": "{{ saml_certs.mattermost }}",
-    "saml_single_logout_service_url_redirect": "",
-    "saml.signature.algorithm": "RSA_SHA256",
     "saml_force_name_id_format": "false",
     "saml.client.signature": "false",
-    "saml.encryption.certificate": "{{ saml_certs.mattermost }}",
     "tls.client.certificate.bound.access.tokens": "false",
-    "saml.authnstatement": "true",
+    "saml.authnstatement": "false",
     "display.on.consent.screen": "false",
-    "saml.signing.private.key": "{{ saml_keys.mattermost }}",
-    "saml_name_id_format": "username",
-    "saml.onetimeuse.condition": "false",
-    "saml_signature_canonicalization_method": "http://www.w3.org/2001/10/xml-exc-c14n#"
+    "saml.onetimeuse.condition": "false"
   },
   "authenticationFlowBindingOverrides": {},
   "fullScopeAllowed": true,
   "nodeReRegistrationTimeout": -1,
-  "defaultClientScopes": [
-    "web-origins",
-    "role_list",
-    "profile",
-    "roles",
-    "common_attributes_saml",
-    "email"
-  ],
+  "defaultClientScopes": [],
   "optionalClientScopes": [
-    "address",
-    "phone",
-    "offline_access",
-    "microprofile-jwt"
+    "offline_access"
+  ],
+  "protocolMappers": [
+    {
+      "id": "a1c36b0a-cb73-44f1-8463-017e65d58f8f",
+      "name": "email",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-property-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "user.attribute": "email",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "email",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "id": "da2f0700-6a2c-41b0-8c4f-a63fdf5ed2be",
+      "name": "username",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-property-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "user.attribute": "username",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "username",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "id": "edd2e893-1328-4db2-b416-c493c4c01596",
+      "name": "name",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-full-name-mapper",
+      "consentRequired": false,
+      "config": {
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "id": "fbb3e8a2-57db-4068-ac9b-404d9719aac1",
+      "name": "mattermostId",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "user.attribute": "mattermostId",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "id",
+        "jsonType.label": "long"
+      }
+    }
   ]
 }

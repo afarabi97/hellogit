@@ -15,21 +15,23 @@ spec:
         component: {{ .Release.Name }}
     spec:
       containers:
-      - name: postgres
-        image: "{{ .Values.postgresImage }}"
+      - name: mariadb
+        image: {{ .Values.mariadbImage }}
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5432
+        - containerPort: 3306
         env:
-        - name: POSTGRES_PASSWORD
-          value: {{ .Values.postgresqlPassword }}
-        - name: POSTGRES_USER
-          value: {{ .Values.postgresqlUsername }}
-        - name: POSTGRES_DB
-          value: {{ .Values.postgresqlDatabase }}
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.sqlRootPassword }}
+        - name: MYSQL_DATABASE
+          value: {{ .Values.sqlDatabase }}
+        - name: MYSQL_USER
+          value: {{ .Values.sqlUsername }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.sqlPassword }}
         volumeMounts:
         - name: data
-          mountPath: /var/lib/postgresql/data
+          mountPath: /var/lib/mysql
           subPath: database
       - name: redmine
         image: "{{ .Values.redmineImage }}"
@@ -38,14 +40,14 @@ spec:
         - name: redmine
           containerPort: {{ .Values.redmineInternalPort }}
         env:
-        - name: REDMINE_DB_POSTGRES
-          value: localhost
+        - name: REDMINE_DB_MYSQL
+          value: 127.0.0.1
         - name: REDMINE_DB_DATABASE
-          value: {{ .Values.postgresqlDatabase }}
+          value: {{ .Values.sqlDatabase }}
         - name: REDMINE_DB_USERNAME
-          value: {{ .Values.postgresqlUsername }}
+          value: {{ .Values.sqlUsername }}
         - name: REDMINE_DB_PASSWORD
-          value: {{ .Values.postgresqlPassword }}
+          value: {{ .Values.sqlPassword }}
         volumeMounts:
         - name: data
           mountPath: /usr/src/redmine/files

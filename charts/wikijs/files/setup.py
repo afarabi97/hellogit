@@ -3,6 +3,7 @@ import requests
 import time
 import os
 import json
+import uuid
 
 URI="https://wikijs.default.svc.cluster.local"
 SETUP_URI="http://wikijs-setup.default.svc.cluster.local"
@@ -66,7 +67,7 @@ class WikiSetUp:
 
     def login_as_admin(self):
         print("Logging in as Admin")
-        query = "mutation ($username: String!, $password: String!, $strategy: String!) {\n authentication {\n login(username: $username, password: $password, strategy: $strategy) {\n responseResult {\n succeeded\n errorCode\n slug\n message\n __typename\n }\n jwt\n mustChangePwd\n mustProvideTFA\n continuationToken\n __typename\n }\n __typename\n }\n}\n"
+        query = "mutation ($username: String!, $password: String!, $strategy: String!) {\n authentication {\n login(username: $username, password: $password, strategy: $strategy) {\n responseResult {\n succeeded\n errorCode\n slug\n message\n __typename\n }\n jwt\n mustChangePwd\n mustProvideTFA\n mustSetupTFA\n continuationToken\n redirect\n tfaQRImage\n __typename\n }\n __typename\n }\n}\n"
         data = {
             "operationName": None,
             "extensions":{},
@@ -83,21 +84,30 @@ class WikiSetUp:
 
     def setup_saml(self):
         print("Setting up SAML Authentication")
-        query = "mutation ($strategies: [AuthenticationStrategyInput]!, $config: AuthenticationConfigInput) {\n  authentication {\n    updateStrategies(strategies: $strategies, config: $config) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"
+        query = "mutation ($strategies: [AuthenticationStrategyInput]!) {\n authentication {\n updateStrategies(strategies: $strategies) {\n responseResult {\n succeeded\n errorCode\n slug\n message\n __typename\n }\n __typename\n }\n __typename\n }\n}\n"
         data = {
             "operationName": None,
             "extensions": {},
             "query": query,
             "variables": {
-                "config": {
-                    "audience":"urn:wiki.js",
-                    "tokenExpiration":"30m",
-                    "tokenRenewal":"14d"
-                    },
                 "strategies": [
                     {
+                    "key": "local",
+                    "strategyKey": "local",
+                    "displayName": "Local",
+                    "order": 0,
+                    "isEnabled": True,
+                    "config": [],
+                    "selfRegistration": False,
+                    "domainWhitelist": [],
+                    "autoEnrollGroups": []
+                    },
+                    {
+                        "key": str(uuid.uuid4()),
+                        "strategyKey": "saml",
+                        "displayName": "SAML 2.0",
+                        "order": 1,
                         "isEnabled": True,
-                        "key": "saml",
                         "config": [],
                         "selfRegistration": True,
                         "domainWhitelist": [],
@@ -121,7 +131,7 @@ class WikiSetUp:
                     "key": key,
                     "value": "{{ \"v\": {val} }}".format(val=val)
                 })
-            data['variables']['strategies'][0]['config'] = temp
+            data['variables']['strategies'][1]['config'] = temp
         response = self.post(url=URI+"/graphql", data=data)
 
     def apply_locale(self):

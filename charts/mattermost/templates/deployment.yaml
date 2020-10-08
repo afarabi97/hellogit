@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
       - name: mattermost-init
-        image: "busybox:1.31.1"
+        image: "{{ .Values.busyboxImage }}"
         securityContext:
           runAsUser: 0
         command:
@@ -70,11 +70,11 @@ spec:
           value: "mysql"
         - name: MM_SQLSETTINGS_DATASOURCE
           value: {{ .Values.sqlUsername }}:{{ .Values.sqlPassword }}@tcp({{ .Values.sqlHost }}:3306)/{{ .Values.sqlDatabase }}?charset=utf8mb4,utf8@readTimeout=30s&writeTimeout=30s
-        # - name: OPEN_ID_SECRET
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: mattermost-openid
-        #       key: openid-secret
+        - name: OPEN_ID_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mattermost-openid
+              key: openid-secret
         volumeMounts:
         - name: data
           mountPath: /mattermost/data
@@ -85,6 +85,10 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
+        - name: webca
+          mountPath: /etc/ssl/certs/webCA.crt
+          readOnly: true
+          subPath: ca.crt
       nodeSelector:
         role: "server"
       volumes:

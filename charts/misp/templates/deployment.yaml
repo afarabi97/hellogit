@@ -37,7 +37,8 @@ spec:
         image: {{ .Values.mispImage }}
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 443
+        - name: misp
+          containerPort: 443
         env:
         - name: MISP_BASEURL
           value: https://misp.{{ .Values.domain }}

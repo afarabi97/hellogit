@@ -15,7 +15,8 @@ from models.ctrl_setup import ControllerSetupSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
 from models.kit import KitSettings
 from models.catalog import (MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings,
-WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings)
+WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings,
+MattermostSettings, NifiSettings, RedmineSettings, NetflowFilebeatSettings)
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
 from util.connection_mngs import FabricConnectionWrapper
@@ -440,6 +441,14 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.cortex_settings.deployment_name
         elif role == 'rocketchat':
             return self._catalog_settings.rocketchat_settings.deployment_name
+        elif role == 'mattermost':
+            return self._catalog_settings.mattermost_settings.deployment_name
+        elif role == 'nifi':
+            return self._catalog_settings.nifi_settings.deployment_name
+        elif role == 'redmine':
+            return self._catalog_settings.redmine_settings.deployment_name
+        elif role == 'netflow-filebeat':
+            return self._catalog_settings.netflow_filebeat_settings.deployment_name
 
     def _get_catalog_dict(self, role: str, node: NodeSettings) -> Dict:
         if role == 'suricata':
@@ -462,6 +471,14 @@ class CatalogPayloadGenerator:
             return self._catalog_settings.cortex_settings.to_dict()
         elif role == 'rocketchat':
             return self._catalog_settings.rocketchat_settings.to_dict()
+        elif role == 'mattermost':
+            return self._catalog_settings.mattermost_settings.to_dict()
+        elif role == 'nifi':
+            return self._catalog_settings.nifi_settings.to_dict()
+        elif role == 'redmine':
+            return self._catalog_settings.redmine_settings.to_dict()
+        elif role == 'netflow-filebeat':
+            return self._catalog_settings.netflow_filebeat_settings.to_dict()
 
     def _construct_selected_node_part(self, node_affinity: str, role: str) -> List[Dict]:
         all_parts = []
@@ -619,6 +636,26 @@ class APITester:
 
     def install_rocketchat(self):
         payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait=60)
+
+    def install_mattermost(self):
+        payload = self._catalog_payload_generator.generate("mattermost", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait=60)
+
+    def install_nifi(self):
+        payload = self._catalog_payload_generator.generate("nifi", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait=60)
+
+    def install_redmine(self):
+        payload = self._catalog_payload_generator.generate("redmine", INSTALL, SERVER_ANY)
+        post_request(self._catlog_install_url, payload)
+        _clean_up(wait=60)
+
+    def install_netflow_filebeat(self):
+        payload = self._catalog_payload_generator.generate("netflow-filebeat", INSTALL, SERVER_ANY)
         post_request(self._catlog_install_url, payload)
         _clean_up(wait=60)
 

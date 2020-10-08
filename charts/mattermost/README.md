@@ -5,7 +5,7 @@
   "formControls": [
     {
       "type": "textinput",
-      "default_value": "admin@dip.local",
+      "default_value": "local_admin@dip.local",
       "description": "Enter Mattermost Admin email.",
       "required": true,
       "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
@@ -23,7 +23,7 @@
     },
     {
       "type": "textinput",
-      "default_value": "admin",
+      "default_value": "local_admin",
       "description": "Enter Mattermost Admin username",
       "required": true,
       "regexp": "",

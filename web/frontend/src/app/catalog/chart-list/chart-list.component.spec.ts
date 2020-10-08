@@ -37,73 +37,73 @@ describe('ChartListComponent', () => {
   it('should list chart', async(() => {
       const charts = [
         {
-          "appVersion": "1.0.0",
+          "appVersion": "3.4.0",
           "application": "hive",
           "description": "TheHive is a scalable 4-in-1 open source and free Security Incident Response Platform.",
           "pmoSupported": true
         },
         {
-          "appVersion": "7.3.1",
+          "appVersion": "7.8.1",
           "application": "logstash",
           "description": "Logstash is an open source, server-side data processing pipeline that ingests data from a multitude of sources simultaneously, transforms it, and then sends it to your favorite stash.",
           "pmoSupported": true
         },
         {
-          "appVersion": "5.22.3",
+          "appVersion": "5.28.1",
           "application": "mattermost",
           "description": "Mattermost is a chat and file sharing platform",
           "pmoSupported": false
         },
         {
-          "appVersion": "2.1.0",
+          "appVersion": "2.2.3v2",
           "application": "moloch",
           "description": "Large scale, open source, indexed packet capture and search.",
           "pmoSupported": true
         },
         {
-          "appVersion": "2.1.0",
+          "appVersion": "2.2.3v2",
           "application": "moloch-viewer",
           "description": "Large scale, open source, indexed packet capture and search.",
           "pmoSupported": true
         },
         {
-          "appVersion": "4.2.6",
+          "appVersion": "4.4.1",
           "application": "mongodb",
           "description": "NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications.",
           "pmoSupported": true
         },
         {
-          "appVersion": "1.11.4",
+          "appVersion": "1.12.0",
           "application": "niagra-files",
           "description": "Easy to use, powerful, and reliable system to process and distribute data",
           "pmoSupported": false
         },
         {
-          "appVersion": "4.1.0",
+          "appVersion": "4.1.1",
           "application": "redmine",
           "description": "Redmine is a flexible project management web application.  Written using the Ruby on Rails framework, it is cross platform and cross-database.",
           "pmoSupported": false
         },
         {
-          "appVersion": "3.2.2",
+          "appVersion": "3.7.1",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
           "pmoSupported": true
         },
         {
-          "appVersion": "4.1.4",
+          "appVersion": "5.0.2",
           "application": "suricata",
           "description": "Suricata is a free and open source, mature, fast and robust network threat detection engine.",
           "pmoSupported": true
         },
         {
-          "appVersion": "3.0.0",
+          "appVersion": "3.2.0",
           "application": "zeek",
           "description": "Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. Also provides Kafka and Zookeeper for message brokering.",
           "pmoSupported": true
         },
         {
-          "appVersion": "2.3.81",
+          "appVersion": "2.5.159",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true

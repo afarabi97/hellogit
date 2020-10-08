@@ -30,7 +30,12 @@ const add_node_validators = {
   ],
   boot_drive: [{ error_message: 'Boot Drive is required', validatorFn: 'required' }],
   data_drive: [{ error_message: 'Data Drive is required', validatorFn: 'required' }],
-  pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }]
+  pxe_type: [{ error_message: 'PXE Type start is required', validatorFn: 'required' }],
+  raid_drives: [
+    { error_message: 'Raid drives should be a comma separated list of drives for raid when software raid enabled for example sda,sdb', validatorFn: 'required' },
+    { ops: { pattern: /^([a-z|0-9]{3,7})(,[a-z|0-9]{3,7})+$/}, error_message: 'Raid Drives must be a comma separated list with at least 2 drives for example sda,sdb', validatorFn: 'pattern' },
+  ],
+  os_raid_root_size: [{ error_message: 'Root Data parition size is required', validatorFn: 'required' }],
 };
 
 
@@ -45,14 +50,12 @@ export class AddNodeComponent implements OnInit {
   availableIPs: string[] = [];
   hostname: string;
   documentation_link: string = `http://${window.location.hostname}/THISISCVAH`;
-  chooseNodeTypeLabel = "Choose the node type and execute Add Node";
-  error_text: string;
+  chooseNodeTypeLabel = "Execute Kit Deployment";
+  error: boolean;
   isKitNodeLoading: boolean;
   kickstartForm: Object;
   hasWizardState: boolean;
   kitData: Object;
-  serverMemCpuError: string;
-  cpuMemMisMatch: boolean;
   controllerAdmin: boolean;
 
   @ViewChild('stepper', {static: false})
@@ -67,13 +70,11 @@ export class AddNodeComponent implements OnInit {
               private systemSetupSrv: SystemSetupService,
               private title: Title,
               private userService: UserService) {
-    this.error_text = null;
+    this.error = false;
     this.isKitNodeLoading = true;
     this.hasWizardState = false;
     this.hostname = "";
     this.kitData = null;
-    this.serverMemCpuError = "";
-    this.cpuMemMisMatch = false;
     this.controllerAdmin = this.userService.isControllerAdmin();
   }
 
@@ -86,7 +87,9 @@ export class AddNodeComponent implements OnInit {
       data_drive: new FormControl('sdb', Validators.compose([validateFromArray(add_node_validators.data_drive)])),
       boot_drive: new FormControl('sda', Validators.compose([validateFromArray(add_node_validators.boot_drive)])),
       pxe_type: new FormControl('BIOS', Validators.compose([validateFromArray(add_node_validators.pxe_type)])),
-      os_raid: new FormControl(false)
+      os_raid: new FormControl(false),
+      raid_drives: new FormControl('sda,sdb', Validators.compose([validateFromArray(add_node_validators.raid_drives)])),
+      os_raid_root_size: new FormControl(50, Validators.compose([validateFromArray(add_node_validators.os_raid_root_size)]))
     });
 
     this.addNodeSrv.getAddNodeWizardState().subscribe(data => {
@@ -99,6 +102,8 @@ export class AddNodeComponent implements OnInit {
         this.node.get('boot_drive').setValue(node['boot_drive']);
         this.node.get('pxe_type').setValue(node['pxe_type']);
         this.node.get('os_raid').setValue(node['os_raid']);
+        this.node.get('raid_drives').setValue(node['raid_drives']);
+        this.node.get('os_raid_root_size').setValue(node['os_raid_root_size']);
 
         for (let i = 1; i < data['step']; i++){
           this.stepper.next();
@@ -187,31 +192,53 @@ export class AddNodeComponent implements OnInit {
 
   stepChanged(step: StepperSelectionEvent) {
     if (step && step.selectedStep.label === this.chooseNodeTypeLabel){
-      this.isKitNodeLoading = true;
-      this.kickStartSrv.gatherDeviceFacts(this.node.get('ip_address').value).subscribe(data => {
-        this.isKitNodeLoading = false;
-        if (data && data['error_message']){
-          this.error_text = data['error_message'];
-          this.addNodeSrv.displaySnackBar(data['error_message']);
-        } else {
-          this.error_text = null;
-          this.hostname = data["hostname"];
-          this.kitNode = this.systemSetupSrv.kitSrv.newKitNodeForm(data);
-        }
-      });
+      this.gatherDeviceFacts();
     }
   }
 
+  public gatherDeviceFacts(): void {
+    this.isKitNodeLoading = true;
+    this.kickStartSrv.gatherDeviceFacts(this.node.get('ip_address').value).subscribe(data => {
+      this.gatherFactsSuccess(data);
+    }, error => {
+      this.gatherFactsError(error);
+    }).add(() => {
+      this.isKitNodeLoading = false;
+    });
+  }
+
+  private gatherFactsSuccess(data) {
+    if (data){
+      this.error = false;
+      data['error'] = undefined
+      this.kitNode = this.systemSetupSrv.kitSrv.newKitNodeForm(data);
+    }
+  }
+  private gatherFactsError(error) {
+    this.error = true;
+    let kit_domain = this.kickstartForm['domain'];
+    this.kitNode = this.systemSetupSrv.kitSrv.newKitNodeForm({
+      hostname: this.node.get('hostname').value+'.'+kit_domain,
+      management_ip_address: this.node.get('ip_address').value,
+      error: error.error
+    });
+  }
+
   public onNodeTypeChange(event: MatSelectChange){
-    this.cpuMemMisMatch = false;
+    this.error = false;
+    this.kitNode.patchValue({
+      error: undefined
+    })
     if (event.value === "Server"){
       let kitFormGroup = this.systemSetupSrv.kitSrv.newKitFormGroup(this.kitData as any, false);
       let nodes = kitFormGroup.get("nodes") as FormArray;
       nodes.push(this.kitNode);
       let error = ValidateServerCpuMem(kitFormGroup) as errorObject;
       if (error){
-        this.serverMemCpuError = error.error_message;
-        this.cpuMemMisMatch = true;
+        this.kitNode.patchValue({
+          error: error
+        })
+        this.error = true;
       }
     }
   }

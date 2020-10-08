@@ -3,10 +3,10 @@
 # Use include_vars function to utilize this file.
 
 # VERSIONS
-rocketchat_version: "3.4.2"
-mongodb_version: "4.2.8"
+rocketchat_version: "3.7.1"
+mongodb_version: "4.4.1"
 zeek_version: "3.2.0"
-busybox_version: "1.31.1"
+busybox_version: "1.32.0"
 coreos_version: "1688.5.3"
 k8s_coredns_version: "1.6.5"
 k8s_etcd_version: "3.4.3-0"
@@ -23,26 +23,25 @@ chartmuseum_image_version: "v0.12.0"
 elastic_7_version: "7.8.1"
 elastic_7_chart_version: "7.8.1"
 window_remote_installer_version: "1.2"
-hive_elastic_version: "6.8.9"
+hive_elastic_version: "6.8.12"
 hive_cortex_version: "3.0.1"
-hive_version: "3.4.0"
+hive_version: 3.4.0
 elastic_operator: 1.2.1
 redmine_version: "4.1.1"
-postgres_version: "12.3"
-nifi_version: 1.11.4
-mariadb_version: 10.5.4
-mattermost_version: 5.24.2
-wikijs_version: 2.4.107
-misp_version: 2.4.129
+nifi_version: 1.12.0
+mariadb_version: 10.5.6
+mattermost_version: 5.28.1
+wikijs_version: 2.5.159
+misp_version: 2.4.133
 misp_modules_version: 2.4.121
 crio_version: "v1.17.4"
 conmon_version: 2.0.12
 calico_version: "v3.16.2"
-nginx_version: "1.19.1"
+nginx_version: "1.19.3"
 cert_manager_version: v0.15.2
 storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
-python_version: 3.8.3
+python_version: 3.9.0
 #flannel_version: "v0.12.0"
 
 
@@ -77,7 +76,6 @@ kube_images:
   - { image: "k8s.gcr.io/coredns:{{ k8s_coredns_version }}", for_dip: true, for_gip: true }
   - { image: "k8s.gcr.io/addon-resizer:{{ k8s_resizer_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/redmine:{{ redmine_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/postgres:{{ postgres_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/apache/nifi:{{ nifi_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/mariadb:{{ mariadb_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/mattermost/mattermost-prod-app:{{ mattermost_version }}", for_dip: true, for_gip: true }

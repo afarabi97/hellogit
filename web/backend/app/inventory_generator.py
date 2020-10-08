@@ -117,7 +117,7 @@ class KitInventoryGenerator:
         :return:
         """
         self._set_sensor_type_counts()
-        self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr'] + "/28"
+        self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr'] + "/27"
         if self._template_ctx['dns_ip'] is None:
             self._template_ctx['dns_ip'] = ''
 
@@ -161,7 +161,7 @@ class MIPKickstartInventoryGenerator:
             if node['pxe_type'] == "SCSI/SATA/USB":
                 node['model'] = "SCSI/SATA/USB"
                 node['pxe_type'] = "UEFI"
-            
+
             elif node['pxe_type'] == "NVMe":
                 node['model'] = "NVMe"
                 node['pxe_type'] = "UEFI"

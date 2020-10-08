@@ -14,7 +14,8 @@ from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
                             LogstashSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings,
-                            RocketchatSettings, CortexSettings)
+                            RocketchatSettings, CortexSettings, MattermostSettings,
+                            RedmineSettings, NifiSettings, NetflowFilebeatSettings)
 from models.mip_config import MIPConfigSettings
 from models.rhel_repo_vm import RHELRepoSettings
 from typing import Union
@@ -51,6 +52,10 @@ class YamlManager:
             cls.yaml.register_class(HiveSettings)
             cls.yaml.register_class(CortexSettings)
             cls.yaml.register_class(RocketchatSettings)
+            cls.yaml.register_class(MattermostSettings)
+            cls.yaml.register_class(NifiSettings)
+            cls.yaml.register_class(RedmineSettings)
+            cls.yaml.register_class(NetflowFilebeatSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
             cls.yaml.register_class(GIPControllerSettings)

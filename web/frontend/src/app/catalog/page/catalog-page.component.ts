@@ -71,8 +71,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       return p;
     });
     this.processFormGroup = this._formBuilder.group({
-      'selectedProcess': new FormControl(''),
-      'selectedNodes': new FormControl([]),
+      'selectedProcess': new FormControl('', Validators.required),
+      'selectedNodes': new FormControl({value: [], disabled: true}),
       'node_affinity': new FormControl('')
     });
     this.configFormGroup = new FormGroup({});
@@ -203,6 +203,12 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     stepper.previous();
   }
 
+  selectProcessChange() {
+    if(this.processFormGroup.get("selectedProcess").valid) {
+      this.processFormGroup.get("selectedNodes").enable();
+    }
+  }
+
   /**
    * tells the stepper to go forward
    *
@@ -218,10 +224,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    *
    * @memberof CatalogPageComponent
    */
-  getConfig() {
+  getConfig(stepper: MatStepper) {
     this.serverAny();
     if (this.configReady()) {
       this.makeFormgroup();
+      stepper.next();
     }
   }
 
@@ -657,28 +664,23 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   }
 
   private getFormControl_(control, hostname: string, value?: FormGroup): FormControl {
+    const valid_control = ObjectUtilsClass.notUndefNull(value) && ObjectUtilsClass.notUndefNull(value[control.name]);
     switch (control.type) {
       case 'textinput':
-        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
-                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value, this.getValidators_(control));
+        return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));
       case 'textinputlist':
         if (value === undefined || typeof value[control.name] === "string") {
-          return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
-                                 ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value, this.getValidators_(control));
+          return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));
         } else {
-          return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
-                                 ObjectUtilsClass.notUndefNull(value[control.name]) ? JSON.stringify(value[control.name]) : control.default_value, this.getValidators_(control));
+          return new FormControl(valid_control ? JSON.stringify(value[control.name]) : control.default_value, this.getValidators_(control));
         }
       case 'invisible':
-        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
-                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : hostname);
+        return new FormControl(valid_control ? value[control.name] : hostname);
       case 'checkbox':
-        return new FormControl(ObjectUtilsClass.notUndefNull(value) &&
-                               ObjectUtilsClass.notUndefNull(value[control.name]) ? value[control.name] : control.default_value);
+        return new FormControl(valid_control ? value[control.name] : control.default_value);
       case 'interface':
         const formControl: FormControl = new FormControl([]);
-        if (ObjectUtilsClass.notUndefNull(value) &&
-            ObjectUtilsClass.notUndefNull(value[control.name])) {
+        if (valid_control) {
           formControl.setValue(value[control.name], { onlySelf: true } );
         }
         return formControl;

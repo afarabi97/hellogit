@@ -121,7 +121,7 @@ Hardware Simulate Power Failure:
     variables:
       - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-dip"
 
-Hardware CVAH Catalog:
+Hardware CVAH Catalog PMO Apps:
   stage: catalog
   tags:
     - tfplenum-buildv2
@@ -142,8 +142,23 @@ Hardware CVAH Catalog:
     variables:
         - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
 
+Hardware CVAH Catalog Community Apps:
+  stage: catalog
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog mattermost
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog nifi
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog redmine
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog netflow-filebeat
+  only:
+    variables:
+      - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-dip"
+
 BreakingPoint Automation:
-  stage: breakingpoint-test 
+  stage: breakingpoint-test
   tags:
     - tfplenum-buildv2
   script: |

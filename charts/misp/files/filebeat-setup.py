@@ -47,10 +47,12 @@ class MISPSetup:
                 headers['Authorization'] = FILEBEAT_USER_API_KEY
                 headers['Accept'] = 'application/json'
                 headers['Content-Type'] = 'application/json'
-                r = requests.get(URI + "/attributes/restSearch",headers=headers,timeout=3,verify=VERIFY)
+                r = requests.post(URI + "/attributes/restSearch",headers=headers,timeout=3,verify=VERIFY)
                 print("Status: ", r.status_code)
                 if r.status_code == 200:
                     sys.exit(0)
+                else:
+                    print("Status: ", r.json())
                 time.sleep(2)
             except Exception as e:
                 print("Setup Exception: " + str(e))

@@ -10,7 +10,7 @@
     </mat-form-field>
     <!-- Sensor Hostname -->
     <mat-form-field id="replay-pcap-dialog-div-mat-form-field-sensor-hostname">
-      <mat-label>Sensor hostname</mat-label>
+      <mat-label>Sensor Hostname</mat-label>
       <mat-select id="replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select" formControlName="sensor" (selectionChange)="changeIfaceValues($event)">
         <mat-option *ngFor="let sensor of selectableSensors; let i = index;"
                     id="{{ 'replay-pcap-dialog-div-mat-form-field-sensor-hostname-mat-select-mat-option-' + i }}" [value]="sensor.management_ip">
@@ -21,6 +21,7 @@
     <mat-error id="replay-pcap-dialog-div-mat-error-sensor-hostname">{{ getErrorMessage(pcapForm.get('sensor')) }}</mat-error>
     <!-- ifaces -->
     <mat-form-field id="replay-pcap-dialog-div-mat-form-field-iface">
+      <mat-label>Sensor Interface</mat-label>
       <mat-select id="replay-pcap-dialog-div-mat-form-field-iface-mat-select"
                   formControlName="ifaces" multiple matToolTip="These are the interfaces that the PCAP will replay on. If you select multiple Ifaces, the PCAP will be replayed on each iface selected.">
         <mat-option *ngFor="let iface of selectableIfaces; let j = index;"

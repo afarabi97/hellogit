@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatSelectChange } from '@angular/material';
-
+import { ObjectUtilsClass } from '../../../classes';
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
 
@@ -39,7 +39,7 @@ export class KitNodeFormComponent implements OnInit {
 
   ngOnInit() {
     this.getSystem();
-    this.nodeError = this.node.get("error").value != undefined
+    this.nodeError = ObjectUtilsClass.notUndefNull(this.node.get("error").value)
     if(this.nodeError) {
       this.node.disable();
     }

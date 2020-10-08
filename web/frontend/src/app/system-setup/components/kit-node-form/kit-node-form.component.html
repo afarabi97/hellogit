@@ -44,7 +44,7 @@
                           matTooltip="{{ getTooltip('is_master_server') }}">Kubernetes Master Server</mat-checkbox>
           </div>
         </ng-container>
-        <div *ngIf="nodeError">
+        <div *ngIf="node.get('error').value">
           {{ node.get('error').value.error_message }}
         </div>
       </div>

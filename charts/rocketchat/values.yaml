@@ -6,15 +6,15 @@ system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
 image:
   repository: rocketchat/rocket.chat
-  tag: 3.4.2
+  tag: 3.7.1
 
 nginxImage:
   repository: nginx
-  tag: 1.19.1
+  tag: 1.19.3
 
 mongoImage:
   repository: bitnami/mongodb
-  tag: 4.2.8
+  tag: 4.4.1
 
 admin_user: admin
 admin_pass: password!

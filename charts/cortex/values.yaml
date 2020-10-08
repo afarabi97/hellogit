@@ -1,8 +1,8 @@
-elastic_image: elasticsearch/elasticsearch:6.8.9
+elastic_image: elasticsearch/elasticsearch:6.8.12
 cortex_image: thehiveproject/cortex:3.0.1
-python_image: tfplenum/python:3.8.3
+python_image: tfplenum/python:3.9.0
 corex_port: 9001
-nginx_image: nginx:1.19.1
+nginx_image: nginx:1.19.3
 elastic_port: 9200
 superadmin_username: cortex_admin
 superadmin_password: password!

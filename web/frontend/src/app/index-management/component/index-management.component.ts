@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IndexManagementService } from '../service/index-management.service';
-import { FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { NgForm, FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { WebsocketService } from '../../services/websocket.service';
 import { MatStepper } from '@angular/material/stepper';
 
@@ -25,6 +25,8 @@ export class IndexManagementComponent {
     isEmpty = false;
     actions: Array<any> = [{value: 'CloseIndices', name: 'Close', hoverText: "Select an index to Close"},
                            {value: 'DeleteIndices', name: 'Delete', hoverText: "Select an index to Delete"}];
+    @ViewChild('imaFormDirective', {static: false}) private imaFormDirective: NgForm;
+    @ViewChild('imlFormDirective', {static: false}) private imlFormDirective: NgForm;
 
     constructor(private _indexManagementSrv: IndexManagementService,
                 private _WebsocketService: WebsocketService,
@@ -46,7 +48,7 @@ export class IndexManagementComponent {
 
         this.allowUpdate = true;
     }
-    
+
     getClosedIndices(stepper: MatStepper): void {
       this._indexManagementSrv.get_closed_indices().subscribe(closedIndices => {
         this.indices = closedIndices;
@@ -58,7 +60,7 @@ export class IndexManagementComponent {
     getOpenedIndices(stepper: MatStepper): void {
       this._indexManagementSrv.get_opened_indices().subscribe(openedIndices => {
         this.indices = openedIndices;
-        this.isLoading = false;       
+        this.isLoading = false;
         stepper.next();
       });
     }
@@ -83,7 +85,7 @@ export class IndexManagementComponent {
           break;
       }
     }
-    
+
     goForwardList(stepper: MatStepper) {
       let object = {action: this.indexManagementActions.value.action, index_list: this.indexManagementList.value.index_list};
       this._indexManagementSrv.indexManagement(object).subscribe(
@@ -101,13 +103,8 @@ export class IndexManagementComponent {
 
     resetForm(stepper: MatStepper) {
       stepper.reset();
-
-      this.indexManagementActions = this.formBuilder.group({
-        action: new FormControl(null, Validators.required)
-      });
-      this.indexManagementList = this.formBuilder.group({
-        index_list: new FormControl(null, Validators.required)
-      });
+      this.imlFormDirective.resetForm();
+      this.imaFormDirective.resetForm();
     }
 
 }

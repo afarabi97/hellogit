@@ -6,25 +6,22 @@
           ElasticSearch Index Management
         </mat-card-title>
       </mat-card-header>
-      <div fxLayout="column" fxLayoutAlign="space-around stretch">
-        <mat-vertical-stepper #stepper>
+      <div *ngIf="isLoading">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <mat-card-content fxLayout="column" fxLayoutAlign="space-around stretch">
+        <mat-horizontal-stepper #stepper linear="true">
           <!-- Index Action -->
           <mat-step id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action"
                     [stepControl]="indexManagementActions" [editable]="isEditable">
             <ng-template matStepLabel>Index Action</ng-template>
-            <mat-card-content>
-              <p>
-                Select an action; Close or Delete
-              </p>
-              <p>
-                Close: A closed index will blocked read/write operations and does not allow all operations that opened indices allow.
-              </p>
-              <p>
-                Delete: A delete index will delete all metadata in the index and clear out all shards and replicas tied to it.
-                To delete an index it must be closed first.
-              </p>
-            </mat-card-content>
-            <form [formGroup]="indexManagementActions">
+            <div>
+              <p>Select an action; Close or Delete</p>
+              <p>Close: A closed index will blocked read/write operations and does not allow all operations that opened indices allow.</p>
+              <p>Delete: A delete index will delete all metadata in the index and clear out all shards and replicas tied to it.
+                 To delete an index it must be closed first.</p>
+            </div>
+            <form [formGroup]="indexManagementActions" #imaFormDirective="ngForm">
               <div fxLayout="column" fxLayoutAlign="start stretch">
                 <!-- Action -->
                 <mat-form-field id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-mat-form-field-action">
@@ -36,9 +33,8 @@
                                 [value]="value.value">{{value.name}}</mat-option>
                   </mat-select>
                 </mat-form-field>
-                <div>
-                  <button mat-raised-button id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-action-form-div-div-button-next"
-                          color="primary" (click)="goForwardAction(stepper)" [disabled]="indexManagementActions.invalid">Next</button>
+                <div fxLayout="row" fxLayoutAlign="end none" style="margin-top: 10px;" fxLayoutGap="10px">
+                  <button mat-button color="primary" (click)="goForwardAction(stepper)" [disabled]="indexManagementActions.invalid">Next</button>
                 </div>
               </div>
             </form>
@@ -47,12 +43,10 @@
           <mat-step id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list"
                   [stepControl]="indexManagementList" [editable]="isEditable">
             <ng-template matStepLabel>Index List</ng-template>
-            <mat-card-content>
-              <p>
-              Select an Index and Click Update
-              </p>
-            </mat-card-content>
-            <form [formGroup]="indexManagementList">
+            <div>
+              <p>Select an Index and Click Update </p>
+            </div>
+            <form [formGroup]="indexManagementList" #imlFormDirective="ngForm">
               <div fxLayout="column" fxLayoutAlign="start stretch">
                 <!-- List -->
                 <mat-form-field id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-mat-form-field-list">
@@ -64,21 +58,15 @@
                                 (click)="isEmptyFun()" [value]="index">{{ index }}</mat-option>
                   </mat-select>
                 </mat-form-field>
-                <div>
-                  <button mat-raised-button id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-div-button-back"
-                          style="margin-right: 20px;" color="primary" (click)="goBack(stepper)" [disabled]="false">Back</button>
-                  <button mat-raised-button id="app-index-management-div-div-mat-card-div-mat-vertical-stepper-mat-step-index-list-form-div-div-button-update"
-                          color="primary" (click)="goForwardList(stepper)" [disabled]="!isEmpty">Update</button>
+                <div fxLayout="row" fxLayoutAlign="end none" style="margin-top: 10px;" fxLayoutGap="10px">
+                  <button mat-button color="warn" (click)="goBack(stepper)">Back</button>
+                  <button mat-raised-button color="primary" (click)="goForwardList(stepper)" [disabled]="!isEmpty">Update</button>
                 </div>
               </div>
             </form>
           </mat-step>
-        </mat-vertical-stepper>
-      </div>
+        </mat-horizontal-stepper>
+      </mat-card-content>
     </mat-card>
   </div>
-</div>
-
-<div fxLayout="row" fxLayoutAlign="center center">
-  <mat-spinner *ngIf="isLoading" id="app-index-management-div-mat-spinner"></mat-spinner>
 </div>

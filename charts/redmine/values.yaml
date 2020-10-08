@@ -1,13 +1,17 @@
 # Default values for redmine and postgres
 replicas: 1
 redmineImage: redmine:4.1.1
-postgresImage: postgres:12.3
+mariadbImage: mariadb:10.5.6
 redmineInternalPort: 3000
 ### Nginx Config
-nginx_image: nginx:1.19.1
+nginx_image: nginx:1.19.3
 
 # database variables
-postgresqlDatabase: redmine
-postgresqlUsername: admin
-postgresqlPassword: P@ssw0rdP@ssw0rd!
+sqlDatabase: redmine
+sqlUsername: redmine
+sqlPassword: P@ssw0rdP@ssw0rd!
+sqlRootPassword: P@ssw0rdP@ssw0rd!
 domain: lan
+
+
+
