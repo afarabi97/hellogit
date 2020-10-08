@@ -33,8 +33,8 @@
               <!-- Node Selection -->
               <mat-form-field id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node">
                 <mat-label>Select A Node</mat-label>
-                <mat-select #matSelectNode id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
-                            (selectionChange)="getConfig(stepper, matSelectNode)" formControlName="selectedNodes" multiple required>
+                <mat-select id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select"
+                            (selectionChange)="getConfig()" formControlName="selectedNodes" multiple required>
                   <mat-option *ngFor="let node of filterByInput(processFormGroup.value.selectedProcess); let j = index;"
                               id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group-form-div-mat-form-field-node-mat-select-mat-option-' + j }}"
                               [value]="node">{{node.hostname}}</mat-option>
@@ -70,37 +70,24 @@
                             <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
                                   matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
                             <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                      id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
+                                      id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
                           </mat-form-field>
                         </div>
-                        <div *ngIf="chart?.formControls">
-                          <div *ngFor="let control of chart.formControls; let l = index;" [ngSwitch]="control?.type" formGroupName="{{sensor.hostname}}">
-                            <!-- Text Input -->
-                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'textinput'">
-                              <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text' }}">
-                                <input matInput id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-input' }}"
-                                      matTooltip="{{control?.description}}" [matTooltipPosition]="'below'" formControlName="{{control.name}}" placeholder="{{control?.name}}" [required]="control?.required">
-                                <mat-error *ngIf="isInvalidForm(sensor, control)"
-                                          id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-text-mat-error' }}">{{getErrorMessage(control, sensor.hostname)}}</mat-error>
-                              </mat-form-field>
-                            </div>
-                            <!-- checkbox -->
-                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
-                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
-                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                            </div>
-                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
-                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
-                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                            </div>
-                            <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
-                              <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
-                                            formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
-                                            matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
-                            </div>
-                          </div>
+                        <!-- checkbox -->
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'checkbox'">
+                          <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-checkbox' }}"
+                                        formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                        matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                        </div>
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'cortex-checkbox'" >
+                          <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-cortex-checkbox' }}"
+                                        formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                        matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
+                        </div>
+                        <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'misp-checkbox'" >
+                          <mat-checkbox id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-checkbox-misp-checkbox' }}"
+                                        formControlName="{{control.name}}" [checked]="checkboxValue(sensor, control)" (change)="checkboxSetValue(sensor, control)"
+                                        matTooltip="{{control?.description}}" [matTooltipPosition]="'right'" [required]="control?.required">{{control?.description}}</mat-checkbox>
                         </div>
                         <!-- Text Input List -->
                         <div class="stepper__body__selection" *ngSwitchCase="'textinputlist'" fxLayout="column" fxLayoutAlign="center none">
@@ -173,11 +160,11 @@
               id="app-catalog-page-div-mat-card-div-button-next" color="primary" style="margin-right: 10px;" (click)="goForward(stepper)"
               [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
       <button mat-button *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 1 ))"
-              id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="getConfig(stepper)"
+              id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="getConfig()"
               [disabled]="(stepper.selectedIndex !== 0 && (stepper.selectedIndex === 1 && processFormGroup.invalid))">Next</button>
       <button mat-button *ngIf="((processFormGroup.value.selectedProcess !== 'uninstall') && (stepper.selectedIndex === 2 ))"
               id="app-catalog-page-div-mat-card-div-button-next-get-values" color="primary" style="margin-right: 10px;"
-              (click)="getValues(stepper)" [disabled]="(configFormGroup.invalid)">Next</button>
+              (click)="getValues(stepper)" [disabled]="configFormGroup.invalid">Next</button>
       <button mat-raised-button *ngIf="stepper.selectedIndex === 3 || processFormGroup.value.selectedProcess === 'uninstall'"
               id="app-catalog-page-div-mat-card-div-button-run" color="primary" style="margin-right: 10px;" (click)="runChart(stepper)"
               [disabled]="valueFormGroup.invalid">Run</button>

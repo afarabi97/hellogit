@@ -1,16 +1,16 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { MatDialog, MatSelect, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
 import { NodeClass, ObjectUtilsClass, StatusClass } from '../../classes';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
-import { ChartInfo, INodeInfo } from '../interface/chart.interface';
-import { CatalogService } from '../services/catalog.service';
-import { PROCESS_LIST, DEPLOYED, UNKNOWN, INSTALL, REINSTALL, UNINSTALL } from '../constants/catalog.constants';
-import { ProcessInterface } from '../interface';
 import { SortingService } from '../../services/sorting.service';
+import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../constants/catalog.constants';
+import { ProcessInterface } from '../interface';
+import { ChartInfo } from '../interface/chart.interface';
+import { CatalogService } from '../services/catalog.service';
 
 @Component({
   selector: 'app-catalog-page',
@@ -22,13 +22,14 @@ import { SortingService } from '../../services/sorting.service';
 })
 export class CatalogPageComponent implements OnInit, AfterViewInit {
   readonly serverAnyValue = 'Server - Any';
+  readonly serverValue = 'Server';
   processFormGroup: FormGroup;
   configFormGroup: FormGroup;
   valueFormGroup: FormGroup;
   nodeList: NodeClass[] = [];
   isReady: boolean;
   isLoading: boolean;
-  processList: ProcessInterface[] = PROCESS_LIST;
+  processList: ProcessInterface[];
   chart: ChartInfo;
   nodes: NodeClass[];
   isAdvance: boolean;
@@ -65,7 +66,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.cortexDisable = true;
     this.mispDisable = true;
     this.hiveDisable = true;
-
+    this.processList = PROCESS_LIST.map((p: ProcessInterface) => {
+      p.children = [];
+      return p;
+    });
     this.processFormGroup = this._formBuilder.group({
       'selectedProcess': new FormControl(''),
       'selectedNodes': new FormControl([]),
@@ -209,21 +213,15 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     stepper.next();
   }
 
-   /**
+  /**
    * tells the stepper to go forward
    *
-   * @param {MatStepper} stepper
    * @memberof CatalogPageComponent
    */
-  getConfig(stepper: MatStepper, matSelect?: MatSelect) {
+  getConfig() {
     this.serverAny();
     if (this.configReady()) {
-      if (ObjectUtilsClass.notUndefNull(matSelect)) {
-        matSelect.close();
-        this.makeFormgroup(stepper);
-      } else {
-        this.makeFormgroup(stepper);
-      }
+      this.makeFormgroup();
     }
   }
 
@@ -387,7 +385,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    *
    * @memberof CatalogPageComponent
    */
-  makeFormgroup(stepper: MatStepper) {
+  makeFormgroup() {
+    const controlKeys: string[] = Object.keys(this.configFormGroup.controls);
+    controlKeys.forEach((k: string) => this.configFormGroup.removeControl(k));
+    this.configFormGroup.markAsPristine();
     this.processFormGroup.value.selectedNodes.map(nodes => {
       let nodeControls;
       this.addDeploymentName();
@@ -405,7 +406,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       this.configFormGroup.addControl(nodes.hostname, nodeControls);
     });
     this.cdRef.detectChanges();
-    stepper.next();
   }
 
   /**
@@ -625,40 +625,34 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this._CatalogService.getNodes().subscribe((nodes: NodeClass[]) => {
       this.nodes = nodes;
       let status: string;
-      this.nodes.forEach((node: NodeClass) => {
-        this.statuses.forEach((sc: StatusClass) => {
-          if (node.hostname === sc.hostname || node.hostname.includes(sc.hostname)) {
-            node.status = sc;
-          } else {
-            node.status = undefined;
-          }
-        });
-        this.nodes.sort(this.sortSvc.node_alphanum);
-        if ((this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue)) &&
-            !ObjectUtilsClass.notUndefNull(status)) {
+      this.nodes.sort(this.sortSvc.node_alphanum).forEach((node: NodeClass) => {
+        node.status = this.statuses.filter((sc: StatusClass) => node.hostname === sc.hostname || node.hostname.includes(sc.hostname))[0];
+        if (this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue && node.node_type === this.serverValue)) {
           status = ObjectUtilsClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;
           switch(status) {
             case DEPLOYED:
-              this.processList = this.processList.filter((p: ProcessInterface) => p.process !== INSTALL)
-                                                 .map((p: ProcessInterface) => {
-                                                   p.children = [];
-                                                   p.children.push(node);
-                                                   return p;
-                                                 });
+              this.processList = this.processList.map((p: ProcessInterface) => {
+                                                        if (p.process !== INSTALL) {
+                                                          p.children.push(node);
+                                                        }
+                                                        return p;
+                                                      });
               break;
             case UNKNOWN:
+              this.processList = this.processList.map((p: ProcessInterface) => {
+                                                        if (p.process !== REINSTALL && p.process !== UNINSTALL) {
+                                                          p.children.push(node);
+                                                        }
+                                                        return p;
+                                                      });
+              break;
             default:
-              this.processList = this.processList.filter((p: ProcessInterface) => p.process !== REINSTALL)
-                                                 .filter((p: ProcessInterface) => p.process !== UNINSTALL)
-                                                 .map((p: ProcessInterface) => {
-                                                   p.children = [];
-                                                   p.children.push(node);
-                                                   return p;
-                                                 });
+              this.processList = this.processList.map((p: ProcessInterface) => { p.children.push(node); return p; });
               break;
           }
         }
       });
+      this.processList = this.processList.filter((p: ProcessInterface) => p.children.length > 0);
     });
   }
 
