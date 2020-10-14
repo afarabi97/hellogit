@@ -29,7 +29,8 @@ Setup Hardware DIP Controller:
     --branch-name "$CI_COMMIT_REF_NAME" \
     --domain "$KIT_DOMAIN" \
     --redfish-user "$REDFISH_USER" \
-    --redfish-password "$REDFISH_PASSWORD"
+    --redfish-password "$REDFISH_PASSWORD" \
+    --monitoring-interface "$MONITORING_INTERFACE"
   artifacts:
     untracked: true
   only:
@@ -67,6 +68,7 @@ Hardware DIP Kickstart:
     --mp-external-ip "$MP_EXTERNAL_IP" \
     --pfsense-ip "$PFSENSE_IP" \
     --switch-ip "$SWITCH_IP" \
+    --monitoring-interface "$MONITORING_INTERFACE" \
     --run-remote-node "$RUN_REMOTE_NODE"
   artifacts:
     untracked: true
@@ -118,6 +120,27 @@ Hardware Simulate Power Failure:
   only:
     variables:
       - $RUN_POWER_FAILURE == "yes" && $PIPELINE == "hw-developer-dip"
+
+Hardware CVAH Catalog:
+  stage: catalog
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog suricata
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog moloch-viewer
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog moloch-capture
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog zeek
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog logstash
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog wikijs
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog cortex
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog misp
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog hive
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog rocketchat
+  only:
+    variables:
+        - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
 
 BreakingPoint Automation:
   stage: breakingpoint-test 

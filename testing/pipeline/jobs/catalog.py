@@ -10,8 +10,8 @@ import logging
 class CatalogJob:
 
     def __init__(self,
-                 ctrl_settings: Union[ControllerSetupSettings,HwControllerSetupSettings],
-                 kickstart_settings: Union[KickstartSettings,HwKickstartSettings],
+                 ctrl_settings: Union[ControllerSetupSettings, HwControllerSetupSettings],
+                 kickstart_settings: Union[KickstartSettings, HwKickstartSettings],
                  catalog_settings: CatalogSettings):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings

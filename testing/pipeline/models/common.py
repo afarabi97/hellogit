@@ -39,6 +39,7 @@ class NodeSettings(Model):
         self.domain = ''
         self.os_raid = False
         self.boot_mode = 'BIOS'
+        self.monitoring_interface = ["ens224"]
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:
@@ -166,6 +167,7 @@ class HwNodeSettings(Model):
         self.redfish_user = ''
         self.redfish_password = ''
         self.os_raid = False
+        self.monitoring_interface = ''
 
     def set_hostname(self, node_type: str="ctrl", index: int=0):
         self.hostname = "{}{}".format(node_type, index+1)
@@ -190,6 +192,7 @@ class HwNodeSettings(Model):
         self.template = namespace.template
         self.redfish_user = namespace.redfish_user
         self.redfish_password = self.b64decode_string(namespace.redfish_password)
+        self.monitoring_interface = namespace.monitoring_interface
 
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
@@ -207,6 +210,7 @@ class HwNodeSettings(Model):
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
+        parser.add_argument("--monitoring-interface", dest="monitoring_interface", nargs= "+", help="sensor monitoring interface", choices=['enp175s0f1','p2p4'])
 
     def set_from_defaults(self, other):
         for key in self.__dict__:

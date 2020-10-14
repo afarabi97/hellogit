@@ -17,14 +17,14 @@ class SuricataSettings(Model):
         self.pcapEnabled = True
         self.suricata_threads = 2
         self.node_hostname = ""
-        self.interfaces = ["ens224"]
+        self.interfaces = ""
 
-    def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
+    def set_from_node_settings(self, node_settings: Union[NodeSettings, HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "suricata")
         self.node_hostname = node_fqdn
-
+        self.interfaces = node_settings.monitoring_interface
 
 class MolochCaptureSettings(Model):
     def __init__(self):
@@ -39,13 +39,14 @@ class MolochCaptureSettings(Model):
         self.maxFileSizeG = 25
         self.magicMode = "basic"
         self.deployment_name = ""
-        self.interfaces = ["ens224"]
+        self.interfaces = ""
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "moloch")
         self.node_hostname = node_fqdn
+        self.interfaces = node_settings.monitoring_interface
 
 
 class MolochViewerSettings(Model):
@@ -72,14 +73,14 @@ class ZeekSettings(Model):
         self.zeek_workers = 4
         self.node_hostname = ""
         self.log_retention_hours = "24"
-        self.interfaces = ["ens224"]
+        self.interfaces = ""
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         node_fqdn = "{}.{}".format(node_settings.hostname, node_settings.domain)
         self.affinity_hostname = node_fqdn
         self.deployment_name = "{}-{}".format(node_settings.hostname, "zeek")
         self.node_hostname = node_fqdn
-
+        self.interfaces = node_settings.monitoring_interface
 
 class LogstashSettings(Model):
     def __init__(self):

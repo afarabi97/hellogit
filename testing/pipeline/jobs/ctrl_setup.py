@@ -211,15 +211,15 @@ class BaremetalControllerSetup(ControllerSetupJob):
         #Sets controller name found on esxi server
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
         if self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[1]:
-                execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-                                 self.baremetal_ctrl_settings.to_dict())
-                self.copy_controller(self.baremetal_ctrl_settings.run_type)
-                #hwsettings._update_nightly_controller(False)
+            execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
+                                self.baremetal_ctrl_settings.to_dict())
+            self.copy_controller(self.baremetal_ctrl_settings.run_type)
+            #hwsettings._update_nightly_controller(False)
 
         elif self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[0]:
-                execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
-                                 self.baremetal_ctrl_settings.to_dict())
-                self.copy_controller(self.baremetal_ctrl_settings.run_type)
-                execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
-                                 self.baremetal_ctrl_settings.to_dict())
-                hwsettings._run_bootstrap(False)
+            execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
+                                self.baremetal_ctrl_settings.to_dict())
+            self.copy_controller(self.baremetal_ctrl_settings.run_type)
+            execute_playbook([PIPELINE_DIR + 'playbooks/rename_ctrl.yml'],
+                                self.baremetal_ctrl_settings.to_dict())
+            hwsettings._run_bootstrap(False)
