@@ -14,12 +14,12 @@
     state: directory
   with_items: "{{ kube_dirs }}"
 
-- name: Add container_t context
-  sefcontext:
-    target: '{{ item }}(/.*)?'
-    setype: container_file_t
-    state: present
-  with_items: "{{ kube_dirs }}"
+# - name: Add container_t context
+#   sefcontext:
+#     target: '{{ item }}(/.*)?'
+#     setype: container_file_t
+#     state: present
+#   with_items: "{{ kube_dirs }}"
 
 - name: Apply new SELinux file context to filesystem
   command: restorecon -irv {{ item }}

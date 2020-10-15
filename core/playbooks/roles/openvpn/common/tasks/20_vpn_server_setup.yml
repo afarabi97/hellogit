@@ -60,13 +60,13 @@
     mode: 0755
 
 # TODO: selinux breaks openvpn in rhel 8
-- name: Set Permissive for openvpn context
-  selinux_permissive:
-    name: "{{ item }}"
-    permissive: true
-  with_items:
-    - openvpn_etc_t
-    - openvpn_t
+# - name: Set Permissive for openvpn context
+#   selinux_permissive:
+#     name: "{{ item }}"
+#     permissive: true
+#   with_items:
+#     - openvpn_etc_t
+#     - openvpn_t
 
 - name: Initialize OpenVPN service on server
   systemd:

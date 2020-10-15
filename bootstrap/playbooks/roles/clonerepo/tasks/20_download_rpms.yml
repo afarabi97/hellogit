@@ -4,7 +4,6 @@
   shell:  |
     dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
   with_items:
-    #- { repoid: "",destdir: "{{ baseos_dir }}/AppStream" packages: "{{ appstream_packages | join(' ') }}" }
     - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
   when:
     - "system_name == 'DIP' or system_name == 'GIP'"

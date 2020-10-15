@@ -1,9 +1,4 @@
 ---
-# - name: "DNF update"
-  # dnf:
-    # name: "*"
-    # state: present
-
 - name: "Install packages"
   dnf:
     name: "{{ package_list }}"

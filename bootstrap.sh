@@ -378,25 +378,18 @@ function execute_bootstrap_playbook(){
     popd > /dev/null
 
     # Add STIGS to DIP Controller
-    if [ "$SYSTEM_NAME" == "DIP" ]; then
-        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-        run_cmd make dip-controller-stigs
-        popd > /dev/null
-    fi
+    #if [ "$SYSTEM_NAME" == "DIP" ]; then
+    #    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+        #run_cmd make dip-controller-stigs
+    #    popd > /dev/null
+    #fi
 
     # Add STIGS to GIP Controller
-    if [ "$SYSTEM_NAME" == "GIP" ]; then
-        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-        run_cmd make gip-controller-stigs
-        popd > /dev/null
-    fi
-
-    # Add STIGS to MIP Controller
-    if [ "$SYSTEM_NAME" == "MIP" ]; then
-        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-        run_cmd make mip-controller-stigs
-        popd > /dev/null
-    fi
+    #if [ "$SYSTEM_NAME" == "GIP" ]; then
+    #    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+    #    run_cmd make gip-controller-stigs
+    #    popd > /dev/null
+    #fi
 }
 
 function execute_pull_docker_images_playbook(){

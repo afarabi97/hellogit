@@ -7,7 +7,6 @@ dip_charts:
   - misp
   - moloch
   - moloch-viewer
-  - mongodb
   - netflow-filebeat
   - nifi
   - redmine
@@ -23,7 +22,6 @@ gip_charts:
   - hive
   - mattermost
   - misp
-  - mongodb
   - nifi
   - redmine
   - rocketchat

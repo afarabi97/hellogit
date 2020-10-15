@@ -82,12 +82,12 @@ def execute_kit(password: str):
                         ).format(playbook_pass=password, gip=gip_tags),
                         "cwd_dir": str(CORE_DIR / "playbooks"),
                         "job_name": _JOB_NAME_NOTIFICATION
-        },
-        {
-            "command": "make dip-stigs",
-            "cwd_dir": str(STIGS_DIR / "playbooks"),
-            "job_name": _JOB_NAME_NOTIFICATION
         }
+        # ,{
+        #     "command": "make dip-stigs",
+        #     "cwd_dir": str(STIGS_DIR / "playbooks"),
+        #     "job_name": _JOB_NAME_NOTIFICATION
+        # }
     ]
 
     is_successful = execute_series(command_list)
@@ -156,11 +156,12 @@ def add_node(node_payload, password):
                         ).format(node=node_hostname),
            	            "cwd_dir": str(CORE_DIR / "playbooks"),
            	            "job_name": "Addnode"
-        }, {
-            "command": "make dip-stigs",
-            "cwd_dir": str(STIGS_DIR / "playbooks"),
-            "job_name": "Addnode"
         }
+        # ,{
+        #     "command": "make dip-stigs",
+        #     "cwd_dir": str(STIGS_DIR / "playbooks"),
+        #     "job_name": "Addnode"
+        # }
     ]
 
     is_successful = execute_series(command_list)

@@ -73,29 +73,33 @@
     name: kubernetes/common
     tasks_from: creds
 
-- name: Install Flannel
-  command: "kubectl apply -f {{ kube_dir }}/flannel.yml"
-  register: result
-  changed_when: result.rc == 0
-
-- name: Flannel | Wait for flannel subnet.env file presence
-  wait_for:
-    path: /run/flannel/subnet.env
-    delay: 5
-    timeout: 600
-
-# - name: Install Calico
-#   command: "kubectl apply -f {{ kube_dir }}/calico.yml"
+# - name: Install Flannel
+#   command: "kubectl apply -f {{ kube_dir }}/flannel.yml"
 #   register: result
 #   changed_when: result.rc == 0
 
-# - name: Wait for Calico CNI to be created
+# - name: Flannel | Wait for flannel subnet.env file presence
 #   wait_for:
-#     path: "{{ item }}"
-#   with_items:
-#     - /etc/cni/net.d/calico-kubeconfig
-#     - /etc/cni/net.d/10-calico.conflist
-#     - /opt/cni/bin/calico
+#     path: /run/flannel/subnet.env
+#     delay: 5
+#     timeout: 600
+
+- name: 'Label masters'
+  command: 'kubectl label nodes {{ inventory_hostname }} role=server --overwrite=true'
+  changed_when: true
+
+- name: Install Calico
+  command: "kubectl apply -f {{ kube_dir }}/calico.yml"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Wait for Calico CNI to be created
+  wait_for:
+    path: "{{ item }}"
+  with_items:
+    - /etc/cni/net.d/calico-kubeconfig
+    - /etc/cni/net.d/10-calico.conflist
+    - /opt/cni/bin/calico
 
 - name: Restart Crio and Kubelet
   service:

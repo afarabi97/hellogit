@@ -164,7 +164,7 @@ function clear_tfplenum_database {
 function cleanup_extra_files {
     rm -rf /root/.ssh/*
     rm -f /opt/tfplenum/.editorconfig
-    rm -f /root/.kube
+    rm -rf /root/.kube
     rm -f /opt/tfplenum/deployer/playbooks/inventory.yml
     rm -f /opt/tfplenum/core/playbooks/inventory.yml
     rm -rf /opt/tfplenum/core/playbooks/files/*
@@ -185,6 +185,21 @@ function change_hostname {
 
 }
 
+function reset_sso {
+    echo "-------------"
+    echo "Resetting SSO"
+    echo "-------------"
+    systemctl stop dnsmasq
+    systemctl disable dnsmasq
+    rm -rf /opt/sso-idp/sso_admin_password.txt
+    pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
+    make sso
+    popd > /dev/null
+    echo "-------------"
+    echo "SSO Admin Password: `cat /opt/sso-idp/sso_admin_password.txt`"
+    echo "-------------"
+    }
+
 
 parse_command_line_args
 update_network_scripts
@@ -194,5 +209,6 @@ reset_password
 clear_tfplenum_database
 change_hostname
 clear_history
+reset_sso
 
 echo "Cleanup complete!"

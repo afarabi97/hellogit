@@ -1,14 +1,14 @@
 ---
 
-- name: Wait for Elasticsearch to become healthy
-  shell: |
-    set -o pipefail
-    kubectl get --no-headers elasticsearch.elasticsearch.k8s.elastic.co/tfplenum  | awk '{ print $2 }'
-  register: results_elastic
-  until: (results_elastic.stdout == 'green')
-  retries: 60
-  delay: 5
-  changed_when: false
+- name: Wait for Elasticsearch to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "elasticsearch"
+    namespace: "default"
+    resource_name: "tfplenum"
+    label: ""
 
 - name: Get ES Password
   shell: |

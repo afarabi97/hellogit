@@ -36,6 +36,8 @@ spec:
       certificate:
         secretName: kibana-certificate
   count: 1
+  elasticsearchRef:
+    name: "tfplenum"
   config:
     monitoring.ui.container.elasticsearch.enabled: false
     reporting.enabled: true
@@ -48,20 +50,17 @@ spec:
       basic.basic1:
         order: 1
     monitoring.kibana.collection.interval: 30000
-    elasticsearch.hosts:
-{% for node in coordinating_nodes %}
-    - https://{{ node }}.tfplenum-es-coordinating.default.svc.cluster.local:9200
-{% endfor %}
-    elasticsearch.username: {{ kibana_system_user }}
     elasticsearch.ssl.certificateAuthorities: /etc/ssl/certs/container/ca.crt
   secureSettings:
   - secretName: kibana-key-secret-settings
   - secretName: kibana-alert-secret-settings
-  - secretName: kibana-elasticsearch-credentials
   podTemplate:
     spec:
       containers:
       - name: kibana
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: https://{{ elastic_fqdn }}:{{ elastic_port }}
         resources:
           requests:
             memory: {{ kibana_memory }}Gi

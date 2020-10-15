@@ -1,18 +1,21 @@
 ---
 
 package_list:
-  - bash-completion
-  - git
   - "kubectl-{{ k8s_version }}"
-  - rsync
-  - tcpdump
-  - tcpreplay
+  - bash-completion
   - gcc
+  - git
   - glib2-devel
   - glibc-devel
   - make
   - pkgconfig
-  - npm
+  - rsync
+  - tcpdump
+  - tcpreplay
+  - dhcp-server
+  - tftp-server
+  - dnsmasq
+  - httpd
 
 mip_package_list:
   - dhcp-server

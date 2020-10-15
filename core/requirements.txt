@@ -9,3 +9,4 @@ docker==4.1.0
 PyYAML==5.3
 Jinja2==2.11.0
 cryptography==2.9.2
+lxml==4.5.2

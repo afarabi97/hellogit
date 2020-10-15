@@ -1,6 +1,5 @@
 ---
 
 metrics_dir: "{{ install_dir }}/metrics"
-metricbeat_version: "{{ elastic_7_version }}"
 
 ...

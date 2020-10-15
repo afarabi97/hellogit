@@ -102,6 +102,8 @@ spec:
       - name: cortex
         image: "{{ .Values.cortex_image }}"
         imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
         ports:
         - name: cortex
           containerPort: {{ .Values.corex_port }}

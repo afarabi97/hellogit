@@ -149,6 +149,4 @@
   with_items:
     - "{{ image_list }}"
   tags: pull-docker-images
-
-
 ...

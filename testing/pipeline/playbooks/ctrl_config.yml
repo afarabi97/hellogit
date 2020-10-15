@@ -26,7 +26,7 @@
         name:  "{{ ctrl_name }}"
         state: powered-on
         validate_certs: no
-      delegate_to: localhost     
+      delegate_to: localhost
 
     - name: Wait for SSH port
       wait_for:
@@ -49,13 +49,16 @@
         validate_certs: no
       delegate_to: localhost
       with_items:
+
         - "nmcli con mod ens192 ipv4.address {{ node.ipaddress }}/24"
         - "nmcli con mod ens192 ipv4.gateway {{ node.gateway }}"
         - "nmcli con mod ens192 ipv4.dns {{ node.dns_servers[0] }}"
+        - "nmcli con mod ens192 connection.autoconnect yes"
+        - "nmcli con mod ens192 ipv4.method manual"
         - "sed -i 's/HWADDR.*//' {{ ens192_path }}"
-        - "sed -i 's/ONBOOT.*/ONBOOT=yes/' {{ ens192_path }}"
-        - "sed -i 's/BOOTPROTO.*/BOOTPROTO=static/'  {{ ens192_path }}"
-        - "systemctl restart network NetworkManager"
+        - "nmcli conn reload"
+        - "nmcli con down ens192"
+        - "nmcli con up ens192"
         - "echo nameserver {{ node.dns_servers[0] }} >> /etc/resolv.conf"
 ...
 

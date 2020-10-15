@@ -15,5 +15,6 @@
   with_items:
   - "{{ pip_downloads }}"
 
+# TODO: broken module with python38
 - name: create pip repo
   shell: "dir2pi {{ tfplenumoffline_dir }}/pip"

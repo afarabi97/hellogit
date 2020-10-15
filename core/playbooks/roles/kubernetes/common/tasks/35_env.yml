@@ -9,27 +9,27 @@
   notify: restart kubelet
   tags: kubeletenv
 
-# - name: Calico | Check if host has NetworkManager
-#   command: systemctl show NetworkManager
-#   register: nm_check
-#   failed_when: false
-#   changed_when: false
+- name: Calico | Check if host has NetworkManager
+  command: systemctl show NetworkManager
+  register: nm_check
+  failed_when: false
+  changed_when: false
 
-# - name: Calico | Ensure NetworkManager conf.d dir
-#   file:
-#     path: "/etc/NetworkManager/conf.d"
-#     state: directory
-#     recurse: yes
-#   when: nm_check.rc == 0
+- name: Calico | Ensure NetworkManager conf.d dir
+  file:
+    path: "/etc/NetworkManager/conf.d"
+    state: directory
+    recurse: yes
+  when: nm_check.rc == 0
 
-# - name: Calico | Prevent NetworkManager from managing Calico interfaces
-#   copy:
-#     content: |
-#       [keyfile]
-#       unmanaged-devices=interface-name:cali*;interface-name:tunl*
-#     dest: /etc/NetworkManager/conf.d/calico.conf
-#   when: nm_check.rc == 0
-#   notify: Calico | Reload NetworkManager
+- name: Calico | Prevent NetworkManager from managing Calico interfaces
+  copy:
+    content: |
+      [keyfile]
+      unmanaged-devices=interface-name:cali*;interface-name:tunl*
+    dest: /etc/NetworkManager/conf.d/calico.conf
+  when: nm_check.rc == 0
+  notify: Calico | Reload NetworkManager
 
 - name: Create net.d directory
   file:

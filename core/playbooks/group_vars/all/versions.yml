@@ -37,13 +37,14 @@ misp_version: 2.4.129
 misp_modules_version: 2.4.121
 crio_version: "v1.17.4"
 conmon_version: 2.0.12
-#calico_version: "v3.13.1"
+calico_version: "v3.16.2"
 nginx_version: "1.19.1"
 cert_manager_version: v0.15.2
 storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
 python_version: 3.8.3
-flannel_version: "v0.12.0"
+#flannel_version: "v0.12.0"
+
 
 # "docker Image List
 kube_images:
@@ -75,7 +76,6 @@ kube_images:
   - { image: "k8s.gcr.io/etcd:{{ k8s_etcd_version }}", for_dip: true, for_gip: true }
   - { image: "k8s.gcr.io/coredns:{{ k8s_coredns_version }}", for_dip: true, for_gip: true }
   - { image: "k8s.gcr.io/addon-resizer:{{ k8s_resizer_version }}", for_dip: true, for_gip: true }
-  - { image: "quay.io/coreos/kube-state-metrics:{{ kube_state_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/redmine:{{ redmine_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/postgres:{{ postgres_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/apache/nifi:{{ nifi_version }}", for_dip: true, for_gip: true }
@@ -84,11 +84,11 @@ kube_images:
   - { image: "docker.io/requarks/wiki:{{ wikijs_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/misp:{{ misp_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/misp-modules:{{ misp_modules_version }}", for_dip: true, for_gip: true }
-  # - { image: "docker.io/calico/pod2daemon-flexvol:{{ calico_version }}", for_dip: true, for_gip: true }
-  # - { image: "docker.io/calico/cni:{{ calico_version }}", for_dip: true, for_gip: true }
-  # - { image: "docker.io/calico/node:{{ calico_version }}", for_dip: true, for_gip: true }
-  # - { image: "docker.io/calico/kube-controllers:{{ calico_version }}", for_dip: true, for_gip: true }
-  # - { image: "docker.io/calico/ctl:{{ calico_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/pod2daemon-flexvol:{{ calico_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/cni:{{ calico_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/node:{{ calico_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/kube-controllers:{{ calico_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/calico/ctl:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/nginx:{{ nginx_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }
@@ -98,7 +98,7 @@ kube_images:
   - { image: "docker.io/tfplenum/squid:{{ squid_version | default('1.1.0') }}", for_dip: false, for_gip: true }
   - { image: "docker.io/tfplenum/shibboleth_proxy:{{ shibboleth_proxy_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/python:{{ python_version }}", for_dip: true, for_gip: true }
-  - { image: "quay.io/coreos/flannel:{{ flannel_version }}", for_dip: true, for_gip: true }
+  #- { image: "quay.io/coreos/flannel:{{ flannel_version }}", for_dip: true, for_gip: true }
 
 helm_charts:
   - elastic/elasticsearch {{ elastic_7_chart_version }}

@@ -47,3 +47,10 @@
     - "{{ cpt_archive }}"
     - "{{ mdt_archive }}"
   when: download_archives
+
+- name: "Download direct rpms"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - "{{ mip_direct_download_rpms }}"

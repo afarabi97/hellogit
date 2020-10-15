@@ -43,40 +43,6 @@
     - load-dashboards
     - create-kibana-space
 
-- name: Create Kibana Sytem Password
-  set_fact:
-    kibana_system_pass: "{{ lookup('password', '/dev/null length=30 chars=ascii_letters,digits,hexdigits') }}"
-
-- name: Delete Kibana Sytem User
-  uri:
-    method: DELETE
-    url: "{{ elastic_url }}/_security/user/{{ kibana_system_user }}"
-    validate_certs: yes
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    status_code: 200, 201, 404, 400
-
-- name: Create Kibana Sytem User
-  uri:
-    method: POST
-    url: "{{ elastic_url }}/_security/user/{{ kibana_system_user }}"
-    validate_certs: yes
-    user: "{{ default_elastic_user }}"
-    password: "{{ es_password.stdout }}"
-    body_format: json
-    body:
-      password: "{{ kibana_system_pass }}"
-      roles:
-        - kibana_system
-      full_name: TFplenum Kibana System
-    status_code: 200, 201
-
-- name: Set Elasticsearch Kibana Password
-  shell: |
-    kubectl create secret generic kibana-elasticsearch-credentials --from-literal=elasticsearch.password={{ kibana_system_pass }}
-  register: kibana_elastic_pass
-  changed_when: kibana_elastic_pass.rc == 0
-
 - name: Copy Kibana Templates
   template:
     src: "templates/{{ item }}.j2"
@@ -110,6 +76,16 @@
     kubectl apply -f {{ kibana_dir }}/kibana.yml
   register: result
   changed_when: result.rc == 0
+
+- name: Wait for Kibana to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "kibana"
+    namespace: "default"
+    resource_name: "tfplenum"
+    label: ""
 
 - name: Wait for Kibana to become healthy
   uri:

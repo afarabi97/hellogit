@@ -57,7 +57,6 @@ package_list:
   - lsof
   - make
   - net-tools
-  - nfs-utils
   - nload
   - openvpn
   - python3-gobject

@@ -2,78 +2,13 @@
 
 - name: Remove Repodata
   file:
-    path:
+    path: "{{ extras_dir }}/repodata"
     state: absent
-  with_items:
-    #- "{{ TFPLENUM_REPO_DIR }}/repodata"
-    - "{{ extras_dir }}/repodata"
 
 - name: create repodata
   shell: "createrepo ."
   args:
     chdir: "{{ extras_dir }}"
-
-# - name: Check if repo2module is setup
-#   shell: |
-#     repo2module --help
-#   register: r2m
-#   ignore_errors: yes
-#   changed_when: false
-
-# - block:
-#   - name: Install Module Packages
-#     dnf:
-#       name:
-#         - createrepo
-#         - python3-createrepo_c
-#         - python3-libdnf
-#         - "{{ baseos_dir }}/Packages/libmodulemd-2.9.4-2.el8.x86_64.rpm"
-#       state: present
-
-#   - name: Extract Package
-#     unarchive:
-#       src: "{{ tfplenumoffline_dir }}/modulemd-tools-modulemd-tools-0.4-1.tar.gz"
-#       dest: /opt/
-
-#   - name: Setup repo2module
-#     shell: |
-#       python3 setup.py install
-#     args:
-#       chdir: /opt/modulemd-tools-modulemd-tools-0.4-1/repo2module/
-#   when: r2m.rc != 0
-
-# - name: get comp xml name
-#   shell: |
-#     find "{{ mnt_pth }}/BaseOS/repodata" -type f -iname "*comps*.xml"
-#   register: comps_result
-
-# - name: Validate if comps.xml exists
-#   stat:
-#     path: "{{ comps_result.stdout }}"
-#   register: comps_file
-
-# - name: copy comps xml to offline repo
-#   copy:
-#     src: "{{ comps_file.stat.path }}"
-#     dest: "{{ baseos_dir }}/comps.xml"
-#   when: comps_file.stat.exists
-
-# - name: create repodata
-#   shell: "createrepo -g {{ baseos_dir }}/comps.xml ."
-#   args:
-#     chdir: "{{ baseos_dir }}"
-
-# - name: Create module yaml
-#   shell: |
-#     repo2module .
-#   args:
-#     chdir: "{{ baseos_dir }}"
-
-# - name: Update Repodata with Module Info
-#   shell: |
-#     modifyrepo modules.yaml repodata/
-#   args:
-#     chdir: "{{ baseos_dir }}"
 
 - name: get list of directories with wrong permissions
   shell: |

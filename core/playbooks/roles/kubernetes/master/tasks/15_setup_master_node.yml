@@ -7,9 +7,5 @@
   ignore_errors: yes
 
 - name: 'Label masters'
-  command: 'kubectl label nodes {{ inventory_hostname }} role=server --overwrite=true'
-  changed_when: true
-
-- name: 'Label masters'
   command: 'kubectl label nodes {{ inventory_hostname }} dedicated=master --overwrite=true'
   changed_when: true

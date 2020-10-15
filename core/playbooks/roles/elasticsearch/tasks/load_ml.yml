@@ -12,6 +12,7 @@
     validate_certs: yes
     user: elastic
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     status_code: 200, 201, 404
   with_items: "{{ datafeeds }}"
 
@@ -22,6 +23,7 @@
     validate_certs: yes
     user: elastic
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     status_code: 200, 201, 404
   with_items: "{{ detectors }}"
 
@@ -32,6 +34,7 @@
     validate_certs: yes
     user: elastic
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ item.body }}"
     status_code: 200, 201
@@ -44,6 +47,7 @@
     validate_certs: yes
     user: elastic
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ item.body }}"
     status_code: 200, 201

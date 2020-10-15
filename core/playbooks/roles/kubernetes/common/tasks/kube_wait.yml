@@ -46,6 +46,10 @@
     GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
   when: type == 'deployments'
 
+- set_fact:
+    GOPOD: !unsafe "'{{if ne \"green\" (.status.health)}}false{{end}}'"
+  when: type == 'beats' or type == 'elasticsearch'
+
 - import_tasks: build_kubectl.yml
 
 - name: "Kube | Wait for {{ resource_name }} {{ label }} {{ type }}. Note- This can take a while, you may want to grab a coffee"
