@@ -26,6 +26,7 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
+    run_robot = 'run-robot'
     create_nightly = 'create_nightly'
 
     # run-catalog subcommands
@@ -79,8 +80,18 @@ class StigSubCmd:
     # Ran when system_name is GIP but we want
     # to Secure The  GIP Services VM
     GIPSVC = 'SERVICES'
-
     # Ran when system_name is REPO but we want
     # to secure either the Workstation or Server
     RHEL_REPO_WORKSTATION = 'WORKSTATION'
     RHEL_REPO_SERVER = 'SERVER'
+
+class RobotSubCmd:
+    tfplenum_robot_container = '--tfplenum-robot-container'
+    jira_username = '--tfplenum-robot-container'
+    jira_password = '--jira-password'
+    jira_report = '--jira-report'
+    jira_project_version = '--jira-project-version'
+    jira_project_key = '--jira-project-key'
+    robot_browser = '--robot-browser'
+    robot_category = '--robot-category'
+    robot_variables = '--robot-variables'

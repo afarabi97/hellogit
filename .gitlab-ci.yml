@@ -179,11 +179,11 @@ stages:
   - docs
   - kickstart
   - kit
-  - robot-test
   - configure:minio
   - stig-kit
   - security_scans
   - catalog
+  - robot-test
   - unit-test
   - integration-test
   - test-powerfailure

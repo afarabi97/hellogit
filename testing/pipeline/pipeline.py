@@ -19,6 +19,7 @@ from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
 from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
 from jobs.stig import StigJob
+from jobs.robot import RobotJob
 from models import add_args_from_instance
 from models.ctrl_setup import ControllerSetupSettings
 from models.kit import KitSettings
@@ -33,6 +34,7 @@ from models.constants import SubCmd
 from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKitSettings
 from models.rhel_repo_vm import RHELRepoSettings
 from models.stig import STIGSettings
+from models.robot import RobotSettings
 from util.yaml_util import YamlManager
 from util.ansible_util import delete_vms, create_nightly
 
@@ -178,6 +180,12 @@ class Runner:
         build_workstation_for_export_parser.set_defaults(
             which=SubCmd.build_workstation_for_export)
 
+        # ROBOTS BEING RAN
+        robot_test_parser = subparsers.add_parser(SubCmd.run_robot, help="Apply Robot Tests To The System.")
+        RobotSettings.add_args(robot_test_parser)
+        robot_test_parser.set_defaults(which=SubCmd.run_robot)
+
+        # STIGS BEING APPLIED
         stig_ctrl_parser = subparsers.add_parser(
             SubCmd.run_stigs, help="This command is used to apply STIGs to the nodes for a given system.")
         STIGSettings.add_args(stig_ctrl_parser)
@@ -326,6 +334,11 @@ class Runner:
                 executor = StigJob(stig_settings)
                 executor.run_stig()
                 stig_settings.take_snapshot_for_certain_systems()
+            elif args.which == SubCmd.run_robot:
+                robot_settings = RobotSettings()
+                robot_settings.from_namespace(args)
+                executor = RobotJob(robot_settings)
+                executor.run_robot()
             elif args.which == SubCmd.run_unit_tests:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()

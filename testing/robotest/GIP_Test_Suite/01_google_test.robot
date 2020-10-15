@@ -2,9 +2,9 @@
 Library     SeleniumLibrary
 
 
-
 *** Test Cases ***
-Navigate To Google For GIP
+Navigate To One DNS
+    [Tags]      THISISCVAH-6613
     Runner Open Browser         ${BROWSER}
     Capture Page Screenshot
     Close All Browsers
@@ -13,7 +13,9 @@ Navigate To Google For GIP
 
 Runner Open Browser
     [Arguments]     ${BROWSER}
-    Log To Console              ${BROWSER}
+    Log To Console  ${BROWSER}
+    Log To Console  ${HOST}    
+
     Run Keyword If              'chrome' in '${BROWSER}'    Open Chrome     ${BROWSER}
     ...                         ELSE                        Open Firefox    ${BROWSER}
 
@@ -29,7 +31,7 @@ Open Chrome
     Call Method         ${chrome_options}   add_argument        gpu-disable
     Call Method         ${chrome_options}   add_argument        disable-dev-shm-usage
     ${options}          Call Method         ${chrome_options}   to_capabilities
-    Open Browser    https://google.com  browser=${BROWSER}  desired_capabilities=${options}
+    Open Browser        https://${HOST}/dns  browser=${BROWSER}  desired_capabilities=${options}
 
 Change Browser If Chrome Headless
     [Arguments]     ${BROWSER}
@@ -43,4 +45,5 @@ Add Option Headless To Chrome
 
 Open Firefox
     [Arguments]     ${BROWSER}
-    Open Browser    https://google.com  browser=${BROWSER}
+    Open Browser    https://${HOST}/dns  browser=${BROWSER}
+    Log Location
