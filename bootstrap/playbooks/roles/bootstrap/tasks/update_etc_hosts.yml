@@ -12,6 +12,5 @@
     line: "{{ server_ip }} {{ ansible_controller_hostname }}"
     state: present
   notify:
-    - "Restart Network"
     - "Restart NetworkManager"
 ...

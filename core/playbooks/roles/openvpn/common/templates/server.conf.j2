@@ -1,3 +1,4 @@
+script-security 2
 port 1194
 
 # TCP or UDP server?
@@ -20,6 +21,9 @@ push "route-gateway {{ hostvars[groups['master_server'][0]].management_ipv4 }}"
 push "redirect-gateway autolocal"
 
 client-to-client
+
+up /etc/openvpn/server/server-bridge.sh
+down /etc/openvpn/server/remove-tap0.sh
 
 keepalive 10 120
 

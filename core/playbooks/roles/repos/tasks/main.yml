@@ -6,7 +6,7 @@
     dest: "/etc/hosts"
 
 - name: remove epel rpm
-  yum:
+  dnf:
     name: epel-release
     state: absent
 

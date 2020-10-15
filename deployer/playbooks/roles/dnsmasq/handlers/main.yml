@@ -7,12 +7,6 @@
     state: restarted
   listen: "Restart NetworkManager"
 
-- name: Network Services
-  service:
-    name: network
-    state: restarted
-  listen: "Restart Network"
-
 - name: check if docker installed
   stat:
     path: "/usr/bin/docker"

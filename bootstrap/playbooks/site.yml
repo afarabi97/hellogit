@@ -20,11 +20,11 @@
           file: "{{ dip_core_vars }}"
       when:
         - "system_name == 'DIP' or system_name == 'GIP'"
-    - name: Set RHEL ISO To workstation for MIP bootstrap
+    - name: Set RHEL ISO for MIP bootstrap
       set_fact:
-        iso_rhel_checksum: "{{ iso_rhel_worstation_checksum }}"
-        iso_rhel_url_labrepo: "{{ iso_rhel_workstation_url_labrepo }}"
-        iso_rhel_path: "{{ iso_rhel_worstation_path }}"
+        iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+        iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+        iso_rhel_path: "{{ iso_rhel_server_path }}"
       when:
         - "system_name == 'MIP'"
 
@@ -66,13 +66,13 @@
     - sso
   tags: sso
 
-- name: Bootstrap DIP/GIP Controller
+- name: Bootstrap Controller
   hosts: localhost
   any_errors_fatal: true
   roles:
-    - dip_bootstrap
+    - bootstrap
   tags:
-    - dip_bootstrap
+    - bootstrap
 
 - name: Rerun docker pull
   hosts: localhost
@@ -80,12 +80,5 @@
   roles:
     - registry
   tags:
+    - registry
     - pull-docker-images
-
-- name: Bootstrap MIP Controller
-  hosts: localhost
-  gather_facts: no
-  roles:
-    - mip_bootstrap
-  tags:
-    - mip_bootstrap

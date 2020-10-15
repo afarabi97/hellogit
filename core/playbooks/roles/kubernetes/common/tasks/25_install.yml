@@ -26,7 +26,7 @@
   with_items: "{{ kube_dirs }}"
 
 - name: 'Install Kubernetes packages'
-  yum:
+  dnf:
     name:
       - "kubeadm-{{ k8s_version }}"
       - "kubelet-{{ k8s_version }}"

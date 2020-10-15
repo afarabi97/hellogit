@@ -42,7 +42,7 @@
         password: "{{ vcenter.password }}"
         datacenter: "{{ vcenter.datacenter }}"
         cluster: "{{ vcenter.cluster }}"
-        guest_id: "rhel7_64Guest"
+        guest_id: "rhel8_64Guest"
         validate_certs: False
         name: "{{ item.hostname }}"
         folder: "{{ item.folder }}"

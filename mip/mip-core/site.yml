@@ -72,6 +72,8 @@
     - 021_CVAH_copy
   tags:
     - cvah_folder
+    - MDT
+    - CPT
 
 - name: Copy over the scripts used by the MIP
   hosts: mips
@@ -164,7 +166,6 @@
   gather_facts: no
   any_errors_fatal: true
   roles:
-    - 101_wireshark
     - 102_vmware
     - 103_chrome
     - 104_vscode
@@ -174,14 +175,14 @@
     - MDT
     - CPT
 
-- name: Install McAfee software
-  hosts: mips
-  gather_facts: no
-  any_errors_fatal: true
-  roles:
-    - 100_mcafee
-  tags:
-    - mcafee
+#- name: Install McAfee software
+#  hosts: mips
+#  gather_facts: no
+#  any_errors_fatal: true
+#  roles:
+#    - 100_mcafee
+#  tags:
+#    - mcafee
 
 - name: Install third party software CPT only
   hosts: mips
@@ -190,7 +191,6 @@
   roles:
     - 106_burpsuite
     - 107_nexpose
-    - 108_ostinato
   tags:
     - third_party_CPT
     - CPT

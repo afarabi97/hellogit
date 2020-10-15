@@ -1,86 +1,42 @@
 ---
 
-- name: Add local iso repo
-  yum_repository:
-    description: "RedHat ISO Repo"
-    enabled: "true"
-    file: local
-    baseurl: "file:///mnt/"
-    name: "local_rhel_7"
-    gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
-
-- name: Download DIP/GIP Packages
-  shell: "{{ item }}"
+- name: Download Packages
+  shell:  |
+    dnf download --repoid="{{ item.repoid }}" --destdir="{{ item.destdir }}" {{ item.packages }}
   with_items:
-    - "yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve --archlist=x86_64 {{ dip_packages | join(' ') }}"
-    - "yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --archlist=x86_64 {{ dip_packages_without_deps | join(' ') }}"
+    #- { repoid: "",destdir: "{{ baseos_dir }}/AppStream" packages: "{{ appstream_packages | join(' ') }}" }
+    - { repoid: "epel,kubernetes,mongodb-org-4.0,docker-ce", destdir: "{{ extras_dir }}/Packages/", packages: "{{ extra_packages | join(' ') }}" }
   when:
     - "system_name == 'DIP' or system_name == 'GIP'"
+  args:
+    warn: false
+
+- name: Download DIP/GIP Packages without Deps
+  shell: |
+    dnf download --repoid="epel,kubernetes,mongodb-org-4.0,docker-ce" --destdir="{{ extras_dir }}/Packages/" {{ dip_packages_without_deps | join(' ')  }}
+  when:
+    - "system_name == 'DIP' or system_name == 'GIP'"
+  args:
+    warn: false
 
 - name: Download MIP Packages
   shell: "{{ item }}"
   with_items:
-    - "yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve --archlist=x86_64 {{ packages | join(' ') }}"
-    - "yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve --archlist=x86_64 {{ cpt_packages | join(' ') }}"
-    - "yumdownloader --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve --archlist=x86_64 {{ dependent_packages | join(' ') }}"
+    - "dnf download --destdir={{ extras_dir }}/Packages --resolve --arch=x86_64,noarch {{ download_packages | join(' ') }}"
   when:
     - "system_name == 'MIP'"
-
-- name: Get packages from RedHat
-  shell: |
-    repoquery --repoid=local_rhel_7 --qf=%{name} -g --list --grouppkgs=all "{{ item }}" | xargs yumdownloader --enablerepo=local_rhel_7 --installroot=/tmp/ --releasever=/ --destdir={{ TFPLENUM_REPO_DIR }}/Packages --resolve  --archlist=x86_64
-  with_items: "{{ group_packages }}"
-
-- name: Remove local iso repo
-  yum_repository:
-    name: local_rhel_7
-    state: absent
-
-- name: remove unwanted packages
-  shell: |
-    /usr/bin/rm -rf {{ TFPLENUM_REPO_DIR }}/Packages/{{ item }}*.rpm
-  with_items: "{{ dip_packages_to_remove }}"
   args:
     warn: false
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
 
-- name: Remove Repodata
-  file:
-    path: "{{ TFPLENUM_REPO_DIR }}/repodata"
-    state: absent
+# - name: remove unwanted packages
+#   shell: |
+#     /usr/bin/rm -rf {{ baseos_dir }}/Packages/{{ item }}
+#   with_items:
+#     - "{{ dip_packages_to_remove }}*.rpm"
+#   args:
+#     warn: false
+#   when:
+#     - "system_name == 'DIP' or system_name == 'GIP'"
 
-- name: get comp xml name
-  shell: |
-    find "{{ mnt_pth }}/repodata" -type f -iname "*comps*.xml"
-  register: comps_result
-
-- name: Validate if comps.xml exists
-  stat:
-    path: "{{ comps_result.stdout }}"
-  register: comps_file
-
-- name: copy comps xml to offline repo
-  copy:
-    src: "{{ comps_file.stat.path }}"
-    dest: "{{ TFPLENUM_REPO_DIR }}/comps.xml"
-  when: comps_file.stat.exists
-
-- name: create repodata
-  shell: "createrepo -g {{ TFPLENUM_REPO_DIR }}/comps.xml {{ TFPLENUM_REPO_DIR }}"
-
-- name: get list of directories with wrong permissions
-  shell: |
-    # change all directories permissions that are not 755 to 755
-    find {{ web_root }} -type d -not -perm 755 -exec chmod 755 {} \;
-  register: dir_list
-
-- name: fix files with wrong permissions
-  shell: |
-    find {{ web_root }} -type f -not -perm 644 -exec chmod 644 {} \;
-  register: file_list
-
-- name: restorecon for web root
-  shell: |
-    restorecon -Rv {{ web_root }}
+- import_tasks: 25_create_repodata.yml
+  tags: create_repodata

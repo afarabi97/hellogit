@@ -14,3 +14,12 @@
     dest: "{{ item.dest }}"
   with_items:
     - "{{ direct_download_rpms }}"
+
+- name: "Download direct rpms"
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - "{{ mip_direct_download_rpms }}"
+  when:
+    - "system_name == 'MIP"

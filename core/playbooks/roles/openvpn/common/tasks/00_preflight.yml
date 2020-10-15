@@ -4,9 +4,8 @@
     existing_pki: False
 
 - name: Install net-tools
-  yum:
+  dnf:
     name:
-      - bridge-utils
       - net-tools
     state: present
 

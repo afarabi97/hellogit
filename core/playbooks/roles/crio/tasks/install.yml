@@ -31,8 +31,8 @@
     - "/opt/cni/bin/"
 
 - name: Install CRI-O Dependencies
-  yum:
-    name: [ buildah, cri-tools, runc ]
+  dnf:
+    name: [ buildah, cri-tools, make, runc ]
     state: present
 
 - name: Copy custom Makefile

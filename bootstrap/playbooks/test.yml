@@ -1,0 +1,48 @@
+
+
+---
+- name: Set Variables
+  hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - block:
+      - name: Set RHEL ISO To server for DIP bootstrap
+        set_fact:
+          iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+          iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+          iso_rhel_path: "{{ iso_rhel_server_path }}"
+      - name: Import DIP/GIP variables
+        include_vars:
+          file: "{{ dip_core_vars }}"
+      when:
+        - "system_name == 'DIP' or system_name == 'GIP'"
+    - name: Set RHEL ISO for MIP bootstrap
+      set_fact:
+        iso_rhel_checksum: "{{ iso_rhel_server_checksum }}"
+        iso_rhel_url_labrepo: "{{ iso_rhel_server_url_labrepo }}"
+        iso_rhel_path: "{{ iso_rhel_server_path }}"
+      when:
+        - "system_name == 'MIP'"
+
+    - name: Check for labrepo
+      uri:
+        url: http://labrepo.sil.lab/check.html
+        return_content: yes
+        status_code: 201, 200
+      register: labrepo_results
+      ignore_errors: yes
+
+    - name: Set labrepo variable
+      set_fact:
+        labrepo_check: "{{ labrepo_results.content|from_json }}"
+        cacheable: yes
+      ignore_errors: yes
+  tags: always
+
+- name: Bootstrap DIP/GIP Controller
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - clonerepo
+  tags:
+    - clonerepo

@@ -4,6 +4,7 @@
 bootstrap_package_names:
   - yum-utils
   - createrepo
+  - rsync
 
 gpg_keys:
   - "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
@@ -16,11 +17,8 @@ engine_file: avengine64-6010.zip
 gitkraken_file: gitkraken-amd64.rpm
 McAfee_file: McAfeeVSEForLinux-2.0.3.29216.tar.gz
 nexpose_file: Rapid7Setup-Linux64.bin
-ostinato_file: ostinato-0.8-1.1.x86_64.rpm
-ostinato_server_file: ostinato-server-0.8-1.1.x86_64.rpm
-vmware_file: VMware-Workstation-Full-15.1.0-13591040.x86_64.bundle
+vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
 vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
-wireshark_file: wireshark-2.6.13.tar.xz
 mcafee_gip_file: CPT_McAfee_Update.tar
 
 cpt_archive: cpt-cvah-mod.tar.gz

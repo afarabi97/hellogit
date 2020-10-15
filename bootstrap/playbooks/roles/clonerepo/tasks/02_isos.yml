@@ -1,4 +1,5 @@
 ---
+
 - name: Download RHEL ISO
   get_url:
     checksum: "sha256:{{ iso_rhel_checksum }}"
@@ -20,6 +21,11 @@
   fail:
     msg: "It appears the iso checksum does not match.  Please redownload the iso from a known good source and verify the iso_checksum is correct in the invetory file."
   when: ansible_distribution == 'RedHat' and iso_path_result2.stat.exists and iso_path_result2.stat.checksum != iso_rhel_checksum
+
+- name: Create mount dir
+  file:
+    path: "{{ mnt_pth }}"
+    state: directory
 
 - name: Mount content to {{ mnt_pth }}
   mount:

@@ -5,14 +5,14 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, dip_bootstrap, sso, build_helm_charts, mip_bootstrap, nightly_clone_rebuild_frontend, pull_docker_images
+.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images
 
 # Default target, build *and* run tests
 all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t execute_pre,frontend,sso,dip_bootstrap
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t execute_pre,frontend,sso,bootstrap
 
 execute_pre:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t execute_pre
@@ -47,17 +47,10 @@ sso:
 setup_ctrl_dns:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t setup_ctrl_dns
 
-dip_bootstrap:
-	@echo $(TFPLENUM_OS_TYPE)
+bootstrap:
 	@echo $(TFPLENUM_SERVER_IP)
 	@echo $(RHEL_SOURCE_REPO)
-
-	$(if $(filter $(TFPLENUM_OS_TYPE),Centos),\
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "None" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,dip_bootstrap),\
-	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,dip_bootstrap))
-
-mip_bootstrap:
-	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -t execute_pre,frontend,sso,mip_bootstrap
+	(ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ RHEL_SOURCE_REPO: "$(RHEL_SOURCE_REPO)" }' -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t execute_pre,frontend,sso,bootstrap)
 
 pull_docker_images:
 	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, -e '{ server_ip: "$(TFPLENUM_SERVER_IP)" }' -t pull-docker-images

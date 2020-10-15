@@ -3,7 +3,7 @@
 #######################################################
 ---
 - name: Requires kubeadm package
-  yum:
+  dnf:
     name: kubeadm
     state: present
   ignore_errors: yes
@@ -31,7 +31,7 @@
   failed_when: false
 
 - name: Remove Kubernetes Packages to clear cache
-  yum:
+  dnf:
     name:
       - kubeadm
       - kubelet

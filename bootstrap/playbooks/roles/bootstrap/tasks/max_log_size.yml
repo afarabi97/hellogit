@@ -1,5 +1,10 @@
 ---
 
+- name: Install Logrotate
+  dnf:
+    name: logrotate
+    state: present
+
 - name: Set max journal size
   lineinfile:
     path: /etc/systemd/journald.conf

@@ -6,7 +6,7 @@
     enabled: no
 
 - name: Remove auditbeat
-  yum:
+  dnf:
     name: auditbeat-{{ elastic_7_version }}
     state: absent
 

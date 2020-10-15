@@ -12,7 +12,7 @@
   when: results.stdout.find('is not installed') != -1
 
 - name: Install packages
-  yum:
+  dnf:
     name: "{{ package_list }}"
     state: installed
 
@@ -22,11 +22,6 @@
     - pip
     - setuptools
     state: present
-
-- name: Install PBR Pip Module
-  pip:
-    name: pbr
-    state: forcereinstall
 
 - name: Install Pip Modules
   pip:

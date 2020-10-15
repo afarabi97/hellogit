@@ -128,6 +128,11 @@
    - gen_api_token.py
    - import_users.py
 
+- name: Install Keycloak Dependencies
+  dnf:
+    name: java
+    state: present
+
 - name: Check if keycloak TAR exists
   stat:
     path: "/opt/keycloak-{{ keycloak_version }}.tar.gz"

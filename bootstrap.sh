@@ -2,11 +2,11 @@
 set -x
 export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
-bootstrap_version=1.3.0
+bootstrap_version=1.4.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-RHEL_VERSION="7.7"
-RHEL_ISO="rhel-server-$RHEL_VERSION-x86_64-dvd.iso"
+EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+RHEL_VERSION="8.2"
+RHEL_ISO="rhel-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
@@ -199,23 +199,21 @@ function subscription_prompts(){
     fi
 
     if [ "$subscription_status" == "Current" ]; then
-        run_cmd subscription-manager repos --enable rhel-7-server-rpms
-        run_cmd subscription-manager repos --enable rhel-7-server-extras-rpms
-        run_cmd subscription-manager repos --enable rhel-7-server-optional-rpms
+        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-baseos-rpms
+        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-appstream-rpms
+        run_cmd subscription-manager repos --enable rhel-8-for-x86_64-supplementary-rpms
+        run_cmd subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
         prompt_rhel_iso_download
     fi
-
-
 }
 
 function setup_ansible(){
     local core_dir="/opt/tfplenum/core"
     pushd $core_dir > /dev/null
-    run_cmd yum install -y policycoreutils-python python-pip python-gobject sshpass
-    run_cmd pip2 install --upgrade pip
-    run_cmd pip2 install virtualenv cryptography==2.9.2
-    run_cmd virtualenv --python=python2 --system-site-packages tfp-env
-    run_cmd $core_dir/tfp-env/bin/pip2 install -r $core_dir/requirements-py2.txt
+    run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass
+    run_cmd pip3 install virtualenv cryptography==2.9.2
+    run_cmd virtualenv --python=python3 --system-site-packages tfp-env
+    run_cmd $core_dir/tfp-env/bin/pip3 install -r $core_dir/requirements.txt
     rm -f /usr/bin/ansible*
     rm -f /usr/bin/dir2pi
     run_cmd ln -s /opt/tfplenum/core/tfp-env/bin/ansible-playbook /usr/bin/ansible-playbook
@@ -241,70 +239,16 @@ EOF
     fi
 }
 
-function add_workstation_repositories() {
-    if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-        cat <<EOF > /etc/yum.repos.d/labrepo-workstation-rhel.repo
-[rhel-7-workstation-rpms]
-name=labrepos rhel-7-workstation-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-rpms
-enabled=0
-gpgcheck=0
-
-[rhel-7-workstation-optional-rpms]
-name=labrepos rhel-7-workstation-optional-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-optional-rpms
-enabled=0
-gpgcheck=0
-
-[rhel-7-workstation-extras-rpms]
-name=labrepos rhel-7-workstation-extras-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-extras-rpms
-enabled=0
-gpgcheck=0
-
-[rhel-7-workstation-source-rpms]
-name=labrepos rhel-7-workstation-source-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-source-rpms
-enabled=0
-gpgcheck=0
-EOF
-        yum clean all > /dev/null
-        rm -rf /var/cache/yum/ > /dev/null
-    fi
-}
-
 function generate_repo_file() {
     rm -rf /etc/yum.repos.d/*.repo > /dev/null
 
     if [ "$RHEL_SOURCE_REPO" == "labrepo" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
-cat <<EOF > /etc/yum.repos.d/labrepo-server-rhel.repo
-[rhel-7-server-extras-rpms]
-name=labrepos rhel-7-server-extras-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-extras-rpms
-enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-
-[rhel-7-server-optional-rpms]
-name=labrepos rhel-7-server-optional-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-optional-rpms
-enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-
-[rhel-7-server-rpms]
-name=labrepos rhel-7-server-rpms
-baseurl=http://yum.labrepo.sil.lab/rhel/rhel-7-server-rpms
-enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-EOF
-
+        curl -o /etc/yum.repos.d/labrepo-server-rhel.repo http://yum.labrepo.sil.lab/rhel8/labrepo-server-rhel8.repo
     elif [ "$RHEL_SOURCE_REPO" == "public" ] && [ "$TFPLENUM_OS_TYPE" == "rhel" ]; then
         subscription_prompts
     fi
 
-    yum clean all > /dev/null
+    dnf clean all > /dev/null
     rm -rf /var/cache/yum/ > /dev/null
 }
 
@@ -398,7 +342,7 @@ function clone_repos(){
         rm -rf $directory
     fi
     if [[ ! -d "$directory" ]]; then
-        run_cmd git clone $REPO_URL
+        run_cmd git clone $REPO_URL $directory
         pushd $directory > /dev/null
         run_cmd git checkout $TFPLENUM_BRANCH_NAME
         popd > /dev/null
@@ -406,16 +350,16 @@ function clone_repos(){
 }
 
 function execute_pre(){
-    rpm -e epel-release-latest-7.noarch.rpm
-    yum remove epel-release -y
+    rpm -e epel-release-latest-8.noarch.rpm
+    dnf remove epel-release -y
     rm -rf /etc/yum.repos.d/epel*.repo
-    yum install $EPEL_RPM_PUBLIC_URL -y
-    rm -rf epel-release-latest-7.noarch.rpm
+    dnf install --allowerasing $EPEL_RPM_PUBLIC_URL -y
+    rm -rf epel-release-latest-8.noarch.rpm
 }
 
 function setup_git(){
   if ! rpm -q git > /dev/null 2>&1; then
-    yum install git -y > /dev/null 2>&1
+    dnf install --allowerasing git -y > /dev/null 2>&1
   fi
 git config --global --unset credential.helper
 cat <<EOF > ~/credential-helper.sh
@@ -426,24 +370,11 @@ EOF
   git config --global credential.helper "/bin/bash ~/credential-helper.sh"
 }
 
-function execute_mip_bootstrap_playbook(){
-    echo "Running MIP controller bootstrap."
-    pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
-    run_cmd make mip_bootstrap
-    popd > /dev/null
-
-    # Add Stig To MIPs
-    echo "Running MIP Controller Stigs"
-    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-    run_cmd make mip-controller-stigs
-    popd > /dev/null
-}
-
 function execute_bootstrap_playbook(){
     echo "Running controller bootstrap"
 
     pushd "/opt/tfplenum/bootstrap/playbooks" > /dev/null
-    run_cmd make dip_bootstrap
+    run_cmd make bootstrap
     popd > /dev/null
 
     # Add STIGS to DIP Controller
@@ -457,6 +388,13 @@ function execute_bootstrap_playbook(){
     if [ "$SYSTEM_NAME" == "GIP" ]; then
         pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
         run_cmd make gip-controller-stigs
+        popd > /dev/null
+    fi
+
+    # Add STIGS to MIP Controller
+    if [ "$SYSTEM_NAME" == "MIP" ]; then
+        pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
+        run_cmd make mip-controller-stigs
         popd > /dev/null
     fi
 }
@@ -492,12 +430,9 @@ function prompts(){
             export RHEL_SOURCE_REPO="public";
         fi
         generate_repo_file
-        if [[ "$SYSTEM_NAME" == "MIP" ]]; then
-            add_workstation_repositories
-        fi
     fi
 
-    if [ "$RUN_TYPE" == "full" ]; then
+    if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
         prompt_git_creds
         set_git_variables
     fi
@@ -539,13 +474,7 @@ if [ "$RUN_TYPE" == "bootstrap" ] || [ "$RUN_TYPE" == "full" ]; then
     execute_pre
     add_nexus_laprepo
     setup_ansible
-    if [ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]; then
-        execute_bootstrap_playbook
-    fi
-
-    if [[ "$SYSTEM_NAME" == "MIP" ]]; then
-        execute_mip_bootstrap_playbook
-    fi
+    execute_bootstrap_playbook
 fi
 
 if [ "$RUN_TYPE" == "dockerimages" ] && ([ "$SYSTEM_NAME" == "DIP" ] || [ "$SYSTEM_NAME" == "GIP" ]); then

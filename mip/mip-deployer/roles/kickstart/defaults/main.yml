@@ -1,16 +1,17 @@
 ---
 # defaults file for roles/kickstart
 #
+
 tftp_pkgs: tftp-server,syslinux,xinetd
 tftp_pxe:
  - /usr/share/syslinux/pxelinux.0
  - /usr/share/syslinux/vesamenu.c32
- - "{{ web_root }}/{{ ansible_distribution }}/isolinux/initrd.img"
- - "{{ web_root }}/{{ ansible_distribution }}/isolinux/vmlinuz"
+ - "{{ TFPLENUM_REPO_DIR }}/isolinux/initrd.img"
+ - "{{ TFPLENUM_REPO_DIR }}/isolinux/vmlinuz"
 
 tftp_uefi:
- - "{{ web_root }}/{{ ansible_distribution }}/EFI/BOOT/BOOTX64.EFI"
- - "{{ web_root }}/{{ ansible_distribution }}/EFI/BOOT/grubx64.efi"
+ - "{{ TFPLENUM_REPO_DIR }}/EFI/BOOT/BOOTX64.EFI"
+ - "{{ TFPLENUM_REPO_DIR }}/EFI/BOOT/grubx64.efi"
 
 apache: httpd
 

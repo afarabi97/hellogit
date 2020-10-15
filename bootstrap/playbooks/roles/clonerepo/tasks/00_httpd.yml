@@ -1,6 +1,6 @@
 ---
 - name: "Install httpd so this repo can be published"
-  yum:
+  dnf:
     name: httpd
     state: present
 

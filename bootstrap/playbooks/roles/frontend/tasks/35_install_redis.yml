@@ -10,7 +10,7 @@
 
 
 - name: redis | Install
-  yum:
+  dnf:
     name: redis
     state: present
     enablerepo: remi

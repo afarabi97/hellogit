@@ -142,12 +142,17 @@ class DatetimeService:
 
         :return:
         """
+        ret_val = cmd.run(self._set_hwclock_cmd)
+        if ret_val.return_code != 0:
+            raise TimeChangeFailure(FAILURE_MSG.format(self._set_hwclock_cmd, hostname))
+
         ret_val = cmd.run(self._timezone_cmd) # type: Result
         if ret_val.return_code != 0:
             raise TimeChangeFailure("Failed to run {} on {}".format(self._timezone_cmd, hostname))
 
         try:
-            cmd.run(self._unset_ntp_cmd, warn=True)
+            if self._has_chronyd(cmd):
+                cmd.run(self._unset_ntp_cmd, warn=True)
         except UnexpectedExit:
             pass
 
@@ -159,19 +164,19 @@ class DatetimeService:
             else:
                 self._set_clock_using_timedatectl(cmd, hostname)
 
-        ret_val = cmd.run(self._set_hwclock_cmd)
-        if ret_val.return_code != 0:
-                raise TimeChangeFailure(FAILURE_MSG.format(self._set_hwclock_cmd, hostname))
-
-        cmd.run(self._set_ntp_cmd, warn=True)
+        if self._has_chronyd(cmd):
+            cmd.run(self._set_ntp_cmd, warn=True)
 
 
     def set_controller_clock(self, use_timedatectl: bool):
+        _, ret_val = run_command2(self._set_hwclock_cmd)
+        if ret_val != 0:
+            raise TimeChangeFailure(FAILURE_MSG_CTRL.format(self._set_hwclock_cmd))
         _, ret_val = run_command2(self._timezone_cmd)
         if ret_val != 0:
             raise TimeChangeFailure(FAILURE_MSG_CTRL.format(self._timezone_cmd))
-
-        run_command2(self._unset_ntp_cmd)
+        if self._ctrl_has_chronyd():
+            run_command2(self._unset_ntp_cmd)
         if use_timedatectl:
             self._set_ctrl_clock_using_timedatectl()
         else:
@@ -182,11 +187,8 @@ class DatetimeService:
                     self._set_ctrl_clock_using_timedatectl()
             else:
                 self._set_ctrl_clock_using_timedatectl()
-
-        _, ret_val = run_command2(self._set_hwclock_cmd)
-        if ret_val != 0:
-            raise TimeChangeFailure(FAILURE_MSG_CTRL.format(self._set_hwclock_cmd))
-        run_command2(self._set_ntp_cmd)
+        if self._ctrl_has_chronyd():
+            run_command2(self._set_ntp_cmd)
 
 
 def _reorder_nodes_and_put_master_first(nodes: List[Dict]):

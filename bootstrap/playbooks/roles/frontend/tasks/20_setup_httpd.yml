@@ -11,7 +11,7 @@
     mirrorlist : https://shibboleth.net/cgi-bin/mirrorlist.cgi/CentOS_7
 
 - name: Install Httpd
-  yum:
+  dnf:
     name:
       - httpd
       - mod_ssl

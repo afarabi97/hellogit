@@ -39,6 +39,7 @@
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ lookup('file', 'files/roles/{{ item }}.json') }}"
     status_code: 200, 201
@@ -78,6 +79,7 @@
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ lookup('template', 'templates/users/{{ item }}.json.j2') }}"
     status_code: 200, 201
@@ -93,6 +95,7 @@
     validate_certs: no
     user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ lookup('template', 'templates/policies/default.json.j2') }}"
     status_code: 200, 201
@@ -119,8 +122,9 @@
     url: "{{ elastic_url }}/_security/role_mapping/saml1-{{ item }}"
     method: PUT
     validate_certs: no
-    user: elastic
+    user: "{{ default_elastic_user }}"
     password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
     body_format: json
     body: "{{ lookup('file', 'files/role-mappings/{{ item }}.json') }}"
     status_code: 200, 201

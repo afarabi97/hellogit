@@ -1,6 +1,6 @@
 ---
 - name: Install packages required for MDT and CPT
-  yum:
+  dnf:
     name: "{{ item }}"
     state: present
   loop: "{{ packages }}"

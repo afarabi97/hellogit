@@ -1,9 +1,10 @@
 ---
-  - stat:
-      path: /operator/.DO_NOT_DELETE/.024
-    register: check
+- name: Check hidden file for play
+  stat:
+    path: /operator/.DO_NOT_DELETE/.024
+  register: check
 
-  - name: Validate play hasn't been run before
-    include_tasks: main_play.yml
-    when: not check.stat.exists
+- name: Validate play hasn't been run before
+  include_tasks: main_play.yml
+  when: not check.stat.exists
 ...

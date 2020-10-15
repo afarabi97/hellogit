@@ -1,11 +1,11 @@
 ---
-- name: "Yum update"
-  yum:
-    name: "*"
-    state: present
+# - name: "DNF update"
+  # dnf:
+    # name: "*"
+    # state: present
 
 - name: "Install packages"
-  yum:
+  dnf:
     name: "{{ package_list }}"
     state: present
 ...

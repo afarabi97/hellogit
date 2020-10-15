@@ -60,6 +60,11 @@
     - "menuentry ' ' {\n\ttrue\n}"
   when: not does_exist.stat.exists
 
+- name: Touch MIP Background on MIP
+  file:
+    path: '{{ uefi_grub_path }}/mip2-background.jpg'
+    state: touch
+
 - name: Copy MIP Background
   copy:
     src: "/root/Files_To_Be_Copied_Over/usr/local/scripts/mip2-background.jpg"

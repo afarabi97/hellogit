@@ -1,8 +1,10 @@
 ---
-- set_fact:
+- name: Set mip drive type
+  set_fact:
     mip_drive_type: "{{ hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'nvme.*') | select('string') | list }}"
 
-- set_fact:
+- name: Set mip_drive type when not defined
+  set_fact:
     mip_drive_type: "{{ hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"
   when: mip_drive_type[0] is undefined
 

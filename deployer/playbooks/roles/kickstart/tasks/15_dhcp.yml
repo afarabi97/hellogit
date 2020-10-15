@@ -4,7 +4,7 @@
   block:
     - name: Install dhcp package
       yum:
-        name: dhcp
+        name: dhcp-server
         state: present
 
     - name: set default dhcp network and netmask

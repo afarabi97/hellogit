@@ -15,11 +15,13 @@
 
 - name: Add local repo
   template:
-    src: /opt/tfplenum/bootstrap/playbooks/roles/dip_bootstrap/templates/offline-tfplenum.repo
-    dest: "{{ item }}"
-  with_items:
-    - "/etc/yum.repos.d/offline.repo"
-    - "/var/www/html/offlinerepo/offline.repo"
+    src: /opt/tfplenum/bootstrap/playbooks/roles/bootstrap/templates/offline-tfplenum.repo
+    dest: "/etc/yum.repos.d/offline.repo"
+
+- name: offline repo file
+  template:
+    src: /opt/tfplenum/bootstrap/playbooks/roles/bootstrap/templates/offline-tfplenum.repo
+    dest: "/var/www/html/offlinerepo/offline.repo"
 
 - name: Enable Firewalld Service
   service:

@@ -62,7 +62,7 @@
 - name: Trust McAfee desktop application
   become: yes
   become_user: "{{ user }}"
-  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ McAfee_desktop }}" 'metadata::trusted' yes
+  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ McAfee_desktop }}" 'metadata::trusted' true
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0

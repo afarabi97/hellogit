@@ -7,10 +7,4 @@
     state: restarted
   listen: "Restart NetworkManager"
 
-- name: Network Services
-  service:
-    name: network
-    state: restarted
-  listen: "Restart Network"
-
 ...

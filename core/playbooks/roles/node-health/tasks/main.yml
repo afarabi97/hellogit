@@ -1,7 +1,7 @@
 ---
 
 - name: Install necessary packages.
-  yum:
+  dnf:
     name: "{{ item }}"
   loop:
     - gcc

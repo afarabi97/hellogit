@@ -1,5 +1,6 @@
 ---
-- stat:
+- name: Check hidden file for play
+  stat:
     path: /operator/.DO_NOT_DELETE/.004
   register: check
 

@@ -1,8 +1,9 @@
 ---
 - name: Remove the epel-release package.
-  yum:
+  dnf:
     name: epel-release
     state: absent
+  ignore_errors: true
 
 - name: Find repositories in /etc/yum.repos.d.
   find:

@@ -1,0 +1,17 @@
+[tfplenum-BaseOS-offline-repo]
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/tfplenum/BaseOS
+enabled=1
+gpgcheck=0
+name=tfplenum-baseos-offline-repo
+
+[tfplenum-AppStream-offline-repo]
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/tfplenum/AppStream
+enabled=1
+gpgcheck=0
+name=tfplenum-appstream-offline-repo
+
+[tfplenum-Extras-offline-repo]
+baseurl=http://{{ansible_controller_hostname}}/offlinerepo/tfplenum/Extras
+enabled=1
+gpgcheck=0
+name=tfplenum-extras-offline-repo

@@ -2,3 +2,5 @@
 kick_cfg: mip.cfg
 tftp_dir: /var/lib/tftpboot
 web_root: /var/www/html
+tfplenumoffline_dir: "{{ web_root }}/offlinerepo"
+TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"

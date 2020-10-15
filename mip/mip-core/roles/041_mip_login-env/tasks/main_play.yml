@@ -12,6 +12,24 @@
     - { src: '/root/Files_To_Be_Copied_Over/etc/issue.net', dest: '/etc/'}
     - { src: '/root/Files_To_Be_Copied_Over/usr/local/share/pixmaps/cvah-logo.png', dest: '/usr/local/share/pixmaps/'}
 
+- name: Enable desktop icons
+  command: gsettings set org.gnome.desktop.background show-desktop-icons true
+  register: result
+  changed_when: result.rc == 0
+  tags:
+    - CPT
+    - MDT
+
+- name: Create Thunar icon dir
+  file:
+    path: /usr/share/app-info/icons/epel-7/128x128
+    state: directory
+
+- name: Copy Thunar icon
+  copy:
+    src: Thunar.png
+    dest: /usr/share/app-info/icons/epel-7/128x128/Thunar.png
+
 - name: Setting desktop icon size
   become: yes
   become_user: "{{ item }}"
@@ -62,6 +80,28 @@
     path: /etc/ssh/sshd_config
     regexp: '#Banner none'
     replace: "Banner /etc/issue.net"
+
+- name: Get all user ids
+  shell:
+    cmd: |
+      awk -F: '/\/home/ && ($3 >= 1000) {printf "%s\n",$3}' /etc/passwd
+  register: uid_list
+  changed_when: uid_list.rc == 0
+  failed_when:  uid_list.rc > 0
+
+- name: Set default desktop to gnome-classic for all users
+  shell:
+    cmd: >
+      gdbus call
+      --system
+      --dest org.freedesktop.Accounts
+      --object-path /org/freedesktop/Accounts/User"{{ item }}"
+      --method org.freedesktop.Accounts.User.SetXSession "gnome-classic"
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+  with_items:
+    - "{{ uid_list.stdout_lines }}"
 
 - name: Create hidden file for validation if playbooks crash
   file:

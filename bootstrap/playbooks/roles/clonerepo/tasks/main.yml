@@ -10,10 +10,10 @@
 
 - name: "remove tfplenum repo directory"
   file:
-    path: "{{ TFPLENUM_REPO_DIR }}"
+    path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ TFPLENUM_REPO_DIR }}"
+    - "{{ extras_dir }}"
     - "/tmp/var/"
 
 - name: "Create tfplenum repo directory"
@@ -23,7 +23,8 @@
     recurse: yes
   with_items:
     - "{{ TFPLENUM_REPO_DIR }}"
-    - "{{ TFPLENUM_REPO_DIR }}/Packages"
+    - "{{ extras_dir }}"
+    - "{{ extras_dir }}/Packages"
 
 - name: Create a directory for downloading elasticsearch plugins.
   file:
@@ -54,4 +55,6 @@
     - "system_name == 'MIP'"
 
 - import_tasks: 20_download_rpms.yml
+  tags: downloadrpms
+
 ...

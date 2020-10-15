@@ -6,12 +6,12 @@
     description: MongoDB Repository
     enabled: true
     gpgcheck: true
-    gpgkey: https://www.mongodb.org/static/pgp/server-4.0.asc
-    baseurl: https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.0/x86_64/
+    gpgkey: https://www.mongodb.org/static/pgp/server-4.4.asc
+    baseurl: https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
 
 
 - name: mongo | Install
-  yum:
+  dnf:
     name: mongodb-org
     state: present
 

@@ -1,7 +1,7 @@
 ---
 - block:
   - name: install inotify-tools
-    yum:
+    dnf:
       name: inotify-tools
       state: present
 

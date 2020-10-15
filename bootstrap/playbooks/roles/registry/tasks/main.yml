@@ -4,7 +4,7 @@
 ---
 
 - name: Install Docker Dist
-  yum:
+  dnf:
     name: docker-distribution
     state: installed
 
@@ -36,11 +36,12 @@
   tags: pull-docker-images
 
 - name: Install Docker
-  yum:
-    name:
-      - docker-ce
-      - pigz
-    state: installed
+  shell: |
+    dnf install -y docker-ce --nobest
+  register: results
+  changed_when: results.rc == 0
+  args:
+    warn: false
 
 - name: Create directory docker directory
   file:

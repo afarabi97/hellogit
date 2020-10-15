@@ -51,20 +51,25 @@ ids_log_rotate_interval: 300
 
 # Common
 package_list:
-  - python-gobject
-  - python2-pip
-  - nload
-  - iperf
-  - openvpn
   - easy-rsa
-  - bridge-utils
-  - net-tools
+  - iperf3
+  - ipvsadm
   - lsof
+  - make
+  - net-tools
+  - nfs-utils
+  - nload
+  - openvpn
+  - python3-gobject
+  - python3-policycoreutils
+  - python3-libsemanage
+  - python36
   - rsync
   - tcpreplay
-  - nfs-utils
-  - ipvsadm
-  - libsemanage-python
+  - tar
+  - unzip
+  - bash-completion
+  - vim
 
 pip_installs:
   - netaddr

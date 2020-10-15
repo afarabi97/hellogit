@@ -1,7 +1,7 @@
 ---
 
 - name: install kubeadm
-  yum:
+  dnf:
     name: kubeadm
     state: present
 
@@ -28,7 +28,7 @@
     tasks_from: 50_setup_firewall
 
 - name: Uninstall CRI-O Deps
-  yum:
+  dnf:
     name: [ buildah, cri-tools, runc, container-selinux, criu ]
     state: absent
 

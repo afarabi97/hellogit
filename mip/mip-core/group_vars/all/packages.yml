@@ -1,15 +1,30 @@
 ---
+# Packages not included in Appstream or BaseOS repos to download
+download_packages:
+  - libpcap-devel
+  - fping
+  - openvpn
+  - easy-rsa
+  - ntfs-3g
+  - p7zip
+  - terminator
+  - fuse-sshfs
+  - tofrodos
+  - screen
+  - srm.x86_64
+  - nload
+  - sshpass
+
 packages:
   #VMware packages
-  - kernel-3.10.0-1062.12.1.el7.x86_64
-  - kernel-headers-3.10.0-1062.12.1.el7.x86_64
-  - kernel-devel-3.10.0-1062.12.1.el7.x86_64
+  - kernel-4.18.0-193.el8.x86_64
+  - kernel-headers-4.18.0-193.el8.x86_64
+  - kernel-devel-4.18.0-193.el8.x86_64
   - gcc
   #Wireshark packages
   - gcc-c++
   - bison
   - flex
-  - qt-devel
   - gtk3-devel
   - rpm-build
   - libtool
@@ -22,17 +37,20 @@ packages:
   - libgcrypt-devel
   - libpcap
   - libpcap-devel
-  #2FA Packages
+  #2FA Packages https://access.redhat.com/articles/4253861
+  - authselect
+  - dconf-editor
+  - opensc
+  - openssl
+  - openssl-pkcs11
   - pcsc-lite
-  - coolkey
-  - pam_pkcs11
-  - esc
-  #- opensc   # This package is already added in OTHER section but if it is REMOVED from there this should be uncommented to avoid functionality loss for 2FA
+  - pcsc-lite-ccid
+  - pcsc-lite-libs
+  - sssd
   #Other
   - libvirt*
-  - iptables-services
+  - firewalld
   - nmap
-  - nmap-frontend
   - wget
   - mlocate
   - yum-utils
@@ -42,7 +60,7 @@ packages:
   - openvpn
   - easy-rsa
   - ntfs-3g
-  - ntp
+  - chrony
   - p7zip
   - tftp-server
   - tftp
@@ -50,17 +68,14 @@ packages:
   - fuse-sshfs
   - tofrodos
   - opensc
-  - chrony
   - scap-workbench
   - screen
-  - yum-plugin-versionlock
-  - python3
+  - dnf-plugin-versionlock
+  - python36
   - vim
   - srm.x86_64
   - tmux
-  - git
   - nload
-  - putty
   - libXScrnSaver
   - libappindicator-gtk3
   - libdbusmenu
@@ -73,6 +88,8 @@ packages:
   - sshpass
   - bind-utils
   - dbus*
+  - policycoreutils-python-utils
+  - gnome-session-xsession
 
 dependent_packages:
   - gtk3-immodule-xim
@@ -101,9 +118,8 @@ McAfee_file: McAfeeVSEForLinux-2.0.3.29216.tar.gz
 nexpose_file: Rapid7Setup-Linux64.bin
 ostinato_file: ostinato-0.8-1.1.x86_64.rpm
 ostinato_server_file: ostinato-server-0.8-1.1.x86_64.rpm
-vmware_file: VMware-Workstation-Full-15.1.0-13591040.x86_64.bundle
+vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
 vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
-wireshark_file: wireshark-2.6.13.tar.xz
 McAfee_gip_file: CPT_McAfee_Update.tar
 
 software:
@@ -111,7 +127,6 @@ software:
   - "{{ web_server }}{{ vscode_file }}"
   - "{{ web_server }}{{ gitkraken_file }}"
   - "{{ web_server }}{{ chrome_file }}"
-  - "{{ web_server }}{{ wireshark_file }}"
   - "{{ web_server }}{{ McAfee_file }}"
   - "{{ web_server }}{{ dat_file }}"
   - "{{ web_server }}{{ engine_file }}"

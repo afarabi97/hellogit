@@ -1,6 +1,6 @@
 ---
 - name: Install KeepAlived and HAProxy
-  yum:
+  dnf:
     name: [keepalived, haproxy]
     state: installed
 

@@ -1,6 +1,6 @@
 ---
 - name: Install packages only required for CPT core
-  yum:
+  dnf:
     name: "{{ item }}"
     state: present
   loop: "{{ cpt_packages }}"

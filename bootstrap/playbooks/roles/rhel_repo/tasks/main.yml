@@ -5,7 +5,7 @@
       shell: "subscription-manager status | grep -i 'overall status' | awk '{ print $3 }'"
       register: sub_status
 
-    - name: Errr
+    - name: Error
       fail:
         msg: "ansible controller is not subscribed.  Include rhel_activation_key and rhel_org_id to subscribe."
       when: "'Current' not in sub_status.stdout and (rhel_activation_key is not defined or rhel_org_id is not defined)"
@@ -15,16 +15,6 @@
         name: "{{ item }}"
         state: enabled
       with_items: "{{ server_repos }}"
-      when:
-        - "system_name == 'DIP' or system_name == 'GIP'"
-
-    - name: Enabling Red Hat repos...
-      rhsm_repository:
-        name: "{{ item }}"
-        state: enabled
-      with_items: "{{ workstation_repos }}"
-      when:
-        - "system_name == 'MIP'"
 
     - name: Enable RHEL License
       replace:
@@ -36,17 +26,9 @@
 - name: Setup RHEL Repos
   block:
     - name: Labrepo rhel repos
-      copy:
-        src: "labrepo-server-rhel.repo"
+      get_url:
+        url: "http://yum.labrepo.sil.lab/rhel8/labrepo-server-rhel8.repo"
         dest: "/etc/yum.repos.d/labrepo-server-rhel.repo"
-      when:
-        - "system_name == 'DIP' or system_name == 'GIP'"
-    - name: Labrepo rhel repos
-      copy:
-        src: "labrepo-workstation-rhel.repo"
-        dest: "/etc/yum.repos.d/labrepo-workstation-rhel.repo"
-      when:
-        - "system_name == 'MIP'"
     - name: Disable RHEL License
       replace:
         path: "/etc/yum/pluginconf.d/subscription-manager.conf"
@@ -55,11 +37,13 @@
   when: RHEL_SOURCE_REPO == "labrepo"
 
 - name: Clean repos
-  command: yum clean all
+  command: dnf clean all
   ignore_errors: yes
+  args:
+    warn: false
 
 - name: Clean repo cache
   file:
-    path: /var/cache/yum
+    path: /var/cache/dnf
     state: absent
 ...

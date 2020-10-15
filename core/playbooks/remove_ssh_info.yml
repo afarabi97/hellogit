@@ -8,12 +8,12 @@
   when: ansible_ssh_pass is undefined or (ansible_ssh_pass is defined and ansible_ssh_pass | length == 0)
 
 - name: Install sshpass
-  yum:
+  dnf:
     name: "sshpass"
     state: installed
 
 - name: Install bind-utils
-  yum:
+  dnf:
     name: "bind-utils"
     state: installed
 

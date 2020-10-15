@@ -370,6 +370,7 @@
       changed_when: api_key_sec.rc == 0
   tags:
     - elasticsearch
+    - es-post-install
     - node-health
 
 - name: Deploy Elasticsearch

@@ -7,20 +7,18 @@ core_install_dir: /opt/tfplenum/core
 web_install_dir: "{{ tfplenum_root_dir }}/web"
 dip_core_vars: "{{ core_install_dir }}/playbooks/group_vars/all/versions.yml"
 chart_dir: "{{ tfplenumoffline_dir }}/charts"
+base_iso_dir: "{{ tfplenumoffline_dir }}/tfplenum"
+baseos_dir: "{{ base_iso_dir }}/BaseOS"
+extras_dir: "{{ base_iso_dir }}/Extras"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
 keycloak_version: 10.0.2
 
 server_repos:
-  - rhel-7-server-rpms
-  - rhel-7-server-extras-rpms
-  - rhel-7-server-optional-rpms
-
-workstation_repos:
-  - rhel-7-workstation-rpms
-  - rhel-7-workstation-optional-rpms
-  - rhel-7-workstation-extras-rpms
-  - rhel-7-workstation-source-rpms
+  - codeready-builder-for-rhel-8-x86_64-rpms
+  - rhel-8-for-x86_64-appstream-rpms
+  - rhel-8-for-x86_64-baseos-rpms
+  - rhel-8-for-x86_64-supplementary-rpms
 
 labrepo_url: labrepo.sil.lab
 nexus_url: nexus.sil.lab
@@ -41,8 +39,8 @@ additional_repo_info:
     download_path: "{{ tfplenumoffline_dir }}/tmp"
   mongo:
     name: "mongodb-org-4.0"
-    baseurl: "https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/"
-    gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.0.asc"
+    baseurl: "https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/"
+    gpgkeyurl: "https://www.mongodb.org/static/pgp/server-4.4.asc"
     gpgkeyname: "server-4.0.asc"
     gpgcheck: true
     description: "MongoDB Repository"
@@ -57,7 +55,7 @@ additional_repo_info:
     download_path: "{{ tfplenumoffline_dir }}"
 
 epel_repo:
-    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-8&arch=$basearch"
     gpgkeyurl: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
     gpgkey:  "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
     gpgcheck: true
@@ -81,11 +79,11 @@ pip_downloads:
   - kubernetes==10.0.1
   - psutil==5.6.7
 
-iso_rhel_version: "7.7"
-iso_rhel_server_name: "rhel-server-{{ iso_rhel_version }}-x86_64-dvd.iso"
+iso_rhel_version: "8.2"
+iso_rhel_server_name: "rhel-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_server_path: "/root/{{ iso_rhel_server_name }}"
 iso_rhel_server_url_labrepo: "{{ isos_server }}/{{ iso_rhel_server_name }}"
-iso_rhel_server_checksum: 88b42e934c24af65e78e09f0993e4dded128d74ec0af30b89b3cdc02ec48f028
+iso_rhel_server_checksum: 7fdfed9c7cced4e526a362e64ed06bcdc6ce0394a98625a40e7d05db29bf7b86
 
 iso_rhel_worstation_name: "rhel-workstation-{{ iso_rhel_version }}-x86_64-dvd.iso"
 iso_rhel_worstation_path: "/root/{{ iso_rhel_worstation_name }}"
@@ -96,8 +94,7 @@ BOOTSTRAP: false
 
 ansible_controller_hostname: "{{ ansible_nodename }}"
 
-RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('') }}"
-TFPLENUM_OS_TYPE: "{{ lookup('env','TFPLENUM_OS_TYPE') | default('') }}"
+RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('labrepo') }}"
 BOOTSTRAP_VARS: "{{ web_root }}/bootstrap.yml"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 

@@ -30,7 +30,6 @@
     - "{{ vscode_file }}"
     - "{{ gitkraken_file }}"
     - "{{ chrome_file }}"
-    - "{{ wireshark_file }}"
     - "{{ McAfee_file }}"
     - "{{ dat_file }}"
     - "{{ engine_file }}"

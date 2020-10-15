@@ -1,20 +1,18 @@
 ---
 
 - name: Install net-tools
-  yum:
-    name:
-      - bridge-utils
-      - net-tools
+  dnf:
+    name: net-tools
     state: present
 
 - name: Check if openvpn-server exists
   stat:
-    path: /usr/lib/systemd/system/openvpn-server.service
+    path: /etc/systemd/system/multi-user.target.wants/openvpn-server@server.service
   register: existing_ovpn_server
 
 - name: Stop openvpn server
   systemd:
-    name: openvpn-server
+    name: openvpn-server@server.service
     state: stopped
   ignore_errors: yes
   when: existing_ovpn_server.stat.exists
@@ -54,16 +52,6 @@
     shell: |
       nmcli conn reload
     register: nm_reload
-    when: br0_iface.changed or mng_iface.changed
-
-  - name: Restart network services on master server
-    systemd:
-      name: "{{ item }}"
-      state: restarted
-      enabled: yes
-    with_items:
-      - network
-      - NetworkManager
     when: br0_iface.changed or mng_iface.changed
 
   - name: Bring up the connections

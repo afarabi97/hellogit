@@ -1,4 +1,12 @@
 ---
+- name: Install dependencies
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - elfutils-libelf-devel
+    - make
+
 - name: Execute bundle installation
   shell: >
     sh {{ vmware_path }} --eulas-agreed --console --required
@@ -34,7 +42,7 @@
 - name: Trust vmware desktop application
   become: yes
   become_user: "{{ user }}"
-  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' yes
+  command: /usr/bin/dbus-launch gio set "{{ user_desktop }}/{{ vmware_desktop_app }}" 'metadata::trusted' true
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0

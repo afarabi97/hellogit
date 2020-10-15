@@ -15,7 +15,7 @@
         path: /root/rpm_export_list
         state: absent
     - name: install reqoquery
-      yum:
+      dnf:
         name: yum-utils
         state: installed
 

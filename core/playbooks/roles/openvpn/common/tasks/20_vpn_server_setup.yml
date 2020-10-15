@@ -35,11 +35,6 @@
     src: templates/server.conf.j2
     dest: "{{ ovpn_dir }}/server/server.conf"
 
-- name: Deploy OpenVPN server service to server
-  copy:
-    src: "files/server-service"
-    dest: "/usr/lib/systemd/system/openvpn-server.service"
-
 - name: Set management interface var
   set_fact:
     management_interface: "{{ ansible_default_ipv4.interface }}"
@@ -55,16 +50,27 @@
 - name: Deploy companion script to server
   template:
     src: "templates/server-bridge.sh.j2"
-    dest: "/etc/openvpn/server/server-bridge.sh"
+    dest: "{{ ovpn_dir }}/server/server-bridge.sh"
     mode: 0755
 
-- name: Reload systemd
-  systemd:
-    daemon_reload: yes
+- name: Copy Remove tap0 script
+  copy:
+    src: files/remove-tap0.sh
+    dest: "{{ ovpn_dir }}/server/remove-tap0.sh"
+    mode: 0755
+
+# TODO: selinux breaks openvpn in rhel 8
+- name: Set Permissive for openvpn context
+  selinux_permissive:
+    name: "{{ item }}"
+    permissive: true
+  with_items:
+    - openvpn_etc_t
+    - openvpn_t
 
 - name: Initialize OpenVPN service on server
   systemd:
-    name: openvpn-server.service
+    name: openvpn-server@server.service
     state: started
     enabled: yes
 
@@ -74,3 +80,10 @@
     chain: INPUT
     in_interface: tap0
     jump: ACCEPT
+
+- name: Enable Masquerade on Master Server for bridge to tap0
+  firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: yes
+    immediate: yes

@@ -1,15 +1,15 @@
 ---
-EPEL_RPM_PUBLIC_URL: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+EPEL_RPM_PUBLIC_URL: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 
 package_list:
-  - vim
-  - net-tools
-  - wget
   - gcc
-  - python36
-  - python36-devel
-  - nmap
-  - unzip
-  - krb5-workstation
   - krb5-devel
+  - krb5-workstation
+  - net-tools
   - nfs-utils
+  - nmap
+  - python36-devel
+  - unzip
+  - vim
+  - wget
+  - rsync

@@ -14,11 +14,9 @@
     state: directory
   with_items:
     - "{{ TFPLENUM_REPO_DIR }}"
-    - "{{ TFPLENUM_REPO_DIR }}/Packages"
-    - "{{ web_root }}/{{ ansible_distribution }}"
 
 - name: "Install bootstrap packages"
-  yum:
+  dnf:
     name: "{{ bootstrap_package_names }}"
     state: present
 
@@ -34,17 +32,20 @@
     dest: "{{ TFPLENUM_REPO_DIR }}"
     src:  "{{ mnt_pth }}/"
     recursive: yes
-    rsync_opts:
-      - "--exclude=Packages"
-      - "--exclude=repodata"
-  when:
-    - "system_name == 'DIP' or system_name == 'GIP'"
+    # rsync_opts:
+    #   - "--exclude=AppStream"
+    #   - "--exclude=BaseOS"
 
-- name: Copy content from rhel iso to websever RedHat dir
-  delegate_to: "{{ inventory_hostname }}"
-  synchronize:
-    dest: "{{ web_root }}/{{ ansible_distribution }}"
-    src:  "{{ mnt_pth }}/"
-    recursive: yes
-  when:
-    - "system_name == 'MIP'"
+# - name: Copy BaseOS repodata from rhel iso
+#   delegate_to: "{{ inventory_hostname }}"
+#   synchronize:
+#     dest: "{{ TFPLENUM_REPO_DIR }}/BaseOS"
+#     src:  "{{ mnt_pth }}/BaseOS/Packages"
+#     recursive: yes
+#   when:
+#     - "system_name == 'DIP' or system_name == 'GIP'"
+
+# - name: Copy Treeinfo
+#   copy:
+#     src: files/treeinfo
+#     dest: "{{ TFPLENUM_REPO_DIR }}/.treeinfo"

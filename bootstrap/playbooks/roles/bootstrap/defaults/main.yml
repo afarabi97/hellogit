@@ -14,5 +14,13 @@ package_list:
   - pkgconfig
   - npm
 
+mip_package_list:
+  - dhcp-server
+  - tftp-server
+  - dnsmasq
+  - httpd
+  - syslinux
+  - xinetd
+  - policycoreutils-python-utils
 
 emerging_rules_url: https://rules.emergingthreats.net/open/suricata-{{ suricata_version[0] }}.0/emerging.rules.tar.gz

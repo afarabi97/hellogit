@@ -1,5 +1,0 @@
----
-ostinato_path: 
-  - "{{ tmp_apps }}/{{ ostinato_server_file }}"
-  - "{{ tmp_apps }}/{{ ostinato_file }}"  
-...

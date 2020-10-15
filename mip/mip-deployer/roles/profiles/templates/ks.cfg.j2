@@ -3,9 +3,9 @@
 
 #version=DEVEL
 # System authorization information
-auth --enableshadow --passalgo=sha512
+authselect --enableshadow --passalgo=sha512
 # Use CDROM installation media
-url --url http://{{ server_ip }}/{{ ansible_distribution }}
+url --url http://{{ server_ip }}/offlinerepo/tfplenum
 text
 # Run the Setup Agent on first boot
 firstboot --disable
