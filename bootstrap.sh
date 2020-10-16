@@ -230,7 +230,7 @@ function setup_ansible(){
 
 function add_nexus_laprepo() {
     if [ "$RHEL_SOURCE_REPO" == "labrepo" ]; then
-        mkdir =p /root/.pip
+        mkdir -p /root/.pip
         cat <<EOF > /root/.pip/pip.conf
 [global]
 index-url = https://nexus.sil.lab/repository/pypi/simple

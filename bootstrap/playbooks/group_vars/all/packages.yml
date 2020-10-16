@@ -21,7 +21,7 @@ direct_download_rpms:
   - { url: "http://mirror.centos.org/centos/7/extras/x86_64/Packages/docker-distribution-2.6.2-2.git48294d9.el7.x86_64.rpm", dest: "{{ extras_dir }}/Packages" }
 
 mip_direct_download_rpms:
-  - { url: "http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/putty-0.70-2.el7.x86_64.rpm", dest: "{{ extras_dir }}/tfplenum/Packages" }
+  - { url: "https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/putty-0.74-1.el7.x86_64.rpm", dest: "{{ extras_dir }}/Packages" }
 
 extra_packages:
   - "kubelet-{{ k8s_version }}"

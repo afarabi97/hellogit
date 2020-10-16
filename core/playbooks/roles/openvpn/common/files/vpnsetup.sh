@@ -32,7 +32,6 @@ val=$(/bin/netstat -i | grep tap0 | wc -l);
 if [ "$val" -eq 1 ]; then
 echo "Vpn connected"
 systemctl restart crio kubelet
-crictl stop $(crictl ps --name kube-flannel -q)
 else
 echo "Unable to connect to vpn check /var/log/openvpn.log"
 echo "Then retry vpnsetup script"
