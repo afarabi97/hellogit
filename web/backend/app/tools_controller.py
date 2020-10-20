@@ -4,6 +4,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 from typing import Dict, List
+from glob import glob
+import os
 
 import yaml
 from celery.result import AsyncResult
@@ -103,7 +105,7 @@ def change_kit_password():
 
     if current_config == None:
         return (jsonify({"message": "Couldn't find kit configuration."}), 500)
-    
+
     for node in current_config["form"]["nodes"]:
         try:
             connection = Connection(node["ip_address"], "root", connect_kwargs={'key_filename': '/root/.ssh/id_rsa', 'allow_agent': False, 'look_for_keys': False})
@@ -131,6 +133,9 @@ def update_documentation() -> Response:
     if 'upload_file' not in request.files:
         return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
 
+    if 'space_name' not in request.form or request.form['space_name'] is None or request.form['space_name'] == "":
+        return jsonify({"error_message": "Space name is required."})
+
     with tempfile.TemporaryDirectory() as upload_path: # type: str
         incoming_file = request.files['upload_file']
         filename = secure_filename(incoming_file.filename)
@@ -143,19 +148,12 @@ def update_documentation() -> Response:
         abs_save_path = str(upload_path) + '/' + filename
         incoming_file.save(abs_save_path)
 
-        extracted_path = "/var/www/html/" + space_name
+        extracted_path = "/var/www/html/docs/" + space_name
         shutil.rmtree(extracted_path, ignore_errors=True)
         Path(extracted_path).mkdir(parents=True, exist_ok=False)
 
         with zipfile.ZipFile(abs_save_path) as zip_ref:
             zip_ref.extractall(extracted_path)
-
-        ret = conn_mng.mongo_spaces.find_one({"_id": "spaces"})
-        if ret:
-            ret["space_names"].append(space_name)
-            conn_mng.mongo_spaces.find_one_and_replace({"_id": "spaces"}, ret)
-        else:
-            conn_mng.mongo_spaces.insert_one({"_id": "spaces", "space_names": [space_name]})
 
         return jsonify({"success_message": "Successfully updated confluence documentation!"})
 
@@ -166,10 +164,10 @@ def get_spaces() -> Response:
     Send all links in mongo_user_links.
     :return: flask.Response containing all link data.
     """
-
-    all_spaces = list(conn_mng.mongo_spaces.find({}))
+    directories = glob("/var/www/html/docs/*")
+    all_spaces = [ os.path.basename(dir) for dir in directories ]
     try:
-        return jsonify(all_spaces[0]["space_names"])
+        return jsonify(all_spaces)
     except Exception:
         return jsonify([])
 

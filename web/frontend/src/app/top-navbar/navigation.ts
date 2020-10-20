@@ -64,7 +64,7 @@ export function getSideNavigationButtons(system_name: string, userService, kitSt
 
   for (let index = 0; index < html_spaces.length; index++) {
     const element = html_spaces[index];
-    allLinks.push({ label: element, url: encodeURI(`http://${window.location.hostname}/` + element), icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false });
+    allLinks.push({ label: element, url: encodeURI(`http://${window.location.hostname}/docs/${element}`), icon: 'book', isExternalLink: true, section: 'confluence', system: ['DIP','MIP','GIP'], privs: true, target: "_blank", kitStatus: false });
   }
 
   let navigationButtons: Array<NavGroup> = [];

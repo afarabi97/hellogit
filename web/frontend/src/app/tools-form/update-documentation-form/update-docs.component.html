@@ -34,10 +34,9 @@
           <mat-label>Space Name</mat-label>
           <input matInput id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-input"
                  [formControl]="spaceFormControl" [errorStateMatcher]="matcher" placeholder="THISISCVAH">
-          <mat-error *ngIf="spaceFormControl.hasError('email') &&
-                            !spaceFormControl.hasError('required')"
+          <mat-error *ngIf="spaceFormControl.hasError('pattern') && !spaceFormControl.hasError('required')"
                      id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-valid-space-name">
-            Please enter a valid space name
+            Please enter a valid space name of 1-50 uppercase and lowercase letters
           </mat-error>
           <mat-error *ngIf="spaceFormControl.hasError('required')"
                      id="app-update-docs-form-mat-card-mat-card-content-div-form-mat-form-field-space-name-mat-error-required">
@@ -53,7 +52,7 @@
     <input hidden #fileInput id="app-update-docs-form-mat-card-mat-card-actions-input-hidden"
            (change)="handleFileInput($event.target.files)" type="file" id="zip_file_uploader" accept=".zip">
     <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-upload"
-            color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!zipToUpload" name="execute_kickstart">Upload
+            color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!zipToUpload || spaceFormControl.invalid" name="execute_kickstart">Upload
       <span *ngIf="zipToUpload" id="app-update-docs-form-mat-card-mat-card-actions-button-upload-span-zip-file-name">&nbsp;{{ zipToUpload.name }}</span>
     </button>
   </mat-card-actions>

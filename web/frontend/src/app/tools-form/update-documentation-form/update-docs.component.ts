@@ -37,8 +37,7 @@ export class UpdateDocsFormComponent implements OnInit {
   ngOnInit() {
     this.spaceFormControl = new FormControl('', [
       Validators.required,
-      Validators.maxLength(50),
-      Validators.pattern('^[a-zA-Z]*$')
+      Validators.pattern('^[a-zA-Z]{1,50}$')
     ]);
     this.matcher = new MyErrorStateMatcher();
   }
@@ -63,6 +62,8 @@ export class UpdateDocsFormComponent implements OnInit {
   private displayServiceResponse(data: any) {
     if (data['success_message']) {
       this.displaySnackBar(data['success_message']);
+      this.spaceFormControl.reset();
+      this.zipToUpload = null;
       this.navbar.buildNavBar();
     } else if (data['error_message']) {
       this.displaySnackBar(data['error_message']);
