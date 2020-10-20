@@ -42,3 +42,4 @@
     name: "elasticsearch-curator"
     version: "5.8.1"
     virtualenv: "{{ web_install_dir }}/tfp-env"
+    extra_args: --no-deps
