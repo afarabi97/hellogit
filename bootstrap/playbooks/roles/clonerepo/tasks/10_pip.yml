@@ -10,11 +10,6 @@
   with_items:
   - "{{ pip_downloads }}"
 
-- name: "Download pip packages to the custom install repo"
-  shell: "/opt/tfplenum/web/tfp-env/bin/pip3 download -d {{ tfplenumoffline_dir }}/pip {{ item }}"
-  with_items:
-  - "{{ pip_downloads }}"
-
 # TODO: broken module with python38
 - name: create pip repo
   shell: "dir2pi {{ tfplenumoffline_dir }}/pip"

@@ -16,11 +16,16 @@
     name: "{{ package_list }}"
     state: installed
 
-- name: upgrade pip
+- name: Install specific version of pip
   pip:
-    name:
-    - pip
-    - setuptools
+    name: pip
+    state: forcereinstall
+    version: 20.2.4
+
+- name: Install Setuptools
+  pip:
+    name: setuptools
+    version: 50.3.2
     state: present
 
 - name: Install Pip Modules

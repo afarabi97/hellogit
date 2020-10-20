@@ -213,6 +213,7 @@ function setup_ansible(){
     run_cmd dnf install -y make python36 libselinux-python3 policycoreutils-python3 python3-gobject sshpass
     run_cmd pip3 install virtualenv cryptography==2.9.2
     run_cmd virtualenv --python=python3 --system-site-packages tfp-env
+    run_cmd $core_dir/tfp-env/bin/python3 -m pip install -U pip==20.2.4
     run_cmd $core_dir/tfp-env/bin/pip3 install -r $core_dir/requirements.txt
     rm -f /usr/bin/ansible*
     rm -f /usr/bin/dir2pi

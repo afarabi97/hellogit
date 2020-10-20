@@ -22,9 +22,23 @@
   pip:
     name: pip
     state: forcereinstall
+    version: 20.2.4
+    virtualenv: "{{ web_install_dir }}/tfp-env"
+
+- name: Install Pip Wheel
+  pip:
+    name: wheel
+    version: 0.35.1
     virtualenv: "{{ web_install_dir }}/tfp-env"
 
 - name: Install Pip Modules from requirements
   pip:
     requirements: "{{ web_install_dir }}/requirements.txt"
+    virtualenv: "{{ web_install_dir }}/tfp-env"
+
+# Workaround for pip dep bug
+- name: Install Curator Pip Module
+  pip:
+    name: "elasticsearch-curator"
+    version: "5.8.1"
     virtualenv: "{{ web_install_dir }}/tfp-env"
