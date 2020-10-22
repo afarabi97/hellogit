@@ -9,13 +9,6 @@
 - import_tasks: 25_metallb.yml
 - import_tasks: 35_create_service_accounts.yml
 
-- name: Propagate controller with cluster admin credentials
-  fetch:
-    src: "{{ kubeconfig_path }}"
-    dest: "{{ kubeconfig_path }}"
-    mode: 0644
-    flat: yes
-
 - name: Wait for etcd to be ready
   import_role:
     name: kubernetes/common

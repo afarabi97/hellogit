@@ -48,6 +48,13 @@
   register: result
   changed_when: result.rc == 0
 
+- name: Update credential permissions
+  file:
+    path: "{{ kubernetes_conf_file }}"
+    owner: root
+    group: root
+    mode: 0600
+
 - name: Kube | Retrieve files
   fetch:
     src: "{{ item }}"
@@ -67,6 +74,13 @@
     - "{{ kube_master_join_file }}"
   when: enable_kube_ha
   tags: pull_join_script
+
+- name: Copy Creds to Controller
+  local_action:
+    module: copy
+    src: files/admin.conf
+    dest: "{{ kubeconfig_path }}"
+    mode: 0600
 
 - name: Retrieve generated credentials
   import_role:

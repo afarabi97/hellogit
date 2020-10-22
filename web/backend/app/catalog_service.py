@@ -226,6 +226,8 @@ def get_app_state(application: str, namespace: str) -> list:
         if chart_releases:
             for chart in chart_releases:
                 node = {}
+                node_hostname = None
+                values = None
                 node["application"] = application
                 node["appVersion"] = chart["app_version"]
                 node["status"] = chart["status"].upper()
@@ -233,7 +235,8 @@ def get_app_state(application: str, namespace: str) -> list:
                 node["hostname"] = None
                 node["node_type"] = None
                 saved_values = conn_mng.mongo_catalog_saved_values.find_one({"application": application, "deployment_name": chart["name"]})
-                values = saved_values.get("values", None)
+                if saved_values:
+                    values = saved_values.get("values", None)
                 if values:
                     node_hostname = values.get("node_hostname", None)
                 if node_hostname:

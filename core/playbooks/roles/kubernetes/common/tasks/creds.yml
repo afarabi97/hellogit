@@ -4,5 +4,5 @@
   copy:
     src: files/admin.conf
     dest: "{{ kubeconfig_path }}"
-    mode: 0644
+    mode: 0600
 ...
