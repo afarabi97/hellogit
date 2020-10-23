@@ -1,0 +1,16 @@
+---
+- name: Create elastic plugin directory
+  file:
+    group: "root"
+    owner: "root"
+    mode: u+rw,g+rw
+    path: "{{ es_plugin_path }}"
+    state: directory
+
+
+- name: Copy elastic plugins to each server
+  get_url:
+    url: "{{ offline_repo_base }}/elasticsearch-plugins/{{ item }}"
+    dest: "{{ es_plugin_path }}/{{ item }}"
+  with_items:
+    - "{{ elasticsearch_plugins }}"

@@ -27,34 +27,16 @@ containers:
     mountPath: /usr/share/elasticsearch/config/sso-idp-metadata
 {% endmacro %}
 
-{% macro volumes_empty_dir() %}
-volumes:
+{% macro elastic_empty_dir() %}
 - name: elasticsearch-data
   emptyDir: {}
-- name: kibana-saml
-  secret:
-    secretName: kibana-saml
-    defaultMode: 0444
-- name: sso-idp-metadata
-  secret:
-    secretName: sso-idp-metadata
-    defaultMode: 0444
 {% endmacro %}
 
 {% macro volumes_host_path(path) %}
-volumes:
 - name: elasticsearch-data
   hostPath:
     path: {{ path }}
     type: DirectoryOrCreate
-- name: kibana-saml
-  secret:
-    secretName: kibana-saml
-    defaultMode: 0444
-- name: sso-idp-metadata
-  secret:
-    secretName: sso-idp-metadata
-    defaultMode: 0444
 {% endmacro %}
 
 {% macro volume_claim_templates() %}
@@ -71,9 +53,6 @@ volumeClaimTemplates:
 {% endmacro %}
 
 {% macro saml_volumes() %}
-volumes:
-- name: elasticsearch-data
-  emptyDir: {}
 - name: kibana-saml
   secret:
     secretName: kibana-saml
@@ -83,6 +62,15 @@ volumes:
     secretName: sso-idp-metadata
     defaultMode: 0444
 {% endmacro %}
+
+{% macro base_volumes() %}
+volumes:
+- name: elastic-plugins
+  hostPath:
+    path: /data/elastic_plugins
+    type: DirectoryOrCreate
+{% endmacro %}
+
 
 {% macro node_set(name, kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) %}
 - name: {{ name }}
@@ -95,7 +83,7 @@ volumes:
     node.attr.node_name: ${NODE_NAME}
     cluster.routing.allocation.awareness.attributes: node_name
     script.cache.max_size: "500"
-    script.max_compilations_rate: "256/1m"
+    script.max_compilations_rate: "1024/1m"
     thread_pool.write.queue_size: 1000
     xpack.ml.enabled: {{ enable_ml | string }}
     xpack.security.authc.token.enabled: true
@@ -146,29 +134,9 @@ volumes:
             echo "Failure: RC: $RETURN_CODE"
             exit 1
           fi
-        env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-      - name: elastic-internal-init-keystore
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: false
-        command:
-        - /usr/bin/env
-        - bash
-        - -c
-        - "#!/usr/bin/env bash\n\nset -eux\n\necho \"Initializing keystore.\"\n\n# create
-          a keystore in the default data path\necho N | /usr/share/elasticsearch/bin/elasticsearch-keystore
-          create\n\n# add all existing secret entries into it\nfor filename in  /mnt/elastic-internal/secure-settings/*;
-          do\n\t[[ -e \"$filename\" ]] || continue # glob does not match\n\tkey=$(basename
-          \"$filename\")\n\techo \"Adding \"$key\" to the keystore.\"\n\techo y | /usr/share/elasticsearch/bin/elasticsearch-keystore
-          add-file \"$key\" \"$filename\"\ndone\n\necho \"Keystore initialization successful.\"\n"
         volumeMounts:
-        - mountPath: /mnt/elastic-internal/secure-settings
-          name: elastic-internal-secure-settings
-          readOnly: true
+        - mountPath: /tmp/plugins
+          name: elastic-plugins
         env:
         - name: NODE_NAME
           valueFrom:
@@ -197,39 +165,39 @@ volumes:
     {% set config = node_type(true, false, false, false) %}
   {% endif %}
     {% set storage = volume_claim_templates() %}
-    {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
+    {% set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
 {{ node_set('master', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) }}
 {% endmacro %}
 
 {% macro data(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
   {% set config = node_type(false, true, true, false) %}
   {% set storage = volume_claim_templates() %}
-  {% set spec = containers(memory, cpu, java_memory) + saml_volumes() %}
+  {% set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() %}
 {{ node_set('data', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) }}
 {% endmacro %}
 
 {% macro coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
   {% set config = node_type(false, false, false, false) %}
-  {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
+  {% set spec =  containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
 {{ node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) }}
 {% endmacro %}
 
 {% macro ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, enable_ml, ansible_controller_hostname) %}
   {% set config = node_type(false, false, false, true) %}
-  {% set spec =  containers(memory, cpu, java_memory) + volumes_empty_dir() %}
+  {% set spec =  containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() %}
 {{ node_set('ml', kit_domain, count, config, spec, elasticsearch_plugins, enable_ml, storage, ansible_controller_hostname) }}
 {% endmacro %}
 
 {% macro gip_coordinating(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, ansible_controller_hostname) %}
   {%- set config = gip_node_type(false, false, false, false) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
+  {%- set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() -%}
 
   {{- node_set('coordinating', kit_domain, count, config, spec, elasticsearch_plugins, ansible_controller_hostname) }}
 {% endmacro %}
 
 {% macro gip_ml(kit_domain, count, memory, cpu, java_memory, elasticsearch_plugins, ansible_controller_hostname) %}
   {%- set config = gip_node_type(false, false, false, true) + gip_machine_learning(true) %}
-  {%- set spec = containers(memory, cpu, java_memory) + volumes_empty_dir() -%}
+  {%- set spec = containers(memory, cpu, java_memory) + base_volumes() + saml_volumes() + elastic_empty_dir() -%}
 
   {{- node_set('ml', kit_domain, count, config, spec, elasticsearch_plugins, ansible_controller_hostname) }}
 {% endmacro %}

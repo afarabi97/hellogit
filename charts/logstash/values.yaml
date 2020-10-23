@@ -1,6 +1,6 @@
 elastic_ingest_nodes: []
 image_name: logstash/logstash
-image_tag: 7.8.1
+image_tag: 7.9.3
 replicas: 2
 heap_size: 12 # Heap size in GB
 cpu_request: 3000
@@ -10,4 +10,4 @@ domain: lan
 pipeline_workers: 8
 batch_size: 8192
 metricbeat_image_name: beats/metricbeat
-metricbeat_image_tag: 7.8.1
+metricbeat_image_tag: 7.9.3

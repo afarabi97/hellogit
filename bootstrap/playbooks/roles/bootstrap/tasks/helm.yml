@@ -52,19 +52,10 @@
   tags: pull-helm-images
   when: (item.path | basename) in available_charts
 
-- name: Fetch helm charts
-  command: helm fetch "{{ item.split(' ')[0] }}" -d {{ chart_dir }} --version {{ item.split(' ')[1] }}
-  with_items:
-    - "{{ helm_charts }}"
-  register: result
-  changed_when: result.rc == 0
-  tags: pull-helm-images
-
 - name: Remove public repos
   command: "helm repo remove {{ item }}"
   with_items:
     - bitnami
-    - elastic
     - stable
   register: result
   ignore_errors: yes

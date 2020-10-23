@@ -31,7 +31,7 @@ PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
 SURICATA_IMAGE_VERSION = "5.0.2"
 ZEEK_IMAGE_VERSION = "3.2.0"
-BEATS_IMAGE_VERSIONS = "7.8.1"
+BEATS_IMAGE_VERSIONS = "7.9.3"
 
 # The path inside of the docker container
 ZEEK_RULE_DIR = "/opt/zeek/share/zeek/site/custom"

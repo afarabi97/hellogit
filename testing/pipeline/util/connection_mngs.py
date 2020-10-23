@@ -155,7 +155,7 @@ class FabricConnectionWrapper:
 
 
 class KubernetesWrapper:
-    
+
     def __init__(self, username: str,
                  password: str,
                  ip_address: str,
@@ -172,7 +172,7 @@ class KubernetesWrapper:
         self._username = username
         self._password = password
         self._ip_address = ip_address
-        self._get_and_save_kubernetes_config() 
+        self._get_and_save_kubernetes_config()
         config.load_kube_config(self._kubernetes_config_path)
         self._core_apiv1 = client.CoreV1Api()
         self._apps_apiv1 = client.AppsV1Api()
@@ -211,7 +211,8 @@ class KubernetesWrapper:
         with FabricConnectionWrapper(self._username,
                                      self._password,
                                      self._ip_address) as shell:
-            shell.run("firewall-cmd --reload")
+            shell.run("firewall-cmd --remove-port=6443/tcp")
+
 
     def __enter__(self) -> client.CoreV1Api():
         """

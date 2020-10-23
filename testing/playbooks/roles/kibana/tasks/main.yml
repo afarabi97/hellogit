@@ -26,6 +26,6 @@
 
 - name: Test | Check Kibana Dashboards
   assert:
-    that: results_kd.json.hits.total.value > 200
+    that: results_kd.json.hits.total.value > 100
     msg: "Kibana Dashboards are not loaded properly"
 ...

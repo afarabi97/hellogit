@@ -18,6 +18,13 @@
   args:
     creates: /opt/metrics-env
 
+- name: Update Pip
+  pip:
+    name: pip
+    state: forcereinstall
+    version: 20.2.4
+    virtualenv: "/opt/metrics-env"
+
 - name: Install necessary packages into the virtual environment.
   pip:
     name:

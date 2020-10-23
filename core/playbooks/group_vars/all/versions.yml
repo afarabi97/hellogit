@@ -20,13 +20,13 @@ suricata_version: "5.0.2"
 helm_version: "v3.3.4"
 chartmuseum_version: "2.12.0"
 chartmuseum_image_version: "v0.12.0"
-elastic_7_version: "7.8.1"
-elastic_7_chart_version: "7.8.1"
+elastic_7_version: "7.9.3"
+elastic_7_chart_version: "7.9.3"
 window_remote_installer_version: "1.2"
 hive_elastic_version: "6.8.12"
 hive_cortex_version: "3.0.1"
 hive_version: 3.4.0
-elastic_operator: 1.2.1
+elastic_operator: 1.3.0
 redmine_version: "4.1.1"
 nifi_version: 1.12.0
 mariadb_version: 10.5.6
@@ -42,8 +42,6 @@ cert_manager_version: v1.0.4
 storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
 python_version: 3.9.0
-#flannel_version: "v0.12.0"
-
 
 # "docker Image List
 kube_images:
@@ -95,10 +93,3 @@ kube_images:
   - { image: "docker.io/tfplenum/squid:{{ squid_version | default('1.1.0') }}", for_dip: false, for_gip: true }
   - { image: "docker.io/tfplenum/shibboleth_proxy:{{ shibboleth_proxy_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/python:{{ python_version }}", for_dip: true, for_gip: true }
-  #- { image: "quay.io/coreos/flannel:{{ flannel_version }}", for_dip: true, for_gip: true }
-
-helm_charts:
-  - elastic/elasticsearch {{ elastic_7_chart_version }}
-  - elastic/kibana {{ elastic_7_chart_version }}
-  - elastic/filebeat {{ elastic_7_chart_version }}
-  - elastic/metricbeat {{ elastic_7_chart_version }}

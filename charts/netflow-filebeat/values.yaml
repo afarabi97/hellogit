@@ -3,7 +3,7 @@ kibana_port: 443
 elastic_ingest_nodes: []
 interfaces: ["eth0"]
 image_name: beats/filebeat
-image_tag: 7.8.1
+image_tag: 7.9.3
 affinity_hostname: {}
 netflow_port: 2055
 shards: {}

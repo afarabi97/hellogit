@@ -76,11 +76,11 @@
   tags: pull_join_script
 
 - name: Copy Creds to Controller
-  local_action:
-    module: copy
+  copy:
     src: files/admin.conf
     dest: "{{ kubeconfig_path }}"
     mode: 0600
+  delegate_to: localhost
 
 - name: Retrieve generated credentials
   import_role:

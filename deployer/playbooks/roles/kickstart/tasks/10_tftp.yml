@@ -54,7 +54,7 @@
 #   with_items:
 #   - { src: 'tftp.j2', dest: '/etc/xinetd.d/tftp', setype: 'etc_t'}
 
-- name: TFTP Services
+- name: TFTP Services # noqa 503
   service:
     name: tftp.socket
     state: started

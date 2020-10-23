@@ -2,7 +2,7 @@
 
 - name: Check Elasticsearch endpoint is ready
   uri:
-    url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+    url: "{{ elastic_uri }}"
     return_content: yes
     validate_certs: no
     user: "{{ elastic_username }}"
@@ -10,6 +10,9 @@
     force_basic_auth: yes
   register: elasticsearch_result
   ignore_errors: yes
+
+- debug:
+    msg: "{{ elasticsearch_result }}"
 
 - name: Test | Elastichsearch service and port
   assert:
