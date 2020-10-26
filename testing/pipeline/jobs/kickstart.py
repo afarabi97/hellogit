@@ -66,7 +66,7 @@ class HwKickstartJob:
         self._open_mongo_port()
         runner = APITester(self.ctrl_settings, self.kickstart_settings)
         runner.run_kickstart_api_call()
-        
+
         logging.info("Setting boot order and rebooting machines.")
         # redfish
         for node in self.kickstart_settings.nodes:
@@ -102,7 +102,7 @@ def set_boot_order_and_reboot(oob_ip, oob_user, oob_password):
     print("Setting boot order for {}".format(oob_ip))
     result = redfish.set_pxe_boot(oob_ip, token)
     print("Restarting server {}".format(oob_ip))
-    result = redfish.restart_server(oob_ip, token)    
+    result = redfish.restart_server(oob_ip, token)
     redfish.logout(token)
     return result
 

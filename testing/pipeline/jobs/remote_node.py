@@ -22,6 +22,7 @@ class RemoteNode:
         switch_ip = self.remote_node.switch_ip
         pfsense_ip = self.remote_node.pfsense_ip
 
+        os.system(f'ssh-keygen -f "/root/.ssh/known_hosts" -R "{pfsense_ip}"')
         os.system(f"sshpass -p {password} \
                     scp /mnt/drive_creation/scripts/pre_kitconfig_switch.cmd \
                     {user}@{pfsense_ip}:/home/assessor")
@@ -54,7 +55,8 @@ class RemoteNode:
         mp_gateway = self.remote_node.mp_gateway
         mp_external_ip = self.remote_node.mp_external_ip
         random_octet = randrange(40,253)
-
+        
+        os.system(f'ssh-keygen -f "/root/.ssh/known_hosts" -R "{ctrl_ip}"')
         os.system(f"sshpass -p {password} \
                     scp /mnt/drive_creation/scripts/remote_node_vpn.sh \
                     {username}@{ctrl_ip}:/root")
