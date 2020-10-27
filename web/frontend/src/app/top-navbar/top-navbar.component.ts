@@ -43,6 +43,7 @@ import { NavBarService } from './services/navbar.service';
   }
 })
 export class TopNavbarComponent implements OnInit, OnDestroy {
+  @ViewChild('notifications') notifications: NotificationsComponent;
   readonly systemNames: string[] = SYSTEM_NAMES_ALL;
   showLinkNames: boolean;
   time: Date;
@@ -56,7 +57,6 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   private clockCounter$_: Observable<number>;
   private ngUnsubscribe$_: Subject<void> = new Subject<void>();
   private ngUnsubscribeCounterInterval$_: Subject<void> = new Subject<void>();
-  @ViewChild('notifications', { static: false }) notifications: NotificationsComponent;
 
   /**
    * Creates an instance of TopNavbarComponent.
@@ -113,45 +113,6 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Used for calling mat dialog window to select the system
-   *
-   * @param {string[]} systemNames
-   * @memberof TopNavbarComponent
-   */
-  selectSystem(systemNames: string[]): void {
-    const controlFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-    controlFormControlConfig.label = 'Pick your system';
-    controlFormControlConfig.formState = null;
-    controlFormControlConfig.validatorOrOpts = Validators.required;
-    const control = new DialogFormControl(controlFormControlConfig);
-    control.options = systemNames;
-    control.controlType = DialogControlTypes.dropdown;
-    const formGroup: FormGroup = new FormGroup({ 'dropdown': control });
-    const backingObject: BackingObjectInterface = {
-      title: 'Select the system type.',
-      instructions: '',
-      dialogForm: formGroup,
-      confirmBtnText: 'OK'
-    };
-    const dialogRef: MatDialogRef<ModalDialogMatComponent, any> = this.matDialog_.open(ModalDialogMatComponent, {
-      width: '400px',
-      maxHeight: '400px',
-      data: backingObject
-    });
-
-    dialogRef.afterClosed()
-      .pipe(takeUntil(this.ngUnsubscribe$_))
-      .subscribe(
-        (response: FormGroup) => {
-          /* istanbul ignore else */
-          if (ObjectUtilitiesClass.notUndefNull(response) &&
-              ObjectUtilitiesClass.notUndefNull(response.controls['dropdown'].value)) {
-            this.systemName = response.controls['dropdown'].value;
-          }
-        });
-  }
-
-  /**
    * Used for opeing the notifications window
    *
    * @memberof TopNavbarComponent
@@ -191,7 +152,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
     forkJoin({ htmlSpaces: this.toolService_.getSpaces(),
                kitData: this.kitService_.getKitForm() })
       .pipe(takeUntil(this.ngUnsubscribe$_))
-      .subscribe((data: { htmlSpaces: string[], kitData: KitFormClass }) => {
+      .subscribe((data: { htmlSpaces: string[]; kitData: KitFormClass }) => {
         this.htmlSpaces = data.htmlSpaces;
         /* istanbul ignore else */
         if (ObjectUtilitiesClass.notUndefNull(data.kitData) &&

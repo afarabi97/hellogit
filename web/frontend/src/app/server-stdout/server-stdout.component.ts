@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ServerStdoutComponent implements OnInit {
 
-  @ViewChild('console', {static: false})
+  @ViewChild('console')
   private consoleDiv: ElementRef;
   private jobName: string;
   public scrollStatus: Boolean = true;

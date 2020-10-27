@@ -13,8 +13,8 @@ export class ElasticEditorComponent implements AfterViewInit {
   @Output() closeSaveEvent: EventEmitter<string> = new EventEmitter<string>();
   numbers: number[];
   controllerMaintainer: boolean;
-  @ViewChild('editorCard', {static: false}) private editorCard: ElementRef;
-  @ViewChild('outerCard', {static: false}) private outerCard: ElementRef;
+  @ViewChild('editorCard') private editorCard: ElementRef;
+  @ViewChild('outerCard') private outerCard: ElementRef;
 
   constructor(private confirmer: ConfirmActionPopup,
               private userService: UserService) {

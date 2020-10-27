@@ -24,7 +24,7 @@ describe('CookieService', () => {
       ]
     });
 
-    service = TestBed.get(CookieService);
+    service = TestBed.inject(CookieService);
 
     // Add method spies
     spySet = spyOn(service, 'set').and.callThrough();

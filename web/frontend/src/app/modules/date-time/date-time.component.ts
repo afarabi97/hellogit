@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDatepickerInputEvent, MatSelectChange } from '@angular/material';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { MatSelectChange } from '@angular/material/select';
 
 import { ObjectUtilitiesClass } from '../../classes';
 import { returnDate } from '../../functions/cvah.functions';

@@ -32,8 +32,8 @@ describe('AppLoadService', () => {
       ]
     });
 
-    service = TestBed.get(AppLoadService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(AppLoadService);
+    httpMock = TestBed.inject(HttpTestingController);
 
     // Add method spies
     spyGetCurrentUser = spyOn(service, 'getCurrentUser').and.callThrough();
@@ -58,7 +58,7 @@ describe('AppLoadService', () => {
 
   describe('AppLoadService methods', () => {
     describe('async getCurrentUser()', () => {
-      it('should call getCurrentUser()', async() => {
+      it('should call getCurrentUser()', () => {
         reset();
         service.getCurrentUser();
 

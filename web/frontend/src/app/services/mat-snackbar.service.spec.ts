@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MockSnackBarConfigurationActionClass } from '../../../static-data/class-objects-v3_4';
@@ -29,7 +29,7 @@ describe('MatSnackBarService', () => {
       ]
     });
 
-    service = TestBed.get(MatSnackBarService);
+    service = TestBed.inject(MatSnackBarService);
 
     spyDisplaySnackBar = spyOn(service, 'displaySnackBar').and.callThrough();
     spyDestroySnackBar = spyOn(service, 'destroySnackBar').and.callThrough();

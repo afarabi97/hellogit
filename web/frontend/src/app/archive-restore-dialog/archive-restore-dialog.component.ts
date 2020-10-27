@@ -1,6 +1,8 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatPaginator, MatTableDataSource } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { ArchiveService } from '../services/archive.service';
 
 @Component({
@@ -13,7 +15,7 @@ export class ArchiveRestoreDialogComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(false, []);
   showSelectedRow: boolean;
-  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(public dialogRef: MatDialogRef<ArchiveRestoreDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data,

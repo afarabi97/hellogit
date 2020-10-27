@@ -1,4 +1,4 @@
-import { MatSnackBar, MatSnackBarConfig, MatSnackBarDismiss } from '@angular/material';
+import { MatSnackBar, MatSnackBarConfig, MatSnackBarDismiss } from '@angular/material/snack-bar';
 import { Injectable } from '@angular/core';
 
 @Injectable()

@@ -1,13 +1,14 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, Injectable } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSnackBar } from '@angular/material';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { WebsocketService } from '../../services/websocket.service';
-import { UserService } from '../../services/user.service';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
+import { UserService } from '../../services/user.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { NotificationService } from '../services/notification.service';
 import { NotificationsModuleComponent } from './notifications-module.component';
 
@@ -26,7 +27,7 @@ describe('NotificationsModuleComponent', () => {
   let notificationService: NotificationService;
   let httpTestingController: HttpTestingController;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [NotificationsModuleComponent],
       providers: [
@@ -47,9 +48,8 @@ describe('NotificationsModuleComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NotificationsModuleComponent);
     component = fixture.componentInstance;
-    notificationService = TestBed.get(NotificationService);
-    // spyOn(notificationService, 'handleSuccess')
-    httpTestingController = TestBed.get(HttpTestingController);
+    notificationService = TestBed.inject(NotificationService);
+    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
   it('should be able to create the component truthy', () => {

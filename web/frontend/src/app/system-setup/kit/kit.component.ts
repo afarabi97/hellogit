@@ -5,7 +5,7 @@ import { getFormValidationErrors, FormGroupControls, AllValidationErrors } from 
 import { KickstartService } from '../services/kickstart.service';
 import { KitFormTime, kitTooltips } from './kit-form';
 import { KitService } from '../services/kit.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { Title } from '@angular/platform-browser';

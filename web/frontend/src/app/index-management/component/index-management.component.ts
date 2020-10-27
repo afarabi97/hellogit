@@ -25,8 +25,8 @@ export class IndexManagementComponent {
     isEmpty = false;
     actions: Array<any> = [{value: 'CloseIndices', name: 'Close', hoverText: "Select an index to Close"},
                            {value: 'DeleteIndices', name: 'Delete', hoverText: "Select an index to Delete"}];
-    @ViewChild('imaFormDirective', {static: false}) private imaFormDirective: NgForm;
-    @ViewChild('imlFormDirective', {static: false}) private imlFormDirective: NgForm;
+    @ViewChild('imaFormDirective') private imaFormDirective: NgForm;
+    @ViewChild('imlFormDirective') private imlFormDirective: NgForm;
 
     constructor(private _indexManagementSrv: IndexManagementService,
                 private _WebsocketService: WebsocketService,
@@ -66,7 +66,7 @@ export class IndexManagementComponent {
     }
 
     isEmptyFun() {
-      this.isEmpty = this.indexManagementList.value.index_list.length !== 0
+      this.isEmpty = this.indexManagementList.value.index_list.length !== 0;
     }
 
     goBack(stepper: MatStepper) {

@@ -8,11 +8,9 @@ node_modules
 tfp-env
 .remote-sync.json
 frontend/src/assets/confluence/
-frontend/package-lock.json
 *monitor_install.exe
 backend/rules
 backups/
-package-lock.json
 VMs.yml
 venv
 *#

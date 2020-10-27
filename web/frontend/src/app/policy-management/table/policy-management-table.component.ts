@@ -2,9 +2,12 @@ import { Component, ViewChild, OnInit, AfterViewInit, OnChanges, ChangeDetectorR
 import { IRuleSet, RuleSet } from '../interface/ruleSet.interface';
 import { PolicyManagementAddDialog } from '../add-dialog/policy-management-add-dialog.component';
 import { PolicyManagementService } from '../services/policy-management.service';
-import { MatTableDataSource, MatPaginator, MatSort, MatSelectChange } from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSelectChange } from '@angular/material/select';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { Rule, ErrorMessage, SuccessMessage } from '../interface/rule.interface';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
@@ -31,9 +34,9 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   isRulesVisible: Array<boolean>;
 
 
-  @ViewChild('paginator', {static: false}) paginator: MatPaginator;
+  @ViewChild('paginator') paginator: MatPaginator;
   @ViewChildren('paginatorInner') paginatorInner: QueryList<MatPaginator>;
-  @ViewChild(MatSort, {static: false}) sort: MatSort;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor( public policySrv: PolicyManagementService,
                public dialog: MatDialog,

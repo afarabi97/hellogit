@@ -1,13 +1,13 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DebugElement } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
+import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
 import { CardComponent } from '../card/card.component';
 import { NodeBackgroundComponent } from '../node-background/node-background.component';
 import { CatalogService } from '../services/catalog.service';
@@ -17,7 +17,7 @@ describe('ChartListComponent', () => {
   let component: ChartListComponent;
   let fixture: ComponentFixture<ChartListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ChartListComponent, CardComponent, NodeBackgroundComponent, CapitalizeFirstPipe ],
       providers: [ CatalogService, SnackbarWrapper],
@@ -34,7 +34,7 @@ describe('ChartListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should list chart', async(() => {
+  it('should list chart', waitForAsync(() => {
       const charts = [
         {
           "appVersion": "3.4.0",

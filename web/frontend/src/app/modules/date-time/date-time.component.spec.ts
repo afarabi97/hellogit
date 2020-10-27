@@ -1,9 +1,10 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
-import { MatDatepickerInputEvent, MatSelectChange } from '@angular/material';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { MatSelectChange } from '@angular/material/select';
 
-import { DateTimeModule } from './date-time.module';
 import { DateTimeComponent } from './date-time.component';
+import { DateTimeModule } from './date-time.module';
 
 export function cleanStylesFromDOM(): void {
   const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
@@ -27,7 +28,7 @@ describe('DateTimeComponent', () => {
   let spyGetHoursMinutesSeconds: jasmine.Spy<any>;
   let spyWriteValue: jasmine.Spy<any>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         DateTimeModule

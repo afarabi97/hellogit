@@ -1,10 +1,11 @@
 import { Component, Inject } from '@angular/core';
-import { WebsocketService } from '../../services/websocket.service';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { NotificationService } from '../services/notification.service';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
-import {MatSnackBar} from '@angular/material';
 import { UserService } from '../../services/user.service';
+import { WebsocketService } from '../../services/websocket.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-notifications-module',
@@ -21,17 +22,17 @@ export class NotificationsModuleComponent {
 
   /**
    *Creates an instance of NotificationsModuleComponent.
-   * @param {WebsocketService} _WebsocketService
+   * @param {WebsocketService} _websocketService
    * @param {MatDialogRef<NotificationsModuleComponent>} dialogRef
-   * @param {NotificationService} _NotificationService
+   * @param {NotificationService} _notificationService
    * @param {MatDialog} dialog
    * @param {MatSnackBar} snackBar
    * @param {*} buttonList
    * @memberof NotificationsModuleComponent
    */
-  constructor(public _WebsocketService:WebsocketService,
+  constructor(public _websocketService: WebsocketService,
               public dialogRef: MatDialogRef<NotificationsModuleComponent>,
-              public _NotificationService: NotificationService,
+              public _notificationService: NotificationService,
               public dialog: MatDialog,
               private snackBar: MatSnackBar,
               @Inject(MAT_DIALOG_DATA) public buttonList: any,
@@ -71,10 +72,10 @@ export class NotificationsModuleComponent {
    * @memberof NotificationsModuleComponent
    */
   clearAll() {
-    let message = "Are you sure you want to delete all notificaions?";
-    let title = "Clear All Notifications";
-    let option1 = "Close";
-    let option2 = "Delete";
+    const message = "Are you sure you want to delete all notificaions?";
+    const title = "Clear All Notifications";
+    const option1 = "Close";
+    const option2 = "Delete";
 
     const dialogRef = this.dialog.open(ConfirmDailogComponent, {
       width: '35%',
@@ -84,12 +85,10 @@ export class NotificationsModuleComponent {
     dialogRef.afterClosed().subscribe(result => {
 
       if( result === option2) {
-        this._NotificationService.deleteAll().subscribe((message:any) => {
-            this.snackBar.open("All Notifications Deleted", 'OK', {
-              duration: 5000,
-            });
+        this._notificationService.deleteAll().subscribe((m: any) => {
+          this.snackBar.open("All Notifications Deleted", 'OK', { duration: 5000 });
         });
-        this._NotificationService.buttonList.map( buttons => {
+        this._notificationService.buttonList.map( buttons => {
           buttons.notifications = [];
         });
       }
@@ -104,9 +103,9 @@ export class NotificationsModuleComponent {
    * @memberof NotificationsModuleComponent
    */
   clearNotification(id: string) {
-    this._NotificationService.delete(id).subscribe((message:any) => {
+    this._notificationService.delete(id).subscribe((message:any) => {
     });
-    this._NotificationService.buttonList = this._NotificationService.buttonList.map( buttons => {
+    this._notificationService.buttonList = this._notificationService.buttonList.map( buttons => {
       buttons.notifications = buttons.notifications.filter(notification => {
         if(notification._id !== id) {
           return notification;

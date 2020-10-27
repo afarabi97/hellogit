@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
 import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -11,9 +11,9 @@ import { MockDIPTimeClass, MockVersionClass } from '../../../../static-data/clas
 import { MockDIPTimeInterface, MockVersionInterface } from '../../../../static-data/interface-objects-v3_4';
 import { environment } from '../../../environments/environment';
 import { VersionClass } from '../../classes';
+import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { ApiService } from '../../services/abstract/api.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
-import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { DIPTimeClass } from '../classes/dip-time.class';
 import { NavbarServiceInterface } from '../interfaces';
 import { NavBarService } from './navbar.service';
@@ -51,8 +51,8 @@ describe('NavBarService', () => {
       ]
     });
 
-    service = TestBed.get(NavBarService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(NavBarService);
+    httpMock = TestBed.inject(HttpTestingController);
 
     // Add method spies
     spyGetCurrentDIPTime = spyOn(service, 'getCurrentDIPTime').and.callThrough();

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { MatSelectChange } from '@angular/material';
+import { MatSelectChange } from '@angular/material/select';
+
+import { ObjectUtilitiesClass } from '../../../classes';
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
-import { ObjectUtilitiesClass } from '../../../classes';
 
 @Component({
   selector: 'app-kit-node-form',

@@ -18,6 +18,8 @@ function run_cmd {
 }
 
 pushd $TFPLENUM_DIR/web/frontend/ > /dev/null
+# runs eslint checking
+run_cmd npm run lint-pipeline
 # default run unit-test with chromeheadless else try firefoxheadless
 run_cmd npm run test-ci-chromeheadless || npm run test-ci-firefoxheadless
 popd > /dev/null

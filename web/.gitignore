@@ -6,12 +6,9 @@ rpmbuild/\.remote-sync\.json
 *.orig
 .vscode/
 frontend/src/assets/confluence/
-frontend/package-lock.json
 *monitor_install.exe
 backend/rules
 backups/
 *.swp
 node_modules/
-
-package-lock\.json
 angular_debug.yml

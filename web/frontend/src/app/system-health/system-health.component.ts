@@ -6,10 +6,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { PodLogModalDialogComponent } from '../pod-log-dialog/pod-log-dialog.component';
-import { MatTabChangeEvent } from '@angular/material';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { interval, Subscription } from 'rxjs';
 import { ModalTableComponent } from './table-dialog/modal-table.component';
-import {MatTable} from '@angular/material';
+import { MatTable } from '@angular/material/table';
 import { ViewChild } from '@angular/core';
 
 const MODAL_SIZE ='900px';
@@ -34,7 +34,7 @@ export class SystemHealthComponent implements OnInit {
   totals: Object;
   loading: boolean;
 
-  @ViewChild('nodeStatusesTable', {static: false}) nodeTable: MatTable<any>;
+  @ViewChild('nodeStatusesTable') nodeTable: MatTable<any>;
 
   pipelineStatus: Object;
 

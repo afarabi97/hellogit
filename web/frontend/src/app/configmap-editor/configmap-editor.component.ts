@@ -12,10 +12,10 @@ import { UserService } from '../services/user.service';
 })
 export class ConfigmapEditorComponent implements AfterViewInit {
 
-  @ViewChild('editorCard', { static: false })
+  @ViewChild('editorCard')
   private editorCard: ElementRef;
 
-  @ViewChild('outerCard', { static: false })
+  @ViewChild('outerCard')
   private outerCard: ElementRef;
 
   @Input()

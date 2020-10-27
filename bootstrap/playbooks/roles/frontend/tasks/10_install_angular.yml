@@ -22,7 +22,7 @@
 - name: npm | Install Angular Cli
   npm:
     name: "@angular/cli"
-    version: 8.3.21
+    version: 10.2.0
     path: "{{ web_install_dir }}/frontend"
     global: yes
 

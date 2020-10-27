@@ -1,4 +1,4 @@
-import { async, TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AppModule } from './app.module';
 import * as AppModuleFunctions from './app.module';
@@ -23,7 +23,7 @@ describe('AppModule', () => {
       ]
     });
     appModule = new AppModule();
-    serviceAppLoad = TestBed.get(AppLoadService);
+    serviceAppLoad = TestBed.inject(AppLoadService);
   });
 
   it('should create an instance of AppModule', () => {
@@ -32,22 +32,18 @@ describe('AppModule', () => {
 
   describe('functions', () => {
     describe('initializeApp', () => {
-      it('should call initializeApp', async(() => {
-        spyInitializeApp = spyOn(AppModuleFunctions, 'initializeApp').and.callThrough();
+      it('should call initializeApp', fakeAsync(() => {
+        const value = AppModuleFunctions.initializeApp(serviceAppLoad);
 
-        AppModuleFunctions.initializeApp(serviceAppLoad);
-
-        expect(AppModuleFunctions.initializeApp).toHaveBeenCalled();
+        expect(value).toBeDefined();
       }));
     });
 
     describe('initializeSystemName', () => {
-      it('should call initializeSystemName', async(() => {
-        spyInitializeSystemName = spyOn(AppModuleFunctions, 'initializeSystemName').and.callThrough();
+      it('should call initializeSystemName', fakeAsync(() => {
+        const value = AppModuleFunctions.initializeSystemName(serviceAppLoad);
 
-        AppModuleFunctions.initializeSystemName(serviceAppLoad);
-
-        expect(AppModuleFunctions.initializeSystemName).toHaveBeenCalled();
+        expect(value).toBeDefined();
       }));
     });
   });

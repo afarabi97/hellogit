@@ -4,6 +4,7 @@
  * @export
  * @enum {number}
  */
+// eslint-disable-next-line no-shadow
 export enum NotificationStatusEnum {
   STARTED = 'STARTED',
   COMPLETED = 'COMPLETED',

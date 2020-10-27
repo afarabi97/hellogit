@@ -139,12 +139,13 @@ sonarqube front-end code base:
     echo "Current working directory is $(pwd)"
     PATH_PWD=$(pwd)
     echo "TASK [setup: front-end] ********************************************************"
-    ./web/setup/setup_frontend.sh
+    docker run --rm -v $(pwd):/opt/tfplenum tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_frontend.sh
     echo "TASK [unit-test / coverage: front-end] *****************************************"
-    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD tfplenum/code-checker:1.1 $PATH_PWD/web/setup/test_coverage_frontend.sh
+    docker run --rm --mount type=bind,source="$(pwd)",target=$PATH_PWD tfplenum/code-checker:1.1 $PATH_PWD/web/setup/eslint_test_coverage_frontend.sh
     echo "TASK [sonar-scanner: code-base ingestion] **************************************"
     sonar-scanner\
       -Dsonar.qualitygate.wait=true\
+      -Dsonar.eslint.reportPaths=$PATH_PWD/web/frontend/report.json\
       -Dsonar.javascript.lcov.reportPaths=$PATH_PWD/web/frontend/test-coverage/lcov.info\
       -Dsonar.typescript.tsconfigPath=$PATH_PWD/web/frontend/src/tsconfig.app.json\
       -Dsonar.projectKey=tfplenum-frontend\

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { MatSnackBar, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { KickstartService } from './kickstart.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';

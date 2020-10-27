@@ -24,7 +24,7 @@ const DIALOG_WIDTH = "50%";
 })
 export class PolicyManagementDialog implements OnInit {
 
-  @ViewChild('editorCard', {static: false})
+  @ViewChild('editorCard')
   private editorCard: ElementRef;
 
   @ViewChild('outerCard', {static: true})

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
-import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { of } from 'rxjs';
@@ -75,7 +75,6 @@ describe('TopNavbarComponent', () => {
 
   // Setup spy references
   let spyNGOnInit: jasmine.Spy<any>;
-  let spySelectSystem: jasmine.Spy<any>;
   let spyOpenNotifications: jasmine.Spy<any>;
   let spyToggleSideNavigation: jasmine.Spy<any>;
   let spyGroupLabelCheck: jasmine.Spy<any>;
@@ -107,7 +106,7 @@ describe('TopNavbarComponent', () => {
     }
   }
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         MockTopNavBarModule
@@ -117,7 +116,7 @@ describe('TopNavbarComponent', () => {
         { provide: MatDialog, useClass: MatDialogMock }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -126,7 +125,6 @@ describe('TopNavbarComponent', () => {
 
     // Add method spies
     spyNGOnInit = spyOn(component, 'ngOnInit').and.callThrough();
-    spySelectSystem = spyOn(component, 'selectSystem').and.callThrough();
     spyOpenNotifications = spyOn(component, 'openNotifications').and.callThrough();
     spyToggleSideNavigation = spyOn(component, 'toggleSideNavigation').and.callThrough();
     spyGroupLabelCheck = spyOn(component, 'groupLabelCheck').and.callThrough();
@@ -147,7 +145,6 @@ describe('TopNavbarComponent', () => {
 
   const reset = () => {
     spyNGOnInit.calls.reset();
-    spySelectSystem.calls.reset();
     spyOpenNotifications.calls.reset();
     spyToggleSideNavigation.calls.reset();
     spyGroupLabelCheck.calls.reset();
@@ -176,29 +173,6 @@ describe('TopNavbarComponent', () => {
         component.ngOnInit();
 
         expect(component.ngOnInit).toHaveBeenCalled();
-      });
-    });
-
-    describe('selectSystem()', () => {
-      it('should call selectSystem()', () => {
-        reset();
-
-        component.selectSystem(component.systemNames);
-
-        expect(component.selectSystem).toHaveBeenCalled();
-      });
-
-      it('should call selectSystem() and set component.systemName', () => {
-        reset();
-
-        expect(component.systemName).toEqual(MockSystemNameDIPClass.system_name);
-
-        component.selectSystem(component.systemNames);
-        component['matDialog_'].closeAll();
-
-        console.log(component.systemName);
-
-        expect(component.systemName).toEqual(MockSystemNameMIPClass.system_name);
       });
     });
 

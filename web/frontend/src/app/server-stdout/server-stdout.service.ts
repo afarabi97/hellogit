@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { WebsocketService } from '../services/websocket.service';
 
 
 export interface Message {
-  message: string
+  message: string;
 }
 
 
@@ -15,7 +15,7 @@ export interface Message {
 export class ServerStdoutService {
 
   constructor(private http: HttpClient,
-              private srvSocket: WebsocketService) {
+    private srvSocket: WebsocketService) {
   }
 
   sendMessage(msg: string){
@@ -35,14 +35,14 @@ export class ServerStdoutService {
     return this.http.get(url).pipe();
   }
 
-  removeConsoleOutput(id_obj: {jobName: string, jobid: string}){
+  removeConsoleOutput(id_obj: {jobName: string; jobid: string}){
     const url = '/api/remove_console_output';
     return this.http.post(url, id_obj);
   }
 
   killJob(jobName: string){
     const url = '/api/kill_job';
-    let payload = { jobName: jobName };
+    const payload = { jobName: jobName };
     return this.http.post(url, payload);
   }
 }

@@ -7,7 +7,7 @@ import { Rule, IRule, IError, ErrorMessage,
          ISuccess, SuccessMessage,
          IHostInfo, HostInfo } from '../interface/rule.interface';
 import { HttpHeaders } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })

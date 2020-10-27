@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
 import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -51,8 +51,8 @@ describe('WeaponSystemNameService', () => {
       ]
     });
 
-    service = TestBed.get(WeaponSystemNameService);
-    httpMock = TestBed.get(HttpTestingController);
+    service = TestBed.inject(WeaponSystemNameService);
+    httpMock = TestBed.inject(HttpTestingController);
 
     // Add method spies
     spySetSystemName = spyOn(service, 'setSystemName').and.callThrough();

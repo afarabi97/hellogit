@@ -27,7 +27,7 @@ export class PcapFormComponent implements OnInit {
 
   displayColumns = [ 'name', 'mod_date', 'hash', 'size', 'action' ];
 
-  @ViewChild('pcapPaginator', {static: false})
+  @ViewChild('pcapPaginator')
   private paginator: MatPaginator;
 
   constructor(private pcapSrv: PcapService,

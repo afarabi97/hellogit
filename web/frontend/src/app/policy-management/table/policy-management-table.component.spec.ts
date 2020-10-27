@@ -1,14 +1,14 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, getDebugNode } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
-import { WebsocketService } from '../../services/websocket.service';
 import { MaterialModule } from '../../modules/utilily-modules/material.module';
+import { WebsocketService } from '../../services/websocket.service';
 import { RuleSet } from '../interface/ruleSet.interface';
 import { PolicyManagementService } from '../services/policy-management.service';
 import { PolicyManagementTable } from './policy-management-table.component';
@@ -66,16 +66,16 @@ const ALL_RULESETS = [
 
 class MockSocket {
   getSocket() {
-    return {'on': () => {}}
+    return {'on': () => {}};
   }
 }
 
 describe('PolicyManagementTable', () => {
-    let component: PolicyManagementTable
+    let component: PolicyManagementTable;
     let fixture: ComponentFixture<PolicyManagementTable>;
-    let httpTestingController: HttpTestingController
+    let httpTestingController: HttpTestingController;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
     declarations: [ PolicyManagementTable ],
     providers: [ PolicyManagementService, MatDialog, MatSnackBar, { provide: WebsocketService, useClass: MockSocket } ],
@@ -87,7 +87,7 @@ describe('PolicyManagementTable', () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(PolicyManagementTable);
       component = fixture.componentInstance;
-      httpTestingController = TestBed.get(HttpTestingController);
+      httpTestingController = TestBed.inject(HttpTestingController);
     });
 
     it('should create component', () => {
@@ -104,7 +104,7 @@ describe('PolicyManagementTable', () => {
             'appType': new FormControl('Zeek'),
             'isEnabled': new FormControl(true),
             'groupName': new FormControl('test')
-          })
+          });
 
           component.ruleSetsDataSource.data = ALL_RULESETS;
 
@@ -145,7 +145,7 @@ describe('PolicyManagementTable', () => {
 
     });
 
-    it('shuld be able to delete a ruleset', async(() => {
+    it('shuld be able to delete a ruleset', waitForAsync(() => {
       fixture.detectChanges();
 
       // const data1 = [{"_id":73334,"appType":"Suricata","clearance":"Unclassified","createdDate":"2020-02-06 05:32:53","groupName":"Threat Feeds","isEnabled":false,"lastModifiedDate":"2020-02-27 00:11:41","name":"Emerging Threats","sensors":[],"state":"Dirty"},{"_id":73346,"appType":"Suricata","clearance":"Unclassified","createdDate":"2020-02-28 02:56:45","groupName":"Bugs","isEnabled":true,"lastModifiedDate":"2020-02-28 02:56:45","name":"Bug Hunter 5000","sensors":[{"hostname":"acostatest3-sensor1.lan","mac":"00:50:56:9d:79:28","management_ip":"172.16.83.67"}],"state":"Dirty"}];
@@ -180,7 +180,7 @@ describe('PolicyManagementTable', () => {
         buttons[1].click();
         expect(component.openRemoveRuleSetConfirmModal).toHaveBeenCalledWith((component.ruleSetsDataSource.data[0]) as RuleSet);
 
-        const snackbar = TestBed.get(MatSnackBar);
+        const snackbar = TestBed.inject(MatSnackBar);
         spyOn(snackbar, 'open');
 
         const some = component.ruleSetsDataSource.data[0];

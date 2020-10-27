@@ -52,9 +52,9 @@ export class AgentBuilderChooserComponent implements OnInit {
   configs: MatTableDataSource<any>;
   targetConfigs: MatTableDataSource<any>;
   is_downloading: boolean;
-  @ViewChild('installerConfigPaginator', {static: false}) installerConfigPaginator: MatPaginator;
-  @ViewChild('targetConfigPaginator', {static: false}) targetConfigPaginator: MatPaginator;
-  @ViewChild('targetTable', {static: false}) targetTable: MatTable<MatTableDataSource<IpTargetList>>;
+  @ViewChild('installerConfigPaginator') installerConfigPaginator: MatPaginator;
+  @ViewChild('targetConfigPaginator') targetConfigPaginator: MatPaginator;
+  @ViewChild('targetTable') targetTable: MatTable<MatTableDataSource<IpTargetList>>;
   @ViewChildren('hostTable') hostTables: QueryList<MatTable<Host>>;
 
   constructor(private agentBuilderSvc: AgentBuilderService,

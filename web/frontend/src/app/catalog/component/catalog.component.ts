@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatSlideToggle } from '@angular/material';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { Title } from '@angular/platform-browser';
 
 import { Notification } from '../../notifications/interface/notifications.interface';
@@ -19,8 +19,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
   filteredCharts: Chart[];
   ioConnection: any;
   showCharts = { 'pmo': true, 'comm': false };
-  @ViewChild('pmoElement', {static: false})  public pmoElement: MatSlideToggle;
-  @ViewChild('commElement', {static: false}) public commElement: MatSlideToggle;
+  @ViewChild('pmoElement')  public pmoElement: MatSlideToggle;
+  @ViewChild('commElement') public commElement: MatSlideToggle;
 
   /**
    *Creates an instance of CatalogComponent.

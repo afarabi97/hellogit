@@ -124,15 +124,11 @@ import { IndexManagementComponent } from './index-management/component/index-man
 import { SystemNameClass, UserClass } from './classes';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
-  return (): Promise<UserClass> => {
-    return appLoadService.getCurrentUser();
-  };
+  return (): Promise<UserClass> => appLoadService.getCurrentUser();
 }
 
 export function initializeSystemName(appLoadService: AppLoadService): () => Promise<SystemNameClass> {
-  return (): Promise<SystemNameClass> => {
-    return appLoadService.getSystemName();
-  };
+  return (): Promise<SystemNameClass> => appLoadService.getSystemName();
 }
 
 @NgModule({
@@ -216,8 +212,8 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     CookieService,
     AppLoadService,
     UserService,
-    { provide: APP_INITIALIZER,useFactory: initializeApp, deps: [AppLoadService], multi: true},
-    { provide: APP_INITIALIZER,useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
+    { provide: APP_INITIALIZER, useFactory: initializeApp, deps: [AppLoadService], multi: true},
+    { provide: APP_INITIALIZER, useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
     ControllerAdminRequiredGuard,
     ControllerMaintainerRequiredGuard,

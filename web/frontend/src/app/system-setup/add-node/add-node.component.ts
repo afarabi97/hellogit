@@ -5,10 +5,11 @@ import { IP_CONSTRAINT } from '../../frontend-constants';
 import { KickstartService } from '../services/kickstart.service';
 import { KitService } from '../services/kit.service';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
-import { MatDialog, MatSelectChange } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { AddNodeSrvService } from '../services/add-node.service';
-import { MatStepper } from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { SystemSetupService } from '../services/system-setup.service';
 import { Title } from '@angular/platform-browser';
@@ -58,7 +59,7 @@ export class AddNodeComponent implements OnInit {
   kitData: Object;
   controllerAdmin: boolean;
 
-  @ViewChild('stepper', {static: false})
+  @ViewChild('stepper')
   stepper: MatStepper;
 
   constructor(private fb: FormBuilder,

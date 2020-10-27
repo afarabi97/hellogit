@@ -10,7 +10,7 @@
 
 - name: Build Angular App
   shell: |
-    ng build --prod
+    ng build --configuration=production
   args:
     chdir: "{{ web_install_dir }}/frontend"
   register: results

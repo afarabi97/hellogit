@@ -1,5 +1,5 @@
 import { DebugElement } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
@@ -10,7 +10,7 @@ describe('CardComponent', () => {
   let component: CardComponent;
   let fixture: ComponentFixture<CardComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CardComponent, NodeBackgroundComponent, CapitalizeFirstPipe ]
     }).compileComponents();
@@ -25,7 +25,7 @@ describe('CardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should create chart with info', async(() => {
+  it('should create chart with info', waitForAsync(() => {
     const mockChart = {
       "appVersion": "7.3.1",
       "application": "logstash",
