@@ -18,6 +18,7 @@ Setup GIP Services VM:
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
     --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_VM_PASSWORD" \
     --portgroup "$VCENTER_PORTGROUP" \
     --gateway "$VM_GATEWAY" \
     --dns-servers $DNS_SERVERS \
@@ -46,6 +47,21 @@ Perform GIP Servives STIGs:
     variables:
       - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "yes"
 
+
+GIP Create Nightly:
+  stage: publish-nightly
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-publish-nightly --nightly-prefix "$NIGHTLY_PREFIX"
+  only:
+    variables:
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-gip"
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-all"
+
+
 GIP Cleanup:
   stage: cleanup
   tags:
@@ -53,8 +69,7 @@ GIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup \
-    --create-nightly "$CREATE_NIGHTLY"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-cleanup
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-gip"
@@ -73,7 +88,7 @@ Setup GIP Controller:
     echo "VM_PREFIX is $VM_PREFIX"
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
-    gip-setup setup-gip-controller \
+    setup-controller \
     --vcenter-ipaddress "$VCENTER_IPADDRESS" \
     --vcenter-username "$VCENTER_USERNAME" \
     --vcenter-password "$VCENTER_PASSWORD" \
@@ -86,6 +101,7 @@ Setup GIP Controller:
     --network-block-index $GIP_NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_VM_PASSWORD" \
     --vm-template "$GIP_TEMPLATE_TO_CLONE" \
     --gateway "$VM_GATEWAY" \
     --vm-prefix "$VM_PREFIX-gip" \
@@ -120,6 +136,7 @@ GIP Kickstart:
     --network-block-index $GIP_NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_VM_PASSWORD" \
     --vm-prefix "$VM_PREFIX-gip" \
     --domain "$KIT_DOMAIN" \
     --gateway "$VM_GATEWAY" \

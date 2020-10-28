@@ -6,7 +6,7 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
-    - name: Convert MIP Kit Template back to a VM
+    - name: Convert Old Template back to a VM
       vmware_guest:
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
@@ -14,12 +14,13 @@
         cluster: "{{ vcenter.cluster }}"
         validate_certs: no
         datacenter: "{{ vcenter.datacenter }}"
-        name: "MIP_Kit_Template"
+        name: "{{ template_name }}"
         folder: "/{{ vcenter.datacenter }}/vm/Templates"
         state: present
         is_template: no
+      ignore_errors: yes
 
-    - name: Delete MIP Kit Template VM
+    - name: Delete Old Template VM
       vmware_guest:
         hostname: "{{ vcenter.ipaddress }}"
         username: "{{ vcenter.username }}"
@@ -27,9 +28,10 @@
         cluster: "{{ vcenter.cluster }}"
         validate_certs: no
         datacenter: "{{ vcenter.datacenter }}"
-        name: "MIP_Kit_Template"
+        name: "{{ template_name }}"
         folder: "/{{ vcenter.datacenter }}/vm/Templates"
         state: absent
+      ignore_errors: yes
 
     - name: Wait for the virtual machine to shutdown
       vmware_guest_powerstate:

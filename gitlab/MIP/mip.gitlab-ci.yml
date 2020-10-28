@@ -21,6 +21,7 @@ Setup MIP Controller:
     --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers         $DNS_SERVERS               \
     --vm-folder           "$VMWARE_FOLDER"           \
+    --vm-password         "$DEFAULT_VM_PASSWORD"     \
     --vm-datastore        "$VCENTER_DATASTORE"       \
     --gateway             "$VM_GATEWAY"              \
     --branch-name         "$CI_COMMIT_REF_NAME"      \
@@ -60,6 +61,7 @@ MIP Kickstart:
     --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_VM_PASSWORD" \
     --gateway "$VM_GATEWAY" \
     --vm-datastore "$VCENTER_DATASTORE" \
     --num-mips "$NUM_MIPS" \
@@ -132,6 +134,20 @@ Perform MIP Security Scans:
   artifacts:
     untracked: true
 
+MIP Create Nightly:
+  stage: publish-nightly
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "MIP" run-publish-nightly --nightly-prefix "$NIGHTLY_PREFIX"
+  only:
+    variables:
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-mip"
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-all"
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-dip-mip"
+
 MIP Cleanup:
   stage: cleanup
   tags:
@@ -140,9 +156,7 @@ MIP Cleanup:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" run-cleanup \
-    --create-nightly "$CREATE_NIGHTLY" \
-    --save-kit "$SAVE_KIT"
+    --system-name "MIP" run-cleanup
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-mip"

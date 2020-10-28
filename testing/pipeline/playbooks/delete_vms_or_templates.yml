@@ -1,0 +1,49 @@
+---
+- name: Poweroff VM /Template and Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: "Setting {{ state }} state on nodes"
+      ignore_errors: yes
+      vmware_guest:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        name: "{{ item }}"
+        folder: "{{ folder }}"
+        state: "{{ state }}"
+        validate_certs: False
+      delegate_to: localhost
+      with_items: "{{ vms }}"
+
+    - name: Convert Template back to a VM
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        cluster: "{{ vcenter.cluster }}"
+        validate_certs: no
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "{{ item }}"
+        folder: "{{ folder }}"
+        state: present
+        is_template: no
+      with_items: "{{ vms }}"
+
+    - name: Delete VM
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        cluster: "{{ vcenter.cluster }}"
+        validate_certs: no
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "{{ item }}"
+        folder: "{{ folder }}"
+        state: absent
+      with_items: "{{ vms }}"

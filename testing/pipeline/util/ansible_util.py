@@ -139,16 +139,6 @@ def create_template(vcenter: VCenterSettings, node: NodeSettings, template_name:
     extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'template_name': template_name}
     execute_playbook([PIPELINE_DIR + "playbooks/create_template.yml"], extra_vars)
 
-def create_nightly(vcenter: VCenterSettings, node: NodeSettings, system_name: str=None):
-    if system_name == "DIP":
-        controller = "nightly-dip-ctrl"
-    elif system_name == "MIP":
-        controller = "nightly-mip-ctrl"
-    elif system_name == "GIP":
-        controller = "nightly-gip-ctrl"
-    else:
-        controller = None
-
-    extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'controller': controller}
-    print(extra_vars)
+def create_nightly(vcenter: VCenterSettings, node: NodeSettings, nightly_vm_name: str):
+    extra_vars = { 'node': node.to_dict(), 'python_executable': sys.executable, 'vcenter': vcenter, 'controller': nightly_vm_name}
     execute_playbook([PIPELINE_DIR + "playbooks/create_nightly.yml"], extra_vars)

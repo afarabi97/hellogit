@@ -24,6 +24,7 @@ Setup DIP Controller:
     --network-block-index $DIP_NETWORK_BLOCK_INDEX \
     --dns-servers         $DNS_SERVERS             \
     --vm-folder           "$VMWARE_FOLDER"         \
+    --vm-password         "$DEFAULT_VM_PASSWORD"   \
     --vm-template         "$DIP_TEMPLATE_TO_CLONE" \
     --gateway             "$VM_GATEWAY"            \
     --vm-prefix           "$VM_PREFIX-dip"         \
@@ -62,6 +63,7 @@ Create a standalone MinIO server:
       --network-block-index "$DIP_NETWORK_BLOCK_INDEX"
       --dns-servers $DNS_SERVERS
       --vm-folder "$VMWARE_FOLDER"
+      --vm-password "$DEFAULT_VM_PASSWORD"
       --vm-template "$MINIO_TEMPLATE_TO_CLONE"
       --gateway "$VM_GATEWAY"
       --vm-prefix "$VM_PREFIX-dip"
@@ -107,6 +109,7 @@ DIP Kickstart:
     --network-block-index $DIP_NETWORK_BLOCK_INDEX \
     --dns-servers $DNS_SERVERS \
     --vm-folder "$VMWARE_FOLDER" \
+    --vm-password "$DEFAULT_VM_PASSWORD" \
     --vm-prefix "$VM_PREFIX" \
     --domain "$KIT_DOMAIN" \
     --gateway "$VM_GATEWAY" \
@@ -306,6 +309,20 @@ System Function Testing2:
     reports:
       junit: "./*.xml"
 
+DIP Create Nightly:
+  stage: publish-nightly
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-publish-nightly --nightly-prefix "$NIGHTLY_PREFIX"
+  only:
+    variables:
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-dip"
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-all"
+      - $CREATE_NIGHTLY == "yes" && $PIPELINE == "developer-dip-mip"
+
 DIP Cleanup:
   stage: cleanup
   tags:
@@ -313,8 +330,7 @@ DIP Cleanup:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup \
-    --create-nightly "$CREATE_NIGHTLY"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-cleanup
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-dip"

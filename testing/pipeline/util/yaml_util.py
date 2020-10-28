@@ -9,7 +9,7 @@ from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettings, HwKitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.kickstart import HwKickstartSettings
-from models.gip_settings import GIPControllerSettings, GIPKitSettings, GIPServiceSettings
+from models.gip_settings import GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, MolochCaptureSettings,
                             MolochViewerSettings, ZeekSettings,
                             LogstashSettings, SuricataSettings,
@@ -58,7 +58,6 @@ class YamlManager:
             cls.yaml.register_class(NetflowFilebeatSettings)
             cls.yaml.register_class(MIPKickstartSettings)
             cls.yaml.register_class(MIPConfigSettings)
-            cls.yaml.register_class(GIPControllerSettings)
             cls.yaml.register_class(GIPServiceSettings)
             cls.yaml.register_class(GIPKickstartSettings)
             cls.yaml.register_class(GIPKitSettings)
@@ -97,11 +96,6 @@ class YamlManager:
     def load_ctrl_settings_from_yaml(cls, application: str, ctrl_obj=ControllerSetupSettings) -> Union[ControllerSetupSettings,HwControllerSetupSettings]:
         yaml_name = "{}_{}.yml".format(
             ctrl_obj.__name__.lower(), application.lower())
-        return cls._load_from_yaml(yaml_name)
-
-    @classmethod
-    def load_gip_ctrl_settings_from_yaml(cls) -> GIPControllerSettings:
-        yaml_name = YAML_FILE.format(GIPControllerSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod

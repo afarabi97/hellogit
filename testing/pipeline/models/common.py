@@ -105,7 +105,7 @@ class NodeSettings(Model):
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
         parser.add_argument("--vm-folder", dest="folder", required=True, help="The folder where all your VM(s) will be created within vsphere.")
-        parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", default="d2UuYXJlLnRmcGxlbnVt")
+        parser.add_argument("--vm-password", dest="password", help="The root password of the VM after it is cloned.", required=True)
         parser.add_argument("--portgroup", dest="portgroup", help="The managment network or portgroup name on the vsphere or esxi server.", required=True)
         parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
         parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
@@ -234,14 +234,14 @@ class VCenterSettings(Model):
 
     @staticmethod
     def add_args(parser: ArgumentParser):
-        parser.add_argument("--vcenter-ipaddress", dest="vcenter_ipaddress", required=True,
-                            help="A vcenter ip address.")
+        parser.add_argument("--vcenter-ipaddress", dest="vcenter_ipaddress", required=False,
+                            help="A vcenter ip address.", default="10.10.103.10")
         parser.add_argument("--vcenter-username", dest="vcenter_username", required=True,
                             help="A username to the vcenter hosted on our local network.")
         parser.add_argument("--vcenter-password", dest="vcenter_password", required=True,
                             help="A password to the vcenter hosted on our local network.")
-        parser.add_argument("--vcenter-datacenter", dest="vcenter_datacenter", required=True,
-                            help="The data center to use on vsphere.")
+        parser.add_argument("--vcenter-datacenter", dest="vcenter_datacenter", required=False,
+                            help="The data center to use on vsphere.", default="DEV_Datacenter")
 
 class ESXiSettings(Model):
 

@@ -30,27 +30,11 @@ class GIPServiceSettings(Model):
         self.node.disk_size = 250
         self.node.hostname = "{}-services.{}".format(namespace.vm_prefix, namespace.domain)
 
-class GIPControllerSettings(Model):
-    def __init__(self):
-        super().__init__()
-        self.controller_settings = None # type: ControllerSetupSettings
-
-    @staticmethod
-    def add_args(parser: ArgumentParser):
-        gip_controller_setup_parser = parser.add_parser(SubCmd.setup_gip_ctrl,
-                                                            help="Builds a GIP controller.")
-        gip_controller_setup_parser.set_defaults(which=SubCmd.setup_gip_ctrl)
-        ControllerSetupSettings.add_args(gip_controller_setup_parser)
-
-    def from_namespace(self, namespace: Namespace):
-        self.controller_settings = ControllerSetupSettings()
-        self.controller_settings.from_namespace(namespace)
-
 class GIPKitSettings(Model):
     def __init__(self):
         super().__init__()
         self.kit_settings = None # type: KitSettings
-    
+
     @staticmethod
     def add_args(parser: ArgumentParser):
         gip_kit_parser = parser.add_parser(SubCmd.run_gip_kit,

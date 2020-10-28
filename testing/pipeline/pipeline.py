@@ -31,7 +31,7 @@ from models.mip_config import MIPConfigSettings
 from models.export import ExportSettings, ExportLocSettings
 from models.drive_creation import DriveCreationSettings, DriveCreationHashSettings
 from models.constants import SubCmd
-from models.gip_settings import GIPServiceSettings, GIPControllerSettings, GIPKitSettings
+from models.gip_settings import GIPServiceSettings, GIPKitSettings
 from models.rhel_repo_vm import RHELRepoSettings
 from models.stig import STIGSettings
 from models.robot import RobotSettings
@@ -115,14 +115,15 @@ class Runner:
         CatalogSettings.add_args(catalog_parser)
         catalog_parser.set_defaults(which=SubCmd.run_catalog)
 
+        publish_nightly_parser = subparsers.add_parser(SubCmd.run_publish_nightly,
+                                                       help="This subcommand publishes VMs to the template folder for the nightly build process.")
+        publish_nightly_parser.set_defaults(which=SubCmd.run_publish_nightly)
+        publish_nightly_parser.add_argument('--nightly-prefix', dest='nightly_prefix', required=True,
+                                            help="Creates nightly controllers after before cleanup ('Yes' or 'No')")
+
         cleanup_parser = subparsers.add_parser(
             SubCmd.run_cleanup, help="This subcommand powers off and deletes all VMs.")
         cleanup_parser.set_defaults(which=SubCmd.run_cleanup)
-        cleanup_parser.add_argument('--create-nightly', dest='create_nightly', required=False,
-                            help="Creates nightly controllers after before cleanup ('Yes' or 'No')")
-        cleanup_parser.add_argument('--save-kit', dest='save_kit', required=False,
-                            help="Allows for saving a template of a functional MIP kit. ('Yes' or 'No')")
-
 
         mip_config_parser = subparsers.add_parser(
             SubCmd.run_mip_config,
@@ -133,7 +134,6 @@ class Runner:
         gip_setup_parser = subparsers.add_parser( SubCmd.gip_setup,
                                                   help="Configures GIP VMs and other related commands.")
         gip_setup_subparsers = gip_setup_parser.add_subparsers(help="gip setup commands")
-        GIPControllerSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
         GIPKickstartSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
         GIPServiceSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
         GIPKitSettings.add_args(gip_setup_subparsers) # Creates a parser and adds arguments to it.
@@ -267,16 +267,8 @@ class Runner:
                 export_settings.from_namespace(args)
                 executor = GIPServiceExport( gip_service_settings, export_settings.export_loc)
                 executor.export_gip_service_vm()
-            elif args.which == SubCmd.setup_gip_ctrl:
-                gip_controller_settings = GIPControllerSettings()
-                gip_controller_settings.from_namespace(args)
-                YamlManager.save_to_yaml(gip_controller_settings)
-
-                controller_settings = gip_controller_settings.controller_settings
-                executor = ControllerSetupJob(controller_settings)
-                executor.setup_controller()
             elif args.which == SubCmd.run_gip_kickstart:
-                gip_controller_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
+                gip_controller_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 controller_settings = gip_controller_settings.controller_settings
 
                 gip_kickstart_settings = GIPKickstartSettings()
@@ -285,14 +277,12 @@ class Runner:
                 executor = GIPKickstartJob( controller_settings, gip_kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_gip_kit:
-                gip_controller_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
+                controller_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 gip_kickstart_settings = YamlManager.load_gip_kickstart_settings_from_yaml()
                 gip_kit_settings = GIPKitSettings()
                 gip_kit_settings.from_kickstart(gip_kickstart_settings)
 
                 YamlManager.save_to_yaml(gip_kit_settings)
-
-                controller_settings = gip_controller_settings.controller_settings
                 kit_settings = gip_kit_settings.kit_settings
                 executor = KitJob(controller_settings, gip_kickstart_settings, kit_settings)
                 executor.run_kit()
@@ -312,7 +302,7 @@ class Runner:
                 executor.setup_controller()
 
             elif args.which == SubCmd.run_kickstart:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = KickstartSettings()
                 kickstart_settings.from_namespace(args)
                 YamlManager.save_to_yaml(kickstart_settings)
@@ -320,7 +310,7 @@ class Runner:
                 executor = KickstartJob(ctrl_settings, kickstart_settings)
                 executor.run_kickstart()
             elif args.which == SubCmd.run_kit:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 kit_settings = KitSettings()
@@ -340,13 +330,12 @@ class Runner:
                 executor = RobotJob(robot_settings)
                 executor.run_robot()
             elif args.which == SubCmd.run_unit_tests:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml( args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
                 executor = IntegrationTestsJob( ctrl_settings, kickstart_settings)
                 executor.run_unit_tests()
             elif args.which == SubCmd.run_integration_tests:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
 
                 executor = IntegrationTestsJob(
@@ -422,17 +411,26 @@ class Runner:
                     ctrl_settings, export_settings.export_loc)
                 executor.export_mip_controller()
 
+            elif args.which == SubCmd.run_publish_nightly:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+
+                if args.system_name == "MIP":
+                    kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
+                    executor = MIPSaveKitJob(ctrl_settings,
+                                             kickstart_settings)
+                    nightly_mip = "{}-operator-mip".format(args.nightly_prefix)
+                    executor.save_mip_kit(nightly_mip)
+
+                nightly_vm_name = "{}-{}-ctrl".format(args.nightly_prefix, args.system_name.lower())
+                create_nightly(ctrl_settings.vcenter,
+                               ctrl_settings.node,
+                               nightly_vm_name)
             elif args.which == SubCmd.run_cleanup:
                 if args.system_name == "DIP":
-                    ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                        args.system_name)
+                    ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                     try:
                         kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
                         kickstart_settings.nodes.append(ctrl_settings.node)
-                        if args.create_nightly == "yes":
-                            create_nightly(ctrl_settings.vcenter,
-                                           ctrl_settings.node,
-                                           ctrl_settings.system_name)
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.nodes)
                     except FileNotFoundError:
@@ -444,26 +442,13 @@ class Runner:
                     try:
                         kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
                         kickstart_settings.mips.append(ctrl_settings.node)
-
-                        if args.create_nightly == "yes":
-                            create_nightly(ctrl_settings.vcenter,
-                                            ctrl_settings.node,
-                                            ctrl_settings.system_name)
-                        elif args.save_kit == "yes":
-                            executor = MIPSaveKitJob(
-                            ctrl_settings, kickstart_settings)
-                            executor.save_mip_kit()
                         delete_vms(ctrl_settings.vcenter,
                                    kickstart_settings.mips)
                     except FileNotFoundError:
                         delete_vms(ctrl_settings.vcenter, ctrl_settings.node)
                 elif args.system_name == "GIP":
                     try:
-                        gip_settings = YamlManager.load_gip_ctrl_settings_from_yaml()
-                        if args.create_nightly == "yes":
-                            create_nightly(gip_settings.vcenter,
-                                            gip_settings.node,
-                                            gip_settings.system_name)
+                        gip_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                         delete_vms(gip_settings.vcenter, gip_settings.node)
                     except FileNotFoundError:
                         pass

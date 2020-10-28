@@ -5,7 +5,7 @@ variables:
   LABREPO_HOST: "labrepo.sil.lab"
 
   #EXPORT Variables
-  MAIN_FOLDER_VERSION: "3.4"
+  MAIN_FOLDER_VERSION: "3.5"
   GIP_EXPORT_LOC: "/mnt/drive_creation/gip"
   TFPLENUM_EXPORT_VERSION: "$MAIN_FOLDER_VERSION"
   TFPLENUM_EXPORT_HASH: "$CI_COMMIT_SHORT_SHA"
@@ -59,17 +59,16 @@ variables:
   VCENTER_PORTGROUP: "12-Dev2-Navarro"
   VCENTER_DATASTORE: "DEV-vSAN"
   ESXI_DATASTORE: "datastore1"
-  DIP_TEMPLATE_TO_CLONE: "nightly-dip-ctrl"
+  DIP_TEMPLATE_TO_CLONE: "nightly$MAIN_FOLDER_VERSION-dip-ctrl"
   DIP_TEMPLATE_OVA: "dip_template.ova"
-  MIP_TEMPLATE_TO_CLONE: "nightly-mip-ctrl"
-  GIP_TEMPLATE_TO_CLONE: "nightly-gip-ctrl"
+  MIP_TEMPLATE_TO_CLONE: "nightly$MAIN_FOLDER_VERSION-mip-ctrl"
+  GIP_TEMPLATE_TO_CLONE: "nightly$MAIN_FOLDER_VERSION-gip-ctrl"
   GIP_SVC_TEMPLATE_TO_CLONE: "GIP SVC Template"
   MIP_OPERATOR_TYPE: "CPT"
   VM_GATEWAY: "10.40.12.1"
   RHEL_SUB_METHOD: "standard"
   RHEL_ORGANIZATION: "7403688"
   RHEL_ACTIVATIONKEY: "Reposync"
-  SAVE_KIT: "no"
   CREATE_NIGHTLY: "no"
   RUN_DIP_STIGS: "yes"
   RUN_MIP_STIGS: "yes"
@@ -83,6 +82,7 @@ variables:
   BREAKINGPOINT_TEST_NAME: "BP-1GB-Pipeline-Test"
   UPSTREAM_DNS: "10.10.101.11"
   UPSTREAM_NTP: "10.10.101.11"
+  DEFAULT_VM_PASSWORD: "d2UuYXJlLnRmcGxlbnVt"
 
 
   # Repo Sync variables
@@ -133,6 +133,7 @@ variables:
   MIP_SOFTWARE_FOLDER: "MIP"
 
   #THE VARIBALES IN THIS SECTION DO NOT NEED TO BE OVERWRITTEN IN SCHEDULES.
+  NIGHTLY_PREFIX: "nightly$MAIN_FOLDER_VERSION"
   MASTER_DRIVE_CREATION_PATH: "/mnt/drive_creation"
   MASTER_DRIVE_CPT_MULTIBOOT_PATH: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/CPT_MULTIBOOT/"
   MASTER_DRIVE_MDT_MULTIBOOT_PATH: "$MASTER_DRIVE_CREATION_PATH/v$MAIN_FOLDER_VERSION/MDT_MULTIBOOT/"
@@ -192,6 +193,7 @@ stages:
   - integration-test
   - test-powerfailure
   - rerun-integration-test
+  - publish-nightly
   - export
   - cleanup
   - hashfiles

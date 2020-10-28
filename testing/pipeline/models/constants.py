@@ -18,6 +18,7 @@ class SubCmd:
     run_export = 'run-export'
 
     run_cleanup = 'run-cleanup'
+    run_publish_nightly = 'run-publish-nightly'
 
     gip_setup = 'gip-setup'
 
@@ -27,7 +28,6 @@ class SubCmd:
     build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
     run_robot = 'run-robot'
-    create_nightly = 'create_nightly'
 
     # run-catalog subcommands
     install = "install"
@@ -72,7 +72,6 @@ class SubCmd:
 
     # gip-setup subcommands
     create_gip_service_vm = 'create-gip-service-vm'
-    setup_gip_ctrl = 'setup-gip-controller'
     run_gip_kickstart = 'run-gip-kickstart'
     run_gip_kit = 'run-gip-kit'
     minio_command = 'minio'
