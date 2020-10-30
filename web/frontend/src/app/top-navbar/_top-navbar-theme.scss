@@ -1,38 +1,30 @@
 @mixin top-navbar-theme($theme) {
-    .app-top-navbar {
-      .mat-fab.mat-primary,
-      .mat-flat-button.mat-primary,
-      .mat-mini-fab.mat-primary,
-      .mat-raised-button.mat-primary {
-        background-color: map-get($theme, primary) + ' ' + !important;
-      }
-  
-      .active{
-        background-color: map-get($theme, primary);
-      }
-  
-      mat-drawer-container {
-        background-color: map-get($theme, base-dark-background);
-  
-        mat-drawer {
-          background-color: map-get($theme, navbar-background-color);
-  
-          mat-list-item {
-            &:hover {
-              background-color: map-get($theme, primary);
-            }
+  .app-top-navbar {
+    .mat-fab.mat-primary,
+    .mat-flat-button.mat-primary,
+    .mat-mini-fab.mat-primary,
+    .mat-raised-button.mat-primary {
+      background-color: map-get($theme, primary) !important;
+    }
+    .active{
+      background-color: map-get($theme, primary);
+    }
+    mat-drawer-container {
+      background-color: map-get($theme, base-dark-background);
+      mat-drawer {
+        background-color: map-get($theme, navbar-background-color);
+        mat-list-item {
+          &:hover {
+            background-color: map-get($theme, primary);
           }
         }
-  
-        .mat-drawer-main-content {
-          background-color: map-get($theme, base-dark-background);
-        }
-      
-        .confluence-link:hover{
-          background-color: #1eb980;
-        }
-  
+      }
+      .mat-drawer-main-content {
+        background-color: map-get($theme, base-dark-background);
+      }
+      .confluence-link:hover{
+        background-color: #1eb980;
       }
     }
+  }
 }
-  

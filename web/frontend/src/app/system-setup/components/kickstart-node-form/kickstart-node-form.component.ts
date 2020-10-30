@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
-import { ObjectUtilsClass } from '../../../classes';
+import { ObjectUtilitiesClass } from '../../../classes';
 import { MIP_PXE_TYPES, PXE_TYPES } from '../../../frontend-constants';
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
@@ -31,9 +31,9 @@ export class KickstartNodeFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isRaid = ObjectUtilsClass.notUndefNull(this.node) &&
-                  ObjectUtilsClass.notUndefNull(this.node.get('os_raid')) &&
-                  ObjectUtilsClass.notUndefNull(this.node.get('os_raid').value) ? this.node.get('os_raid').value : false;
+    this.isRaid = ObjectUtilitiesClass.notUndefNull(this.node) &&
+                  ObjectUtilitiesClass.notUndefNull(this.node.get('os_raid')) &&
+                  ObjectUtilitiesClass.notUndefNull(this.node.get('os_raid').value) ? this.node.get('os_raid').value : false;
   }
 
   /**
@@ -44,8 +44,7 @@ export class KickstartNodeFormComponent implements OnInit {
    * @memberof KickstartNodeFormComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   private setupPXETypes() {

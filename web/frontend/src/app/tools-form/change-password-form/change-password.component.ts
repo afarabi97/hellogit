@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ToolsService } from '../tools.service';
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component'
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { FormBuilder, Validators, FormGroup, FormControl, AbstractControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { COMMON_VALIDATORS } from '../../frontend-constants';
-import { validateFromArray } from '../../validators/generic-validators.validator';
-import { UserService } from '../../user.service';
 
+import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { UserService } from '../../services/user.service';
+import { validateFromArray } from '../../validators/generic-validators.validator';
+import { ToolsService } from '../services/tools.service';
 
 const DIALOG_WIDTH = "800px";
 
@@ -20,7 +20,7 @@ export const target_config_validators = {
     { error_message: "Link must start with either 'http://' or 'https://' without quotation marks.",
       validatorFn: 'pattern', ops: { pattern: /^(http:[/][/])|(https:[/][/])/ } }
   ]
-}
+};
 
 @Component({
   selector: 'app-change-password-form',

@@ -1,16 +1,16 @@
 import {
-  Component, OnInit, Input, ViewChild,
-  ElementRef, HostListener, EventEmitter, Output
+  Component, Input, ViewChild,
+  ElementRef, HostListener, EventEmitter, Output, AfterViewInit
 } from '@angular/core';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 import { ConfigmapsService } from '../configmaps/configmaps.service';
-import { UserService } from '../user.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-configmap-editor',
   templateUrl: './configmap-editor.component.html'
 })
-export class ConfigmapEditorComponent implements OnInit {
+export class ConfigmapEditorComponent implements AfterViewInit {
 
   @ViewChild('editorCard', { static: false })
   private editorCard: ElementRef;
@@ -52,9 +52,6 @@ export class ConfigmapEditorComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     this.resizeEditor();
-  }
-
-  ngOnInit() {
   }
 
   ngAfterViewInit() {

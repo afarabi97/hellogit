@@ -12,7 +12,6 @@ export class RegistryComponent implements OnInit {
 
   columnsForImages = ['name', 'tags', 'image_id', 'image_size']
   loading: boolean;
-  uniqueHTMLID: string;
 
   constructor(private registrySrv: RegistryService,
               private title: Title) { }
@@ -25,15 +24,4 @@ export class RegistryComponent implements OnInit {
       this.loading = false;
     });
   }
-
-/**
-   * Used for generating unique element id for html
-   *
-   * @param {string} passedID
-   * @returns {string}
-   * @memberof RegistryComponent
-   */
-generateUniqueHTMLID(passedID: string): string {    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
-  }
-
 }

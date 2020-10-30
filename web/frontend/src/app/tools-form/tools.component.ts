@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ToolsService } from './tools.service';
-import { Title } from '@angular/platform-browser';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component'
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserService } from '../user.service';
+import { Title } from '@angular/platform-browser';
+
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { UserService } from '../services/user.service';
+import { ToolsService } from './services/tools.service';
 
 const DIALOG_WIDTH = "800px";
 

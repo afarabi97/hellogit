@@ -15,8 +15,8 @@ import { AllValidationErrors, FormGroupControls, getFormValidationErrors, valida
 import { isIpv4InSubnet } from '../../globals';
 import { SystemSetupService } from '../services/system-setup.service';
 import { WeaponSystemNameService} from '../../services/weapon-system-name.service';
-import { UserService } from '../../user.service';
-import { TIMEZONES2 } from '../../date-time-picker/date-time.component';
+import { UserService } from '../../services/user.service';
+import { TIMEZONES2 } from '../../constants/cvah.constants';
 
 @Component({
   selector: 'app-kickstart-form',
@@ -61,12 +61,12 @@ export class KickstartComponent implements OnInit {
 
   private initializeView(): void {
     this.loading = true;
-    if (this.system_name == 'DIP' || this.system_name == 'GIP') {
+    if (this.system_name === 'DIP' || this.system_name === 'GIP') {
       this.min_systems = 2;
       this.initDIP();
     }
 
-    if (this.system_name == 'MIP') {
+    if (this.system_name === 'MIP') {
       this.min_systems = 1;
       this.initMIP();
     }
@@ -467,7 +467,7 @@ export class KickstartComponent implements OnInit {
         form: this.kickStartFormGroup.getRawValue()
       }
     };
-    const callbackfn = (response) => this.archiveSrv.archiveForm2(response).subscribe(archive => archive);
+    const callbackfn = (response) => this.archiveSrv.archiveForm(response).subscribe(archive => archive);
     this.openDialog(ArchiveSaveDialogComponent, data, callbackfn);
   }
 

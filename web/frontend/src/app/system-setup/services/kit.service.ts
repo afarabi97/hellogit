@@ -1,29 +1,33 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { HTTP_OPTIONS } from '../../globals';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
+import { KitFormClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { catchError } from 'rxjs/operators';
-import { FormControl, Validators, FormGroup, FormBuilder, FormArray } from '@angular/forms';
+import { HTTP_OPTIONS } from '../../globals';
+import { KitFormInterface } from '../../interfaces';
+import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
-import { KitFormNode, kit_validators, KitForm, ValidateServerCpuMem } from '../kit/kit-form';
-import { WeaponSystemNameService } from 'src/app/services/weapon-system-name.service';
+import { kit_validators, KitForm, KitFormNode, ValidateServerCpuMem } from '../kit/kit-form';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class KitService {
-  public system_name: any = "DIP";
+  public system_name = "DIP";
   constructor(private http: HttpClient,
     private snackbarWrapper: SnackbarWrapper,
     private formBuilder: FormBuilder,
     private system_nameSrv: WeaponSystemNameService
   ) {}
 
-  getKitForm(): Observable<Object> {
+  getKitForm(): Observable<KitFormClass> {
     const url = '/api/get_kit_form';
-    return this.http.get(url).pipe();
+    return this.http.get<KitFormInterface>(url)
+                    .pipe(map((response: KitFormInterface) => new KitFormClass(response)));
   }
 
   executeKit(kitForm: Object) {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NavBarService } from '../top-navbar/navbar.service'
+import { NavBarService } from '../top-navbar/services/navbar.service';
 import { Title } from '@angular/platform-browser';
 
 

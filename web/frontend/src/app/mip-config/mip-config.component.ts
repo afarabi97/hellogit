@@ -5,6 +5,7 @@ import { MIPConfigNodeComponent } from '../mip-config-node/mip-config-node.compo
 import { MIPService } from './mip.service';
 import { Router } from '@angular/router';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
+import { ObjectUtilitiesClass } from '../classes';
 
 @Component({
   selector: 'app-mip-config',
@@ -138,7 +139,7 @@ export class MIPConfigComponent implements OnInit {
    * @memberof MIPConfigComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
 }

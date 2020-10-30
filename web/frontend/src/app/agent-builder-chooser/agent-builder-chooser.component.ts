@@ -7,7 +7,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
-import { ObjectUtilsClass } from '../classes';
+import { ObjectUtilitiesClass } from '../classes';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { COMMON_VALIDATORS } from '../frontend-constants';
 import {
@@ -30,6 +30,7 @@ import {
 import { AgentDetailsDialogComponent } from './agent-details-dialog/agent-details-dialog.component';
 import { AgentInstallerDialogComponent } from './agent-installer-dialog/agent-installer-dialog.component';
 import { AgentTargetDialogComponent } from './agent-target-dialog/agent-target-dialog.component';
+import { DOMAIN_PASSWORD_LABEL } from './constants/agent-builder-chooser.constant';
 
 const DIALOG_WIDTH = "800px";
 const DIALOG_MAX_HEIGHT = "800px";
@@ -244,7 +245,7 @@ export class AgentBuilderChooserComponent implements OnInit {
     userNameFormControlConfig.formState = '';
     userNameFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
     const passwordFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-    passwordFormControlConfig.label = 'Domain Password';
+    passwordFormControlConfig.label = DOMAIN_PASSWORD_LABEL;
     passwordFormControlConfig.formState = '';
     passwordFormControlConfig.validatorOrOpts = Validators.compose([validateFromArray(COMMON_VALIDATORS.required)]);
     passwordFormControlConfig.asyncValidator = undefined;
@@ -609,7 +610,7 @@ export class AgentBuilderChooserComponent implements OnInit {
    * @memberof AgentBuilderChooserComponent
    */
   private dialogMessage_(softwareAction: string, hostName?: string): string {
-    const middleMessage: string = !ObjectUtilsClass.notUndefNull(hostName) ?
+    const middleMessage: string = !ObjectUtilitiesClass.notUndefNull(hostName) ?
       ' configuration on all Windows hosts within your target configuration. ' : ` on ${hostName}`;
 
     return `Executing this form will attempt to ${softwareAction} the selected executable

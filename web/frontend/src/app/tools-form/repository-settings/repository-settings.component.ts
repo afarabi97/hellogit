@@ -1,7 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { ToolsService } from '../tools.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+
+import { MatSnackbarConfigurationClass } from '../../classes';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ToolsService } from '../services/tools.service';
 
 @Component({
     selector: 'app-repository-settings',
@@ -21,6 +24,7 @@ export class RepositorySettingsComponent {
     hasTitle: boolean;
   
     constructor(private toolsSrv: ToolsService,
+                private matSnackBarService_: MatSnackBarService,
                 private _WebsocketService: WebsocketService) {
         this.hasTitle = true;
 
@@ -59,14 +63,15 @@ export class RepositorySettingsComponent {
     }
 
     update(event) {
+        const matSnackbarConfiguration: MatSnackbarConfigurationClass = { timeInMS: 60000, actionLabel: 'Close' };
         this.allowUpdate = false;
         this.toolsSrv.configureRepository(this.repositorySettings.value).subscribe(
         data => {
-            this.toolsSrv.displaySnackBar("Updating repository settings.");
+            this.matSnackBarService_.displaySnackBar('Updating repository settings.', matSnackbarConfiguration);
         },
         error => {
             this.allowUpdate = true;
-            this.toolsSrv.displaySnackBar(error);
+            this.matSnackBarService_.displaySnackBar(error, matSnackbarConfiguration);
         });
     }
 }

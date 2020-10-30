@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { UserService } from '../services/user.service';
 import { WebsocketService } from '../services/websocket.service';
-import { UserService } from '../user.service';
 import { ESScaleServiceService } from './es-scale-service.service';
 
 class SliderControl {

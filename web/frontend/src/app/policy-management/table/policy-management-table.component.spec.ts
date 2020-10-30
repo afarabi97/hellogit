@@ -8,7 +8,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
 import { WebsocketService } from '../../services/websocket.service';
-import { MaterialModule } from '../../utilily-modules/material-module';
+import { MaterialModule } from '../../modules/utilily-modules/material.module';
 import { RuleSet } from '../interface/ruleSet.interface';
 import { PolicyManagementService } from '../services/policy-management.service';
 import { PolicyManagementTable } from './policy-management-table.component';

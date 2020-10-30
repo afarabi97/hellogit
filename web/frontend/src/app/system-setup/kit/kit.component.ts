@@ -11,11 +11,8 @@ import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { Title } from '@angular/platform-browser';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { CatalogService } from '../../catalog/services/catalog.service';
-import { DialogFormControl, DialogControlTypes } from '../../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
-import { getCurrentDate } from '../../date-time-picker/date-time.component';
 import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
-import { UserService } from '../../user.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-kit-form',

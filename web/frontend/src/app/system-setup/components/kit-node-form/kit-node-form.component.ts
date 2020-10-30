@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatSelectChange } from '@angular/material';
-import { ObjectUtilsClass } from '../../../classes';
 import { WeaponSystemNameService } from '../../../services/weapon-system-name.service';
 import { kickStartTooltips } from '../../kickstart/kickstart-form';
+import { ObjectUtilitiesClass } from '../../../classes';
 
 @Component({
   selector: 'app-kit-node-form',
@@ -39,7 +39,7 @@ export class KitNodeFormComponent implements OnInit {
 
   ngOnInit() {
     this.getSystem();
-    this.nodeError = ObjectUtilsClass.notUndefNull(this.node.get("error").value)
+    this.nodeError = ObjectUtilitiesClass.notUndefNull(this.node.get("error").value)
     if(this.nodeError) {
       this.node.disable();
     }
@@ -53,8 +53,7 @@ export class KitNodeFormComponent implements OnInit {
    * @memberof KitNodeFormComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-    let hostname = this.node.get('hostname').value;
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}-${hostname}` : `${passedID}-${hostname}`;
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   public getTooltip(inputName: string): string {
@@ -76,7 +75,7 @@ export class KitNodeFormComponent implements OnInit {
    * @memberof KitNodeFormComponent
    */
   private getSystem() {
-    let system_name = this.sysNameSrv.getSystemName();
+    const system_name: string = this.sysNameSrv.getSystemName();
     switch (system_name) {
       case 'DIP':
         this.isSystemDIP = true;

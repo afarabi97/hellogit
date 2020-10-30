@@ -4,7 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { NotificationService } from '../services/notification.service';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import {MatSnackBar} from '@angular/material';
-import { UserService } from '../../user.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-notifications-module',

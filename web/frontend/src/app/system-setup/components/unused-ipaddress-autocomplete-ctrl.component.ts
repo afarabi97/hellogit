@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
+import { ObjectUtilitiesClass } from '../../classes';
 
 @Component({
   selector: 'unused-ipaddress-autocomplete-ctrl',
@@ -43,8 +44,7 @@ export class UnusedIpAddressAutoCompleteComponent implements OnChanges {
    * @memberof UnusedIpAddressAutoCompleteComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   private _filter(value: string): string[] {

@@ -6,8 +6,8 @@ import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { CapitalizeFirstPipe } from '../../custom-pipes/capitalize.pipe';
-import { InjectorModule } from '../../utilily-modules/injector.module';
+import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
+import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { CardComponent } from '../card/card.component';
 import { NodeBackgroundComponent } from '../node-background/node-background.component';
 import { CatalogService } from '../services/catalog.service';

@@ -1,7 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ToolsService } from '../tools.service';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { UserService } from '../../user.service';
+
+import { UserService } from '../../services/user.service';
+import { ToolsService } from '../services/tools.service';
 
 @Component({
   selector: 'app-node-maintenance-form',
@@ -26,15 +27,12 @@ export class NodeMaintenanceFormComponent implements OnInit {
     this.getNodeMaintenanceTableData();
   }
 
-  ngAfterViewInit() {
-  }
-
   toggleCard(){
     this.isCardVisible = !this.isCardVisible;
   }
 
   private getNodeMaintenanceTableData(): void {
-    this.toolsSrv.get_monitoring_interfaces().subscribe(data => {
+    this.toolsSrv.getMonitoringInterfaces().subscribe(data => {
       this.nodes = data as Array<Object>;
     });
   }
@@ -45,7 +43,7 @@ export class NodeMaintenanceFormComponent implements OnInit {
     let hostname = node["node"];
     let state = event['checked'] ? "up": "down";
     for (let iface of interfaces) {
-      this.toolsSrv.change_state_of_remote_network_device(hostname, iface['name'], state).subscribe(data => {
+      this.toolsSrv.changStateofRemoteNetworkDevice(hostname, iface['name'], state).subscribe(data => {
         this.getNodeMaintenanceTableData();
       });
     }

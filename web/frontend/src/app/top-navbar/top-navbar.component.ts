@@ -1,9 +1,12 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { forkJoin, interval } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { forkJoin, interval, Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { SystemNameClass } from '../classes';
+import { KitFormClass, ObjectUtilitiesClass, VersionClass } from '../classes';
+import { returnDate } from '../functions/cvah.functions';
+import { BackingObjectInterface } from '../interfaces';
 import {
   DialogControlTypes,
   DialogFormControl,
@@ -12,14 +15,25 @@ import {
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
+import { UserService } from '../services/user.service';
 import { WeaponSystemNameService } from '../services/weapon-system-name.service';
 import { WebsocketService } from '../services/websocket.service';
 import { KitService } from '../system-setup/services/kit.service';
-import { ToolsService } from '../tools-form/tools.service';
-import { UserService } from '../user.service';
-import { NavBarService } from './navbar.service';
-import { getSideNavigationButtons, NavGroup } from './navigation';
+import { ToolsService } from '../tools-form/services/tools.service';
+import { DIPTimeClass } from './classes/dip-time.class';
+import { SYSTEM_NAMES_ALL } from './constants/navbar.constants';
+import { getSideNavigationButtons } from './functions/navbar.functions';
+import { NavGroupInterface } from './interfaces';
+import { NavBarService } from './services/navbar.service';
 
+/**
+ * Component used for top navbar related functionality
+ *
+ * @export
+ * @class TopNavbarComponent
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ */
 @Component({
   selector: 'app-top-navbar',
   templateUrl: './top-navbar.component.html',
@@ -28,152 +42,257 @@ import { getSideNavigationButtons, NavGroup } from './navigation';
     'class': 'app-top-navbar'
   }
 })
-export class TopNavbarComponent implements OnInit {
-  public showLinkNames = true;
-  public time: Date;
-  public timezone: string;
-  public version: string;
-  public system_name: string;
-  public sideNavigationButtons: Array<NavGroup>;
-  public controllerMaintainer: boolean;
-  public html_spaces: Array<any> = [];
-  public kitStatus: boolean = false;
-
-  @Output() themeChanged: EventEmitter<any> = new EventEmitter();
-
-  emitTheme() {
-    const systemName: SystemNameClass = new SystemNameClass();
-    systemName.system_name = this.system_name;
-
-    this.themeChanged.emit(systemName);
-  }
-
+export class TopNavbarComponent implements OnInit, OnDestroy {
+  readonly systemNames: string[] = SYSTEM_NAMES_ALL;
+  showLinkNames: boolean;
+  time: Date;
+  timezone: string;
+  version: string;
+  systemName: string;
+  sideNavigationButtons: NavGroupInterface[];
+  controllerMaintainer: boolean;
+  kitStatus: boolean;
+  htmlSpaces: string[] = [];
+  private clockCounter$_: Observable<number>;
+  private ngUnsubscribe$_: Subject<void> = new Subject<void>();
+  private ngUnsubscribeCounterInterval$_: Subject<void> = new Subject<void>();
   @ViewChild('notifications', { static: false }) notifications: NotificationsComponent;
 
-  constructor(private cookieService: CookieService,
-              private navService: NavBarService,
-              private socketSrv: WebsocketService,
-              private sysNameSrv: WeaponSystemNameService,
-              private ref: ChangeDetectorRef,
-              private dialog: MatDialog,
-              private userService: UserService,
-              private toolSrv: ToolsService,
-              private kitSrv: KitService) {
-    this.controllerMaintainer = this.userService.isControllerMaintainer();
+  /**
+   * Creates an instance of TopNavbarComponent.
+   *
+   * @param {CookieService} cookieService_
+   * @param {ToolsService} toolService_
+   * @param {NavBarService} navBarService_
+   * @param {WebsocketService} websocketService_
+   * @param {WeaponSystemNameService} weaponSystemNameService_
+   * @param {UserService} userService_
+   * @param {KitService} kitService_
+   * @param {ChangeDetectorRef} changeDetectorRef_
+   * @param {MatDialog} matDialog_
+   * @memberof TopNavbarComponent
+   */
+  constructor(private cookieService_: CookieService,
+              private toolService_: ToolsService,
+              private navBarService_: NavBarService,
+              private websocketService_: WebsocketService,
+              private weaponSystemNameService_: WeaponSystemNameService,
+              private userService_: UserService,
+              private kitService_: KitService,
+              private changeDetectorRef_: ChangeDetectorRef,
+              private matDialog_: MatDialog) {
+    this.showLinkNames = true;
+    this.kitStatus = false;
+    this.controllerMaintainer = this.userService_.isControllerMaintainer();
+    this.systemName = this.weaponSystemNameService_.getSystemName();
+    this.showLinkNames = this.cookieService_.get('isOpen') === 'true';
   }
 
-  ngOnInit() {
-    this.system_name = this.sysNameSrv.getSystemName();
-    this.setSystemTheme();
-    this.showLinkNames = this.cookieService.get('isOpen') === 'true' ? true : false;
-    const clockCounter = interval(1000);
-
-    this.navService.getCurrentDIPTime().subscribe(data => {
-      this.setClock(data);
-      clockCounter.subscribe(n => {
-        this.time = new Date(this.time.getTime() + 1000);
-      });
-    });
-
-    this.navService.getVersion().subscribe(versionObj => {
-      this.version = versionObj.version;
-    });
-
-    this.socketRefresh();
-  }
-
-  private setSystemTheme() {
+  /**
+   * Used for calling subscription methods
+   *
+   * @memberof TopNavbarComponent
+   */
+  ngOnInit(): void {
     this.buildNavBar();
-    this.emitTheme();
-    this.ref.detectChanges();
+    this.getCurrentDipTime_();
+    this.getVersion_();
+    this.socketRefresh_();
   }
 
-  public buildNavBar() {
-    this.sideNavigationButtons = getSideNavigationButtons(this.system_name, this.userService, false, []);
-    forkJoin({
-        html_spaces: this.toolSrv.getspaces(),
-        kitData: this.kitSrv.getKitForm()
-      }).subscribe(data => {
-        this.html_spaces = data['html_spaces'] as Array<any>;
-        if(data['kitData'] != undefined && data['kitData']["complete"] != undefined) {
-          this.kitStatus = data['kitData']["complete"] as boolean;
-        }
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name, this.userService, this.kitStatus, this.html_spaces);
-    });
+  /**
+   * Used for handeling unsubscribes
+   *
+   * @memberof TopNavbarComponent
+   */
+  ngOnDestroy(): void {
+    this.ngUnsubscribe$_.next();
+    this.ngUnsubscribe$_.complete();
+    this.ngUnsubscribeCounterInterval$_.next();
+    this.ngUnsubscribeCounterInterval$_.complete();
   }
 
-  selectSystem() {
+  /**
+   * Used for calling mat dialog window to select the system
+   *
+   * @param {string[]} systemNames
+   * @memberof TopNavbarComponent
+   */
+  selectSystem(systemNames: string[]): void {
     const controlFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
     controlFormControlConfig.label = 'Pick your system';
     controlFormControlConfig.formState = null;
     controlFormControlConfig.validatorOrOpts = Validators.required;
     const control = new DialogFormControl(controlFormControlConfig);
-    control.options = ['DIP', 'MIP', 'GIP'];
-
+    control.options = systemNames;
     control.controlType = DialogControlTypes.dropdown;
-
-    let group = new FormGroup({ 'dropdown': control });
-
-    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
+    const formGroup: FormGroup = new FormGroup({ 'dropdown': control });
+    const backingObject: BackingObjectInterface = {
+      title: 'Select the system type.',
+      instructions: '',
+      dialogForm: formGroup,
+      confirmBtnText: 'OK'
+    };
+    const dialogRef: MatDialogRef<ModalDialogMatComponent, any> = this.matDialog_.open(ModalDialogMatComponent, {
       width: '400px',
       maxHeight: '400px',
-      data: {
-        title: "Select the system type.",
-        instructions: "",
-        dialogForm: group,
-        confirmBtnText: "OK"
-      }
+      data: backingObject
     });
 
-    dialogRef.afterClosed().subscribe(response => {
-      this.system_name = response.controls['dropdown'].value;
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.ngUnsubscribe$_))
+      .subscribe(
+        (response: FormGroup) => {
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(response) &&
+              ObjectUtilitiesClass.notUndefNull(response.controls['dropdown'].value)) {
+            this.systemName = response.controls['dropdown'].value;
+          }
+        });
   }
 
-  private setClock(data: Object) {
-    this.timezone = data["timezone"];
-    let datetime = data["datetime"];
-    let dateParts = datetime.split(' ')[0].split("-");
-    let timeParts = datetime.split(' ')[1].split(":");
-
-    this.time = new Date(
-      dateParts[2], //Year
-      dateParts[0] - 1, //Month
-      dateParts[1], //Day
-      timeParts[0], // hours
-      timeParts[1], // minutes
-      timeParts[2] // seconds
-    );
-  }
-
-  private restartClock() {
-    this.navService.getCurrentDIPTime().subscribe(data => {
-      this.setClock(data);
-    });
-  }
-
-  openNotifications() {
+  /**
+   * Used for opeing the notifications window
+   *
+   * @memberof TopNavbarComponent
+   */
+  openNotifications(): void {
     this.notifications.openNotification();
   }
 
-  toggleSideNavigation() {
+  /**
+   * Used for toggling the sidenav open and close
+   *
+   * @memberof TopNavbarComponent
+   */
+  toggleSideNavigation(): void {
     this.showLinkNames = !this.showLinkNames;
-    this.cookieService.set('isOpen', this.showLinkNames.toString());
+    this.cookieService_.set('isOpen', this.showLinkNames.toString());
+  }
+  /**
+   * Check to see if navGroup label is defined and that it is not equal empty string
+   *
+   * @param {NavGroupInterface} navGroup
+   * @returns {boolean}
+   * @memberof TopNavbarComponent
+   */
+  groupLabelCheck(navGroup: NavGroupInterface): boolean {
+    return ObjectUtilitiesClass.notUndefNull(navGroup.label) && navGroup.label !== '';
   }
 
-  private socketRefresh() {
-    this.socketSrv.getSocket().on('clockchange', (data: any) => {
-      this.restartClock();
-    });
+  /**
+   * Used for setting the navigation bar
+   *
+   * @memberof TopNavbarComponent
+   */
+  buildNavBar(): void {
+    this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, false, []);
+    this.changeDetectorRef_.detectChanges();
+    forkJoin({ htmlSpaces: this.toolService_.getSpaces(),
+               kitData: this.kitService_.getKitForm() })
+      .pipe(takeUntil(this.ngUnsubscribe$_))
+      .subscribe((data: { htmlSpaces: string[], kitData: KitFormClass }) => {
+        this.htmlSpaces = data.htmlSpaces;
+        /* istanbul ignore else */
+        if (ObjectUtilitiesClass.notUndefNull(data.kitData) &&
+            ObjectUtilitiesClass.notUndefNull(data.kitData.complete)) {
+          this.kitStatus = data.kitData.complete;
+        }
+        this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+        this.changeDetectorRef_.detectChanges();
+      });
+  }
 
-    this.socketSrv.onBroadcast().subscribe((message: any) => {
-      if(message["role"] === "kit" && message["status"] === "COMPLETED") {
-        this.kitStatus = true;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus, this.html_spaces);
-      } else if(message["role"] === "kit" && message["status"] === "IN_PROGRESS") {
-        this.kitStatus = false;
-        this.sideNavigationButtons = getSideNavigationButtons(this.system_name,this.userService, this.kitStatus, this.html_spaces);
-      }
-    });
+  /**
+   * Used for setting a counter to keep time relative to current dip time
+   *
+   * @private
+   * @memberof TopNavbarComponent
+   */
+  private startClockCounter_(): void {
+    this.ngUnsubscribeCounterInterval$_.next();
+    this.clockCounter$_ = undefined;
+    this.clockCounter$_ = interval(1000);
+    this.clockCounter$_
+      .pipe(takeUntil(this.ngUnsubscribeCounterInterval$_))
+      .subscribe(
+        (_n: number) => {
+          /* istanbul ignore else */
+          if (ObjectUtilitiesClass.notUndefNull(this.time)) {
+            this.time = new Date(this.time.getTime() + 1000);
+          }
+        });
+  }
+
+
+  /**
+   * Used for setting the clock time
+   *
+   * @private
+   * @param {DIPTimeClass} data
+   * @memberof TopNavbarComponent
+   */
+  private setClock_(data: DIPTimeClass): void {
+    this.timezone = data.timezone;
+    const datetime = data.datetime;
+    const dateParts = datetime.split(' ')[0].split("-");
+    const timeParts = datetime.split(' ')[1].split(":");
+
+    this.time = returnDate( parseInt(dateParts[2], 10), parseInt(dateParts[0], 10) - 1, parseInt(dateParts[1], 10),
+                            parseInt(timeParts[0], 10), parseInt(timeParts[1], 10), parseInt(timeParts[2], 10) );
+  }
+
+  /**
+   * Used for calling service to get the current dip time
+   *
+   * @private
+   * @memberof TopNavbarComponent
+   */
+  private getCurrentDipTime_(): void {
+    this.navBarService_.getCurrentDIPTime()
+      .pipe(takeUntil(this.ngUnsubscribe$_))
+      .subscribe((data: DIPTimeClass) => {
+        this.setClock_(data);
+        this.startClockCounter_();
+      });
+  }
+
+  /**
+   * Used for calling service to get version
+   *
+   * @private
+   * @memberof TopNavbarComponent
+   */
+  private getVersion_(): void {
+    this.navBarService_.getVersion()
+      .pipe(takeUntil(this.ngUnsubscribe$_))
+      .subscribe((response: VersionClass) => this.version = response.version);
+  }
+
+  /**
+   * Used for calling service to refresh the websocket
+   *
+   * @private
+   * @memberof TopNavbarComponent
+   */
+  private socketRefresh_(): void {
+    // TODO: update data from any once object defined
+    this.websocketService_.getSocket()
+      .on('clockchange', (_data: any) => this.getCurrentDipTime_());
+
+    // TODO: update message from any once object defined
+    this.websocketService_.onBroadcast()
+      .pipe(takeUntil(this.ngUnsubscribe$_))
+      .subscribe(
+        (message: any) => {
+          /* istanbul ignore else */
+          if (message['role'] === 'kit' && message['status'] === 'COMPLETED') {
+            this.kitStatus = true;
+            this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+          } else if(message['role'] === 'kit' && message['status'] === 'IN_PROGRESS') {
+            this.kitStatus = false;
+            this.sideNavigationButtons = getSideNavigationButtons(this.systemName, this.userService_, this.kitStatus, this.htmlSpaces);
+          }
+        });
   }
 }

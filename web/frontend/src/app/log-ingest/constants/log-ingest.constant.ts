@@ -1,0 +1,1 @@
+export const WINLOGBEAT_DEFAULT_PASSWORD_LABEL = 'Password';

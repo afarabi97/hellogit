@@ -29,19 +29,18 @@
             <mat-divider></mat-divider>
             <div *ngFor="let group of sideNavigationButtons; let i = index;"
                  id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i }}">
-                <h3 mat-subheader *ngIf="group.label && group.label != '' && showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-group-label' }}">
-                    {{ group.label }}
-                </h3>
+                <h3 mat-subheader *ngIf="groupLabelCheck(group) && showLinkNames"
+                    id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-group-label' }}">{{ group.label }}</h3>
                 <ng-container *ngFor="let child of group.children; let j = index;">
                     <mat-list-item *ngIf="!child.isExternalLink" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j }}"
-                                    routerLink="{{ child.url }}" matTooltip="{{child.label}}" routerLinkActive="active">
-                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-mat-icon' }}">{{child.icon}}</mat-icon>
+                                    routerLink="{{ child.url }}" matTooltip="{{ child.label }}" routerLinkActive="active">
+                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-mat-icon' }}">{{ child.icon }}</mat-icon>
                         <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-mat-list-item-' + j + '-h4-label' }}">{{ child.label }}</h4>
                     </mat-list-item>
                     <a mat-list-item *ngIf="child.isExternalLink"
                        id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a' }}"
-                       class="confluence-link" matTooltip="{{child.label}}" href="{{ child.url }}" target="{{child.target}}">
-                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-mat-icon' }}">{{child.icon}}</mat-icon>
+                       class="confluence-link" matTooltip="{{ child.label}}" href="{{ child.url }}" target="{{ child.target }}">
+                        <mat-icon mat-list-icon id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-mat-icon' }}">{{ child.icon }}</mat-icon>
                         <h4 mat-line *ngIf="showLinkNames" id="{{ 'app-top-navbar-mat-drawer-container-mat-drawer-mat-list-div-' + i + '-a-h4-label' }}">{{ child.label }}</h4>
                     </a>
                 </ng-container>

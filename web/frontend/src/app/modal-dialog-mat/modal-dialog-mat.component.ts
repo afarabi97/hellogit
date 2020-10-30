@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+import { BackingObjectInterface } from '../interfaces';
 import { DialogControlTypes, DialogFormControl } from './modal-dialog-mat-form-types';
 
 @Component({
@@ -16,12 +17,11 @@ export class ModalDialogMatComponent {
   confirmBtnText: string;
 
   constructor(public dialogRef: MatDialogRef<ModalDialogMatComponent>,
-              @Inject(MAT_DIALOG_DATA)
-              public backingObject: { title: string, instructions: string, dialogForm: FormGroup, confirmBtnText: string}) {
-    this.title = backingObject.title;
-    this.instructions = backingObject.instructions;
-    this.dialogForm = backingObject.dialogForm;
-    this.confirmBtnText = backingObject.confirmBtnText;
+              @Inject(MAT_DIALOG_DATA) public backingObject: BackingObjectInterface) {
+      this.title = backingObject.title;
+      this.instructions = backingObject.instructions;
+      this.dialogForm = backingObject.dialogForm;
+      this.confirmBtnText = backingObject.confirmBtnText;
   }
 
   objectValues(obj: any) {

@@ -11,6 +11,7 @@
     "test-firefoxheadless": "ng test --browsers FirefoxHeadless",
     "lint": "ng lint",
     "lint-fix": "tslint --fix tests/*.ts -t verbose",
+    "test-coverage-local": "ng test --code-coverage --watch",
     "test-coverage": "ng test --code-coverage",
     "test-documentation": "ng test --code-coverage --browsers ChromeHeadless --reporters html",
     "test-ci-chromeheadless": "ng test --browsers ChromeHeadlessNoSandbox --watch=false --progress=false --code-coverage",

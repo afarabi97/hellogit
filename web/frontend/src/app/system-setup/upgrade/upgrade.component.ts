@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { UpgradeService } from '../services/upgrade.service';
-import {FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl} from '@angular/forms';
-import { MatStepper } from '@angular/material/stepper';
-import { KickstartService } from '../services/kickstart.service';
-import { validateFromArray } from '../../validators/generic-validators.validator';
-import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserService } from '../../user.service';
+import { MatStepper } from '@angular/material/stepper';
+import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
 
+import { OriginalControllerIPInterface, UpgradeControllerInterface } from '../../interfaces';
+import { UserService } from '../../services/user.service';
+import { validateFromArray } from '../../validators/generic-validators.validator';
+import { KickstartService } from '../services/kickstart.service';
+import { UpgradeService } from '../services/upgrade.service';
 
 @Component({
   selector: 'app-upgrade',
@@ -54,7 +55,10 @@ export class UpgradeComponent implements OnInit {
   }
 
   upgradePaths(stepper: MatStepper) {
-    this.upgradeSrv.getUpgradePaths(this.upgradeFormGroup.get('original_controller_ip').value).subscribe(data => {
+    const originalControllerIP: OriginalControllerIPInterface = {
+      original_controller_ip: this.upgradeFormGroup.get('original_controller_ip').value
+    };
+    this.upgradeSrv.getUpgradePaths(originalControllerIP).subscribe(data => {
       this.upgradeFormGroup.get('hidden').setValue("success"); // Used to ensure the user cannot go to next step until the upgrade paths return.
       this.paths = data as Array<string>;
       stepper.next();
@@ -64,9 +68,14 @@ export class UpgradeComponent implements OnInit {
   performUpgrade() {
     this.displaySnackBar("Initiated the upgrade task.  Open your notification panel to see its progress. \
     WARNING! Please wait for this process to either complete or fail before performing anyother operations on this Kit!");
-    this.upgradeSrv.doUpgrade(this.upgradeFormGroup.value, this.upgradePathFormGroup.value).subscribe(data => {
-      console.log(data);
-    });
+    const upgradeControllerInterface: UpgradeControllerInterface = {
+      original_controller_ip: this.upgradeFormGroup.get('original_controller_ip').value,
+      new_controller_ip: this.upgradeFormGroup.get('new_ctrl_ip').value,
+      username: this.upgradePathFormGroup.get('username').value,
+      password: this.upgradePathFormGroup.get('password').value,
+      upgrade_path: this.upgradePathFormGroup.get('selectedPath').value
+    };
+    this.upgradeSrv.doUpgrade(upgradeControllerInterface).subscribe(data => console.log(data));
   }
 
   public getErrorMessage(control: FormControl | AbstractControl): string {

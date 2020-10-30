@@ -1,47 +1,47 @@
 import { Injectable } from '@angular/core';
+import { Subscriber } from 'rxjs';
 import { Observable } from 'rxjs/Observable';
-import { environment } from '../../environments/environment';
 import * as socketIo from 'socket.io-client';
+
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
+  // TODO - update with neccessary criteria
 
-  private ws_url: string;
-  private ws_options;
-  private socket;
+  private webSocketURL_: string;
+  private webSocketOptions_;
+  private webSocket_;
 
-  constructor(){
-    this.ws_options = {transports: ['websocket'], upgrade: false};
-    if (environment.production){
-      this.ws_url = "https://" + window.location.hostname;
-    } else {
-      this.ws_url = "http://" + window.location.hostname;
-    }
-
-    this.socket = socketIo(this.ws_url, this.ws_options);
+  constructor() {
+    this.webSocketOptions_ = {transports: ['websocket'], upgrade: false};
+    this.webSocketURL_ = `${environment.production ? 'https://' : 'http://'}${window.location.hostname}`;
+    this.webSocket_ = socketIo(this.webSocketURL_, this.webSocketOptions_);
   }
 
-  public getSocket(){
-    return this.socket;
+  getSocket() {
+    return this.webSocket_;
   }
 
-  public send(message: any): void {
-      this.socket.emit('message', message);
+  send(message: any): void {
+    this.webSocket_.emit('message', message);
   }
 
-  public onBroadcast(): Observable<any> {
-      return new Observable<any>(observer => {
-          this.socket.on('broadcast', (data: any) => {
-            observer.next(data);
-          });
+  onBroadcast(): Observable<any> {
+    return new Observable<any>(
+      (observer: Subscriber<any>) => {
+        this.webSocket_.on('broadcast', (data: any) => {
+          observer.next(data);
+        });
       });
   }
 
-  public onEvent(event: any): Observable<any> {
-      return new Observable<any>(observer => {
-          this.socket.on(event, () => observer.next());
+  onEvent(event: any): Observable<any> {
+    return new Observable<any>(
+      (observer: Subscriber<any>) => {
+        this.webSocket_.on(event, () => observer.next());
       });
   }
 }

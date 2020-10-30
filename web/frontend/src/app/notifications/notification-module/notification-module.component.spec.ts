@@ -6,8 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 import { WebsocketService } from '../../services/websocket.service';
-import { UserService } from '../../user.service';
-import { InjectorModule } from '../../utilily-modules/injector.module';
+import { UserService } from '../../services/user.service';
+import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { NotificationService } from '../services/notification.service';
 import { NotificationsModuleComponent } from './notifications-module.component';
 

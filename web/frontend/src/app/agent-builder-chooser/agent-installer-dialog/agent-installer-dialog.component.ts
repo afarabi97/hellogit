@@ -5,7 +5,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { ObjectUtilsClass } from '../../classes';
+import { ObjectUtilitiesClass } from '../../classes';
 import { COMMON_VALIDATORS } from '../../frontend-constants';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { AppConfig, ElementSpec } from '../agent-builder.service';
@@ -188,8 +188,8 @@ export class AgentInstallerDialogComponent implements OnInit {
   }
 
   public getErrorMessage(control: FormControl | AbstractControl): string {
-    return ObjectUtilsClass.notUndefNull(control) &&
-           ObjectUtilsClass.notUndefNull(control.errors) ? control.errors.error_message : '';
+    return ObjectUtilitiesClass.notUndefNull(control) &&
+           ObjectUtilitiesClass.notUndefNull(control.errors) ? control.errors.error_message : '';
   }
 
   // Custom packages

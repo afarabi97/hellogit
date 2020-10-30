@@ -1,17 +1,14 @@
-import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 
 import { NodeClass } from '../../classes';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
-import { NodeInterface } from '../../interfaces';
-import { ApiService, EntityConfig } from '../../services/tfplenum.service';
+import { HTTP_OPTIONS } from '../../globals';
+import { EntityConfig } from '../../interfaces';
+import { ApiService } from '../../services/abstract/api.service';
 
-export const config: EntityConfig = { entityPart: 'catalog/', type: 'Catalog' };
-export const HTTP_OPTIONS = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
+const entityConfig: EntityConfig = { entityPart: 'catalog/', type: 'Catalog' };
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +24,7 @@ export class CatalogService extends ApiService<any> {
    * @memberof CatalogService
    */
   constructor() {
-    super(config);
+    super(entityConfig);
 
     this.isLoading = false;
   }
@@ -39,15 +36,15 @@ export class CatalogService extends ApiService<any> {
    */
   getNodes(): Observable<NodeClass[]> {
     const url = "/api/nodes";
-    return this._http.get<NodeInterface[]>(url)
-                     .pipe(map((response: NodeInterface[]) => response.map((n: NodeInterface) => new NodeClass(n))),
-                           catchError(error => this.handleError(url, error)));
+    return this.httpClient_.get<Object>(url).pipe(
+      catchError(error => this.handleError(url, error))
+    );
   }
 
   getValuesFile(role, process, configsArray ): Observable<Object>{
     const url = '/api/catalog/generate_values';
     const payload = { role: role, process: process, configs: configsArray };
-      return this._http.post(url, payload, HTTP_OPTIONS).pipe();
+      return this.httpClient_.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
   /**
@@ -62,8 +59,7 @@ export class CatalogService extends ApiService<any> {
   installHelm(role, process, values): Observable<Object>{
     const url = '/api/catalog/install';
     const payload = { role: role, process: process, values: values };
-    console.log('payload: ', payload)
-      return this._http.post(url, payload, HTTP_OPTIONS).pipe();
+      return this.httpClient_.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
   /**
@@ -78,7 +74,7 @@ export class CatalogService extends ApiService<any> {
   deleteHelm(role, process): Observable<Object>{
     const url = '/api/catalog/delete';
     const payload = { role: role, process: process };
-      return this._http.post(url, payload, HTTP_OPTIONS).pipe();
+      return this.httpClient_.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
   /**
@@ -93,19 +89,19 @@ export class CatalogService extends ApiService<any> {
   reinstallHelm(role, process, values): Observable<Object>{
     const url = '/api/catalog/reinstall';
     const payload = { role: role, process: process, values: values };
-      return this._http.post(url, payload, HTTP_OPTIONS).pipe();
+      return this.httpClient_.post(url, payload, HTTP_OPTIONS).pipe();
   }
 
   getinstalledapps(hostname): Observable<Object>{
     const url = `/api/catalog/${hostname}/apps`;
-    return this._http.get<Object>(url).pipe(
+    return this.httpClient_.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );
   }
 
   get_all_application_statuses(): Observable<Object> {
     const url = '/api/catalog/chart/status_all';
-    return this._http.get<Object>(url).pipe(
+    return this.httpClient_.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );
   }

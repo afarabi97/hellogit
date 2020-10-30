@@ -3,9 +3,9 @@ import { AbstractControl, FormControl, FormGroupDirective, NgForm, Validators } 
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { UserService } from '../../services/user.service';
 import { TopNavbarComponent } from '../../top-navbar/top-navbar.component';
-import { UserService } from '../../user.service';
-import { ToolsService } from '../tools.service';
+import { ToolsService } from '../services/tools.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -14,7 +14,6 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
 }
-
 @Component({
   selector: 'app-update-docs-form',
   templateUrl: './update-docs.component.html',

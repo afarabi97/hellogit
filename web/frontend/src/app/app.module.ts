@@ -3,15 +3,16 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
-import { AppLoadService } from './app-load.service';
-import { UserService, UnauthorizedInterceptor, ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './user.service';
-// import { HttpModule } from '@angular/http';
+import { AppLoadService } from './services/app-load.service';
+import { UserService } from './services/user.service';
+import { UnauthorizedInterceptor } from './interceptors';
+import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './guards';
 import {FlexLayoutModule} from "@angular/flex-layout";
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { KickstartComponent } from './system-setup/kickstart/kickstart.component';
-import { AppRoutingModule } from './/app-routing.module';
+import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 
 //Common components
 import { PasswordMessageComponent } from './common/components/password-message.component';
@@ -44,7 +45,7 @@ import { ModalTableComponent } from './system-health/table-dialog/modal-table.co
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
 import { RegistryComponent } from './registry/registry.component';
-import { MaterialModule } from './utilily-modules/material-module';
+import { MaterialModule } from './modules/utilily-modules/material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //PCAP Test Page
@@ -88,7 +89,7 @@ import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 
 // modules
-import { InjectorModule } from './utilily-modules/injector.module';
+import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { CookieService } from './services/cookies.service';
 
 // Kickstart Form
@@ -99,10 +100,10 @@ import { ArchiveRestoreDialogComponent } from './archive-restore-dialog/archive-
 import { ArchiveSaveDialogComponent } from './archive-save-dialog/archive-save-dialog.component';
 
 // Date-Time
-import { DateTimeModule } from './date-time-picker/date-time.module';
+import { DateTimeModule } from './modules/date-time/date-time.module';
 
 //Pipes
-import { CapitalizeFirstPipe } from './custom-pipes/capitalize.pipe';
+import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
@@ -120,16 +121,18 @@ import { MIPConfigValidationComponent } from './mip-config-validation/mip-config
 // Index Management
 import { IndexManagementComponent } from './index-management/component/index-management.component';
 
-export function initializeApp1(appLoadService: AppLoadService) {
-  return (): Promise<any> => {
+import { SystemNameClass, UserClass } from './classes';
+
+export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
+  return (): Promise<UserClass> => {
     return appLoadService.getCurrentUser();
-  }
+  };
 }
 
-export function initializeSystemName(appLoadService: AppLoadService) {
-  return (): Promise<any> => {
+export function initializeSystemName(appLoadService: AppLoadService): () => Promise<SystemNameClass> {
+  return (): Promise<SystemNameClass> => {
     return appLoadService.getSystemName();
-  }
+  };
 }
 
 @NgModule({
@@ -212,9 +215,9 @@ export function initializeSystemName(appLoadService: AppLoadService) {
     ConfirmActionPopup,
     CookieService,
     AppLoadService,
-    { provide: APP_INITIALIZER,useFactory: initializeApp1, deps: [AppLoadService], multi: true},
-    { provide: APP_INITIALIZER,useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
     UserService,
+    { provide: APP_INITIALIZER,useFactory: initializeApp, deps: [AppLoadService], multi: true},
+    { provide: APP_INITIALIZER,useFactory: initializeSystemName, deps: [AppLoadService], multi: true},
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
     ControllerAdminRequiredGuard,
     ControllerMaintainerRequiredGuard,

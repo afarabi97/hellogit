@@ -9,6 +9,7 @@ import {
   DialogFormControlConfigClass
 } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
+import { WINLOGBEAT_DEFAULT_PASSWORD_LABEL } from './constants/log-ingest.constant';
 import { LogIngestService } from './log-ingest.service';
 
 const DIALOG_WIDTH = '800px';
@@ -75,7 +76,7 @@ export class LogIngestComponent implements OnInit {
       usernameSpaceFormControlConfig.formState = data['username'] ? data['username'] : '';
       usernameSpaceFormControlConfig.validatorOrOpts = [Validators.required];
       const passwordSpaceFormControlConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
-      passwordSpaceFormControlConfig.label = 'Password';
+      passwordSpaceFormControlConfig.label = WINLOGBEAT_DEFAULT_PASSWORD_LABEL;
       passwordSpaceFormControlConfig.formState = data['password'] ? data['password'] : '';
       passwordSpaceFormControlConfig.validatorOrOpts = [Validators.required];
       passwordSpaceFormControlConfig.asyncValidator = undefined;

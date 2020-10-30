@@ -7,7 +7,7 @@ import { Title } from '@angular/platform-browser';
 import { ConfirmActionPopup } from '../classes/ConfirmActionPopup';
 import { DialogFormControl, DialogFormControlConfigClass } from '../modal-dialog-mat/modal-dialog-mat-form-types';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { UserService } from '../user.service';
+import { UserService } from '../services/user.service';
 import { ConfigmapsService } from './configmaps.service';
 
 const DIALOG_WIDTH = '800px';

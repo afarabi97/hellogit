@@ -1,48 +1,41 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
-import { EntityConfig, ApiService } from '../../services/tfplenum.service';
 import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
+import { environment } from '../../../environments/environment';
+import { HTTP_OPTIONS } from '../../globals';
+import { EntityConfig, OriginalControllerIPInterface, UpgradeControllerInterface } from '../../interfaces';
+import { ApiService } from '../../services/abstract/api.service';
 
-export const config: EntityConfig = { entityPart: 'upgrade/paths', type: 'Upgrade' };
-export const HTTP_OPTIONS = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
+const entityConfig: EntityConfig = { entityPart: '', type: 'UpgradeService' };
 
-@Injectable({
-    providedIn: 'root'
-})
+/**
+ * Service used for http upgrade rest calls
+ *
+ * @export
+ * @class UpgradeService
+ * @extends {ApiService<any>}
+ */
+@Injectable()
 export class UpgradeService extends ApiService<any> {
+  /**TODO - Add object structures, return types, method types interfaces, service interface */
 
   /**
-   *Creates an instance of UpgradeService.
-   * @param {HttpClient} http
-   * @memberof CatalogService
+   * Creates an instance of UpgradeService.
+   *
+   * @memberof UpgradeService
    */
   constructor() {
-    super(config);
+    super(entityConfig);
   }
 
-  getUpgradePaths(originalCtrlIP: string): Observable<Object> {
-    const url = '/api/upgrade/paths';
-    let payload = {
-      "original_controller_ip": originalCtrlIP
-    };
-    return this._http.post(url, payload, HTTP_OPTIONS);
+  getUpgradePaths(originalCtrlIP: OriginalControllerIPInterface): Observable<Object> {
+    return this.httpClient_.post(environment.UPGRADE_SERVICE_UPGRADE_PATHS, originalCtrlIP, HTTP_OPTIONS)
+                           .pipe(catchError((err: any) => this.handleError('upgrade/paths', err)));
   }
 
-  doUpgrade(upgradeFormGroup: Object, upgradePathFormGroup: Object){
-    const url = '/api/upgrade';
-
-    let payload = {
-      "original_controller_ip": upgradeFormGroup['original_controller_ip'],
-      "new_controller_ip": upgradeFormGroup['new_ctrl_ip'],
-      "username": upgradePathFormGroup['username'],
-      "password": upgradePathFormGroup['password'],
-      "upgrade_path": upgradePathFormGroup['selectedPath']
-    }
-    return this._http.post(url, payload, HTTP_OPTIONS);
+  doUpgrade(upgradeControllerInterface: UpgradeControllerInterface) {
+    return this.httpClient_.post(environment.UPGRADE_SERVICE_UPGRADE, upgradeControllerInterface, HTTP_OPTIONS)
+                           .pipe(catchError((err: any) => this.handleError('upgrade', err)));
   }
-
-
 }

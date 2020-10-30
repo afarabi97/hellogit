@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 
+import { ObjectUtilitiesClass } from '../../classes';
 import { Chart } from '../interface/chart.interface';
 
 @Component({
@@ -30,7 +31,7 @@ export class CardComponent {
    * @memberof CardComponent
    */
   generateUniqueHTMLID(passedID: string): string {
-    return this.uniqueHTMLID ? `${this.uniqueHTMLID}-${passedID}` : passedID;
+    return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
 
   /**

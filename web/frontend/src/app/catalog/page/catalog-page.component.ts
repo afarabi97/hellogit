@@ -4,7 +4,7 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
-import { NodeClass, ObjectUtilsClass, StatusClass } from '../../classes';
+import { NodeClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { SortingService } from '../../services/sorting.service';
 import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../constants/catalog.constants';
@@ -565,7 +565,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     const new_hostname = node_hostname.split('.')[0];
     const deployment_name = this.chart.node_affinity === this.serverAnyValue ? application : `${new_hostname}-${application}`;
 
-    return ObjectUtilsClass.notUndefNull(value) && value.deployment_name !== deployment_name ?
+    return ObjectUtilitiesClass.notUndefNull(value) && value.deployment_name !== deployment_name ?
              value.deployment_name : deployment_name;
   }
 
@@ -630,45 +630,80 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   private manageState_(): void {
     this._CatalogService.getNodes().subscribe((nodes: NodeClass[]) => {
-      this.nodes = nodes;
-      let status: string;
-      this.nodes.sort(this.sortSvc.node_alphanum);
-      this.nodes.forEach((node: NodeClass) => {
-        node.status = this.statuses.filter((sc: StatusClass) => node.hostname === sc.hostname || node.hostname.includes(sc.hostname))[0];
-        if (this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue && node.node_type === this.serverValue)) {
-          status = ObjectUtilsClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;
-          switch(status) {
-            case DEPLOYED:
-              this.processList = this.processList.map((p: ProcessInterface) => {
-                                                        if (p.process !== INSTALL) {
-                                                          p.children.push(node);
-                                                        }
-                                                        return p;
-                                                      });
-              break;
-            case UNKNOWN:
-              this.processList = this.processList.map((p: ProcessInterface) => {
-                                                        if (p.process !== REINSTALL && p.process !== UNINSTALL) {
-                                                          p.children.push(node);
-                                                        }
-                                                        return p;
-                                                      });
-              break;
-            default:
-              this.processList = this.processList.map((p: ProcessInterface) => {
-                                                    p.children.push(node);
-                                                    return p;
-                                                  });
-              break;
-          }
-        }
-      });
-      this.processList = this.processList.filter((p: ProcessInterface) => p.children.length > 0);
+      this.processList = this.setProcessListChildren_(nodes);
     });
   }
 
+  /**
+   * Used for setting the process list children
+   *
+   * @private
+   * @param {NodeClass[]} nodes
+   * @returns {ProcessInterface[]}
+   * @memberof CatalogPageComponent
+   */
+  private setProcessListChildren_(nodes: NodeClass[]): ProcessInterface[] {
+    this.nodes = nodes;
+    let status: string;
+    this.nodes.sort(this.sortSvc.node_alphanum);
+    this.nodes.forEach((node: NodeClass) => {
+      node.status = this.statuses.filter((sc: StatusClass) => node.hostname === sc.hostname || node.hostname.includes(sc.hostname))[0];
+      if (this.chart.node_affinity.includes(node.node_type) || (this.chart.node_affinity === this.serverAnyValue && node.node_type === this.serverValue)) {
+        status = ObjectUtilitiesClass.notUndefNull(node.status) ? node.status.status : UNKNOWN;
+        this.setChildren_(status, node);
+      }
+    });
+
+    return this.processList.filter((p: ProcessInterface) => p.children.length > 0);
+  }
+
+  /**
+   * Sets a node as a child for a matching process
+   *
+   * @private
+   * @param {string} status
+   * @param {NodeClass} node
+   * @memberof CatalogPageComponent
+   */
+  private setChildren_(status: string, node: NodeClass): void {
+    switch(status) {
+      case DEPLOYED:
+        this.processList = this.processList.map((p: ProcessInterface) => {
+                                              if (p.process !== INSTALL) {
+                                                p.children.push(node);
+                                              }
+                                              return p;
+                                            });
+        break;
+      case UNKNOWN:
+        this.processList = this.processList.map((p: ProcessInterface) => {
+                                              if (p.process !== REINSTALL && p.process !== UNINSTALL) {
+                                                p.children.push(node);
+                                              }
+                                              return p;
+                                            });
+        break;
+      default:
+        this.processList = this.processList.map((p: ProcessInterface) => {
+                                              p.children.push(node);
+                                              return p;
+                                            });
+        break;
+    }
+  }
+
+  /**
+   * Used for creating the form controls for application
+   *
+   * @private
+   * @param {*} control
+   * @param {string} hostname
+   * @param {FormGroup} [value]
+   * @returns {FormControl}
+   * @memberof CatalogPageComponent
+   */
   private getFormControl_(control, hostname: string, value?: FormGroup): FormControl {
-    const valid_control = ObjectUtilsClass.notUndefNull(value) && ObjectUtilsClass.notUndefNull(value[control.name]);
+    const valid_control = ObjectUtilitiesClass.notUndefNull(value) && ObjectUtilitiesClass.notUndefNull(value[control.name]);
     switch (control.type) {
       case 'textinput':
         return new FormControl(valid_control ? value[control.name] : control.default_value, this.getValidators_(control));
@@ -699,9 +734,17 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Used for getting validators for a form control
+   *
+   * @private
+   * @param {*} control
+   * @returns {ValidatorFn}
+   * @memberof CatalogPageComponent
+   */
   private getValidators_(control): ValidatorFn {
     return Validators.compose([
-      ObjectUtilsClass.notUndefNull(control.regexp) ? Validators.pattern(control.regexp) : Validators.nullValidator,
+      ObjectUtilitiesClass.notUndefNull(control.regexp) ? Validators.pattern(control.regexp) : Validators.nullValidator,
       control.required ? Validators.required : Validators.nullValidator
     ]);
   }

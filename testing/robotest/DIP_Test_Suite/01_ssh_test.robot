@@ -50,13 +50,12 @@ ${UPDATE_ACCOUNT_TITLE}     Update Account Information
 # Value Variables
 ${SSO_ADMIN_USERNAME}       admin
 ${SSO_ADMIN_PASSWORD}
-${NEW_SSO_ADMIN_PASSWORD}   U5$@doVARE$dZEiU0IDo
+${NEW_SSO_ADMIN_PASSWORD}   We.are.tfplenum4$
 
 
 *** Test Cases ***
 Get SSO Administrator Password
     [Tags]      THISISCVAH-7528
-    # [Tags]      THISISCVAH-6613
     [Documentation]     Grab The SSO Administrator Password From The Users Controller
     Set Log Level  DEBUG
     Log   message=This is Get SSO Admin Test console=yes
@@ -65,7 +64,6 @@ Get SSO Administrator Password
 
 Attempt To Login
     [Tags]      THISISCVAH-7528
-    # [Tags]      THISISCVAH-6613
     [Documentation]     Test Case that Attempts Login
     Log   message=This is Attempt To Login  console=yes   html=yes
     Open Firefox  ${BROWSER}
@@ -75,7 +73,6 @@ Attempt To Login
 
 Update Password
     [Tags]      THISISCVAH-7528
-    # [Tags]      THISISCVAH-6613
     [Documentation]     Test Case That Attempts To Update The Users Password
     Log                          message=This is Update Password  level=DEBUG  console=yes  html=yes
     Enter New Password           ${NEW_SSO_ADMIN_PASSWORD}
@@ -105,7 +102,6 @@ Open Firefox
 
 Accept DoD Banner
     [Tags]      THISISCVAH-7528
-    # [Tags]      THISISCVAH-6613
     [Documentation]  This function is made to accept the DoD Banner
     Log Location
     SeleniumLibrary.Capture Page Screenshot  filename=accept-banner-screenshot-{index}.png
