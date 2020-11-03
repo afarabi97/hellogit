@@ -1,6 +1,6 @@
 Export Reposync Server:
   stage: export
-  needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
+  #needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -11,7 +11,7 @@ Export Reposync Server:
     run-export export-reposync-server \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" 
+    --staging-export-path "$DRIVE_STAGING_FOLDER"
   only:
     variables:
       - $PIPELINE == "export-reposync"
@@ -19,7 +19,7 @@ Export Reposync Server:
 
 Export Reposync Workstation:
   stage: export
-  needs: ["Perform Reposync Workstation STIGs", "Build Workstation Reposync VM for Export"]
+  #needs: ["Perform Reposync Workstation STIGs", "Build Workstation Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -30,7 +30,7 @@ Export Reposync Workstation:
     run-export export-reposync-workstation \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" 
+    --staging-export-path "$DRIVE_STAGING_FOLDER"
   only:
     variables:
       - $PIPELINE == "export-reposync"

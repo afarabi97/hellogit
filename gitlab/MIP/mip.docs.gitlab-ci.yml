@@ -1,28 +1,28 @@
-Build MIP Offline Documentation:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "MIP" \
-    run-export export-html-docs \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
-  retry: 2
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $PIPELINE == "export-mip"
-      - $PIPELINE == "export-all"
-      - $PIPELINE == "export-docs"
+# Build MIP Offline Documentation:
+#   stage: build
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "MIP" \
+#     run-export export-html-docs \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC" \
+#     --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
+#   retry: 2
+#   artifacts:
+#     untracked: true
+#   only:
+#     variables:
+#       - $PIPELINE == "export-mip"
+#       - $PIPELINE == "export-all"
+#       - $PIPELINE == "export-docs"
 
 
 MIP Setup Documents:

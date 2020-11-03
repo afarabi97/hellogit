@@ -1,8 +1,9 @@
 import os
 from models.rhel_repo_vm import RHELRepoSettings
-from util.ansible_util import execute_playbook, Target
+from util.ansible_util import execute_playbook, Target, take_snapshot
 from util.ssh import test_nodes_up_and_alive
 from util.connection_mngs import FabricConnectionWrapper
+
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
 TESTING_DIR = PIPELINE_DIR + "/../"
@@ -47,3 +48,4 @@ class WorkstationExportJob(WorkstationCreationJob):
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
         test_nodes_up_and_alive([self.repo_settings.node], 10)
         self._workstation_export()
+        take_snapshot(self.repo_settings.vcenter, self.repo_settings.node)

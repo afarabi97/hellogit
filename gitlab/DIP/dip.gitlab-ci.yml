@@ -69,8 +69,8 @@ Create a standalone MinIO server:
       --vm-prefix "$VM_PREFIX-dip"
       --vm-datastore "$VCENTER_DATASTORE"
       --disk-size $MINIO_DISK_SIZE
-      --cpu $MINIO_CPU
-      --memory $MINIO_MEMORY
+      --ctrl-cpu $MINIO_CPU
+      --ctrl-memory $MINIO_MEMORY
       --extra-disk $MINIO_STORAGE_SIZE
     )
 

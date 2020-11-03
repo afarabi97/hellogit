@@ -55,6 +55,21 @@
           state: absent
       delegate_to: localhost
 
+    - name: Convert Template back to a VM
+      vmware_guest:
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        cluster: "{{ vcenter.cluster }}"
+        validate_certs: no
+        datacenter: "{{ vcenter.datacenter }}"
+        name: "{{ release_template_name }}"
+        folder: "Releases"
+        state: present
+        is_template: no
+      delegate_to: localhost
+      ignore_errors: yes
+
     - name: "Remove old template if it exists."
       ignore_errors: yes
       vmware_guest:

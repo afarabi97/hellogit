@@ -129,34 +129,34 @@ Build Workstation Reposync VM for Export:
       - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
 
-Perform Reposync Server STIGs:
-  stage: stig-kit
-  needs: ["Build Server Reposync VM for Export"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
-      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"
+# Perform Reposync Server STIGs:
+#   stage: stig-kit
+#   needs: ["Build Server Reposync VM for Export"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
+#   artifacts:
+#     untracked: true
+#   only:
+#     variables:
+#       - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
+#       - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"
 
-Perform Reposync Workstation STIGs:
-  stage: stig-kit
-  needs: ["Build Workstation Reposync VM for Export"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "WORKSTATION"
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-reposync"
-      - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-all"
+# Perform Reposync Workstation STIGs:
+#   stage: stig-kit
+#   needs: ["Build Workstation Reposync VM for Export"]
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "WORKSTATION"
+#   artifacts:
+#     untracked: true
+#   only:
+#     variables:
+#       - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-reposync"
+#       - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-all"

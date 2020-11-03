@@ -198,7 +198,7 @@ class ControllerExport:
 
     def export_controller(self):
         logging.info("Exporting the controller to OVA.")
-        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
+        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         commit_hash = get_commit_hash(self.ctrl_settings.node.username,
                                       self.ctrl_settings.node.password,
@@ -226,7 +226,7 @@ class MIPControllerExport(ControllerExport):
 
     def export_mip_controller(self):
         logging.info("Exporting the controller to OVA.")
-        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node, 'baseline_with_docs')
+        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         commit_hash = get_commit_hash(self.ctrl_settings.node.username,
                                       self.ctrl_settings.node.password,

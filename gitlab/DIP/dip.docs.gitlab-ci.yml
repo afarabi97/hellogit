@@ -1,27 +1,27 @@
-Build DIP Offline Documentation:
-  stage: build
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "DIP Offline Documents - Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "DIP" \
-    run-export export-html-docs \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-title "$TFPLENUM_CONFLUENCE_PAGE"
-  retry: 2
-  artifacts:
-    untracked: true
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
+# Build DIP Offline Documentation:
+#   stage: build
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "DIP Offline Documents - Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py \
+#     --system-name "DIP" \
+#     run-export export-html-docs \
+#     --username "$CONFLUENCE_USERNAME" \
+#     --password "$CONFLUENCE_PASSWORD" \
+#     --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC" \
+#     --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC" \
+#     --staging-export-path "$DRIVE_STAGING_FOLDER" \
+#     --export-version "$TFPLENUM_EXPORT_VERSION" \
+#     --page-title "$TFPLENUM_CONFLUENCE_PAGE"
+#   retry: 2
+#   artifacts:
+#     untracked: true
+#   only:
+#     variables:
+#       - $PIPELINE == "export-docs"
+#       - $PIPELINE == "export-all"
 
 
 DIP Setup Documents:
