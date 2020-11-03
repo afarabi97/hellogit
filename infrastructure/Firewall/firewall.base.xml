@@ -365,7 +365,7 @@
 				<network>wanip</network>
 				<port>OpenVPNPorts</port>
 			</destination>
-			<protocol>udp</protocol>
+			<protocol>tcp/udp</protocol>
 			<target>OpenVPNServer</target>
 			<local-port>OpenVPNPorts</local-port>
 			<interface>wan</interface>

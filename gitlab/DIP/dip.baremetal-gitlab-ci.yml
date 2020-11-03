@@ -92,6 +92,19 @@ Hardware DIP Kit:
     variables:
       - $PIPELINE == "hw-developer-dip"
 
+Remote Node Automation:
+  stage: remote-node
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "DIP" run-remote-node 
+  only:
+    variables:
+      - $RUN_REMOTE_NODE == "yes" && $PIPELINE == "hw-developer-dip"
+
 Hardware System Function Testing:
   stage: integration-test
   tags:

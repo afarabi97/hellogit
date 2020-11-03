@@ -200,6 +200,7 @@ stages:
   - checkhash
   - publish
   - breakingpoint-test
+  - remote-node
 
 default:
   before_script:

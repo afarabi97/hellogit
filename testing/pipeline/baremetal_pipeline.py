@@ -9,6 +9,7 @@ from jobs.kickstart import HwKickstartJob
 from jobs.kit import KitJob
 from jobs.catalog import CatalogJob
 from jobs.breakingpoint import BPJob
+from jobs.remote_node import RemoteNode
 from models import add_args_from_instance
 from models.common import BasicNodeCreds
 from models.constants import SubCmd
@@ -78,6 +79,11 @@ class BaremetalRunner():
         BPSettings.add_args(bp_parser)
         bp_parser.set_defaults(which=SubCmd.run_bp)
 
+        bp_parser = subparsers.add_parser(
+            SubCmd.run_remote_node, help="this subcommand runs remote node")
+        bp_parser.set_defaults(which=SubCmd.run_remote_node)
+        
+
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
         args = parser.parse_args()
@@ -110,6 +116,10 @@ class BaremetalRunner():
             elif args.which == SubCmd.run_bp:
                 self.bp_settings = BPSettings()
                 self.bp_settings.from_namespace(args)
+            elif args.which == SubCmd.run_remote_node:
+                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                    args.system_name,HwControllerSetupSettings)
+                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:
@@ -148,6 +158,9 @@ class BaremetalRunner():
             elif self.args.which == SubCmd.run_bp:
                 executor = BPJob(self.bp_settings)
                 executor.run_test()
+            elif self.args.which == SubCmd.run_remote_node:
+                executor = RemoteNode(self.ctrl_settings, self.kickstart_settings)
+                executor.remote_node_config()
         except Exception as e:
             print("\n** ERROR:")
             print(e)

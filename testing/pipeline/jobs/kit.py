@@ -38,8 +38,3 @@ class KitJob:
         runner.run_kit_api_call()
         if virtual:
             self.install_vmware_tools()
-
-        #This class will only excute in baremetal
-        if "remote_node" in self.kickstart_settings.__dict__ and self.kickstart_settings.remote_node.run_remote_node:
-            remote_node = RemoteNode(self.ctrl_settings, self.kickstart_settings)
-            remote_node.remote_node_config()
