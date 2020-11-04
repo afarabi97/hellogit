@@ -13,30 +13,14 @@ download_packages:
   - screen
   - srm.x86_64
   - nload
-  - sshpass
-
+  - sshpass 
+  
 packages:
   #VMware packages
   - kernel-4.18.0-193.el8.x86_64
   - kernel-headers-4.18.0-193.el8.x86_64
   - kernel-devel-4.18.0-193.el8.x86_64
   - gcc
-  #Wireshark packages
-  - gcc-c++
-  - bison
-  - flex
-  - gtk3-devel
-  - rpm-build
-  - libtool
-  - c-ares-devel
-  - qt5-qtbase-devel
-  - qt5-qtmultimedia-devel
-  - qt5-linguist
-  - desktop-file-utils
-  - libgcrypt
-  - libgcrypt-devel
-  - libpcap
-  - libpcap-devel
   #2FA Packages https://access.redhat.com/articles/4253861
   - authselect
   - dconf-editor
@@ -47,6 +31,9 @@ packages:
   - pcsc-lite-ccid
   - pcsc-lite-libs
   - sssd
+  #VMware packages
+  - elfutils-libelf-devel
+  - make
   #Other
   - libvirt*
   - firewalld
@@ -90,12 +77,12 @@ packages:
   - dbus*
   - policycoreutils-python-utils
   - gnome-session-xsession
+  - samba
 
 dependent_packages:
   - gtk3-immodule-xim
   - libkadm5
   - krb5-workstation
-
 
 cpt_packages:
   - container-selinux
@@ -107,34 +94,20 @@ cpt_packages:
   - runc
   - podman
 
-
 #Third Party Software
-burpsuite_file: burpsuite_pro_linux_v2_1_06.sh
-chrome_file: google-chrome-stable_013120_x86_64.rpm
-dat_file: CM-245989-avvdat-9523.tar
-engine_file: avengine64-6010.zip
+burpsuite_file: burpsuite_pro_linux_v2020_9_2.sh
+chrome_file: google-chrome-stable_current_x86_64.rpm
 gitkraken_file: gitkraken-amd64.rpm
-McAfee_file: McAfeeVSEForLinux-2.0.3.29216.tar.gz
 nexpose_file: Rapid7Setup-Linux64.bin
-ostinato_file: ostinato-0.8-1.1.x86_64.rpm
-ostinato_server_file: ostinato-server-0.8-1.1.x86_64.rpm
 vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
-vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
-McAfee_gip_file: CPT_McAfee_Update.tar
-
+vscode_file: code-1.50.1-1602601064.el7.x86_64.rpm
 software:
   - "{{ web_server }}{{ vmware_file }}"
   - "{{ web_server }}{{ vscode_file }}"
   - "{{ web_server }}{{ gitkraken_file }}"
   - "{{ web_server }}{{ chrome_file }}"
-  - "{{ web_server }}{{ McAfee_file }}"
-  - "{{ web_server }}{{ dat_file }}"
-  - "{{ web_server }}{{ engine_file }}"
 
 cpt_software:
   - "{{ web_server }}{{ nexpose_file }}"
   - "{{ web_server }}{{ burpsuite_file }}"
-  - "{{ web_server }}{{ ostinato_file }}"
-  - "{{ web_server }}{{ ostinato_server_file }}"
-  - "{{ web_server }}{{ McAfee_gip_file }}"
 ...

@@ -175,15 +175,6 @@
     - MDT
     - CPT
 
-#- name: Install McAfee software
-#  hosts: mips
-#  gather_facts: no
-#  any_errors_fatal: true
-#  roles:
-#    - 100_mcafee
-#  tags:
-#    - mcafee
-
 - name: Install third party software CPT only
   hosts: mips
   gather_facts: no

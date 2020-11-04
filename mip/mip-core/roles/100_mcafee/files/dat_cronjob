@@ -1,3 +1,0 @@
-### McAfeeVSEForLinux SCHEDULED TASK INFORMATION FOLLOWS. DO NOT EDIT THIS SECTION. ###
-0 0 * * * /opt/NAI/LinuxShield/bin/nails runsched 1
-### END OF McAfeeVSEForLinux SCHEDULED TASK INFORMATION. ###

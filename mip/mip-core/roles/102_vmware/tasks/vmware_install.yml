@@ -1,12 +1,4 @@
 ---
-- name: Install dependencies
-  dnf:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - elfutils-libelf-devel
-    - make
-
 - name: Execute bundle installation
   shell: >
     sh {{ vmware_path }} --eulas-agreed --console --required

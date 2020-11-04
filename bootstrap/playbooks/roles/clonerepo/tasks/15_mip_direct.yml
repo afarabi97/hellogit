@@ -2,7 +2,7 @@
 
 - name: Fetch the files to be copied archive.
   get_url:
-    url: "{{ misc_server }}/MIP/Files_To_Be_Copied_Over.tar"
+    url: "{{ misc_server }}/MIP/{{ mip_version_dir }}/Files_To_Be_Copied_Over.tar"
     dest: /root
 
 - name: Unarchive the files.
@@ -23,25 +23,19 @@
 
 - name: Fetch MIP resources.
   get_url:
-    url: "{{ misc_server }}/MIP/{{ item }}"
+    url: "{{ misc_server }}/MIP/{{ mip_version_dir }}/{{ item }}"
     dest: "{{ web_root }}/MIP/"
   loop:
     - "{{ vmware_file }}"
     - "{{ vscode_file }}"
     - "{{ gitkraken_file }}"
     - "{{ chrome_file }}"
-    - "{{ McAfee_file }}"
-    - "{{ dat_file }}"
-    - "{{ engine_file }}"
     - "{{ nexpose_file }}"
     - "{{ burpsuite_file }}"
-    - "{{ ostinato_file }}"
-    - "{{ ostinato_server_file }}"
-    - "{{ mcafee_gip_file }}"
 
 - name: Fetch MIP Resources.
   get_url:
-    url: "{{ misc_server }}/MIP/{{ item }}"
+    url: "{{ misc_server }}/MIP/{{ mip_version_dir }}/{{ item }}"
     dest: "{{ web_root }}/MIP/"
   loop:
     - "{{ cpt_archive }}"

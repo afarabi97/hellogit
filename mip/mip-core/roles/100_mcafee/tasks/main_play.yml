@@ -1,8 +1,0 @@
----
-- import_tasks: McAfee_install.yml
-- import_tasks: McAfee_config.yml
-- name: Create hidden file for validation if playbooks crash
-  file:
-    path: /operator/.DO_NOT_DELETE/.100
-    state: touch
-...
