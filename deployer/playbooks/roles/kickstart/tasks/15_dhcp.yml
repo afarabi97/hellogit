@@ -32,24 +32,18 @@
 
     - name: Configure the firewall
       firewalld:
+        zone: public
         service: dhcp
         immediate: yes
         permanent: yes
         state: enabled
       notify: "Restart Docker"
 
-    - name: dhcp service
-      service:
-        name: dhcpd
-        state: started
-        enabled: yes
-
     - name: Restart dhcp service
       systemd:
         name: dhcpd
         enabled: yes
         state: restarted
-      when: dhcp_config.changed
   when:
     - dhcp|bool
     - dhcp_start

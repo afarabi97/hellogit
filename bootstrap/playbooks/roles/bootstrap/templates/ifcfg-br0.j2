@@ -1,8 +1,8 @@
 DEVICE=br0
 BOOTPROTO=none
-IPADDR={{ hostvars[groups['master_server'][0]].management_ipv4 }}
+IPADDR={{ server_ip }}
 NETMASK=255.255.255.0
 GATEWAY={{ gateway_ip_address }}
-DNS1={{ ansible_controller_ip }}
+DNS1=127.0.0.1
 ONBOOT=yes
 TYPE=Bridge

@@ -34,6 +34,7 @@
 
 - name: Configure firewalld
   firewalld:
+    zone: public
     service: dns
     permanent: true
     state: enabled

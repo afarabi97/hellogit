@@ -121,18 +121,6 @@
     - repos
   tags: repos
 
-- name: Create Bridge Interface
-  hosts: master_server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Setup bridge pre_tasks
-      setup:
-  roles:
-    - bridge
-  tags:
-    - bridge
-
 - name: Remove existing SSH keys
   hosts:
     - localhost
@@ -211,7 +199,7 @@
 
 - name: OpenVPN
   hosts:
-    - master_server
+    - localhost
     - sensors
   gather_facts: yes
   any_errors_fatal: true

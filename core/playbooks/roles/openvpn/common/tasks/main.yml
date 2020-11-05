@@ -11,22 +11,22 @@
 
 - import_tasks: 10_setup_ca.yml
   when:
-    - inventory_hostname in groups['master_server']
+    - inventory_hostname == "localhost"
     - not existing_pki
 
-- import_tasks: 15_master_server_certs.yml
+- import_tasks: 15_server_certs.yml
   when:
-    - inventory_hostname in groups['master_server']
+    - inventory_hostname == "localhost"
     - not existing_pki
   tags: gen-server-certs
 
 - import_tasks: 20_vpn_server_setup.yml
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname == "localhost"
 
 - block:
     - import_tasks: 25_gen_certs.yml
     - import_tasks: 26_add_client.yml
-  when: inventory_hostname in groups['master_server']
+  when: inventory_hostname == "localhost"
   tags: add-vpn-client
 
 - import_tasks: 30_setup_clients.yml

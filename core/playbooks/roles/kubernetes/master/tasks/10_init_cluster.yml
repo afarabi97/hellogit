@@ -101,6 +101,12 @@
     - /etc/cni/net.d/10-calico.conflist
     - /opt/cni/bin/calico
 
+- name: Get calicoctl from controller
+  get_url:
+    url: "{{ offline_repo_base }}/calicoctl"
+    dest: /usr/local/bin/calicoctl
+    mode: 0755
+
 - name: Restart Crio and Kubelet
   service:
     state: restarted

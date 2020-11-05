@@ -2,8 +2,24 @@
 
 - name: Install net-tools
   dnf:
-    name: net-tools
+    name:
+      - net-tools
+      - network-scripts
     state: present
+
+- name: Clear out network file
+  copy:
+    content: ""
+    dest: /etc/sysconfig/network
+    force: yes
+
+- name: Restart Network
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - network
+    - NetworkManager
 
 - name: Check if openvpn-server exists
   stat:
@@ -48,31 +64,24 @@
       dest: "/etc/sysconfig/network-scripts/ifcfg-{{ management_interface }}"
     register: mng_iface
 
-  - name: Load Configs into NM
-    shell: |
-      nmcli conn reload
-    register: nm_reload
+  - name: Restart Network
+    systemd:
+      name: "{{ item }}"
+      state: restarted
+    with_items:
+      - network
+      - NetworkManager
     when: br0_iface.changed or mng_iface.changed
 
-  - name: Bring up the connections
-    shell: |
-      nmcli con up "`nmcli -g GENERAL.CONNECTION dev show br0`"
-      nmcli con up "`nmcli -g GENERAL.CONNECTION dev show {{ management_interface }}`"
+  - name: Create firewalld rules
+    shell:  |
+      firewall-cmd --permanent --direct --add-rule {{ item }}
+      firewall-cmd --direct --add-rule {{ item }}
     register: results
-    when: nm_reload.changed
     changed_when: results.rc == 0
-
-  - name: Configure iptables rule on the server for br0
-    iptables:
-      chain: INPUT
-      in_interface: br0
-      jump: ACCEPT
-
-  - name: Configure iptables rule on the server for br0 forwarding
-    iptables:
-      chain: FORWARD
-      in_interface: br0
-      jump: ACCEPT
+    with_items:
+      - "ipv4 filter FORWARD 0 -i br0 -j ACCEPT"
+      - "ipv4 filter INPUT 0 -i tap0 -j ACCEPT"
   when: management_interface != "br0"
 
 - name: Start openvpn server
@@ -81,3 +90,15 @@
     state: started
   ignore_errors: yes
   when: existing_ovpn_server.stat.exists
+
+- name: Disable iptables bridge in kernel
+  sysctl:
+    name: "{{ item }}"
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  with_items:
+  - net.bridge.bridge-nf-call-ip6tables
+  - net.bridge.bridge-nf-call-iptables
+  - net.bridge.bridge-nf-call-arptables

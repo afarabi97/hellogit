@@ -12,6 +12,7 @@
 
 - name: "Open up port 80 to allow access"
   firewalld:
+    zone: public
     service: "{{ item }}"
     permanent: true
     immediate: true

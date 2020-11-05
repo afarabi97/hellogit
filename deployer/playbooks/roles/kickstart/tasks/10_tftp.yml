@@ -63,6 +63,7 @@
 
 - name: TFTP Firewall
   firewalld:
+    zone: public
     service: tftp
     state: enabled
     immediate: yes

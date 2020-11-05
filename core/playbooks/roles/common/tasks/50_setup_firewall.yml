@@ -7,65 +7,18 @@
 
 - name: Allow services thru firewall
   firewalld:
+    zone: public
     service: "{{ item }}"
     permanent: yes
     immediate: yes
     state: enabled
   with_items:
-    - ssh
-    - http
-    - https
     - dns
   when: inventory_hostname in groups['master_server']
 
-- name: Allow ports thru firewall
-  firewalld:
-    port: "{{ item }}"
-    permanent: yes
-    immediate: yes
-    state: enabled
-  with_items:
-    - 6443/tcp
-    - 7472/tcp
-    - 1194/tcp
-    - 8443/tcp
-  when: inventory_hostname in groups['master_server']
-
-
-- name: Enable Masquerade on Master Server for bridge to tap0
-  firewalld:
-    masquerade: yes
-    state: enabled
-    permanent: yes
-    immediate: yes
-
-- name: Rich Rule for VRRP
-  firewalld:
-    rich_rule: rule protocol value="vrrp" accept
-    permanent: yes
-    state: enabled
-  when: inventory_hostname in groups['master_server'] and enable_kube_ha
-
-- name: Allow ports thru firewall
-  firewalld:
-    port: "{{ item }}"
-    permanent: yes
-    immediate: yes
-    state: enabled
-  with_items:
-    - 8443/tcp
-    - 6443/tcp
-  when: inventory_hostname in groups['servers'] and is_control_plane_node
-
-- name: Rich Rule for VRRP
-  firewalld:
-    rich_rule: rule protocol value="vrrp" accept
-    permanent: yes
-    state: enabled
-  when: inventory_hostname in groups['servers'] and is_control_plane_node
-
 - name: Allow common services thru firewall
   firewalld:
+    zone: public
     service: "{{ item }}"
     permanent: yes
     immediate: yes
@@ -75,43 +28,35 @@
     - http
     - https
 
-- name: Allow common ports thru firewall
+- name: Allow beats ports on public
   firewalld:
+    zone: public
     port: "{{ item }}"
     permanent: yes
     immediate: yes
     state: enabled
   with_items:
-    - 179/tcp
-    - 2376-2380/tcp
-    - 10248-10256/tcp
-    - 30000-32767/tcp
-    - 30000-32767/udp
     - 5044/tcp
     - 5045/tcp
     - 9200/tcp
-    - 7472/tcp
-    - 8285/udp
-    - 8472/udp
-    - 8005/tcp
-    - 9092/tcp
+  when: inventory_hostname in groups['servers']
 
-- name: Direct Firewall Forward Rules
+- name: Set target to internal zone
   shell: |
-    /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
-    /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
-    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
-    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
+    firewall-cmd --zone=internal --set-target=ACCEPT --permanent
   register: result
   changed_when: result.rc == 0
+
+- name: Allow network sources
+  firewalld:
+    zone: internal
+    source: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
   with_items:
-    - cni0
-
-- name: Iptables Foward Rule
-  shell: |
-    /usr/sbin/iptables -P FORWARD ACCEPT
-  register: result
-  changed_when: result.rc == 0
+    - "{{ kube_cidr }}"
+    - "{{ ansible_default_ipv4.network }}/24"
 
 - name: firewalld reload
   command: firewall-cmd --reload

@@ -89,24 +89,10 @@ function reset_password {
 }
 
 function update_network_scripts {
-    find /etc/sysconfig -name "ifcfg-*" -not -name "ifcfg-lo" -delete
-    local iface_path="/etc/sysconfig/network-scripts/ifcfg-${IFACE_NAME}"
-    cat <<EOF > $iface_path
-TYPE=Ethernet
-PROXY_METHOD=none
-BROWSER_ONLY=no
-BOOTPROTO=dhcp
-DEFROUTE=yes
-IPV4_FAILURE_FATAL=no
-IPV6INIT=no
-IPV6_AUTOCONF=yes
-IPV6_DEFROUTE=yes
-IPV6_FAILURE_FATAL=no
-IPV6_ADDR_GEN_MODE=stable-privacy
-NAME=${IFACE_NAME}
-ONBOOT=yes
-EOF
-
+    sed -i 's/^\(BOOTPROTO=\).*/\1dhcp/g' /etc/sysconfig/network-scripts/ifcfg-br0
+    sed -i '/^IPADDR/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+    sed -i '/^GATEWAY/ d' /etc/sysconfig/network-scripts/ifcfg-br0
+    nmcli conn reload
 }
 
 function clear_etc_hosts {
@@ -114,6 +100,24 @@ function clear_etc_hosts {
 # Ansible managed
 127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
 EOF
+}
+
+function reset_openvpn_server {
+    dnf remove openvpn -y
+    systemctl stop openvpn-server@server.service
+    systemctl disable openvpn-server@server.service
+    rm -rf /etc/openvpn
+}
+
+function reset_dhcp {
+    systemctl stop dhcpd
+    systemctl disable dhcpd
+    rm -rf /etc/dhcp/dhcpd.conf
+}
+
+function reset_kickstart {
+    rm -rf /var/lib/tftpboot/{pxelinux.cfg,uefi}
+    rm -rf /var/www/html/ks/*
 }
 
 function wait_for_mongo {
@@ -210,5 +214,8 @@ clear_tfplenum_database
 change_hostname
 clear_history
 reset_sso
+reset_openvpn_server
+reset_dhcp
+reset_kickstart
 
 echo "Cleanup complete!"

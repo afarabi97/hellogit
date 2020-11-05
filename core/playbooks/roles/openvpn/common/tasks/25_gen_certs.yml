@@ -26,7 +26,7 @@
 
 - name: Pull ca to sensor
   shell: |
-    /usr/bin/scp {{ ovpn_dir }}/pki/ca.crt {{ item }}:{{ ovpn_dir }}/pki
+    /usr/bin/scp {{ ovpn_dir }}/pki/ca.crt {{ item }}:{{ ovpn_dir }}/pki/
   with_items: "{{ groups['sensors'] }}"
   register: results
   changed_when: results.rc == 0

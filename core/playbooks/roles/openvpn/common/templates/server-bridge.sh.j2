@@ -1,10 +1,7 @@
 #!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
-GW_IP=$(ip route | grep default | /usr/bin/cut -d ' ' -f3 | head -n1)
-/usr/sbin/openvpn --mktun --dev tap0
 MANAGEMENT_IFACE={{ management_interface }}
 ip link set dev tap0 master br0
 ifconfig tap0 0.0.0.0 promisc up
 ifconfig $MANAGEMENT_IFACE 0.0.0.0 promisc up
-ip route add default via $GW_IP dev br0
 exit 0

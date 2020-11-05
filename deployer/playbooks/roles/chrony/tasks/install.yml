@@ -2,6 +2,7 @@
 
 - name: Allow ntp service thru firewall
   firewalld:
+    zone: public
     service: ntp
     permanent: yes
     immediate: yes

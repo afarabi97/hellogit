@@ -14,6 +14,9 @@ kubernetesVersion: {{ k8s_version }}
 networking:
   serviceSubnet: {{ kube_service_addresses }}
   podSubnet: {{ kube_pod_cidr }}
+controllerManager:
+  extraArgs:
+    node-cidr-mask-size: "{{ kube_network_node_prefix }}"
 {% if kube_virtual_ip is defined %}
 apiServer:
   certSANs:

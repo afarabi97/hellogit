@@ -2,8 +2,8 @@ script-security 2
 port 1194
 
 # TCP or UDP server?
-proto tcp4
-;proto udp
+;proto tcp4
+proto udp
 
 dev tap0
 ;dev tun
@@ -17,13 +17,13 @@ crl-verify {{ ovpn_dir }}/pki/crl.pem
 topology subnet
 
 server-bridge
-push "route-gateway {{ hostvars[groups['master_server'][0]].management_ipv4 }}"
+push "route-gateway {{ ansible_default_ipv4.address }}"
 push "redirect-gateway autolocal"
 
 client-to-client
 
 up /etc/openvpn/server/server-bridge.sh
-down /etc/openvpn/server/remove-tap0.sh
+;down /etc/openvpn/server/remove-tap0.sh
 
 keepalive 10 120
 

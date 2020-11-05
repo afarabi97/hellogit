@@ -36,7 +36,7 @@ misp_version: 2.4.133
 misp_modules_version: 2.4.121
 crio_version: "v1.17.4"
 conmon_version: 2.0.12
-calico_version: "v3.16.2"
+calico_version: "v3.16.4"
 nginx_version: "1.19.3"
 cert_manager_version: v0.15.2
 storage_provisioner_version: 2.3.4
@@ -86,7 +86,6 @@ kube_images:
   - { image: "docker.io/calico/cni:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/node:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/kube-controllers:{{ calico_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/calico/ctl:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/nginx:{{ nginx_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-cainjector:{{ cert_manager_version }}", for_dip: true, for_gip: true }
   - { image: "quay.io/jetstack/cert-manager-controller:{{ cert_manager_version }}", for_dip: true, for_gip: true }

@@ -3384,14 +3384,6 @@ rules:
       - get
   - apiGroups: [""]
     resources:
-      - secrets
-    verbs:
-      # Needed when configuring bgp password in bgppeer
-      - watch
-      - list
-      - get
-  - apiGroups: [""]
-    resources:
       - endpoints
       - services
     verbs:
@@ -3684,9 +3676,13 @@ spec:
             # Auto-detect the BGP IP address.
             - name: IP
               value: "autodetect"
+            - name: IP_AUTODETECTION_METHOD
+              value: "cidr={{ ansible_default_ipv4.network }}/24"
+            - name: FELIX_IPTABLESBACKEND
+              value: NFT
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
-              value: "Always"
+              value: "CrossSubnet"
             # Enable or Disable VXLAN on the default IP pool.
             - name: CALICO_IPV4POOL_VXLAN
               value: "Never"
@@ -3712,9 +3708,9 @@ spec:
             # chosen from this range. Changing this value after installation will have
             # no effect. This should fall within `--cluster-cidr`.
             #- name: CALICO_IPV4POOL_CIDR
-            #  value: "{{ kube_pod_cidr }}"
-            #- name: CALICO_ADVERTISE_CLUSTER_IPS
-            #  value: "{{ kube_service_addresses }}"
+            #  value: "192.168.0.0/16"
+            - name: CALICO_IPV4POOL_BLOCK_SIZE
+              value: "{{ kube_network_node_prefix }}"
             # Disable file logging so `kubectl logs` works.
             - name: CALICO_DISABLE_FILE_LOGGING
               value: "true"

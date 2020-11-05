@@ -365,7 +365,7 @@
 				<network>wanip</network>
 				<port>OpenVPNPorts</port>
 			</destination>
-			<protocol>tcp</protocol>
+			<protocol>udp</protocol>
 			<target>OpenVPNServer</target>
 			<local-port>OpenVPNPorts</local-port>
 			<interface>wan</interface>
@@ -533,7 +533,7 @@
 			<statetimeout></statetimeout>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
+			<protocol>udp</protocol>
 			<source>
 				<any></any>
 			</source>
@@ -1681,9 +1681,9 @@
 		<alias>
 			<name>OpenVPNServer</name>
 			<type>host</type>
-			<address>10.101.35.40</address>
+			<address>10.101.35.15</address>
 			<descr><![CDATA[Alias for OpenVPN Server]]></descr>
-			<detail><![CDATA[TFP Master Server]]></detail>
+			<detail><![CDATA[TFP Controller]]></detail>
 		</alias>
 		<alias>
 			<name>Remote_GIP</name>

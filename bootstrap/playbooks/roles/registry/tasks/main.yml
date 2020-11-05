@@ -79,6 +79,22 @@
   register: docker_config_result
   tags: pull-docker-images
 
+- name: Add docker to trusted zone
+  firewalld:
+    interface: docker0
+    zone: trusted
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Add masquerade to trusted zone
+  firewalld:
+    zone: trusted
+    masquerade: yes
+    state: enabled
+    permanent: yes
+    immediate: yes
+
 - name: Restart Docker
   systemd:
     name: docker

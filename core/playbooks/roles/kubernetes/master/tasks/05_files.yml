@@ -8,11 +8,12 @@
     state: directory
   with_items:
     - "{{ kube_dir }}"
+    - "/etc/calico"
 
-- name: Copy Felix Configuration File
+- name: Copy Calicoctl Configuration File
   copy:
-    src: files/felix.yml
-    dest: "{{ kube_dir }}/felix.yml"
+    src: files/calicoctl.cfg
+    dest: /etc/calico/calicoctl.cfg
     mode: 0644
 
 - name: 'Install templates'
@@ -25,10 +26,7 @@
   with_items:
     - metallb_configmap.yml
     - metallb_deployment.yml
-    - calicoctl.yml
     - calico.yml
-    - ipip.yml
     - kubeadm.conf
-    #- flannel.yml
   vars:
     gip_number: "{{ ansible_controller_ip.split('.')[1] }}"
