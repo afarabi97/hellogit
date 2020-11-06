@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { KitFormClass } from '../../classes';
@@ -24,10 +24,10 @@ export class KitService {
     private system_nameSrv: WeaponSystemNameService
   ) {}
 
-  getKitForm(): Observable<KitFormClass> {
+  getKitForm(): Observable<any> {
     const url = '/api/get_kit_form';
     return this.http.get<KitFormInterface>(url)
-                    .pipe(map((response: KitFormInterface) => new KitFormClass(response)));
+                    .pipe(map((response: KitFormInterface) => new KitFormClass(response)), catchError(() => of(undefined)));
   }
 
   executeKit(kitForm: Object) {
@@ -66,7 +66,7 @@ export class KitService {
   public handleError(result: HttpErrorResponse ) {
     if (result.error && result.error["error_message"]){
       this.snackbarWrapper.showSnackBar(result.error["error_message"], -1, 'Dismiss');
-    } else {
+    } else if (result.message) {
       this.snackbarWrapper.showSnackBar(result.message, -1, 'Dismiss');
     }
     return new Observable();

@@ -106,7 +106,6 @@ export class KitComponent implements OnInit, AfterViewInit {
       this.setKubernetesCIDRRange();
     } else {
       this.kitFormGroup = this.kitSrv.newKitFormGroup(kitData);
-      // this.getNodeDeviceFacts(this.kickstartForm['nodes']);
       this.setKubernetesCIDRRange();
     }
   }

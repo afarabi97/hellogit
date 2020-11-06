@@ -7,7 +7,7 @@ from celery import chain
 from pymongo.collection import ReturnDocument
 from app import app, logger, conn_mng, CORE_DIR, STIGS_DIR
 from app.archive_controller import archive_form
-from app.common import OK_RESPONSE, ERROR_RESPONSE
+from app.common import OK_RESPONSE, ERROR_RESPONSE, NOTFOUND_RESPONSE
 from app.inventory_generator import KitInventoryGenerator
 from app.service.node_service import execute_kit
 from app.middleware import controller_admin_required
@@ -98,7 +98,7 @@ def get_kit_form() -> Response:
     """
     mongo_document = conn_mng.mongo_kit.find_one({"_id": KIT_ID})
     if mongo_document is None:
-        return OK_RESPONSE
+        return NOTFOUND_RESPONSE
 
     mongo_document['_id'] = str(mongo_document['_id'])
     return jsonify(mongo_document["form"])
