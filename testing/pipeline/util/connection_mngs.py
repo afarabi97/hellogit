@@ -176,14 +176,13 @@ class FabricConnectionWrapper:
 
 
 class KubernetesWrapper:
-
+    
     def __init__(self, username: str,
                  password: str,
                  ip_address: str,
                  kubernetes_config_path: str="kubernetes_config"):
         """
         Initializes the Kubernetes connection for making API calls to Kubernetes.
-
         :param username: The username of the master server node
         :param password: The password of the master server node
         :param ip_address: The IP Address of the master server node
@@ -194,11 +193,18 @@ class KubernetesWrapper:
         self._username = username
         self._password = password
         self._ip_address = ip_address
-        self._get_and_save_kubernetes_config()
+        self._get_and_save_kubernetes_config() 
         config.load_kube_config(self._kubernetes_config_path)
         self._core_apiv1 = client.CoreV1Api()
         self._apps_apiv1 = client.AppsV1Api()
         self._batch_apiv1 = client.BatchV1Api()
+        self._open_port()
+
+    def _open_port(self):
+        with FabricConnectionWrapper(self._username,
+                                     self._password,
+                                     self._ip_address) as shell:
+            shell.run("firewall-cmd --add-port=6443/tcp")
 
     def _get_and_save_kubernetes_config(self) -> None:
         """
@@ -206,8 +212,8 @@ class KubernetesWrapper:
         """
         config_path = '/root/.kube/config'
         with FabricConnectionWrapper(self._username,
-                                        self._password,
-                                        self._ip_address) as fab_conn:
+                                     self._password,
+                                     self._ip_address) as fab_conn:
             fab_conn.get(config_path, self._kubernetes_config_path)
 
     @property
@@ -223,16 +229,15 @@ class KubernetesWrapper:
         return self._batch_apiv1
 
     def close(self) -> None:
-        """
-        Closes the connections associated with this context wrapper.
-        """
-        pass
+        with FabricConnectionWrapper(self._username,
+                                     self._password,
+                                     self._ip_address) as shell:
+            shell.run("firewall-cmd --reload")
 
     def __enter__(self) -> client.CoreV1Api():
         """
         Returns an instance of the kubernetes main API handler.  Documentation for this can be found here
         https://github.com/kubernetes-client/python/blob/master/kubernetes/README.md
-
         :return kubernetes api.
         """
         return self
