@@ -91,6 +91,24 @@
   ignore_errors: yes
   when: existing_ovpn_server.stat.exists
 
+- name: Enable modules
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Create module file
+  file:
+    path: /etc/modules-load.d/bridge.conf
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add kernel module
+  lineinfile:
+    path: /etc/modules-load.d/bridge.conf
+    line: br_netfilter
+
 - name: Disable iptables bridge in kernel
   sysctl:
     name: "{{ item }}"
