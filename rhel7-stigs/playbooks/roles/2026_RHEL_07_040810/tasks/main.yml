@@ -1,7 +1,0 @@
-- name: "RHEL-07-040810"
-  command: "true"
-  changed_when: no
-  when: rhel_07_040810
-  tags:
-      - RHEL-07-040810
-      - notimplemented

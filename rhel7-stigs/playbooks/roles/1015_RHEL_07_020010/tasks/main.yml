@@ -1,7 +1,0 @@
-- name: "RHEL-07-020010"
-  yum:
-      name: ypserv
-      state: absent
-  tags:
-      - RHEL-07-020010
-      - ypserv

@@ -100,9 +100,6 @@ class ExportSettings(Model):
         if SubCmd.export_reposync_server == namespace.which:
             populate_model_from_namespace(self.export_loc, namespace)
 
-        if SubCmd.export_reposync_workstation == namespace.which:
-            populate_model_from_namespace(self.export_loc, namespace)
-
     @staticmethod
     def add_args(parser: ArgumentParser):
         subparsers = parser.add_subparsers(help='export commands')
@@ -159,12 +156,6 @@ class ExportSettings(Model):
                                                               help=export_reposync_server_help)
         add_args_from_instance(export_reposync_server_parser, ExportLocSettings(), True)
         export_reposync_server_parser.set_defaults(which=SubCmd.export_reposync_server)
-
-        export_reposync_workstation_help="This subcommand will prep and export your Reposync workstation VM to the provided location."
-        export_reposync_workstation_parser = subparsers.add_parser(SubCmd.export_reposync_workstation,
-                                                                   help=export_reposync_workstation_help)
-        add_args_from_instance(export_reposync_workstation_parser, ExportLocSettings(), True)
-        export_reposync_workstation_parser.set_defaults(which=SubCmd.export_reposync_workstation)
 
         create_master_drive_hashes_help="This subcommand will create the hashes file needed for the master drive."
         drive_hash_parser = subparsers.add_parser(SubCmd.create_master_drive_hashes,

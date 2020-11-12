@@ -11,13 +11,11 @@ from jobs.mip_save_kit import MIPSaveKitJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
-from jobs.export import (ConfluenceExport, ControllerExport,
-                         GIPServiceExport, ReposyncServerExport,
-                         ReposyncWorkstationExport, MinIOExport)
+from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
+                         ReposyncServerExport, MinIOExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
 from jobs.rhel_repo_creation import RHELCreationJob, RHELExportJob
-from jobs.rhel_workstation_creation import WorkstationCreationJob, WorkstationExportJob
 from jobs.stig import StigJob
 from jobs.robot import RobotJob
 from models import add_args_from_instance
@@ -162,25 +160,12 @@ class Runner:
         test_server_vm_parser.set_defaults(
             which=SubCmd.test_server_repository_vm)
 
-        test_workstation_vm_parser = subparsers.add_parser(
-            SubCmd.test_workstation_repository_vm, help="Tests the reposync workstation respository VM.")
-        RHELRepoSettings.add_args(test_workstation_vm_parser)
-        test_workstation_vm_parser.set_defaults(
-            which=SubCmd.test_workstation_repository_vm)
-
         build_server_for_export_parser = subparsers.add_parser(
             SubCmd.build_server_for_export, help="Builds the reposync server for export.")
         RHELRepoSettings.add_args(build_server_for_export_parser)
         build_server_for_export_parser.set_defaults(
             which=SubCmd.build_server_for_export)
 
-        build_workstation_for_export_parser = subparsers.add_parser(
-            SubCmd.build_workstation_for_export, help="Builds the reposync workstation for export.")
-        RHELRepoSettings.add_args(build_workstation_for_export_parser)
-        build_workstation_for_export_parser.set_defaults(
-            which=SubCmd.build_workstation_for_export)
-
-        # ROBOTS BEING RAN
         robot_test_parser = subparsers.add_parser(SubCmd.run_robot, help="Apply Robot Tests To The System.")
         RobotSettings.add_args(robot_test_parser)
         robot_test_parser.set_defaults(which=SubCmd.run_robot)
@@ -230,22 +215,11 @@ class Runner:
                 repo_settings.from_namespace(args, True)
                 executor = RHELCreationJob(repo_settings)
                 executor.execute()
-            elif args.which == SubCmd.test_workstation_repository_vm:
-                repo_settings = RHELRepoSettings()
-                repo_settings.from_namespace(args, False)
-                executor = WorkstationCreationJob(repo_settings)
-                executor.execute()
             elif args.which == SubCmd.build_server_for_export:
                 repo_settings = RHELRepoSettings()
                 repo_settings.from_namespace(args, True)
                 YamlManager.save_to_yaml(repo_settings, "server")
                 executor = RHELExportJob(repo_settings)
-                executor.build_export()
-            elif args.which == SubCmd.build_workstation_for_export:
-                repo_settings = RHELRepoSettings()
-                repo_settings.from_namespace(args, False)
-                YamlManager.save_to_yaml(repo_settings, "workstation")
-                executor = WorkstationExportJob(repo_settings)
                 executor.build_export()
             elif args.which == SubCmd.export_reposync_server:
                 server_repo_settings = YamlManager.load_reposync_settings_from_yaml( "server")
@@ -253,13 +227,6 @@ class Runner:
                 export_settings.from_namespace(args)
                 executor_server = ReposyncServerExport( server_repo_settings, export_settings.export_loc)
                 executor_server.export_reposync_server()
-            elif args.which == SubCmd.export_reposync_workstation:
-                workstation_repo_settings = YamlManager.load_reposync_settings_from_yaml( "workstation")
-                export_settings = ExportSettings()
-                export_settings.from_namespace(args)
-                executor_workstation = ReposyncWorkstationExport( workstation_repo_settings,
-                                                                  export_settings.export_loc)
-                executor_workstation.export_reposync_workstation()
 
             elif args.which == SubCmd.export_gip_service_vm:
                 gip_service_settings = YamlManager.load_gip_service_settings_from_yaml()

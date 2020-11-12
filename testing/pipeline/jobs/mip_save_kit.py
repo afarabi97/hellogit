@@ -22,14 +22,6 @@ class MIPSaveKitJob:
         self.ctrl_settings = ctrl_settings
         self.mip_kickstart_settings = mip_kickstart_settings
 
-    def _prep_install_vmware_tools(self):
-        node = self.mip_kickstart_settings.mips[0]
-        with FabricConnectionWrapper("assessor",
-                                     node.password,
-                                     node.ipaddress) as client:
-            client.sudo("yum-config-manager -q --add-repo http://yum.labrepo.sil.lab/rhel/workstation/rhel-7-workstation-rpms", shell=True, warn=True)
-            client.sudo("yum-config-manager -q --enable \*", shell=True, warn=True)
-
     def install_vmware_tools(self):
         node = self.mip_kickstart_settings.mips[0]
         with FabricConnectionWrapper("assessor",

@@ -80,7 +80,7 @@ cat <<EOF > /tmp/partition_layout
 zerombr
 {% if not os_raid %}
 {% if boot_drive|length > 1 %}
-bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --driveorder={{ boot_drive|join(',') }}
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --driveorder={{ boot_drive|join(',') }} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697
 clearpart --all --disklabel gpt --initlabel
 {% for drive in boot_drive %}
 part raid.0_{{ drive }} --fstype="raid" --size=512 --asprimary --ondrive={{ drive }} # Boot Partition
@@ -104,7 +104,7 @@ logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
 logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
 {% else %}
 # Partitioning scheme
-bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive[0] }}
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --boot-drive={{ boot_drive[0] }} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697
 clearpart --all
 {% if uefi %}
 part /boot/efi --fstype=efi --grow --maxsize=200 --size=20 --ondrive={{ boot_drive[0] }}
@@ -140,7 +140,7 @@ logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
 {%- endif %}
 
 {% if os_raid %}
-bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --driveorder={{ raid_drives|join(',') }}
+bootloader --append="rhgb quiet crashkernel=auto" --location=mbr --driveorder={{ raid_drives|join(',') }} --iscrypted --password=grub.pbkdf2.sha512.10000.23C682D3DE1136612AC0B3C369A9B975A5D46A002BC3F450AB728722925654073EE29078AE1D72449343DDA75D39987090B6D1738E71B9C331D8FF6AD35C75A0.436922F8BF0EC820FA8A788C5BF3D5FBF6D694142E7DFD8637CBD519D91B250CBF9464FF998010941E7996CE8744C86BBDA7DCB9435A534ADC45A8A530FAC697
 clearpart --all --disklabel gpt --initlabel
 
 {% for drive in raid_drives %}

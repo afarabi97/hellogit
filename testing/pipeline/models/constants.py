@@ -24,9 +24,7 @@ class SubCmd:
     gip_setup = 'gip-setup'
 
     test_server_repository_vm = 'test-server-repository-vm'
-    test_workstation_repository_vm = 'test-workstation-repository-vm'
     build_server_for_export = 'build-server-for-export'
-    build_workstation_for_export = 'build-workstation-for-export'
     run_stigs = 'run-stigs'
     run_robot = 'run-robot'
 
@@ -60,7 +58,6 @@ class SubCmd:
     export_mip_ctrl = 'export-mip-ctrl'
     export_gip_service_vm = 'export-gip-service-vm'
     export_reposync_server = 'export-reposync-server'
-    export_reposync_workstation = 'export-reposync-workstation'
     create_master_drive = 'create-master-drive'
     create_master_drive_hashes = 'create-master-drive-hashes'
     check_master_drive_hashes = 'check-master-drive-hashes'
@@ -85,8 +82,6 @@ class StigSubCmd:
     # to Secure The  GIP Services VM
     GIPSVC = 'SERVICES'
     # Ran when system_name is REPO but we want
-    # to secure either the Workstation or Server
-    RHEL_REPO_WORKSTATION = 'WORKSTATION'
     RHEL_REPO_SERVER = 'SERVER'
 
 class RobotSubCmd:

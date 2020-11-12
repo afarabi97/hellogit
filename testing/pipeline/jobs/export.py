@@ -280,31 +280,6 @@ class ReposyncServerExport(ControllerExport):
                export_prefix)
 
 
-class ReposyncWorkstationExport(ControllerExport):
-    def __init__(self, repo_settings: RHELRepoSettings, export_loc: ExportLocSettings):
-        super().__init__(repo_settings, export_loc)
-
-    def export_reposync_workstation(self):
-        logging.info("Exporting the Reposync workstation VM to OVA.")
-        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
-        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        prepare_for_export(self.ctrl_settings.node.username,
-                           self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress,
-                           False)
-        payload = self.ctrl_settings.to_dict()
-        export_prefix = "Reposync_Workstation"
-
-        export_name = self.export_loc.render_export_name(export_prefix)
-        release_vm_name = export_name[0:len(export_name)-4]
-        payload["release_template_name"] = release_vm_name
-        execute_playbook([PIPELINE_DIR + "playbooks/ctrl_export_prep.yml"], payload)
-        export(self.vcenter_settings,
-               self.export_loc,
-               release_vm_name,
-               export_prefix)
-
-
 class ConfluenceExport:
 
     def __init__(self, export_settings: ExportSettings):

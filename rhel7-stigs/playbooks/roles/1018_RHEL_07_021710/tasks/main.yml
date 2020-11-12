@@ -1,7 +1,0 @@
-- name: "RHEL-07-021710"
-  yum:
-      name: telnet-server
-      state: absent
-  tags:
-      - RHEL-07-021710
-      - telnet

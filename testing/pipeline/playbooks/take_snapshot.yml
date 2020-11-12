@@ -15,6 +15,9 @@
         state: shutdown-guest
         validate_certs: False
         state_change_timeout: 300
+      ignore_errors: yes
+      retries: 3
+      delay: 5
 
     - name: Create a VM snapshot
       vmware_guest_snapshot:
@@ -24,6 +27,6 @@
         datacenter: "{{ vcenter.datacenter }}"
         folder: "{{ node.folder }}"
         name: "{{ node.hostname }}"
-        validate_certs: False
+        validate_certs: no
         state: present
         snapshot_name: "{{ snapshot_name }}"

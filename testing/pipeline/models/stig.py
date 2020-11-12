@@ -11,9 +11,9 @@ from util.ansible_util import Target
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
-STIG_PATH_TO_SITE_YAML = PIPELINE_DIR + '/../../stigs/playbooks/' + 'site.yml'
+STIG_PATH_TO_SITE_YAML = PIPELINE_DIR + '/../../rhel8-stigs/' + 'rhel8-playbook-stig.yml'
 STIG_TIMEOUT = 300
-STIG_MAKE_PATH_TO_PLAYBOOK_DIR = '/opt/tfplenum/stigs/playbooks'
+STIG_MAKE_PATH_TO_PLAYBOOK_DIR = '/opt/tfplenum/rhel8-stigs/'
 # logging.basicConfig(format='%(process)d-%(levelname)s-%(message)s')
 
 
@@ -42,7 +42,7 @@ class STIGSettings(Model):
     def add_args(parser: ArgumentParser):
         parser.add_argument('--sub-system-name', dest='sub_system_name', type=str,
                             choices=[
-                                StigSubCmd.GIPSVC, StigSubCmd.RHEL_REPO_WORKSTATION, StigSubCmd.RHEL_REPO_SERVER]
+                                StigSubCmd.GIPSVC, StigSubCmd.RHEL_REPO_SERVER]
                             )
 
     def _get_model_settings_from_yaml(self):
@@ -68,17 +68,9 @@ class STIGSettings(Model):
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-server-stigs',
                                             play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
-        elif self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_WORKSTATION:
-            self.model_settings = YamlManager.load_reposync_settings_from_yaml(
-                self.sub_system_name)
-            power_on_vms(self.model_settings.vcenter, self.model_settings.node)
-            self._setup_username_password_ip(self.model_settings)
-            self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-workstation-stigs',
-                                            play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
 
     def take_snapshot_for_certain_systems(self):
-        if ((self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER) or
-            (self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_WORKSTATION)):
+        if ((self.system_name == 'REPO' and self.sub_system_name == StigSubCmd.RHEL_REPO_SERVER)):
             take_snapshot(self.model_settings.vcenter, self.model_settings.node)
 
     def _setup_username_password_ip(self, model: Model):

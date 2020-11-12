@@ -2,9 +2,9 @@ SHELL=/bin/bash
 
 # Confirm Ansible is installed.
 CHECK := $(shell command -v ansible-playbook 2> /dev/null)
-CORE_INVENTORY ?= '../../core/playbooks/inventory.yml'
-MIP_INVENTORY ?= '../../mip/mip-deployer/inventory.yml'
-PLAYBOOK ?= 'site.yml'
+CORE_INVENTORY ?= '../core/playbooks/inventory.yml'
+MIP_INVENTORY ?= '../mip/mip-deployer/inventory.yml'
+PLAYBOOK ?= 'rhel8-playbook-stig.yml'
 
 # Default target, build *and* run tests
 all:

@@ -1,7 +1,0 @@
-- name: "RHEL-07-020000"
-  yum:
-      name: rsh-server
-      state: absent
-  tags:
-      - RHEL-07-020000
-      - rsh

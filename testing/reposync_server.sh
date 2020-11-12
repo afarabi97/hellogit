@@ -1,9 +1,10 @@
 #!/bin/bash
 
-EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-SERVER_REPOS=("rhel-7-server-rpms"
-              "rhel-7-server-extras-rpms"
-              "rhel-7-server-optional-rpms"
+EPEL_RPM_PUBLIC_URL="https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+SERVER_REPOS=("codeready-builder-for-rhel-8-x86_64-rpms"
+              "rhel-8-for-x86_64-appstream-rpms"
+              "rhel-8-for-x86_64-baseos-rpms"
+              "rhel-8-for-x86_64-supplementary-rpms"
              )
 
 function run_cmd {
@@ -24,14 +25,14 @@ function root_check() {
 }
 
 function install_deps() {
-    run_cmd yum -y update
-    run_cmd yum -y install httpd yum-utils createrepo
-    run_cmd yum -y install mod_ssl
+    run_cmd dnf -y update
+    run_cmd dnf -y install httpd dnf-utils createrepo
+    run_cmd dnf -y install mod_ssl
     echo "Dependencies installed..."
 }
 
 function install_epel() {
-    run_cmd yum -y install $EPEL_RPM_PUBLIC_URL
+    run_cmd dnf -y install $EPEL_RPM_PUBLIC_URL
     echo "Epel-release installed..."
 }
 
@@ -116,13 +117,13 @@ function rhel_reposync() {
     pushd "$repo_path" > /dev/null
     for repo in ${SERVER_REPOS[@]}; do
         echo "Syncing $repo..."
-        reposync --gpgcheck -l --repoid=$repo --download_path=$repo_path --download-metadata --downloadcomps
+        dnf reposync -m --repoid=$repo --destdir=$repo_path --download-metadata
         pushd $repo_path/$repo > /dev/null
         rm -rf .repodata
         rm -rf repodata
-        createrepo -g comps.xml .
         popd > /dev/null
     done
+    createrepo $repo_path
     echo "RHEL sync complete"
 }
 

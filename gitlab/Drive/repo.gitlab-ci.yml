@@ -26,43 +26,9 @@ Test Reposync Server VM:
     --subscription "$RHEL_SUB_METHOD" \
     --orgnumber "$RHEL_ORGANIZATION" \
     --activationkey "$RHEL_ACTIVATIONKEY"
-
   only:
     variables:
       - $PIPELINE == "test-reposync-server"
-
-Test Reposync Workstation VM:
-  stage: build
-  timeout: 24 hours
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-
-    python3 testing/pipeline/pipeline.py --system-name REPO test-workstation-repository-vm \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
-    --gateway "$VM_GATEWAY" \
-    --dns-servers $DNS_SERVERS \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --network-id "$NETWORK_ID" \
-    --vm-prefix "$VM_PREFIX" \
-    --disk-size "1100" \
-    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE" \
-    --subscription "$RHEL_SUB_METHOD" \
-    --orgnumber "$RHEL_ORGANIZATION" \
-    --activationkey "$RHEL_ACTIVATIONKEY"
-
-  only:
-    variables:
-      - $PIPELINE == "test-reposync-workstation"
 
 Build Server Reposync VM for Export:
   stage: build
@@ -79,6 +45,7 @@ Build Server Reposync VM for Export:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
+    --vm-folder "$VMWARE_FOLDER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -96,67 +63,18 @@ Build Server Reposync VM for Export:
       - $PIPELINE == "export-reposync"
       - $PIPELINE == "export-all"
 
-
-Build Workstation Reposync VM for Export:
-  stage: build
+Perform Reposync Server STIGs:
+  stage: stig-kit
+  needs: ["Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-
-    python3 testing/pipeline/pipeline.py --system-name REPO build-workstation-for-export \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
-    --gateway "$VM_GATEWAY" \
-    --dns-servers $DNS_SERVERS \
-    --vm-datastore "$VCENTER_DATASTORE" \
-    --network-id "$NETWORK_ID" \
-    --vm-prefix "$VM_PREFIX" \
-    --disk-size "$REPO_WORKSTATION_DISK_SIZE" \
-    --vm-template "$REPO_WORKSTATION_TEMPLATE_TO_CLONE"
-  retry: 2
+    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "REPO"
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "export-reposync"
-      - $PIPELINE == "export-all"
-
-# Perform Reposync Server STIGs:
-#   stage: stig-kit
-#   needs: ["Build Server Reposync VM for Export"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
-#   artifacts:
-#     untracked: true
-#   only:
-#     variables:
-#       - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
-#       - $RUN_STIGS == "yes" && $PIPELINE == "export-all"
-
-# Perform Reposync Workstation STIGs:
-#   stage: stig-kit
-#   needs: ["Build Workstation Reposync VM for Export"]
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "WORKSTATION"
-#   artifacts:
-#     untracked: true
-#   only:
-#     variables:
-#       - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
-#       - $RUN_STIGS == "yes" && $PIPELINE == "export-all"
+      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
+      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"

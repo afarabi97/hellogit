@@ -1,9 +1,0 @@
-- name: >
-    "RHEL-07-010430"
-  lineinfile:
-    dest: /etc/login.defs
-    regexp: ^#?FAIL_DELAY
-    line: "FAIL_DELAY {{ rhel7stig_login_defaults.fail_delay_secs | default('4') }}"
-  tags:
-    - RHEL-07-010430
-    - login

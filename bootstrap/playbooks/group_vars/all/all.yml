@@ -90,11 +90,6 @@ iso_rhel_server_path: "/root/{{ iso_rhel_server_name }}"
 iso_rhel_server_url_labrepo: "{{ isos_server }}/{{ iso_rhel_server_name }}"
 iso_rhel_server_checksum: 7fdfed9c7cced4e526a362e64ed06bcdc6ce0394a98625a40e7d05db29bf7b86
 
-iso_rhel_worstation_name: "rhel-workstation-{{ iso_rhel_version }}-x86_64-dvd.iso"
-iso_rhel_worstation_path: "/root/{{ iso_rhel_worstation_name }}"
-iso_rhel_workstation_url_labrepo: "{{ isos_server }}/{{ iso_rhel_worstation_name }}"
-iso_rhel_worstation_checksum: 56c4be4757c4b8e560d21e13a8cc3854ace401547e02999ff8dbc2696f92dff3
-
 BOOTSTRAP: false
 
 ansible_controller_hostname: "{{ ansible_nodename }}"

@@ -30,7 +30,7 @@ class RHELCreationJob:
         execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.repo_settings.to_dict())
         test_nodes_up_and_alive([self.repo_settings.node], 10)
         self._run_repo_script()
-
+        take_snapshot(self.repo_settings.vcenter, self.repo_settings.node)
 class RHELExportJob(RHELCreationJob):
 
     def __init__(self, repo_settings: RHELRepoSettings):

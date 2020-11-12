@@ -4,7 +4,7 @@ export DIP_VERSION=3.4.0
 echo "${DIP_VERSION}" > /etc/dip-version
 bootstrap_version=1.4.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-EPEL_RPM_PUBLIC_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+EPEL_RPM_PUBLIC_URL="https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 RHEL_VERSION="8.2"
 RHEL_ISO="rhel-$RHEL_VERSION-x86_64-dvd.iso"
 export TFPLENUM_LABREPO=false

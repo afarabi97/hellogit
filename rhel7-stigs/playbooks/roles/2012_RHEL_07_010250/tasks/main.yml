@@ -1,9 +1,0 @@
-- name: "RHEL-07-010250"
-  lineinfile:
-      create: yes
-      dest: /etc/login.defs
-      regexp: ^#?PASS_MAX_DAYS
-      line: "PASS_MAX_DAYS {{ rhel7stig_login_defaults.pass_max_days | default('60') }}"
-  tags:
-      - RHEL-07-010250
-      - login

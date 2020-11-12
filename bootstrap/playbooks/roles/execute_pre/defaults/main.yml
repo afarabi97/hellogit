@@ -1,5 +1,5 @@
 ---
-EPEL_RPM_PUBLIC_URL: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+EPEL_RPM_PUBLIC_URL: "https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 
 package_list:
   - gcc

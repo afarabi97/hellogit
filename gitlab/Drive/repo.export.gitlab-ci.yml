@@ -1,6 +1,6 @@
 Export Reposync Server:
   stage: export
-  #needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
+  needs: ["Perform Reposync Server STIGs", "Build Server Reposync VM for Export"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -9,25 +9,6 @@ Export Reposync Server:
     python3 testing/pipeline/pipeline.py \
     --system-name "REPO" \
     run-export export-reposync-server \
-    --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
-    --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER"
-  only:
-    variables:
-      - $PIPELINE == "export-reposync"
-      - $PIPELINE == "export-all"
-
-Export Reposync Workstation:
-  stage: export
-  #needs: ["Perform Reposync Workstation STIGs", "Build Workstation Reposync VM for Export"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py \
-    --system-name "REPO" \
-    run-export export-reposync-workstation \
     --cpt-export-path "$REPO_CPT_EXPORT_LOC" \
     --mdt-export-path "$REPO_MDT_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER"
