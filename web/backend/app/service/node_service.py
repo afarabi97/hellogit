@@ -78,11 +78,11 @@ def execute_kit(password: str):
                         "cwd_dir": str(CORE_DIR / "playbooks"),
                         "job_name": _JOB_NAME_NOTIFICATION
         }
-        # ,{
-        #     "command": "make dip-stigs",
-        #     "cwd_dir": str(STIGS_DIR / "playbooks"),
-        #     "job_name": _JOB_NAME_NOTIFICATION
-        # }
+        ,{
+            "command": "make dip-stigs",
+            "cwd_dir": str(STIGS_DIR),
+            "job_name": _JOB_NAME_NOTIFICATION
+        }
     ]
 
     is_successful = execute_series(command_list)

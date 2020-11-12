@@ -45,7 +45,6 @@ Build Server Reposync VM for Export:
     --vcenter-datacenter "$VCENTER_DATACENTER" \
     --vm-folder "$VMWARE_FOLDER" \
     --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --vm-folder "$VMWARE_FOLDER" \
     --portgroup "$VCENTER_PORTGROUP" \
     --network-block-index $RHEL_NETWORK_BLOCK_INDEX \
     --gateway "$VM_GATEWAY" \
@@ -76,5 +75,5 @@ Perform Reposync Server STIGs:
     untracked: true
   only:
     variables:
-      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
-      - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"
+      - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
+      - $RUN_STIGS == "yes" && $PIPELINE == "export-all"

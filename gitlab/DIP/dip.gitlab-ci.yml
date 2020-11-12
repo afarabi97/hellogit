@@ -168,19 +168,19 @@ Secure MinIO with a TLS certificate:
       - $MINIO_VM == "yes" && $PIPELINE == "developer-dip" && $MINIO_USE_TLS == "yes"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-all" && $MINIO_USE_TLS == "yes"
 
-# Perform DIP STIGs:
-#   stage: stig-kit
-#   tags:
-#     - tfplenum-buildv2
-#   script: |
-#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-#     echo "Current working directory is $(pwd)"
-#     python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
-#   only:
-#     variables:
-#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip"
-#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
-#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
+Perform DIP STIGs:
+  stage: stig-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
+  only:
+    variables:
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
 
 Perform DIP Security Scans:
   stage: security_scans

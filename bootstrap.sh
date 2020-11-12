@@ -379,11 +379,11 @@ function execute_bootstrap_playbook(){
     popd > /dev/null
 
     # Add STIGS to DIP Controller
-    #if [ "$SYSTEM_NAME" == "DIP" ]; then
-    #    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-        #run_cmd make dip-controller-stigs
-    #    popd > /dev/null
-    #fi
+    if [ "$SYSTEM_NAME" == "DIP" ]; then
+        pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
+        run_cmd make dip-controller-stigs
+        popd > /dev/null
+    fi
 
     # Add STIGS to GIP Controller
     #if [ "$SYSTEM_NAME" == "GIP" ]; then

@@ -6,7 +6,7 @@ from enum import Enum
 
 SHARED_DIR = Path(__file__).parent  # type: Path
 CORE_DIR = SHARED_DIR / '../../../../core'
-STIGS_DIR = SHARED_DIR / '../../../../stigs'
+STIGS_DIR = SHARED_DIR / '../../../../rhel8-stigs'
 PLAYBOOK_DIR = CORE_DIR / 'playbooks'
 DEPLOYER_DIR = SHARED_DIR / '../../../../deployer'
 WEB_DIR = SHARED_DIR / '../../../'
