@@ -6,18 +6,19 @@
   vars:
     ansible_python_interpreter: "{{ python_executable }}"
   tasks:
-    - name: "Power off the VM {{ esxi_ctrl_name }}"
+    - name: "Power off any unemployed controllers {{ esxi_unemployed_ctrls }}"
       ignore_errors: yes
       vmware_guest_powerstate:
         hostname: "{{ esxi.ipaddress }}"
         username: "{{ esxi.username }}"
         password: "{{ esxi.password }}"
-        name:  "{{ esxi_ctrl_name }}"
+        name:  "{{ item }}"
         state: powered-off
         validate_certs: no
       delegate_to: localhost
+      with_items: "{{ esxi_unemployed_ctrls }}"
 
-    - name: "Removing VM"
+    - name: "Remove previously built pipeline controller: {{ esxi_ctrl_name }}"
       ignore_errors: yes
       vmware_guest:
         hostname: "{{ esxi.ipaddress }}"

@@ -181,8 +181,15 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
     def get_controller_name(self):
         for name in self.get_vm_list():
-            if "DIP" in name or "dip" in name:
+            if "Pipeline" in name:
                 return name
+
+    def unemployed_ctrls(self) -> list:
+        unemployed_controllers = []
+        for name in self.get_vm_list():
+            if "DIP" in name or "Controller" in name or "dip" in name or "controller" in name:
+                unemployed_controllers.append(name)
+        return unemployed_controllers
 
     def copy_controller(self,build_type) -> None:
         if build_type == self.baremetal_ctrl_settings.valid_run_types[0]:
@@ -190,7 +197,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
         else:
             path_type = str(self.baremetal_ctrl_settings.node.ctrl_path) + str(self.baremetal_ctrl_settings.node.ctrl_name)
 
-        cmd = ("ovftool --noSSLVerify --network=Internal \
+        cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"
                 .format(datastore=self.baremetal_ctrl_settings.node.datastore,
@@ -210,6 +217,8 @@ class BaremetalControllerSetup(ControllerSetupJob):
         hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
         #Sets controller name found on esxi server
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
+        #Sets list of unemployed controllers to be powered off
+        self.baremetal_ctrl_settings.esxi_unemployed_ctrls = self.unemployed_ctrls()
         if self.baremetal_ctrl_settings.run_type == self.baremetal_ctrl_settings.valid_run_types[1]:
             execute_playbook([PIPELINE_DIR + 'playbooks/power_control_esxi.yml'],
                                 self.baremetal_ctrl_settings.to_dict())

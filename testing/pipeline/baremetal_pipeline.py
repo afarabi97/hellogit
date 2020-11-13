@@ -79,9 +79,9 @@ class BaremetalRunner():
         BPSettings.add_args(bp_parser)
         bp_parser.set_defaults(which=SubCmd.run_bp)
 
-        bp_parser = subparsers.add_parser(
+        remote_parser = subparsers.add_parser(
             SubCmd.run_remote_node, help="this subcommand runs remote node")
-        bp_parser.set_defaults(which=SubCmd.run_remote_node)
+        remote_parser.set_defaults(which=SubCmd.run_remote_node)
         
 
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],

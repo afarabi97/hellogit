@@ -14,7 +14,7 @@
     - name: Set vm facts
       set_fact:
         vm_name: "{{ ctrl_name }}"
-        new_vm_name: "DIP-Controller-{{ ansible_date_time.date }}"
+        new_vm_name: "Pipeline-DIP-Controller-{{ ansible_date_time.date }}"
         datacenter: None #Required variables
         cluster_name: None #Required variables
 

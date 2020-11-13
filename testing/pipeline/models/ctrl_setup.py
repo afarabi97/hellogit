@@ -60,6 +60,7 @@ class HwControllerSetupSettings(ControllerSetupSettings):
         super().__init__()
         self.esxi = None
         self.esxi_ctrl_name = None
+        self.esxi_unemployed_ctrls = None #List
         self.node = None
 
     def from_namespace(self, namespace: Namespace):
