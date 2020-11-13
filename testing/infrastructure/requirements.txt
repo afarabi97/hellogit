@@ -38,7 +38,7 @@ pyOpenSSL==18.0.0
 python-dateutil==2.7.5
 pyvmomi==6.7.0.2018.9
 PyYAML==3.13
-requests==2.22.0
+requests==2.25.0
 requests-oauthlib==1.0.0
 rsa==4.0
 selenium==3.14.1
