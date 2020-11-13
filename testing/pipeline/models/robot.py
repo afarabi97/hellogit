@@ -102,7 +102,7 @@ class RobotSettings(Model):
         # 2.    Volume Mappings
         self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output "
         # 3.    Tfplenum Container
-        self.command += f"{self.tfplenum_robot_container} pipenv run python -m run.runner "
+        self.command += f"{self.tfplenum_robot_container} python3 -m run.runner "
         # 4.    Robotframework & Jira Variables that determine the output(category, report, project version)
         self.command += f"-c {self.robot_category} -r '{self.jira_report}' -p {self.jira_project_version} -h -b {self.robot_browser} "
         # 5.    Calculated Variables That Are Necessary To Run Robot on a specific machine
