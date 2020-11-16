@@ -7,7 +7,7 @@ DIP Robot Tests:
     echo "Current working directory is $(pwd)"
     CONFLUENCE_PASSWORD_DECRYPTED=$(echo "$CONFLUENCE_PASSWORD" | base64 -d)
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-robot \
-    --tfplenum-robot-container "tfplenum/robot-automator:1.3.0" \
+    --tfplenum-robot-container "nexus.sil.lab/tfplenum/robot-automator:1.3.0" \
     --jira-username "$CONFLUENCE_USERNAME" \
     --jira-password "$CONFLUENCE_PASSWORD_DECRYPTED" \
     --jira-report $ROBOT_REGRESSION_ZEPHYR_CYCLE \
