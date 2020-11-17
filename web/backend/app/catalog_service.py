@@ -4,6 +4,7 @@ import requests
 import json
 import yaml
 from typing import List
+from datetime import timedelta, datetime
 
 from app import celery, logger, conn_mng
 from app.service.socket_service import NotificationMessage, NotificationCode
@@ -364,15 +365,26 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     working_dir=WORKING_DIR, use_shell=True)
 
                 if ret_code == 0 and stdout != '':
-                    results = yaml.full_load(stdout.strip())
-                    application_setup_job_watcher.delay(application=application, deployment_name=deployment_name, namespace=namespace, task_id=None)
                     # Send Update Notification to websocket
+                    results = yaml.full_load(stdout.strip())
                     notification.set_status(status=results["STATUS"].upper())
                     notification.post_to_websocket_api()
-                    response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
-                    conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
-                    conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
 
+                    if wait_for_deployment_to_ready(application, deployment_name, namespace) and application_setup_job_watcher(application=application, deployment_name=deployment_name, namespace=namespace):
+                        response.append("release: \"" + deployment_name + "\" "  + results["STATUS"].upper())
+                        conn_mng.mongo_catalog_saved_values.delete_one({"application": application, "deployment_name": deployment_name})
+                        conn_mng.mongo_catalog_saved_values.insert({"application": application, "deployment_name": deployment_name, "values": value_items})
+                        # Send Update Notification to websocket
+                        notification.set_message(message="Install completed.")
+                        notification.set_status(status=NotificationCode.COMPLETED.name)
+                        notification.post_to_websocket_api()
+                    else:
+                        err = "Deployments are not ready.  Check health page."
+                        logger.exception(err)
+                        # Send Update Notification to websocket
+                        notification.set_status(status=NotificationCode.ERROR.name)
+                        notification.set_exception(exception=err)
+                        notification.post_to_websocket_api()
                 if ret_code != 0 and stdout != '':
                     results = stdout.strip()
                     logger.exception(results)
@@ -396,11 +408,6 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=err)
             notification.post_to_websocket_api()
-
-    # Send Update Notification to websocket
-    notification.set_message(message="Install completed.")
-    notification.set_status(status=NotificationCode.COMPLETED.name)
-    notification.post_to_websocket_api()
     return response
 
 @celery.task
@@ -493,12 +500,10 @@ def check_deployment_pvc_deletetion(deployment_name: str):
                 break
     return True
 
-
-@celery.task
-def application_setup_job_watcher(application: str, deployment_name: str, namespace: str = 'default', task_id=None):
+def application_setup_job_watcher(application: str, deployment_name: str, namespace: str = 'default', timeout_minutes: int=10) -> bool:
     notification = NotificationMessage(role=_MESSAGETYPE_PREFIX, action=NotificationCode.INSTALLING.name.capitalize(), application=application.capitalize())
     setup_job = None
-
+    sleep(5)
     with KubernetesWrapper2(conn_mng) as api:
         batch_v1_api = api.batch_V1_API
         try:
@@ -507,7 +512,6 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
                 job_name = job.metadata.name
                 if job_name.startswith(deployment_name+'-setup'):
                     setup_job = job
-                    logger.info("Found Job "+setup_job.metadata.name)
                     break
         except Exception as exc:
             logger.exception(exc)
@@ -515,40 +519,28 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
             notification.set_status(status=NotificationCode.ERROR.name)
             notification.set_exception(exception=exc)
             notification.post_to_websocket_api()
-
-        if setup_job is None:
             return False
 
-        notification.set_message(message='Setup Job Started')
-        notification.set_status(status=NotificationCode.IN_PROGRESS.name)
-        notification.post_to_websocket_api()
+        if setup_job is None:
+            return True
+
         while True:
-            # logger.info("Sleeping for 10s: "+setup_job.metadata.name)
             sleep(10)
             try:
-                # logger.info("Querying K8S: "+setup_job.metadata.name)
                 job = batch_v1_api.read_namespaced_job(setup_job.metadata.name, namespace=namespace, pretty=False)
-                # logger.info(job)
                 containers = job.spec.template.spec.containers
                 succeeded = job.status.succeeded
                 failed = job.status.failed
                 active = job.status.active
-                # logger.info("Job containers: "+str(len(containers)))
-                # logger.info("Job succeeded: "+str(succeeded))
-                # logger.info("Job failed: "+str(failed))
-                # logger.info("Job active: "+str(active))
                 if active is None and failed is None and succeeded == len(containers):
                     # Send Update Notification to websocket
-                    notification.set_message(message='Setup Job Completed')
-                    notification.set_status(status=NotificationCode.COMPLETED.name)
-                    notification.post_to_websocket_api()
-                    break
+                    return True
                 if active is None and failed is not None and failed > 0:
                     # Send Update Notification to websocket
                     notification.set_message(message='Setup Job Error')
                     notification.set_status(status=NotificationCode.ERROR.name)
                     notification.post_to_websocket_api()
-                    break
+                    return False
             except Exception as exc:
                 logger.exception(exc)
                 # Send Update Notification to websocket
@@ -556,4 +548,40 @@ def application_setup_job_watcher(application: str, deployment_name: str, namesp
                 notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
                 return False
-    return True
+    return False
+
+def _check_deployment_states(items: list, application: str, deployment: str) -> bool:
+    """
+    Check Deployment states
+
+    :param items:
+    :return:
+    """
+    ret_val = True
+    matching_dep = False
+    for item in items:
+        deployment_name = item['metadata']['name']
+        if deployment in deployment_name:
+            matching_dep = True
+            status = item['status']
+            if status['replicas'] and status['ready_replicas'] != status['replicas']:
+                ret_val = False
+    if not matching_dep:
+        ret_val = False
+    return ret_val
+
+def wait_for_deployment_to_ready(application: str, deployment_name: str, namespace: str = 'default', timeout_minutes: int=10) -> bool:
+    future_time = datetime.utcnow() + timedelta(minutes=timeout_minutes)
+    with KubernetesWrapper2(conn_mng) as api:
+        while True:
+            if future_time <= datetime.utcnow():
+                return False
+            try:
+                apps_v1_api = api.apps_V1_API
+                deployments = apps_v1_api.list_namespaced_deployment(namespace=namespace,watch=False)
+                items = deployments.to_dict()['items']
+                if len(items) > 0 and _check_deployment_states(items, application, deployment_name):
+                    return True
+                sleep(5)
+            except Exception:
+                return False

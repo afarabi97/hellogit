@@ -46,6 +46,15 @@
   wait_for: timeout=10
   delegate_to: localhost
 
+- name: Delete webhook resources
+  command: "kubectl delete {{ item }} --ignore-not-found=true"
+  register: delete_crds
+  changed_when: delete_crds.rc == 0
+  with_items:
+    - mutatingwebhookconfiguration.admissionregistration.k8s.io cert-manager-webhook
+    - validatingwebhookconfigurations.admissionregistration.k8s.io cert-manager-webhook
+
+
 - name: Create Web CA Secret
   command: "{{ item }}"
   register: result

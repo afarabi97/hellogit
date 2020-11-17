@@ -19,6 +19,7 @@ WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, 
 MattermostSettings, NifiSettings, RedmineSettings, NetflowFilebeatSettings)
 from models.mip_config import MIPConfigSettings
 from models.common import NodeSettings
+from util.kubernetes_util import wait_for_jobs_to_complete, wait_for_deployments_to_ready
 from util.connection_mngs import FabricConnectionWrapper
 from util.network import retry
 
@@ -575,89 +576,84 @@ class APITester:
         self._catlog_install_url = self._url.format("/api/catalog/install")
         self._catlog_reinstall_url = self._url.format("/api/catalog/reinstall")
         self._device_facts_map = {}
+        self._kickstart_settings = kickstart_settings
         self._kickstart_payload_generator = KickstartPayloadGenerator(ctrl_settings, kickstart_settings)
         self._kit_payload_generator = KitPayloadGenerator(ctrl_settings, kickstart_settings, kit_settings)
         self._catalog_payload_generator = CatalogPayloadGenerator(self._controller_ip, kickstart_settings, catalog_settings)
 
     def install_logstash(self) -> None:
         payload = self._catalog_payload_generator.generate("logstash", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_suricata(self) -> None:
         payload = self._catalog_payload_generator.generate("suricata", INSTALL, SENSOR)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def reinstall_suricata(self) -> None:
         payload = self._catalog_payload_generator.generate("suricata", REINSTALL, SENSOR)
-        post_request(self._catlog_reinstall_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_moloch_viewer(self):
         payload = self._catalog_payload_generator.generate("moloch-viewer", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_moloch_capture(self):
         payload = self._catalog_payload_generator.generate("moloch", INSTALL, SENSOR)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_zeek(self):
         payload = self._catalog_payload_generator.generate("zeek", INSTALL, SENSOR)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_wikijs(self) -> None:
         payload = self._catalog_payload_generator.generate("wikijs", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def reinstall_wikijs(self) -> None:
         payload = self._catalog_payload_generator.generate("wikijs", REINSTALL, SERVER_ANY)
-        post_request(self._catlog_reinstall_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_misp(self) -> None:
         payload = self._catalog_payload_generator.generate("misp", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_hive(self):
         payload = self._catalog_payload_generator.generate("hive", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_cortex(self):
         payload = self._catalog_payload_generator.generate("cortex", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_rocketchat(self):
         payload = self._catalog_payload_generator.generate("rocketchat", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_mattermost(self):
         payload = self._catalog_payload_generator.generate("mattermost", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_nifi(self):
         payload = self._catalog_payload_generator.generate("nifi", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_redmine(self):
         payload = self._catalog_payload_generator.generate("redmine", INSTALL, SERVER_ANY)
-        post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        self.install_app(payload)
 
     def install_netflow_filebeat(self):
         payload = self._catalog_payload_generator.generate("netflow-filebeat", INSTALL, SERVER_ANY)
+        self.install_app(payload)
+
+    def install_app(self, payload):
         post_request(self._catlog_install_url, payload)
-        _clean_up(wait=60)
+        _clean_up(wait=0)
+        deployments = []
+        for deployment in payload['values']:
+            deployment_name = list(deployment.keys())[0]
+            deployments.append(deployment_name)
+        wait_for_deployments_to_ready(deployments, self._kickstart_settings.get_master_kubernetes_server(), 10)
+        wait_for_jobs_to_complete(deployments, self._kickstart_settings.get_master_kubernetes_server(), 10)
 
     @retry()
     def run_kit_api_call(self) -> None:

@@ -1,4 +1,4 @@
-apiVersion: cert-manager.io/v1alpha3
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: winlogbeat-agent
@@ -14,9 +14,10 @@ spec:
     countries:
     - "US"
   isCA: false
-  keySize: 2048
-  keyAlgorithm: rsa
-  keyEncoding: pkcs8
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
   usages:
     - client auth
   issuerRef:

@@ -38,7 +38,7 @@ crio_version: "v1.17.4"
 conmon_version: 2.0.12
 calico_version: "v3.16.4"
 nginx_version: "1.19.3"
-cert_manager_version: v0.15.2
+cert_manager_version: v1.0.4
 storage_provisioner_version: 2.3.4
 shibboleth_proxy_version: 3.0.4
 python_version: 3.9.0
