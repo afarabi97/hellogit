@@ -39,6 +39,7 @@ Setup DIP Controller:
     untracked: true
   only:
     variables:
+      - $PIPELINE == "only_build"
       - $PIPELINE == "nightly_build"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-dip"

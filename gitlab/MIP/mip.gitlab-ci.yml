@@ -88,7 +88,7 @@ Configure MIPs:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "MIP" \
-    run-mip-config --operator-type "$MIP_OPERATOR_TYPE"
+    run-mip-config --operator-type "$MIP_OPERATOR_TYPE" --password "$DEFAULT_VM_PASSWORD"
   only:
     variables:
       - $PIPELINE == "developer-mip"

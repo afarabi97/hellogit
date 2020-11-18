@@ -10,13 +10,13 @@ hosts:
         controller_web_server: http://{{ controller_interface }}/MIP/
         controller_ip: "{{ controller_interface }}"
         {%- if singlePassword %}
-        assessor_pw_inventory: {{ passwords[0]['password'] }}
-        usaf_admin_pw_inventory: {{ passwords[0]['password'] }}
-        admin_pw_inventory: {{ passwords[0]['password'] }}
-        auditor_pw_inventory: {{ passwords[0]['password'] }}
-        maintainer_pw_inventory: {{ passwords[0]['password'] }}
+        assessor_pw_inventory: "{{ passwords[0]['password'] }}"
+        usaf_admin_pw_inventory: "{{ passwords[0]['password'] }}"
+        admin_pw_inventory: "{{ passwords[0]['password'] }}"
+        auditor_pw_inventory: "{{ passwords[0]['password'] }}"
+        maintainer_pw_inventory: "{{ passwords[0]['password'] }}"
         {%- else %}
         {%- for password in passwords %}
-        {{ password['name'] }}: {{ password['password'] }}
+        {{ password['name'] }}: "{{ password['password'] }}"
         {%- endfor %}
         {%- endif %}

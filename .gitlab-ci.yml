@@ -84,9 +84,9 @@ variables:
   BREAKINGPOINT_IP: "10.10.103.29"
   BREAKINGPOINT_TEST_NAME: "BP-1GB-Pipeline-Test"
 
-  # TODO for simplicity everything should have same password go back and fix this later.
-  DEFAULT_TEMPLATE_PASSWORD: "d2UuYXJlLnRmcGxlbnVt"
-  DEFAULT_VM_PASSWORD: "V2UuYXJlLnRmcGxlbnVtNCQ="
+  # Passwords intentionally left blank as they are overridden
+  DEFAULT_TEMPLATE_PASSWORD: ""
+  DEFAULT_VM_PASSWORD: ""
 
   # Repo Sync variables
   REPO_SERVER_TEMPLATE_TO_CLONE: reposync-server

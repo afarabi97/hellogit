@@ -299,7 +299,7 @@ class Runner:
                 ctrl_settings.from_namespace(args)
                 YamlManager.save_to_yaml(ctrl_settings, args.system_name)
                 executor = ControllerSetupJob(ctrl_settings)
-                executor.setup_controller()
+                executor.setup_controller(args.system_name)
 
             elif args.which == SubCmd.run_kickstart:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)

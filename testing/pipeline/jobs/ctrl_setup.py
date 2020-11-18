@@ -138,8 +138,13 @@ EOF
             if self.ctrl_settings.is_update_code():
                 self._update_code(client)
 
-    def setup_controller(self):
-        execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
+    def setup_controller(self, system_name: str):
+        if (isinstance(self.ctrl_settings, ControllerSetupSettings) and
+                      system_name == "DIP" and
+                      self.ctrl_settings.run_type == "clone_from_nightly"):
+            execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl_dip.yml'], self.ctrl_settings.to_dict())
+        else:
+            execute_playbook([PIPELINE_DIR + 'playbooks/clone_ctrl.yml'], self.ctrl_settings.to_dict())
         test_nodes_up_and_alive([self.ctrl_settings.node], 30)
         if self.ctrl_settings.run_type == self.ctrl_settings.valid_run_types[0]:
             self._run_bootstrap()

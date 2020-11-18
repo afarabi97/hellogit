@@ -100,7 +100,7 @@ def get_api_key(ctrl_settings: ControllerSetupSettings) -> str:
     api_key = ''
     logging.info('SSHing to controller to get API key.')
     with FabricConnectionWrapper(ctrl_settings.node.username, ctrl_settings.node.password, ctrl_settings.node.ipaddress) as remote_shell:
-        api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 0.5'
+        api_gen_cmd = '/opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4'
         ret_val = remote_shell.run(api_gen_cmd,hide=True)
         api_key = ret_val.stdout.strip()
     if api_key != '':
