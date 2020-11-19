@@ -289,18 +289,24 @@ def create_rule() -> Response:
     ruleset_id = rule_add['rulesetID']
     rule = rule_add['ruleToAdd']
     rule["_id"] = get_next_sequence("ruleid")
+    by_pass_validation = rule['byPassValidation']
     rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
     error_output = None
     if rule_set:
         rule_type = rule_set['appType']
         is_valid = False
         error_output = ""
-        if rule_type == RULE_TYPES[0]:
-            is_valid, error_output = _validate_suricata_rule(rule)
-        elif rule_type == RULE_TYPES[1]:
-            is_valid, error_output = _validate_bro_rule(rule)
+
+        if by_pass_validation:
+            is_valid = True
+        else:
+            if rule_type == RULE_TYPES[0]:
+                is_valid, error_output = _validate_suricata_rule(rule)
+            elif rule_type == RULE_TYPES[1]:
+                is_valid, error_output = _validate_bro_rule(rule)
 
         if is_valid:
+            del rule["byPassValidation"]
             rule = create_rule_service(ruleset_id, rule)
             conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
             if rule:
@@ -317,18 +323,23 @@ def update_rule() -> Response:
     ruleset_id = update_rule["rulesetID"]
     rule = update_rule['ruleToUpdate']
     id_to_modify = rule['_id']
+    by_pass_validation = rule['byPassValidation']
 
     rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
     if rule_set:
         rule_type = rule_set['appType']
         is_valid = False
 
-        if rule_type == RULE_TYPES[0]:
-            is_valid, error_output = _validate_suricata_rule(rule)
-        elif rule_type == RULE_TYPES[1]:
-            is_valid, error_output = _validate_bro_rule(rule)
+        if by_pass_validation:
+            is_valid = True
+        else:
+            if rule_type == RULE_TYPES[0]:
+                is_valid, error_output = _validate_suricata_rule(rule)
+            elif rule_type == RULE_TYPES[1]:
+                is_valid, error_output = _validate_bro_rule(rule)
 
         if is_valid:
+            del rule["byPassValidation"]
             dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
             rule['lastModifiedDate'] = dt_string
             rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},

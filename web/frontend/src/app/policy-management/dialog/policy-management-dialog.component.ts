@@ -10,6 +10,14 @@ import { PcapService } from 'src/app/pcap-form/pcap.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+
+import {
+  DialogControlTypes,
+  DialogFormControl,
+  DialogFormControlConfigClass
+} from '../../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../../modal-dialog-mat/modal-dialog-mat.component';
+
 export interface Food {
   value: string;
   viewValue: string;
@@ -78,7 +86,8 @@ export class PolicyManagementDialog implements OnInit {
       'ruleName': new FormControl(rule ? rule.ruleName : '', Validators.compose([Validators.required])),
       'rule': new FormControl(rule ? rule.rule : '', Validators.compose([Validators.required])),
       'isEnabled': new FormControl(rule ? rule.isEnabled: true),
-      '_id': new FormControl(rule ? rule._id : '')
+      '_id': new FormControl(rule ? rule._id : ''),
+      'byPassValidation': new FormControl(false)
     });
 
     if (rule !== undefined){
@@ -135,15 +144,31 @@ export class PolicyManagementDialog implements OnInit {
   }
 
   openSaveDialog() {
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const bypassValidation: DialogFormControlConfigClass = new DialogFormControlConfigClass();
+    bypassValidation.label = 'Bypass Validation';
+    bypassValidation.formState = false;
+    bypassValidation.controlType = DialogControlTypes.checkbox;
+
+    const bypassForm = this.formBuilder.group({
+      byPassValidation: new DialogFormControl(bypassValidation)
+    });
+
+    const dialogRef = this.dialog.open(ModalDialogMatComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": "Are you sure you want to save this Rule file?",
-              "paneTitle": "Close and save", "option1": "Cancel", "option2": option2 },
+      data: {
+        title: "Confirm Rule Submission",
+        instructions: `Only check the box below if the suricata rules or zeek scripts in question have validation issues.
+                       As an example, this can occur if you are using varibles in suricata that are unknown
+                       to the validation container performing the syntax check.`,
+        dialogForm: bypassForm,
+        confirmBtnText: "Confirm"
+      }
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      const form = response as FormGroup;
+      if (form && form.valid){
+        this.ruleGroup.get("byPassValidation").setValue(form.value["byPassValidation"]);
         this.closeAndSave();
       }
     });

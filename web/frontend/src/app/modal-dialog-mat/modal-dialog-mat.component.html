@@ -1,5 +1,5 @@
 <h2 mat-dialog-title id="app-modal-dialog-mat-h2-title">{{ title | capitalizeFirst }}</h2>
-<div mat-dialog-content [formGroup]="dialogForm">
+<div mat-dialog-content [formGroup]="dialogForm" style="min-height: 90px;">
     <p id="app-modal-dialog-mat-div-p-instructions">{{ instructions }}</p>
     <ng-container *ngFor="let control of objectValues(dialogForm.controls); let i = index;">
         <!-- Text Input -->
@@ -28,6 +28,9 @@
                             [value]="option">{{ option }}</mat-option>
             </mat-select>
         </mat-form-field>
+        <!-- Checkbox -->
+        <mat-checkbox *ngIf="isCheckBox(control)" [formControl]="control">{{ control.label }}</mat-checkbox>
+
         <mat-error id="{{ 'app-modal-dialog-mat-div-' + i + '-mat-error' }}">{{ getErrorMessage(control) }}</mat-error>
         <app-date-time *ngIf="isDateInput(control)" id="{{ 'app-modal-dialog-mat-div-' + i + '-app-date-time' }}"
                        [uniqueHTMLID]="'app-modal-dialog-mat'" [datetime]="control" [timezone]="getTimezoneControl()"

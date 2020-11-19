@@ -57,6 +57,10 @@ export class ModalDialogMatComponent {
     return control.controlType === DialogControlTypes.dropdown;
   }
 
+  isCheckBox(control: DialogFormControl): boolean {
+    return control.controlType === DialogControlTypes.checkbox;
+  }
+
   getErrorMessage(control: DialogFormControl): string {
     return control.errors ? control.errors.error_message : '';
   }
