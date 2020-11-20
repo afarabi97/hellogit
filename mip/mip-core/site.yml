@@ -72,8 +72,6 @@
     - 021_CVAH_copy
   tags:
     - cvah_folder
-    - MDT
-    - CPT
 
 - name: Copy over the scripts used by the MIP
   hosts: mips

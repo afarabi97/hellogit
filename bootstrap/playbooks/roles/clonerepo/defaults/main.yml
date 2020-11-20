@@ -21,7 +21,7 @@ vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
 vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
 mcafee_gip_file: CPT_McAfee_Update.tar
 
-cpt_archive: cpt-cvah-mod.tar.gz
+cpt_archive: cpt-cvah.tar.gz
 mdt_archive: mdt-cvah.tar.gz
 
 download_archives: true
