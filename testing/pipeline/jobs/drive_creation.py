@@ -30,7 +30,9 @@ class DriveCreationJob:
         print("Creating the MULTIBOOT partition to drive.  This may take a while...")
         Multiboot_Image = Multiboot_Create(Argument_Path          = self._drive_settings.multiboot_path,
                                            Argument_File_Location = self._drive_settings.drive_creation_path,
-                                           Argument_Drive_Device  = self._drive_settings.external_drive)
+                                           Argument_Drive_Device  = self._drive_settings.external_drive,
+                                           Argument_Version =       self._drive_settings.drive_creation_version
+                                           )
 
         print("Burning the MULTIBOOT partition to drive.  This may take a while...")
         self._execute(shell,

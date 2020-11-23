@@ -4,10 +4,10 @@ import subprocess
 import getopt
 
 class Multiboot_Create_Class:
-    def __init__(self, Arg_Path, Arg_File_Location, Arg_Device):
+    def __init__(self, Arg_Path, Arg_File_Location, Arg_Device, Arg_Version):
         # These next 2 are to be set from the GIT RUNNER variable list
         self.path                  = Arg_Path
-        self.file_location         = "{}/MULTIBOOT".format(Arg_File_Location)
+        self.file_location         = "{}/MULTIBOOT/{}/".format(Arg_File_Location, Arg_Version)
         self.Drive_Device          = Arg_Device
 
         self.System_Output_Log     = "/tmp/Drive_Create_Error.err"
@@ -428,8 +428,9 @@ class Multiboot_Create_Class:
                                     format(self.MOD_ORIGINAL, self.MOD_CHANGE, PATH))
 
 
-def Multiboot_Create(Argument_Path, Argument_File_Location, Argument_Drive_Device):
-    MB_Create = Multiboot_Create_Class(Argument_Path, Argument_File_Location, Argument_Drive_Device)
+def Multiboot_Create(Argument_Path, Argument_File_Location, Argument_Drive_Device, Argument_Version):
+    MB_Create = Multiboot_Create_Class(Argument_Path, Argument_File_Location, 
+                                       Argument_Drive_Device, Argument_Version)
     Return_MB_Image = MB_Create.Multiboot_Image
     os.system("rm --recursive --force {} 2>/dev/null 1>/dev/null".
               format(MB_Create.System_Output_Log))

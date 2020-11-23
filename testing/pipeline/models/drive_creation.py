@@ -13,7 +13,7 @@ class DriveCreationHashSettings(Model):
 class DriveCreationSettings(DriveCreationHashSettings):
     def __init__(self):
         super().__init__()
-        self.drive_creation_version="v3.4"
+        self.drive_creation_version="3.4"
         self.drive_creation_path="/mnt/drive_creation/{}".format(self.drive_creation_version)
         self.multiboot_path="{}/{}/CPT_MULTIBOOT/".format(self.drive_creation_path, self.drive_creation_version)
         self.external_drive="/dev/sdb"

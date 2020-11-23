@@ -106,7 +106,7 @@ class Runner:
         powerfailure_parser.set_defaults(which=SubCmd.simulate_power_failure)
 
         export_parser = subparsers.add_parser(
-            SubCmd.run_export, help="This command is used to export varius artifacts from the pipeline.")
+            SubCmd.run_export, help="This command is used to export various artifacts from the pipeline.")
         ExportSettings.add_args(export_parser)
         export_parser.set_defaults(which=SubCmd.run_export)
 
