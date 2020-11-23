@@ -31,22 +31,23 @@ Setup GIP Services VM:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "developer-gip-service"
-      - $PIPELINE == "export-gip-service"
+      - $PIPELINE == "developer-gip-svc"
+      - $PIPELINE == "export-gip"
 
-Perform GIP Servives STIGs:
-  stage: stig-kit
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs \
-    --sub-system-name "SERVICES"
-  only:
-    variables:
-      - $PIPELINE == "developer-gip-service" && $RUN_GIPSVC_STIGS == "yes"
+# TODO bring back after STIGS are fixed
 
+# Perform GIP Servives STIGs:
+#   stage: stig-kit
+#   tags:
+#     - tfplenum-buildv2
+#   script: |
+#     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+#     echo "Current working directory is $(pwd)"
+#     python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs \
+#     --sub-system-name "SERVICES"
+#   only:
+#     variables:
+#       - $PIPELINE == "developer-gip" && $RUN_STIGS == "yes"
 
 GIP Create Nightly:
   stage: publish-nightly
@@ -73,7 +74,6 @@ GIP Cleanup:
   only:
     variables:
       - $IS_CLEANUP == "yes" && $PIPELINE == "developer-gip"
-      - $IS_CLEANUP == "yes" && $PIPELINE == "export-gip-service"
       - $IS_CLEANUP == "yes" && $PIPELINE == "export-gip"
 
 
@@ -89,32 +89,35 @@ Setup GIP Controller:
     python3 testing/pipeline/pipeline.py \
     --system-name "GIP" \
     setup-controller \
-    --vcenter-ipaddress "$VCENTER_IPADDRESS" \
-    --vcenter-username "$VCENTER_USERNAME" \
-    --vcenter-password "$VCENTER_PASSWORD" \
-    --vcenter-datacenter "$VCENTER_DATACENTER" \
-    --repo-username "$REPO_USERNAME" \
-    --repo-password "$REPO_PASSWORD" \
-    --repo-url "$REPO_URL" \
-    --portgroup "$VCENTER_PORTGROUP" \
-    --network-id "$NETWORK_ID" \
+    --vcenter-ipaddress   "$VCENTER_IPADDRESS"     \
+    --vcenter-username    "$VCENTER_USERNAME"      \
+    --vcenter-password    "$VCENTER_PASSWORD"      \
+    --vcenter-datacenter  "$VCENTER_DATACENTER"    \
+    --repo-username       "$REPO_USERNAME"         \
+    --repo-password       "$REPO_PASSWORD"         \
+    --repo-url            "$REPO_URL"              \
+    --portgroup           "$VCENTER_PORTGROUP"     \
+    --network-id          "$NETWORK_ID"            \
     --network-block-index $GIP_NETWORK_BLOCK_INDEX \
-    --dns-servers $DNS_SERVERS \
-    --vm-folder "$VMWARE_FOLDER" \
-    --vm-password "$DEFAULT_TEMPLATE_PASSWORD" \
-    --vm-template "$GIP_TEMPLATE_TO_CLONE" \
-    --gateway "$VM_GATEWAY" \
-    --vm-prefix "$VM_PREFIX-gip" \
-    --domain "$KIT_DOMAIN" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
-    --run-type "$BUILD_TYPE" \
-    --vm-datastore "$VCENTER_DATASTORE"
+    --dns-servers         $DNS_SERVERS             \
+    --vm-folder           "$VMWARE_FOLDER"         \
+    --vm-password         "$DEFAULT_TEMPLATE_PASSWORD"   \
+    --vm-template         "$GIP_TEMPLATE_TO_CLONE" \
+    --gateway             "$VM_GATEWAY"            \
+    --vm-prefix           "$VM_PREFIX-gip"         \
+    --domain              "$KIT_DOMAIN"            \
+    --branch-name         "$CI_COMMIT_REF_NAME"    \
+    --run-type            "$BUILD_TYPE"            \
+    --vm-datastore        "$VCENTER_DATASTORE"     \
+    --update-code         "$UPDATE_CODE"           \
+    --ctrl-cpu            "$CTRL_CPU"              \
+    --ctrl-memory         "$CTRL_MEMORY"
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "nightly_build"
       - $PIPELINE == "developer-gip"
+      - $PIPELINE == "export-gip"
 
 GIP Kickstart:
   stage: kickstart
@@ -140,10 +143,13 @@ GIP Kickstart:
     --vm-prefix "$VM_PREFIX-gip" \
     --domain "$KIT_DOMAIN" \
     --gateway "$VM_GATEWAY" \
-    --num-servers $GIP_NUM_SERVERS \
+    --num-servers $NUM_SERVERS \
     --server-cpu $GIP_SERVER_CPU \
     --server-mem $GIP_SERVER_MEM \
-    --vm-datastore "$VCENTER_DATASTORE"
+    --vm-datastore "$VCENTER_DATASTORE" \
+    --os-raid "$VM_RAID" \
+    --upstream-dns "$UPSTREAM_DNS" \
+    --upstream-ntp "$UPSTREAM_NTP"
   artifacts:
     untracked: true
   retry: 2

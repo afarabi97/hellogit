@@ -35,7 +35,7 @@ Export MIP Controller:
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py \
     --system-name "MIP" \
-    run-export export-mip-ctrl \
+    run-export export-ctrl \
     --cpt-export-path "$SOFTWARE_CPT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
     --mdt-export-path "$SOFTWARE_MDT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \

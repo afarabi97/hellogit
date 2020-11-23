@@ -22,10 +22,12 @@ class DriveCreationJob:
         print(command)
         shell.sudo(command)
 
-    def _burn_image_to_disk(self, shell: Connection):
+    def _unmount(self, shell: Connection):
         print("Making sure external drive is not mounted before proceeding...")
-        shell.sudo("umount {}[12]".format(self._drive_settings.external_drive), warn=True)
-        #shell.sudo("umount {}2".format(self._drive_settings.external_drive), warn=True)
+        shell.sudo("umount {}[1234]".format(self._drive_settings.external_drive), warn=True)
+        shell.sudo("umount {}".format(self._drive_settings.external_drive), warn=True)
+
+    def _burn_image_to_disk(self, shell: Connection):
         sleep(3)
         print("Creating the MULTIBOOT partition to drive.  This may take a while...")
         Multiboot_Image = Multiboot_Create(Argument_Path          = self._drive_settings.multiboot_path,
@@ -61,35 +63,44 @@ class DriveCreationJob:
         print("Finished burning the MULTIBOOT partition to drive.")
         sleep(10)
 
-    def _create_data_partition(self, shell: Connection):
+    def _create_data_partition(self, shell: Connection, has_multi_boot: bool):
         print("Creating Data partition...")
-        self._execute(shell,
-                      "mkfs -t xfs -f -L Data {}2".
-                          format(self._drive_settings.external_drive))
+        if has_multi_boot:
+            cmd = "mkfs -t xfs -f -L Data {}2".format(self._drive_settings.external_drive)
+        else:
+            cmd = "mkfs -t xfs -f -L Data {}".format(self._drive_settings.external_drive)
+
+        self._execute(shell, cmd)
         sleep(5)
 
-    def _rsync_data_files(self, shell: Connection):
+    def _rsync_data_files(self, shell: Connection, has_multi_boot: bool):
         print("Copying files to Data partition...")
-        self._execute(shell,
-                      "mount {}2 {}".
-                          format(self._drive_settings.external_drive,
-                                 self._drive_settings.mount_point))
+        if has_multi_boot:
+            cmd = "mount {}2 {}".format(self._drive_settings.external_drive, self._drive_settings.mount_point)
+        else:
+            cmd = "mount {} {}".format(self._drive_settings.external_drive, self._drive_settings.mount_point)
+
+        self._execute(shell, cmd)
         sleep(3)
         self._execute(shell,
                       "rsync -azhSW --numeric-ids --info=progress2 {} {}".
                           format(self._drive_settings.rsync_source,
                                  self._drive_settings.mount_point))
-        self._execute(shell,
-                      "umount {}2".
-                          format(self._drive_settings.external_drive))
+        if has_multi_boot:
+            cmd = "umount {}2".format(self._drive_settings.external_drive)
+        else:
+            cmd = "umount {}".format(self._drive_settings.external_drive)
 
     def execute(self):
         with FabricConnectionWrapper(self._drive_settings.username,
                                      self._drive_settings.password,
                                      self._drive_settings.ipaddress) as shell:
-            self._burn_image_to_disk(shell)
-            self._create_data_partition(shell)
-            self._rsync_data_files(shell)
+            self._unmount(shell)
+            has_multi_boot = self._drive_settings.burn_multiboot == "yes"
+            if has_multi_boot:
+                self._burn_image_to_disk(shell)
+            self._create_data_partition(shell, has_multi_boot)
+            self._rsync_data_files(shell, has_multi_boot)
 
 
 class DriveHashCreationJob:
@@ -106,10 +117,15 @@ class DriveHashCreationJob:
             raise Exception(error_message.format(stdout, stderr))
 
     def _create_text_description_file(self):
-        readme_txt = ("See CVAH 3.4/Documentation/ folder for additional details on how to setup or operate "
+        readme_txt = ("See CVAH 3.5/Documentation/ folder for additional details on how to setup or operate "
                       "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).")
 
-        if self._drive_hash_settings.is_CPT():
+        if self._drive_hash_settings.is_GIP():
+            readme_txt_gip = ("See CVAH 3.5/Documentation/ folder for additional details on how to setup or operate "
+                              "the Garrison Interceptor Platform (GIP)")
+            with open("GIP_Drive_Readme.txt", 'w') as script:
+                script.write(readme_txt_gip)
+        elif self._drive_hash_settings.is_CPT():
             with open("CPT_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt)
         else:

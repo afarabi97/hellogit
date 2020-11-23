@@ -40,7 +40,6 @@ Setup DIP Controller:
   only:
     variables:
       - $PIPELINE == "only_build"
-      - $PIPELINE == "nightly_build"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
@@ -178,9 +177,9 @@ Secure MinIO with a TLS certificate:
 #     python3 testing/pipeline/pipeline.py --system-name "DIP" run-stigs
 #   only:
 #     variables:
-#       - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-dip"
-#       - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-all"
-#       - $RUN_DIP_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
 
 Perform DIP Security Scans:
   stage: security_scans

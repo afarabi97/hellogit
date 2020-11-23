@@ -253,6 +253,9 @@ class GIPKickstartSettings(KickstartSettings):
         gip_kickstart_parser.add_argument('--server-mem', type=int, dest="server_mem", required=True,
                             help="The default amount of memory in mb assigned to each server.")
 
+        gip_kickstart_parser.add_argument('--upstream-dns', dest='upstream_dns', help="Set an upstream dns server ip")
+        gip_kickstart_parser.add_argument('--upstream-ntp', dest='upstream_ntp', help="Set an upstream ntp server ip")
+
         VCenterSettings.add_args(gip_kickstart_parser)
         NodeSettings.add_args(gip_kickstart_parser, False)
 
@@ -264,6 +267,8 @@ class GIPKickstartSettings(KickstartSettings):
         self.num_servers = namespace.num_servers
         self.server_cpu = namespace.server_cpu
         self.server_mem = namespace.server_mem
+        self.upstream_dns = namespace.upstream_dns
+        self.upstream_ntp = namespace.upstream_ntp
         self.vcenter = VCenterSettings()
         self.vcenter.from_namespace(namespace)
         self.node_defaults = NodeSettings()

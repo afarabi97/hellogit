@@ -83,7 +83,7 @@
 
     # Pause for 20 seconds so that vmware can start up minutes to build app cache.
     - pause:
-        seconds: 20
+        seconds: 60
 
     - name: Rejigger the jacked up networking
       ignore_errors: yes

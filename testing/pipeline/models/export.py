@@ -29,6 +29,10 @@ class ExportLocSettings(Model):
 
         return self.export_date_str.strftime("%m-%d-%Y")
 
+    @property
+    def publish_to_mdt(self) -> bool:
+        return self.mdt_export_path != './mdt'
+
     def render_export_name(self,
                            export_prefix: str,
                            export_hash: str=None,

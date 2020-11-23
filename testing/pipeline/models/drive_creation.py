@@ -4,20 +4,24 @@ from models import Model
 
 class DriveCreationHashSettings(Model):
     def __init__(self):
-        self.rsync_source="/mnt/drive_creation/v3.4/CPT/Data/"
+        self.rsync_source="/mnt/drive_creation/v3.5/CPT/Data/"
 
     def is_CPT(self) -> bool:
         return "CPT" in self.rsync_source
+
+    def is_GIP(self) -> bool:
+        return "GIP" in self.rsync_source
 
 
 class DriveCreationSettings(DriveCreationHashSettings):
     def __init__(self):
         super().__init__()
-        self.drive_creation_version="3.4"
+        self.drive_creation_version="3.5"
         self.drive_creation_path="/mnt/drive_creation/{}".format(self.drive_creation_version)
         self.multiboot_path="{}/{}/CPT_MULTIBOOT/".format(self.drive_creation_path, self.drive_creation_version)
         self.external_drive="/dev/sdb"
         self.mount_point="/mnt/Data"
+        self.burn_multiboot = "yes"
 
         #These are the credentials of the box that will have a portal USB hard drive plugged into it.
         self.username = ""

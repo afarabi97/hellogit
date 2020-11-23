@@ -9,11 +9,28 @@ Export GIP Service VM:
     --system-name "GIP" \
     run-export export-gip-service-vm \
     --cpt-export-path "$GIP_EXPORT_LOC" \
-    --mdt-export-path "$GIP_EXPORT_LOC" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION"
   only:
     variables:
-      - $PIPELINE == "export-gip-service"
+      - $PIPELINE == "export-gip"
   artifacts:
     untracked: true
+
+Export GIP Controller:
+  stage: export
+  needs: ["Setup GIP Controller"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "GIP" \
+    run-export export-ctrl \
+    --cpt-export-path "$GIP_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-gip"

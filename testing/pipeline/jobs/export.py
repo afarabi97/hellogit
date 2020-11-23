@@ -38,8 +38,10 @@ def create_export_path(export_loc: ExportLocSettings) -> Tuple[Path]:
     cpt_export_path = Path(export_loc.cpt_export_path + '/')
     cpt_export_path.mkdir(parents=True, exist_ok=True)
 
-    mdt_export_path = Path(export_loc.mdt_export_path + '/')
-    mdt_export_path.mkdir(parents=True, exist_ok=True)
+    mdt_export_path = None
+    if export_loc.publish_to_mdt:
+        mdt_export_path = Path(export_loc.mdt_export_path + '/')
+        mdt_export_path.mkdir(parents=True, exist_ok=True)
 
     return cpt_export_path, mdt_export_path, staging_export_path
 
@@ -126,13 +128,13 @@ def export(vcenter_settings: VCenterSettings,
         logging.error(serr)
 
     clear_based_on_pattern(str(cpt_export_path), export_prefix + "*")
-    clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
-
     cpt_destination_path = "{}/{}".format(str(cpt_export_path), export_name)
-    mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
     shutil.move(staging_destination_path, cpt_destination_path)
-    shutil.copy2(cpt_destination_path, mdt_destination_path)
 
+    if export_loc.publish_to_mdt:
+        clear_based_on_pattern(str(mdt_export_path), export_prefix + "*")
+        mdt_destination_path = "{}/{}".format(str(mdt_export_path), export_name)
+        shutil.copy2(cpt_destination_path, mdt_destination_path)
 
 class MinIOExport:
     def __init__(self, node: NodeSettings, vcenter: VCenterSettings, export_loc: ExportLocSettings):
@@ -196,8 +198,12 @@ class ControllerExport:
 
         remote_shell.sudo('vmware-toolbox-cmd disk shrinkonly', warn=True)
 
-    def export_controller(self):
+    def export_controller(self, system_name: str):
         logging.info("Exporting the controller to OVA.")
+        valid_system_names = ["DIP", "MIP", "GIP"]
+        if system_name not in valid_system_names:
+            raise ValueError("Invalid system name {}.  It must be {}".format(system_name, str(valid_system_names)))
+
         revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
         test_nodes_up_and_alive(self.ctrl_settings.node, 10)
         commit_hash = get_commit_hash(self.ctrl_settings.node.username,
@@ -206,38 +212,10 @@ class ControllerExport:
         prepare_for_export(self.ctrl_settings.node.username,
                            self.ctrl_settings.node.password,
                            self.ctrl_settings.node.ipaddress,
-                           ctrl_type="dip")
+                           ctrl_type=system_name.lower())
 
         payload = self.ctrl_settings.to_dict()
-        export_prefix = "DIP_Controller"
-        export_name = self.export_loc.render_export_name(export_prefix, commit_hash)
-        release_vm_name = export_name[0:len(export_name)-4]
-        payload["release_template_name"] = release_vm_name
-        execute_playbook([CTRL_EXPORT_PREP], payload)
-        export(self.vcenter_settings,
-               self.export_loc,
-               release_vm_name,
-               export_prefix)
-
-
-class MIPControllerExport(ControllerExport):
-    def __init__(self, ctrl_settings: ControllerSetupSettings, export_loc: ExportLocSettings):
-        super().__init__(ctrl_settings, export_loc)
-
-    def export_mip_controller(self):
-        logging.info("Exporting the controller to OVA.")
-        revert_to_baseline_and_power_on_vms(self.ctrl_settings.vcenter, self.ctrl_settings.node)
-        test_nodes_up_and_alive(self.ctrl_settings.node, 10)
-        commit_hash = get_commit_hash(self.ctrl_settings.node.username,
-                                      self.ctrl_settings.node.password,
-                                      self.ctrl_settings.node.ipaddress)
-        prepare_for_export(self.ctrl_settings.node.username,
-                           self.ctrl_settings.node.password,
-                           self.ctrl_settings.node.ipaddress,
-                           ctrl_type="mip")
-
-        payload = self.ctrl_settings.to_dict()
-        export_prefix = "MIP_Controller"
+        export_prefix = "{}_Controller".format(system_name)
         export_name = self.export_loc.render_export_name(export_prefix, commit_hash)
         release_vm_name = export_name[0:len(export_name)-4]
         payload["release_template_name"] = release_vm_name
@@ -346,11 +324,13 @@ class ConfluenceExport:
         file_name = stage_html_docs_path[pos:]
 
         cpt_html_docs_path = "{}/{}".format(str(cpt_export_path), file_name)
-        mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
         clear_based_on_pattern(str(cpt_export_path), "*.zip")
-        clear_based_on_pattern(str(mdt_export_path), "*.zip")
         shutil.move(stage_html_docs_path, cpt_html_docs_path)
-        shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
+
+        if self.html_export_settings.export_loc.publish_to_mdt:
+            mdt_html_docs_path = "{}/{}".format(str(mdt_export_path), file_name)
+            clear_based_on_pattern(str(mdt_export_path), "*.zip")
+            shutil.copy2(cpt_html_docs_path, mdt_html_docs_path)
 
     def export_pdf_docs(self):
         cpt_export_path, mdt_export_path, staging_export_path = create_export_path(self.pdf_export_settings.export_loc)
@@ -358,7 +338,9 @@ class ConfluenceExport:
                                           username=self.pdf_export_settings.confluence.username,
                                           password=self.pdf_export_settings.confluence.password)
         clear_based_on_pattern(str(cpt_export_path), "*.pdf")
-        clear_based_on_pattern(str(mdt_export_path), "*.pdf")
+        if self.pdf_export_settings.export_loc.publish_to_mdt:
+            clear_based_on_pattern(str(mdt_export_path), "*.pdf")
+
         for page_title in self.pdf_export_settings.page_titles_ary:
             stage_pdf_path = confluence.export_single_page_pdf(str(staging_export_path),
                                                                self.pdf_export_settings.export_loc.export_version,
@@ -366,9 +348,11 @@ class ConfluenceExport:
             pos = stage_pdf_path.rfind("/") + 1
             file_name = stage_pdf_path[pos:]
             cpt_pdf_path = "{}/{}".format(str(cpt_export_path), file_name)
-            mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
             shutil.move(stage_pdf_path, cpt_pdf_path)
-            shutil.copy2(cpt_pdf_path, mdt_pdf_path)
+
+            if self.pdf_export_settings.export_loc.publish_to_mdt:
+                mdt_pdf_path = "{}/{}".format(str(mdt_export_path), file_name)
+                shutil.copy2(cpt_pdf_path, mdt_pdf_path)
 
     def _push_file_and_unzip(self,
                              file_to_push: str,

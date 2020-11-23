@@ -142,8 +142,8 @@ Build Workstation Reposync VM for Export:
 #     untracked: true
 #   only:
 #     variables:
-#       - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-reposync"
-#       - $RUN_REPOSYNC_SERVER_STIGS == "yes" && $PIPELINE == "export-all"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "export-all"
 
 # Perform Reposync Workstation STIGs:
 #   stage: stig-kit
@@ -158,5 +158,5 @@ Build Workstation Reposync VM for Export:
 #     untracked: true
 #   only:
 #     variables:
-#       - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-reposync"
-#       - $RUN_REPOSYNC_WORKSTATION_STIGS == "yes" && $PIPELINE == "export-all"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "export-reposync"
+#       - $RUN_STIGS == "yes" && $PIPELINE == "export-all"

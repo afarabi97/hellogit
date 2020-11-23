@@ -12,7 +12,7 @@ from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport,
-                         MIPControllerExport, GIPServiceExport, ReposyncServerExport,
+                         GIPServiceExport, ReposyncServerExport,
                          ReposyncWorkstationExport, MinIOExport)
 from jobs.gip_creation import GipCreationJob
 from jobs.minio import StandAloneMinIO
@@ -268,9 +268,7 @@ class Runner:
                 executor = GIPServiceExport( gip_service_settings, export_settings.export_loc)
                 executor.export_gip_service_vm()
             elif args.which == SubCmd.run_gip_kickstart:
-                gip_controller_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
-                controller_settings = gip_controller_settings.controller_settings
-
+                controller_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 gip_kickstart_settings = GIPKickstartSettings()
                 gip_kickstart_settings.from_namespace(args)
                 YamlManager.save_to_yaml(gip_kickstart_settings)
@@ -389,7 +387,7 @@ class Runner:
 
                 executor = ControllerExport(
                     ctrl_settings, export_settings.export_loc)
-                executor.export_controller()
+                executor.export_controller(args.system_name)
             elif args.which == SubCmd.create_master_drive_hashes:
                 drive_hash_settings = DriveCreationHashSettings()
                 drive_hash_settings.from_namespace(args)
@@ -405,16 +403,6 @@ class Runner:
                 drive_settings.from_namespace(args)
                 executor = DriveCreationJob(drive_settings)
                 executor.execute()
-            elif args.which == SubCmd.export_mip_ctrl:
-                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-                    args.system_name)
-                export_settings = ExportSettings()
-                export_settings.from_namespace(args)
-
-                executor = MIPControllerExport(
-                    ctrl_settings, export_settings.export_loc)
-                executor.export_mip_controller()
-
             elif args.which == SubCmd.run_publish_nightly:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
 

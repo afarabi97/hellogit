@@ -32,7 +32,6 @@ Setup MIP Controller:
     --update-code         "$UPDATE_CODE"
   only:
     variables:
-      - $PIPELINE == "nightly_build"
       - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
       - $PIPELINE == "developer-mip"
@@ -74,8 +73,6 @@ MIP Kickstart:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
-      - $PIPELINE == "nightly_build"
-      - $PIPELINE == "nightly_build_mip"
   artifacts:
     untracked: true
 
@@ -94,7 +91,6 @@ Configure MIPs:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
-      - $PIPELINE == "nightly_build"
   artifacts:
     untracked: true
 
@@ -108,9 +104,9 @@ Perform MIP STIGs:
     python3 testing/pipeline/pipeline.py --system-name "MIP" run-stigs
   only:
     variables:
-      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-mip"
-      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_MIP_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-dip-mip"
 
 Perform MIP Security Scans:
   stage: security_scans
