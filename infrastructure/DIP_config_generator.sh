@@ -201,7 +201,15 @@ function check_files {
 function prompt_user {
   if [ -z $USER_PROMPTED ] ; then
     echo "Enter the domain for the kit (ie: lan, mission, custom.domain): "
-    read -p "" DOMAIN
+    while true; do
+      read -p "" DOMAIN
+      if [[ ${DOMAIN:0:1} =~ [0-9] ]]; then
+         echo "The domain can not start with a number"
+      else
+         return 1
+      fi
+      
+    done
     echo "Enter the desired second octet of your IP Address (101 - 118)"
     read -p "this is your kit number and should be unique: " IP_SECOND_OCTET
     if [[ $IP_SECOND_OCTET -gt 118 ||  $IP_SECOND_OCTET -lt 101 || ! $IP_SECOND_OCTET =~ ^[0-9]+$ ]]; then
