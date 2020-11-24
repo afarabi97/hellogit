@@ -12,7 +12,7 @@ from ipaddress import IPv4Address
 from flask_restplus import fields
 from flask_restplus.fields import Nested
 
-from marshmallow import Schema, post_load, validate, validates, ValidationError
+from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
 from marshmallow import fields as marsh_fields
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
@@ -475,7 +475,6 @@ class KickstartBase(Model):
                     self._compare_macs(self.nodes[i], self.nodes[j], exc)
         return exc
 
-
 class DIPKickstartSchema(Schema):
     _id = marsh_fields.Str()
     controller_interface = marsh_fields.IPv4(required=True)
@@ -487,6 +486,13 @@ class DIPKickstartSchema(Schema):
     upstream_ntp = marsh_fields.IPv4(required=False)
     dhcp_range = marsh_fields.IPv4(required=True)
     nodes = marsh_fields.List(marsh_fields.Nested(NodeSchema))
+
+    @pre_load
+    def remove_optional_ip_addresses(self, data, **kwargs):
+        for key in ['upstream_dns', 'upstream_ntp']:
+            if key in data and (data[key] == None or data[key] == ''):
+                del data[key]
+        return data
 
     @post_load
     def create_kickstart(self, data: Dict, many: bool, partial: bool):
