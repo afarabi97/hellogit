@@ -1,23 +1,31 @@
-﻿<#
+﻿
+#.NAME: PSAddonInstaller
 
-.NAME: PSAddonInstaller
+# SYNOPSIS:
 
-.SYNOPSIS:
+#1	Loads powershell community modules from PSGallery repo: https://www.powershellgallery.com
+#2	Installs the latest stable version of powershell 7 if not already present.
+#3	Pulls down the specific community editions powershell modules; See Line 83 - Input Section.
+#4	Installs all the packages pulled down. (-Install option)
+#5	Only pulls packages off of the net (-PullOnly option)
 
-1	Loads powershell community modules from PSGallery repo: https://www.powershellgallery.com
-2.	Installs the latest stable version of powershell 7. (Lock the version of powershell
-	that gets installed for future runs)
-3	Pulls down the specific community editions powershell modules; See Line 193 or 219.
-	(Locks the versions) (-Install option)
-4.	Installs all the packages pulled down. (-Install option)
-5.	Only pulls packages off of the net (-PullOnly option)
+# NOTES:
 
-.EXAMPLE
-    C:\PS>
-    .\PSAssonInstaller -Install (add -Verbose to see output)
-    .\PSAssonInstaller -PullOnly
-    .\PSAssonInstaller -InstallSaved
-#>
+#    List of community Powershell modules was identified as needed within the MIP's Win 10 Virtual machine. 
+
+#    Identifies PS Community Modules - https://jira.di2e.net/browse/THISISCVAH-5172
+#    Creation of Script - https://jira.di2e.net/browse/THISISCVAH-5388
+#    Integrates PSAddonInstaller.ps1 to GitLab pipeleine - https://jira.di2e.net/browse/THISISCVAH-5389
+
+# EXAMPLE:
+
+#    C:\PS>
+#	.\PSAssonInstaller -Install (add -Verbose to see output)
+	
+#	 Optional parameters:
+#   .\PSAssonInstaller -PullOnly # Pulls modules to a local /tmp or c:\temp (depending on host)
+#	.\PSAssonInstaller -InstallSaved # Installs modules pulled from /tmp or c:\temp (depending on host)
+
 
 param(
 	[CmdletBinding()]
@@ -52,6 +60,64 @@ param(
 	[Parameter(Mandatory=$False)]
 	[switch]$Linux_Usage
 )
+
+#==========================================================================================#
+#                  Gets the required dependent packages if not present:
+#==========================================================================================#
+
+if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'NuGet'){
+	Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
+	Register-PackageSource -provider NuGet -name nugetRepository -location https://www.nuget.org/api/v2
+}
+
+if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'PowerShellGet'){
+	Install-PackageProvider -Name PowerShellGet -Force -AllowClobber
+}
+
+if((Get-PSRepository | select -ExpandProperty Name) -notcontains 'PSGallery'){
+	Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
+}
+
+#==========================================================================================#
+# 									            Input 
+#                Get values from array within this script/input:
+#==========================================================================================#
+
+$modules = @("Advanced-Threat-Analytics:0.0.12",
+	"ORCA:1.9.11",
+	"CIF3:0.9.0",
+	"PowerSponse:0.3.0",
+	"PSURLhaus:0.4.0",
+	"VMware.VimAutomation.Security:12.1.0.17009513",
+	"NTFSSecurity:4.2.6",
+	"xSystemSecurity:1.5.1",
+	"AzureRM.Security:0.2.0-preview",
+	"CYB3RTools:1.2.1",
+	"DSInternals:4.4.1",
+	"SecurityFever:2.8.1",
+	"Hardening:1.0.1",
+	"psprivilege:0.1.0",
+	"HAWK:1.15.0",
+	"AutoRuns:13.98",
+	"BAMCIS.OffensiveSecurity:1.0.1.3",
+	"PSWinReporting:1.8.1.5",
+	"HardenedPS:0.0.1") | sort
+
+# ---- or ------
+
+#Get values from text file:
+#$modules = Get-Content -Path "C:\Users\ed\Desktop\plugins.txt" -ErrorAction SilentlyContinue
+
+#breaks if no input found:
+
+if(!($modules)){
+	Write-Warning "No Input from file found"
+	break
+}
+
+#==========================================================================================#
+# 								Input Validation 
+#==========================================================================================#
 
 #Make sure only one of "-Install", "-PullOnly" or "-InstallSaved" is specified
 
@@ -229,6 +295,7 @@ function InstallSavedModules {
 	}
 	Copy-Item "$Source" -d "$Destination" -recurse -exclude *.msi -Force | Out-Null
 }
+
 
 #==========================================================================================#
 
