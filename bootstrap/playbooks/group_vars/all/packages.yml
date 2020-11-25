@@ -32,7 +32,7 @@ extra_packages:
   - inotify-tools
   - mongodb-org
   - nload
-  - openvpn
+  - openvpn-2.4.9-1.el8
   - screen
   - sshpass
   - pkcs11-helper

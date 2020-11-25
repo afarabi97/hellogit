@@ -9,6 +9,7 @@ package_list:
   - glibc-devel
   - make
   - pkgconfig
+  - python3-dnf-plugin-versionlock
   - rsync
   - tcpdump
   - tcpreplay

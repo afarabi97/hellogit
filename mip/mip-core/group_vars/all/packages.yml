@@ -59,7 +59,6 @@ packages:
   - opensc
   - scap-workbench
   - screen
-  - dnf-plugin-versionlock
   - python36
   - vim
   - srm.x86_64

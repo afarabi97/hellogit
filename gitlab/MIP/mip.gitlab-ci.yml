@@ -67,7 +67,8 @@ MIP Kickstart:
     --mip-mem "24576" \
     --mip-cpu "8" \
     --vm-prefix "$VM_PREFIX" \
-    --disk-size 250
+    --disk-size "$MIP_STORAGE_SIZE"
+
   only:
     variables:
       - $PIPELINE == "developer-mip"
