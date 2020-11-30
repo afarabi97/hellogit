@@ -17,6 +17,9 @@ class RobotJob:
         stdout, stderr = proc.communicate()
         if proc.returncode != 0:
             print(f"stdout {stdout.decode('utf-8')} stderr {stderr}")
+            raise Exception("Robot Framework Test Failed")
+        else:
+            print(f"Robot Framework Test Results: {stdout.decode('utf-8')}")
 
     def run_robot(self):
         self._execute_robot_tests()
