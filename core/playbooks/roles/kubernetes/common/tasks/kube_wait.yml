@@ -48,7 +48,7 @@
 
 - set_fact:
     GOPOD: !unsafe "'{{if ne \"green\" (.status.health)}}false{{end}}'"
-  when: type == 'beats' or type == 'elasticsearch'
+  when: type == 'beats' or type == 'elasticsearch' or type == 'kibana'
 
 - import_tasks: build_kubectl.yml
 
