@@ -29,7 +29,7 @@ RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
 RULE_TYPES = ("Suricata", "Zeek")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
-SURICATA_IMAGE_VERSION = "5.0.2"
+SURICATA_IMAGE_VERSION = "6.0.0"
 ZEEK_IMAGE_VERSION = "3.2.0"
 BEATS_IMAGE_VERSIONS = "7.9.3"
 

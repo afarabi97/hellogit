@@ -91,7 +91,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "5.0.2",
+          "appVersion": "6.0.0",
           "application": "suricata",
           "description": "Suricata is a free and open source, mature, fast and robust network threat detection engine.",
           "pmoSupported": true
