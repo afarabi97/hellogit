@@ -4,3 +4,10 @@
     path: /etc/ssh/sshd_config
     regexp: '#PermitRootLogin yes'
     replace: "PermitRootLogin no"
+
+- name: Disabling PermitUserEnviroment
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '#PermitUserEnvironment no'
+    replace: "PermitUserEnvironment no"
+...
