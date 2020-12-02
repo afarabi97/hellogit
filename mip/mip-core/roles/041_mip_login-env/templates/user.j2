@@ -1,0 +1,12 @@
+[com.redhat.AccountsServiceUser.System]
+id='rhel'
+version-id='{{ rhel_version.stdout }}'
+
+[User]
+Session=gnome-classic-wayland
+XSession=gnome-classic
+SessionType=wayland
+{% if item!="root" %}
+Icon=/home/{{ item }}/.face
+{% endif %}
+SystemAccount=false

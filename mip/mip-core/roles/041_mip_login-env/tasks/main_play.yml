@@ -37,13 +37,7 @@
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
-  loop:
-    - assessor
-    - root
-    - maintainer
-    - usaf_admin
-    - 911admin
-    - auditor
+  loop: "{{ users }}"
 
 - name: Setting screen lock when idle/inactive to off
   become: yes
@@ -52,13 +46,7 @@
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
-  loop:
-    - assessor
-    - root
-    - maintainer
-    - usaf_admin
-    - 911admin
-    - auditor
+  loop: "{{ users }}"
 
 - name: Setting screen timeout delay to never
   become: yes
@@ -67,13 +55,7 @@
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
-  loop:
-    - assessor
-    - root
-    - maintainer
-    - usaf_admin
-    - 911admin
-    - auditor
+  loop: "{{ users }}"
 
 - name: Updating ssh banner path
   replace:
@@ -81,27 +63,19 @@
     regexp: '#Banner none'
     replace: "Banner /etc/issue.net"
 
-- name: Get all user ids
+- name: Get rhel version
   shell:
     cmd: |
-      awk -F: '/\/home/ && ($3 >= 1000) {printf "%s\n",$3}' /etc/passwd
-  register: uid_list
-  changed_when: uid_list.rc == 0
-  failed_when:  uid_list.rc > 0
+      cat /etc/system-release | awk '{print $6}'
+  register: rhel_version
+  changed_when: rhel_version.rc == 0
+  failed_when:  rhel_version.rc > 0
 
-- name: Set default desktop to gnome-classic for all users
-  shell:
-    cmd: >
-      gdbus call
-      --system
-      --dest org.freedesktop.Accounts
-      --object-path /org/freedesktop/Accounts/User"{{ item }}"
-      --method org.freedesktop.Accounts.User.SetXSession "gnome-classic"
-  register: result
-  changed_when: result.rc == 0
-  failed_when:  result.rc > 0
-  with_items:
-    - "{{ uid_list.stdout_lines }}"
+- name: Set default desktop to wayland gnome-classic for all system users
+  template:
+    src: templates/user.j2
+    dest: "/var/lib/AccountsService/users/{{ item }}"
+  with_items: "{{ users }}"
 
 - name: Create hidden file for validation if playbooks crash
   file:

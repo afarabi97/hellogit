@@ -6,7 +6,7 @@ operator_group: "operators"
 user_desktop: "/home/{{user}}/Desktop"
 application_path: "/usr/share/applications"
 tmp_apps: "/tmp/tmp_apps"
-web_server: "{{ controller_web_server | default('http://misc.labrepo.sil.lab/MIP/') }}"
+web_server: "{{ controller_web_server }}"
 kernel_version: 4.18.0-193.el8.x86_64
 uefi_grub_path: "/boot/efi/EFI/redhat/"
 
@@ -20,4 +20,12 @@ usaf_admin_pw: "{{ usaf_admin_pw_inventory  | default('default') | password_hash
 admin_pw: "{{ admin_pw_inventory  | default('default') | password_hash('sha512') }}"
 auditor_pw: "{{ auditor_pw_inventory  | default('default') | password_hash('sha512') }}"
 maintainer_pw: "{{ maintainer_pw_inventory  | default('default') | password_hash('sha512') }}"
+
+users:
+  - assessor
+  - maintainer
+  - usaf_admin
+  - 911admin
+  - auditor
+  - root
 ...
