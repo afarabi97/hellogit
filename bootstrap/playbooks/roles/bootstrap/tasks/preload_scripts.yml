@@ -1,0 +1,23 @@
+---
+
+- name: Set Sample Scripts Directory
+  set_fact:
+    zeek_sample_dir: "{{ tfplenum_root_dir }}/scripts/zeek_samples"
+
+- name: scripts | Create Directory
+  file:
+    path: "{{ web_install_dir }}/backend/scripts"
+    state: directory
+
+- name: scripts | Copy
+  copy:
+    src: "{{ zeek_sample_dir }}"
+    dest: "{{ web_install_dir }}/backend/scripts"
+
+- name: scripts | Upload
+  shell: |
+    {{ web_install_dir }}/tfp-env/bin/python preload_rules.py
+  args:
+    chdir: "{{ web_install_dir }}/backend"
+  register: results
+  changed_when: results.rc == 0

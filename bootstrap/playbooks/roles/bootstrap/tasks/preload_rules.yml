@@ -23,7 +23,7 @@
 
 - name: rules | Upload
   shell: |
-    {{ web_install_dir }}/tfp-env/bin/python preload_suricata_rules.py
+    {{ web_install_dir }}/tfp-env/bin/python preload_rules.py
   args:
     chdir: "{{ web_install_dir }}/backend"
   register: results

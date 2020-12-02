@@ -237,7 +237,7 @@ class RuleSynchronization():
 
         bro_load_file.seek(0, os.SEEK_END)
         if len(bro_load_file.getvalue()) == 0:
-            self._send_notification("Nothing to sync for bro rules.", NotificationCode.CANCELLED.name)
+            self._send_notification("Nothing to sync for Zeek rules.", NotificationCode.CANCELLED.name)
             return
 
         bro_load_file_path = "%s/__load__.zeek" % BRO_CUSTOM_DIR
@@ -288,7 +288,7 @@ class RuleSynchronization():
                             self._sync_bro_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
                             self.notification.set_status(status=NotificationCode.ERROR.name)
-                            self.notification.set_message("Failed to synchronize Bro scripts for {}.".format(hostname))
+                            self.notification.set_message("Failed to synchronize Zeek scripts for {}.".format(hostname))
                             self.notification.set_exception(e)
                             self.notification.post_to_websocket_api()
                             self._set_bro_states(hostname, ip_address, RULESET_STATES[3])

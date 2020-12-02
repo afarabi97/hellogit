@@ -229,7 +229,7 @@ export class PolicyManagementDialog implements OnInit {
 
         if (data["type"] === "application/tar+gzip"){
           const json_blob = new Blob([data], { type: 'application/tar+gzip'});
-          FileSaver.saveAs(json_blob, 'bro_test_results.tar.gz');
+          FileSaver.saveAs(json_blob, 'zeek_test_results.tar.gz');
         } else {
           const json_blob = new Blob([data], { type: 'application/json'});
           FileSaver.saveAs(json_blob, 'pcap_test_results.json');

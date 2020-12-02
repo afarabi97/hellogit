@@ -50,6 +50,9 @@
 - import_tasks: preload_rules.yml
   when: system_name == 'DIP'
 
+- import_tasks: preload_scripts.yml
+  when: system_name == 'DIP'
+
 - import_tasks: helm.yml
   tags: helm
   when: system_name == 'DIP'
