@@ -482,6 +482,7 @@ class Runner:
         except AttributeError as e:
             parser.print_help()
             traceback.print_exc()
+            exit(1)
 
 
 def main():

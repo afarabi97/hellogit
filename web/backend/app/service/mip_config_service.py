@@ -26,6 +26,7 @@ def perform_mip_config(command: str):
         notification.set_message(msg)
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
+        raise Exception("A command failed.")
     else:
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)

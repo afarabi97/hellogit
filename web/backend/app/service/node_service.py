@@ -97,6 +97,7 @@ def execute_kit(password: str):
         msg = "{} job failed.".format(_JOB_NAME_NOTIFICATION)
         notification.set_and_send(message=msg,
             status=NotificationCode.ERROR.name)
+        raise Exception("A command failed.")
 
 
 @job('default', connection=REDIS_CLIENT, timeout="60m")

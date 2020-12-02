@@ -35,6 +35,7 @@ def perform_kickstart(command: str, platform='DIP'):
         notification.set_status(NotificationCode.ERROR.name)
         notification.post_to_websocket_api()
         rq_logger.error("Kickstart job failed.")
+        raise Exception("A command failed.")
     else:
         notification.set_message(msg)
         notification.set_status(NotificationCode.COMPLETED.name)

@@ -29,20 +29,25 @@ echo password="{}"
 EOF
     """.format(repo_settings.username, repo_settings.password)
 
-    commands = ['git config --global --unset credential.helper',
-                cred_file_cmd,
-                'git config --global credential.helper "/bin/bash ~/credential-helper.sh"',
-                'git fetch --unshallow',
+    # The git config commands might fail because of a lock file already existing. It shouldn't matter.
+    subprocess.Popen('git config --global --unset credential.helper', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+    subprocess.Popen(cred_file_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+    subprocess.Popen('git config --global credential.helper "/bin/bash ~/credential-helper.sh"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+    
+    commands = ['git fetch --unshallow',
                 'git checkout {} --force'.format(repo_settings.branch_name),
                 'git pull --rebase',
-                'git config --global --unset credential.helper',
                 'git rev-parse HEAD']
 
     for index, cmd in enumerate(commands):
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout, _ = proc.communicate()
+        if proc.returncode != 0:
+            raise Exception(f"Command failed: {cmd}\n{stdout}\nrc = {proc.returncode}")
         if index == len(commands) - 1:
             print("CHECKED OUT COMMIT HASH: {}".format(stdout.decode('utf-8')))
+
+    subprocess.Popen('git config --global --unset credential.helper', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
 
 class ControllerSetupJob:
     def __init__(self, ctrl_settings: Union[ControllerSetupSettings,HwControllerSetupSettings]):
