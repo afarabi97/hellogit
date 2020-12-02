@@ -365,10 +365,10 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     const formControl = this.valueFormGroup.get(ob.deployment_name);
     if (!formControl) {
       this.valueFormGroup.addControl(ob.deployment_name, new FormControl(values));
+      this.valueFormGroup.controls[ob.deployment_name].disable()
     } else {
       formControl.setValue(values);
     }
-    this.valueFormGroup.controls[ob.deployment_name].disable();
     nodes.deployment_name = ob.deployment_name;
   }
 
