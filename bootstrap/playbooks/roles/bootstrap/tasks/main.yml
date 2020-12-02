@@ -2,7 +2,7 @@
 - import_role:
     name: cleanup
     tasks_from: cleanup
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - name: Set_fact bootstrap and git
   set_fact:
@@ -16,13 +16,13 @@
   when: "ansible_distribution == 'RedHat'"
 
 - import_tasks: additional_repos.yml
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - name: "Install required packages"
   dnf:
     name: "{{ package_list }}"
     state: present
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - name: "Install required packages"
   dnf:
@@ -45,7 +45,7 @@
 - name: Execute docker registry role.
   include_role:
     name: registry
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - import_tasks: preload_rules.yml
   when: system_name == 'DIP'
@@ -55,11 +55,11 @@
 
 - import_tasks: helm.yml
   tags: helm
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - import_tasks: conmon.yml
   tags: conmon
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"
 
 - import_tasks: allow_shibd.yml
   when: system_name == 'MIP'
@@ -76,4 +76,4 @@
     - import_tasks: update_controller_interface.yml
       tags: setup_ctrl_interface
     - import_tasks: finish.yml
-  when: system_name == 'DIP'
+  when: "system_name == 'DIP' or system_name == 'GIP'"

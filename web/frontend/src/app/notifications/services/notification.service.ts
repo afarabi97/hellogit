@@ -22,6 +22,15 @@ export class NotificationService extends ApiService<any> {
                             {"name": "Cold Log Ingest", "selected": false, "title": "Cold Log Ingest", "role": "process_logs", "notifications": [], "icon": "archive"},
                             {"name": "Tools", "selected": false, "title": "Tools Messages", "role": "tools", "notifications": [], "icon": "build"},
                             {"name": "Index Management", "selected": false, "title": "Index Management Messages", "role": "curator", "notifications": [], "icon": "timeline"}];
+
+  private gipButtons: any = [{"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},
+                            {"name": "Catalog", "selected": false, "title": "Catalog Messages","role": "catalog", "notifications": [], "icon": "apps"},
+                            {"name": "Kickstart", "selected": false, "title": "Kickstart Messages","role": "kickstart", "notifications": [], "icon": "layers"},
+                            {"name": "Kit", "selected": false, "title": "Kit Messages", "role": "kit", "notifications": [], "icon": "storage"},
+                            {"name": "ES-Scale", "selected": false, "title": "ES-Scale Messages", "role": "scale", "notifications": [], "icon": "tune"},
+                            {"name": "Tools", "selected": false, "title": "Tools Messages", "role": "tools", "notifications": [], "icon": "build"},
+                            {"name": "Index Management", "selected": false, "title": "Index Management Messages", "role": "curator", "notifications": [], "icon": "timeline"}];
+
   private mipButtons: any = [
     {"name": "All", "selected": true, "title": "All Messages","role": "all", "notifications": [], "icon": "dashboard"},
     {"name": "Kickstart", "selected": false, "title": "Kickstart Messages","role": "kickstart", "notifications": [], "icon": "layers"},
@@ -49,6 +58,10 @@ export class NotificationService extends ApiService<any> {
 
     if (this.systemName_ === 'DIP') {
       this.buttonList = this.dipButtons;
+    }
+
+    if (this.systemName_ === 'GIP') {
+      this.buttonList = this.gipButtons;
     }
   }
 }

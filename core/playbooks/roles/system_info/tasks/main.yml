@@ -27,7 +27,9 @@
       enable_kube_ha: true
       kube_virtual_ip: "{{ kubernetes_services_cidr | ipaddr('1') | ipaddr('address') }}"
       cacheable: yes
-  when: groups['servers'] | length | int > 2
+  when:
+    - not addnode
+    - groups['servers'] | length | int > 2
 
 - name: Clear Arp Cache
   shell: |

@@ -246,7 +246,7 @@ class GIPKickstartSettings(KickstartSettings):
                                                       help="Executes Kickstart on a GIP controller.")
         gip_kickstart_parser.set_defaults(which=SubCmd.run_gip_kickstart)
 
-        gip_kickstart_parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 7), required=True,
+        gip_kickstart_parser.add_argument('--num-servers', type=int, dest="num_servers", choices=range(2, 10), required=True,
                             help="The number of server VMs to create.")
         gip_kickstart_parser.add_argument('--server-cpu', type=int, dest="server_cpu", choices=range(2, 64), required=True,
                             help="The default CPUs assigned to each server.")

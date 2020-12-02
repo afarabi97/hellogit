@@ -124,20 +124,18 @@ logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
 logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
 {% endif %}
 {% if data_drive|length > 1 %}
-{% if system_name == "DIP" %}
+
 {% for drive in data_drive %}
 part raid.2_{{ drive }} --fstype="raid" --size=1 --grow --ondrive={{ drive }} # Data Partition
 {% endfor %}
 raid pv.02 --fstype="lvmpv" --device="pv.02" --label="lvmpv-pv02" --level=0 {{ raid_vol_list_2|join(' ') }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --name=data --size=1 --vgname=vg_data --grow
-{% endif %}
 {% else %}
-{% if system_name == "DIP" %}
+
 part pv.02 --fstype="lvmpv" --size=1 --grow --ondisk={{ data_drive[0] }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --size=1 --name=data --vgname=vg_data --grow
-{% endif %}
 {% endif %}
 {%- endif %}
 
@@ -151,9 +149,7 @@ part raid.0_{{ drive }} --fstype="raid" --size=512 --asprimary --ondrive={{ driv
 part biosboot --fstype=biosboot --size=1 --ondisk={{ drive }}
 {% endif %}
 part raid.1_{{ drive }} --fstype="raid" --size={{ (root_size / raid_drives|length) | round(0,'floor') | int }} --asprimary --ondrive={{ drive }} # OS Partition
-{% if system_name == "DIP" %}
 part raid.2_{{ drive }} --fstype="raid" --size=1 --grow --ondrive={{ drive }} # Data Partition
-{% endif %}
 {% endfor %}
 
 {% if uefi %}
@@ -170,21 +166,12 @@ logvol /var --fstype="xfs" --name=var --vgname=vg_root --grow --percent=35
 logvol /var/log --fstype="xfs" --name=log --vgname=vg_root --grow --percent=20
 logvol /var/log/audit --fstype="xfs" --name=audit --vgname=vg_root --grow --percent=3
 
-{% if system_name == "DIP" %}
 raid pv.02 --fstype="lvmpv" --device="pv.02" --label="lvmpv-pv02" --level=0 {{ raid_vol_list_2|join(' ') }}
 volgroup vg_data pv.02
 logvol /data --fstype="xfs" --name=data --size=1 --vgname=vg_data --grow
 {% endif %}
-{%- endif %}
-EOF
 
-{% if system_name == "GIP" %}
-if [ "$system_name" == "GIP" ] && [ "$is_physical" == false ]; then
-echo "part pv.02 --fstype=lvmpv --size=1 --grow --ondisk={{ data_drive }}" >> /tmp/partition_layout
-echo "volgroup vg_data pv.02" >> /tmp/partition_layout
-echo "logvol /data --fstype=xfs --size=1 --name=data --vgname=vg_data --grow" >> /tmp/partition_layout
-fi
-{%- endif %}
+EOF
 
 %end
 

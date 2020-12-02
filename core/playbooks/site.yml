@@ -20,21 +20,6 @@
     - always
     - system-info
 
-- name: Setup Disks
-  hosts:
-    - servers
-    - sensors
-  gather_facts: yes
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Run gather facts
-      setup:
-  tasks:
-    - import_role:
-        name: storage
-        tasks_from: create
-  tags: disks
-
 - name: Set Kit Size
   hosts: master_server
   tags: always

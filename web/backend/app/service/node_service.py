@@ -115,21 +115,21 @@ def add_node(node_payload, password):
     command_list = [
         {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-e ansible_ssh_pass='{playbook_pass}' -t repos,update-dns "
+                        "-e ansible_ssh_pass='{playbook_pass}' -e addnode=true -t repos,update-dns "
                         "--limit localhost,{node}"
                         ).format(playbook_pass=password, node=node_hostname),
            	            "cwd_dir": playbook_dir,
            	            "job_name": "Addnode"
         }, {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-e ansible_ssh_pass='{playbook_pass}' -t genkeys,preflight"
+                        "-e ansible_ssh_pass='{playbook_pass}' -e addnode=true -t genkeys,preflight"
                         ).format(playbook_pass=password),
            	            "cwd_dir": playbook_dir,
            	            "job_name": "Addnode"
         },
         {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-e ansible_ssh_pass='{playbook_pass}' -t common "
+                        "-e ansible_ssh_pass='{playbook_pass}' -e addnode=true -t common "
                         "--limit localhost,{node}"
                         ).format(playbook_pass=password, node=node_hostname),
            	            "cwd_dir": playbook_dir,
@@ -137,14 +137,15 @@ def add_node(node_payload, password):
         },
         {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-e ansible_ssh_pass='{playbook_pass}' -t openvpn"
+                        "-e ansible_ssh_pass='{playbook_pass}' -e addnode=true -t openvpn"
                         ).format(playbook_pass=password),
            	            "cwd_dir": playbook_dir,
            	            "job_name": "Addnode"
         },
         {
             "command": ("ansible-playbook site.yml -i inventory.yml "
-                        "-t certificate_authority/common,crio,kube-node,storage,logs,audit,node-health "
+                        "-e addnode=true "
+                        "-t certificate_authority/common,crio,kube-node,storage,setup-elastic,logs,audit,node-health "
                         "--limit localhost,{node}"
                         ).format(node=node_hostname),
            	            "cwd_dir": playbook_dir,

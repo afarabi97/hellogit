@@ -90,6 +90,7 @@ app_disk_discovery_dir: "{{base_discovery_dir}}/apps"
 elastic_disk_discovery_dir: "{{base_discovery_dir}}/elastic"
 
 enable_kube_ha: false
+addnode: false
 # These cannot conflict with infrastructure
 kube_cidr: "10.233.0.0/16"
 kube_pod_cidr: "10.233.0.0/18"

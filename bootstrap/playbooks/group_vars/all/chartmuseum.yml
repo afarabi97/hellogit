@@ -17,7 +17,6 @@ dip_charts:
   - chartmuseum
 
 gip_charts:
-  - squid
   - cortex
   - hive
   - mattermost
