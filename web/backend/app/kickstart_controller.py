@@ -81,7 +81,7 @@ class DIPKickstartCtrl(Resource):
     @KIT_SETUP_NS.response(400, 'Error Model', COMMON_ERROR_DTO)
     @controller_admin_required
     def post(self):
-        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles']
+        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles','update_portal_client']
         new_kickstart = None
         try:
             new_kickstart = DIPKickstartForm.load_from_request(KIT_SETUP_NS.payload)
@@ -100,7 +100,7 @@ class DIPKickstartCtrl(Resource):
     @KIT_SETUP_NS.doc(description="Adds a node to the Kickstart configuration and reruns the deployers playbook.")
     @controller_admin_required
     def put(self):
-        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles','update_portal_client']
+        tags = ['preflight','setup','chrony','dnsmasq','kickstart','profiles']
         schema = NodeSchema()
         new_node = None
         try:
