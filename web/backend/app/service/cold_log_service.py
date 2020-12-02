@@ -7,9 +7,10 @@ import traceback
 from app import app, rq_logger, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
 from app.service.job_service import run_command2
-from app.service.scale_service import get_elastic_password, get_elastic_service_ip
+from app.service.scale_service import get_elastic_password, get_elastic_service_ip, get_elastic_fqdn
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
+from elasticsearch import Elasticsearch
 from rq.decorators import job
 from app.utils.tfwinrm_util import (configure_and_run_winlogbeat_for_cold_log_ingest, install_winlogbeat_for_cold_log_ingest)
 from app.utils.utils import zip_package, TfplenumTempDir
@@ -34,6 +35,10 @@ def print_command(cmd: str, work_dir: str):
 
 
 class ColdLogParseFailure(Exception):
+    pass
+
+
+class ElasticUpdateError(Exception):
     pass
 
 
@@ -97,6 +102,26 @@ class ColdLogsProcessor:
 
     def _set_filebeat_index(self):
         self._template_ctx["index"] = "filebeat-external-{}-{}".format(self._index_suffix, self._module)
+
+    def _remove_lifecyle_settings_from_index(self):
+        password = get_elastic_password()
+        elastic_fqdn, port = get_elastic_fqdn()
+        index = self._template_ctx["index"]
+        client = Elasticsearch(elastic_fqdn, scheme="https", port=port,
+                               http_auth=('elastic', password),
+                               use_ssl=True, verify_certs=True,
+                               ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+        body = {
+            "index":{
+                "lifecycle": {
+                    "name": "",
+                    "rollover_alias": ""
+                }
+            }
+        }
+        result = client.indices.put_settings(body, index=index) # type: Dict
+        if not result['acknowledged']:
+            raise ElasticUpdateError("Removing lifecyle policy failed.")
 
     def _set_log_names(self):
         """
@@ -164,6 +189,7 @@ class ColdLogsProcessor:
             ret_val = configure_and_run_winlogbeat_for_cold_log_ingest(model, zip_path, tmp_directory)
             if _has_failures(ret_val):
                 return 1
+            self._remove_lifecyle_settings_from_index()
             return 0
 
     def _get_module_specific_params(self, module: str):
@@ -212,7 +238,9 @@ class ColdLogsProcessor:
 
             rq_logger.debug(run_cmd)
             job = AsyncJob(JOB_NAME.capitalize(), run_cmd, use_shell=True)
-            return job.run_asycn_command()
+            result = job.run_asycn_command()
+            self._remove_lifecyle_settings_from_index()
+            return result
 
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
