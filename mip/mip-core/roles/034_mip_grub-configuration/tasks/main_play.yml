@@ -1,4 +1,10 @@
 ---
+- name: Copy modules required for grub splash background page
+  copy:
+    src: /usr/lib/grub/x86_64-efi
+    dest: /boot/efi/EFI/redhat
+    remote_src: yes
+
 - debug:
     msg: "{{ ansible_product_name }}"
   register: MIP_model

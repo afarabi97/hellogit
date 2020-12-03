@@ -1,4 +1,12 @@
 ---
+- name: Create the gdm profile for custom login
+  copy:
+    dest: "/etc/dconf/profile/gdm"
+    content: |
+      user-db:user
+      system-db:gdm
+      file-db:/usr/share/gdm/greeter-dconf-defaults
+
 - name: Copying login/ssh banner message and CVA/H Logo to MIP
   copy:
     src: "{{ item['src'] }}"
@@ -16,9 +24,6 @@
   command: gsettings set org.gnome.desktop.background show-desktop-icons true
   register: result
   changed_when: result.rc == 0
-  tags:
-    - CPT
-    - MDT
 
 - name: Create Thunar icon dir
   file:
