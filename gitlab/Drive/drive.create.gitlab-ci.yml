@@ -13,6 +13,20 @@ Clear Staging Environment:
     variables:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
+
+Clear GIP Staging Environment:
+  stage: clean-staging-env
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    echo "Clear Staging Environment"
+    rm -fr "$DRIVE_GIP_STAGING_FOLDER/"
+    mkdir -p "$DRIVE_GIP_STAGING_FOLDER/"
+  retry: 2
+  only:
+    variables:
       - $PIPELINE == "export-gip"
 
 
@@ -106,7 +120,7 @@ Create Master CPT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Create Master MDT Drive:
@@ -127,7 +141,7 @@ Create Master MDT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
+      - $RUN_CREATE_MASTER_DRIVE == "yes"
 
 
 Create Master GIP Drive:
@@ -147,4 +161,4 @@ Create Master GIP Drive:
     --burn-multiboot no
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
+      - $RUN_CREATE_GIP_DRIVE == "yes"

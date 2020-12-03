@@ -79,7 +79,7 @@ class Multiboot_Create_Class:
             print("Check file {} for details".
                   format(self.System_Output_Log))
             sys.stdout.flush()
-            raise SystemExit(ret_val)
+            exit(ret_val)
 
     def Copy_EXE_Files(self):
         print("Creating & Copying over the BIOS Executables to MULTIBOOT.")
@@ -366,10 +366,10 @@ class Multiboot_Create_Class:
 
                 else:     #  Here the VMWare ESXI Images are handled.
                     if "vmware" in ISO_Line.lower():
-                        if "hpe" in ISO_Line.lower():
-                            Label = "VMware for HPE (DL160)"
-                        elif "dell" in ISO_Line.lower():
+                        if "dell" in ISO_Line.lower():
                             Label = "VMware for DELLEMC (R440)"
+                        else:
+                            Label = "VMware for everything else"
                         Menu_Text                                            = \
                             "LABEL - {}\n"                                   + \
                             "MENU LABEL {}\n"                                + \
@@ -429,7 +429,7 @@ class Multiboot_Create_Class:
 
 
 def Multiboot_Create(Argument_Path, Argument_File_Location, Argument_Drive_Device, Argument_Version):
-    MB_Create = Multiboot_Create_Class(Argument_Path, Argument_File_Location, 
+    MB_Create = Multiboot_Create_Class(Argument_Path, Argument_File_Location,
                                        Argument_Drive_Device, Argument_Version)
     Return_MB_Image = MB_Create.Multiboot_Image
     os.system("rm --recursive --force {} 2>/dev/null 1>/dev/null".

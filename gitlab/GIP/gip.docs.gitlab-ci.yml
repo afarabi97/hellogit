@@ -1,6 +1,6 @@
 Download GIP Documents:
   stage: docs
-  needs: ["Clear Staging Environment"]
+  needs: ["Clear GIP Staging Environment"]
   tags:
     - tfplenum-buildv2
   script: |
@@ -12,7 +12,7 @@ Download GIP Documents:
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
     --cpt-export-path "$GIP_DOC_EXPORT_LOC" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --staging-export-path "$DRIVE_GIP_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$GIP_CONFLUENCE_DOCS"
   retry: 2

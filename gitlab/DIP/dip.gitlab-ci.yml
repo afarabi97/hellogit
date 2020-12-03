@@ -80,6 +80,7 @@ Create a standalone MinIO server:
     variables:
       - $PIPELINE == "export-minio"
       - $PIPELINE == "export-all"
+      - $PIPELINE == "export-gip"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-dip"
       - $MINIO_VM == "yes" && $PIPELINE == "developer-all"
   artifacts:
