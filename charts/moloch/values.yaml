@@ -10,7 +10,7 @@ pcap_path: "/data/moloch/raw"
 fpc_path: "/data/pcap"
 
 # Kubernetes and docker info
-version: 2.2.3v2
+version: 2.4.1
 elastic_ingest_nodes: []
 elastic_fqdn: elasticsearch.default.svc.cluster.local
 cpu_request: 100
