@@ -49,9 +49,9 @@ Update Password
     Input Text  ${newPasswordLocator}       ${newPasswordValue}
     Input text  ${confirmpasswordLocator}   ${newPasswordValue}
     Click Element  ${submitLocator}
-    Wait Until Page Contains    ${UPDATE_ACCOUNT_TITLE}
+    Wait Until Page Does Not Contain    ${UPDATE_PASSWORD_TITLE}
     Click Element  ${submitLocator}
-    Wait Until Page Contains     ${EDIT_ACCOUNT_TITLE}
+    Wait Until Page Does Not Contain    ${UPDATE_ACCOUNT_TITLE}
     SeleniumLibrary.Capture Page Screenshot  filename=update-password-screenshot-{index}.png
 
 Close Browser and SSH Connection

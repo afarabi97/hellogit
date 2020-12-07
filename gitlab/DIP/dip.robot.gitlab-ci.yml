@@ -15,7 +15,8 @@ DIP Robot Tests:
     --jira-project-version $ROBOT_REGRESSION_ZEPHYR_PROJECT_VERSION \
     --jira-project-key "$JIRA_PROJECT_KEY" \
     --robot-browser $ROBOT_BROWSER \
-    --robot-category $ROBOT_REGRESSION_CATEGORY
+    --robot-category $ROBOT_REGRESSION_CATEGORY \
+    --domain "$KIT_DOMAIN"
   artifacts:
     untracked: true
     when: always

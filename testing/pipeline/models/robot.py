@@ -23,6 +23,7 @@ class RobotSettings(Model):
         self.jira_project_key = None            # from_namespace
         self.robot_browser = None               # from_namespace
         self.robot_category = None              # from_namespace
+        self.domain = None                      # from_namespace
         self.model_settings = None              # _get_model_settings_from_yaml
         self.username = None                    # _build_command
         self.password = None                    # _build_command
@@ -46,6 +47,7 @@ class RobotSettings(Model):
                 RobotSubCmdself.robot_browser                  --robot-browser
                 RobotSubCmdself.robot_category                 --robot-category
                 RobotSubCmdself.robot_variables                --robot-variables
+                RobotSubCmdself.domain                         --domain
         """
         # VARIABLES THAT CAN ONLY BE PASSED THROUGH GITLAB
         parser.add_argument('--tfplenum-robot-container', dest='tfplenum_robot_container', help='The docker image to pass in')
@@ -56,6 +58,7 @@ class RobotSettings(Model):
         parser.add_argument('--jira-project-key', dest='jira_project_key', help="CONFLUENCE_PROJECT_KEY")
         parser.add_argument('--robot-browser', dest='robot_browser', help="BROWSER | Default: FireFox")
         parser.add_argument('--robot-category', dest='robot_category', help="Directory of the test")
+        parser.add_argument('--domain', dest='domain', help="The domain for the kit", default="lan")
 
 
     def from_namespace(self, namespace: Namespace):
@@ -68,6 +71,7 @@ class RobotSettings(Model):
         self.jira_project_key = namespace.jira_project_key
         self.robot_browser = namespace.robot_browser
         self.robot_category = namespace.robot_category
+        self.domain = namespace.domain
         self._get_model_settings_from_yaml()
 
 
@@ -92,16 +96,16 @@ class RobotSettings(Model):
         self.password = model.node.password
         self.ipaddress = model.node.ipaddress
         """
-          docker run -e JIRA_USERNAME -e JIRA_PASSWORD -e JIRA_PROJECT_KEY -i --network="host" -v $(pwd)/testing/robotest:/usr/src/robot/tests -v $(pwd)/testing/robotest-output:/usr/src/robot/output tfplenum/robot-automator:1.1.0 pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
+        docker run -e JIRA_USERNAME -e JIRA_PASSWORD -e JIRA_PROJECT_KEY -i --network="host" -v $(pwd)/testing/robotest:/usr/src/robot/tests -v $(pwd)/testing/robotest-output:/usr/src/robot/output --add-host=dip-controller.lan:$(IP_address) tfplenum/robot-automator:1.1.0 pipenv run python -m run.runner -c DIP_Test_Suite -r 'Ad hoc' -h -b Firefox
 
         docker run --env=JIRA_USERNAME={} --env='JIRA_PASSWORD={}' --env=JIRA_PROJECT_KEY={} -i --network="host"
-        --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} pipenv run python -m run.runner
-        -c {} -r {} -p {} -h -b {} -v 'HOST:{}' -v 'USERNAME:{}'
+        --volume={}/tests:/usr/src/robot/tests --volume={}:/usr/src/robot/output {} --add-host=dip-controller.{}:{}
+        pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v 'HOST:{}' -v 'USERNAME:{}'
         """
         # 1.    Environment Variables
         self.command = f"docker run --env=JIRA_USERNAME={self.jira_username} --env=JIRA_PASSWORD={self.jira_password} --env=JIRA_PROJECT_KEY={self.jira_project_key} -i --network=\"host\" "
         # 2.    Volume Mappings
-        self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output "
+        self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output --add-host=dip-controller.{self.domain}:{self.ipaddress} "
         # 3.    Tfplenum Container
         self.command += f"{self.tfplenum_robot_container} python3 -m run.runner "
         # 4.    Robotframework & Jira Variables that determine the output(category, report, project version)

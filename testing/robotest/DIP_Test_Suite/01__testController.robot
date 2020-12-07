@@ -15,7 +15,7 @@ Suite Setup         dipKeywords.Open SSH Connection  ${HOST}  ${HOST_USERNAME}  
 Suite Teardown      Close Browser and SSH Connection
 
 *** Variables ***
-${SINGLE_SIGN_ON_PAGE}      https://${HOST}/auth/realms/CVAH-SSO/account
+${SINGLE_SIGN_ON_PAGE}      https://${HOST}
 ${SSO_ADMIN_USERNAME}       admin
 ${SSO_ADMIN_PASSWORD}
 ${NEW_SSO_ADMIN_PASSWORD}   1qaz2wsx!QAZ@WSX
