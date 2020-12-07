@@ -50,10 +50,13 @@ export class KickstartService {
 
   putKickstartNode(node: Object) {
     const url = '/api/kickstart';
+    console.log("This Nodes raid_drives is of type:  " + (typeof node["raid_drives"]))
 
     node["boot_drives"] = node["boot_drives"].split(',')
     node["data_drives"] = node["data_drives"].split(',')
-    node["raid_drives"] = node["raid_drives"].split(',')
+    if (!Array.isArray(node["raid_drives"])) {
+      node["raid_drives"] = node["raid_drives"].split(',')
+    }
 
     return this.http.put(url, node, HTTP_OPTIONS).pipe(
       catchError(this.handleError('generateKickstartInventory'))
@@ -99,7 +102,19 @@ export class KickstartService {
    */
   public handleError(operation = 'operation', result?) {
     return (error: any): Observable<any> => {
-      this.snackbarWrapper.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
+      console.error(error);
+
+      if (error.error && error.error.post_validation){
+        let full_msg = "";
+        for (const msg of error.error.post_validation){
+          full_msg += msg;
+        }
+
+        this.snackbarWrapper.showSnackBar(full_msg, -1, 'Dismiss');
+      } else {
+        this.snackbarWrapper.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
+      }
+
       // Let the app keep running by returning an empty result.
       return of(result);
     };

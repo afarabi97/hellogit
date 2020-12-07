@@ -360,6 +360,10 @@ class AddNodeWizard(Model):
                                                              wizard,
                                                              upsert=True)  # type: InsertOneResult
 
+    @staticmethod
+    def delete_from_db():
+        conn_mng.mongo_add_node_wizard.delete_one({"_id": ADDNODE_ID})
+
 
 class DIPKitSchema(Schema):
     _id = marsh_fields.Str()
@@ -584,7 +588,7 @@ class DIPKickstartForm(KickstartBase):
         if exc.has_errors():
             raise exc
 
-    def save_to_db(self, delete_kit: bool=False):
+    def save_to_db(self, delete_kit: bool=False, delete_add_node_wizard: bool=False):
         """
         Saves Kickstart to mongo database.
 
@@ -603,6 +607,9 @@ class DIPKickstartForm(KickstartBase):
         self.root_password = decode_password(self.root_password)
         if delete_kit:
             DIPKitForm.delete_from_db()
+
+        if delete_add_node_wizard:
+            AddNodeWizard.delete_from_db()
 
 
 class MIPKickstartSchema(Schema):

@@ -82,6 +82,7 @@ export class AddNodeComponent implements OnInit {
   ngOnInit() {
     this.title.setTitle("Add Node Wizard");
     this.node = this.fb.group({
+      _id: new FormControl(''),
       hostname: new FormControl('', Validators.compose([validateFromArray(add_node_validators.hostname)])),
       ip_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.ip_address)])),
       mac_address: new FormControl('', Validators.compose([validateFromArray(add_node_validators.mac_address)])),
@@ -97,6 +98,7 @@ export class AddNodeComponent implements OnInit {
       console.log(data);
       if (data && data['kickstart_node']){
         let node = data["kickstart_node"];
+        this.node.get('_id').setValue(node['_id']);
         this.node.get('hostname').setValue(node['hostname']);
         this.node.get('ip_address').setValue(node['ip_address']);
         this.node.get('mac_address').setValue(node['mac_address']);
@@ -130,10 +132,6 @@ export class AddNodeComponent implements OnInit {
 
     this.kitNode = this.fb.group({
       hostname: new FormControl('', Validators.compose([validateFromArray(add_node_validators.hostname)])),
-    });
-
-    this.node.valueChanges.subscribe(value => {
-      this.setFormValidationErrors(this.node.controls);
     });
 
     this.kitSrv.getKitForm().subscribe(data => {
@@ -182,7 +180,10 @@ export class AddNodeComponent implements OnInit {
       dialogRef.afterClosed().subscribe(
         result => {
           if(result == doItText) {
-            this.kitSrv.executeAddNode(this.kitNode.getRawValue()).subscribe(data => this.openKitConsole(data['job_id']));
+            this.kitSrv.executeAddNode(this.kitNode.getRawValue()).subscribe(data => {
+              this.systemSetupSrv.displaySnackBar("Some Error");
+              this.openKitConsole(data['job_id']);
+            });
           }
         }
       );
@@ -245,33 +246,4 @@ export class AddNodeComponent implements OnInit {
     }
   }
 
-  private isMatch(strCmp1: string, strCmp2: string): boolean {
-    if (strCmp1.toLowerCase().trim() === strCmp2.toLocaleLowerCase().trim()){
-      return true;
-    }
-    return false;
-  }
-
-  private setFormValidationErrors(controls: FormGroupControls): AllValidationErrors[] {
-    let errors: AllValidationErrors[] = [];
-    if (this.hasWizardState){
-      // Short circuit if the Wizard has state.  We do not want to invalidate the form if it has already been previously filled out.
-      return errors;
-    }
-
-    if (this.kickstartForm){
-      for (let node of this.kickstartForm['nodes']){
-        if (this.isMatch(node['mac_address'], controls.mac_address.value)){
-          controls.mac_address.setErrors({'error_message': 'The MAC address of this node matches one you have already provisioned.'});
-        }
-        if (this.isMatch(node['ip_address'], controls.ip_address.value)){
-          controls.ip_address.setErrors({'error_message': 'The IP address of this node matches one you have already provisioned.'});
-        }
-        if (this.isMatch(node['hostname'], controls.hostname.value)){
-          controls.hostname.setErrors({'error_message': 'The hostname of this node matches one you have already provisioned.'});
-        }
-      }
-    }
-    return errors;
-  }
 }

@@ -91,7 +91,7 @@ class DIPKickstartCtrl(Resource):
         except PostValidationError as e:
             return {"post_validation": e.errors_msgs}, 400
 
-        new_kickstart.save_to_db(delete_kit=True)
+        new_kickstart.save_to_db(delete_kit=True, delete_add_node_wizard=True)
         return self._execute_kickstart_job(new_kickstart, tags)
 
     @KIT_SETUP_NS.expect(Node.DTO)
@@ -106,7 +106,7 @@ class DIPKickstartCtrl(Resource):
         try:
             kickstart_form = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
             new_node = Node.load_from_request(KIT_SETUP_NS.payload)
-            kickstart_form.nodes.append(new_node)
+            kickstart_form.nodes = self.node_update_handler(new_node, kickstart_form.nodes)
             kickstart_form.post_validation()
             wizard = AddNodeWizard(3, new_node)
             wizard.save_to_db()
@@ -119,6 +119,23 @@ class DIPKickstartCtrl(Resource):
 
         kickstart_form.save_to_db()
         return self._execute_kickstart_job(kickstart_form, tags)
+
+    def node_update_handler(self, new_node, node_list):
+        """
+        Evaluates the node is being updated or if it is being
+        added for the first time. Returns the updated list
+        """
+        index_to_remove = -1
+        for index, node in enumerate(node_list):
+            if (node._id == new_node._id):
+                index_to_remove = index
+                break
+
+        if index_to_remove >= 0:
+            del node_list[index_to_remove]
+
+        node_list.append(new_node)
+        return node_list
 
 
 @KIT_SETUP_NS.route("/mip_kickstart")
