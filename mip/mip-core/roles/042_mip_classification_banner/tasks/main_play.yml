@@ -16,6 +16,28 @@
     mode: "{{ item['mode'] }}"
   with_items: "{{ banner_scripts }}"
 
+- name: Copy banner shell script to be executed by banner.service
+  copy:
+    src: banner_script
+    dest: /usr/local/sbin/banner.sh
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: '0770'
+
+- name: Copy banner.service config file
+  copy:
+    src: banner_service
+    dest: /etc/systemd/system/banner.service
+    owner: root
+    group: root
+    mode: '0664'
+
+- name: Reload daemon services to accomodate newly added service daemon 
+  command: systemctl daemon-reload
+  register: result
+  changed_when: result.rc == 0
+  failed_when:  result.rc > 0
+
 - name: Set trust setting for MIP config script
   become: yes
   become_user: "assessor"

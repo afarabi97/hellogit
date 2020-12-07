@@ -1,0 +1,25 @@
+#!/bin/bash
+BANNER_FILE="/usr/local/sbin/classification_banner.py"
+DISPLAY=:0 /usr/bin/nohup /usr/bin/python3 /usr/local/sbin/classification_banner.py &
+
+function check_for_banner_process() {
+   CHECK_PROCESS=$(ps aux | grep classification_banner | awk '{print$12}')
+   
+   for FILE in $CHECK_PROCESS
+   do
+      if [[ $FILE == $BANNER_FILE ]]; then
+         return 0
+      else
+         return 1
+      fi
+   done
+}
+
+while [[ $BANNER_FILE ]]
+do
+  check_for_banner_process
+
+  if [[ $? -eq 1 ]]; then
+      exit 0
+  fi
+done

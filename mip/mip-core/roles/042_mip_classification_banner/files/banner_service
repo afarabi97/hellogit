@@ -1,0 +1,16 @@
+[Unit]
+Description=Service will start banner classification
+After=network.target
+
+[Service]
+Type=forking
+User=assessor
+ExecStart=/usr/local/sbin/banner.sh
+Restart=always
+TimeoutStartSec=0
+RestartSec=1
+StartLimitBurst=15
+StartLimitInterval=5
+
+[Install]
+WantedBy=multi-user.target
