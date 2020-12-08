@@ -1,8 +1,9 @@
 [Unit]
-Description=Starts TFPlenum Frontend
+Description=Starts TFPlenum Backend
 After=network.target
 
 [Service]
+User=root
 WorkingDirectory=/opt/tfplenum/web/backend
 ExecStartPre=-/usr/bin/rm -rf /opt/tfplenum/web/backend/app/__pycache__
 ExecStopPost=-/usr/bin/rm -rf /opt/tfplenum/web/backend/app/__pycache__

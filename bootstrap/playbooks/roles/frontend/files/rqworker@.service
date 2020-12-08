@@ -3,6 +3,7 @@ Description=RQ Worker Number %i
 After=network.target
 
 [Service]
+User=root
 Type=simple
 WorkingDirectory=/opt/tfplenum/web/backend
 Environment=LANG=en_US.UTF-8
