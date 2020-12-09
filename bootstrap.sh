@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-export DIP_VERSION=3.4.0
+export DIP_VERSION=3.5.0
 echo "${DIP_VERSION}" > /etc/dip-version
 bootstrap_version=1.4.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"

@@ -3,7 +3,7 @@
     <h2 id="app-catalog-page-div-mat-card-div-div-h2-chart-id">{{ chart?.id | capitalizeFirst }} (v{{ chart?.appVersion }})</h2>
   </div>
   <div fxLayout="column" fxLayoutAlign="center stretch" style="width: 100%;">
-    <mat-horizontal-stepper #stepper linear="true" style="margin-left: 10px; margin-right: 10px;">
+    <mat-horizontal-stepper #stepper linear="true" style="margin-left: 10px; margin-right: 10px;" (selectionChange)="selectionChange($event)">
       <!-- Process -->
       <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-mat-step-process-form-group" [stepControl]="processFormGroup">
         <form [formGroup]="processFormGroup">
@@ -33,14 +33,14 @@
         </form>
         <div fxLayout="row" fxLayoutAlign="space-between none" style="margin-top: 10px;">
           <button mat-button id="app-catalog-page-div-mat-card-div-button-cancel" (click)="navigateToCatalog()">Cancel</button>
-          <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="getConfig(stepper)"
+          <button mat-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;" (click)="stepper.next()"
                   *ngIf="processFormGroup.value.selectedProcess !== 'uninstall'" [disabled]="processFormGroup.invalid">Next</button>
           <button mat-raised-button id="app-catalog-page-div-mat-card-div-button-next-get-config" color="primary" style="margin-right: 10px;"
                   *ngIf="processFormGroup.value.selectedProcess === 'uninstall'" (click)="runChart()" [disabled]="valueFormGroup.invalid">Run</button>
         </div>
       </mat-step>
         <!-- Configuration Overview -->
-        <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview">
+        <mat-step id="app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview" >
           <ng-template matStepLabel>Configuration Overview</ng-template>
           <form *ngIf="isReady">
             <mat-accordion multi="true">

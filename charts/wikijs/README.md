@@ -14,12 +14,12 @@
     },
     {
       "type": "textinput",
-      "default_value": "password!",
-      "description": "Enter Wiki Admin password (min 8 characters)",
+      "description": "Enter Wiki Admin password.",
       "required": true,
-      "regexp": "^.{8,}$",
       "name": "admin_pass",
-      "error_message": "Enter a value"
+      "default_value": "Password!123456",
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
       "type": "invisible",

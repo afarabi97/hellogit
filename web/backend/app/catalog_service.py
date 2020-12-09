@@ -321,6 +321,11 @@ def _build_values(values: dict):
     return deployment_name, value_items
 
 
+def _purge_helm_app_on_failure(deployment_name: str, namespace: str):
+    cmd = "helm uninstall {} --namespace {}".format(deployment_name, namespace)
+    run_command2(command=cmd, use_shell=True, working_dir=WORKING_DIR)
+
+
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def install_helm_apps (application: str, namespace: str, node_affinity: str, values: list, task_id=None):
     response = []
@@ -392,6 +397,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                     notification.set_status(status=NotificationCode.ERROR.name)
                     notification.set_exception(exception=results)
                     notification.post_to_websocket_api()
+                    _purge_helm_app_on_failure(deployment_name, namespace)
                 if os.path.exists(tpath):
                     os.remove(tpath)
                 sleep(1)
@@ -401,6 +407,7 @@ def install_helm_apps (application: str, namespace: str, node_affinity: str, val
                 notification.set_status(status=NotificationCode.ERROR.name)
                 notification.set_exception(exception=exc)
                 notification.post_to_websocket_api()
+                _purge_helm_app_on_failure(deployment_name, namespace)
         else:
             err = "Error unable to parse values from request"
             rq_logger.exception(err)

@@ -22,12 +22,12 @@
     },
     {
       "type": "textinput",
-      "default_value": "password!",
       "description": "Enter Superadmin Password",
       "required": true,
-      "regexp": "",
       "name": "superadmin_password",
-      "error_message": "Enter a value"
+      "default_value": "Password!123456",
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",      
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
       "type": "textinput",
@@ -40,12 +40,12 @@
     },
     {
       "type": "textinput",
-      "default_value": "password!",
       "description": "Enter Alert User Password",
-      "required": true,
-      "regexp": "",
-      "name": "alert_user_password",
-      "error_message": "Enter a value"
+      "required": true,      
+      "name": "alert_user_password",      
+      "default_value": "Password!123456",
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",      
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
       "type": "textinput",
@@ -58,12 +58,12 @@
     },
     {
       "type": "textinput",
-      "default_value": "password!",
       "description": "Enter User Password",
-      "required": true,
-      "regexp": "",
-      "name": "read_write_user_password",
-      "error_message": "Enter a value"
+      "required": true,      
+      "name": "read_write_user_password",      
+      "default_value": "Password!123456",
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",      
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
       "type": "misp-checkbox",

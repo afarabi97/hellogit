@@ -20,7 +20,7 @@ function run_cmd {
 cat <<EOF > /etc/tfplenum.ini
 [tfplenum]
 system_name = DIP
-version = 3.4.0
+version = 3.5.0
 EOF
 
 pushd $TFPLENUM_DIR/bootstrap/playbooks > /dev/null

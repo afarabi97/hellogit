@@ -99,14 +99,17 @@ def push_chart(chartmuseum_uri, chart_name, chart_version):
         url = chartmuseum_uri + "/api/charts"
         headers = {'Content-type': 'application/octet-stream'}
         r = requests.post(url, data=data, headers=headers)
-        return r.status_code
-
+        if (r.status_code == 200 or r.status_code ==201):
+            print(chart_name + " updated successfully.")
+        else:
+            print(chart_name + "Update failed.")
+            print(r.text)
 
 def main():
     chartmuseum_uri = get_chartmuseum_uri()
-
     system_name = get_system_name()
     charts_to_update = get_charts(system_name)
+    print(charts_to_update)
     filtered_charts = filter(lambda chart: (chart['name'] in charts_to_update), charts)
 
     for chart in filtered_charts:
@@ -116,12 +119,8 @@ def main():
         result = None
         if is_packaged:
             result = push_chart(chartmuseum_uri, chart["name"], chart["version"])
-
-        if result:
-            if (result == 200 or result ==201):
-                print(chart["name"] + " updated successfully.")
         else:
-            print(chart["name"] + "Update failed.")
+            print("Failed to package the chart {}.".format(chart["name"]))
 
 
 if __name__ == '__main__':

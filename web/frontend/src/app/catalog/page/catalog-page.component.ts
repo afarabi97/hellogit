@@ -274,8 +274,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   getValuesFile() {
     const configArray = [];
-    Object.keys(this.configFormGroup.value).map( key => {
-      const hostname = this.configFormGroup.value[key];
+    Object.keys(this.configFormGroup.getRawValue()).map( key => {
+      const hostname = this.configFormGroup.getRawValue()[key];
       const object = {};
       object[key] = hostname;
       if(object[key].home_net) {
@@ -292,7 +292,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     this.configArray = configArray;
     if(this.savedValues !== null) {
       this.savedValues.map( values => {
-        this.processFormGroup.value.selectedNodes.map( nodes => {
+        this.processFormGroup.getRawValue().selectedNodes.map( nodes => {
           if (values.values.node_hostname === nodes.hostname || this.chart.node_affinity === this.serverAnyValue) {
             this.compareValues();
           } else {
@@ -316,9 +316,9 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   getValuesCall() {
-    this._CatalogService.getValuesFile(this.chart.id, this.processFormGroup.value, this.configArray).subscribe(data => {
+    this._CatalogService.getValuesFile(this.chart.id, this.processFormGroup.getRawValue(), this.configArray).subscribe(data => {
       this.content = data;
-        this.processFormGroup.value.selectedNodes.map(nodes => {
+        this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
           this.content.map( value => {
             const ob = this.getMapValue(value, nodes.hostname);
             if (ob !== null) {
@@ -335,7 +335,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   compareValues() {
-    this.processFormGroup.value.selectedNodes.map(nodes => {
+    this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
       this.savedValues.map( deployments => {
         this.configArray.map( configs => {
           if( (configs[nodes.hostname] !== undefined &&
@@ -397,7 +397,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     const controlKeys: string[] = Object.keys(this.configFormGroup.controls);
     controlKeys.forEach((k: string) => this.configFormGroup.removeControl(k));
     this.configFormGroup.markAsPristine();
-    this.processFormGroup.value.selectedNodes.map(nodes => {
+    this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
       let nodeControls;
       this.addDeploymentName();
       if(this.savedValues !== null) {
@@ -422,19 +422,19 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   runChart() {
-    switch (this.processFormGroup.value.selectedProcess) {
+    switch (this.processFormGroup.getRawValue().selectedProcess) {
       case 'install':
-        this._CatalogService.installHelm(this.chart.id, this.processFormGroup.value, this.makeValueArray())
+        this._CatalogService.installHelm(this.chart.id, this.processFormGroup.getRawValue(), this.makeValueArray())
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Installation Queued`, 'OK', { duration: 5000 }));
         break;
       case 'uninstall':
         this.serverAny();
         this.addDeploymentName();
-        this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.value)
+        this._CatalogService.deleteHelm(this.chart.id, this.processFormGroup.getRawValue())
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Deletetion Queued`, 'OK', { duration: 5000 }));
         break;
       case 'reinstall':
-        this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.value, this.makeValueArray())
+        this._CatalogService.reinstallHelm(this.chart.id, this.processFormGroup.getRawValue(), this.makeValueArray())
           .subscribe(_data => this.snackBar.open(`${this.chart.id} Reinstallation Queued`, 'OK', { duration: 5000 }));
         break;
       default:
@@ -452,14 +452,14 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    */
   makeValueArray(): Array<any> {
     this.processFormGroup.controls['node_affinity'].setValue(this.chart.node_affinity);
-    this.processFormGroup.value.selectedNodes.map((node: NodeClass) => {
+    this.processFormGroup.getRawValue().selectedNodes.map((node: NodeClass) => {
       this.valueFormGroup.controls[node.deployment_name].disable();
       const hostname_ctrl: Object = this.valueFormGroup.controls[node.deployment_name].value;
       this.valueFormGroup.controls[node.deployment_name].setValue(JSON.parse(hostname_ctrl.toString()));
     });
 
-    return Object.keys(this.valueFormGroup.value).map( key => {
-      const deployment_name = this.valueFormGroup.value[key];
+    return Object.keys(this.valueFormGroup.getRawValue()).map( key => {
+      const deployment_name = this.valueFormGroup.getRawValue()[key];
       const object = {};
       object[key] = deployment_name;
 
@@ -474,7 +474,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   addDeploymentName() {
-    this.processFormGroup.value.selectedNodes.map(nodes => {
+    this.processFormGroup.getRawValue().selectedNodes.map(nodes => {
       this.statuses.map( value => {
         if(value.hostname === nodes.hostname || value.hostname === null) {
           nodes.deployment_name = value.deployment_name;
@@ -499,7 +499,11 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       });
     }
     const deploymentName = this.makeRegexGreatAgain(this.chart.id, hostname, value);
-    nodeControls.addControl("deployment_name", new FormControl(deploymentName));
+    const deployment_ctrl = new FormControl(deploymentName);
+    // Disabled the field because the user does not really need to change this.
+    // Allowing them to change it causes breakages in other locations of the code.
+    deployment_ctrl.disable();
+    nodeControls.addControl("deployment_name", deployment_ctrl);
 
     if (this.chart.id === "squid") {
       nodeControls.addControl("jdms_gip_number", new FormControl(this.gip_number));
@@ -566,7 +570,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     const new_hostname = node_hostname.split('.')[0];
     const deployment_name = this.chart.node_affinity === this.serverAnyValue ? application : `${new_hostname}-${application}`;
 
-    return ObjectUtilitiesClass.notUndefNull(value) && value.deployment_name !== deployment_name ?
+    return ObjectUtilitiesClass.notUndefNull(value) && value.deployment_name !== deployment_name && value.deployment_name ?
              value.deployment_name : deployment_name;
   }
 
@@ -577,8 +581,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
    * @memberof CatalogPageComponent
    */
   configReady(): boolean {
-    this.isReady = (this.processFormGroup.value.selectedProcess === 'install' || this.processFormGroup.value.selectedProcess === 'reinstall') &&
-                   (this.processFormGroup.value.selectedNodes.length !== 0 || this.chart.node_affinity === this.serverAnyValue);
+    this.isReady = (this.processFormGroup.getRawValue().selectedProcess === 'install' || this.processFormGroup.getRawValue().selectedProcess === 'reinstall') &&
+                   (this.processFormGroup.getRawValue().selectedNodes.length !== 0 || this.chart.node_affinity === this.serverAnyValue);
 
     return this.isReady;
   }
@@ -748,5 +752,16 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       ObjectUtilitiesClass.notUndefNull(control.regexp) ? Validators.pattern(control.regexp) : Validators.nullValidator,
       control.required ? Validators.required : Validators.nullValidator
     ]);
+  }
+
+  selectionChange(event) {
+    if (event.selectedIndex == 1){ // Configuration Overview
+      this.serverAny();
+      if (this.configReady()) {
+        this.makeFormgroup();
+      }
+    } else if (event.selectedIndex == 2){ // Values File Overview
+      this.getValuesFile();
+    }
   }
 }

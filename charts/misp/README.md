@@ -5,12 +5,12 @@
   "formControls": [
     {
       "type": "textinput",
-      "default_value": "1qaz@WSX1qaz@WSX",
-      "description": "Enter admin password (min 10 characters, 1 upper, 1 number, 1 special character)",
+      "description": "Enter admin password.",
       "required": true,
-      "regexp": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{10,}$",
       "name": "admin_pass",
-      "error_message": "Enter a value"
+      "default_value": "Password!123456",
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",      
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
       "type": "textinput",
