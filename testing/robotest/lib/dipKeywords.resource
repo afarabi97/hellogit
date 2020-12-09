@@ -12,23 +12,15 @@ Open SSH Connection
     Open Connection     ${host}
     Login               ${host_username}  ${host_password}
 
-Get SSO Administrator Password
-    [Documentation]     Does the task of retrieving the password from the text file
-    ${sso_pword} =  Execute Command   cat ${SSO_FILE}
-    [Return]  ${sso_pword}
-
 Login Into DIP Controller
     [Arguments]  ${usernameValue}  ${passwordValue}
     [Documentation]     Log into the DIP Controller after initial SSO occurs
     Wait Until Page Contains Element    ${usernameLocator}
     Wait Until Page Contains Element    ${passwordLocator}
-    SeleniumLibrary.Capture Page Screenshot  filename=keyword-enterloginup-screenshot-{index}.png
     Input Text  ${usernameLocator}  ${usernameValue}
     Input Text  ${passwordLocator}  ${passwordValue}
     Click Element  ${logInLocator}
-    SeleniumLibrary.Capture Page Screenshot  filename=keyword-enterloginup-screenshot-{index}.png
-    # Sleep  3s
-    Wait Until Page Does Not Contain  ${LOGIN_SCREEN_TITLE}  3s
+    Wait Until Page Does Not Contain  ${LOGIN_SCREEN_TITLE}
 
 Accept DoD Banner
     [Documentation]  This function is made to accept the DoD Banner
@@ -46,13 +38,12 @@ Update Password
     Wait Until Page Contains Element        ${confirmpasswordLocator}
     Wait Until Page Contains Element        ${submitLocator}
     SeleniumLibrary.Capture Page Screenshot  filename=keyword-enternewpassword-screenshot-{index}.png
-    Input Text  ${newPasswordLocator}       ${newPasswordValue}
-    Input text  ${confirmpasswordLocator}   ${newPasswordValue}
-    Click Element  ${submitLocator}
+    Input Text    ${newPasswordLocator}  ${newPasswordValue}
+    Input text    ${confirmpasswordLocator}  ${newPasswordValue}
+    Click Element    ${submitLocator}
     Wait Until Page Does Not Contain    ${UPDATE_PASSWORD_TITLE}
-    Click Element  ${submitLocator}
+    Click Element    ${submitLocator}
     Wait Until Page Does Not Contain    ${UPDATE_ACCOUNT_TITLE}
-    SeleniumLibrary.Capture Page Screenshot  filename=update-password-screenshot-{index}.png
 
 Close Browser and SSH Connection
     Close All Browsers
