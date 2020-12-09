@@ -206,7 +206,7 @@ function prompt_user {
       if [[ ${DOMAIN:0:1} =~ [0-9] ]]; then
          echo "The domain can not start with a number"
       else
-         return 1
+         break
       fi
       
     done
