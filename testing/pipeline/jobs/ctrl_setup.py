@@ -33,7 +33,7 @@ EOF
     subprocess.Popen('git config --global --unset credential.helper', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
     subprocess.Popen(cred_file_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
     subprocess.Popen('git config --global credential.helper "/bin/bash ~/credential-helper.sh"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
-    
+
     commands = ['git fetch --unshallow',
                 'git checkout {} --force'.format(repo_settings.branch_name),
                 'git pull --rebase',
@@ -131,8 +131,13 @@ EOF
             client.run('cd /opt/tfplenum/bootstrap/playbooks && make build_helm_charts')
         client.run('cd /opt/tfplenum/bootstrap/playbooks && make nightly_clone_rebuild_frontend')
         # client.run('/opt/tfplenum/web/setup/redeploy.sh')
-        client.run('cd /opt/tfplenum/bootstrap/playbooks && make setup_ctrl_dns')
-        client.run('systemctl restart network NetworkManager')
+        if self.ctrl_settings.system_name == "MIP":
+            client.run('systemctl restart NetworkManager')
+            client.run('nmcli connection down ens192')
+            client.run('nmcli connection up ens192')
+        else:
+            client.run('systemctl restart network NetworkManager')
+        client.run('cd /opt/tfplenum/bootstrap/playbooks && make hosts_file')
         client.run('cd /opt/tfplenum/deployer/playbooks && make update-portal-client')
 
     def _update_nightly_controller(self, flag=True):

@@ -1,16 +1,10 @@
 ---
-- name: Add controller lan to hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "{{ ansible_controller_hostname }}"
-    state: absent
-
-- name: Add controller lan to hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "^{{ server_ip }} {{ ansible_controller_hostname }}"
-    line: "{{ server_ip }} {{ ansible_controller_hostname }}"
-    state: present
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
   notify:
     - "Restart NetworkManager"
+  tags:
+    - hosts_file
 ...

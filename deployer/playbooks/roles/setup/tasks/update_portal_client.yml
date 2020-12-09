@@ -5,7 +5,7 @@
 
 - name: Set Keycloak Clients Fact
   set_fact:
-    ansible_controller_hostname: "{{ system_name | lower }}-controller.lan"
+    ansible_controller_hostname: "{{ ansible_nodename }}"
   when: kit_domain is not defined
 
 - name: Set Keycloak Clients Fact
