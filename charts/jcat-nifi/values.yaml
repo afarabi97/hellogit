@@ -1,0 +1,8 @@
+jcat_port: 8080
+image_name: tfplenum/jcat-nifi
+image_tag: AF-1.0
+replicas: 1
+data_path: /data/jcat
+cpu_request: 1000
+heap_size: 2
+
