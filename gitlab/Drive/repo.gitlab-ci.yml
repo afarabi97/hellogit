@@ -70,7 +70,7 @@ Perform Reposync Server STIGs:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "REPO"
+    python3 testing/pipeline/pipeline.py --system-name "REPO" run-stigs --sub-system-name "SERVER"
   artifacts:
     untracked: true
   only:

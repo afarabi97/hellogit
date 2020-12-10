@@ -106,6 +106,7 @@
         - mip-controller-stigs
         - gip-controller-stigs
         - gip-service-vm-stigs
+        - repo-server-stigs
 
     - name: XCCDF Value var_password_pam_lcredit # promote to variable
       set_fact:
@@ -716,6 +717,7 @@
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
+      ignore_errors: true
 
     - name: Add fail_interval argument to auth pam_faillock authfail
       pamd:
@@ -1415,6 +1417,7 @@
         - gip-service-vms
         - gip-service-vm-stigs
         - repo-server-stigs
+      ignore_errors: true
 
     - name: Set gpgcheck=1 for each yum repo
       ini_file:

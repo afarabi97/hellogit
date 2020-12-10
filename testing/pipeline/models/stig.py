@@ -66,7 +66,7 @@ class STIGSettings(Model):
                 self.sub_system_name)
             power_on_vms(self.model_settings.vcenter, self.model_settings.node)
             self._setup_username_password_ip(self.model_settings)
-            self._setup_play_execution_vars(play_targets='localhost', play_tags='repo-server-stigs',
+            self._setup_play_execution_vars(play_targets='all', play_tags='repo-server-stigs',
                                             play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
 
     def take_snapshot_for_certain_systems(self):
@@ -82,7 +82,7 @@ class STIGSettings(Model):
         """
         This setups the @var: self.execute_make_vars which will be used by the stig job
         to pass the proper parameters to the proprer execution method.
-        Use this if you want the StigJob to use the makefile to run STIGss
+        Use this if you want the StigJob to use the makefile to run STIGs
         """
         self.executor_type = ExecutorType.MAKE       # default is MAKE but, this will eliminate mistakes possibly
         self.make_execution_vars = {

@@ -55,3 +55,8 @@ gip-service-vm-stigs:
 
 
 
+#########################
+#	REPO SERVER STIGS	#
+#########################
+repo-server-stigs:
+	ansible-playbook $(PLAYBOOK) --connection=local -i localhost, --tags "repo-server-stigs"
