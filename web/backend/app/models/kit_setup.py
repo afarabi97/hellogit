@@ -229,12 +229,13 @@ class Node(NodeBaseModel):
 
         :param kickstart_form: Dictionary for the Kickstart form
         """
+        # Keeps first label of hostname and appends domain to it.
         if domain:
-            if self.hostname.rfind("." + domain) == -1:
-                self.hostname = self.hostname + "." + domain
-            elif self.hostname.rfind(".") > 0:
-                pos = self.hostname.rfind(".")
-                self.hostanme = self.hostname[:pos] + "." + domain
+            pos = self.hostname.find(".")
+            if pos == -1:
+                self.hostname = f"{self.hostname}.{domain}"
+            else:
+                self.hostname = f"{self.hostname[:pos]}.{domain}"
 
         conn_mng.mongo_node.find_one_and_replace({"_id": self._id}, self.schema.dump(self), upsert=True)
 
