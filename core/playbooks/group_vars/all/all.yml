@@ -70,6 +70,7 @@ package_list:
   - bash-completion
   - vim
   - scap-security-guide
+  - conntrack
 
 pip_installs:
   - netaddr

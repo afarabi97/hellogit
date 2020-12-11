@@ -51,12 +51,6 @@
     - /etc/cni/net.d/10-calico.conflist
     - /opt/cni/bin/calico
 
-# - name: Flannel | Wait for flannel subnet.env file presence
-#   wait_for:
-#     path: /run/flannel/subnet.env
-#     delay: 5
-#     timeout: 600
-
 - name: Restart Crio and Kubelet
   service:
     state: restarted

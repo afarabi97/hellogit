@@ -5,61 +5,118 @@ CNIDIR ?= $(ETCDIR)/cni/net.d
 BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man
 OCIDIR ?= $(PREFIX)/share/oci-umount/oci-umount.d
-HOOKSDIR ?= /usr/share/containers/oci/hooks.d
 SELINUX ?= $(shell selinuxenabled 2>/dev/null && echo -Z)
 BASHINSTALLDIR ?= $(PREFIX)/share/bash-completion/completions
 FISHINSTALLDIR ?= $(PREFIX)/share/fish/completions
 ZSHINSTALLDIR ?= $(PREFIX)/share/zsh/site-functions
-SYSTEMDDIR ?= /usr/lib/systemd/system
-
-DEFAULT_BINARY ?= crio-x86_64-static-musl
+SYSTEMDDIR ?= $(PREFIX)/lib/systemd/system
+OPT_CNI_BIN_DIR ?= /opt/cni/bin
 
 all: install
 
 .PHONY: install
-install:
+install: \
+	install-cni \
+	install-conmon \
+	install-crio \
+	install-crictl \
+	install-pinns \
+	install-runc \
+	install-crun
+
+.PHONY: install-cni
+install-cni:
+	install $(SELINUX) -d -m 755 $(CNIDIR)
+	install $(SELINUX) -D -m 755 -t $(OPT_CNI_BIN_DIR) cni-plugins/*
+	install $(SELINUX) -D -m 644 -t $(CNIDIR) contrib/10-crio-bridge.conf
+
+.PHONY: install-conmon
+install-conmon:
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/conmon
+
+.PHONY: install-crictl
+install-crictl:
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crictl
+
+.PHONY: install-crio
+install-crio:
 	install $(SELINUX) -d -m 755 $(BASHINSTALLDIR)
 	install $(SELINUX) -d -m 755 $(FISHINSTALLDIR)
 	install $(SELINUX) -d -m 755 $(ZSHINSTALLDIR)
 	install $(SELINUX) -d -m 755 $(CONTAINERS_DIR)
-	install $(SELINUX) -d -m 755 $(CNIDIR)
-	install $(SELINUX) -d -m 755 ${OCIDIR}
-	install $(SELINUX) -d -m 755 ${HOOKSDIR}
-	install $(SELINUX) -d -m 755 $(ETCDIR)/crio
-	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crio-x86_64-static-glibc
-	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crio-x86_64-static-musl
-	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/pinns
-	ln -sf $(BINDIR)/$(DEFAULT_BINARY) $(BINDIR)/crio
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crio-status
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crio
 	install $(SELINUX) -D -m 644 -t $(ETCDIR) etc/crictl.yaml
 	install $(SELINUX) -D -m 644 -t $(OCIDIR) etc/crio-umount.conf
 	install $(SELINUX) -D -m 644 -t $(ETCDIR)/crio etc/crio.conf
 	install $(SELINUX) -D -m 644 -t $(MANDIR)/man5 man/crio.conf.5
+	install $(SELINUX) -D -m 644 -t $(MANDIR)/man5 man/crio.conf.d.5
 	install $(SELINUX) -D -m 644 -t $(MANDIR)/man8 man/crio.8
 	install $(SELINUX) -D -m 644 -t $(BASHINSTALLDIR) completions/bash/crio
 	install $(SELINUX) -D -m 644 -t $(FISHINSTALLDIR) completions/fish/crio.fish
 	install $(SELINUX) -D -m 644 -t $(ZSHINSTALLDIR) completions/zsh/_crio
-	install $(SELINUX) -D -m 644 -t $(CNIDIR) contrib/10-crio-bridge.conf
 	install $(SELINUX) -D -m 644 -t $(CONTAINERS_DIR) contrib/policy.json
-	install $(SELINUX) -D -m 644 -t $(SYSTEMDDIR) contrib/crio-shutdown.service
-	install $(SELINUX) -D -m 644 -t $(SYSTEMDDIR) contrib/crio-wipe.service
 	install $(SELINUX) -D -m 644 -t $(SYSTEMDDIR) contrib/crio.service
 
+.PHONY: install-pinns
+install-pinns:
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/pinns
+
+.PHONY: install-runc
+install-runc:
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/runc
+
+.PHONY: install-crun
+install-crun:
+	install $(SELINUX) -D -m 755 -t $(BINDIR) bin/crun
+
 .PHONY: uninstall
-uninstall:
+uninstall: \
+	uninstall-cni \
+	uninstall-conmon \
+	uninstall-crio \
+	uninstall-crictl \
+	uninstall-pinns \
+	uninstall-runc \
+	uninstall-crun
+
+.PHONY: uninstall-cni
+uninstall-cni:
+	rm -rf $(OPT_CNI_BIN_DIR)/*
+	rm -rf $(CNIDIR)/10-crio-bridge.conf
+
+.PHONY: uninstall-conmon
+uninstall-conmon:
+	rm -rf $(BINDIR)/conmon
+
+.PHONY: uninstall-crictl
+uninstall-crictl:
+	rm -rf $(BINDIR)/crictl
+
+.PHONY: uninstall-crio
+uninstall-crio:
 	rm -rf $(BINDIR)/crio
-	rm -rf $(BINDIR)/crio-x86_64-static-glibc
-	rm -rf $(BINDIR)/crio-x86_64-static-musl
-	rm -rf $(BINDIR)/pinns
+	rm -rf $(BINDIR)/crio-status
 	rm -rf $(ETCDIR)/crictl.yaml
 	rm -rf $(OCIDIR)/crio-umount.conf
 	rm -rf $(ETCDIR)/crio/crio.conf
 	rm -rf $(MANDIR)/man5/crio.conf.5
+	rm -rf $(MANDIR)/man5/crio.conf.d.5
 	rm -rf $(MANDIR)/man8/crio.8
 	rm -rf $(BASHINSTALLDIR)/crio
 	rm -rf $(FISHINSTALLDIR)/crio.fish
 	rm -rf $(ZSHINSTALLDIR)/_crio
-	rm -rf $(CNIDIR)
-	rm -rf -rf $(CONTAINERS_DIR)/policy.json
-	rm -rf $(SYSTEMDDIR)/crio-shutdown.service
-	rm -rf $(SYSTEMDDIR)/crio-wipe.service
+	rm -rf $(CONTAINERS_DIR)/policy.json
 	rm -rf $(SYSTEMDDIR)/crio.service
+
+.PHONY: uninstall-pinns
+uninstall-pinns:
+	rm -rf $(BINDIR)/pinns
+
+.PHONY: uninstall-runc
+uninstall-runc:
+	rm -rf $(BINDIR)/runc
+
+.PHONY: uninstall-crun
+uninstall-crun:
+	rm -rf $(BINDIR)/crun

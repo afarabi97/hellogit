@@ -57,10 +57,6 @@
   tags: helm
   when: "system_name == 'DIP' or system_name == 'GIP'"
 
-- import_tasks: conmon.yml
-  tags: conmon
-  when: "system_name == 'DIP' or system_name == 'GIP'"
-
 - import_tasks: allow_shibd.yml
   when: system_name == 'MIP'
 

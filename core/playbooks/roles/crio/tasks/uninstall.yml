@@ -32,6 +32,14 @@
     name: [ buildah, cri-tools, runc, container-selinux, criu ]
     state: absent
 
+- name: Copy custom Makefile
+  copy:
+    src: "files/Makefile"
+    dest: "{{ crio_dir }}/Makefile"
+    group: root
+    owner: root
+    mode: 0644
+
 - name: Uninstall crio
   make:
     chdir: "{{ crio_dir }}"

@@ -1,13 +1,5 @@
 ---
 
-- name: Get Conmon binary from controller
-  get_url:
-    url: "{{ offline_repo_base }}/conmon-{{ conmon_version }}/bin/conmon"
-    dest: "/usr/bin/conmon"
-    mode: 0755
-    group: root
-    owner: root
-
 - name: Download crio tar
   unarchive:
     src: "{{ offline_repo_base }}/crio-{{ crio_version }}.tar.gz"
@@ -21,20 +13,6 @@
     dest: "{{ crio_dir }}"
     state: link
 
-- name: main.yml | Building calico's directory scrucuture
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0755
-  with_items:
-    - "/etc/cni/net.d/"
-    - "/opt/cni/bin/"
-
-- name: Install CRI-O Dependencies
-  dnf:
-    name: [ buildah, cri-tools, make, runc ]
-    state: present
-
 - name: Copy custom Makefile
   copy:
     src: "files/Makefile"
@@ -42,6 +20,11 @@
     group: root
     owner: root
     mode: 0644
+
+- name: Install CRI-O Dependencies
+  dnf:
+    name: [ conntrack, buildah ]
+    state: present
 
 - name: Install crio
   make:
@@ -56,18 +39,7 @@
     - "/etc/cni/net.d/100-crio-bridge.conf"
     - "/etc/cni/net.d/10-crio-bridge.conf"
 
-- name: Configure CRIO CNI
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/cni/net.d/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - "100-crio-flannel.conf"
-    - "200-loopback.conf"
-
-- name: 'Configure CRIO Config'
+- name: 'Add Custom Crio Conf'
   template:
     src: "templates/crio.conf.j2"
     dest: "/etc/crio/crio.conf"
@@ -89,15 +61,7 @@
 
 - name: CRI-O Service
   service:
-    name: "{{ item }}"
+    name: crio
     state: started
     enabled: true
-  with_items:
-    - crio
-    - crio-shutdown
-
-- import_tasks: offline.yml
-  tags:
-    - docker_images
-
 ...

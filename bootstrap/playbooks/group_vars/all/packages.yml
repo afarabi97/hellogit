@@ -9,8 +9,7 @@ direct_download_package_names:
   - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{ elastic_7_version }}-windows-x86_64.zip", dest: "/opt/tfplenum/agent_pkgs/auditbeat", mode: "644" }
   - { url: "https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-{{ elastic_7_version }}-windows-x86.zip", dest: "/opt/tfplenum/agent_pkgs/auditbeat", mode: "644" }
   - { url: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://github.com/cri-o/cri-o/releases/download/{{crio_version}}/crio-{{crio_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
-  - { url: "https://github.com/containers/conmon/archive/v{{conmon_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}/conmon-v{{conmon_version}}.tar.gz", mode: "644" }
+  - { url: "https://storage.googleapis.com/k8s-conform-cri-o/artifacts/crio-{{crio_version}}.tar.gz", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
   - { url: "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-{{ elastic_7_version }}.zip", dest: "{{ tfplenumoffline_dir }}/elasticsearch-plugins", mode: "644" }
   - { url: "https://github.com/elastic/support-diagnostics/releases/download/8.1.1/support-diagnostics-8.1.1-dist.zip", dest: "{{ tfplenumoffline_dir }}", mode: "644" }
   - { url: "https://raw.githubusercontent.com/johanhaleby/kubetail/1.6.12/kubetail", dest: "/usr/local/bin", mode: "755" }
@@ -41,7 +40,7 @@ extra_packages:
 dip_packages_without_deps:
   - "kubeadm-{{ k8s_version }}"
   - "kubectl-{{ k8s_version }}"
-  - kubernetes-cni-0.7.5
+  - kubernetes-cni-0.8.7
 
 dip_packages_to_remove:
   - containerd.io

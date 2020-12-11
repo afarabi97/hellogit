@@ -1,1 +1,1 @@
-KUBELET_EXTRA_ARGS="--cgroup-driver=cgroupfs --read-only-port=10255 --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice --node-ip={{ management_ipv4 }}"
+KUBELET_EXTRA_ARGS="--cgroup-driver=systemd --read-only-port=10255 --node-ip={{ management_ipv4 }}"
