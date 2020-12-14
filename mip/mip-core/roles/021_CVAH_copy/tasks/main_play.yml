@@ -7,12 +7,20 @@
     - CPT
     - MDT
 
+- name: Determine if cvah.tar was downloaded
+  stat:
+    path: /operator/.DO_NOT_DELETE/.cvah_tar_download
+  register: cvah_tar_download
+  tags:
+    - CPT
+    - MDT
+
 - name: Download CPT cvah folder tar from web server
   get_url:
     url: "{{ cpt_cvah_tar }}"
     dest: /root
     timeout: 120
-  when: not cvah_file.stat.exists
+  when: not cvah_tar_download.stat.exists
   tags:
     - CPT
 
@@ -21,8 +29,16 @@
     url: "{{ mdt_cvah_tar }}"
     dest: /root
     timeout: 120
-  when: not cvah_file.stat.exists
+  when: not cvah_tar_download.stat.exists
   tags:
+    - MDT
+
+- name: Create hidden file for validation of cvah.tar download
+  file:
+    path: /operator/.DO_NOT_DELETE/.cvah_tar_download
+    state: touch
+  tags:
+    - CPT
     - MDT
 
 - name: Find cvah tar file
@@ -37,7 +53,6 @@
 - name: Set TAR file
   set_fact:
     tar_file: "{{ tar_file.files[0].path.split('/')[-1] }}"
-  when: not cvah_file.stat.exists
   tags:
     - CPT
     - MDT
@@ -89,4 +104,7 @@
   file:
     path: /operator/.DO_NOT_DELETE/.021
     state: touch
+  tags: 
+    - CPT
+    - MDT
 ...
