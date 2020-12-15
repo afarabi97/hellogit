@@ -69,6 +69,7 @@ package_list:
   - unzip
   - bash-completion
   - vim
+  - scap-security-guide
 
 pip_installs:
   - netaddr

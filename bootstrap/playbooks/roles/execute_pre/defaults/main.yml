@@ -13,3 +13,4 @@ package_list:
   - vim
   - wget
   - rsync
+  - scap-security-guide

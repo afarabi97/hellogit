@@ -116,18 +116,19 @@ Perform MIP Security Scans:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/run_acas.py \
-    --ipaddress "$ACAS_IPADDRESS" \
-    --username "$ACAS_USERNAME" \
-    --password "$ACAS_PASSWORD" \
-    --scan_name "$MIP_ACAS_SCAN_TO_RUN" \
-    --report-name "MIP_ACAS_Report.pdf" \
-    --nodes-to-scan $(cat mipnodestoscan.txt)
+    python3 testing/pipeline/pipeline.py --system-name "MIP" run-oscap-scans
+    # python3 testing/pipeline/run_acas.py \
+    # --ipaddress "$ACAS_IPADDRESS" \
+    # --username "$ACAS_USERNAME" \
+    # --password "$ACAS_PASSWORD" \
+    # --scan_name "$MIP_ACAS_SCAN_TO_RUN" \
+    # --report-name "MIP_ACAS_Report.pdf" \
+    # --nodes-to-scan $(cat mipnodestoscan.txt)
   only:
     variables:
-      - $RUN_ACAS == "yes" && $PIPELINE == "developer-mip"
-      - $RUN_ACAS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_ACAS == "yes" && $PIPELINE == "developer-dip-mip"
+      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-mip"
+      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-all"
+      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-dip-mip"
   artifacts:
     untracked: true
 

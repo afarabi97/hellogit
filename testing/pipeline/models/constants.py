@@ -27,6 +27,7 @@ class SubCmd:
     build_server_for_export = 'build-server-for-export'
     run_stigs = 'run-stigs'
     run_robot = 'run-robot'
+    run_oscap_scans = 'run-oscap-scans'
 
     # run-catalog subcommands
     install = "install"

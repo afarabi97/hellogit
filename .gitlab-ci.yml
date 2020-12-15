@@ -63,7 +63,7 @@ variables:
   RUN_CODE_CHECKS: "yes"
   RUN_POWER_FAILURE: "no"
   RUN_BREAKINGPOINT : "no"
-  RUN_ACAS: "no"
+  RUN_SECURITY_SCANS: "yes"
   UPDATE_CODE: "yes"
   IS_CLEANUP: "no"
   RUN_ROBOT_TESTS: "yes"

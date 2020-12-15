@@ -10,6 +10,7 @@ from jobs.mip_config import MIPConfigJob
 from jobs.mip_save_kit import MIPSaveKitJob
 from jobs.catalog import CatalogJob
 from jobs.kit import KitJob
+from jobs.oscap import OSCAPScanJob
 from jobs.integration_tests import IntegrationTestsJob, PowerFailureJob
 from jobs.export import (ConfluenceExport, ControllerExport, GIPServiceExport,
                          ReposyncServerExport, MinIOExport)
@@ -77,6 +78,11 @@ class Runner:
                                                             boot the nodes for the DIP kit.")
         KickstartSettings.add_args(kickstart_ctrl_parser)
         kickstart_ctrl_parser.set_defaults(which=SubCmd.run_kickstart)
+
+        oscap_parser = subparsers.add_parser(SubCmd.run_oscap_scans,
+                                             help="This command is used to run oscap scans on each node.")
+        # KickstartSettings.add_args(kickstart_ctrl_parser)
+        oscap_parser.set_defaults(which=SubCmd.run_oscap_scans)
 
         mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart,
                                                           help="This command is used to Kickstart/PXE \
@@ -274,6 +280,16 @@ class Runner:
 
                 executor = KickstartJob(ctrl_settings, kickstart_settings)
                 executor.run_kickstart()
+            elif args.which == SubCmd.run_oscap_scans:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
+                if args.system_name == "GIP":
+                    kickstart_settings = YamlManager.load_gip_kickstart_settings_from_yaml()
+                elif args.system_name == "MIP":
+                    kickstart_settings = YamlManager.load_mip_kickstart_settings_from_yaml()
+                else:
+                    kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()
+                job = OSCAPScanJob(ctrl_settings, kickstart_settings)
+                job.run_scan()
             elif args.which == SubCmd.run_kit:
                 ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name)
                 kickstart_settings = YamlManager.load_kickstart_settings_from_yaml()

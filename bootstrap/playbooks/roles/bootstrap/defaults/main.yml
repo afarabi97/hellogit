@@ -17,6 +17,7 @@ package_list:
   - tftp-server
   - dnsmasq
   - httpd
+  - scap-security-guide
 
 mip_package_list:
   - dhcp-server
@@ -26,5 +27,6 @@ mip_package_list:
   - syslinux
   - xinetd
   - policycoreutils-python-utils
+  - scap-security-guide
 
 emerging_rules_url: https://rules.emergingthreats.net/open/suricata-{{ suricata_version[0] }}.0/emerging.rules.tar.gz

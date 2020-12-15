@@ -34,6 +34,20 @@ Setup GIP Services VM:
       - $PIPELINE == "developer-gip-svc"
       - $PIPELINE == "export-gip"
 
+
+Perform GIP STIGs:
+  stage: stig-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-stigs
+  only:
+    variables:
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-gip"
+      - $RUN_STIGS == "yes" && $PIPELINE == "developer-all"
+
 # TODO bring back after STIGS are fixed
 
 # Perform GIP Servives STIGs:
@@ -170,3 +184,18 @@ GIP Kit:
   only:
     variables:
       - $PIPELINE == "developer-gip"
+
+Perform GIP Security Scans:
+  stage: security_scans
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py --system-name "GIP" run-oscap-scans
+  only:
+    variables:
+      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-gip"
+      - $RUN_SECURITY_SCANS == "yes" && $PIPELINE == "developer-all"
+  artifacts:
+    untracked: true

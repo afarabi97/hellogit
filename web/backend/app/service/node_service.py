@@ -69,6 +69,17 @@ def execute_kit(password: str):
     system_name = get_system_name()
     if system_name == "GIP":
         gip_tags = "--skip-tags moloch"
+        do_stigs =  {
+            "command": "make gip-server-stigs",
+            "cwd_dir": str(STIGS_DIR),
+            "job_name": _JOB_NAME_NOTIFICATION
+        }
+    else:
+        do_stigs =  {
+            "command": "make dip-stigs",
+            "cwd_dir": str(STIGS_DIR),
+            "job_name": _JOB_NAME_NOTIFICATION
+        }
 
     command_list = [
         {
@@ -77,12 +88,7 @@ def execute_kit(password: str):
                         ).format(playbook_pass=password, gip=gip_tags),
                         "cwd_dir": str(CORE_DIR / "playbooks"),
                         "job_name": _JOB_NAME_NOTIFICATION
-        }
-        ,{
-            "command": "make dip-stigs",
-            "cwd_dir": str(STIGS_DIR),
-            "job_name": _JOB_NAME_NOTIFICATION
-        }
+        }, do_stigs
     ]
 
     is_successful = execute_series(command_list)

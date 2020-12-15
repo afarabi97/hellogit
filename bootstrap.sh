@@ -386,11 +386,11 @@ function execute_bootstrap_playbook(){
     fi
 
     # Add STIGS to GIP Controller
-    #if [ "$SYSTEM_NAME" == "GIP" ]; then
-    #    pushd "/opt/tfplenum/stigs/playbooks" > /dev/null
-    #    run_cmd make gip-controller-stigs
-    #    popd > /dev/null
-    #fi
+    if [ "$SYSTEM_NAME" == "GIP" ]; then
+       pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
+       run_cmd make gip-controller-stigs
+       popd > /dev/null
+    fi
 }
 
 function execute_pull_docker_images_playbook(){

@@ -51,6 +51,10 @@ class STIGSettings(Model):
             self._setup_username_password_ip(self.model_settings)
             self._setup_play_execution_vars(play_targets='gip-service-vms', play_tags='gip-service-vm-stigs',
                                             play_timeout=STIG_TIMEOUT, play_path_to_site_yaml=STIG_PATH_TO_SITE_YAML)
+        elif self.system_name == 'GIP':
+            self.model_settings = YamlManager.load_ctrl_settings_from_yaml(self.system_name)
+            self._setup_username_password_ip(self.model_settings)
+            self._setup_make_execution_vars('gip-controller-stigs')
         elif self.system_name == 'DIP':
             self.model_settings = YamlManager.load_ctrl_settings_from_yaml(
                 self.system_name)
