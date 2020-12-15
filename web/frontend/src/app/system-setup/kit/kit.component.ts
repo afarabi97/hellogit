@@ -167,12 +167,12 @@ export class KitComponent implements OnInit, AfterViewInit {
       return `Incomplete IP Address`;
     } else {
       while (octet_4 > 0) {
-        // The magic number 16 correlates to a /28. We're basically looking for
-        // the first subnet which matches a /28 and that will end up being the
+        // The magic number 16 correlates to a /27. We're basically looking for
+        // the first subnet which matches a /27 and that will end up being the
         // base address for the range. If the number is evenly divisible by 16
         // that means we've found the base of the address range and 15 beyond that
         // is the maximum range.
-        if (octet_4 % 16 === 0) {
+        if (octet_4 % 32 === 0) {
           break;
         } else {
           octet_4 -= 1;
@@ -182,9 +182,9 @@ export class KitComponent implements OnInit, AfterViewInit {
       // 1 in this case.
       if (octet_4 === 0) {
         octet_4 = 1;
-        return `Kubernetes services range will be: ${octet_1 + octet_2 + octet_3 + octet_4} - ${octet_4 + 14}`;
+        return `Kubernetes services range will be: ${octet_1 + octet_2 + octet_3 + octet_4} - ${octet_4 + 30}`;
       } else {
-        return `Kubernetes services range will be: ${octet_1 + octet_2 + octet_3 + octet_4} - ${octet_4 + 15}`;
+        return `Kubernetes services range will be: ${octet_1 + octet_2 + octet_3 + octet_4} - ${octet_4 + 31}`;
       }
     }
   }

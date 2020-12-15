@@ -33,8 +33,8 @@ COMMON_ERROR_DTO = api.model('Error', {
 
 COMMON_RETURNS = api.model("Misc", {
     "ip_blocks": fields.List(fields.String(example="10.40.12.16"),
-                             example=["10.40.12.16","10.40.12.32","10.40.12.64","10.40.12.80","10.40.12.96"],
-                             description="IP blocks /28 within a given subnet that are not in use."),
+                             example=["10.40.12.32","10.40.12.64","10.40.12.96","10.40.12.128"],
+                             description="IP blocks /27 within a given subnet that are not in use."),
     "ip_addresses": fields.List(fields.String(example="10.40.12.4"),
                                 example=["10.40.12.2","10.40.12.4","10.40.12.5","10.40.12.6","10.40.12.7"],
                                 description="IP addresses within a given subnet that are not in use.")

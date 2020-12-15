@@ -73,8 +73,8 @@ class DeviceFactsCtrl(Resource):
 
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     """
-    Ensures that the /28 IP blocks ip are all available.
-    If a given /28 blocks IP address has been taken by some other node on the network,
+    Ensures that the /27 IP blocks ip are all available.
+    If a given /27 blocks IP address has been taken by some other node on the network,
     the block gets thrown out.
 
     :param available_ip_addresses: A list of unused IP on the subnet.
@@ -102,7 +102,7 @@ def _get_ip_blocks(cidr: int) -> List[int]:
     Gets IP blocks based on CIDR notation.
     It only accept /24 through /27 subnet ranges.
 
-    It returns an array of the start of each IP /28 block.
+    It returns an array of the start of each IP /27 block.
 
     :param cidr: The network cidr
 
@@ -120,7 +120,7 @@ def _get_ip_blocks(cidr: int) -> List[int]:
             else:
                 valid_ip_blocks.append(i)
 
-        if count == 16:
+        if count == 32:
             count = 0
     return valid_ip_blocks
 

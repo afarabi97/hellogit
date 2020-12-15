@@ -380,7 +380,7 @@ class DIPKitForm(Model):
     schema = DIPKitSchema()
     DTO = api.model('DIPKitForm', {
         'kubernetes_services_cidr': fields.String(example="10.40.12.64", required=True,
-                                                  description="The /28 IP Address block that will be used. EX: 10.40.12.64 - 79"),
+                                                  description="The /27 IP Address block that will be used. EX: 10.40.12.64 - 95"),
         'complete': fields.Boolean(default=False, description="When the kit has completed this will be set to True.  Should be set to False initally"),
         'nodes': fields.List(fields.Nested(Node.DTO, required=False), required=False)
     })
