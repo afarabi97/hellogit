@@ -37,7 +37,7 @@ Verify Correct System Name And Version Number
     Click Element    ${EXPAND_SIDE_NAV_ICON}
     Run Keyword And Continue On Failure    Element Should Contain  ${FULL_SYSTEM_NAME}  TFPLENUM Controller
     Click Element    ${SUPPORT_PAGE_NAV_ICON}
-    Run Keyword And Continue On Failure    Element Should Contain  ${SYSTEM_VERSION_NUMBER}  3.4
+    Run Keyword And Continue On Failure    Element Should Contain  ${SYSTEM_VERSION_NUMBER}  ${KIT_VERSION}
     Element Should Contain    ${SERVICE_NOW_URL}  https://cvah.servicenowservices.com/sp
     Click Link    ${SERVICE_NOW_URL}
     Switch Window    NEW
