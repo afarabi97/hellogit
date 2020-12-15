@@ -332,27 +332,21 @@ export class KickstartComponent implements OnInit {
 
     if (this.system_name === "DIP" || this.system_name === "GIP") {
 
-      let data_drives = 'sdb';
-      if (node && node.data_drives){
-        if (Array.isArray(node.data_drives)){
-          data_drives = node.data_drives.join()
-        } else {
-          data_drives = node.data_drives;
-        }
+      let boot_drives = 'sda';
+      if (node && node.boot_drives && Array.isArray(node.boot_drives)) {
+        console.log(node.boot_drives)
+        boot_drives = node.boot_drives.join()
       }
 
-      let boot_drives = 'sda';
-      if (node && node.boot_drives){
-        if (Array.isArray(node.boot_drives && node.boot_drives.length > 0)){
-          boot_drives = node.boot_drives.join()
-        }
+      let data_drives = 'sdb';
+      if (node && node.data_drives && Array.isArray(node.data_drives)) {
+        console.log(node.data_drives)
+        data_drives = node.data_drives.join()
       }
 
       let raid_drives = 'sda,sdb';
-      if (node && node.raid_drives){
-        if (Array.isArray(node.raid_drives && node.raid_drives.length > 0)){
+      if (node && node.raid_drives && Array.isArray(node.raid_drives)) {
           raid_drives = node.raid_drives.join()
-        }
       }
 
       let dip_group = this.fb.group({
