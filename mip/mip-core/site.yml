@@ -188,7 +188,7 @@
   hosts:
     - localhost
     - mips
-  gather_facts: no
+  gather_facts: yes
   any_errors_fatal: true
   roles:
     - 028_SSH

@@ -1,33 +1,30 @@
 ---
-  - name: Remove existing SSH keys
-    connection: ssh
-    any_errors_fatal: true
-    import_tasks: remove_ssh_info.yml # not required.
-    # The name of the imported file is specified directly without any other option.
-    # Most keywords, including loops and conditionals, only applied to the imported tasks, not to this statement itself.
-    # If you need any of those to apply, use M(include_tasks) instead.
-    # tasks:
-    #   import_tasks: remove_ssh_info.yml
-    tags:
-      - MDT
-      - CPT
-      - 028-SSH
+- name: Remove existing SSH keys
+  connection: ssh
+  any_errors_fatal: true
+  import_tasks: remove_ssh_info.yml # not required.
+  # The name of the imported file is specified directly without any other option.
+  # Most keywords, including loops and conditionals, only applied to the imported tasks, not to this statement itself.
+  # If you need any of those to apply, use M(include_tasks) instead.
+  tags:
+    - MDT
+    - CPT
+    - 028-SSH
 
-  - name: Generate SSH keys
-    connection: ssh
-    any_errors_fatal: true
-    vars:
-      ssh_known_hosts: "{{ groups['mips'] }}"
-      # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
-      # feeds it into map, which then
-      # performs a regex_replace on each element. The regex_replace replaces .lan in each
-      # element to nothing or ''. Finally, we feed that back into list because Ansible
-      # expects the final product to be a list.
-      ssh_short_known_hosts: "{{ ssh_known_hosts | map('regex_replace','(\\.lan$)','' ) | list }}"
-    import_tasks: generate_ssh_keys.yml
-    tags:
-      - MDT
-      - CPT
-      - 028-SSH
-
+- name: Generate SSH keys
+  connection: ssh
+  any_errors_fatal: true
+  vars:
+    ssh_known_hosts: "{{ groups['mips'] }}"
+    # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
+    # feeds it into map, which then
+    # performs a regex_replace on each element. The regex_replace replaces .lan in each
+    # element to nothing or ''. Finally, we feed that back into list because Ansible
+    # expects the final product to be a list.
+    # ssh_short_known_hosts: "{{ ssh_known_hosts | map('regex_replace','(\\.lan$)','' ) | list }}"
+  import_tasks: generate_ssh_keys.yml
+  tags:
+    - MDT
+    - CPT
+    - 028-SSH
 ...

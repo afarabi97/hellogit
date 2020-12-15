@@ -1,15 +1,21 @@
 #   Run with: ansible-playbook -i inventory/<YOUR_INVENTORY> generate_ssh_keys.yml --ask-pass
 
 ---
+- name: Include vars from mip-deployer
+  include_vars:
+    file: /opt/tfplenum/mip/mip-deployer/inventory.yml
+    name: mip_deployer_vars
+
+- name: Set password
+  set_fact:
+    ansible_pass: "{{ mip_deployer_vars.all.vars.root_password }}"
 
 - name: For each host, ssh-copy-id my ssh public keys to the host
-  command: "sshpass -p '{{ ansible_ssh_pass }}' ssh-copy-id -oStrictHostKeyChecking=no {{ item }}"
-  with_items: "{{ ssh_known_hosts + ssh_short_known_hosts }}"
-  when: not (( ansible_ssh_pass is undefined ) or ( ansible_ssh_pass is none ) or (( ansible_ssh_pass | trim) | length == 0))
+  command: "sshpass -p '{{ ansible_pass }}' ssh-copy-id -o StrictHostKeyChecking=no {{ item }}"
+  with_items: "{{ ssh_known_hosts }}"
+  when: not (( ansible_pass is undefined ) or ( ansible_pass is none ) or (( ansible_pass | trim) | length == 0))
   register: result
   until: result.rc == 0
-  retries: 15
-  delay: 5
+  run_once: true
   changed_when: result.rc == 0
-
 ...

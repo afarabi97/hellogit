@@ -1,7 +1,5 @@
 #   Run with: ansible-playbook -i inventory/<YOUR_INVENTORY> generate_ssh_keys.yml --ask-pass
-
 ---
-
 - name: Fail if ask-pass is missing
   fail:
     msg: "Error: Missing ask-pass. You need to add '--ask-pass' to the end of your command"
@@ -11,6 +9,7 @@
   file:
     path: /root/.ssh
     state: absent
+  when: inventory_hostname == "localhost"
 
 - name: Generate root SSH key
   user:
@@ -18,5 +17,5 @@
     generate_ssh_key: yes
     ssh_key_bits: 2048
     state: present
-
+  when: inventory_hostname == "localhost"
 ...
