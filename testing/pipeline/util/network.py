@@ -209,7 +209,7 @@ class IPAddressManager:
         :param mng_ip: The management IP or controller IP address
         :param netmask: The netmask of the controller IP address.
         """
-        ip_address_blocks = [81, 113, 145, 177, 209]
+        ip_address_blocks = [64, 128, 192]
         available_ip_blocks = []
         for block in ip_address_blocks:
             available_ip_blocks.append(self._network_id[0:len(self._network_id)-2] + "." + str(block))
@@ -229,14 +229,14 @@ class IPAddressManager:
         ip = IPAddressManager.kit_block_ip
         pos = ip.rfind('.') + 1
         last_octet = int(ip[pos:])
-        return ip[:pos] + str(last_octet + 15)
+        return ip[:pos] + str(last_octet + 32)
 
     def get_dhcp_ip_block(self, kit_index: int=0):
         ip = IPAddressManager.kit_block_ip
         pos = ip.rfind('.') + 1
         last_octet = int(ip[pos:])
         return ip[:pos] + str(last_octet + 8)
-    
+
     def get_free_ip(self):
         if not hasattr(IPAddressManager, 'available_ip'):
             IPAddressManager.available_ip = list(filter(lambda x: x not in range(81,241), self.unused_ips))
