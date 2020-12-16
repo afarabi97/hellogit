@@ -11,13 +11,14 @@ function run_cmd {
         echo "$command returned error code $ret_val"
         exit 1
     fi
-}
 mkdir -p /tmp/wiki
 rm -rf /tmp/wiki/*
-GET_PODS=$(eval "kubectl get pods")
-WIKI_POD=$(echo $GET_PODS | awk -v RS=' ' '/^wikijs/')
+replicasets=$(kubectl get replicasets --output 'go-template={{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+pods=$(kubectl get pods --output 'go-template={{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+wiki_replicaset=$(echo "$replicasets" | grep wikijs)
+wiki_pod=$(echo "$pods" | grep $wiki_replicaset)
 #TODO: grab the file path for accessing the pod
-echo $WIKI_POD
-EXPORT_WIKI="kubectl cp ${WIKI_POD}:/wiki/backup/_manual /tmp/wiki -c wikijs"
+echo $wiki_pod
+EXPORT_WIKI="kubectl cp ${wiki_pod}:/wiki/backup/_manual /tmp/wiki -c wikijs"
 run_cmd $EXPORT_WIKI
 echo "WikiJS pages have been exported to the controllers /tmp/wiki folder"

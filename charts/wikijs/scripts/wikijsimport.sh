@@ -14,16 +14,18 @@ function run_cmd {
 }
 function untar_pages() {
   echo "Unzipping $WIKI_TAR in the wikijs container"
-  kubectl exec ${WIKI_POD} -c wikijs -- tar xvzf /wiki/backup/${WIKI_TAR} -C /wiki/backup
-  kubectl exec ${WIKI_POD} -c wikijs -- rm -f /wiki/backup/${WIKI_TAR}
-  WIKI_TAR=$(kubectl exec ${WIKI_POD} -c wikijs -- ls /wiki/backup/ | grep 'wiki' | head -1)
+  kubectl exec ${wiki_pod} -c wikijs -- tar xvzf /wiki/backup/${WIKI_TAR} -C /wiki/backup
+  kubectl exec ${wiki_pod} -c wikijs -- rm -f /wiki/backup/${WIKI_TAR}
+  WIKI_TAR=$(kubectl exec ${wiki_pod} -c wikijs -- ls /wiki/backup/ | grep 'wiki' | head -1)
 }
 # This will import only one tar file from the controller's /tmp/wiki directory
-GET_PODS=$(eval "kubectl get pods")
-WIKI_POD=$(echo $GET_PODS | awk -v RS=' ' '/^wikijs/')
+replicasets=$(kubectl get replicasets --output 'go-template={{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+pods=$(kubectl get pods --output 'go-template={{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+wiki_replicaset=$(echo "$replicasets" | grep wikijs)
+wiki_pod=$(echo "$pods" | grep $wiki_replicaset)
 WIKI_TAR=$(basename /tmp/wiki/*.tar.gz)
 echo "Importing $WIKI_TAR from /tmp/wiki"
-ACCESS_POD="kubectl cp /tmp/wiki/${WIKI_TAR} ${WIKI_POD}:/wiki/backup/ -c wikijs"
+ACCESS_POD="kubectl cp /tmp/wiki/${WIKI_TAR} ${wiki_pod}:/wiki/backup/ -c wikijs"
 run_cmd $ACCESS_POD
 # unzip all the pages of all the files
 untar_pages
