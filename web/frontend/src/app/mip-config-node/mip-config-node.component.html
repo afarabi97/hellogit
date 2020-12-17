@@ -19,7 +19,7 @@
                 </h4>
             </mat-list-item>
         </mat-list>
-        <mat-list>
+        <mat-list *ngIf="!node['error']">
             <!-- CPU -->
             <mat-list-item>
                 <mat-icon mat-list-icon>developer_board</mat-icon>
@@ -42,5 +42,8 @@
                 </h4>
             </mat-list-item>
         </mat-list>
+        <div *ngIf="node['error']">
+          {{ node['error'] }}
+        </div>
     </mat-card-content>
 </mat-card>

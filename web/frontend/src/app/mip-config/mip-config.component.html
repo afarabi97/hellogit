@@ -91,17 +91,22 @@
                         </mat-expansion-panel-header>
                         <ng-container *ngIf="!node?.error_message">
                             <app-mip-config-node id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-app-mip-config-node' }}"
-                                                 [form]="form" [boot_drive]="boot_drives[node['hostname']]" [node]="node"></app-mip-config-node>
+                                                 [form]="form" [boot_drive]="boot_drives[node['management_ip']]" [node]="node"></app-mip-config-node>
                         </ng-container>
                         <ng-container *ngIf="node?.error_message">
                             <span id="{{ 'app-mip-config-div-mat-card-mat-card-content-mat-accordian-mat-expansion-panel-' + i + '-span-error' }}">Something bad happened.</span>
                         </ng-container>
+                        <div fxLayout="row" fxLayoutAlign="end center">
+                          <button mat-icon-button color="accent" matTooltip="Refresh device facts" matTooltipPosition="above" (click)="refreshDeviceFacts(i)">
+                            <span class="material-icons">refresh</span>
+                          </button>
+                        </div>
                     </mat-expansion-panel>
                 </mat-accordion>
             </mat-card-content>
             <mat-card-actions>
                 <button mat-raised-button id="app-mip-config-div-mat-card-mat-card-actions-button-run-playbook"
-                        [disabled]="form.disabled || form.invalid" (click)="runPlaybook()">Run Playbook</button>
+                        [disabled]="isPlaybookDisabled()" (click)="runPlaybook()">Run Playbook</button>
             </mat-card-actions>
         </mat-card>
         <br>

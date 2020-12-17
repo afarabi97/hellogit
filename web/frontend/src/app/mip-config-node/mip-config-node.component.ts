@@ -29,7 +29,7 @@ export class MIPConfigNodeComponent implements OnInit {
 
     createControls() {
       const address = this.node['default_ipv4_settings']['address'];
-      
+
       const mips = this.form.get('mips') as FormArray;
       const control1 = new FormControl(address);
 

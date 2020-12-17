@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChildren, QueryList, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ChangeDetectorRef, Input } from '@angular/core';
 import { KickstartService } from '../system-setup/services/kickstart.service';
-import { forkJoin } from 'rxjs';
 import { MIPConfigNodeComponent } from '../mip-config-node/mip-config-node.component';
 import { MIPService } from './mip.service';
 import { Router } from '@angular/router';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
 import { ObjectUtilitiesClass } from '../classes';
+import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 
 @Component({
   selector: 'app-mip-config',
@@ -18,23 +18,28 @@ import { ObjectUtilitiesClass } from '../classes';
 export class MIPConfigComponent implements OnInit {
 
   @Input() uniqueHTMLID: string;
-  nodes: any = null;
+  nodes: Array<Object> = null;
   loading: boolean;
   form: FormGroup;
   boot_drives: any;
   default_type = "CPT";
+  loading_nodes: Array<Boolean> = [];
 
   @ViewChildren(MIPConfigNodeComponent) mipNodes: QueryList<MIPConfigNodeComponent>;
 
   constructor(
     private kickStartSrv: KickstartService,
     private mipSrv: MIPService,
-    private router: Router) {
+    private router: Router,
+    private snackbar: SnackbarWrapper,
+    private ref: ChangeDetectorRef) {
       this.createControls();
+
   }
 
   ngOnInit() {
-      this.setupMIPs();
+    this.nodes = [];
+    this.setupMIPs();
   }
 
   onEnable() {
@@ -81,21 +86,17 @@ export class MIPConfigComponent implements OnInit {
           this.boot_drives = {};
 
           for (const node of form['nodes']) {
-            const hostname = node['hostname'];
+            const ip_address = node['ip_address'];
             const model = node['pxe_type'];
               if (model === 'SCSI/SATA/USB') {
-                this.boot_drives[hostname] = 'sda';
+                this.boot_drives[ip_address] = 'sda';
               }
               if (model === "NVMe") {
-                this.boot_drives[hostname] = 'nvme0n1';
+                this.boot_drives[ip_address] = 'nvme0n1';
               }
-              addressess.push(node['ip_address']);
+              addressess.push(ip_address);
           }
-
-          this.getDeviceFacts(addressess).subscribe(nodes => {
-              this.nodes = nodes;
-              this.loading = false;
-          });
+          this.getDeviceFacts(addressess);
         }
       } else {
         this.loading = false;
@@ -107,14 +108,57 @@ export class MIPConfigComponent implements OnInit {
       return this.kickStartSrv.getMIPKickstartForm();
   }
 
+  private gatherFactsError(error, address: string): Object {
+    return {
+      default_ipv4_settings: {address: address},
+      hostname: "",
+      management_ip: address,
+      interfaces: [],
+      memory_available: 0,
+      memory_gb: 0,
+      memory_mb: 0,
+      error: error.error.error_message
+    };
+  }
+
   private getDeviceFacts(addresses: Array<string>) {
-    const observables = [];
-      for (const address of addresses) {
-        const observable = this.kickStartSrv.gatherDeviceFacts(address);
-          observables.push(observable);
+    for (let i = 0; i < addresses.length; i++) {
+      let address = addresses[i]
+      this.loading_nodes[i] = false;
+      this.kickStartSrv.gatherDeviceFacts(address).subscribe(data => {
+        this.nodes.push(data)
+      }, error => {
+        let errObj = this.gatherFactsError(error, address);
+        this.nodes.push(errObj);
+      }).add(() => {
+        this.loading_nodes[i] = true;
+        if (this.loading_nodes.length == this.nodes.length && this.loading_nodes.every(Boolean)) {
+          this.loading = false;
+          this.snackbar.showSnackBar('Gathering facts completed for all MIPs.', -1, 'Dismiss');
+        }
+      });
+    }
+  }
+
+  public refreshDeviceFacts(index: number): void {
+    this.loading = true;
+    this.ref.detectChanges();
+    const address = this.nodes[index]['management_ip'];
+    this.kickStartSrv.gatherDeviceFacts(address).subscribe(data => {
+      this.nodes.splice(index, 1, data);
+    }, error => {
+      let errObj = this.gatherFactsError(error, address);
+      this.nodes.splice(index, 1, errObj);
+    }).add(() => {
+      this.loading = false;
+      if (this.nodes[index]['hostname'] === ""){
+        this.snackbar.showSnackBar(this.nodes[index]['error'], -1, 'Dismiss');
+      } else {
+        this.snackbar.showSnackBar('Gathering facts completed for '+this.nodes[index]['hostname'], -1, 'Dismiss');
       }
 
-      return forkJoin(observables);
+      this.ref.detectChanges();
+    });
   }
 
   runPlaybook() {
@@ -122,7 +166,6 @@ export class MIPConfigComponent implements OnInit {
 
     const formValue = this.form.value;
     this.mipSrv.executeMIP(formValue).subscribe(data => {
-      console.log(data);
       this.openConsole(data['job_id']);
     });
 
@@ -142,5 +185,20 @@ export class MIPConfigComponent implements OnInit {
   generateUniqueHTMLID(passedID: string): string {
     return ObjectUtilitiesClass.notUndefNull(this.uniqueHTMLID) ? `${this.uniqueHTMLID}-${passedID}` : passedID;
   }
+
+  isPlaybookDisabled(): boolean{
+    let hasConnectionErrors = false;
+    for (let node of this.nodes){
+      if (node['error']){
+        hasConnectionErrors = true;
+        break;
+      }
+    }
+    if (this.form.disabled || this.form.invalid || hasConnectionErrors){
+      return true;
+    }
+
+    return false;
+  }
 
 }

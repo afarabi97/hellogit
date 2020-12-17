@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { HTTP_OPTIONS } from '../../globals';
 import { SnackbarWrapper } from '../../classes/snackbar-wrapper';
 
@@ -44,7 +44,7 @@ export class KickstartService {
 
     delete kickStartForm["re_password"];
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
-      catchError(this.handleError('generateKickstartInventory'))
+      catchError(this.snackbarWrapper.handleError('generateKickstartInventory'))
     );
   }
 
@@ -59,14 +59,14 @@ export class KickstartService {
     }
 
     return this.http.put(url, node, HTTP_OPTIONS).pipe(
-      catchError(this.handleError('generateKickstartInventory'))
+      catchError(this.snackbarWrapper.handleError('generateKickstartInventory'))
     );
   }
 
   generateMIPKickstartInventory(kickStartForm: Object) {
     const url = '/api/mip_kickstart';
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
-      catchError(this.handleError('generateMIPKickstartInventory'))
+      catchError(this.snackbarWrapper.handleError('generateMIPKickstartInventory'))
     );
   }
 
@@ -74,7 +74,7 @@ export class KickstartService {
     const url = '/api/kickstart';
     return this.http.get(url)
       .pipe(
-        catchError(this.handleError())
+        catchError(this.snackbarWrapper.handleError())
       );
   }
 
@@ -82,7 +82,7 @@ export class KickstartService {
     const url = '/api/mip_kickstart';
     return this.http.get(url)
       .pipe(
-        catchError(this.handleError())
+        catchError(this.snackbarWrapper.handleError())
       );
   }
 
@@ -90,33 +90,7 @@ export class KickstartService {
     const url = `/api/get_unused_ip_addrs/${mng_ip}/${netmask}`;
     return this.http.get(url)
       .pipe(
-        catchError(this.handleError())
+        catchError(this.snackbarWrapper.handleError())
       );
-  }
-
-  /**
-   * Handle Http operation that failed.
-   * Let the app continue.
-   * @param operation - name of the operation that failed
-   * @param result - optional value to return as the observable result
-   */
-  public handleError(operation = 'operation', result?) {
-    return (error: any): Observable<any> => {
-      console.error(error);
-
-      if (error.error && error.error.post_validation){
-        let full_msg = "";
-        for (const msg of error.error.post_validation){
-          full_msg += msg;
-        }
-
-        this.snackbarWrapper.showSnackBar(full_msg, -1, 'Dismiss');
-      } else {
-        this.snackbarWrapper.showSnackBar('An error has occured: ' + error.status + '-' + error.statusText, -1, 'Dismiss');
-      }
-
-      // Let the app keep running by returning an empty result.
-      return of(result);
-    };
   }
 }
