@@ -80,32 +80,29 @@ spec:
           mountPath: /init_setup.py
           subPath: init_setup.py
         - name: data
-          mountPath: /tmp/elastic-data
-          subPath: elastic
+          mountPath: /tmp/cassandra-data
+          subPath: cassandra
+        - name: data
+          mountPath: /tmp/thehive-data
+          subPath: thehive
       containers:
-      - name: elastic
-        image: "{{ .Values.elastic_image }}"
+      - name: cassandra
+        image: "{{ .Values.cassandra_image }}"
         imagePullPolicy: IfNotPresent
         ports:
-        - name: elasticsearch
-          containerPort: 9200
+        - name: cassandra
+          containerPort: 9042
         env:
-          - name: http.host
-            value: 0.0.0.0
-          - name: cluster.name
-            value: hive
-          - name: thread_pool.index.queue_size
-            value: "100000"
-          - name: thread_pool.search.queue_size
-            value: "100000"
-          - name: thread_pool.bulk.queue_size
-            value: "100000"
-          - name: discovery.type
-            value: single-node
+          - name: CASSANDRA_CLUSTER_NAME
+            value: thehive
+          - name: CASSANDRA_DC
+            value: local
+          - name: CASSANDRA_ENDPOINT_SNITCH
+            value: GossipingPropertyFileSnitch
         volumeMounts:
         - name: data
-          mountPath: /usr/share/elasticsearch/data
-          subPath: elastic
+          mountPath: /var/lib/cassandra
+          subPath: cassandra
       - name: nginx
         image: "{{ .Values.nginx_image }}"
         imagePullPolicy: IfNotPresent
@@ -138,18 +135,15 @@ spec:
         - name: api-cache
           mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
           subPath: keystore/cacerts
-{{- if or .Values.cortexIntegration .Values.mispIntegration }}
+        - name: data
+          mountPath: /opt/thp_data/files/thehive
+          subPath: thehive
         - name: api-cache
           mountPath: /etc/thehive/application.conf
           subPath: hive-data/application.conf
         - name: api-cache
           mountPath: /etc/thehive/webCA.jks
           subPath: keystore/webCA.jks
-{{ else }}
-        - name: hiveconfig
-          mountPath: /etc/thehive/application.conf
-          subPath: hive.conf
-{{- end }}
       nodeSelector:
         role: "server"
       volumes:

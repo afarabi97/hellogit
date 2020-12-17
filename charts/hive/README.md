@@ -66,6 +66,24 @@
       "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
+      "type": "textinput",
+      "default_value": "admin_org",
+      "description": "Enter Username",
+      "required": true,
+      "regexp": "",
+      "name": "org_admin_username",
+      "error_message": "Enter a value"
+    },
+    {
+      "type": "textinput",
+      "default_value": "Password!123456",
+      "description": "Enter User Password",
+      "required": true,
+      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",
+      "name": "org_admin_password",
+      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
+    },
+    {
       "type": "misp-checkbox",
       "default_value": false,
       "description": "Integrate with MISP (Requires MISP to be installed first, verify MISP is up and running before continuing)",

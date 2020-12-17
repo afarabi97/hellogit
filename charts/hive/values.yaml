@@ -1,5 +1,5 @@
-elastic_image: elasticsearch/elasticsearch:6.8.12
-hive_image: thehiveproject/thehive:3.4.0
+cassandra_image: cassandra:3.11.9
+hive_image: thehiveproject/thehive4:4.0.1
 python_image: tfplenum/python:3.9.0
 nginx_image: nginx:1.19.3
 hive_port: 9000

@@ -68,3 +68,4 @@ if __name__ == '__main__':
     print("Setting Directory Permissions")
     os.system('chown -R 1 /tmp/hive')
     os.system('chown -R 1000 /tmp/elastic-data')
+    os.system('chown -R 1000 /tmp/thehive-data')

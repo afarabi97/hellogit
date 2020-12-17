@@ -55,6 +55,18 @@ spec:
               secretKeyRef:
                 name: {{ .Release.Name }}-secret
                 key: read_write_user_password
+          - name: THEHIVE_ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_admin_username
+          - name: THEHIVE_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secret
+                key: org_admin_password
+          - name: THEHIVE_ORGANIZATION
+            value: thehive_org
         volumeMounts:
         - name: setup
           mountPath: /setup.py
