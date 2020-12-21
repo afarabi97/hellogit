@@ -11,6 +11,7 @@ function run_cmd {
         echo "$command returned error code $ret_val"
         exit 1
     fi
+}
 mkdir -p /tmp/wiki
 rm -rf /tmp/wiki/*
 replicasets=$(kubectl get replicasets --output 'go-template={{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')

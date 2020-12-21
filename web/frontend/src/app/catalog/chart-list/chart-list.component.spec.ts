@@ -103,7 +103,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "2.5.159",
+          "appVersion": "2.5.170",
           "application": "wikijs",
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true

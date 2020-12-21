@@ -1,5 +1,5 @@
 # Default values for mattermost
-wikijsImage: requarks/wiki:2.5.159
+wikijsImage: requarks/wiki:2.5.170
 python_image: tfplenum/python:3.9.0
 busyboxImage: busybox:1.32.0
 domain: lan
