@@ -8,19 +8,6 @@
     remote_src: no
     extra_opts: [--strip-components=1]
 
-- name: Install chart repos
-  command: helm repo add {{ item }}
-  with_items:
-    - "{{ chart_repos }}"
-  register: result
-  changed_when: result.rc == 0
-  tags: pull-helm-images
-
-- name: update helm repo cache
-  command: helm repo update
-  register: result
-  changed_when: result.rc == 0
-
 - name: "Create chart directory"
   file:
     path: "{{ chart_dir }}"

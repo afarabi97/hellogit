@@ -98,10 +98,6 @@ RHEL_SOURCE_REPO: "{{ lookup('env','RHEL_SOURCE_REPO') | default('labrepo') }}"
 BOOTSTRAP_VARS: "{{ web_root }}/bootstrap.yml"
 TFPLENUM_REPO_DIR: "{{ tfplenumoffline_dir }}/tfplenum"
 
-chart_repos:
-  - "bitnami https://charts.bitnami.com/bitnami"
-  - "stable https://kubernetes-charts.storage.googleapis.com"
-
 #Path where iso is to be mounted ex: /mnt
 mnt_pth: /mnt
 
