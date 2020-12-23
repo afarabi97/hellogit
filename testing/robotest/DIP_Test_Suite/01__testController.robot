@@ -35,7 +35,7 @@ Verify Correct System Name And Version Number
     dipKeywords.Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
     Wait Until Page Contains    ${PORTAL_PAGE_TITLE}
     Click Element    ${EXPAND_SIDE_NAV_ICON}
-    Run Keyword And Continue On Failure    Element Should Contain  ${FULL_SYSTEM_NAME}  TFPLENUM Controller
+    Run Keyword And Continue On Failure    Element Should Contain  ${FULL_SYSTEM_NAME}  TFPLENUM ${SYSTEM_NAME} Controller
     Click Element    ${SUPPORT_PAGE_NAV_ICON}
     Run Keyword And Continue On Failure    Element Should Contain  ${SYSTEM_VERSION_NUMBER}  ${KIT_VERSION}
     Element Should Contain    ${SERVICE_NOW_URL}  https://cvah.servicenowservices.com/sp
