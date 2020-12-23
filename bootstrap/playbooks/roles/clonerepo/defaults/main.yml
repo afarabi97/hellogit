@@ -20,6 +20,8 @@ nexpose_file: Rapid7Setup-Linux64.bin
 vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
 vscode_file: code-1.41.1-1576681965.el7.x86_64.rpm
 mcafee_gip_file: CPT_McAfee_Update.tar
+nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
+amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 
 cpt_archive: cpt-cvah.tar.gz
 mdt_archive: mdt-cvah.tar.gz

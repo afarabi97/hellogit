@@ -35,7 +35,6 @@ network  --bootproto=dhcp --device=eth0 --noipv6 --activate
 network  --hostname=localhost.localdomain
 {% endif %}
 
-
 # Root password  #
 rootpw {{ root_password }}
 
@@ -48,8 +47,16 @@ timezone America/Chicago
 # X Window System configuration information
 xconfig  --startxonboot
 
+# Secure boot disable
+zipl --no-secure-boot
+
+%pre
+
+cat <<EOF > /tmp/partition_layout
+
 # System bootloader configuration
-bootloader --location=mbr --boot-drive={{ boot_drive }} --password=default
+
+bootloader --location=mbr --boot-drive={{ boot_drive }} --password=default --append='modprobe.blacklist=nouveau'
 
 # Partition clearing information
 zerombr
@@ -61,9 +68,10 @@ part /boot --fstype="xfs" --ondisk={{ boot_drive }} --size=1024
 part pv.238 --fstype="lvmpv" --ondisk={{ boot_drive }} --size=100 --grow --encrypted --passphrase={{ luks_password }}
 volgroup rhel --pesize=4096 pv.238
 logvol /  --fstype="xfs" --size=1 --name=root --vgname=rhel --grow
+EOF
+%end
 
-# Secure boot disable
-zipl --no-secure-boot
+%include /tmp/partition_layout
 
 %packages
 @workstation
@@ -87,6 +95,10 @@ zipl --no-secure-boot
 @print-client
 @security-tools
 @smart-card
+
+elfutils-libelf-devel
+libglvnd-devel
+@Development Tools
 # @x11
 
 %end
@@ -115,6 +127,33 @@ systemctl set-default graphical.target
 # instruct dracut to apply the configuration
 dracut -f
 
+#disable wayland
+sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
+
+check_nvidia=false
+if `lspci | grep -q -E 'VGA.*NVIDIA'`; then
+    check_nvidia=true
+fi
+
+check_amd=false
+if `lspci | grep -q -E 'VGA.*AMD'`; then
+    check_amd=true
+fi
+
+#install NVIDIA
+if $check_nvidia; then
+    curl -o /tmp/NVIDIA_Quadro_RHEL82_440_64.tar.gz http://{{ server_ip }}/MIP/NVIDIA_Quadro_RHEL82_440_64.tar.gz
+    tar -xvzf /tmp/NVIDIA_Quadro_RHEL82_440_64.tar.gz -C /tmp
+    /tmp/NVIDIA_Quadro_RHEL82_440_64/NVIDIA-Linux-x86_64-440.64.run --accept-license --silent
+fi
+
+#install AMD
+if $check_amd; then
+    curl -o /tmp/amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz http://{{ server_ip }}/MIP/amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
+    tar -xvzf /tmp/amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz -C /tmp
+    /tmp/amdgpu-pro-20.10-1101037-rhel-8.1/amdgpu-install -y
+
+fi
 %end
 
 %anaconda

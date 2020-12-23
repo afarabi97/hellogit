@@ -32,6 +32,8 @@
     - "{{ chrome_file }}"
     - "{{ nexpose_file }}"
     - "{{ burpsuite_file }}"
+    - "{{ nvidia_driver }}"
+    - "{{ amd_driver }}"
 
 - name: Fetch MIP Resources.
   get_url:

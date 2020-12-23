@@ -1,6 +1,6 @@
 #!/bin/bash
 BANNER_FILE="/usr/local/sbin/classification_banner.py"
-DISPLAY=:0 /usr/bin/nohup /usr/bin/python3 /usr/local/sbin/classification_banner.py &
+DISPLAY=:1 /usr/bin/nohup /usr/bin/python3 /usr/local/sbin/classification_banner.py &
 
 function check_for_banner_process() {
    CHECK_PROCESS=$(ps aux | grep classification_banner | awk '{print$12}')

@@ -13,8 +13,9 @@ download_packages:
   - screen
   - srm.x86_64
   - nload
-  - sshpass 
-  
+  - sshpass
+  - pcsc-lite-ccid-1.4.29-4.el8.x86_64
+
 packages:
   #Modules required for grub splash page
   - grub2-efi-x64-modules
@@ -24,8 +25,9 @@ packages:
   - kernel-devel-4.18.0-193.el8.x86_64
   - gcc
   - libnsl*
-  - elfutils-libelf-devel
   - make
+  - elfutils-libelf-devel
+  - libglvnd-devel
   #2FA Packages https://access.redhat.com/articles/4253861
   - authselect
   - dconf-editor
@@ -93,7 +95,6 @@ cpt_packages:
   - protobuf-c
   - criu
   - runc
-  - podman
 
 #Third Party Software
 burpsuite_file: burpsuite_pro_linux_v2020_9_2.sh

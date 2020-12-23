@@ -3,7 +3,7 @@ Description=Service will start banner classification
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=assessor
 ExecStart=/usr/local/sbin/banner.sh
 Restart=always

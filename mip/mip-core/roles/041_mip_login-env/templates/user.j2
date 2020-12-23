@@ -3,9 +3,9 @@ id='rhel'
 version-id='{{ rhel_version.stdout }}'
 
 [User]
-Session=gnome-classic-wayland
+Session=gnome-classic
 XSession=gnome-classic
-SessionType=wayland
+SessionType=x11
 {% if item!="root" %}
 Icon=/home/{{ item }}/.face
 {% endif %}
