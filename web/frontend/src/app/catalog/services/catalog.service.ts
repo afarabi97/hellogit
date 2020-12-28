@@ -100,7 +100,7 @@ export class CatalogService extends ApiService<any> {
   }
 
   get_all_application_statuses(): Observable<Object> {
-    const url = '/api/catalog/chart/status_all';
+    const url = '/api/catalog/charts/status';
     return this.httpClient_.get<Object>(url).pipe(
       catchError(error => this.handleError(url, error))
     );

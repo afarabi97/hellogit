@@ -87,11 +87,12 @@ export class PolicyManagementDialog implements OnInit {
       'rule': new FormControl(rule ? rule.rule : '', Validators.compose([Validators.required])),
       'isEnabled': new FormControl(rule ? rule.isEnabled: true),
       '_id': new FormControl(rule ? rule._id : ''),
-      'byPassValidation': new FormControl(false)
+      'byPassValidation': new FormControl(false),
+      'rule_set_id': new FormControl()
     });
 
     if (rule !== undefined){
-      this._PolicyManagementService.getRuleContent(this._PolicyManagementService.editRuleSet._id, rule._id).subscribe(data => {
+      this._PolicyManagementService.getRuleContent(rule._id).subscribe(data => {
         if (data instanceof Rule){
           let len = data.rule.split('\n').length;
           if (len < 1000){
@@ -100,8 +101,11 @@ export class PolicyManagementDialog implements OnInit {
           this.numbers = new Array(len).fill(true);
           this.editorCard.nativeElement.style.height = 21 * len + "px";
           this.ruleGroup.get('rule').setValue(data.rule);
-        } else if (data instanceof ErrorMessage){
-          this.displaySnackBar(data.error_message);
+        }
+      }, err => {
+        console.error(err);
+        if (err.error && err.error['error_message']){
+          this.displaySnackBar(err.error['error_message']);
         }
       });
     }
@@ -209,8 +213,12 @@ export class PolicyManagementDialog implements OnInit {
     this._PolicyManagementService.validateRule(this.ruleGroup.value).subscribe(data => {
       if (data instanceof SuccessMessage){
         this.displaySnackBar(data.success_message);
-      } else if (data instanceof ErrorMessage) {
-        this.displaySnackBar(data.error_message);
+      }
+    }, err => {
+      if (err.error['error_message']){
+        this.displaySnackBar(err.error['error_message']);
+      } else {
+        this.displaySnackBar("Failed to validate rule for an unknown reason.");
       }
     });
   }

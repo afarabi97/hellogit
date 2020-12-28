@@ -97,7 +97,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         this.manageState_();
       });
 
-      this._CatalogService.getByString(`${this.chart.id}/saved_values`).subscribe(values => {
+      this._CatalogService.getByString(`${this.chart.id}/saved-values`).subscribe(values => {
         this.savedValues = values.length !== 0 ? values : null;
       });
 
@@ -515,7 +515,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   setupKafkaArray() {
     const array = [];
 
-    this._CatalogService.getByString("zeek/saved_values").subscribe(values => {
+    this._CatalogService.getByString("zeek/saved-values").subscribe(values => {
       if(values !== null) {
         values.map( value => {
           const val = `${value.deployment_name}.default.svc.cluster.local:9092`;
@@ -529,7 +529,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   setupCortex() {
     let cortexValues;
 
-    this._CatalogService.getByString("cortex/saved_values").subscribe(values => {
+    this._CatalogService.getByString("cortex/saved-values").subscribe(values => {
       cortexValues = values.length !== 0 ? values : null;
       if(cortexValues != null) {
         this.cortexDisable = false;
@@ -540,7 +540,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   setupMisp() {
     let mispValues;
 
-    this._CatalogService.getByString("misp/saved_values").subscribe(values => {
+    this._CatalogService.getByString("misp/saved-values").subscribe(values => {
       mispValues = values.length !== 0 ? values : null;
       if(mispValues != null) {
         this.mispDisable = false;
@@ -551,7 +551,7 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
   setupHive() {
     let hiveValues;
 
-    this._CatalogService.getByString("hive/saved_values").subscribe(values => {
+    this._CatalogService.getByString("hive/saved-values").subscribe(values => {
       hiveValues = values.length !== 0 ? values : null;
       if(hiveValues != null) {
         this.hiveDisable = false;

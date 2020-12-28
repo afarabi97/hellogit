@@ -1,14 +1,18 @@
 """
 Main module for handling all of the Kit Configuration REST calls.
 """
-from app import (app, logger, conn_mng, WEB_DIR)
+from app import (app, logger, conn_mng, WEB_DIR, KUBERNETES_NS)
+from app.models.kubernetes import (HealthServiceModel, PipelineInfoModel,
+                                   NodeOrPodStatusModel, PodLogsModel)
 from app.models.kit_setup import (DIPKickstartForm, DIPKitForm, Node)
 from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to_kib
 from app.service.job_service import run_command
 
 from flask import Response, jsonify
+from flask_restplus import Resource
+
 from pathlib import Path
-from app.utils.connection_mngs import KubernetesWrapper, KUBEDIR
+from app.utils.connection_mngs import KubernetesWrapper, KUBEDIR, objectify
 from app.utils.constants import KIT_ID
 from typing import List, Dict
 
@@ -55,56 +59,51 @@ def _get_cpu_total(cpu: str) -> int:
     return 0
 
 
-@app.route('/api/describe_pod/<pod_name>/<namespace>', methods=['GET'])
-def describe_pod(pod_name: str, namespace: str) -> Response:
-    """
-    Runs a command and pulls the pods describe command output.
+@KUBERNETES_NS.route('/pod/describe/<pod_name>/<namespace>')
+class DescribePod(Resource):
 
-    :param pod_name: The name of the pod of cource.
-                     You can get it with 'kubectl get pods' on the main server node.
-    """
-    command = 'kubectl describe pod ' + pod_name + ' -n ' + namespace
-    stdout = run_command(command)
-    return jsonify({'stdout': stdout, 'stderr': ''})
-
-@app.route('/api/pod_logs/<pod_name>/<namespace>', methods=['GET'])
-def pod_logs(pod_name: str, namespace: str) -> Response:
-    """
-    Runs a command and pulls the pods describe command output.
-
-    :param pod_name: The name of the pod of cource.
-                     You can get it with 'kubectl get pods' on the main server node.
-    """
-    logs = []
-    with KubernetesWrapper(conn_mng) as kube_apiv1:
-        pod = kube_apiv1.read_namespaced_pod(pod_name, namespace) # type: V1PodList
-        pod = pod.to_dict()
-        containers = []
-        if "spec" in pod and "init_containers" in pod['spec'] and pod['spec']['init_containers']:
-            containers = containers + pod['spec']['init_containers']
-        if "spec" in pod and "containers" in pod['spec'] and pod['spec']['containers']:
-            containers = containers + pod['spec']['containers']
-        for container in containers:
-            container_name = container['name']
-            try:
-                stdout = kube_apiv1.read_namespaced_pod_log(pod_name, namespace, container=container_name, timestamps=False)
-            except Exception:
-                stdout = 'Something went wrong fetching container logs'
-            logs.append({'name': container_name, 'logs': stdout})
-    return jsonify(logs)
+    @KUBERNETES_NS.doc(description="The stdout field is the content returned from a kubectl describe pod <pod_name> -n <namespace> command.")
+    @KUBERNETES_NS.response(200, 'PodStatus', NodeOrPodStatusModel.DTO)
+    def get(self, pod_name: str, namespace: str) -> Response:
+        command = 'kubectl describe pod ' + pod_name + ' -n ' + namespace
+        stdout = run_command(command)
+        return {'stdout': stdout, 'stderr': ''}
 
 
-@app.route('/api/describe_node/<node_name>', methods=['GET'])
-def describe_node(node_name: str) -> Response:
-    """
-    Runs a command and pulls the pods describe command output.
+@KUBERNETES_NS.route('/pod/logs/<pod_name>/<namespace>')
+class PodLogsCtrl(Resource):
 
-    :param node_name: The name of the node of cource.
-                      You can get it with 'kubectl get nodes' on the main server node.
-    """
-    command = 'kubectl describe node ' + node_name
-    stdout = run_command(command)
-    return jsonify({'stdout': stdout, 'stderr': ''})
+    @KUBERNETES_NS.response(200, 'PodLogs', PodLogsModel.DTO)
+    @KUBERNETES_NS.doc(description="Runs a command and pulls the pods describe command output.")
+    def get(self, pod_name: str, namespace: str) -> Response:
+        logs = []
+        with KubernetesWrapper(conn_mng) as kube_apiv1:
+            pod = kube_apiv1.read_namespaced_pod(pod_name, namespace) # type: V1PodList
+            pod = pod.to_dict()
+            containers = []
+            if "spec" in pod and "init_containers" in pod['spec'] and pod['spec']['init_containers']:
+                containers = containers + pod['spec']['init_containers']
+            if "spec" in pod and "containers" in pod['spec'] and pod['spec']['containers']:
+                containers = containers + pod['spec']['containers']
+            for container in containers:
+                container_name = container['name']
+                try:
+                    stdout = kube_apiv1.read_namespaced_pod_log(pod_name, namespace, container=container_name, timestamps=False)
+                except Exception:
+                    stdout = 'Something went wrong fetching container logs'
+                logs.append({'name': container_name, 'logs': stdout})
+        return logs
+
+
+@KUBERNETES_NS.route('/node/describe/<node_name>')
+class DescribeNode(Resource):
+
+    @KUBERNETES_NS.doc(description="The stdout field is the content returned from a kubectl describe node command.")
+    @KUBERNETES_NS.response(200, 'NodeOrPodStatus', NodeOrPodStatusModel.DTO)
+    def get(self, node_name: str) -> Response:
+        command = 'kubectl describe node ' + node_name
+        stdout = run_command(command)
+        return {'stdout': stdout, 'stderr': ''}
 
 
 def _get_node_type(hostname: str, nodes: List) -> str:
@@ -234,30 +233,36 @@ def _get_health_status() -> Dict:
         return ret_val
 
 
-@app.route('/api/get_health_status', methods=['GET'])
-def get_health_status() -> Response:
-    try:
+@KUBERNETES_NS.route('/health/status')
+class SystemHealthStatus(Resource):
+
+    @KUBERNETES_NS.doc(description="Gets the kubernetes health status for all nodes.")
+    @KUBERNETES_NS.response(200, 'HealthService', [HealthServiceModel.DTO])
+    def get(self):
         try:
-            return jsonify(_get_health_status())
+            return objectify(_get_health_status())
         except Exception as e:
             Path(KUBEDIR + '/config').unlink()
-            return jsonify(_get_health_status())
-    except Exception as e:
-        logger.exception(e)
-    return jsonify({'totals': {}, 'pod_info': [], 'node_info': []})
+            return objectify(_get_health_status())
+        except Exception as e:
+            logger.exception(e)
+        return {'totals': {}, 'pod_info': [], 'node_info': []}
 
 
-@app.route('/api/get_pipeline_status', methods=['GET'])
-def get_pipeline_status() -> Response:
-    status = {}
-    documents = list(conn_mng.mongo_metrics.find({'type': 'elastic'}))
-    for document in documents:
-        hostname = document['node']
-        name = document['name']
-        value = document['value']
-        try:
-            status[hostname][name] = value
-        except KeyError:
-            status[hostname] = {name: value}
+@KUBERNETES_NS.route('/pipeline/status')
+class PipelineStatusCtrl(Resource):
 
-    return jsonify(status)
+    @KUBERNETES_NS.response(200, 'PipelineInfo', PipelineInfoModel.DTO)
+    def get(self) -> Response:
+        status = {}
+        documents = list(conn_mng.mongo_metrics.find({'type': 'elastic'}))
+        for document in documents:
+            hostname = document['node']
+            name = document['name']
+            value = document['value']
+            try:
+                status[hostname][name] = value
+            except KeyError:
+                status[hostname] = {name: value}
+
+        return status

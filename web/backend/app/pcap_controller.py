@@ -1,72 +1,96 @@
-from app import app, conn_mng
+from app import app, conn_mng, api, POLICY_NS
 from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.models.common import JobID
+from app.models.common import JobID, COMMON_ERROR_MESSAGE, COMMON_SUCCESS_MESSAGE
 from app.models.kit_setup import DIPKickstartForm
+from app.models.ruleset import PCAPMetadata, PCAPReplayModel
 from app.utils.constants import KICKSTART_ID
 from app.service.pcap_service import replay_pcap_srv
 from datetime import datetime
 from flask import jsonify, request, Response
+from flask_restplus import Resource
 from pathlib import Path
 from app.utils.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
 from app.utils.utils import hash_file
 from werkzeug.utils import secure_filename
 from app.middleware import operator_required
+from werkzeug.datastructures import FileStorage
 
 
-@app.route('/api/get_pcaps', methods=['GET'])
-def get_pcaps() -> Response:
-    ret_val = []
-    pcap_dir = Path(PCAP_UPLOAD_DIR)
-    for pcap in pcap_dir.glob("*.pcap"):
-        hashes = hash_file(str(pcap))
-        pcap = {'name': pcap.name,
-                'size': pcap.stat().st_size,
-                'createdDate': datetime.fromtimestamp(pcap.stat().st_mtime).strftime(DATE_FORMAT_STR),
-                'hashes': hashes}
-        ret_val.append(pcap)
-    return jsonify(sorted(ret_val, key=lambda x: x['name']))
+@POLICY_NS.route('/pcaps')
+class PcapsCtrl(Resource):
+
+    @POLICY_NS.response(200, "PCAPMetadata", [PCAPMetadata.DTO])
+    @POLICY_NS.doc(description="Gets the currently uploaded PCAPs on the server and displays the metadata.")
+    def get(self) -> Response:
+        ret_val = []
+        pcap_dir = Path(PCAP_UPLOAD_DIR)
+        for pcap in pcap_dir.glob("*.pcap"):
+            hashes = hash_file(str(pcap))
+            pcap = {'name': pcap.name,
+                    'size': pcap.stat().st_size,
+                    'createdDate': datetime.fromtimestamp(pcap.stat().st_mtime).strftime(DATE_FORMAT_STR),
+                    'hashes': hashes}
+            ret_val.append(pcap)
+        return sorted(ret_val, key=lambda x: x['name'])
 
 
-@app.route('/api/create_pcap', methods=['POST'])
-@operator_required
-def create_pcap() -> Response:
-    if 'upload_file' not in request.files:
-        return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
+upload_parser = api.parser()
+upload_parser.add_argument('upload_file', location='files',
+                           type=FileStorage, required=True)
 
-    pcap_dir = Path(PCAP_UPLOAD_DIR)
-    if not pcap_dir.exists():
-        pcap_dir.mkdir(parents=True, exist_ok=True)
+@POLICY_NS.route('/pcap/upload')
+class PcapCtrl(Resource):
 
-    pcap_file = request.files['upload_file']
-    filename = secure_filename(pcap_file.filename)
+    @POLICY_NS.doc(description="Uploads a PCAP to the controller which can then be used to replay against Sensors.")
+    @POLICY_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @POLICY_NS.expect(upload_parser)
+    @operator_required
+    def post(self) -> Response:
+        if 'upload_file' not in request.files:
+            return {"error_message": "Failed to upload file. No file was found in the request."}, 400
 
-    pos = filename.rfind('.') + 1
-    if filename[pos:] != 'pcap':
-        return jsonify({"error_message": "Failed to upload file. Files must end with the .pcap extension."})
+        pcap_dir = Path(PCAP_UPLOAD_DIR)
+        if not pcap_dir.exists():
+            pcap_dir.mkdir(parents=True, exist_ok=True)
 
-    abs_save_path = str(pcap_dir) + '/' + filename
-    pcap_file.save(abs_save_path)
-    return jsonify({"success_message": "Successfully uploaded {}!".format(filename)})
+        pcap_file = request.files['upload_file']
+        filename = secure_filename(pcap_file.filename)
 
+        pos = filename.rfind('.') + 1
+        if filename[pos:] != 'pcap':
+            return {"error_message": "Failed to upload file. Files must end with the .pcap extension."}, 400
 
-@app.route('/api/delete_pcap/<pcap_name>', methods=['DELETE'])
-@operator_required
-def delete_pcap(pcap_name: str) -> Response:
-    pcap_file = Path(PCAP_UPLOAD_DIR + '/' + pcap_name)
-    if pcap_file.exists():
-        pcap_file.unlink()
-        return jsonify({"success_message": "PCAP successfully deleted!"})
-    return jsonify({"error_message": "PCAP failed to delete!"})
+        abs_save_path = str(pcap_dir) + '/' + filename
+        pcap_file.save(abs_save_path)
+        return {"success_message": "Successfully uploaded {}!".format(filename)}
 
 
-@app.route('/api/replay_pcap', methods=['POST'])
-@operator_required
-def replay_pcap() -> Response:
-    payload = request.get_json()
-    kickstart_configuration = DIPKickstartForm.load_from_db() #type: DIPKickstartForm
-    if kickstart_configuration:
+@POLICY_NS.route('/pcap/<pcap_name>')
+class DeletePcap(Resource):
+
+    @POLICY_NS.doc(description="Delets a PCAP by the name passed in.")
+    @POLICY_NS.response(400, "ErrorMessage", COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(200, "SuccessMessage", COMMON_SUCCESS_MESSAGE)
+    @operator_required
+    def delete(self, pcap_name: str) -> Response:
+        pcap_file = Path(PCAP_UPLOAD_DIR + '/' + pcap_name)
+        if pcap_file.exists():
+            pcap_file.unlink()
+            return {"success_message": "PCAP successfully deleted!"}
+        return {"error_message": "PCAP failed to delete!"}, 400
+
+
+@POLICY_NS.route('/pcap/replay')
+class ReplayPcapCtrl(Resource):
+
+    @POLICY_NS.expect(PCAPReplayModel.DTO)
+    @POLICY_NS.doc(description="Replays a PCAP against the specified sensor.")
+    @POLICY_NS.response(500, "Error")
+    @operator_required
+    def post(self) -> Response:
+        payload = request.get_json()
+        kickstart_configuration = DIPKickstartForm.load_from_db() #type: DIPKickstartForm
         root_password = kickstart_configuration.root_password
         job = replay_pcap_srv.delay(payload, root_password)
-        return (jsonify(JobID(job).to_dict()), 200)
-
-    return ERROR_RESPONSE
+        return JobID(job).to_dict(), 200

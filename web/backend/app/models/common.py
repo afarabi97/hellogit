@@ -41,6 +41,24 @@ COMMON_RETURNS = api.model("Misc", {
 })
 
 
+COMMON_MESSAGE = api.model("Message", {
+    "message": fields.String(required=False,
+                             example="A message sent back from the message that would normally go to a toast popup.")
+})
+
+
+COMMON_ERROR_MESSAGE = api.model("ErrorMessage", {
+    "error_message": fields.String(required=False,
+                                   example="A message sent back from the message that would normally go to a toast popup.")
+})
+
+
+COMMON_SUCCESS_MESSAGE = api.model("SuccessMessage", {
+    "success_message": fields.String(required=False,
+                                   example="A message sent back from the message that would normally go to a toast popup.")
+})
+
+
 class JobID(Model):
     DTO = api.model('JobID', {
         "job_id": fields.String(required=True, example="fbbd7123-4926-4a84-a8ea-7c926e38edab",
@@ -52,6 +70,19 @@ class JobID(Model):
     def __init__(self, job: Job):
         self.job_id = job.get_id()
         self.redis_key = job.key.decode("UTF-8")
+
+
+class CurrentTimeMdl(Model):
+    DTO = api.model('CurrentTime', {
+        "timezone": fields.String(required=True, example="UTC",
+                                  description="The timezone the controller is configured to use. Defaults to UTC."),
+        "datetime": fields.String(required=True, example="12-28-2020 17:18:16",
+                                  description="The actual key that is stored in Redis database queue.")
+    })
+
+    def __init__(self, timezone: str, datetime: str):
+        self.timezone = timezone
+        self.datetime = datetime
 
 
 class BackgroundJob(Model):

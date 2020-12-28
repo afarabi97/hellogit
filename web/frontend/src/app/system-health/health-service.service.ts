@@ -12,27 +12,27 @@ export class HealthServiceService {
   constructor(private http: HttpClient, private snackBar: MatSnackBar) { }
 
   getHealthStatus(): Observable<Object> {
-    const url = '/api/get_health_status';
+    const url = '/api/health/status';
     return this.http.get(url).pipe();
   }
 
   getPipelineStatus(): Observable<Object> {
-    const url = '/api/get_pipeline_status';
+    const url = '/api/pipeline/status';
     return this.http.get(url).pipe();
   }
 
   describePod(podName: string, namespace: string): Observable<Object> {
-    const url = `/api/describe_pod/${podName}/${namespace}`
+    const url = `/api/pod/describe/${podName}/${namespace}`
     return this.http.get(url).pipe();
   }
 
   podLogs(podName: string, namespace: string): Observable<Object> {
-    const url = `/api/pod_logs/${podName}/${namespace}`
+    const url = `/api/pod/logs/${podName}/${namespace}`
     return this.http.get(url).pipe();
   }
 
   describeNode(nodeName: string): Observable<Object> {
-    const url = `/api/describe_node/${nodeName}`
+    const url = `/api/node/describe/${nodeName}`
     return this.http.get(url).pipe();
   }
 

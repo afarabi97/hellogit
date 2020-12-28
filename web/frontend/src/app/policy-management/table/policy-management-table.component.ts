@@ -189,12 +189,14 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   }
 
   enableRule(rule: Rule, ruleSet: RuleSet) {
-    this.policySrv.toggleRule(ruleSet._id, rule).subscribe(data => {
-      if (data instanceof ErrorMessage) {
-        this.displaySnackBar(data.error_message);
-      } else if (data instanceof Rule) {
+    this.policySrv.toggleRule(rule._id).subscribe(data => {
+      if (data instanceof Rule) {
         rule.isEnabled = data.isEnabled;
         ruleSet.state = "Dirty";
+      }
+    }, err => {
+      if (err.error && err.error['error_message']){
+        this.displaySnackBar(err.error['error_message']);
       }
     });
   }
@@ -211,18 +213,20 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(response => {
       if (response === option2) {
         const index = ruleSet.rules.findIndex( i => i._id === rule._id);
-        this.policySrv.deleteRule(ruleSet._id, rule._id).subscribe(data => {
-          if (data instanceof ErrorMessage){
-            this.displaySnackBar(data.error_message);
-          } else if (data instanceof SuccessMessage){
+        this.policySrv.deleteRule(rule._id).subscribe(data => {
+          if (data instanceof SuccessMessage){
             let tmp = this.rulesDataSource.data;
             tmp.splice(index, 1);
             this.rulesDataSource.data = tmp;
             this.displaySnackBar(data.success_message);
           }
         }, err => {
-          this.displaySnackBar("Failed to delete rule.");
-          console.error("Delete rule error:", err);
+          console.error(err);
+          if (err.error['error_message']){
+            this.displaySnackBar(err.error['error_message']);
+          } else {
+            this.displaySnackBar("Failed to delete rule for unknown reason.");
+          }
         });
       }
     });
@@ -230,9 +234,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
   public removeRuleSet(ruleSetID: number) {
     this.policySrv.deleteRuleSet(ruleSetID).subscribe(data => {
-      if (data instanceof ErrorMessage){
-        this.displaySnackBar(data.error_message);
-      } else if (data instanceof SuccessMessage){
+      if (data instanceof SuccessMessage){
         let ruleSets = this.ruleSetsDataSource.data as Array<RuleSet>;
         this.ruleSetsDataSource.data = ruleSets.filter( item => {
           return item._id !== ruleSetID;
@@ -240,8 +242,12 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
         this.displaySnackBar(data.success_message);
       }
     }, err => {
-      this.displaySnackBar("Failed to delete rule set.");
-      console.error("Delete rule error:", err);
+      console.error(err);
+      if (err.error['error_message']){
+        this.displaySnackBar(err.error['error_message']);
+      } else {
+        this.displaySnackBar("Failed to delete ruleset for unknown reason.");
+      }
     });
   }
 
@@ -273,12 +279,14 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
         this.policySrv.updateRuleSet(ruleSetGroup.value as IRuleSet).subscribe(data => {
           if (data instanceof RuleSet){
             this.reloadRuleSetTable();
-          } else if (data instanceof ErrorMessage) {
-            this.displaySnackBar(data.error_message);
           }
         }, err => {
-          this.displaySnackBar("Failed to update ruleset for an unknown reason.");
-          console.log(err);
+          console.error(err);
+          if (err.error['error_message']){
+            this.displaySnackBar(err.error['error_message']);
+          } else {
+            this.displaySnackBar("Failed to update ruleset for an unknown reason.");
+          }
         });
       }
     });
@@ -319,12 +327,14 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
             this.ruleSetsDataSource.data.push(data);
             this.reloadRuleSetTable();
             this.displaySnackBar("Successfully added a Ruleset file.");
-          } else if (data instanceof ErrorMessage) {
-            this.displaySnackBar(data.error_message);
           }
         }, err => {
-          this.displaySnackBar("Failed to create ruleset for an unknown reason.");
-          console.log(err);
+          console.error(err);
+          if (err.error['error_message']){
+            this.displaySnackBar(err.error['error_message']);
+          } else {
+            this.displaySnackBar("Failed to create ruleset for unknown reason.");
+          }
         });
       }
     });

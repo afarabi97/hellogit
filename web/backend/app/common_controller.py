@@ -47,12 +47,12 @@ def replace_metrics():
 MIN_MBPS = 1000
 
 
-@api.route("/api/gather_device_facts/<management_ip>")
+@api.route("/api/gather-device-facts/<management_ip>")
 @api.doc(params={'management_ip': "The IP we wish to get additional information from."})
 class DeviceFactsCtrl(Resource):
 
     @api.response(200, "DeviceFacts", DeviceFacts.DTO)
-    @api.doc(description="")
+    @api.doc(description="Gathers the device facts and displays it in the form of JSON.")
     def get(self, management_ip: str):
         try:
             try:
@@ -155,7 +155,7 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     return available_ip_blocks
 
 
-@api.route("/api/get_available_ip_blocks")
+@api.route("/api/available-ip-blocks")
 class IPBlocks(Resource):
 
     @api.response(200, "Array of IP Address Strings", COMMON_RETURNS["ip_blocks"])
@@ -172,7 +172,7 @@ class IPBlocks(Resource):
             return {}
 
 
-@api.route("/api/get_ip_blocks/<ip_or_network_id>/<netmask>")
+@api.route("/api/ip-blocks/<ip_or_network_id>/<netmask>")
 @api.doc(params={'ip_or_network_id': "An IP within the subnet you wish to scan"
                                     " for available IP blocks.",
                  'netmask': 'The range you wish to scan. EX: 255.255.255.0'})
@@ -186,7 +186,7 @@ class IPBlocksGeneric(Resource):
         return available_ip_blocks
 
 
-@api.route("/api/get_unused_ip_addrs/<ip_or_network_id>/<netmask>")
+@api.route("/api/unused-ip-addrs/<ip_or_network_id>/<netmask>")
 @api.doc(params={'ip_or_network_id': "An IP within the subnet you wish to scan"
                                     " for available IP blocks.",
                  'netmask': 'The range you wish to scan. EX: 255.255.255.0'})

@@ -59,7 +59,7 @@ describe('RegistryComponent', () => {
 
     fixture.detectChanges();
 
-    const req = httpTestingController.expectOne('/api/get_docker_registry');
+    const req = httpTestingController.expectOne('/api/docker/registry');
 
     expect(req.request.method).toEqual('GET');
 

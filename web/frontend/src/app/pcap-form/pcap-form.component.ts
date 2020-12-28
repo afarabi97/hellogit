@@ -77,6 +77,10 @@ export class PcapFormComponent implements OnInit {
       setTimeout(() => {
         this.displayServiceResponse(data);
       }, 1000);
+    }, err => {
+      if (err.error && err.error['error_message']){
+        this.pcapSrv.displaySnackBar(err.error['error_message']);
+      }
     });
   }
 
@@ -148,6 +152,8 @@ export class PcapFormComponent implements OnInit {
         this.pcapSrv.replayPcap(form.getRawValue()).subscribe(data => {
           this.pcapSrv.displaySnackBar("Replaying " + form.get('pcap').value + " on " + form.get('sensor').value +
                                 ". Open the notification manager to track its progress.");
+        }, err => {
+          console.error(err);
         });
       }
     });

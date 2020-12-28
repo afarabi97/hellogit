@@ -88,7 +88,7 @@ class DIPKitCtrl(Resource):
         return self._execute_kit_job(kickstart.root_password)
 
 
-@KIT_SETUP_NS.route("/generate_kit_inventory")
+@KIT_SETUP_NS.route("/generate-kit-inventory")
 class DIPGenKitInventoryCtrl(Resource):
 
     @KIT_SETUP_NS.expect(DIPKitForm.DTO)

@@ -69,25 +69,19 @@ export class ChangePasswordFormComponent implements OnInit {
     amended_passwords.push(item);
   }
 
-  private changePassword(amended_passwords: Array<Object>=[]){
-    this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue(), amended_passwords).subscribe(
+  private changePassword() {
+    this.toolsSrv.changeKitPassword(this.changePasswordForm.getRawValue()).subscribe(
       data => {
         this.displaySnackBar(data["message"]);
       },
       error => {
-        if (error.error instanceof ErrorEvent) {
-          console.error('An error occurred:', error.error.message);
-          this.displaySnackBar("Oops! Something bad happend.");
+        console.error(error);
+        if (error.status == 404 || error.status == 409) {
+          this.displaySnackBar(error.error['message']);
+        } else if (error.status == 403) {
+          this.displaySnackBar("Authentication failure. Check the ssh key on the controller.");
         } else {
-          if (error.status == 409) {
-            this.displaySnackBar(error.error['message']);
-          }
-          if (error.status == 422) {
-            this.displaySnackBar("Authentication failure. Check the ssh key on the controller.");
-          }
-          if (error.status == 500) {
-            this.displaySnackBar(error.error['message']);
-          }
+          this.displaySnackBar("An unknown error occured.");
         }
       }
     );

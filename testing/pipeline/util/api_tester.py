@@ -263,7 +263,7 @@ class KitPayloadGenerator:
         self._device_facts_map = {}
 
     def _request_device_facts(self, node: NodeSettings) -> Dict:
-        ret_val = get_request(self._url.format("/api/gather_device_facts/"+node.ipaddress))
+        ret_val = get_request(self._url.format("/api/gather-device-facts/"+node.ipaddress))
         return ret_val
 
     def _set_device_facts_ip_map(self) -> None:
@@ -662,7 +662,7 @@ class MIPAPITester(APITester):
             mongo_manager.mongo_kickstart.drop()
 
         payload = self._kickstart_payload_generator.generate()
-        response_dict = post_request(self._url.format("/api/mip_kickstart"), payload)
+        response_dict = post_request(self._url.format("/api/kickstart/mip"), payload)
         wait_for_job_to_finish("MIP Kickstart", self._url.format("/api/job/" + response_dict['job_id']), 30)
         _clean_up(wait=0)
 

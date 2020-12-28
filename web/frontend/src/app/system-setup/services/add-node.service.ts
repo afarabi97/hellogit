@@ -13,7 +13,7 @@ export class AddNodeSrvService {
               private snackBar: MatSnackBar) { }
 
   getAddNodeWizardState(): Observable<Object> {
-    const url = '/api/add_node_wizard';
+    const url = '/api/add-node-wizard';
     return this.http.get(url).pipe();
   }
 

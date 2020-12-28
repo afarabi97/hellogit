@@ -12,8 +12,8 @@ from app.tests.base_test_setup import BaseTestCase
 from typing import Dict, List
 
 SENSOR_HOST_INFO_URL = "/api/get_sensor_hostinfo"
-CREATE_RULESET_URL = "/api/create_ruleset"
-UPLOAD_RULE_URL = "/api/upload_rule"
+CREATE_RULESET_URL = "/api/ruleset"
+UPLOAD_RULE_URL = "/api/rule/upload"
 
 class TestRulesetController(BaseTestCase):
 
@@ -21,13 +21,13 @@ class TestRulesetController(BaseTestCase):
         super().setUp()
 
     def _verify_ruleset_count(self, expected_count: int):
-        response = self.app.get("/api/get_rulesets/")
+        response = self.app.get("/api/ruleset")
         self.assertEqual(response.status_code, 200)
         rule_sets = response.json
         self.assertEqual(expected_count, len(rule_sets))
 
     def _verify_rule_count(self, rule_set_id: str, expected_count: int):
-        response = self.app.get("/api/get_rules/" + str(rule_set_id))
+        response = self.app.get("/api/rules/" + str(rule_set_id))
         self.assertEqual(response.status_code, 200)
         rules = response.json
         self.assertEqual(expected_count, len(rules))
@@ -117,7 +117,7 @@ class TestRulesetController(BaseTestCase):
 
 
     def test_crud_operations_for_rulesets_and_rules(self):
-        create_rule_url = "/api/create_rule"
+        create_rule_url = "/api/rule"
         ruleset = {
             "appType": "Suricata",
             "clearance": "TS",
@@ -131,13 +131,15 @@ class TestRulesetController(BaseTestCase):
         single_rule = {
             "ruleName": "ruleOne",
             "rule": 'alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"ET SNMP Attempted UDP Access Attempt to Cisco IOS 12.1 Hidden Read/Write Community String ILMI"; content:"ILMI"; nocase; reference:url,www.cisco.com/warp/public/707/cisco-sa-20010228-ios-snmp-community.shtml; reference:url,www.cisco.com/warp/public/707/cisco-sa-20010227-ios-snmp-ilmi.shtml; reference:url,doc.emergingthreats.net/2011011; classtype:attempted-admin; sid:2011011; rev:2; metadata:created_at 2010_07_30, updated_at 2010_07_30;)',
-            "isEnabled": True
+            "isEnabled": True,
+            "byPassValidation": False
         }
 
         single_rule2 = {
             "ruleName": "ruleTwo",
             "rule": 'alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"GPL SNMP null community string attempt"; content:"|04 01 00|"; depth:15; offset:5; reference:bugtraq,2112; reference:bugtraq,8974; reference:cve,1999-0517; classtype:misc-attack; sid:2101892; rev:7; metadata:created_at 2010_09_23, updated_at 2010_09_23;)',
-            "isEnabled": True
+            "isEnabled": True,
+            "byPassValidation": False
         }
 
         add_rule = {
@@ -162,9 +164,8 @@ class TestRulesetController(BaseTestCase):
 
         # Test Save rule, verify that ruleset is marked dirty.
         # Verify that ruleset state change to Dirty
-        add_rule['rulesetID'] = ruleset_id
-        add_rule['ruleToAdd'] = single_rule
-        response = self.app.post(create_rule_url, json=add_rule)
+        single_rule['rule_set_id'] = ruleset_id
+        response = self.app.post(create_rule_url, json=single_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 1)
         actual_result = response.json # type: Dict
@@ -176,16 +177,13 @@ class TestRulesetController(BaseTestCase):
 
         # Test save same rule and make sure
         # Verify that the states is still dirty
-        add_rule['rulesetID'] = ruleset_id
-        add_rule['ruleToAdd'] = single_rule
-        response = self.app.post(create_rule_url, json=add_rule)
+        response = self.app.post(create_rule_url, json=single_rule)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 2)
 
         # Test save different rule
-        add_rule['rulesetID'] = ruleset_id
-        add_rule['ruleToAdd'] = single_rule2
-        response = self.app.post(create_rule_url, json=add_rule)
+        single_rule2['rule_set_id'] = ruleset_id
+        response = self.app.post(create_rule_url, json=single_rule2)
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 3)
 
@@ -193,9 +191,9 @@ class TestRulesetController(BaseTestCase):
         single_rule2_w_id = response.json
         single_rule2_w_id["ruleName"] = "I updated the name!"
         single_rule2_w_id["isEnabled"] = False
-        update_rule["rulesetID"] = ruleset_id
-        update_rule["ruleToUpdate"] = single_rule2_w_id
-        response = self.app.put("/api/update_rule", json=update_rule)
+        # update_rule["rulesetID"] = ruleset_id
+        # update_rule["ruleToUpdate"] = single_rule2_w_id
+        response = self.app.put("/api/rule", json=single_rule2_w_id)
         self.assertEqual(response.status_code, 200)
         self._verify_rule(single_rule2_w_id, response.json)
         self._verify_rule_count(ruleset_id, 3)
@@ -205,23 +203,23 @@ class TestRulesetController(BaseTestCase):
         test_rule_set = response.json
         test_rule_set["state"] = "dirty"
         test_rule_set["isEnabled"] = False
-        response = self.app.put("/api/update_ruleset", json=test_rule_set)
+        response = self.app.put("/api/ruleset", json=test_rule_set)
         self.assertEqual(response.status_code, 200)
         self._verify_ruleset(test_rule_set, response.json, RULESET_STATES[1])
         self._verify_rule_count(ruleset_id, 3)
 
         # Test delete rule
-        response = self.app.delete("/api/delete_rule/" + str(ruleset_id) + "/" + str(single_rule2_w_id['_id']))
+        response = self.app.delete("/api/rule/" + str(single_rule2_w_id['_id']))
         self.assertEqual(response.status_code, 200)
         self._verify_rule_count(ruleset_id, 2)
 
         # Test delete ruleset
-        response = self.app.delete("/api/delete_ruleset/" + str(ruleset_id))
+        response = self.app.delete("/api/ruleset/" + str(ruleset_id))
         self.assertEqual(response.status_code, 200)
         self._verify_ruleset_count(0)
 
     def test_modifyruleset(self):
-        create_rule_url = "/api/create_rule"
+        create_rule_url = "/api/rule"
         ruleset = {
             "appType": "suricata",
             "clearance": "TS",
@@ -235,7 +233,8 @@ class TestRulesetController(BaseTestCase):
         single_rule = {
             "ruleName": "ruleTwo",
             "rule": 'alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"ET SNMP Attempted UDP Access Attempt to Cisco IOS 12.1 Hidden Read/Write Community String ILMI"; content:"ILMI"; nocase; reference:url,www.cisco.com/warp/public/707/cisco-sa-20010228-ios-snmp-community.shtml; reference:url,www.cisco.com/warp/public/707/cisco-sa-20010227-ios-snmp-ilmi.shtml; reference:url,doc.emergingthreats.net/2011011; classtype:attempted-admin; sid:2011011; rev:2; metadata:created_at 2010_07_30, updated_at 2010_07_30;)',
-            "isEnabled": True
+            "isEnabled": True,
+            "byPassValidation": False
         }
 
         add_rule = {
@@ -251,7 +250,6 @@ class TestRulesetController(BaseTestCase):
             for x in range(5):
                 single_rule["ruleName"] = "rule" + str(x)
                 single_rule["rule"] = "ruleContent" + str(x)
-                add_rule['rulesetID'] = rule_set_id
-                add_rule['ruleToAdd'] = single_rule
-                response = self.app.post(create_rule_url, json=add_rule)
+                single_rule['rule_set_id'] = rule_set_id
+                response = self.app.post(create_rule_url, json=single_rule)
                 self.assertEqual(response.status_code, 200)

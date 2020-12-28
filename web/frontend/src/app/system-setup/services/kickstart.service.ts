@@ -20,17 +20,17 @@ export class KickstartService {
   }
 
   getAvailableIPBlocks(): Observable<any> {
-    const url = '/api/get_available_ip_blocks';
+    const url = '/api/available-ip-blocks';
     return this.http.get(url).pipe();
   }
 
   getAvailableIPBlocks2(controller_ip: string, netmask: string): Observable<Object> {
-      const url = `/api/get_ip_blocks/${controller_ip}/${netmask}`;
+      const url = `/api/ip-blocks/${controller_ip}/${netmask}`;
       return this.http.get(url).pipe();
   }
 
   gatherDeviceFacts(management_ip: string): Observable<Object> {
-    const url = `/api/gather_device_facts/${management_ip}`;
+    const url = `/api/gather-device-facts/${management_ip}`;
     return this.http.get(url).pipe();
   }
 
@@ -64,7 +64,7 @@ export class KickstartService {
   }
 
   generateMIPKickstartInventory(kickStartForm: Object) {
-    const url = '/api/mip_kickstart';
+    const url = '/api/kickstart/mip';
     return this.http.post(url, kickStartForm, HTTP_OPTIONS).pipe(
       catchError(this.snackbarWrapper.handleError('generateMIPKickstartInventory'))
     );
@@ -79,7 +79,7 @@ export class KickstartService {
   }
 
   getMIPKickstartForm() {
-    const url = '/api/mip_kickstart';
+    const url = '/api/kickstart/mip';
     return this.http.get(url)
       .pipe(
         catchError(this.snackbarWrapper.handleError())
@@ -87,7 +87,7 @@ export class KickstartService {
   }
 
   getUnusedIPAddresses(mng_ip: string, netmask: string): Observable<Object> {
-    const url = `/api/get_unused_ip_addrs/${mng_ip}/${netmask}`;
+    const url = `/api/unused-ip-addrs/${mng_ip}/${netmask}`;
     return this.http.get(url)
       .pipe(
         catchError(this.snackbarWrapper.handleError())

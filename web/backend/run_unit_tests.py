@@ -24,8 +24,8 @@ def run_tests() -> bool:
     firewall-cmd --reload
     systemctl restart docker
     """
-    test_classes_to_run = [KickstartTests, TestPcapController, TestRulesetController, MIPKickstartTests]
-    # test_classes_to_run = [KitTests]
+    # test_classes_to_run = [KickstartTests, TestPcapController, TestRulesetController, MIPKickstartTests]
+    test_classes_to_run = [TestRulesetController]
     loader = unittest.TestLoader()
     suites_list = []
     for test_class in test_classes_to_run:

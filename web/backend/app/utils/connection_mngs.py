@@ -2,6 +2,7 @@ import os
 
 from app import rq_logger
 from base64 import b64decode
+from bson import ObjectId
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.client import ClusterClient, SnapshotClient, IndicesClient
@@ -48,6 +49,8 @@ def objectify(some_dict: Dict) -> Dict:
                     some_dict[key][index] = item.strftime(DATE_FORMAT_STR)
                 elif isinstance(item, dict):
                     objectify(item)
+        elif isinstance(some_dict[key], ObjectId):
+            some_dict[key] = str(some_dict[key])
         elif isinstance(some_dict[key], dict):
             objectify(some_dict[key])
 
@@ -108,25 +111,33 @@ class FabricConnection():
     def __init__(self,
                  ip_address: str,
                  password: str = None,
-                 username: str = USERNAME):
+                 username: str = USERNAME,
+                 use_ssh_key: bool=False):
         self._connection = None  # type: Connection
         self._ip_address = ip_address
         self._password = password
         self._username = username
+        self._use_ssh_key = use_ssh_key
 
     def _set_root_password(self) -> str:
-        from app.models.kit_setup import (DIPKickstartForm, DIPKitForm)
-        with MongoConnectionManager() as conn_mng:
-            kickstart_form = DIPKickstartForm.load_from_db()
-            self._password = kickstart_form.root_password
+        kickstart_form = DIPKickstartForm.load_from_db()
+        self._password = kickstart_form.root_password
 
     def _establish_fabric_connection(self) -> None:
-        self._connection = Connection(self._ip_address,
-                                      user=self._username,
-                                      connect_timeout=CONNECTION_TIMEOUT,
-                                      connect_kwargs={'password': self._password,
-                                                      'allow_agent': False,
-                                                      'look_for_keys': False})
+        if self._use_ssh_key:
+            self._connection = Connection(self._ip_address,
+                                          user=self._username,
+                                          connect_timeout=CONNECTION_TIMEOUT,
+                                          connect_kwargs={'key_filename': ['/root/.ssh/id_rsa'],
+                                                          'allow_agent': False,
+                                                          'look_for_keys': False})
+        else:
+            self._connection = Connection(self._ip_address,
+                                          user=self._username,
+                                          connect_timeout=CONNECTION_TIMEOUT,
+                                          connect_kwargs={'password': self._password,
+                                                          'allow_agent': False,
+                                                          'look_for_keys': False})
 
     def __enter__(self):
         if not self._password:

@@ -43,7 +43,7 @@ def _is_valid_ip(ip_address: str) -> bool:
     return False
 
 
-@KIT_SETUP_NS.route("/add_node_wizard")
+@KIT_SETUP_NS.route("/add-node-wizard")
 class AddNodeWizardCtrl(Resource):
 
     @KIT_SETUP_NS.response(200, 'AddNodeWizard Model', AddNodeWizard.DTO)
@@ -138,7 +138,7 @@ class DIPKickstartCtrl(Resource):
         return node_list
 
 
-@KIT_SETUP_NS.route("/mip_kickstart")
+@KIT_SETUP_NS.route("/kickstart/mip")
 class MIPKickstartCtrl(Resource):
 
     def _execute_kickstart_job(self, kickstart_form: MIPKickstartForm) -> Dict:

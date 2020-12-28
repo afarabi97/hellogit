@@ -32,14 +32,14 @@ export const environment = {
 
   KIT_SERVICE_GET_KIT_FORM: `/api/get_kit_form`,
   KIT_SERVICE_EXECUTE_KIT_INVENTORY: `/api/execute_kit_inventory`,
-  KIT_SERVICE_GENERATE_KIT_INVENTORY: `/api/generate_kit_inventory`,
+  KIT_SERVICE_GENERATE_KIT_INVENTORY: `/api/generate-kit-inventory`,
   KIT_SERVICE_EXECUTE_ADD_NODE: `/api/execute_add_node`,
   KIT_SERVICE_EXECUTE_REMOVE_NODE: `/api/execute_remove_node`,
 
-  KICKSTART_SERVICE_GET_AVAILABLE_IP_BLOCKS: `/api/get_available_ip_blocks`,
-  KICKSTART_SERVICE_GET_IP_BLOCKS: `/api/get_ip_blocks/`,
-  KICKSTART_SERVICE_GET_UNUSED_IP_ADDRESSES: `/api/get_unused_ip_addrs`,
-  KICKSTART_SERVICE_GATHER_DEVICE_FACTS: `/api/gather_device_facts`,
+  KICKSTART_SERVICE_GET_AVAILABLE_IP_BLOCKS: `/api/available-ip-blocks`,
+  KICKSTART_SERVICE_GET_IP_BLOCKS: `/api/ip-blocks/`,
+  KICKSTART_SERVICE_GET_UNUSED_IP_ADDRESSES: `/api/unused-ip-addrs`,
+  KICKSTART_SERVICE_GATHER_DEVICE_FACTS: `/api/gather-device-facts`,
   KICKSTART_SERVICE_GENERATE_KICKSTART_INVENTORY: `/api/generate_kickstart_inventory`,
   KICKSTART_SERVICE_GENERATE_MIP_KICKSTART_INVENTORY: `/api/generate_mip_kickstart_inventory`,
   KICKSTART_SERVICE_GET_KICKSTART_FORM: `/api/get_kickstart_form`,
@@ -52,13 +52,13 @@ export const environment = {
 
   ADD_NODE_SERVICE_ADD_NODE_WIZARD_STATE: `/api/get_add_node_wizard_state`,
 
-  HEALTH_STATUS_SERVICE_GET_HEALTH_STATUS: `/api/get_health_status`,
-  HEALTH_STATUS_SERVICE_GET_PIPELINE_STATUS: `/api/get_pipeline_status`,
-  HEALTH_STATUS_SERVICE_DESCRIBE_POD: `/api/describe_pod/`,
-  HEALTH_STATUS_SERVICE_POD_LOGS: `/api/pod_logs/`,
-  HEALTH_STATUS_SERVICE_DESCRIBE_NODE: `/api/describe_node/`,
+  HEALTH_STATUS_SERVICE_GET_HEALTH_STATUS: `/api/health/status`,
+  HEALTH_STATUS_SERVICE_GET_PIPELINE_STATUS: `/api/pipeline/status`,
+  HEALTH_STATUS_SERVICE_DESCRIBE_POD: `/api/pod/describe/`,
+  HEALTH_STATUS_SERVICE_POD_LOGS: `/api/pod/logs/`,
+  HEALTH_STATUS_SERVICE_DESCRIBE_NODE: `/api/node/describe/`,
 
-  REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/get_docker_registry`,
+  REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/docker/registry`,
 
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/get_portal_links`,
   PORTAL_SERVICE_ADD_USER_LINK: `/api/add_user_link`,
@@ -66,14 +66,14 @@ export const environment = {
   PORTAL_SERVICE_GET_USER_LINKS: `/api/get_user_links`,
 
   TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/change_kit_clock`,
-  TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change_kit_password`,
-  TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/update_documentation`,
+  TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change-kit-password`,
+  TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/documentation/upload`,
+  TOOLS_SERVICE_GET_SPACES: `/api/spaces`,
   TOOLS_SERVICE_ES_LICENSE: `/api/es_license`,
-  TOOLS_SERVICE_GET_SPACES: `/api/get_spaces`,
-  TOOLS_SERVICE_MONITORING_INTERFACE: `/api/monitoring_interfaces`,
+  TOOLS_SERVICE_MONITORING_INTERFACE: `/api/monitoring-interfaces`,
   TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/snapshot`,
 
-  NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/get_current_dip_time`,
+  NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/controller/datetime`,
   NAV_BAR_SERVICE_VERSION: `/api/version`,
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`

@@ -334,13 +334,11 @@ export class KickstartComponent implements OnInit {
 
       let boot_drives = 'sda';
       if (node && node.boot_drives && Array.isArray(node.boot_drives)) {
-        console.log(node.boot_drives)
         boot_drives = node.boot_drives.join()
       }
 
       let data_drives = 'sdb';
       if (node && node.data_drives && Array.isArray(node.data_drives)) {
-        console.log(node.data_drives)
         data_drives = node.data_drives.join()
       }
 

@@ -8,8 +8,8 @@ export class RegistryService {
 
   constructor(private http: HttpClient) { }
 
-  getDockerRegistry(){    
-    const url = '/api/get_docker_registry';
+  getDockerRegistry(){
+    const url = '/api/docker/registry';
     return this.http.get(url).pipe();
   }
 }

@@ -50,11 +50,10 @@ export class ToolsService extends ApiService<any> {
    * @returns
    * @memberof ToolsService
    */
-  changeKitPassword(passwordForm: Object, amendedPasswords: Array<Object>) {
-    const payload = {passwordForm: passwordForm, amendedPasswords: amendedPasswords};
-
-    return this.httpClient_.post(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, payload)
-                           .pipe(catchError((err: any) => this.handleError('change_kit_password', err)));
+  changeKitPassword(passwordForm: Object) {
+    delete passwordForm["re_password"];
+    return this.httpClient_.post(environment.TOOLS_SERVICE_CHANGE_KIT_PASSWORD, passwordForm)
+                           .pipe(catchError((err: any) => this.handleError('change-kit-password', err)));
   }
 
   /**
@@ -82,7 +81,7 @@ export class ToolsService extends ApiService<any> {
    */
   getSpaces(): Observable<string[]>{
     return this.httpClient_.get<string[]>(environment.TOOLS_SERVICE_GET_SPACES, {})
-                           .pipe(catchError((err: any) => this.handleError('get_spaces', err)));
+                           .pipe(catchError((err: any) => this.handleError('spaces', err)));
   }
 
   /**
@@ -95,10 +94,10 @@ export class ToolsService extends ApiService<any> {
    * @memberof ToolsService
    */
   changStateofRemoteNetworkDevice(node: string, device: string, state: string): Observable<Object> {
-    const url = `/api/${node}/set_interface_state/${device}/${state}`;
+    const url = `/api/${node}/set-interface-state/${device}/${state}`;
 
-    return this.httpClient_.post(url, {})
-                           .pipe(catchError((err: any) => this.handleError(`${node}/set_interface_state/${device}/${state}`, err)));
+    return this.httpClient_.put(url, {})
+                           .pipe(catchError((err: any) => this.handleError(`${node}/set-interface-state/${device}/${state}`, err)));
   }
 
   /**
@@ -109,7 +108,7 @@ export class ToolsService extends ApiService<any> {
    */
   getMonitoringInterfaces(): Observable<Object> {
     return this.httpClient_.get(environment.TOOLS_SERVICE_MONITORING_INTERFACE)
-                           .pipe(catchError((err: any) => this.handleError('monitoring_interfaces', err)));
+                           .pipe(catchError((err: any) => this.handleError('monitoring-interfaces', err)));
   }
 
   /**

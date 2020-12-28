@@ -132,10 +132,10 @@ describe('PolicyManagementTable', () => {
             "state": "Created"
           }
 
-          const req = httpTestingController.expectOne('/api/create_ruleset');
+          const req = httpTestingController.expectOne('/api/ruleset');
           req.flush(additional);
           expect(req.request.body).toEqual(<RuleSet> ruleSetGroup.value);
-          const XHRUrl = httpTestingController.expectOne('/api/get_rulesets/');
+          const XHRUrl = httpTestingController.expectOne('/api/ruleset');
           XHRUrl.flush(ALL_RULESETS);
           httpTestingController.verify();
 
@@ -152,7 +152,7 @@ describe('PolicyManagementTable', () => {
       // const req1 = httpTestingController.expectOne('/api/get_rulesets/All');
       // req1.flush(data1);
       const data1 = [{"_id":73334,"appType":"Suricata","clearance":"Unclassified","createdDate":"2020-02-06 05:32:53","groupName":"Threat Feeds","isEnabled":false,"lastModifiedDate":"2020-02-27 00:11:41","name":"Emerging Threats","sensors":[],"state":"Dirty"},{"_id":73346,"appType":"Suricata","clearance":"Unclassified","createdDate":"2020-02-28 02:56:45","groupName":"Bugs","isEnabled":true,"lastModifiedDate":"2020-02-28 02:56:45","name":"Bug Hunter 5000","sensors":[{"hostname":"acostatest3-sensor1.lan","mac":"00:50:56:9d:79:28","management_ip":"172.16.83.67"}],"state":"Dirty"}];
-      const req1 = httpTestingController.expectOne('/api/get_rulesets/');
+      const req1 = httpTestingController.expectOne('/api/ruleset');
       req1.flush(data1);
 
       // const data2 = ["Bugs","Threat Feeds","All"];

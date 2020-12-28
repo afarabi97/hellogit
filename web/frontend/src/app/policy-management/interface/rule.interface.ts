@@ -6,6 +6,7 @@ export interface IRule {
   lastModifiedDate: string;
   isEnabled: boolean;
   byPassValidation: boolean;
+  rule_set_id: number;
 }
 
 export class Rule implements IRule {
@@ -16,6 +17,7 @@ export class Rule implements IRule {
   lastModifiedDate: string;
   isEnabled: boolean;
   byPassValidation: boolean;
+  rule_set_id: number;
 
   constructor(rule: IRule) {
     this._id = rule._id;
@@ -25,6 +27,7 @@ export class Rule implements IRule {
     this.lastModifiedDate = rule.lastModifiedDate;
     this.isEnabled = rule.isEnabled;
     this.byPassValidation = rule.byPassValidation;
+    this.rule_set_id = rule.rule_set_id;
   }
 }
 

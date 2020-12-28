@@ -150,9 +150,16 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
       timeInMS: 15000,
       actionLabel: 'Dismiss'
     };
+
     if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse)) {
       this.handleErrorConsole(httpErrorResponse);
-      this.matSnackBarService.displaySnackBar(`An error has occured: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
+      if (httpErrorResponse.error && httpErrorResponse.error['error_message']){
+        this.matSnackBarService.displaySnackBar(httpErrorResponse.error['error_message']);
+      } else if (httpErrorResponse.error && httpErrorResponse.error['message']){
+        this.matSnackBarService.displaySnackBar(httpErrorResponse.error['message']);
+      } else{
+        this.matSnackBarService.displaySnackBar(`An error has occured: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
+      }
     } else {
       this.matSnackBarService.displaySnackBar(`An error has occured: ${operation}`, matSnackBarConfiguration);
     }

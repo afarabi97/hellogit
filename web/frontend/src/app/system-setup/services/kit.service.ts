@@ -64,7 +64,7 @@ export class KitService {
   }
 
   generateKit(kitForm: Object, kickstartForm: Object) {
-    const url = '/api/generate_kit_inventory';
+    const url = '/api/generate-kit-inventory';
     this.processKitForm(kitForm, kickstartForm);
     return this.http.post(url, kitForm, HTTP_OPTIONS).pipe(
       catchError(err => this.handleError(err))

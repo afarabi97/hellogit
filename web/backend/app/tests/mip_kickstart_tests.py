@@ -16,13 +16,13 @@ class MIPKickstartTests(BaseTestCase):
 
     # @unittest.skip("")
     def test_mip_kickstart_successful_conditions(self):
-        response = self.app.get('/api/mip_kickstart')
+        response = self.app.get('/api/kickstart/mip')
         self.assertEqual(response.status_code, 200)
         payload = response.json # type: Response
         self.assertEqual({}, payload)
         self.assertIsNotNone(payload)
 
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         job_id = response.json["job_id"]
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(job_id)
@@ -39,7 +39,7 @@ class MIPKickstartTests(BaseTestCase):
         self.mip_kickstart["dns"] = "thisisnotanipaddress"
         self.mip_kickstart["dhcp_range"] = "thisisnotanipaddress"
 
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 400)
         for key in response.json:
             self.assertEqual('Not a valid IPv4 address.', response.json[key][0])
@@ -47,7 +47,7 @@ class MIPKickstartTests(BaseTestCase):
     # @unittest.skip("")
     def test_mip_kickstart_duplicate_macs(self):
         self.mip_kickstart["nodes"][0]["mac_address"] = "00:0a:29:6e:7f:f2"
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 400)
         self.assertEqual('server1 and sensor1 have the same MAC Address.',
                          response.json['post_validation'][0])
@@ -55,7 +55,7 @@ class MIPKickstartTests(BaseTestCase):
     # @unittest.skip("")
     def test_mip_kickstart_duplicate_IP(self):
         self.mip_kickstart["nodes"][0]["ip_address"] = "10.40.12.147"
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 400)
         self.assertEqual('server1 and server2 have the same IP Address.',
                          response.json['post_validation'][0])
@@ -63,7 +63,7 @@ class MIPKickstartTests(BaseTestCase):
     # @unittest.skip("")
     def test_mip_kickstart_duplicate_hostnames(self):
         self.mip_kickstart["nodes"][0]["hostname"] = "sensor1"
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 400)
         self.assertEqual('Two or more of your nodes have the same hostname.',
                          response.json['post_validation'][0])
@@ -71,7 +71,7 @@ class MIPKickstartTests(BaseTestCase):
     @unittest.skip("")
     def test_mip_kickstart_optional_fields(self):
         del self.mip_kickstart["dns"]
-        response = self.app.post('/api/mip_kickstart', json=self.mip_kickstart)
+        response = self.app.post('/api/kickstart/mip', json=self.mip_kickstart)
         self.assertEqual(response.status_code, 200)
         kickstart = MIPKickstartForm.load_from_db()
         self.assertIsNotNone(kickstart)

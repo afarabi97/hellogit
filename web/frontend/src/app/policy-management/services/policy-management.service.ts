@@ -124,16 +124,16 @@ export class PolicyManagementService {
     }
 
     getRuleSets(): Observable<Array<IRuleSet>> {
-        const url = `/api/get_rulesets/`;
+        const url = '/api/ruleset';
         return this.http.get(url).pipe(
             map(data => this.mapRuleSets(data as Array<Object>))
         );
     }
 
     createRuleSet(ruleSet: IRuleSet): Observable<IRuleSet | IError> {
-        const url = '/api/create_ruleset';
+        const url = '/api/ruleset';
         return this.http.post(url, ruleSet, HTTP_OPTIONS).pipe(
-            map(data => this.mapRuleSetOrError(data))
+            map(data => this.mapRuleSet(data))
         );
     }
 
@@ -148,81 +148,80 @@ export class PolicyManagementService {
     }
 
     deleteRuleSet(ruleSetID: number): Observable<IError | ISuccess> {
-        const url = `/api/delete_ruleset/${ruleSetID}`;
+        const url = `/api/ruleset/${ruleSetID}`;
         return this.http.delete(url).pipe(
             map(data => this.mapSuccessOrError(data))
         );
     }
 
     getRules(rule_set_id: number): Observable<Array<IRule>>{
-        const url = `/api/get_rules/${rule_set_id}`;
+        const url = `/api/rules/${rule_set_id}`;
         return this.http.get(url).pipe(
             map(data => this.mapRules(data as Array<Object>))
         );
     }
 
-    getRuleContent(rule_set_id: number, rule_id: number): Observable<IRule | IError> {
-        const url = `/api/get_rules_content/${rule_set_id}/${rule_id}`;
+    getRuleContent(rule_id: number): Observable<IRule | IError> {
+        const url = `/api/rule/${rule_id}/content`;
         return this.http.get(url).pipe(
             map(data => this.mapRuleOrError(data))
         );
     }
 
     createRule(ruleSetID: number, newRule :IRule): Observable<IRule | IError> {
-        const url = '/api/create_rule';
-        let payload = { rulesetID: ruleSetID, ruleToAdd: newRule };
-        return this.http.post(url, payload, HTTP_OPTIONS).pipe(
+        const url = '/api/rule';
+        newRule.rule_set_id = ruleSetID;
+        return this.http.post(url, newRule, HTTP_OPTIONS).pipe(
             map(data => this.mapRuleOrError(data))
         );
     }
 
     validateRule(someRule: IRule): Observable<ISuccess | IError> {
-        const url = '/api/validate_rule';
-        let payload = { ruleToValidate: someRule, ruleType: this.editRuleSet.appType };
-        return this.http.post(url, payload, HTTP_OPTIONS).pipe(
+        const url = '/api/rule/validate';
+        someRule.rule_set_id = this.editRuleSet._id
+        // let payload = { ruleToValidate: someRule, ruleType: this.editRuleSet.appType };
+        return this.http.post(url, someRule, HTTP_OPTIONS).pipe(
             map(data => this.mapSuccessOrError(data))
         );
     }
 
     testRuleAgainstPCAP(pcapName: string, ruleContent: string){
-        const url = '/api/test_rule_against_pcap';
+        const url = '/api/pcap/rule/test';
         let payload = { pcap_name: pcapName, rule_content: ruleContent, ruleType: this.editRuleSet.appType };
         return this.http.post(url, payload, { responseType: 'blob' }).pipe();
     }
 
     updateRule(ruleSetID: number, ruleToUpdate: IRule): Observable<IRule | IError> {
-        const url = '/api/update_rule';
-        let payload = { rulesetID: ruleSetID, ruleToUpdate: ruleToUpdate };
-        return this.http.put(url, payload, HTTP_OPTIONS).pipe(
+        const url = '/api/rule';
+        ruleToUpdate.rule_set_id = ruleSetID;
+        return this.http.put(url, ruleToUpdate, HTTP_OPTIONS).pipe(
             map(data => this.mapRuleOrError(data))
         );
     }
 
-    toggleRule(ruleSetID: number, ruleToUpdate: IRule): Observable<IRule | IError> {
-        ruleToUpdate.isEnabled = !ruleToUpdate.isEnabled;
-        const url = '/api/toggle_rule';
-        let payload = { rulesetID: ruleSetID, ruleToUpdate: ruleToUpdate };
-        return this.http.put(url, payload, HTTP_OPTIONS).pipe(
+    toggleRule(ruleID: number): Observable<IRule | IError> {
+        const url = `/api/rule/${ruleID}/toggle`;
+        return this.http.put(url, HTTP_OPTIONS).pipe(
             map(data => this.mapRuleOrError(data))
         );
     }
 
-    deleteRule(ruleSetID: number, ruleID: number): Observable<ISuccess | IError> {
-        const url = `/api/delete_rule/${ruleSetID}/${ruleID}`;
+    deleteRule(ruleID: number): Observable<ISuccess | IError> {
+        const url = `/api/rule/${ruleID}`;
         return this.http.delete(url).pipe(
             map(data => this.mapSuccessOrError(data))
         );
     }
 
     updateRuleSet(ruleSet: IRuleSet): Observable<IRuleSet | IError> {
-        const url = '/api/update_ruleset';
+        const url = '/api/ruleset';
         return this.http.put(url, ruleSet).pipe(
             map(data => this.mapRuleSetOrError(data))
         );
     }
 
     syncRuleSets(){
-        const url = '/api/sync_rulesets';
+        const url = '/api/rulesets/sync';
         return this.http.get(url).pipe();
     }
 

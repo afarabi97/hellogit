@@ -107,8 +107,8 @@ api = MonkeyPatchedApi(app, version='1.0', title='TFPlenum Backend API',
 )
 
 app.config['SECRET_KEY'] = 'secret!'
-#Max upload size for a single file is 100 MB
-app.config['MAX_CONTENT_LENGTH'] = 1000 * 1000 * 100
+#Max upload size for a single file is 200 MB
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1000 * 200
 
 REDIS = 'redis://'
 
@@ -125,7 +125,28 @@ REDIS_QUEUE = Queue(connection=REDIS_CLIENT)
 KIT_SETUP_NS = Namespace('Kit Setup',
                          path="/api",
                          description="Kit setup related operations.")
+
+TOOLS_NS = Namespace('Tools',
+                     path="/api",
+                     description="Tools page related operations.")
+
+POLICY_NS = Namespace('Policy Management',
+                      path="/api",
+                      description="Policy management related operations for Suricata and Zeek.")
+
+KUBERNETES_NS = Namespace('Kubernetes',
+                          path="/api",
+                          description="Kubernetes related operations.")
+
+CATALOG_NS = Namespace("Catalog",
+                       path="/api",
+                       description="Catalog related operations used for installing HELM charts on the Kubernetes cluster.")
+
 api.add_namespace(KIT_SETUP_NS)
+api.add_namespace(TOOLS_NS)
+api.add_namespace(POLICY_NS)
+api.add_namespace(KUBERNETES_NS)
+api.add_namespace(CATALOG_NS)
 
 
 # Load the REST API

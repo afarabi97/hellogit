@@ -2,27 +2,31 @@ import os
 import tempfile
 import json
 
-from app import (app, logger, conn_mng, get_next_sequence)
+from app import (app, logger, conn_mng, get_next_sequence, POLICY_NS, api)
 from app.common import OK_RESPONSE, ERROR_RESPONSE
-from app.models.common import JobID
+from app.middleware import operator_required
+from app.models.common import (JobID, COMMON_ERROR_DTO, COMMON_ERROR_MESSAGE,
+                               COMMON_SUCCESS_MESSAGE, COMMON_MESSAGE)
+from app.models.ruleset import RuleSetModel, RuleModel, TestAgainstPcap
 from app.service.job_service import run_command2
 from app.service.rulesync_service import perform_rulesync
+from app.utils.utils import tar_folder
 from datetime import datetime
 from flask import jsonify, request, Response, send_file
+from flask_restplus import Resource
 from io import StringIO
 from pathlib import Path
 from pymongo import ReturnDocument
 from pymongo.cursor import Cursor
 from pymongo.results import InsertOneResult, DeleteResult
 from app.utils.constants import (RULESET_STATES, DATE_FORMAT_STR,
-                              PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
-                              RULE_TYPES, ZEEK_IMAGE_VERSION,
-                              ZEEK_RULE_DIR)
-from app.utils.utils import tar_folder
+                                 PCAP_UPLOAD_DIR, SURICATA_IMAGE_VERSION,
+                                 RULE_TYPES, ZEEK_IMAGE_VERSION,
+                                 ZEEK_RULE_DIR)
 from typing import Dict, Tuple, List, Union
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile
-from app.middleware import operator_required
 
 
 CHUNK_SIZE = 5000000
@@ -32,37 +36,27 @@ class InvalidRuleSyntax(Exception):
     pass
 
 
-@app.route('/api/get_rulesets/', methods=['GET'])
-def get_rulesets() -> Response:
-    rule_sets = conn_mng.mongo_ruleset.find({}) # type: Cursor
-    ret_val = []
-    for rule_set in rule_sets:
-        ret_val.append(rule_set)
-    return jsonify(ret_val)
+@POLICY_NS.route('/rules/<rule_set_id>')
+class Rules(Resource):
+
+    @POLICY_NS.doc(description="Returns a list of all the saved Rules based on the RuleSet ID passed in.")
+    @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
+    def get(self, rule_set_id: str) -> Response:
+        rules = conn_mng.mongo_rule.find({'rule_set_id': int(rule_set_id)}, projection={"rule": False})
+        return list(rules)
 
 
-@app.route('/api/get_ruleset/<rule_set_id>', methods=['GET'])
-def get_ruleset(rule_set_id: str) -> Response:
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': int(rule_set_id)}) # type: Cursor
-    if rule_set:
-        return jsonify(rule_set)
-    return jsonify({"error_message": "Failed to find the ruleset ID {}.".format(rule_set_id)})
+@POLICY_NS.route('/rule/<rule_id>/content')
+class RuleContent(Resource):
 
-
-@app.route('/api/get_rules/<rule_set_id>', methods=['GET'])
-def get_rules(rule_set_id: str) -> Response:
-    rules = conn_mng.mongo_rule.find({'rule_set_id': int(rule_set_id)}, projection={"rule": False})
-    if rules:
-        return jsonify(list(rules))
-    return jsonify({"error_message": "Failed to find rules for ruleset ID {}.".format(rule_set_id)})
-
-
-@app.route('/api/get_rules_content/<rule_set_id>/<rule_id>', methods=['GET'])
-def get_rule_content(rule_set_id: str, rule_id: str) -> Response:
-    rule = conn_mng.mongo_rule.find_one({'_id': int(rule_id)})
-    if rule:
-        return jsonify(rule)
-    return jsonify({"error_message": "Failed to find rule content for ruleset ID {} and rule ID {}.".format(rule_set_id, rule_id)})
+    @POLICY_NS.doc(description="Gets the content for a single Rule by its ID.")
+    @POLICY_NS.response(200, 'Rules', RuleModel.DTO)
+    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    def get(self, rule_id: str) -> Response:
+        rule = conn_mng.mongo_rule.find_one({'_id': int(rule_id)})
+        if rule:
+            return rule
+        return {"error_message": "Failed to find rule content for rule ID {}.".format(rule_id)}, 400
 
 
 def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
@@ -75,9 +69,10 @@ def create_ruleset_service(ruleset: Dict) -> InsertOneResult:
     return ret_val
 
 
-def create_rule_service(ruleset_id: int, rule: Dict, projection={"rule": False}) -> Dict:
+def create_rule_service(rule: Dict, ruleset_id: int=0, projection={"rule": False}) -> Dict:
     rule["_id"] = get_next_sequence("ruleid")
-    rule["rule_set_id"] = ruleset_id
+    if ruleset_id != 0:
+        rule["rule_set_id"] = ruleset_id
     dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
     rule['createdDate'] = dt_string
     rule['lastModifiedDate'] = dt_string
@@ -105,7 +100,7 @@ def create_rule_srv_wrapper(rule_set: Dict,
         is_valid, error_output = _validate_bro_rule(rule)
 
     if is_valid:
-        return create_rule_service(rule_set_id, rule)
+        return create_rule_service(rule, rule_set_id)
 
     if not ignore_errors:
         raise InvalidRuleSyntax(error_output.split('\n'))
@@ -136,35 +131,66 @@ def create_rule_from_file(path: Path, rule_set: Dict, ignore_errors:bool=False) 
             return create_rule_srv_wrapper(rule_set, path.name, f.read(), ignore_errors=ignore_errors)
 
 
-@app.route('/api/create_ruleset', methods=['POST'])
-@operator_required
-def create_ruleset() -> Response:
-    ruleset = request.get_json()
-    ret_val = create_ruleset_service(ruleset)
-    if ret_val:
-        return jsonify(ruleset)
-    return jsonify({"error_message": "Failed to insert ruleset."})
+@POLICY_NS.route('/ruleset')
+class Rulesets(Resource):
+
+    @POLICY_NS.doc(description="Returns a list of all the saved RuleSets defined on the RuleSet Page.")
+    @POLICY_NS.response(200, 'RuleSets', [RuleSetModel.DTO])
+    def get(self) -> Response:
+        rule_sets = conn_mng.mongo_ruleset.find({}) # type: Cursor
+        ret_val = []
+        for rule_set in rule_sets:
+            ret_val.append(rule_set)
+        return ret_val
+
+    @POLICY_NS.doc(description="Saves a new Ruleset. The _id field is not required as a new one will be generated.")
+    @POLICY_NS.response(200, 'RuleSet', RuleSetModel.DTO)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @POLICY_NS.expect(RuleSetModel.DTO)
+    @operator_required
+    def post(self) -> Response:
+        ruleset = request.get_json()
+        ret_val = create_ruleset_service(ruleset)
+        if ret_val:
+            return ruleset
+        return {"error_message": "Failed to insert ruleset."}, 500
+
+    @POLICY_NS.doc(description="Updates an existing Ruleset. The _id field is required.")
+    @POLICY_NS.expect(RuleSetModel.DTO)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @operator_required
+    def put(self) -> Response:
+        ruleset = request.get_json()
+        ruleset_id = ruleset["_id"]
+
+        # We do not want to update rules with this update
+        # This is a built in protection ensuring it will not happen.
+        if 'rules' in ruleset:
+            del ruleset['rules']
+
+        ruleset['state'] = RULESET_STATES[1]
+        ruleset['lastModifiedDate'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
+        ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                                                             {"$set": ruleset},
+                                                             return_document=ReturnDocument.AFTER)
+        if ret_val:
+            return ret_val
+        return {"error_message": "Failed to update ruleset ID {}.".format(ruleset_id)}, 500
 
 
-@app.route('/api/update_ruleset', methods=['PUT'])
-@operator_required
-def update_ruleset() -> Response:
-    ruleset = request.get_json()
-    ruleset_id = ruleset["_id"]
+@POLICY_NS.route('/ruleset/<ruleset_id>')
+class DeleteRuleSet(Resource):
 
-    # We do not want to update rules with this update
-    # This is a built in protection ensuring it will not happen.
-    if 'rules' in ruleset:
-        del ruleset['rules']
-
-    ruleset['state'] = RULESET_STATES[1]
-    ruleset['lastModifiedDate'] = datetime.utcnow().strftime(DATE_FORMAT_STR)
-    ret_val = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                         {"$set": ruleset},
-                                                         return_document=ReturnDocument.AFTER)
-    if ret_val:
-        return jsonify(ret_val)
-    return jsonify({"error_message": "Failed to update ruleset ID {}.".format(ruleset_id)})
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @POLICY_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @operator_required
+    def delete(self, ruleset_id: str) -> Response:
+        rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': int(ruleset_id)})
+        if rules_deleted:
+            ret_val = conn_mng.mongo_ruleset.delete_one({'_id': int(ruleset_id)})
+            if ret_val.deleted_count == 1:
+                return {"success_message": "Successfully deleted rule set."}
+        return {"error_message": "Failed to delete ruleset ID {}.".format(ruleset_id)}, 500
 
 
 def _validate_suricata_rule(rule: Dict) -> Tuple[bool, str]:
@@ -252,186 +278,219 @@ def _process_zipfile(export_path: str, some_zip: str, rule_set: Dict) -> List[Di
     return ret_val
 
 
-@app.route('/api/upload_rule', methods=['POST'])
-@operator_required
-def upload_rule() -> Response:
-    rule_set = json.loads(request.form['ruleSetForm'],
-                          encoding="utf-8")
-    if 'upload_file' not in request.files:
-        return jsonify({"error_message": "Failed to upload file. No file was found in the request."})
-
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': rule_set['_id']})
-    if rule_set:
-        rule_set_file = request.files['upload_file']
-        filename = secure_filename(rule_set_file.filename)
-
-        with tempfile.TemporaryDirectory() as export_path:
-            abs_save_path = str(export_path) + '/' + filename
-            rule_set_file.save(abs_save_path)
-            try:
-                if does_file_have_ext(abs_save_path, '.zip'):
-                    rule_or_rules = _process_zipfile(export_path, abs_save_path, rule_set)
-                else:
-                    rule_or_rules = create_rule_from_file(Path(abs_save_path), rule_set)
-            except InvalidRuleSyntax as e:
-                logger.error(str(e))
-                return jsonify({"error_message": str(e)})
-    if rule_or_rules:
-        return jsonify(rule_or_rules)
-    else:
-        return jsonify({"error_message": "Failed to upload rules file for an unknown reason."})
+upload_parser = api.parser()
+upload_parser.add_argument('upload_file', location='files',
+                           type=FileStorage, required=True)
+upload_parser.add_argument('ruleSetForm', type=str, required=True, location='form',
+                           help='JSON String of the RuleSet Model.  Copy and paste it here.')
 
 
-@app.route('/api/create_rule', methods=['POST'])
-@operator_required
-def create_rule() -> Response:
-    rule_add = request.get_json()
-    ruleset_id = rule_add['rulesetID']
-    rule = rule_add['ruleToAdd']
-    rule["_id"] = get_next_sequence("ruleid")
-    by_pass_validation = rule['byPassValidation']
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
-    error_output = None
-    if rule_set:
-        rule_type = rule_set['appType']
-        is_valid = False
-        error_output = ""
+@POLICY_NS.route('/rule/upload')
+class UploadRule(Resource):
 
-        if by_pass_validation:
-            is_valid = True
-        else:
-            if rule_type == RULE_TYPES[0]:
-                is_valid, error_output = _validate_suricata_rule(rule)
-            elif rule_type == RULE_TYPES[1]:
-                is_valid, error_output = _validate_bro_rule(rule)
+    @POLICY_NS.doc(description="Uploads large rule files.  Uploading them as ZIP is highly recommend for rulesets larger than 10 MB.")
+    @POLICY_NS.expect(upload_parser)
+    @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    def post(self) -> Response:
+        import pdb
+        pdb.set_trace()
+        rule_set = json.loads(request.form['ruleSetForm'],
+                            encoding="utf-8")
+        if 'upload_file' not in request.files:
+            return {"error_message": "Failed to upload file. No file was found in the request."}
 
-        if is_valid:
-            del rule["byPassValidation"]
-            rule = create_rule_service(ruleset_id, rule)
-            conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
-            if rule:
-                return jsonify(rule)
-        elif error_output:
-            return jsonify({"error_message": error_output.split('\n')})
-    return jsonify({"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)})
-
-
-@app.route('/api/update_rule', methods=['PUT'])
-@operator_required
-def update_rule() -> Response:
-    update_rule = request.get_json()
-    ruleset_id = update_rule["rulesetID"]
-    rule = update_rule['ruleToUpdate']
-    id_to_modify = rule['_id']
-    by_pass_validation = rule['byPassValidation']
-
-    rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
-    if rule_set:
-        rule_type = rule_set['appType']
-        is_valid = False
-
-        if by_pass_validation:
-            is_valid = True
-        else:
-            if rule_type == RULE_TYPES[0]:
-                is_valid, error_output = _validate_suricata_rule(rule)
-            elif rule_type == RULE_TYPES[1]:
-                is_valid, error_output = _validate_bro_rule(rule)
-
-        if is_valid:
-            del rule["byPassValidation"]
-            dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-            rule['lastModifiedDate'] = dt_string
-            rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
-                                                           {"$set": rule},
-                                                           projection={"rule": False},
-                                                           return_document=ReturnDocument.AFTER)
-            if rule:
-                rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                                      {'$set': { "state": RULESET_STATES[1],
-                                                                                 "lastModifiedDate": dt_string }},
-                                                                      return_document=ReturnDocument.AFTER)
-                if rule_set:
-                    return jsonify(rule)
-        else:
-            return jsonify({"error_message": error_output.split('\n')})
-    return jsonify({"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)})
-
-
-@app.route('/api/toggle_rule', methods=['PUT'])
-@operator_required
-def toggle_rule() -> Response:
-    """
-    Enables or disables a rule without validating the rule for the quick checkboxes.
-
-    :return:
-    """
-    update_rule = request.get_json()
-    ruleset_id = update_rule["rulesetID"]
-    rule = update_rule['ruleToUpdate']
-    id_to_modify = rule['_id']
-
-    dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
-    rule['lastModifiedDate'] = dt_string
-    rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
-                                                   {'$set': rule},
-                                                    projection={"rule": False},
-                                                    return_document=ReturnDocument.AFTER)
-    if rule:
-        rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
-                                                              {'$set': {"state": RULESET_STATES[1],
-                                                                        "lastModifiedDate": dt_string }},
-                                                              return_document=ReturnDocument.AFTER)
+        rule_set = conn_mng.mongo_ruleset.find_one({'_id': rule_set['_id']})
         if rule_set:
-            return jsonify(rule)
-    return jsonify({"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)})
+            rule_set_file = request.files['upload_file']
+            filename = secure_filename(rule_set_file.filename)
+
+            with tempfile.TemporaryDirectory() as export_path:
+                abs_save_path = str(export_path) + '/' + filename
+                rule_set_file.save(abs_save_path)
+                try:
+                    if does_file_have_ext(abs_save_path, '.zip'):
+                        rule_or_rules = _process_zipfile(export_path, abs_save_path, rule_set)
+                    else:
+                        rule_or_rules = create_rule_from_file(Path(abs_save_path), rule_set)
+                except InvalidRuleSyntax as e:
+                    logger.error(str(e))
+                    return {"error_message": str(e)}
+        if rule_or_rules:
+            if not isinstance(rule_or_rules, list):
+                return [rule_or_rules]
+            return rule_or_rules
+        else:
+            return {"error_message": "Failed to upload rules file for an unknown reason."}
 
 
-@app.route('/api/delete_rule/<rule_set_id>/<rule_id>', methods=['DELETE'])
-@operator_required
-def delete_rule(rule_set_id: str, rule_id: str) -> Response:
-    ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
-    if ret_val.deleted_count == 1:
-        return jsonify({"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)})
-    return jsonify({"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_set_id)})
+@POLICY_NS.route('/rule')
+class RulesCtrl(Resource):
+
+    @POLICY_NS.doc(description="Saves a new Rule.")
+    @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @POLICY_NS.expect(RuleModel.DTO)
+    @operator_required
+    def post(self) -> Response:
+        rule = request.get_json()
+        rule["_id"] = get_next_sequence("ruleid")
+        ruleset_id = rule["rule_set_id"]
+        by_pass_validation = rule['byPassValidation']
+        rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+        error_output = None
+        if rule_set:
+            rule_type = rule_set['appType']
+            is_valid = False
+            error_output = ""
+
+            if by_pass_validation:
+                is_valid = True
+            else:
+                if rule_type == RULE_TYPES[0]:
+                    is_valid, error_output = _validate_suricata_rule(rule)
+                elif rule_type == RULE_TYPES[1]:
+                    is_valid, error_output = _validate_bro_rule(rule)
+
+            if is_valid:
+                del rule["byPassValidation"]
+                rule = create_rule_service(rule)
+                conn_mng.mongo_ruleset.update_one({'_id': ruleset_id}, {"$set": {"state": RULESET_STATES[1]}})
+                if rule:
+                    return rule
+            elif error_output:
+                return {"error_message": error_output.split('\n')}
+        return {"error_message": "Failed to create a rule for ruleset ID {}.".format(ruleset_id)}
+
+    @POLICY_NS.doc(description="Updates an exiting Rule.")
+    @POLICY_NS.expect(RuleModel.DTO)
+    @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
+    @operator_required
+    def put(self) -> Response:
+        rule = request.get_json()
+        ruleset_id = rule["rule_set_id"]
+        id_to_modify = rule['_id']
+        by_pass_validation = rule['byPassValidation']
+
+        rule_set = conn_mng.mongo_ruleset.find_one({'_id': ruleset_id})
+        if rule_set:
+            rule_type = rule_set['appType']
+            is_valid = False
+
+            if by_pass_validation:
+                is_valid = True
+            else:
+                if rule_type == RULE_TYPES[0]:
+                    is_valid, error_output = _validate_suricata_rule(rule)
+                elif rule_type == RULE_TYPES[1]:
+                    is_valid, error_output = _validate_bro_rule(rule)
+
+            if is_valid:
+                del rule["byPassValidation"]
+                dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+                rule['lastModifiedDate'] = dt_string
+                rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+                                                            {"$set": rule},
+                                                            projection={"rule": False},
+                                                            return_document=ReturnDocument.AFTER)
+                if rule:
+                    rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                                                                        {'$set': { "state": RULESET_STATES[1],
+                                                                                    "lastModifiedDate": dt_string }},
+                                                                        return_document=ReturnDocument.AFTER)
+                    if rule_set:
+                        return rule
+            else:
+                return {"error_message": error_output.split('\n')}
+        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}
 
 
-@app.route('/api/delete_ruleset/<ruleset_id>', methods=['DELETE'])
-@operator_required
-def delete_ruleset(ruleset_id: str) -> Response:
-    rules_deleted = conn_mng.mongo_rule.delete_many({'rule_set_id': int(ruleset_id)})
-    if rules_deleted:
-        ret_val = conn_mng.mongo_ruleset.delete_one({'_id': int(ruleset_id)})
+@POLICY_NS.route('/rule/<rule_id>')
+class DeleteRule(Resource):
+
+    @POLICY_NS.doc(description="Deletes a Rule by id.")
+    @POLICY_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @operator_required
+    def delete(self, rule_id: str) -> Response:
+        ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
         if ret_val.deleted_count == 1:
-            return jsonify({"success_message": "Successfully deleted rule set."})
-    return jsonify({"error_message": "Failed to delete ruleset ID {}.".format(ruleset_id)})
+            return {"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)}
+        return {"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_set_id)}, 500
 
 
-@app.route('/api/sync_rulesets', methods=['GET', 'POST'])
-@operator_required
-def sync_rulesets_api() -> Response:
-    job = perform_rulesync.delay()
-    return (jsonify(JobID(job).to_dict()), 200)
+@POLICY_NS.route('/rule/<rule_id>/toggle')
+class ToggleRule(Resource):
+
+    @POLICY_NS.doc(description="Enables or disables a rule without validating the rule for the quick checkboxes.")
+    @POLICY_NS.response(200, 'Rule', RuleModel.DTO)
+    @POLICY_NS.response(400, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @operator_required
+    def put(self, rule_id: str) -> Response:
+        id_to_modify = int(rule_id)
+        rule = conn_mng.mongo_rule.find_one({'_id': id_to_modify},
+                                            projection={"rule": False})
+        ruleset_id = rule["rule_set_id"]
+        dt_string = datetime.utcnow().strftime(DATE_FORMAT_STR)
+        rule['lastModifiedDate'] = dt_string
+        rule['isEnabled'] = not rule['isEnabled']
+        rule = conn_mng.mongo_rule.find_one_and_update({'_id': id_to_modify},
+                                                       {'$set': rule},
+                                                       projection={"rule": False},
+                                                       return_document=ReturnDocument.AFTER)
+        if rule:
+            rule_set = conn_mng.mongo_ruleset.find_one_and_update({'_id': ruleset_id},
+                                                                  {'$set': {"state": RULESET_STATES[1],
+                                                                            "lastModifiedDate": dt_string }},
+                                                                  return_document=ReturnDocument.AFTER)
+            if rule_set:
+                return rule
+        return {"error_message": "Failed to update a rule for ruleset ID {}.".format(ruleset_id)}, 400
 
 
-@app.route('/api/validate_rule', methods=['POST'])
-@operator_required
-def validate_rule() -> Response:
-    payload = request.get_json()
-    rule = payload['ruleToValidate']
-    rule_type = payload['ruleType']
+@POLICY_NS.doc(description="Syncs Rulesets ")
+@POLICY_NS.route('/rulesets/sync')
+class SyncRuleSets(Resource):
 
-    error_output = "Unknown Error"
-    if rule_type == RULE_TYPES[0]:
-        is_success, error_output = _validate_suricata_rule(rule)
-        if is_success:
-            return jsonify({"success_message": "Suricata signatures successfully validated!"})
-    elif rule_type == RULE_TYPES[1]:
-        is_success, error_output = _validate_bro_rule(rule)
-        if is_success:
-            return jsonify({"success_message": "Zeek script successfully validated!"})
+    def _perform_operation(self):
+        job = perform_rulesync.delay()
+        return JobID(job).to_dict()
 
-    return jsonify({"error_message": error_output.split('\n')})
+    @POLICY_NS.response(200, 'JobID', JobID.DTO)
+    @operator_required
+    def post(self):
+        return self._perform_operation()
+
+    @POLICY_NS.response(200, 'JobID', JobID.DTO)
+    @operator_required
+    def get(self):
+        return self._perform_operation()
+
+
+@POLICY_NS.route('/rule/validate')
+class ValidateRule(Resource):
+
+    @POLICY_NS.doc(description="Validates a Rule.")
+    @POLICY_NS.expect(RuleModel.DTO)
+    @POLICY_NS.response(200, 'SuccessMessage', COMMON_SUCCESS_MESSAGE)
+    @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
+    @operator_required
+    def post(self) -> Response:
+        rule = request.get_json()
+        rule_set = conn_mng.mongo_ruleset.find_one({"_id": rule['rule_set_id']})
+        rule_type = rule_set['appType']
+
+        error_output = "Unknown Error"
+        if rule_type == RULE_TYPES[0]:
+            is_success, error_output = _validate_suricata_rule(rule)
+            if is_success:
+                return {"success_message": "Suricata signatures successfully validated!"}
+        elif rule_type == RULE_TYPES[1]:
+            is_success, error_output = _validate_bro_rule(rule)
+            if is_success:
+                return {"success_message": "Zeek script successfully validated!"}
+
+        return {"error_message": error_output.split('\n')}, 500
 
 
 def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Response:
@@ -461,7 +520,7 @@ def _test_pcap_against_suricata_rule(pcap_name: str, rule_content: str) -> Respo
                     for results_path in results.glob("eve-*"):
                         return send_file(str(results_path))
 
-    return jsonify({"message": output})
+    return {"message": output}
 
 
 def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
@@ -497,25 +556,32 @@ def _test_pcap_against_bro_rule(pcap_name: str, rule_content: str) -> Response:
                     tar_folder(results_tmp_dir, results_tar_ball)
                     return send_file(results_tar_ball + ".tar.gz", mimetype="application/tar+gzip")
 
-    return jsonify({"message": stdoutput})
+    return {"message": stdoutput}
 
 
-@app.route('/api/test_rule_against_pcap', methods=['POST'])
-@operator_required
-def test_rule_against_pcap() -> Response:
-    payload = request.get_json()
-    pcap_name = payload["pcap_name"]
-    rule_content = payload['rule_content']
-    rule_type = payload['ruleType']
+@POLICY_NS.route('/pcap/rule/test')
+class TestRuleAgainstPCAP(Resource):
 
-    if pcap_name == '' or rule_content == '':
-        r = Response()
-        r.status_code = 501
-        return r
+    @POLICY_NS.doc(description="Tests a PCAP against passed in rule content.")
+    @POLICY_NS.response(200, 'Message', COMMON_MESSAGE)
+    @POLICY_NS.response(501, 'ErrorMessage')
+    @POLICY_NS.response(500, 'ErrorMessage')
+    @POLICY_NS.expect(TestAgainstPcap.DTO)
+    @operator_required
+    def post(self) -> Response:
+        payload = request.get_json()
+        pcap_name = payload["pcap_name"]
+        rule_content = payload['rule_content']
+        rule_type = payload['ruleType']
 
-    if rule_type == RULE_TYPES[0]:
-        return _test_pcap_against_suricata_rule(pcap_name, rule_content)
-    elif rule_type == RULE_TYPES[1]:
-        return _test_pcap_against_bro_rule(pcap_name, rule_content)
+        if pcap_name == '' or rule_content == '':
+            r = Response()
+            r.status_code = 501
+            return r
 
-    return ERROR_RESPONSE
+        if rule_type == RULE_TYPES[0]:
+            return _test_pcap_against_suricata_rule(pcap_name, rule_content)
+        elif rule_type == RULE_TYPES[1]:
+            return _test_pcap_against_bro_rule(pcap_name, rule_content)
+
+        return ERROR_RESPONSE
