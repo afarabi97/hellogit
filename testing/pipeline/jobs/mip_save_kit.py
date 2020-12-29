@@ -31,7 +31,6 @@ class MIPSaveKitJob:
 
     def save_mip_kit(self, mip_template_name: str):
         try:
-            self._prep_install_vmware_tools()
             self.install_vmware_tools()
 
             mip = self.mip_kickstart_settings.mips[0]
