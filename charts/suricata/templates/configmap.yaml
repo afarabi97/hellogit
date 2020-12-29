@@ -55,7 +55,7 @@ data:
     default-log-dir: /var/log/suricata/
     stats:
       enabled: yes
-      interval: 60 
+      interval: 60
     outputs:
       - eve-log:
           enabled: yes
@@ -90,7 +90,7 @@ data:
           community-id: true
           community-id-seed: 0
           types:
-            - alert:
+            - dns:
                 version: 2
                 enabled: yes
                 requests: yes
@@ -148,7 +148,7 @@ data:
             - ssh
             - dhcp:
                 enabled: yes
-                extended: no  
+                extended: no
       {{ end }}
       - pcap-log:
           enabled: {{ .Values.pcapEnabled }}
@@ -194,7 +194,7 @@ data:
         block-size: 32768
         buffer-size: 32768
         {{- end }}
-    max-pending-packets: 4096 
+    max-pending-packets: 4096
     pcap:
       {{- range  .Values.interfaces }}
       - interface: {{ . }}

@@ -18,6 +18,7 @@ class SuricataSettings(Model):
         self.suricata_threads = 2
         self.node_hostname = ""
         self.interfaces = ""
+        self.flow = True
 
     def set_from_node_settings(self, node_settings: Union[NodeSettings, HwNodeSettings]):
         self.affinity_hostname = node_settings.hostname
