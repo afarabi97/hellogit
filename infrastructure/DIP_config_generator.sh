@@ -210,10 +210,10 @@ function prompt_user {
       fi
       
     done
-    echo "Enter the desired second octet of your IP Address (101 - 118)"
+    echo "Enter the desired second octet of your IP Address (101 - 150)"
     read -p "this is your kit number and should be unique: " IP_SECOND_OCTET
-    if [[ $IP_SECOND_OCTET -gt 118 ||  $IP_SECOND_OCTET -lt 101 || ! $IP_SECOND_OCTET =~ ^[0-9]+$ ]]; then
-      echo "Please enter a number greater than 100 and less 119"
+    if [[ $IP_SECOND_OCTET -gt 150 ||  $IP_SECOND_OCTET -lt 101 || ! $IP_SECOND_OCTET =~ ^[0-9]+$ ]]; then
+      echo "Please enter a number greater than 100 and less 151"
       blank_line
       prompt_user
     fi
