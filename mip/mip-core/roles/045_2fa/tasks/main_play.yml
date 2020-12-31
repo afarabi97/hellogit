@@ -7,6 +7,36 @@
     group: root
     mode: '0755'
 
+- name: Configure PAM to use sssd
+  shell: authselect select sssd with-smartcard with-smartcard-lock-on-removal --force
+
+- name: Apply sssd changes
+  shell: authselect apply-changes
+
+- name: Run ans_2fa_rhel8_configure script
+  shell: ./ans_2fa_rhel8_configure
+  args:
+    chdir: /home/assessor/Desktop/2fa/
+
+- name: Copy 2famapper.wish to /usr/local/bin & set permissions
+  copy:
+    src: /home/assessor/Desktop/2fa/tcl/2famapper.wish
+    dest: /usr/local/bin
+    mode: '0755'
+    remote_src: yes
+
+- name: Copy 2famapper.desktop to /usr/share/applications
+  copy:
+    src: /home/assessor/Desktop/2fa/tcl/2famapper.desktop
+    dest: /usr/share/applications
+    remote_src: yes
+
+- name: Copy 2famapper.desktop to /usr/share/applications
+  copy:
+    src: /home/assessor/Desktop/2fa/tcl/2famapper.png
+    dest: /usr/share/icons/hicolor/512x512/apps
+    remote_src: yes
+
 - name: Create hidden file for validation if playbooks crash
   file:
     path: /operator/.DO_NOT_DELETE/.045

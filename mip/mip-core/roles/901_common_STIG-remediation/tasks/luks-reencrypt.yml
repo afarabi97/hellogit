@@ -8,10 +8,6 @@
     mip_drive_type: "{{ hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list }}"
   when: mip_drive_type[0] is undefined
 
-#- debug:
-#     msg: "{{ ansible_product_name }}"
-#  register: MIP_model
-
 - name: remove existing key from the LUKS container
   luks_device:
     device: '/dev/{% if mip_drive_type[0] == "nvme0n1" %}nvme0n1p3{% elif mip_drive_type[0] == "sda" %}sda3{% else %}Error{% endif %}'

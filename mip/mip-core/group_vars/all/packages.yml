@@ -37,7 +37,10 @@ packages:
   - pcsc-lite
   - pcsc-lite-ccid
   - pcsc-lite-libs
-  - sssd
+  - sssd*
+  - tcl
+  - tk
+  - openssh-askpass
   #Other
   - libvirt*
   - firewalld
