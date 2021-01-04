@@ -123,4 +123,27 @@ export class ToolsService extends ApiService<any> {
     return this.httpClient_.post(environment.TOOLS_SERVICE_CONFIGURE_REPOSITORY, repositorySettings)
                            .pipe(catchError((err: any) => this.handleErrorConsole(err)));
   }
+
+  /**
+   * REST call to POST an Elastic License
+   *
+   * @param {Object} license_data
+   * @returns {Observable<Object>}
+   * @memberof ToolsService
+   */
+  uploadEsLicense(license_data: Object): Observable<Object> {
+    return this.httpClient_.put(environment.TOOLS_SERVICE_ES_LICENSE, license_data)
+                           .pipe(catchError((err: any) => this.handleErrorAlt('update_es_license', err)));
+  }
+
+  /**
+   * REST call to Get the current Elastic License
+   *
+   * @returns {Observable<Object>}
+   * @memberof ToolsService
+   */
+  getEsLicense(): Observable<Object> {
+    return this.httpClient_.get(environment.TOOLS_SERVICE_ES_LICENSE)
+                           .pipe(catchError((err: any) => this.handleErrorAlt('get_es_license', err)));
+  }
 }

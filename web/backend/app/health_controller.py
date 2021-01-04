@@ -86,7 +86,10 @@ def pod_logs(pod_name: str, namespace: str) -> Response:
             containers = containers + pod['spec']['containers']
         for container in containers:
             container_name = container['name']
-            stdout = kube_apiv1.read_namespaced_pod_log(pod_name, namespace, container=container_name, timestamps=False)
+            try:
+                stdout = kube_apiv1.read_namespaced_pod_log(pod_name, namespace, container=container_name, timestamps=False)
+            except Exception:
+                stdout = 'Something went wrong fetching container logs'
             logs.append({'name': container_name, 'logs': stdout})
     return jsonify(logs)
 

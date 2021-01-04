@@ -13,15 +13,6 @@
     },
     {
       "type": "textinput",
-      "default_value": "hive_admin",
-      "description": "Enter Superadmin Username",
-      "required": true,
-      "regexp": "",
-      "name": "superadmin_username",
-      "error_message": "Enter a value"
-    },
-    {
-      "type": "textinput",
       "description": "Enter Superadmin Password",
       "required": true,
       "name": "superadmin_password",
@@ -31,28 +22,10 @@
     },
     {
       "type": "textinput",
-      "default_value": "alert_user",
-      "description": "Enter Alert Username",
-      "required": true,
-      "regexp": "",
-      "name": "alert_username",
-      "error_message": "Enter a value"
-    },
-    {
-      "type": "textinput",
-      "description": "Enter Alert User Password",
-      "required": true,      
-      "name": "alert_user_password",      
-      "default_value": "Password!123456",
-      "regexp": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()<>.?])[A-Za-z\\d!@#$%^&*()<>.?]{15,}$",      
-      "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
-    },
-    {
-      "type": "textinput",
-      "default_value": "user",
+      "default_value": "user@hive.local",
       "description": "Enter Username",
       "required": true,
-      "regexp": "",
+      "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
       "name": "read_write_user_username",
       "error_message": "Enter a value"
     },
@@ -67,10 +40,10 @@
     },
     {
       "type": "textinput",
-      "default_value": "admin_org",
+      "default_value": "org_admin@hive.local",
       "description": "Enter Username",
       "required": true,
-      "regexp": "",
+      "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
       "name": "org_admin_username",
       "error_message": "Enter a value"
     },

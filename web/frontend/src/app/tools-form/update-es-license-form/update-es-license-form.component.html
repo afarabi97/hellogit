@@ -1,0 +1,34 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <a id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
+        <em *ngIf="!isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right"
+            class="material-icons">chevron_right</em>
+        <em *ngIf="isCardVisible" id="app-update-docs-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more"
+            class="material-icons">expand_more</em>
+        <span style="vertical-align: top;">Update Elastic License</span>
+      </a>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content *ngIf="isCardVisible" fxLayout="column" fxLayoutAlign="space-around stretch">
+    <div>
+      Curent License Type: {{ currentLicense?.license?.type | titlecase }}
+    </div>
+    <div>
+      Curent License Status: {{ currentLicense?.license?.status | titlecase }}
+    </div>
+    <div>
+      Curent License Expiration: {{ currentLicense?.license?.expiry_date | date:'long' }}
+    </div>
+  </mat-card-content>
+  <mat-card-actions *ngIf="isCardVisible">
+    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-choose-zip-file"
+            color="primary" (click)="fileInput.click()">Choose JSON License File</button>
+    <input hidden #fileInput id="app-update-docs-form-mat-card-mat-card-actions-input-hidden"
+           (change)="handleFileInput($event.target.files)" type="file" id="zip_file_uploader" accept=".json">
+    <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-upload"
+            color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!fileToUpload" name="execute_kickstart">Upload
+      <span *ngIf="fileToUpload" id="app-update-docs-form-mat-card-mat-card-actions-button-upload-span-zip-file-name">&nbsp;{{ fileToUpload.name }}</span>
+    </button>
+  </mat-card-actions>
+</mat-card>

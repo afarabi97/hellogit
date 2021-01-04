@@ -1,19 +1,19 @@
 import io
 import yaml
 import traceback
-
-from app import conn_mng, REDIS_CLIENT
-from app.service.socket_service import NotificationMessage, NotificationCode
-from datetime import datetime, timedelta
-from elasticsearch.exceptions import TransportError
-from fabric import Connection
-from rq.decorators import job
-from app.utils.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
 from time import sleep
 from typing import Dict
 import json
-from app.service.scale_service import es_cluster_status, check_scale_status
+from datetime import datetime, timedelta
+from elasticsearch.exceptions import TransportError
+from elasticsearch import Elasticsearch
+from fabric import Connection
+from rq.decorators import job
 from kubernetes import client, config, utils
+from app import conn_mng, REDIS_CLIENT, logger
+from app.service.socket_service import NotificationMessage, NotificationCode
+from app.utils.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
+from app.service.scale_service import es_cluster_status, check_scale_status, get_elastic_password, get_elastic_fqdn
 from app.dao import elastic_deploy
 
 from kubernetes.client.rest import ApiException
@@ -180,6 +180,46 @@ def setup_s3_repository(service_ip: str, repository_settings: Dict):
         notification.set_message("Updated Elastic S3 repository settings.")
         notification.set_status(NotificationCode.COMPLETED.name)
         notification.post_to_websocket_api()
+    except Exception as e:
+        traceback.print_exc()
+        notification.set_status(status=NotificationCode.ERROR.name)
+        notification.set_message(str(e))
+        notification.post_to_websocket_api()
+
+def get_elasticsearch_license() -> dict:
+    password = get_elastic_password()
+    elastic_fqdn, port = get_elastic_fqdn()
+    es = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+    return es.license.get()
+
+@job('default', connection=REDIS_CLIENT, timeout="30m")
+def check_elastic_license(current_license: dict):
+    future_time = datetime.utcnow() + timedelta(minutes=10)
+    notification = NotificationMessage(role=_JOB_NAME)
+    notification.set_message("Checking for Elastic license updates")
+    notification.set_status(NotificationCode.IN_PROGRESS.name)
+    notification.post_to_websocket_api()
+    try:
+        while True:
+            sleep(10)
+            new_license = get_elasticsearch_license()
+            if new_license != current_license:
+                lic = new_license['license']
+                notification = NotificationMessage(role=_JOB_NAME)
+                notification.set_message("Elastic License Updated. Type: {type}, Status: {status}, Expiration: {exp}.".format(type=lic['type'],status=lic['status'],exp=lic['expiry_date']))
+                notification.set_status(NotificationCode.COMPLETED.name)
+                notification.post_to_websocket_api()
+                return True
+            elif future_time <= datetime.utcnow():
+                notification = NotificationMessage(role=_JOB_NAME)
+                notification.set_message("Elastic License hasn't changed for 10 minutes. See Elastic Operator and/or Elasticsearch logs.")
+                notification.set_status(NotificationCode.ERROR.name)
+                notification.post_to_websocket_api()
+                logger.info('Possibly issue applying new Elastic License.')
+                logger.info('Original license: ' + current_license)
+                logger.info('License Now: ' + new_license)
+                return False
+        return False
     except Exception as e:
         traceback.print_exc()
         notification.set_status(status=NotificationCode.ERROR.name)

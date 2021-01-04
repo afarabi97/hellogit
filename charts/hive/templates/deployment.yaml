@@ -129,6 +129,12 @@ spec:
         - "/bin/sh"
         - "-c"
         - "/opt/thehive/entrypoint --no-config"
+        env:
+        - name: APPLICATION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: application_secret
         ports:
         - containerPort: {{ .Values.hive_port }}
         volumeMounts:

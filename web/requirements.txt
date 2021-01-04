@@ -16,7 +16,7 @@ cryptography==2.7
 decorator==4.4.0
 dnspython==1.16.0
 docutils==0.14
-elasticsearch==7.0.5
+elasticsearch==7.9.1
 #elasticsearch-curator==5.8.1
 eventlet==0.24.1
 fabric==2.4.0

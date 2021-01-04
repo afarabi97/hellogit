@@ -37,6 +37,7 @@ import { ChangePasswordFormComponent } from './tools-form/change-password-form/c
 import { UpdateDocsFormComponent } from './tools-form/update-documentation-form/update-docs.component';
 import { NodeMaintenanceFormComponent } from './tools-form/node-maintenance-form/node-maintenance.component';
 import { RepositorySettingsComponent } from './tools-form/repository-settings/repository-settings.component';
+import { UpdateEsLicenseComponent } from './tools-form/update-es-license-form/update-es-license-form.component';
 
 import { SystemHealthComponent } from './system-health/system-health.component';
 import { ModalTableComponent } from './system-health/table-dialog/modal-table.component';
@@ -143,6 +144,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     ToolsFormComponent,
     ChangePasswordFormComponent,
     UpdateDocsFormComponent,
+    UpdateEsLicenseComponent,
     NodeMaintenanceFormComponent,
     SystemHealthComponent,
     ConfigmapsComponent,

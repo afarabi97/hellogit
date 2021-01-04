@@ -12,7 +12,7 @@ data:
 
     ## Include Play secret key
     # More information on secret key at https://www.playframework.com/documentation/2.8.x/ApplicationSecret
-    play.http.secret.key="SxZhgvSA65zGgqznzFcopz8Tz+3niHsxf7VQZiD82Ts="
+    play.http.secret.key=${?APPLICATION_SECRET}
 
     ## Database configuration
     db {

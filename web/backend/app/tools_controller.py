@@ -6,15 +6,21 @@ from pathlib import Path
 from typing import Dict, List
 from glob import glob
 import os
+from datetime import datetime
+import base64
 
 import yaml
+import json
 from fabric.runners import Result
 from flask import Response, jsonify, request
+import kubernetes.client
 from kubernetes.client.models.v1_service import V1Service
 from kubernetes.client.models.v1_service_list import V1ServiceList
+from kubernetes.client.rest import ApiException
 from paramiko.ssh_exception import AuthenticationException
 from pymongo import ReturnDocument
 from werkzeug.utils import secure_filename
+from fabric import Connection
 
 from app import app, conn_mng, logger
 from app.common import OK_RESPONSE, ERROR_RESPONSE
@@ -23,8 +29,10 @@ from app.middleware import controller_maintainer_required
 from app.models.common import JobID
 from app.models.kit_setup import DIPKickstartForm, Node
 from app.service.elastic_service import (Timeout, apply_es_deploy,
-                                         setup_s3_repository,
+                                         setup_s3_repository, get_elasticsearch_license,
                                          wait_for_elastic_cluster_ready)
+from app.service.scale_service import get_elastic_password, get_elastic_fqdn
+from app.service.elastic_service import check_elastic_license
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage
 from app.utils.connection_mngs import (FabricConnection,
@@ -32,7 +40,6 @@ from app.utils.connection_mngs import (FabricConnection,
 from app.utils.constants import KICKSTART_ID
 from app.utils.utils import decode_password, encode_password
 
-from fabric import Connection
 
 
 _JOB_NAME = "tools"
@@ -130,7 +137,6 @@ def update_documentation() -> Response:
 
         return jsonify({"success_message": "Successfully updated confluence documentation!"})
 
-
 @app.route('/api/get_spaces', methods=['GET'])
 def get_spaces() -> Response:
     """
@@ -143,6 +149,63 @@ def get_spaces() -> Response:
         return jsonify(all_spaces)
     except Exception:
         return jsonify([])
+
+def validate_es_license_json(license: dict) -> bool:
+    keys = ['uid','type','issue_date_in_millis','expiry_date_in_millis','issued_to','issuer','signature','start_date_in_millis']
+    return license.get('license', None) is not None and all(x in license['license'].keys() for x in keys)
+
+@app.route('/api/es_license', methods=['PUT'])
+@controller_maintainer_required
+def update_es_license() -> Response:
+    license = request.get_json()
+    current_license = get_elasticsearch_license()
+
+    if not validate_es_license_json(license) or not license['license'].get('cluster_licenses', None):
+        return jsonify({"error_message": "File is not valid Elastic license"}), 400
+    if datetime.fromtimestamp(license['license']['expiry_date_in_millis']/1000) < datetime.now():
+        return jsonify({"error_message": "Elastic license has expired"}), 400
+    for lic in license['license']['cluster_licenses']:
+        if not validate_es_license_json(lic):
+            return jsonify({"error_message": "File is not valid Elastic license"}), 400
+
+    json_string = json.dumps(license, separators=(',', ':'))
+    license_prefix = 'eck-license'
+    secret_name = '{}-{}'.format(license_prefix, datetime.now().strftime("%s"))
+    namespace = 'elastic-system'
+    body = kubernetes.client.V1Secret()
+    body.api_version = 'v1'
+    body.data = {
+        'license': base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
+    }
+    body.kind = 'Secret'
+    body.type = 'Opaque'
+    body.metadata = {
+        'name': secret_name,
+        'labels': {
+            'license.k8s.elastic.co/scope': 'operator'
+        }
+    }
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        try:
+            kube_apiv1.create_namespaced_secret(namespace, body)
+            old_secrets = kube_apiv1.list_namespaced_secret(namespace)
+            for secret in old_secrets.items:
+                if secret.metadata.name.startswith(license_prefix) and secret.metadata.name != secret_name:
+                    kube_apiv1.delete_namespaced_secret(secret.metadata.name, namespace)
+        except ApiException as e:
+            logger.exception(e)
+            return jsonify({"error_message": "Something went wrong saving the Elastic license.  See the logs."}), 500
+    check_elastic_license.delay(current_license=current_license)
+    return jsonify({"success_message": "Successfully uploaded Elastic License. It will take a few minutes for Elastic to show. Check notifications for updates."})
+
+@app.route('/api/es_license', methods=['GET'])
+@controller_maintainer_required
+def get_es_license() -> Response:
+    try:
+        return jsonify(get_elasticsearch_license())
+    except Exception as e:
+        logger.exception(e)
+        return jsonify({"error_message": "Something getting the Elastic license.  See the logs."}), 500
 
 
 class KubernetesError(Exception):

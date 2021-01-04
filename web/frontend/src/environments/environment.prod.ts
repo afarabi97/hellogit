@@ -64,6 +64,7 @@ export const environment = {
   TOOLS_SERVICE_CHANGE_KIT_CLOCK: `/api/change_kit_clock`,
   TOOLS_SERVICE_CHANGE_KIT_PASSWORD: `/api/change_kit_password`,
   TOOLS_SERVICE_UPLOAD_DOCUMENTATION: `/api/update_documentation`,
+  TOOLS_SERVICE_ES_LICENSE: `/api/es_license`,
   TOOLS_SERVICE_GET_SPACES: `/api/get_spaces`,
   TOOLS_SERVICE_MONITORING_INTERFACE: `/api/monitoring_interfaces`,
   TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/snapshot`,

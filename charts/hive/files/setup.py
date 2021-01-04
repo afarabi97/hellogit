@@ -4,22 +4,23 @@ from requests.auth import HTTPBasicAuth
 import time
 import os
 
-URI="https://hive.default.svc.cluster.local/api"
+LEGACY_URI="https://hive.default.svc.cluster.local/api"
+URI="https://hive.default.svc.cluster.local/api/v1"
 ORGANIZATION=os.environ['THEHIVE_ORGANIZATION']
-SUPER_USERNAME='admin@thehive.local'
+SUPER_USERNAME='admin'
 SUPER_PASS=os.environ['THEHIVE_SUPERADMIN_PASSWORD']
 ORG_ADMIN_USERNAME=os.environ['THEHIVE_ADMIN_USERNAME']
 ORG_ADMIN_PASSWORD=os.environ['THEHIVE_ADMIN_PASSWORD']
 ORG_USER_USERNAME=os.environ['THEHIVE_USER_USERNAME']
-ALERT_USERNAME=os.environ['THEHIVE_ALERT_USERNAME']
-ALERT_PASSWORD=os.environ['THEHIVE_ALERT_PASSWORD']
+ORG_USER_PASSWORD=os.environ['THEHIVE_USER_PASSWORD']
 CASE_TEMPLATE=os.environ['CASE_TEMPLATE']
 VERIFY="/etc/ssl/certs/container/ca.crt"
 
 
 class HiveSetUp:
     def __init__(self):
-        self._auth = HTTPBasicAuth(SUPER_USERNAME, 'secret')
+        self._auth_super_admin = HTTPBasicAuth(SUPER_USERNAME, 'secret')
+        self._auth_org_admin = HTTPBasicAuth(ORG_ADMIN_USERNAME, ORG_ADMIN_PASSWORD)
         self._verify = VERIFY
         self._headers = {'Content-Type': 'application/json','Accept': 'application/json'}
 
@@ -31,9 +32,9 @@ class HiveSetUp:
             try:
                 c += 1
                 if data and requires_auth:
-                    r = requests.post(url=url, json=data, auth=self._auth, verify=self._verify, headers=self._headers)
+                    r = requests.post(url=url, json=data, auth=requires_auth, verify=self._verify, headers=self._headers)
                 elif data is None and requires_auth:
-                    r = requests.post(url=url, auth=self._auth, verify=self._verify, headers=self._headers)
+                    r = requests.post(url=url, auth=requires_auth, verify=self._verify, headers=self._headers)
                 elif data and requires_auth == False:
                     r = requests.post(url=url, json=data, verify=self._verify, headers=self._headers)
                 else:
@@ -56,7 +57,7 @@ class HiveSetUp:
             try:
                 c += 1
                 if requires_auth:
-                    r = requests.get(url=url, auth=self._auth, verify=self._verify, headers=self._headers)
+                    r = requests.get(url=url, auth=self._auth_super_admin, verify=self._verify, headers=self._headers)
                 else:
                     r = requests.get(url=url, verify=self._verify, headers=self._headers)
                 print(str(r.status_code) + " " + r.text)
@@ -85,33 +86,33 @@ class HiveSetUp:
         print("Setting Password for " + username)
         url = URI + "/user/" + username + "/password/set"
         data = {"password": password}
-        return self.post(url=url, data=data, requires_auth=True)
-    
+        return self.post(url=url, data=data, requires_auth=self._auth_super_admin)
+
     def change_password(self, username, password, current_password):
         print("Changing Password for " + username)
         url = URI + "/user/" + username + "/password/change"
-        data = {"password": password, "current_password": current_password}
-        return self.post(url=url, data=data, requires_auth=True)
+        data = {"password": password, "currentPassword": current_password}
+        return self.post(url=url, data=data, requires_auth=self._auth_super_admin)
 
     def create_org(self):
         print("Create Hive Org")
         url = URI + "/organisation"
         data = {"name": ORGANIZATION,"description": ORGANIZATION}
-        return self.post(url=url, data=data, requires_auth=True)
+        return self.post(url=url, data=data, requires_auth=self._auth_super_admin)
 
-    def create_user(self, login="", name="", profile="read-only", password=None, organization="", requires_auth=False):
+    def create_user(self, login="", name="", profile="read-only", password=None, organization=""):
         print("Creating {} ({})".format(name, login))
         data = {"login": login, "name": name, "profile": profile, "organisation": organization}
         if password:
             data['password']=password
         url = URI + "/user"
-        return self.post(url=url, data=data, requires_auth=requires_auth)
+        return self.post(url=url, data=data, requires_auth=self._auth_super_admin)
 
     def create_misp_template(self, name, titlePrefix, description=""):
         print("Creating {} template".format(name))
         data = {"name": name, "displayName": name, "titlePrefix": "[{prefix}]".format(prefix=titlePrefix), "severity": 2, "tlp": 2, "pap": 2, "tags": [], "tasks": [], "metrics": {},"customFields": {}, "description": description}
-        url = URI + "/case/template"
-        return self.post(url=url, data=data, requires_auth=True)
+        url = LEGACY_URI + "/case/template"
+        return self.post(url=url, data=data, requires_auth=self._auth_org_admin)
 
 if __name__ == '__main__':
     print("Running The Hive Setup Script")
@@ -122,9 +123,9 @@ if __name__ == '__main__':
         if org:
             print(org.json())
         # Create org admin
-        setup.create_user(login=ORG_ADMIN_USERNAME, name="Hive Admin", password=ORG_ADMIN_PASSWORD, profile="org-admin",organization=ORGANIZATION, requires_auth=True)
+        setup.create_user(login=ORG_ADMIN_USERNAME, name="Org Admin", password=ORG_ADMIN_PASSWORD, profile="org-admin", organization=ORGANIZATION)
         # Create org user
-        setup.create_user(login=ORG_USER_USERNAME, name="Hive User (DO NOT MODIFY)", password=None, profile="analyst",organization=ORGANIZATION, requires_auth=True)
+        setup.create_user(login=ORG_USER_USERNAME, name="Hive User (DO NOT MODIFY)", password=ORG_USER_PASSWORD, profile="analyst", organization=ORGANIZATION)
         setup.create_misp_template(name=CASE_TEMPLATE, titlePrefix=CASE_TEMPLATE, description="Case from MISP")
         # Change password for admin user
-        setup.change_password(SUPER_USERNAME, SUPER_PASS, "secret")
+        setup.change_password(SUPER_USERNAME+"@thehive.local", SUPER_PASS, "secret")
