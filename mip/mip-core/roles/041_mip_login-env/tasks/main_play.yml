@@ -38,7 +38,7 @@
 - name: Setting desktop icon size
   become: yes
   become_user: "{{ item }}"
-  command: dbus-launch dconf write /org/gnome/nautilus/icon-view/default-zoom-level "'standard'"
+  command: dbus-run-session dconf write /org/gnome/nautilus/icon-view/default-zoom-level "'standard'"
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
@@ -47,7 +47,7 @@
 - name: Setting screen lock when idle/inactive to off
   become: yes
   become_user: "{{ item }}"
-  command: dbus-launch dconf write /org/gnome/settings-daemon/plugins/power/idle-dim false
+  command: dbus-run-session dconf write /org/gnome/settings-daemon/plugins/power/idle-dim false
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
@@ -56,7 +56,7 @@
 - name: Setting screen timeout delay to never
   become: yes
   become_user: "{{ item }}"
-  command: dbus-launch dconf write /org/gnome/desktop/session/idle-delay 'uint32 0'
+  command: dbus-run-session dconf write /org/gnome/desktop/session/idle-delay 'uint32 0'
   register: result
   changed_when: result.rc == 0
   failed_when:  result.rc > 0
