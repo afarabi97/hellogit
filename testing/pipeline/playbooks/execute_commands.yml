@@ -1,0 +1,25 @@
+---
+- name: Run command(s) in a guest operating system.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ python_executable }}"
+  tasks:
+    - name: Run a command in the guest.
+      vmware_vm_shell:
+        datacenter: "{{ vcenter.datacenter }}"
+        cluster: "{{ vcenter.cluster }}"
+        hostname: "{{ vcenter.ipaddress }}"
+        username: "{{ vcenter.username }}"
+        password: "{{ vcenter.password }}"
+        folder: "{{ node.folder }}"
+        vm_id: "{{ node.hostname }}"
+        vm_username: "{{ node.username }}"
+        vm_password: "{{ node.password }}"
+        vm_shell: "{{ item.vm_shell }}"
+        vm_shell_args: "{{ item.vm_shell_args }}"
+        validate_certs: no
+      loop: "{{ commands }}"
+      delegate_to: localhost
+...

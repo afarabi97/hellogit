@@ -141,39 +141,39 @@ class MinIOExport:
         self._node = node
         self._vcenter = vcenter
         self._export_loc = export_loc
-
-    def _vsphere_locator_uri_parts(self):
-        return {
-            'hostname': self._vcenter.ipaddress,
-            'username': self._vcenter.username.replace("@", "%40"),
-            'password': self._vcenter.password,
-            'datacenter': self._vcenter.datacenter,
-            'folder': self._node.folder,
-            'vmname': self._node.hostname
+        self._export_prefix = "minio"
+        self._release_template_name = self._export_loc.render_export_name(self._export_prefix)[0:-4]
+        self._export_prep_vars = {
+            "python_executable": sys.executable,
+            "vcenter": self._vcenter,
+            "node": self._node,
+            "release_template_name": self._release_template_name
         }
+        self._execute_commands_playbook = str(Path(PIPELINE_DIR) / Path('playbooks/execute_commands.yml'))
+
+    def _copy_reset_script(self):
+        with FabricConnectionWrapper(self._node.username, self._node.password, self._node.ipaddress) as shell:
+            shell.put(PIPELINE_DIR + "scripts/reset_system.sh", "/tmp/reset_system.sh")
+            shell.sudo('chmod 755 /tmp/reset_system.sh')
+    
+    def _cleanup(self):
+        self._copy_reset_script()
+        commands = [{"vm_shell": '/bin/nmcli', "vm_shell_args": 'connection delete ens192'}, {"vm_shell": '/tmp/reset_system.sh', "vm_shell_args": '--reset-node --iface=ens192'}]
+        execute_commands_vars = {
+            "python_executable": sys.executable,
+            "vcenter": self._vcenter,
+            "node": self._node,
+            "commands": commands
+        }
+        execute_playbook([self._execute_commands_playbook], execute_commands_vars)
 
     def export(self):
         power_on_vms(self._vcenter, self._node)
         test_nodes_up_and_alive(self._node, 10)
-        prepare_for_export(self._node.username,
-                           self._node.password,
-                           self._node.ipaddress,
-                           False)
+        self._cleanup()
         power_off_vms_gracefully(self._vcenter, self._node)
-        payload = {
-            "python_executable": sys.executable,
-            "vcenter": self._vcenter,
-            "node": self._node
-        }
-        export_prefix = "minio"
-        export_name = self._export_loc.render_export_name(export_prefix)
-        release_vm_name = export_name[0:len(export_name)-4]
-        payload["release_template_name"] = release_vm_name
-        execute_playbook([CTRL_EXPORT_PREP], payload)
-        export(self._vcenter,
-               self._export_loc,
-               release_vm_name,
-               export_prefix)
+        execute_playbook([CTRL_EXPORT_PREP], self._export_prep_vars)
+        export(self._vcenter, self._export_loc, self._release_template_name, self._export_prefix)
 
 
 class ControllerExport:
