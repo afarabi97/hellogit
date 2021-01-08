@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
 import { ObjectUtilitiesClass } from '../classes';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
+import { CookieService } from '../services/cookies.service';
 
 @Component({
   selector: 'app-mip-config',
@@ -32,7 +33,8 @@ export class MIPConfigComponent implements OnInit {
     private mipSrv: MIPService,
     private router: Router,
     private snackbar: SnackbarWrapper,
-    private ref: ChangeDetectorRef) {
+    private ref: ChangeDetectorRef,
+    private cookieService_: CookieService) {
       this.createControls();
 
   }
@@ -45,6 +47,14 @@ export class MIPConfigComponent implements OnInit {
   onEnable() {
     this.form.enable();
     const passwords = this.form.get('passwords') as FormArray;
+
+    /* This if block controls the cookie setting for operator build type (MDT or CPT)
+       If there is no cookie saved it will default to CPT otherwise it will reload the last saved type */
+    if (this.cookieService_.get('type') == '') {
+      this.form.get('type').setValue(this.default_type);
+    } else {
+      this.form.get('type').setValue(this.cookieService_.get('type')); }
+
     passwords.disable();
     passwords.at(5).enable();
   }
@@ -165,6 +175,7 @@ export class MIPConfigComponent implements OnInit {
     this.mipSrv.cacheDeviceFacts(this.nodes).subscribe(data => {});
 
     const formValue = this.form.value;
+    this.cookieService_.set('type', this.form.get('type').value )
     this.mipSrv.executeMIP(formValue).subscribe(data => {
       this.openConsole(data['job_id']);
     });

@@ -84,6 +84,7 @@ packages:
   - policycoreutils-python-utils
   - gnome-session-xsession
   - samba
+  - putty
 
 dependent_packages:
   - gtk3-immodule-xim
