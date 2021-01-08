@@ -107,7 +107,7 @@ export const kickstart_validators = {
     { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }
   ],
   netmask: [
-    { ops: { pattern: /^((128|192|224|240|248|252|254)\.0\.0\.0)|(255\.(((0|128|192|224|240|248|252|254)\.0\.0)|(255\.(((0|128|192|224|240|248|252|254)\.0)|255\.(0|128|192|224|240|248|252|254)))))$/}, error_message: 'Must be a valid subnet mask such as 255.555.555.0', validatorFn: 'pattern' },
+    { ops: { pattern: /^((128|192|224|240|248|252|254)\.0\.0\.0)|(255\.(((0|128|192|224|240|248|252|254)\.0\.0)|(255\.(((0|128|192|224|240|248|252|254)\.0)|255\.(0|128|192|224|240|248|252|254)))))$/}, error_message: 'Must be a valid subnet mask such as 255.255.255.0', validatorFn: 'pattern' },
     { error_message: 'Netmask is required', validatorFn: 'required' }
   ],
   //general form validation
