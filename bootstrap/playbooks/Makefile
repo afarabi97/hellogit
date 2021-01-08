@@ -5,7 +5,7 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY ?= 'inventory.yml'
 PLAYBOOK ?= 'site.yml'
 
-.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images
+.PHONY: execute_pre, frontend, install_angular, build_frontend_only, build_deploy_frontend, setup_python_env, bootstrap, sso, build_helm_charts, nightly_clone_rebuild_frontend, pull_docker_images, hosts_file
 
 # Default target, build *and* run tests
 all:

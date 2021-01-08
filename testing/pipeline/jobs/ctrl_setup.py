@@ -133,8 +133,8 @@ EOF
         # client.run('/opt/tfplenum/web/setup/redeploy.sh')
         if self.ctrl_settings.system_name == "MIP":
             client.run('systemctl restart NetworkManager')
-            client.run('nmcli connection down ens192')
-            client.run('nmcli connection up ens192')
+            client.run('nmcli connection down ens192 && sleep 5 && nmcli connection up ens192')
+            self._run_pings_to_fix_network(client, True)
         else:
             client.run('systemctl restart network NetworkManager')
         client.run('cd /opt/tfplenum/bootstrap/playbooks && make hosts_file')
