@@ -7,9 +7,20 @@
     group: "{{ item['group'] }}"
     mode: '0755'
   with_items:
-    - { src: '/root/Files_To_Be_Copied_Over/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
-    - { src: '/root/Files_To_Be_Copied_Over/usr/local/sbin/', dest: '/usr/local/sbin' , owner: 'root', group: 'root'}
-    - { src: '/root/Files_To_Be_Copied_Over/usr/local/bin/', dest: '/usr/local/bin' , owner: 'root', group: 'root'}
+    - { src: '{{ mip_scripts_dir }}/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
+    - { src: '{{ mip_scripts_dir }}/usr/local/sbin/', dest: '/usr/local/sbin' , owner: 'root', group: 'root'}
+    - { src: '{{ mip_scripts_dir }}/usr/local/bin/', dest: '/usr/local/bin' , owner: 'root', group: 'root'}
+
+- name: Copy images to the MIP
+  copy:
+    src: "{{ item['src'] }}"
+    dest: "{{ item['dest'] }}"
+    owner: "{{ item['owner'] }}"
+    group: "{{ item['group'] }}"
+    mode: '0755'
+  with_items:
+    - { src: '/root/MIP_Images/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
+    - { src: '/root/MIP_Images/usr/local/share', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
 
 - name: Create a symbolic link
   file:

@@ -1,0 +1,121 @@
+#!/bin/sh
+
+# Name:         sort.vmx
+# Version:      1.5
+# Date:         9 Oct 2015
+# Author:       Frank Vasko
+# Description:  VMWare .vmx file line sort shell script
+
+
+
+# Function to sort .vmx config lines
+# This function takes 2 parameters:  .vmx setting name and default setting if parameter does not exist
+sortTop()
+{
+# Copy the updated temp filter file over the temp original file
+if [ -f $tempfilt ]; then /usr/bin/cp $tempfilt $temporig >/dev/null; fi
+# Check if .vmx setting name exists in the temp original file
+for i in $(grep -i "$1 " $temporig | wc -l); do cntStr=$i; done
+# If cntStr = 0 then .vmx setting name does not exist
+if [ $cntStr == 0 ]; then
+	# Display a notice that the .vmx setting was added
+	echo "$1 = $2 ADDED to .vmx config file"
+	# Put the new setting name in the temp sorted file
+	echo "$1 = $2" >> $tempsort
+else
+	# If the .vmx setting name exists, put the line in the temp sorted file
+	cat $temporig | grep -i "$1 " >> $tempsort
+	# Remove the .vmx setting name from the temp filter file
+	cat $temporig | grep -v -i "$1 " > $tempfilt
+fi
+}
+
+
+
+# Function to add a line with a default value regardless if the line already exists in the original .vmx file
+# The function takes 2 parameters:  .vmx setting name and full default setting
+sortDefault()
+{
+# Copy the updated temp filter file over temp original file
+if [ -f $tempfilt ]; then /usr/bin/cp $tempfilt $temporig >/dev/null; fi
+# Check if .vmx setting name exists in temp original file
+for i in $(grep -i "$1 " $temporig | wc -l); do cntStr=$i; done
+# If cntStr = 0 the .vmx setting name does not exist
+if [ $cntStr == 0 ]; then
+	# Display a notice that the .vmx setting was added
+	echo "$2 ADDED to .vmx config file"
+else 
+	# If the .vmx setting name exists, put the default line in the temp sorted file
+	echo "$2 REPLACED $(grep -i "$1 " $temporig)"
+	# Remove the .vmx setting name from temp filter file
+	cat $temporig | grep -v -i "$1 " > $tempfilt
+fi 
+# Put the new setting name in the temp sorted file
+echo $2 >> $tempsort
+}
+
+
+
+# Main script function
+# Declare temporary work files
+temporig=/tmp/sortvmx_temporig.txt
+tempsort=/tmp/sortvmx_tempsort.txt
+tempfilt=/tmp/sortvmx_tempfilt.txt
+
+# Validate input
+if [[ $1 == "" ]]; then
+cat <<USAGE
+Usage:  vmxsort vmxfile.vmx <memsize>
+vmxfile.vmx = .vmx file to sort
+<memsize> = memory size (2048 for 2GB, 4096 for 4GB, etc)
+USAGE
+	exit 0
+fi
+
+# Backup original .vmx file
+/usr/bin/cp $1 $1.bak >/dev/null
+
+# Display the beginning line count
+for i in $(grep -n "^" $1 | wc -l); do echo $i BEGINNING lines; done
+
+# Remove temporary files if they exist in the temp directory
+if [ -f $temporig ]; then rm -f $temporig; fi
+if [ -f $tempsort ]; then rm -f $tempsort; fi
+if [ -f $tempfilt ]; then rm -f $tempfilt; fi
+
+# Sort the .vmx file lines and output to temp file
+sort -f -u $1 > $temporig
+
+# Call the sort functions to place certain lines at the top of the .vmx file
+# Pass the .vmx config variable of interest and a default setting
+sortDefault '#!/usr/bin/vmware' '#!/usr/bin/vmware'
+sortTop '.encoding'
+sortTop 'config.version' '"8"'
+sortTop 'virtualHW.version' '"8"'
+sortTop 'displayName'
+sortTop 'annotation'
+sortTop 'guestOS'
+sortDefault 'nvram' 'nvram = nvram'
+sortDefault 'extendedConfigFile' 'extendedConfigFile = "mip2.vmxf"'
+if [[ $2 == "" ]]; then
+	sortDefault 'memsize' 'memsize = "2048"'
+else
+	sortDefault 'memsize' "memsize = \"$2\""
+fi
+sortTop 'ethernet0.address' ''
+sortDefault 'bios.forceSetupOnce' 'bios.forceSetupOnce = "FALSE"'
+
+# Add the remaining sorted lines to the temp sorted file
+cat $tempfilt >> $tempsort
+
+# Copy the temp sorted file over the original .vmx file
+/usr/bin/cp $tempsort $1 >/dev/null
+
+# Remove (clean-up) temporary files
+if [ -f $temporig ]; then rm -f $temporig; fi
+if [ -f $tempsort ]; then rm -f $tempsort; fi
+if [ -f $tempfilt ]; then rm -f $tempfilt; fi
+
+# Display ending line count
+for i in $(grep -n "^" $1 | wc -l); do echo $i ENDING lines; done
+

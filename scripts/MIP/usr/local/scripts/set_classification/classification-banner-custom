@@ -1,0 +1,9 @@
+[global]
+message='test'
+fgcolor='black'
+bgcolor='purple'
+face='liberation-sans'
+size='small'
+weight='bold'
+show_top=True
+show_bottom=False

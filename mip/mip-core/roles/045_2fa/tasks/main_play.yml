@@ -1,8 +1,28 @@
 ---
 - name: Copying 2fa folder to Desktop
   copy:
-    src: /root/Files_To_Be_Copied_Over/2fa
+    src: '{{ mip_scripts_dir }}/2fa'
     dest: /home/assessor/Desktop/
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy the 2fa certs
+  copy:
+    src: "{{ item }}"
+    dest: /home/assessor/Desktop/2fa
+    owner: root
+    group: root
+    mode: '0755'
+  with_items:
+    - /root/2fa_certs/NMIL_Cert_DoD_Root_CA_3.der.p7b
+    - /root/2fa_certs/NMIL_Cert_DoD_Root_CA_3.der.p7b.pem
+    - /root/2fa_certs/SMIL_checkedbase64.zip
+
+- name: Copying 2fa image to Desktop
+  copy:
+    src: /root/MIP_Images/2fa/tcl/2famapper.png
+    dest: /home/assessor/Desktop/2fa/tcl
     owner: root
     group: root
     mode: '0755'

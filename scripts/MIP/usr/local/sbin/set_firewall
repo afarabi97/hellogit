@@ -1,0 +1,546 @@
+#!/bin/sh
+
+#Info
+#=======================
+#	File: set_firewall
+#	Name: RHEL-7 Set Firewall
+#
+#	Version: 1.00
+# 	*version is major.minor format
+# 	*major is updated when new capability is added
+# 	*minor is updated on fixes and improvements
+
+#History
+#=======================
+#	20Dec2016 v0.5.0
+#		Andrew Benson
+#		*Inherited script
+#
+#	20Dec2016 v1.00
+#		Christopher Voss
+#		*Updated file header to standard format
+#
+# 05Mar2018 V1.01
+#   Matt Riensch
+#   *Added checks to verify/make:
+#    */etc/trusted.hosts"
+#    */etc/target.hosts
+#
+# 09Nov2020 V1.02
+#   Dylan Sigler
+#	Converted from iptables to nftables for RHEL 8.2
+#
+#Description
+#=======================
+# This script sets firewall rules
+
+# Copyright (c) 2016, Andrew C. Benson
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+
+#     * Neither the name of `hostfw` nor the names of its contributors may
+#       be used to endorse or promote products derived from this software
+#       without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ANDREW BENSON BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+VERSION="0.1.2"
+
+# Simple host-based permit-by-exception nftables generation script.
+
+# Global variables.
+LOGEXCEPT="0"
+RESETCONN="0"
+ALLOWPING="1"
+ALLOWDHCP="1"
+ALLICMP="0"
+OB_TCP=""
+OB_UDP=""
+IB_TCP=""
+IB_UDP=""
+FORWARD_TCP=""
+FORWARD_UDP=""
+IP=""
+OB_TARGS=""
+IB_TARGS=""
+EX_TARGS=""
+AUTOTRUST="0"
+ALLOWALL="0"
+DENYALL="0"
+SHOWRULES="0"
+PRINTSTATUS="1"
+DEFTRUST="/etc/trusted.hosts"
+DEFTARGS="/etc/target.hosts"
+DEFEXCLD="/etc/exclude.hosts"
+
+# You must be root (uid=0) to set nftables rules.
+if [ $(id -u) != "0" ]; then
+	echo "You must be root to run this command."
+	exit
+fi
+
+systemctl enable nftables
+systemctl start nftables
+
+FWCMD=`which nft 2>/dev/null`
+
+# We want to make sure nftables is available before we attempt to create
+# the rules.
+
+if [ -z $FWCMD ]; then
+	echo "Unable to find \`nft\` in path."
+	exit
+fi
+
+version_and_quit()
+{
+	echo "`basename $0` v$VERSION; Copyright (c) 2016, Andrew C. Benson"
+	echo
+	echo You can find more information, leave feedback and feature requests, and
+	echo find the latest version at the project page: http://github.com/abenson/hostfw
+	exit
+}
+
+help_and_quit()
+{
+	echo "usage: `basename $0` <options>"
+	cat <<-HELPMSG
+	    -h                 This message.
+
+	    -v                 Display version.
+
+	    -r                 Send TCP RST instead of dropping packet.
+
+	    -p                 Disallow incoming PING
+	    -i                 Don't restrict ICMP types.
+	    -d                 Disallow DHCP.
+
+	    -tt                Automatically set rules based on /etc/trusted.hosts
+                           and /etc/target.hosts
+
+	    -ot <...>          Comma separated list of allowed TCP ports outbound.
+	    -ou <...>          Comma separated list of allowed UDP ports outbound.
+
+	    -it <...>          Comma separated list of allowed TCP ports inbound.
+	    -iu <...>          Comma separated list of allowed UDP ports inbound.
+
+	    -ft <...>	       Comma seperated list of forwarded TCP ports.
+	    -fu <...>	       Comma seperated list of forwarded UDP ports.
+
+	    -ip <...>	       Comma separated list of ip address for port forwarding rule.
+	    -oh <targs.lst>    Restrict outbound to specified hosts.
+	    -ih <trust.lst>    Restrict inbound to specified hosts.
+
+	    -eh <excld.lst>    Exclude hosts, even if they are in targets/trusted.
+
+	    -l                 Log exceptions.
+
+	    -s                 Simulate only.
+	    -q                 Quiet (don't display status messages)
+
+	    -D                 Absolute deny all.
+	    -A                 Absolute allow all.
+
+	    -S                 Show rules after setting.
+
+	Defaults:
+	    Outbound connections will be allowed on all ports to all hosts.
+	    Inbound connections will be limited to related outbound traffic.
+	    DHCP will be enabled.
+	    Ping responses will be enabled.
+	    Unsolicited inbound connections will be dropped.
+
+	Notes:
+
+	    Combine -q and -s to generate a script.
+
+	You can find more information, leave feedback and feature requests, and
+	find the latest version at the project page: http://github.com/abenson/hostfw
+
+	HELPMSG
+	exit
+}
+
+while [ ! -z "$1" ]; do
+	case "$1" in
+		"-h" )
+			help_and_quit ;;
+		"-v" )
+			version_and_quit ;;
+		"-S" )
+			SHOWRULES="1" ;;
+		"-l" )
+			LOGEXCEPT="1" ;;
+		"-r" )
+			RESETCONN="1";;
+		"-p" )
+			ALLOWPING="0" ;;
+		"-i" )
+			ALLICMP="1" ;;
+		"-d" )
+			ALLOWDHCP="0" ;;
+		"-ot" )
+			OB_TCP="$2"
+			shift ;;
+		"-ou" )
+			OB_UDP="$2"
+			shift ;;
+		"-it" )
+			IB_TCP="$2"
+			shift ;;
+		"-iu" )
+			IB_UDP="$2"
+			shift ;;
+		"-ft" )
+			FORWARD_TCP="$2"
+			shift ;;
+		"-fu" )
+			FORWARD_UDP="$2"
+			shift ;;
+		"-oh" )
+			OB_TARGS="$2"
+			shift ;;
+		"-ip" )
+			IP="$2"
+			shift ;;
+		"-ih" )
+			IB_TARGS="$2"
+			shift ;;
+		"-eh" )
+			EX_TARGS="$2"
+			shift ;;
+		"-D" )
+			DENYALL="1" ;;
+		"-A" )
+			ALLOWALL="1" ;;
+		"-tt")
+			AUTOTRUST="1" ;;
+		"-s" )
+			FWCMD="echo $FWCMD" ;;
+		"-q" )
+			PRINTSTATUS="0" ;;
+		* )
+			echo "Unknown option: $1"
+			help_and_quit ;;
+	esac
+	shift
+done
+
+# Handy wrapper to clear the rules.
+flush_rules()
+{
+	$FWCMD flush chain ip filter INPUT
+	$FWCMD flush chain ip filter OUTPUT
+	$FWCMD flush chain ip filter FORWARD
+}
+
+# Handy wrapper to set the policy of each chain.
+set_policy()
+{	
+	$FWCMD "add chain ip filter INPUT { policy $1 ;}"
+	$FWCMD "add chain ip filter OUTPUT { policy $1 ;}"
+	$FWCMD "add chain ip filter FORWARD { policy $1 ;}"
+}
+
+log_exceptions()
+{
+	$FWCMD add rule ip filter INPUT limit rate 5/minute burst 5 packets counter log
+	$FWCMD add rule ip filter OUTPUT limit rate 5/minute burst 5 packets counter log
+	$FWCMD add rule ip filter FORWARD limit rate 5/minute burst 5 packets counter log
+}
+
+allow_localhost()
+{
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Allowing traffic for localhost."
+	fi
+	$FWCMD insert rule ip filter INPUT ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 counter accept
+	$FWCMD insert rule ip filter OUTPUT ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 counter accept
+}
+
+# Check to see if  trusted/targeted.hosts exists.
+# if not, it will make them
+
+if [ ! -f $DEFTRUST ]; then
+	touch $DEFTRUST
+fi
+
+if [ ! -f $DEFTARGS ]; then
+	touch $DEFTARGS
+fi
+
+# Setup for autotrust.
+
+if [ $AUTOTRUST -eq 1 ]; then
+	if [ -f $DEFTRUST ] && [ -f $DEFTARGS ]; then
+		OB_TARGS=$DEFTARGS
+		IB_TARGS=$DEFTRUST
+		if [ -f $DEFEXCLD ]; then
+			EX_TARGS=$DEFEXCLD
+		fi
+	else
+		echo "Make sure $DEFTRUST and $DEFTARGS exist."
+	fi
+fi
+
+# While these are technically incompatible with any other options,
+# we only care if they are issued with each other. We'll ignore
+# the other options, but we won't know what to do with both of these.
+
+if [ $ALLOWALL -eq 1 ] && [ $DENYALL -eq 1 ]; then
+	echo "-A and -D are incompatible."
+	echo
+	help_and_quit
+fi
+
+# Formula is the same for each of these.
+# 1. Clear all rules.
+# 2. Set default policy.
+# 3. Don't do anything else.
+
+if [ $ALLOWALL -eq 1 ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Flushing rules..."
+	fi
+	flush_rules
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Allowing all..."
+	fi
+	set_policy accept
+	exit
+fi
+
+if [ $DENYALL -eq 1 ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Flushing rules..."
+	fi
+	flush_rules
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Disallowing all..."
+	fi
+	set_policy drop
+	allow_localhost
+	if [ $LOGEXCEPT -eq 1 ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Logging exceptions..."
+		fi
+		log_exceptions
+	fi
+	exit
+fi
+
+# Setting defaults. STIGs say DROP by default.
+flush_rules
+set_policy drop
+
+if [ $LOGEXCEPT -eq 1 ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Logging exceptions..."
+	fi
+	log_exceptions
+fi
+
+if [ $RESETCONN -eq 1 ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Send tcp-reset for unwanted connections..."
+	fi
+	$FWCMD add rule ip filter INPUT counter reject
+	$FWCMD add rule ip filter OUTPUT counter reject
+	$FWCMD add rule ip filter FORWARD counter reject
+fi
+
+if [ $ALLOWDHCP -eq 1 ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Allowing DHCP..."
+	fi
+	$FWCMD insert rule ip filter INPUT udp sport 67-68 udp dport 67-68 counter accept
+	$FWCMD insert rule ip filter OUTPUT udp sport 67-68 udp dport 67-68 counter accept
+fi
+#
+# Allow related connections.
+if [ $PRINTSTATUS -eq 1 ]; then
+	echo "Allowing related connections..."
+fi
+$FWCMD insert rule ip filter INPUT ct state related,established counter accept
+$FWCMD insert rule ip filter OUTPUT ct state related,established counter accept
+
+if [ -z $OB_TARGS ]; then
+	if [ $PRINTSTATUS -eq 1 ]; then
+		echo "Allowing outbound ICMP..."
+	fi
+	if [ $ALLICMP -eq 0 ]; then
+		$FWCMD insert rule ip filter OUTPUT icmp type echo-request counter accept
+		$FWCMD insert rule ip filter OUTPUT icmp type echo-reply counter accept
+	else
+		$FWCMD insert rule ip filter OUTPUT ip protocol icmp counter accept
+	fi
+	if [ -z $OB_TCP ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Not limiting outbound TCP connections."
+		fi
+		$FWCMD insert rule ip filter OUTPUT ip protocol tcp counter accept
+	else
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Limiting outbound connections to TCP ports $OB_TCP."
+		fi
+		$FWCMD insert rule ip filter OUTPUT ip protocol tcp tcp dport { $OB_TCP } counter accept
+	fi
+	if [ -z $OB_UDP ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Not limiting outbound UDP connections."
+		fi
+		$FWCMD insert rule ip filter OUTPUT ip protocol udp counter accept
+	else
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Limiting outbound connections to UDP ports $OB_UDP."
+		fi
+		$FWCMD insert rule ip filter OUTPUT ip protocol udp udp dport { $OB_UDP } counter accept
+	fi
+else
+	if [ $AUTOTRUST -eq 1 ]; then
+		cat $OB_TARGS $IB_TARGS
+	else
+		cat $OB_TARGS
+	fi | sed 's/#.*//' | egrep -o "(^|[^0-9.])((25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])(/[0-9][0-9]?)?($|[^0-9.])" | while read net; do
+		if [ $ALLOWPING -eq 1 ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Allow ping/traceroute to $net..."
+			fi
+			if [ $ALLICMP -eq 0 ]; then
+				$FWCMD insert rule ip filter OUTPUT ip daddr $net icmp type echo-request counter accept
+				$FWCMD insert rule ip filter OUTPUT ip daddr $net icmp type echo-reply counter accept
+			else
+				$FWCMD insert rule ip filter OUTPUT ip protocol icmp ip daddr $net counter accep
+			fi
+		fi
+		if [ -z $OB_TCP ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Limiting outbound TCP connections to $net."
+			fi
+			$FWCMD insert rule ip filter OUTPUT ip protocol tcp ip daddr $net counter accept
+		else
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Limiting outbound TCP connections to $net on ports $OB_TCP."
+			fi
+			$FWCMD insert rule ip filter OUTPUT ip protocol tcp ip daddr $net tcp dport { $OB_TCP } counter accept
+		fi
+		if [ -z $OB_UDP ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Limiting outbound UDP connections to $net."
+			fi
+			$FWCMD insert rule ip filter OUTPUT ip protocol udp ip daddr $net counter accept
+		else
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Limiting outbound UDP connections to $net on ports $OB_UDP."
+			fi
+			$FWCMD insert rule ip filter OUTPUT ip protocol udp ip daddr $net udp dport { $OB_UDP } counter accept
+		fi
+	done
+fi
+
+if [ -z $IB_TARGS ]; then
+	if [ $ALLOWPING -eq 1 ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Respond to pings..."
+		fi
+		if [ $ALLICMP -eq 0 ]; then
+			$FWCMD insert rule ip filter INPUT icmp type echo-request counter accept
+		else
+			$FWCMD insert rule ip filter INPUT ip protocol icmp counter accept
+		fi
+	fi
+
+	if [ -z $IB_TCP ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Not allowing inbound TCP connections."
+		fi
+	else
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Allowing inbound TCP connections to ports $IB_TCP."
+		fi
+		$FWCMD insert rule ip filter INPUT ip protocol tcp tcp dport { $IB_TCP } counter accept
+	fi
+	if [ -z $IB_UDP ]; then
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Not allowing inbound UDP connections."
+		fi
+	else
+		if [ $PRINTSTATUS -eq 1 ]; then
+			echo "Allowing inbound UDP connections to ports $IB_UDP."
+		fi
+		$FWCMD insert rule ip filter INPUT ip protocol udp udp dport { $IB_UDP } counter accept
+	fi
+else
+	cat $IB_TARGS | sed 's/#.*//' | egrep -o "(^|[^0-9.])((25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])(/[0-9][0-9]?)?($|[^0-9.])" | while read net; do
+		if [ $ALLOWPING -eq 1 ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Respond to pings from $net..."
+			fi
+			if [ $ALLICMP -eq 0 ]; then
+				$FWCMD insert rule ip filter INPUT ip saddr $net icmp type echo-request counter accept
+			else
+				$FWCMD insert rule ip filter INPUT ip protocol icmp ip saddr $net counter accept
+			fi
+		fi
+
+		if [ -z $IB_TCP ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				#echo "Not allowing inbound TCP connections."
+				echo "Allowing inbound TCP connections from $net..."
+			fi
+			$FWCMD insert rule ip filter INPUT ip protocol tcp ip saddr $net counter accept
+		else
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Allowing inbound TCP connections from $net on ports $IB_TCP."
+			fi
+			$FWCMD insert rule ip filter INPUT ip protocol tcp ip saddr $net tcp dport { $IB_TCP } counter accept
+		fi
+
+		if [ -z $IB_UDP ]; then
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Not allowing inbound UDP connections."
+			fi
+		else
+			if [ $PRINTSTATUS -eq 1 ]; then
+				echo "Allowing inbound UDP connections from $net on ports $IB_UDP."
+			fi
+			$FWCMD insert rule ip filter INPUT ip protocol udp ip saddr $net udp dport { $IB_UDP } counter accept
+		fi
+	done
+fi
+
+if [ -n "$EX_TARGS" ]; then
+	cat $EX_TARGS | sed 's/#.*//' | egrep -o "(^|[^0-9.])((25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])(/[0-9][0-9]?)?($|[^0-9.])" | while read net; do
+		$FWCMD insert rule ip filter INPUT ip saddr $net counter drop
+		$FWCMD insert rule ip filter OUTPUT ip daddr $net counter drop
+	done
+fi
+
+allow_localhost
+
+# If requested so the rules just created.
+if [ $SHOWRULES -eq 1 ]; then
+	echo ""
+	#if [ $PRINTSTATUS -eq 1 ]; then
+	#	echo "Applied rules:"
+	#fi
+	#$IPTABLES -S
+fi

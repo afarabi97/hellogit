@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=2FA Mapper
+Comment=GUI application for mapping alt tokens to computer user account
+Exec=2famapper.wish
+Icon=/usr/share/icons/hicolor/512x512/apps/2famapper.png
+Terminal=false

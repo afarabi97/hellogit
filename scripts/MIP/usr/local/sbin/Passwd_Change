@@ -1,0 +1,45 @@
+#!/bin/sh
+
+#Info
+#=======================
+#	File: Passwd_Change
+#	Name: RHEL 7 Password Change
+#
+#	Version: 1.01
+# 	*version is major.minor format
+# 	*major is updated when new capability is added
+# 	*minor is updated on fixes and improvements
+
+#History
+#=======================
+# 	20Dec2016 v1.00
+#		Dread Pirate( jason.roberts.14@us.af.mil )
+#		*created
+#
+#	20Dec2016 v1.01
+#		Christopher Voss
+#		*Updated file header to standard format
+
+#Description 
+#=======================
+#	Sets password for luks
+if [ `whoami` != "root" ]; then
+	echo "This Script must be run as root"
+	sleep 1
+	exit
+fi
+
+echo "***********************************************"
+echo "***********************************************"
+echo "*    This script will change both the user    *"
+echo "*    passwd and the drive encryption passwd   *"
+echo "*                                             *"
+echo "***********************************************"
+
+echo "Changing host OS assessor password:"
+echo ""
+passwd assessor
+clear
+echo "Changing harddrive encryption passphrase:"
+echo ""
+cryptsetup luksChangeKey /dev/sda2

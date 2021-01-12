@@ -1,0 +1,9 @@
+[global]
+message='CONFIDENTIAL'
+fgcolor='black'
+bgcolor='blue'
+face='liberation-sans'
+size='small'
+weight='bold'
+show_top=True
+show_bottom=False

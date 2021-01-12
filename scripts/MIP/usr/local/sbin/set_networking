@@ -1,0 +1,42 @@
+
+
+#change ip settings
+ip_func()
+{
+	ip_view_option="X"
+	while [[ ${ip_view_option} != "v" && ${ip_view_option} != "s" ]]; do
+		read -p "Would you like to view or set ip settings? [v/s]  " ip_view_option
+	done
+	if [[ $ip_view_option == "v" ]]; then
+		if [[ $(ip addr show ${ETHERNET_DEVICE} | grep 'inet') ]]; then
+			RAW_IP=$(ip a show dev ${ETHERNET_DEVICE} | grep -w inet | awk {'print $2'})
+			ipaddr_option=$(echo ${RAW_IP} | cut -d'/' -f1)
+			echo "${ETHERNET_DEVICE} is up with IP address of ${ipaddr_option}"
+			read -p "Set ${ETHERNET_DEVICE} interface down? (y/n) " if_option
+			if [[ $if_option == "y" ]]; then
+				echo "Bringing ${ETHERNET_DEVICE} down..."
+				ifdown "${ETHERNET_DEVICE}"
+			fi
+		else
+			echo "${ETHERNET_DEVICE} is down"
+			read -p "Set ${ETHERNET_DEVICE} interface up? (y/n) " if_option
+			if [[ $if_option == "y" ]]; then
+				echo "Bringing ${ETHERNET_DEVICE} up..."
+				ifup "${ETHERNET_DEVICE}"
+			fi
+		fi
+		if_option=""
+		read -p "Press enter to continue..... "
+	elif [[ $ip_view_option == "s" ]]; then
+		ifdown "${ETHERNET_DEVICE}"
+		dhcp_option="X"
+		while [[ ${dhcp_option} != "y" && ${dhcp_option} != "n" ]]; do
+			read -p "Use DHCP to connect? [y/n] " dhcp_option
+		done
+		MACADDR_OPTION=$(grep -i macaddr "$SET_IFCFG")
+		UUID=$(grep -i uuid "$SET_IFCFG")
+		MAC=$(ip -o link show dev ${ETHERNET_DEVICE} | grep -Po 'ether \K[^ ]*')
+		ip_config_func
+		netservice
+	fi
+}

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Firewall
+Exec=sudo python3 /usr/local/sbin/set_mip.py
+Terminal=false
+Type=Application
+Terminal=true
+Icon=/usr/share/app-info/icons/epel-7/128x128/Thunar.png
+Categories=System;
+Name[en_US]=mip config
+

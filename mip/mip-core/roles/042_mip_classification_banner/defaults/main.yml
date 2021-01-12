@@ -1,7 +1,7 @@
 ---
 banner_scripts:
-  - { src: '/root/Files_To_Be_Copied_Over/opt/banner/bin/classification-banner', dest: '/opt/banner/bin/', owner: root, group: root, mode: '0644'}
-  - { src: '/root/Files_To_Be_Copied_Over/usr/local/bin/classification-banner.py', dest: '/usr/local/bin',  owner: root, group: root, mode: '0755'}
-  - { src: '/root/Files_To_Be_Copied_Over/etc/xdg/autostart/classification-banner.desktop', dest: '/etc/xdg/autostart', owner: root, group: root, mode: '0644'}
-  - { src: '/root/Files_To_Be_Copied_Over/home/assessor/Desktop/Config.desktop', dest: '/home/assessor/Desktop', owner: assessor, group: operators, mode: '0755'}
+  - { src: '{{ mip_scripts_dir }}/opt/banner/bin/classification-banner', dest: '/opt/banner/bin/', owner: root, group: root, mode: '0644'}
+  - { src: '{{ mip_scripts_dir }}/usr/local/bin/classification-banner.py', dest: '/usr/local/bin',  owner: root, group: root, mode: '0755'}
+  - { src: '{{ mip_scripts_dir }}/etc/xdg/autostart/classification-banner.desktop', dest: '/etc/xdg/autostart', owner: root, group: root, mode: '0644'}
+  - { src: '{{ mip_scripts_dir }}/home/assessor/Desktop/Config.desktop', dest: '/home/assessor/Desktop', owner: assessor, group: operators, mode: '0755'}
 ...

@@ -2,7 +2,6 @@
 ################## Predownload Repos ##################
 #######################################################
 ---
-
 - name: Check if ran by bootstrap
   fail:
     msg: 'Clonerepos role must be run using bootstrap script'

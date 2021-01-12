@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# ans_2fa_rhel8_install_rpm - installs RPMs needed for 2FA; first tries to install from local RPM files, then
+#		tries to install from remote repositories
+#
+#		Created by Roy Presley, Applied Research Solutions, for CVA/H PMO; 5 Feb 2020
+
+# Initialize variables
+RPM_DIR=""
+RPM_NAME=""
+RPM_HOST_URL="https://cdn.redhat.com"
+
+# Verify there are two supplied arguments. If not, flag error and exit.
+if [ $# != 2 ]
+then
+   echo ""
+   echo "Usage:  ans_2fa_rhel8_install_rpm rpm_dir rpm_name"
+   echo ""
+   exit 1
+# Else verify supplied arguments are not empty strings
+else
+# Set RPM_DIR variable to first argument
+   if [ "$1" != "" ]
+   then 
+      RPM_DIR=$1
+   else
+      echo ""
+      echo "RPM directory string is empty!"
+      echo ""
+      exit 1
+   fi
+
+# Set RPM_NAME variable to second argument
+   if [ "$2" != "" ]
+   then
+      RPM_NAME=$2
+   else
+      echo ""
+      echo "RPM name string is empty!"
+      echo ""
+      exit 1
+   fi 
+
+   echo ""
+   echo "Attempting to install $RPM_NAME..."
+
+# Look for a match for the supplied RPM_NAME in the RPM_DIR
+# NOTE:  Include '-[0-9]' in filename specification to prevent return of multiple RPMs matching name pattern
+#	 Use "2> /dev/null" to discard any errors
+   RPM_FILE=`find $RPM_DIR -name $RPM_NAME-[0-9]\* -print 2> /dev/null`
+
+# If the local RPM file is found, install from it
+   if [ "$RPM_FILE" != "" ]
+   then
+      echo "Installing $RPM_NAME from local file ($RPM_FILE)..."
+
+      rpm -i $RPM_FILE --nodeps
+
+# Else search for remote RPM
+# NOTE: This script uses curl to test connectivity to the Red Hat RPM server
+   else
+      curl -k $RPM_HOST_URL &> /dev/null
+
+# If the curl command above successfully connected to the Red Hat RPM server, search for the RPM
+      if [ $? == 0 ]
+      then
+         yum info $RPM_NAME > /dev/null
+
+# If the remote RPM is found, install it
+         if [ $? == 0 ]
+         then
+            echo "Installing $RPM_NAME from remote RPM..."
+            yum install -y $RPM_NAME
+
+# Else if unable to connect to remote RPM repository, flag error and exit
+         else
+            echo "Cannot locate remote RPM for $RPM_NAME!"
+            exit 1
+         fi
+      else
+	 echo "Cannot connect to remote RPM source ($RPM_HOST_URL)!"
+	 exit 2
+      fi
+   fi
+fi
+
+exit

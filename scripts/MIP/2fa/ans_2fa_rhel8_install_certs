@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+#  ans_2fa_rhel8_install_certs - converts supplied certificate store (both DER & PEM formats) to PEM format;
+#		 installs extracted CRT certs into local SSSD database file
+#
+#		 This script takes one argument:  the path to the cert file
+#
+#		 NOTE:  This script must be run by the root user to allow write access to the SSSD database file
+#
+#		 Created by Roy Presley, Applied Research Solutions (ARS), for CVA/H PMO; 10 Jan 2020 
+#
+#		 Added code to install ASCII (base64) cert store from a .zip file; 11 Sep 2020
+#
+
+# Initialize variables
+OPENSSL=/usr/bin/openssl
+PKIDB=/etc/sssd/pki/sssd_auth_ca_db.pem
+UNZIP=/usr/bin/unzip
+LOGGEDINUSER=`whoami`
+SUBJECT=""
+ISSUER=""
+CERTNAME=""
+FORMAT=""
+CRTFILE=""
+CERTFILE=""
+
+# Check to see if the logged in user is root. If not, inform the user and exit.
+if [ "$LOGGEDINUSER" != "root" ]
+then
+   echo ""
+   echo "You MUST be logged in as root to run this script!"
+   echo ""
+   exit 1
+fi
+
+# Check for existence of executable openssl command
+if [ ! -x $OPENSSL ]
+then
+   echo ""
+   echo "$OPENSSL not found!"
+   echo ""
+   exit 1
+fi
+
+# Check for arguments
+if [ $# -lt 1 ]
+then
+   echo ""
+   echo "Usage:  $0 cert_file"
+   echo ""
+   exit 1
+else
+   CERTFILE=$1
+fi
+
+# Check for existence of supplied certificate store file
+if [ ! -e $CERTFILE ]
+then
+   echo ""
+   echo "$CERTFILE file not found!"
+   echo ""
+   exit 1
+fi
+
+# Determine whether certificate store file is PEM or DER format based on presence of identifying
+# substrings (.pem, .PEM, .der, .DER) in filename;
+# Use "${VARIABLE,,}" to convert CERTFILE variable to lowercase for comparison
+if [ "`expr ${CERTFILE,,} : '.*\(.pem\).*'`" == ".pem" ]
+then
+   FORMAT="PEM"
+   echo ""
+   echo "Certificate store format is $FORMAT"
+elif [ "`expr ${CERTFILE,,} : '.*\(.der\).*'`" == ".der" ]
+then
+   FORMAT="DER"
+   echo ""
+   echo "Certificate store format is $FORMAT"
+elif [ "`expr ${CERTFILE,,} : '.*\(.zip\).*'`" == ".zip" ]
+then
+   FORMAT="ZIP"
+   echo ""
+   echo "Certificate store format is $FORMAT"
+# Else report a problem with the input file type and exit
+else
+   echo ""
+   echo "Doh! Input file $CERTFILE doesn't contain a '.pem' or '.der' or '.zip' string!"
+   echo ""
+   exit 1
+fi
+
+echo ""
+
+# If format is PEM, use that format for the openssl command to export the PKCS7 certs to CRT files
+if [ "$FORMAT" == "PEM" ]
+then
+   $OPENSSL pkcs7 -inform PEM -outform PEM -print_certs -in $CERTFILE -out $CERTFILE.pem
+# Else if format is DER, use that format
+elif [ "$FORMAT" == "DER" ]
+then
+   $OPENSSL pkcs7 -inform DER -outform PEM -print_certs -in $CERTFILE -out $CERTFILE.pem
+# Else if cert store is a .zip file, unzip the file and install the ASCII text certs
+elif [ "$FORMAT" == "ZIP" ]
+then
+   ZIPDIR=`$UNZIP -l $CERTFILE | head -4 | tail -1 | awk '{print $4}' | awk -F/ '{print $1}'`
+
+   $UNZIP -q $CERTFILE *.crt
+
+# Locate the .crt file
+   CRTFILE=`find $ZIPDIR -name \*.crt -print | head -1`
+
+# Copy the .crt file to the PKIDB location for SSSD
+   echo "Installing $CRTFILE in $PKIDB..."
+   cp $CRTFILE $PKIDB
+
+# Remove the unzipped directory and its contents
+   /bin/rm -fr $ZIPDIR
+   echo ""
+
+# Exit the script since the work is all done
+   exit
+fi
+
+#echo "cert file = $CERTFILE.pem"
+
+# Copy DoD_Root_CA_3 PEM file to the sssd cert database file
+cp $CERTFILE.pem $PKIDB
+
+# Remove the temporary .pem file
+#/bin/rm -f $CERTFILE.pem
+
+exit

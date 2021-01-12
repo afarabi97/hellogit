@@ -15,10 +15,10 @@
     group: root
     mode: '0755'
   with_items:
-    - { src: '/root/Files_To_Be_Copied_Over/etc/dconf/db/gdm.d/01-banner-message', dest: '/etc/dconf/db/gdm.d/'}
-    - { src: '/root/Files_To_Be_Copied_Over/etc/dconf/db/gdm.d/01-login-screen', dest: '/etc/dconf/db/gdm.d/'}
-    - { src: '/root/Files_To_Be_Copied_Over/etc/issue.net', dest: '/etc/'}
-    - { src: '/root/Files_To_Be_Copied_Over/usr/local/share/pixmaps/cvah-logo.png', dest: '/usr/local/share/pixmaps/'}
+    - { src: '{{ mip_scripts_dir }}/etc/dconf/db/gdm.d/01-banner-message', dest: '/etc/dconf/db/gdm.d/'}
+    - { src: '{{ mip_scripts_dir }}/etc/dconf/db/gdm.d/01-login-screen', dest: '/etc/dconf/db/gdm.d/'}
+    - { src: '{{ mip_scripts_dir }}/etc/issue.net', dest: '/etc/'}
+    - { src: '/root/MIP_Images/usr/local/share/pixmaps/cvah-logo.png', dest: '/usr/local/share/pixmaps/'}
 
 - name: Enable desktop icons
   command: gsettings set org.gnome.desktop.background show-desktop-icons true
