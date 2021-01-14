@@ -236,10 +236,6 @@ class RuleSynchronization():
                     self._send_notification("Failed to write Zeek script {} because it is missing {} field inside of the object.".format(rule, str(e)))
 
         bro_load_file.seek(0, os.SEEK_END)
-        if len(bro_load_file.getvalue()) == 0:
-            self._send_notification("Nothing to sync for Zeek rules.", NotificationCode.CANCELLED.name)
-            return
-
         bro_load_file_path = "%s/__load__.zeek" % BRO_CUSTOM_DIR
         fabric.put(bro_load_file, bro_load_file_path)
         self._run_cmd_or_raise(fabric, "chmod 0744 %s" % bro_load_file_path)
