@@ -107,7 +107,7 @@ class RobotSettings(Model):
         pipenv run python -m run.runner -c {} -r {} -p {} -h -b {} -v HOST:{} -v HOST_USERNAME:{}' -v HOST_PASSWORD:{} -v SYSTEM_NAME:{} -v KIT_VERSION:{}
         """
         # 1.    Environment Variables
-        self.command = f"docker run --env=JIRA_USERNAME={self.jira_username} --env=JIRA_PASSWORD={self.jira_password} --env=JIRA_PROJECT_KEY={self.jira_project_key} -i --network=\"host\" "
+        self.command = f"docker run --env=JIRA_USERNAME={self.jira_username} --env=JIRA_PASSWORD='{self.jira_password}' --env=JIRA_PROJECT_KEY={self.jira_project_key} -i --network=\"host\" "
         # 2.    Volume Mappings
         self.command += f"--volume={ROBOTEST_DIR}:/usr/src/robot/tests --volume={ROBOTEST_OUTPUT_DIR}:/usr/src/robot/output --add-host=dip-controller.{self.domain}:{self.ipaddress} "
         # 3.    Tfplenum Container
