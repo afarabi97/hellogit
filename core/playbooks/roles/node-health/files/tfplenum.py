@@ -25,20 +25,6 @@ def _getControllerAPIKey():
     api_key = b64decode(response.data['api-key']).decode('utf-8')
     return api_key
 
-
-def _getSuricataDeployment(hostname):
-    v1 = client.AppsV1Api()
-    deployments = v1.list_deployment_for_all_namespaces(watch=False)
-    for deployment in deployments.items:
-        init_container = deployment.spec.template.spec.init_containers and deployment.spec.template.spec.init_containers[0]
-        if init_container:
-            name = deployment.spec.template.spec.init_containers[0].name
-            if name == "init-suricata":
-                deployment_host = deployment.spec.template.spec.affinity.node_affinity.required_during_scheduling_ignored_during_execution.node_selector_terms[0].match_expressions[0].values[0]
-                if deployment_host == hostname:
-                    return deployment.metadata.name
-    return ""
-
 class TFPlenum:
     def __init__(self, controller, elasticsearch):
         self._controller = controller
@@ -54,10 +40,6 @@ class TFPlenum:
             logger.info(str(response))
         else:
             logger.warning(str(response))
-
-    def getSuricataDeployment(seld, hostname):
-        deployment = _getSuricataDeployment(hostname)
-        return deployment
 
     def getElasticsearch(self):
         username = 'elastic'

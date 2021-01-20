@@ -34,6 +34,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: /var/log/bro/current
@@ -45,7 +49,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'zeek']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'zeek', '-M', 'zeek.*.var.tags=[forwarded]']
       volumes:
       - name: data
         hostPath:

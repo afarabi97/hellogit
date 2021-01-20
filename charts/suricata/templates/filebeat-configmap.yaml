@@ -38,6 +38,12 @@ data:
 
     #================================ Outputs =====================================
 
+    processors:
+      - add_fields:
+          target: observer
+          fields:
+            hostname: ${NODE_NAME}
+
     #-------------------------- Elasticsearch output ------------------------------
     output.elasticsearch:
       hosts:

@@ -5,12 +5,12 @@ from pathlib import Path
 class ElasticsearchMetrics():
     _type = "elastic"
 
-    def __init__(self, node, hostname, shortHostname, suricataDeployment, elasticsearch):
+    def __init__(self, node, hostname, shortHostname, elasticsearch):
         self._node = node
 
-        self._zeek_query = 'observer.hostname:{}'.format(hostname)
+        self._zeek_query = 'observer.hostname:{} AND event.module:zeek'.format(hostname)
+        self._suricata_query = 'observer.hostname:"{}" AND event.module:suricata'.format(hostname)
         self._moloch_query = 'node:{}'.format(shortHostname)
-        self._suricata_query = 'agent.name:"{}" AND tags:suricata'.format(suricataDeployment)
 
         self._elasticsearch = elasticsearch
 
@@ -75,20 +75,9 @@ class ElasticsearchMetrics():
         }
 
     def _lastZeekElasticEvents(self):
-        index = 'ecs-zeek-*'
+        index = 'filebeat-*'
         query = self._zeek_query
-
-        body = \
-        {
-            "size": 1,
-            "_source": '@timestamp',
-            "sort": [{'@timestamp': "desc"}],
-            "query": {
-                "query_string" : {
-                    "query" : query
-                }
-            }
-        }
+        body = self._createQuery(query=query, field='@timestamp')
 
         name = 'last_zeek_elastic_events'
 
@@ -105,18 +94,7 @@ class ElasticsearchMetrics():
     def _lastSuricataElasticEvents(self):
         index = 'filebeat-*'
         query = self._suricata_query
-
-        body = \
-        {
-            "size": 1,
-            "_source": '@timestamp',
-            "sort": [{'@timestamp': "desc"}],
-            "query": {
-                "query_string" : {
-                    "query" : query
-                }
-            }
-        }
+        body = self._createQuery(query=query, field='@timestamp')
 
         name = 'last_suricata_elastic_events'
 
@@ -133,18 +111,7 @@ class ElasticsearchMetrics():
     def _lastMolochElasticEvents(self):
         index = 'sessions2*'
         query = self._moloch_query
-
-        body = \
-        {
-            "size": 1,
-            "_source": 'timestamp',
-            "sort": [{'timestamp': "desc"}],
-            "query": {
-                "query_string" : {
-                    "query" : query
-                }
-            }
-        }
+        body = self._createQuery(query=query, field='timestamp')
 
         name = 'last_moloch_elastic_events'
 

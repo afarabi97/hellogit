@@ -34,6 +34,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -45,7 +49,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-alert*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-alert*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
         {{ if .Values.flow }}
       - name: filebeat-suricata-http
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
@@ -64,6 +68,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -75,7 +83,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-http"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-http*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-http"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-http*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
       - name: filebeat-suricata-dns
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -93,6 +101,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -104,7 +116,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-dns*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-dns*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
       - name: filebeat-suricata-tls
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -122,6 +134,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -133,7 +149,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-tls*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-tls*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
       - name: filebeat-suricata-flow
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -151,6 +167,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -162,7 +182,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-flow*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-flow*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
       - name: filebeat-suricata-apps
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -180,6 +200,10 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -191,7 +215,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-apps"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-apps*.json]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-apps"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-apps*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
         {{ end }}
       volumes:
       - name: data

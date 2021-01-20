@@ -44,9 +44,8 @@ def main():
         node = socket.gethostname()
         hostname = socket.gethostname()
         shortHostname = socket.gethostname().split('.', 1)[0]
-        suricataDeployment = tfplenum.getSuricataDeployment(node)
         elasticsearch = tfplenum.getElasticsearch()
-        elasticsearchMetrics = ElasticsearchMetrics(node, hostname, shortHostname, suricataDeployment, elasticsearch)
+        elasticsearchMetrics = ElasticsearchMetrics(node, hostname, shortHostname, elasticsearch)
         data.extend(elasticsearchMetrics.getMetrics())
 
     tfplenum.updateMetrics(data)
