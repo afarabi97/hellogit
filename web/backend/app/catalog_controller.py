@@ -37,7 +37,7 @@ def _add_to_set(sensor_hostname: str, values: List, out_ifaces: Set):
                 out_ifaces.add(iface_name)
 
 
-@CATALOG_NS.route('/api/catalog/configured-ifaces/<sensor_hostname>')
+@CATALOG_NS.route('/catalog/configured-ifaces/<sensor_hostname>')
 class ConfiguredIfaces(Resource):
 
     @CATALOG_NS.response(200, 'A list of iface names that are configured with either zeek or suricata.', \
