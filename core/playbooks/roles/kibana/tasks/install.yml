@@ -61,7 +61,6 @@
   with_items:
     - "endgame-canvas.ndjson"
     - "internal-config.ndjson"
-    - "external-config.ndjson"
   tags:
     - kibana-saved-objects
 
@@ -105,7 +104,6 @@
   loop:
     - hunt
     - audit
-    - external
   tags: create-kibana-space
 
 - name: Update Default to Hunt Space
@@ -121,17 +119,16 @@
     headers:
       kbn-xsrf: true
     body: "{\"id\": \"default\", \"name\": \"Hunt\", \"description\" : \"Default hunt space\", \"color\": \"#00BFB3\", \"initials\": \"H\" }" # noqa 204
-    status_code: 200, 201
+    status_code: [200, 201]
   register: results
   until: (results.status == 200)
   retries: 10
   delay: 5
   tags: create-kibana-space
 
-- name: Create External Kibana Space
+- name: Create Additional Kibana Spaces
   include_tasks: create_spaces.yml
   loop:
-    - { task_name: "Create External Space", body: "{\"id\": \"external\", \"name\": \"External\", \"description\" : \"External Clients Space\", \"color\": \"#aabbcc\", \"initials\": \"EX\" }" } # noqa 204
     - { task_name: "Create Audit Space", body: "{\"id\": \"audit\", \"name\": \"Auditing\", \"description\" : \"Kit Auditbeat Space\", \"color\": \"#6092C0\", \"initials\": \"AB\" }" } # noqa 204
   tags: create-kibana-space
 
@@ -140,7 +137,25 @@
   with_items:
     - { file: "{{ kibana_dir }}/endgame-canvas.ndjson", space: "" }
     - { file: "{{ kibana_dir }}/internal-config.ndjson", space: "/s/audit" }
-    - { file: "{{ kibana_dir }}/external-config.ndjson", space: "/s/external" }
   tags:
     - kibana-saved-objects
     - create-kibana-space
+
+- name: Update SIEM indices for Hunt Space
+  uri:
+    method: POST
+    url: "https://{{ kibana_fqdn }}/api/kibana/settings"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    body: "{{ hunt_space_siem_idices_payload }}"
+    status_code: [200]
+  register: results
+  until: results.status == 200
+  retries: 10
+  delay: 5

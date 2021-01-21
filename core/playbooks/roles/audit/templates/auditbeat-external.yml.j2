@@ -69,7 +69,6 @@ setup.dashboards.index: "auditbeat-external-*"
 
 #============================== Kibana =====================================
 setup.kibana:
-    space.id: "external"
 {% if "localhost" in inventory_hostname  %}
     host: "https://kibana.{{ kit_domain }}:{{ kibana_port }}"
 {% else %}

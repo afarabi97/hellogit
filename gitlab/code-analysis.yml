@@ -170,6 +170,7 @@ sonarqube front-end code base:
       - web/frontend/frontend-scantime.txt
       - web/frontend/*.png
     expire_in: 12h
+  allow_failure: true
 
 
 sonarqube back-end code base:
