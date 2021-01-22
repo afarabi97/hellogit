@@ -9,6 +9,7 @@ from jobs.kickstart import HwKickstartJob
 from jobs.kit import KitJob
 from jobs.catalog import CatalogJob
 from jobs.breakingpoint import BPJob
+from jobs.verodin import VerodinJob
 from jobs.remote_node import RemoteNode
 from models import add_args_from_instance
 from models.common import BasicNodeCreds
@@ -18,6 +19,7 @@ from models.kickstart import HwKickstartSettings
 from models.kit import HwKitSettings
 from models.catalog import CatalogSettings
 from models.breakingpoint import BPSettings
+from models.verodin import VerodinSettings
 from util.ansible_util import delete_vms
 from util.yaml_util import YamlManager
 
@@ -84,6 +86,11 @@ class BaremetalRunner():
         remote_parser.set_defaults(which=SubCmd.run_remote_node)
         
 
+        verodin_parser = subparsers.add_parser(
+            SubCmd.run_verodin, help="this subcommand run verodin traffic choosen from endpoint or network actors")
+        VerodinSettings.add_args(verodin_parser)
+        verodin_parser.set_defaults(which=SubCmd.run_verodin)
+
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
         args = parser.parse_args()
@@ -120,6 +127,13 @@ class BaremetalRunner():
                 self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name,HwControllerSetupSettings)
                 self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+            elif args.which == SubCmd.run_verodin:
+                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                    args.system_name, HwControllerSetupSettings)
+                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                self.kit_settings = HwKitSettings()
+                self.verodin_settings = VerodinSettings()
+                self.verodin_settings.from_namespace(args)
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:
@@ -161,6 +175,10 @@ class BaremetalRunner():
             elif self.args.which == SubCmd.run_remote_node:
                 executor = RemoteNode(self.ctrl_settings, self.kickstart_settings)
                 executor.remote_node_config()
+            elif self.args.which == SubCmd.run_verodin:
+                executor = VerodinJob(self.verodin_settings, self.ctrl_settings, 
+                                      self.kickstart_settings, self.kit_settings)
+                executor.run_job()
         except Exception as e:
             print("\n** ERROR:")
             print(e)

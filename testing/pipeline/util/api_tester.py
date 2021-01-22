@@ -71,6 +71,16 @@ def post_request(url: str, payload: Dict) -> Union[List, Dict]:
         pprint(response.json())
         raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
 
+def put_request(url: str, payload: Dict) -> Union[List, Dict]:
+    headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
+    root_ca = check_web_ca()
+    response = requests.put(url, json=payload, verify=root_ca, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        pprint(response.json())
+        raise APIFailure(url + ' FAILED!\n' + str(response.status_code))
+
 
 def wait_for_job_to_finish(job_name: str, url: str, minutes_timeout: int):
     future_time = datetime.utcnow() + timedelta(minutes=minutes_timeout)
@@ -648,7 +658,33 @@ class APITester:
         wait_for_job_to_finish("Kickstart", self._url.format("/api/job/" + response_dict['job_id']), 30)
         _clean_up(wait=0)
 
+    def _get_sensor_hostinfo(self) -> dict:
+        sensors = get_request(self._url.format("/api/get_sensor_hostinfo"))
+        return sensors
 
+    def _sync_rules(self) -> None:
+        get_request(self._url.format("/api/rulesets/sync"))
+
+    def _get_suricata_rule_id(self) -> str:
+        rule_sets = get_request(self._url.format("/api/ruleset"))
+        for rule in rule_sets:
+            if rule["appType"] == "Suricata":
+                return rule['_id']
+
+    def update_ruleset(self) -> None:
+        sensors = self._get_sensor_hostinfo()
+        suricata_rule_id = self._get_suricata_rule_id()
+        payload = {
+                    "_id": int(suricata_rule_id),
+                    "appType": "Suricata", 
+                    "name":"Emerging Threats",
+                    "clearance":"Unclassified",
+                    "isEnabled":True
+                  }
+        payload['sensors'] = sensors
+        print(payload)
+        update_rules = put_request(self._url.format("/api/ruleset"), payload)
+        self._sync_rules()
 
 class MIPAPITester(APITester):
 

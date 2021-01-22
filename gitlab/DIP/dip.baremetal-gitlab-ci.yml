@@ -152,7 +152,27 @@ Hardware CVAH Catalog PMO Apps:
     python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog rocketchat
   only:
     variables:
-        - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
+      - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
+
+Verodin Automation:
+  stage: verodin-test
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "DIP" run-verodin \
+    --verodin-ipaddress "$VERODIN_IPADDRESS" \
+    --verodin-username "$VERODIN_USERNAME" \
+    --verodin-password "$VERODIN_PASSWORD" \
+    --sequence-name "$SEQUENCE_NAME" \
+    --num-of-actions $NUM_OF_ACTIONS \
+    --run-action-sample "$ACTION_SAMPLE"
+  retry: 2
+  only:
+    variables:
+      - $RUN_CATALOG == "yes" && $RUN_VERODIN == "yes" && $PIPELINE == "hw-developer-dip"
 
 Hardware CVAH Catalog Community Apps:
   stage: catalog
