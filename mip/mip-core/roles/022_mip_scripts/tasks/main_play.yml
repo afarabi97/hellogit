@@ -10,6 +10,7 @@
     - { src: '{{ mip_scripts_dir }}/usr/local/scripts', dest: '/usr/local' , owner: 'assessor', group: 'operators'}
     - { src: '{{ mip_scripts_dir }}/usr/local/sbin/', dest: '/usr/local/sbin' , owner: 'root', group: 'root'}
     - { src: '{{ mip_scripts_dir }}/usr/local/bin/', dest: '/usr/local/bin' , owner: 'root', group: 'root'}
+    - { src: '{{ mip_scripts_dir }}/cvah/scripts', dest: '/cvah' , owner: 'assessor', group: 'operators'}
 
 - name: Copy images to the MIP
   copy:

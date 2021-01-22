@@ -23,7 +23,4 @@ mcafee_gip_file: CPT_McAfee_Update.tar
 nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
 amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
 
-cpt_archive: cpt-cvah.tar.gz
-mdt_archive: mdt-cvah.tar.gz
-
 download_archives: true

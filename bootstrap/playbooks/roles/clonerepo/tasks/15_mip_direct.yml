@@ -43,15 +43,6 @@
     - "{{ nvidia_driver }}"
     - "{{ amd_driver }}"
 
-- name: Fetch MIP Resources.
-  get_url:
-    url: "{{ misc_server }}/MIP/{{ mip_version_dir }}/{{ item }}"
-    dest: "{{ web_root }}/MIP/"
-  loop:
-    - "{{ cpt_archive }}"
-    - "{{ mdt_archive }}"
-  when: download_archives
-
 - name: "Download direct rpms"
   get_url:
     url: "{{ item.url }}"
