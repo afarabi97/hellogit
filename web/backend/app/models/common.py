@@ -1,8 +1,13 @@
-from app import api
+from app import api, conn_mng
+from app.utils.constants import HIVE_ID
 from app.models import Model
 from flask_restplus import fields
+
+from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
+from marshmallow import fields as marsh_fields
 from rq.job import Job, JobStatus
 from rq.worker import Worker
+from typing import Dict
 
 """
 Example of the common Error format.
@@ -19,12 +24,20 @@ Example of the common Error format.
   ]
 }
 """
-COMMON_ERROR_DTO = api.model('Error', {
-    "<field_name>": fields.String(required=False,
+COMMON_ERROR_DTO1 = api.model('CommonFieldError', {
+    "<field_name>": fields.List(fields.String(required=False,
                                   example="Not a valid IPv4 address.",
                                   description="<field_name> refers to one of the fields in the marshmallow's model. \
                                                Note: many of these can be defined within the dictionary. Loop over \
-                                               all the keys of the dictionary to parse out all the validation logic"),
+                                               all the keys of the dictionary to parse out all the validation logic"))
+})
+
+COMMON_ERROR_DTO = api.model('CommonFieldErrorWithPostValidation', {
+    "<field_name>": fields.List(fields.String(required=False,
+                                  example="Not a valid IPv4 address.",
+                                  description="<field_name> refers to one of the fields in the marshmallow's model. \
+                                               Note: many of these can be defined within the dictionary. Loop over \
+                                               all the keys of the dictionary to parse out all the validation logic")),
     "post_validation": fields.List(fields.String(example="Kickstart form submission require at least 2 nodes to be defined before submission."),
                                    required=False,
                                    description="Post validation is custom validation after marshmallows valdation logic is executed")
@@ -175,3 +188,65 @@ class WorkerModel(Model):
             self.current_job = BackgroundJob(current_job)
         else:
             self.current_job = None
+
+
+class HiveSchema(Schema):
+    _id = marsh_fields.Str()
+    admin_api_key = marsh_fields.Str(required=True)
+    org_admin_api_key = marsh_fields.Str(required=True)
+
+    @post_load
+    def create_HiveSettingsModel(self, data: Dict, many: bool, partial: bool):
+        return HiveSettingsModel(**data)
+
+    @validates("admin_api_key")
+    def validate_admin_hive_api_key(self, value: str):
+        if len(value) != 32:
+            raise ValidationError("The admin API key you passed in does not match the appropriate string size of 32.")
+
+    @validates("org_admin_api_key")
+    def validate_org_admin_hive_api_key(self, value: str):
+        if len(value) != 32:
+            raise ValidationError("The org_admin API key you passed in does not match the appropriate string size of 32.")
+
+
+class HiveSettingsModel(Model):
+    schema = HiveSchema()
+    DTO = api.model('HiveSettings', {
+        "admin_api_key": fields.String(required=True,
+                                       example="JFBuZo0AMSy3a8hCdvUIYHhgJLXsZ/2s",
+                                       description="The API key needed in order to create Hive cases."),
+        "org_admin_api_key": fields.String(required=True,
+                                           example="JFBuZo0AMSy3a8hCdvUIYHhgJLXsZ/2s",
+                                           description="The API key needed in order to create Hive cases.")
+    })
+
+    def __init__(self, admin_api_key: str, org_admin_api_key: str, _id: str=HIVE_ID):
+        if admin_api_key:
+            self.admin_api_key = admin_api_key
+        else:
+            self.admin_api_key = ""
+
+        if org_admin_api_key:
+            self.org_admin_api_key = org_admin_api_key
+        else:
+            self.org_admin_api_key = ""
+
+        self._id = _id
+
+    @classmethod
+    def load_from_request(cls, payload: Dict) -> Model:
+        new_kit = cls.schema.load(payload) # type: DIPKitForm
+        return new_kit
+
+    def save_to_db(self):
+        serialized = self.schema.dump(self)
+        conn_mng.mongo_hive_settings.find_one_and_replace({"_id": HIVE_ID}, serialized, upsert=True)
+
+    @classmethod
+    def load_from_db(cls) -> Model:
+        ret_val = conn_mng.mongo_hive_settings.find_one({"_id": HIVE_ID})
+        if ret_val:
+            return cls.schema.load(ret_val)
+
+        return HiveSettingsModel("", "")

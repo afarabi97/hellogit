@@ -79,6 +79,22 @@ data:
       defaultUserDomain: "{{ .Values.system_name }}.local"
     }
 
+    notification.webhook.endpoints = [
+    {
+      name: tfplenum
+      url: "https://dip-controller.{{ .Values.domain }}/api/hive/webhook"
+      version: 0
+      wsConfig: {
+          ssl.trustManager.stores = [{
+              path = /etc/thehive/webCA.jks
+              type = "JKS" # or PKCS12
+              password = "##KEYSTORE_PASSWORD##"
+          }]
+      }
+      includedTheHiveOrganisations: ["*"]
+      excludedTheHiveOrganisations: []
+    }]
+
     ## CORTEX configuration
 {{- if .Values.cortexIntegration }}
     # More information at https://github.com/TheHive-Project/TheHiveDocs/TheHive4/Administration/Connectors.md

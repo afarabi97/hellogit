@@ -1,0 +1,49 @@
+<h1 mat-dialog-title>Alert Drilldown</h1>
+<div mat-dialog-content
+     fxLayout="column" fxLayoutAlign="start stretch"
+     style="overflow: unset;">
+    <table mat-table [dataSource]="alerts" aria-describedby="Alert details" matSort>
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>actions</th>
+        <td mat-cell *matCellDef="let alert; let j = index;">
+          <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Alert Menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="openKibana(alert)">
+              <mat-icon>bubble_chart</mat-icon>
+              <span>Pivot to Kibana</span>
+            </button>
+            <button mat-menu-item (click)="openMoloch(alert)">
+              <mat-icon>show_chart</mat-icon>
+              <span>Pivot to Arkime</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="timestamp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>timestamp</th>
+        <td mat-cell *matCellDef="let alert;">{{ getTimeStamp(alert) }}</td>
+      </ng-container>
+
+      <ng-container *ngFor="let column of dynamicColumns">
+        <ng-container *ngIf="isDynamicColumn(column)" matColumnDef="{{ column }}">
+          <th mat-header-cell *matHeaderCellDef style="padding-left: 5px;">{{ column }}</th>
+          <td mat-cell *matCellDef="let alert;" style="padding-left: 5px;">{{ getColumnValue(alert, column) }}</td>
+        </ng-container>
+      </ng-container>
+
+      <!-- Table Rows -->
+      <tr mat-header-row *matHeaderRowDef="allColumns"></tr>
+      <tr mat-row *matRowDef="let rowData; columns: allColumns;"></tr>
+  </table>
+  <mat-paginator #dialogPaginator showFirstLastButtons
+                 [pageSize]="5"
+                 [pageSizeOptions]="[5, 10, 20]"></mat-paginator>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button
+          color="warn" (click)="onNoClick()">Close</button>
+</div>

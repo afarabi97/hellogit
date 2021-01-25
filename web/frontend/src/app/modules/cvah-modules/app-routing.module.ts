@@ -21,12 +21,14 @@ import { AddNodeComponent } from '../../system-setup/add-node/add-node.component
 import { KickstartComponent } from '../../system-setup/kickstart/kickstart.component';
 import { KitComponent } from '../../system-setup/kit/kit.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
+import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
   { path: 'support', component:  SupportComponent},
   { path: 'health', component:  SystemHealthComponent},
+  { path: 'alerts', component:  SecurityAlertsComponent},
   { path: 'kickstart', component: KickstartComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'kit_configuration', component: KitComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },

@@ -13,4 +13,3 @@ hunt_space_siem_idices_payload:
     - logs-*
     - packetbeat-*
     - winlogbeat-*
-

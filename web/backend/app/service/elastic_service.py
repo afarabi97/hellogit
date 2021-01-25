@@ -1,3 +1,4 @@
+
 import io
 import yaml
 import traceback
@@ -12,14 +13,17 @@ from rq.decorators import job
 from kubernetes import client, config, utils
 from app import conn_mng, REDIS_CLIENT, logger
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.utils.connection_mngs import ElasticsearchManager, FabricConnectionWrapper
-from app.service.scale_service import es_cluster_status, check_scale_status, get_elastic_password, get_elastic_fqdn
+from app.utils.connection_mngs import FabricConnectionWrapper
+from app.utils.elastic import ElasticWrapper, ElasticsearchManager
+from app.kit_controller import _get_domain
+from app.service.scale_service import check_scale_status
 from app.dao import elastic_deploy
 
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import base64
 import os
+
 
 _JOB_NAME = "tools"
 ELASTIC_OP_GROUP = "elasticsearch.k8s.elastic.co"
@@ -173,7 +177,7 @@ def setup_s3_repository(service_ip: str, repository_settings: Dict):
         if secrets_changed:
             wait_for_elastic_cluster_ready()
 
-        elasticsearch_manager = ElasticsearchManager(service_ip, conn_mng)
+        elasticsearch_manager = ElasticsearchManager(service_ip)
         body = create_s3_repository_settings(repository_settings['bucket'], repository_settings['endpoint'], repository_settings['protocol'])
         elasticsearch_manager.register_repository(body)
 
@@ -187,10 +191,8 @@ def setup_s3_repository(service_ip: str, repository_settings: Dict):
         notification.post_to_websocket_api()
 
 def get_elasticsearch_license() -> dict:
-    password = get_elastic_password()
-    elastic_fqdn, port = get_elastic_fqdn()
-    es = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
-    return es.license.get()
+    client = ElasticWrapper()
+    return client.license.get()
 
 @job('default', connection=REDIS_CLIENT, timeout="30m")
 def check_elastic_license(current_license: dict):

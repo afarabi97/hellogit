@@ -7,13 +7,14 @@ from typing import List
 from datetime import timedelta, datetime
 
 from app import logger, rq_logger, conn_mng, REDIS_CLIENT
-from app.models.kit_setup import DIPKickstartForm, DIPKitForm
+from app.models.kit_setup import DIPKitForm
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.system_info_service import get_system_name, get_auth_base
 from app.service.job_service import run_command2
 from rq.decorators import job
 from app.utils.constants import KICKSTART_ID, KIT_ID
 from app.utils.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
+from app.kit_controller import _get_domain
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -22,10 +23,6 @@ _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid', 'jcat-nifi']
 
-
-def _get_domain() -> str:
-    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
-    return kickstart_configuration.domain
 
 def _get_elastic_nodes(node_type="coordinating") -> list:
     """

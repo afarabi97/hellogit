@@ -142,11 +142,16 @@ CATALOG_NS = Namespace("Catalog",
                        path="/api",
                        description="Catalog related operations used for installing HELM charts on the Kubernetes cluster.")
 
-api.add_namespace(KIT_SETUP_NS)
-api.add_namespace(TOOLS_NS)
-api.add_namespace(POLICY_NS)
-api.add_namespace(KUBERNETES_NS)
+ALERTS_NS = Namespace("Alerts",
+                       path="/api",
+                       description="Alerts related operations that allow operators to display or Acknowledge or Escalate alert events that come in.")
+
+api.add_namespace(ALERTS_NS)
 api.add_namespace(CATALOG_NS)
+api.add_namespace(KIT_SETUP_NS)
+api.add_namespace(KUBERNETES_NS)
+api.add_namespace(POLICY_NS)
+api.add_namespace(TOOLS_NS)
 
 
 # Load the REST API
@@ -156,7 +161,7 @@ from app import (agent_builder_controller, catalog_controller, common_controller
                  node_controller, notification_controller, pcap_controller,
                  portal_controller, registry_controller, ruleset_controller,
                  scale_controller, task_controller, tools_controller,
-                 version_controller, cold_log_controller)
+                 version_controller, cold_log_controller, alerts_controller)
 
 #This is a hack needed to get coverage to work correctly within the python unittest framework.
 def receive_signal(signal_number, frame):

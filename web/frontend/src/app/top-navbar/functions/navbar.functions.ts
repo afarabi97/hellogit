@@ -38,6 +38,7 @@ export function getSideNavigationButtons(system_name: string, userService: UserS
     { label: 'Configuration Maps', url: '/configmaps', icon: 'swap_calls', isExternalLink: false, section: 'kubernetes', system: SYSTEM_NAMES_DIP_GIP, privs: operator, kitStatus: true },
     { label: 'Docker Registry', url: '/registry', icon: 'view_day', isExternalLink: false, section: 'kubernetes', system: SYSTEM_NAMES_DIP_GIP, privs: true, kitStatus: false },
     { label: 'Rule Set', url: '/rulesets', icon: 'swap_horiz', isExternalLink: false, section: 'policy_mgmt', system: SYSTEM_NAMES_DIP_GIP, privs: operator, kitStatus: true },
+    { label: 'Alerts', url: '/alerts', icon: 'warning', isExternalLink: false, section: 'general', system: SYSTEM_NAMES_DIP, privs: operator, kitStatus: true },
     { label: 'Test PCAP files', url: 'pcaps', icon: 'security', isExternalLink: false, section: 'policy_mgmt', system: SYSTEM_NAMES_DIP, privs: operator, kitStatus: true },
     { label: 'Tools', url: '/tools', icon: 'build', isExternalLink: false, section: 'tools', system: SYSTEM_NAMES_ALL, privs: controller_maintainer, kitStatus: false },
     { label: 'API Docs', url: '/api/docs', icon: 'web', isExternalLink: true, section: 'tools', system: SYSTEM_NAMES_ALL, privs: controller_maintainer, target: "_blank", kitStatus: false },

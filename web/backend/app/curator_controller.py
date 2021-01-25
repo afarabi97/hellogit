@@ -1,22 +1,18 @@
 import logging
-import os
 import curator
-from elasticsearch import Elasticsearch
 from flask import Response, jsonify, request
 
 from app import app, logger
 from app.middleware import controller_maintainer_required
 from app.service.curator_service import execute_curator
-from app.service.scale_service import get_elastic_password, get_elastic_fqdn
+from app.utils.elastic import ElasticWrapper
 
 
 @app.route('/api/closed_indices', methods=['GET'])
 @controller_maintainer_required
 def get_closed_indices() -> Response:
     try:
-        password = get_elastic_password()
-        elastic_fqdn, port = get_elastic_fqdn()
-        client = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+        client = ElasticWrapper()
         ilo = curator.IndexList(client)
         ilo.filter_closed(exclude=False)
         indicies = ilo.indices
@@ -31,9 +27,7 @@ def get_closed_indices() -> Response:
 @controller_maintainer_required
 def get_opened_indices() -> Response:
     try:
-        password = get_elastic_password()
-        elastic_fqdn, port = get_elastic_fqdn()
-        client = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+        client = ElasticWrapper()
         ilo = curator.IndexList(client)
         ilo.filter_closed()
         ilo.filter_by_regex(kind="prefix", value="^(.kibana|.monitoring|.watches|.apm|.triggered_watches|.security).*$", exclude=True)

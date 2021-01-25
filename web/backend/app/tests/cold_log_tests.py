@@ -11,7 +11,7 @@ from elasticsearch import Elasticsearch
 
 from app import conn_mng
 from app.service.cold_log_service import JOB_NAME
-from app.service.scale_service import get_elastic_service_ip, get_elastic_password
+from app.utils.elastic import ElasticWrapper
 from app.tests.base_test_setup import BaseTestCase
 from pathlib import Path
 from typing import Dict, List
@@ -29,14 +29,7 @@ class TestColdLogController(BaseTestCase):
                                  data=payload)
         self.assertEqual(200, response.status_code)
         self._wait_for_job_to_finish(response.json['job_id'], minutes_timeout)
-        elasticsearch_ip, elasticsearch_port = get_elastic_service_ip()
-        password = get_elastic_password()
-        es = Elasticsearch(elasticsearch_ip,
-                           scheme="https",
-                           port=elasticsearch_port,
-                           http_auth=('elastic', password),
-                           use_ssl=True,
-                           verify_certs=False)
+        es = ElasticWrapper()
 
         expected_index = 'filebeat-external-{}-{}'.format(
             cold_log_form['index_suffix'],

@@ -1,0 +1,144 @@
+---
+
+- include_tasks: delete_detections.yml
+
+- name: Load SIEM Signals Index
+  uri:
+    method: POST
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/index"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: index
+  until: index.status == 200
+  retries: 10
+  delay: 5
+
+- name: Check builtin detections
+  uri:
+    method: GET
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/prepackaged/_status"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: results
+  until: results.status == 200
+  retries: 10
+  delay: 5
+
+- name: Load builtin detections
+  uri:
+    method: PUT
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/prepackaged"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: builtin_detections
+  until: builtin_detections.status == 200 and builtin_detections.json.rules_installed > 0
+  retries: 10
+  delay: 5
+  when: results.json.rules_installed == 0
+
+- name: Load custom detections
+  uri:
+    method: POST
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ lookup('file', item) | from_json }}"
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: custom_detections
+  until: custom_detections.status == 200
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+  with_fileglob:
+    - "files/custom_detections/*.json"
+
+- name: Get detections total
+  uri:
+    method: GET
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_find"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: detections
+  until: (detections.status == 200)
+  retries: 10
+  delay: 5
+
+- name: Get all detections
+  uri:
+    method: GET
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_find?page=1&per_page={{ detections.json.total | int }}"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: detections
+  until: (detections.status == 200)
+  retries: 10
+  delay: 5
+
+- name:
+  set_fact:
+    enable_payload: "{{ enable_payload|default([]) + [ payload ] }}"
+  vars:
+    payload:
+      enabled: true
+      id: "{{ item.id }}"
+  with_items: "{{ detections.json.data }}"
+
+- name: Enable detections
+  uri:
+    method: PATCH
+    url: "https://{{ kibana_fqdn }}/api/detection_engine/rules/_bulk_update"
+    return_content: yes
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ enable_payload }}"
+    headers:
+      kbn-xsrf: true
+    status_code: [200]
+  register: detections
+  until: (detections.status == 200)
+  retries: 10
+  delay: 5

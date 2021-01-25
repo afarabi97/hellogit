@@ -4,13 +4,15 @@ Main module that controls the REST calls for the portal page.
 from app import (app, conn_mng, logger)
 from app.common import ERROR_RESPONSE, cursor_to_json_response
 from flask import jsonify, Response
-from app.utils.connection_mngs import  KubernetesWrapper2, get_elastic_password
+from app.utils.connection_mngs import  KubernetesWrapper2
+from app.utils.elastic import get_elastic_password
 from typing import List
 from flask import Response, request, jsonify
 from bson import ObjectId
 from app.middleware import operator_required
-from app.models.kit_setup import DIPKickstartForm
 from app.utils.constants import KICKSTART_ID
+from app.kit_controller import _get_domain
+
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
@@ -25,22 +27,20 @@ HTTPS_STR = 'https://'
 HTTP_STR = 'http://'
 
 
-def _get_domain() -> str:
-    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
-    return kickstart_configuration.domain
-
 def get_app_credentials(app: str, user_key: str, pass_key: str):
     username = ""
     password = ""
     collection = conn_mng.mongo_catalog_saved_values
     application = collection.find_one({'application': app})
-    if pass_key in application['values']:
-        password = application['values'][pass_key]
-    if user_key in application['values']:
-        username = application['values'][user_key]
-    if username == "" and password == "":
-        return ""
-    return "{}/{}".format(username, password)
+    if application:
+        if pass_key in application['values']:
+            password = application['values'][pass_key]
+        if user_key in application['values']:
+            username = application['values'][user_key]
+        if username == "" and password == "":
+            return ""
+        return "{}/{}".format(username, password)
+    return "??/??"
 
 def _append_portal_link(portal_links: List, dns: str, ip: str = None):
     short_dns = dns.split('.')[0]
@@ -73,7 +73,7 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': logins})
     elif short_dns == "kibana":
-        password = get_elastic_password(conn_mng)
+        password = get_elastic_password()
         logins = 'elastic/{}'.format(password)
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})

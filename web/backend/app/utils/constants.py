@@ -20,6 +20,7 @@ KIT_ID = "kit_form"
 MIP_CONFIG_ID = "mip_config"
 PORTAL_ID = 'portal_links'
 KICKSTART_ID = "kickstart_form"
+HIVE_ID = "HIVE_SETTINGS"
 WINDOWS_COLD_LOG_CONFIG_ID = "windows_cold_log_config"
 ADDNODE_ID = "add_node_wizard"
 ELK_SNAPSHOT_STATE = "elk_snapshot"

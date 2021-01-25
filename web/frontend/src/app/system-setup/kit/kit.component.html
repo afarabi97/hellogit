@@ -6,24 +6,25 @@
       </mat-card-header>
       <mat-card-content>
         <p>
-          Before filling out the form, make sure you have added all of your nodes to the Kickstart page. The
-          validation box at the botton of the page will guide you through filling out the form correctly.
+          The Kit configuration page allow a user to configure the Kit,
+          which generates the Ansible inventory file, before setting up the system.
         </p>
         <p>
-          The "Open Console" button opens the logs of the last Kit configuration run.
+          Prior to filling out the form, ensure all required nodes are added to the Kickstart page.
+          The validation box will guide users for the correct form inputs.
+        </p>
+        <p>The <strong>"Open Console"</strong> button opens the logs of the last Kit configuration run.</p>
+        <p>
+          If the current Kit form loads but is disabled, you have an active configuration.
+          To start a new configuration, click the <strong>"Clear Form"</strong> button at the top of the page.
+          To change the existing configuration, click <strong>"Enable Form"</strong> button at the top of the page,
+          and make edits before clicking <strong>"Execute Kit"</strong>.
         </p>
         <p>
-          If the current Kit form loads and is disabled, you have an active configuration. If you want to start a new
-          configuration, click "Clear Form" button at the top of the page. If you want to change the existing
-          configuration, click "Enable Form" button at
-          the top of the page and make your edits before clicking "Execute Kit".
+          If there is an active configuration (form is disabled), and adding a node is required for the Kit.
+          First add the node to the Kickstart page, then return to finish the configuration.
         </p>
-        <p>
-          If you have an active configuration (IE: Form is disabled), and want to add a node to the Kit. First add the
-          node to Kickstart page, then come back to this page to finish the rest of the configuration. Click "Add
-          Node" at the botton of the page to execute.
-          NOTE: The "Add Node" button will not be visible until the procedures are executed correctly.
-        </p>
+        <p>For amplifying information, please refer to the Kit Configuration procedures section of the DIP Installation guide.</p>
       </mat-card-content>
 
       <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">

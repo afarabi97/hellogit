@@ -1,0 +1,12 @@
+/* empty file */
+.example-chip-list {
+  width: 100%;
+}
+
+table th, table td {
+  padding-left: 5px;
+}
+
+::ng-deep .mat-form-field-appearance-legacy .mat-form-field-suffix .mat-datepicker-toggle-default-icon {
+    width: 1.5em!important;
+}

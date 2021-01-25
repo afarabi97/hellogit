@@ -74,13 +74,16 @@ module.exports = function(config) {
     singleRun: true,
     browserNoActivityTimeout: 60000,
     browserDisconnectTimeout: 2000,
-    browsers: ['ChromeHeadlessNoSandbox'], // only used for running tests as root within docker container
+    browsers: ['ChromeHeadlessNoSandbox', 'ChromeNoSandbox'], // only used for running tests as root within docker container
     customLaunchers: {
         ChromeHeadlessNoSandbox: {
             base: 'ChromeHeadless',
             flags: ['--no-sandbox', '--headless']
-        }
-
+        },
+        ChromeNoSandbox: {
+          base: 'Chrome',
+          flags: ['--no-sandbox']
+      }
     }
   });
 };

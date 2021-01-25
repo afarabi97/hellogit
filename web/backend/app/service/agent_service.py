@@ -339,7 +339,7 @@ class WinRunner:
         if ansible_error:
             self._notification.set_message("Failed to {} {} because of the host was unreachable or the creds passed in were invalid. Error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
         else:
-            self._notification.set_message("Failed to {} {} because of the host was unreachable or the creds passed in were invalid. Error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+            self._notification.set_message("Failed to {} {} because of the host was unreachable or the creds passed in were invalid. Error: {}".format(action, host, err_msg))
         self._notification.set_status(NotificationCode.ERROR.name)
         self._notification.post_to_websocket_api()
 

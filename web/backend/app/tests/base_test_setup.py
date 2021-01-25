@@ -58,7 +58,7 @@ class BaseTestCase(unittest.TestCase):
 
         while True:
             if future_time <= datetime.utcnow():
-                print("The {} took way too long.".format(job_name))
+                print("The {} took way too long.".format(job_id))
                 exit(3)
 
             sleep(5)

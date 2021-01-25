@@ -35,7 +35,6 @@ from app.models.kit_setup import DIPKickstartForm, Node
 from app.service.elastic_service import (Timeout, apply_es_deploy,
                                          setup_s3_repository, get_elasticsearch_license,
                                          wait_for_elastic_cluster_ready)
-from app.service.scale_service import get_elastic_password, get_elastic_fqdn
 from app.service.elastic_service import check_elastic_license
 from app.service.job_service import run_command2
 from app.service.socket_service import NotificationCode, NotificationMessage

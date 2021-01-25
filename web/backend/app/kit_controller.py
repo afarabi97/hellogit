@@ -17,6 +17,9 @@ from app.middleware import controller_admin_required
 from marshmallow.exceptions import ValidationError
 from app.utils.constants import KIT_ID
 
+def _get_domain() -> str:
+    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+    return kickstart_configuration.domain
 
 def _generate_inventory(kit_form: DIPKitForm, kickstart: DIPKickstartForm):
     kit_generator = KitInventoryGenerator(kit_form, kickstart)

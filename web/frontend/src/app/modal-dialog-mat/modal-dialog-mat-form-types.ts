@@ -7,7 +7,8 @@ export const enum DialogControlTypes {
   date,
   dropdown,
   timezone,
-  checkbox
+  checkbox,
+  chips
 }
 
 export class DialogFormControlConfigClass {

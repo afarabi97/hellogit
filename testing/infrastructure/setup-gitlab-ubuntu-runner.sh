@@ -43,7 +43,7 @@ function setup_gitlab_runner {
 
 function install_requirements(){
   run_cmd pip3 install --upgrade pip
-  run_cmd pip3 install -r ../pipeline/requirements.txt
+  run_cmd pip3 install -r requirements.txt
   run_cmd cp runners.py /usr/local/lib/python3.6/dist-packages/fabric/runners.py
 }
 
@@ -61,14 +61,14 @@ function install_sonarscanner(){
 }
 
 function install_nodejs(){
-    run_cmd rm -rf node-v13.5.0-linux-x64*
-	run_cmd wget https://nodejs.org/dist/v13.5.0/node-v13.5.0-linux-x64.tar.xz
-    run_cmd tar xf node-v13.5.0-linux-x64.tar.xz
-    run_cmd cd node-v13.5.0-linux-x64/
+    run_cmd rm -rf node-v14.5.0-linux-x64*
+	run_cmd wget https://nodejs.org/dist/v14.5.0/node-v14.5.0-linux-x64.tar.xz
+    run_cmd tar xf node-v14.5.0-linux-x64.tar.xz
+    run_cmd cd node-v14.5.0-linux-x64/
     run_cmd cp -R * /usr/local/
     run_cmd cd ..
-	run_cmd rm -rf node-v13.5.0-linux-x64/
-	run_cmd rm -f node-v13.5.0-linux-x64.tar.xz
+	run_cmd rm -rf node-v14.5.0-linux-x64/
+	run_cmd rm -f node-v14.5.0-linux-x64.tar.xz
     run_cmd node -v
     run_cmd npm -v
 }
@@ -96,6 +96,7 @@ function install_docker(){
     curl \
     gnupg-agent \
     software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
     add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -105,6 +106,12 @@ function install_docker(){
     apt-get update
     apt-get install docker-ce docker-ce-cli containerd.io
     systemctl enable docker
+    run_cmd cat <<EOF > /etc/docker/daemon.json
+{
+    "insecure-registries" : ["nexus.sil.lab:443"]
+}
+EOF
+    systemctl restart docker
 }
 
 disable_host_key_checking

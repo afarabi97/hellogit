@@ -17,6 +17,10 @@ import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 //Common components
 import { PasswordMessageComponent } from './common/components/password-message.component';
 
+// Security Alerts
+import { SecurityAlertsComponent } from './security-alerts/security-alerts.component';
+import { AlertDrillDownDialog } from './security-alerts/alert-drilldown-dialog/alert-drilldown-dialog.component';
+
 //Kit Page
 import { KitComponent } from './system-setup/kit/kit.component';
 import { TotalServerResourcesCardComponent } from './system-setup/components/total-server-resources-card/total-server-resources-card.component';
@@ -116,6 +120,9 @@ import { IndexManagementComponent } from './index-management/component/index-man
 
 import { SystemNameClass, UserClass } from './classes';
 
+import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
+// import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
+
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
 }
@@ -135,6 +142,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     KickstartComponent,
     UnusedIpAddressAutoCompleteComponent,
     KitComponent,
+    SecurityAlertsComponent,
     TotalServerResourcesCardComponent,
     TotalSensorResourcesCardComponent,
     TotalSystemResourceCardComponent,
@@ -172,6 +180,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     NodeBackgroundComponent,
     CatalogPageComponent,
     ReplayPcapDialog,
+    AlertDrillDownDialog,
     ModalTableComponent,
     AddNodeComponent,
     KickstartNodeFormComponent,
@@ -194,7 +203,10 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     BrowserAnimationsModule,
     FlexLayoutModule,
     InjectorModule,
-    DateTimeModule
+    DateTimeModule,
+    NgxMatTimepickerModule,
+    NgxMatDatetimePickerModule,
+    NgxMatNativeDateModule
   ],
   providers: [
     SnackbarWrapper,
@@ -224,6 +236,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     ModalDialogMatComponent,
     ModalDialogDisplayMatComponent,
     ReplayPcapDialog,
+    AlertDrillDownDialog,
     ModalTableComponent,
     PodLogModalDialogComponent
   ]

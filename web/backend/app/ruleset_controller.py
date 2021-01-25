@@ -414,7 +414,7 @@ class DeleteRule(Resource):
         ret_val = conn_mng.mongo_rule.delete_one({'_id': int(rule_id)})  # type: DeleteResult
         if ret_val.deleted_count == 1:
             return {"success_message": "Successfully deleted rule ID {} from the rule set.".format(rule_id)}
-        return {"error_message": "Failed to delete a rule for ruleset ID {}.".format(rule_set_id)}, 500
+        return {"error_message": "Failed to delete a rule for rule ID {}.".format(rule_id)}, 500
 
 
 @POLICY_NS.route('/rule/<rule_id>/toggle')

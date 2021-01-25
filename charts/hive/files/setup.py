@@ -48,6 +48,29 @@ class HiveSetUp:
                 print("Setup Exception: " + str(e))
                 time.sleep(2)
 
+    def put(self, url=None, data=None, requires_auth=False):
+        max_retries = 10
+        c = 0
+        r = None
+        while c < max_retries:
+            try:
+                c += 1
+                if data and requires_auth:
+                    r = requests.put(url=url, json=data, auth=requires_auth, verify=self._verify, headers=self._headers)
+                elif data is None and requires_auth:
+                    r = requests.put(url=url, auth=requires_auth, verify=self._verify, headers=self._headers)
+                elif data and requires_auth == False:
+                    r = requests.put(url=url, json=data, verify=self._verify, headers=self._headers)
+                else:
+                    r = requests.put(url=url, verify=self._verify, headers=self._headers)
+                print(str(r.status_code) + " " + r.text)
+                if r.status_code == 200 or r.status_code == 201 or r.status_code == 204 or r.status_code == 403:
+                    return r
+                time.sleep(2)
+            except Exception as e:
+                c += 1
+                print("Setup Exception: " + str(e))
+                time.sleep(2)
 
     def get(self, url=None, requires_auth=False):
         max_retries = 10
@@ -100,6 +123,20 @@ class HiveSetUp:
         data = {"name": ORGANIZATION,"description": ORGANIZATION}
         return self.post(url=url, data=data, requires_auth=self._auth_super_admin)
 
+    def webook_config(self):
+        print("Create Webhook")
+        url = LEGACY_URI + "/config/organisation/notification"
+        data = {
+            "value": [
+                {
+                "delegate": False,
+                "trigger": { "name": "AnyEvent"},
+                "notifier": { "name": "webhook", "endpoint": "tfplenum" }
+                }
+            ]
+        }
+        return self.put(url=url, data=data, requires_auth=self._auth_org_admin)
+
     def create_user(self, login="", name="", profile="read-only", password=None, organization=""):
         print("Creating {} ({})".format(name, login))
         data = {"login": login, "name": name, "profile": profile, "organisation": organization}
@@ -129,3 +166,4 @@ if __name__ == '__main__':
         setup.create_misp_template(name=CASE_TEMPLATE, titlePrefix=CASE_TEMPLATE, description="Case from MISP")
         # Change password for admin user
         setup.change_password(SUPER_USERNAME, SUPER_PASS, "secret")
+        setup.webook_config()

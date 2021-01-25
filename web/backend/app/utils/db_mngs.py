@@ -112,6 +112,10 @@ class MongoConnectionManager(object):
     def mongo_spaces(self) -> Collection:
         return self._tfplenum_database.spaces
 
+    @property
+    def mongo_hive_settings(self) -> Collection:
+        return self._tfplenum_database.hive_settings
+
     def close(self):
         """
         Closes the clients mongo collection gracefully.

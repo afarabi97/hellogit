@@ -5,8 +5,8 @@ from app import REDIS_CLIENT
 from app.curator_ext import ExtClose, ExtDeleteIndices
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
-from app.service.scale_service import get_elastic_password, get_elastic_fqdn
 from rq.decorators import job
+from app.utils.elastic import ElasticWrapper
 
 
 _JOB_NAME = "curator"
@@ -35,9 +35,7 @@ def execute_curator(action, index_list, units, age):
     notification.set_message("%s %s job started." % (_JOB_NAME.capitalize(), action))
     notification.set_status(NotificationCode.STARTED.name)
     notification.post_to_websocket_api()
-    password = get_elastic_password()
-    elastic_fqdn, port = get_elastic_fqdn()
-    client = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+    client = ElasticWrapper()
     for index in index_list:
         ilo = curator.IndexList(client)
         ilo.filter_by_regex(kind='prefix', value=index)

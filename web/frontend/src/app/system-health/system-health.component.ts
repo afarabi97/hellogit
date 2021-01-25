@@ -57,7 +57,7 @@ export class SystemHealthComponent implements OnInit {
     this._reloadHealthPage();
 
     // Refresh the page every 15 seconds with the new health data.
-    this.updateSubscription = interval(15000).subscribe((val) => {
+    this.updateSubscription = interval(30000).subscribe((val) => {
       this._reloadHealthPage();
     });
   }

@@ -1,6 +1,5 @@
 import os
 import shutil
-import tempfile
 import zipfile
 
 from app import app

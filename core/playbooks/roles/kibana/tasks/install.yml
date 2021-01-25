@@ -42,6 +42,7 @@
     - kibana-saved-objects
     - load-dashboards
     - create-kibana-space
+    - enable-detections
 
 - name: Copy Kibana Templates
   template:
@@ -159,3 +160,8 @@
   until: results.status == 200
   retries: 10
   delay: 5
+
+- name: Enable Elastic Security Detections
+  include_tasks: enable_detections.yml
+  tags:
+  - enable-detections

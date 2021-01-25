@@ -7,7 +7,6 @@ import traceback
 from app import app, rq_logger, conn_mng, TEMPLATE_DIR, REDIS_CLIENT
 from app.models.cold_log import ColdLogUploadModel, WinlogbeatInstallModel
 from app.service.job_service import run_command2
-from app.service.scale_service import get_elastic_password, get_elastic_service_ip, get_elastic_fqdn
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.job_service import AsyncJob
 from elasticsearch import Elasticsearch
@@ -18,6 +17,7 @@ from pathlib import Path
 from app.utils.constants import BEATS_IMAGE_VERSIONS
 from typing import List, Dict
 from jinja2 import Environment, select_autoescape, FileSystemLoader
+from app.utils.elastic import ElasticWrapper, get_elastic_password, get_elastic_service_ip, get_elastic_fqdn
 
 
 JOB_NAME = "process_logs"
@@ -104,13 +104,8 @@ class ColdLogsProcessor:
         self._template_ctx["index"] = "filebeat-external-{}-{}".format(self._index_suffix, self._module)
 
     def _remove_lifecyle_settings_from_index(self):
-        password = get_elastic_password()
-        elastic_fqdn, port = get_elastic_fqdn()
         index = self._template_ctx["index"]
-        client = Elasticsearch(elastic_fqdn, scheme="https", port=port,
-                               http_auth=('elastic', password),
-                               use_ssl=True, verify_certs=True,
-                               ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
+        client = ElasticWrapper()
         body = {
             "index":{
                 "lifecycle": {

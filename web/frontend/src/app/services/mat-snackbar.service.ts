@@ -64,11 +64,11 @@ export class MatSnackBarService implements MatSnackbarServiceInterface, OnDestro
         if (ObjectUtilitiesClass.notUndefNull(matSnackbarConfigurationClass.actionLabel)) {
           this.matSnackBar_.open(message, matSnackbarConfigurationClass.actionLabel, matSnackBarConfig);
         } else {
-          this.matSnackBar_.open(message, undefined, matSnackBarConfig);
+          this.matSnackBar_.open(message, 'Close', matSnackBarConfig);
         }
       }
     } else {
-      this.matSnackBar_.open(message);
+      this.matSnackBar_.open(message, 'Close');
     }
   }
 

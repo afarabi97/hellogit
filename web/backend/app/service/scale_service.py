@@ -1,5 +1,5 @@
 import os
-from base64 import b64decode
+
 from time import sleep
 from collections import defaultdict
 from pint import UnitRegistry
@@ -9,9 +9,9 @@ from kubernetes import client, config
 
 from app import logger, REDIS_CLIENT
 from app.service.socket_service import NotificationMessage, NotificationCode
-from app.catalog_service import _get_domain
 from app.dao import elastic_deploy
 from rq.decorators import job
+from app.utils.elastic import ElasticWrapper
 
 
 _JOB_NAME = "scale"
@@ -22,48 +22,6 @@ ELASTIC_OP_NAME = "tfplenum"
 ELASTIC_OP_PLURAL = "elasticsearches"
 KUBE_CONFIG_LOCATION = "/root/.kube/config"
 
-def get_elastic_password(name='tfplenum-es-elastic-user', namespace='default'):
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    core_v1_api = client.CoreV1Api()
-    response = core_v1_api.read_namespaced_secret(name, namespace)
-    password = b64decode(response.data['elastic']).decode('utf-8')
-    return password
-
-def get_elastic_service_ip(name='elasticsearch', namespace='default'):
-    ip_address = None
-    port= None
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    core_v1_api = client.CoreV1Api()
-    response = core_v1_api.read_namespaced_service(name, namespace)
-
-    # Try to get the external ip
-    ip_address = response.spec.external_i_ps
-    if ip_address is None:
-        ip_address = response.spec.load_balancer_ip
-    if ip_address is None:
-        ip_address = response.status.load_balancer.ingress[0].ip
-
-    # Get the port
-    port = response.spec.ports[0].port
-
-    return ip_address, port
-
-def get_elastic_fqdn(name='elasticsearch', namespace='default'):
-    fqdn = None
-    port= None
-    if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
-        config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-    core_v1_api = client.CoreV1Api()
-    response = core_v1_api.read_namespaced_service(name, namespace)
-
-    fqdn =  "{name}.{domain}".format(name=name,domain=_get_domain())
-    # Get the port
-    port = response.spec.ports[0].port
-
-    return fqdn, port
-
 def get_es_nodes():
     nodes = None
     if not os.path.exists(KUBE_CONFIG_LOCATION):
@@ -71,11 +29,8 @@ def get_es_nodes():
     try:
         if not config.load_kube_config(config_file=KUBE_CONFIG_LOCATION):
             config.load_kube_config(config_file=KUBE_CONFIG_LOCATION)
-        password = get_elastic_password()
-        elastic_fqdn, port = get_elastic_fqdn()
-        if elastic_fqdn is not None and port is not None:
-            elastic = Elasticsearch(elastic_fqdn, scheme="https", port=port, http_auth=('elastic', password), use_ssl=True, verify_certs=True, ca_certs=os.environ['REQUESTS_CA_BUNDLE'])
-            nodes = elastic.cat.nodes(format='json')
+        elastic = ElasticWrapper()
+        nodes = elastic.cat.nodes(format='json')
         return nodes
     except Exception as exec:
         traceback.print_exc()
