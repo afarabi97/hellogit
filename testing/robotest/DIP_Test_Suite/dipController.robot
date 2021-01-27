@@ -12,7 +12,7 @@ Library     SSHLibrary          15s
 
 
 Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
-Test Setup          Open Browser  https://${HOST}  ${BROWSER}
+Test Setup          Runner Open Browser  ${HOST}  ${BROWSER}
 Test Teardown       Close Browser
 Suite Teardown      Close All Connections
 
@@ -37,4 +37,4 @@ Verify Correct System Name And Version Number
     Element Should Contain  ${locSystemName}  TFPLENUM ${SYSTEM_NAME} Controller  # System Name should be DIP, MIP, or GIP
     Click Element    ${locSupportPageNavIcon}
     Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
-    Element Should Contain    ${locServiceNowURL}  https://cvah.servicenowservices.com/sp
+    Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp

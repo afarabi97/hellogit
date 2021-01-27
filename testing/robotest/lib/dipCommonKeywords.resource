@@ -12,6 +12,35 @@ Open SSH Connection
     Open Connection     ${host}
     Login               ${host_username}  ${host_password}
 
+Runner Open Browser
+    [Arguments]                ${host}  ${browser}
+    [Documentation]  This keyword, along with the Open Chrome keyword, is necessary for Chrome to work within a Docker container.
+    Log                        Opening browser to https://${host} in ${browser}
+    Run Keyword If             'chrome' in '${browser}'      Open Chrome    ${host}    ${browser}
+    ...                        ELSE                          Open Firefox    ${host}    ${browser}
+
+Open Chrome
+    [Arguments]                ${host}  ${browser}
+    [Documentation]  Sets chrome options that allow Chrome to run headless within a docker container. Without these options set,
+    ...              Google Chrome will crash and all tests running within Chrome will fail.
+    ${chrome_options}          Evaluate                      sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
+    Call Method                ${chrome_options}             add_argument                                         no-sandbox
+    Run Keyword If             'Headless' in '${browser}'
+    ...                        Call Method                   ${chrome_options}                                    add_argument                       headless
+    ${browser}=                Run Keyword If                'Headless' in '${browser}'
+    ...                        Set Variable                  chrome
+    Call Method                ${chrome_options}             add_argument                                         gpu-disable
+    Call Method                ${chrome_options}             add_argument                                         disable-dev-shm-usage
+    Call Method                ${chrome_options}             add_argument                                         disable-web-security
+    Call Method                ${chrome_options}             add_argument                                         allow-running-insecure-content
+    Call Method                ${chrome_options}             add_argument                                         ignore-certificate-errors
+    Create WebDriver  Chrome    chrome_options=${chrome_options}
+    Go To    https://${host}
+
+Open Firefox
+    [Arguments]                ${host}  ${browser}
+    Open Browser               https://${host}            browser=${browser}
+
 Login Into DIP Controller
     [Arguments]  ${username}  ${password}
     [Documentation]     Log into the DIP Controller after initial SSO occurs
