@@ -8,10 +8,14 @@ import { Rule, IRule, IError, ErrorMessage,
          IHostInfo, HostInfo } from '../interface/rule.interface';
 import { HttpHeaders } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { JobInterface } from 'src/app/interfaces/job.interface';
 
 export const HTTP_OPTIONS = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
+
+
+type JobList = Array<JobInterface>;
 
 @Injectable({
     providedIn: 'root'
@@ -138,7 +142,7 @@ export class PolicyManagementService {
     }
 
     uploadRuleFile(rule_set: File, ruleSet: IRuleSet): Observable<Object> {
-      const url = '/api/upload_rule';
+      const url = '/api/rule/upload';
       const formData = new FormData();
       formData.append('upload_file', rule_set, rule_set.name);
       formData.append('ruleSetForm', JSON.stringify(ruleSet));
@@ -232,5 +236,10 @@ export class PolicyManagementService {
 
     displaySnackBar(message: string, duration_seconds: number = 60){
       this.snackBar.open(message, "Close", { duration: duration_seconds * 1000})
+    }
+
+    getJobs(): Observable<JobList> {
+        const url = '/api/jobs';
+        return this.http.get<JobList>(url);
     }
 }

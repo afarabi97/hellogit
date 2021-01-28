@@ -292,7 +292,7 @@ class RuleSynchronization():
 
             print("Synchronization Complete!")
             self.notification.set_status(status=NotificationCode.COMPLETED.name)
-            self.notification.set_message("Rule synchronization complete successfully!")
+            self.notification.set_message("Rule synchronization completed successfully!")
             self.notification.post_to_websocket_api()
         except Exception as e:
             self.notification.set_status(status=NotificationCode.ERROR.name)

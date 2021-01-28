@@ -293,8 +293,6 @@ class UploadRule(Resource):
     @POLICY_NS.response(200, 'Rules', [RuleModel.DTO])
     @POLICY_NS.response(500, 'ErrorMessage', COMMON_ERROR_MESSAGE)
     def post(self) -> Response:
-        import pdb
-        pdb.set_trace()
         rule_set = json.loads(request.form['ruleSetForm'],
                             encoding="utf-8")
         if 'upload_file' not in request.files:

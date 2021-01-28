@@ -30,7 +30,7 @@ class IntegrationTestsJob:
     def _replay_pcaps(self):
         headers = { 'Authorization': 'Bearer '+os.environ['CONTROLLER_API_KEY'] }
         root_ca = check_web_ca()
-        REPLAY_PACAP_URL = 'https://{}/api/replay_pcap'.format(self.ctrl_settings.node.ipaddress)
+        REPLAY_PACAP_URL = 'https://{}/api/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
         for sensor in self.kickstart_settings.sensors: # type: NodeSettings
             payload = {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
             payload2 = {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}

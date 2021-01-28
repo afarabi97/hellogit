@@ -13,7 +13,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
 import { WebsocketService } from '../../services/websocket.service';
 import { PolicyManagementUploadDialog } from '../upload-dialog/policy-mng-upload.component';
-
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Notification } from '../interface/rule.interface';
 
 @Component({
   selector: 'policy-management-table',
@@ -32,7 +34,8 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
   isVisibleTest: boolean;
   isRulesVisible: Array<boolean>;
-
+  jobStatus: boolean = false;
+  ioConnection: any;
 
   @ViewChild('paginator') paginator: MatPaginator;
   @ViewChildren('paginatorInner') paginatorInner: QueryList<MatPaginator>;
@@ -86,6 +89,8 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.checkRuleSyncStatus()
+    
     this.ruleSetsDataSource.filterPredicate = (data, filter: string)  => {
       const accumulator = (currentTerm, key) => {
         return this.nestedFilterCheck(currentTerm, data, key);
@@ -306,6 +311,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
   }
 
   ruleSync() {
+    this.jobStatus = true;
     this.policySrv.syncRuleSets().subscribe(data => {
       this.displaySnackBar("Started Rule Sync. Open the notification dialog on the left to see its progress.");
     }, err => {
@@ -381,4 +387,23 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
     });
   }
 
+  checkRuleSyncStatus() {
+    this.jobStatus = true;
+    this.policySrv.getJobs().pipe(
+      map(jobList => jobList.filter(job => job.description.includes("perform_rulesync"))),
+      map(jobList => jobList.map(job => job.status)[0]),
+      map(status => {return (status === undefined || status === "finished") ? false : true})
+    ).subscribe(jobStatus => this.jobStatus=jobStatus);
+
+    this.socketSrv.getSocket().on('broadcast', (notification: Notification) => {
+      if (notification.role === "rulesync") {
+        if(notification.status === "STARTED") {
+            this.jobStatus = true;
+        }
+        if(notification.status === "COMPLETED") {
+            this.jobStatus = false;
+        }
+      }
+    });
+  }
 }

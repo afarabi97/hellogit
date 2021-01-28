@@ -72,3 +72,14 @@ export class HostInfo implements IHostInfo {
     this.management_ip = info.management_ip;
   }
 }
+
+export interface Notification {
+  role: string;
+  message_type: string;
+  action: string;
+  application: string;
+  timestamp: string;
+  exception: string;
+  message: string;
+  status: string;
+}
