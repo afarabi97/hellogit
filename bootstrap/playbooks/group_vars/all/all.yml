@@ -14,7 +14,7 @@ extras_dir: "{{ base_iso_dir }}/Extras"
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
 keycloak_version: 11.0.3
-mip_version_dir: MIP-3.5
+mip_version_dir: MIP-3.6
 
 server_repos:
   - codeready-builder-for-rhel-8-x86_64-rpms
