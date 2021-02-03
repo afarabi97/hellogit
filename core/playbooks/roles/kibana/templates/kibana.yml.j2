@@ -84,6 +84,13 @@ spec:
                 operator: In
                 values:
                 - server
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              common.k8s.elastic.co/type: "kibana"
 ---
 apiVersion: v1
 kind: Service

@@ -102,3 +102,10 @@ spec:
           defaultMode: 420
           optional: false
           secretName: {{ .Release.Name }}-certificate
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              component: "logstash"
