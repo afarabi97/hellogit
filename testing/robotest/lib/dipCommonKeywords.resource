@@ -1,7 +1,7 @@
 *** Settings ***
 Resource    ../include/dipCommonVariables.resource
 
-Library     SeleniumLibrary     30s
+Library     SeleniumLibrary     30s    run_on_failure=NONE
 Library     SSHLibrary          15s
 
 

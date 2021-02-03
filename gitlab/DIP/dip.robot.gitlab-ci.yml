@@ -17,7 +17,8 @@ DIP Robot Tests:
     --robot-browser $ROBOT_BROWSER \
     --robot-category $ROBOT_REGRESSION_CATEGORY \
     --domain "$KIT_DOMAIN" \
-    --kit-version "$TFPLENUM_EXPORT_VERSION"
+    --kit-version "$TFPLENUM_EXPORT_VERSION" \
+    --pipeline "$PIPELINE"
   artifacts:
     untracked: true
     when: always

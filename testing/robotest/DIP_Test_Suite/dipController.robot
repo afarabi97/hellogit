@@ -6,9 +6,12 @@ Documentation          Test suite for the virtual DIP controller. The following 
 ...                    teardown. This saves some time when executing several test cases.
 
 Resource    ../lib/dipCommonKeywords.resource
+Resource    ../lib/dipCatalogKeywords.resource
+Resource    ../include/dipCatalogVariables.resource
 
-Library     SeleniumLibrary     30s
+Library     SeleniumLibrary     30s    run_on_failure=NONE
 Library     SSHLibrary          15s
+Library     String
 
 
 Suite Setup         Open SSH Connection  ${HOST}  ${HOST_USERNAME}  ${HOST_PASSWORD}
@@ -38,3 +41,48 @@ Verify Correct System Name And Version Number
     Click Element    ${locSupportPageNavIcon}
     Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
+
+Install And Uninstall Apps From Catalog Page
+    [Tags]    THISISCVAH-8137
+    [Documentation]    Download apps from Catalog page and verify successful download within Notifications & Health pages
+    Login Into DIP Controller    ${SSO_ADMIN_USERNAME}  ${NEW_SSO_ADMIN_PASSWORD}
+    Wait Until Page Contains    Portal
+
+    Download App From Catalog    Cortex  ${locCortexConfigAppBtn}
+    Verify App Has Been Installed    Cortex  ${locCortexAppCard}  ${locCortexAppCardCircle}
+    Uninstall App    Cortex  ${locCortexAppCard}  ${locCortexConfigAppBtn}
+
+    Download App From Catalog    Hive  ${locHiveConfigAppBtn}
+    Verify App Has Been Installed    Hive  ${locHiveAppCard}  ${locHiveAppCardCircle}
+    Uninstall App    Hive  ${locHiveAppCard}  ${locHiveConfigAppBtn}
+
+    Download App From Catalog    Logstash  ${locLogstashConfigAppBtn}
+    Verify App Has Been Installed    Logstash  ${locLogstashAppCard}  ${locLogstashAppCardCircle}
+    Uninstall App    Logstash  ${locLogstashAppCard}  ${locLogstashConfigAppBtn}
+
+    Download App From Catalog    Misp  ${locMispConfigAppBtn}
+    Verify App Has Been Installed    Misp  ${locMispAppCard}  ${locMispAppCardCircle}
+    Uninstall App    Misp  ${locMispAppCard}  ${locMispConfigAppBtn}
+
+    Download App From Catalog    Moloch-viewer  ${locMolochViewerConfigAppBtn}
+    Verify App Has Been Installed    Moloch-viewer  ${locMolochViewerAppCard}  ${locMolochViewerAppCardCircle}
+    Download App From Catalog    Moloch  ${locMolochConfigAppBtn}
+    Verify App Has Been Installed    Moloch  ${locMolochAppCard}  ${locMolochAppCardCircle}
+    Uninstall App    Moloch  ${locMolochAppCard}  ${locMolochConfigAppBtn}
+    Uninstall App    Moloch-viewer  ${locMolochViewerAppCard}  ${locMolochViewerConfigAppBtn}
+
+    Download App From Catalog    Rocketchat  ${locRocketchatConfigAppBtn}
+    Verify App Has Been Installed    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatAppCardCircle}
+    Uninstall App    Rocketchat  ${locRocketchatAppCard}  ${locRocketchatConfigAppBtn}
+
+    Download App From Catalog    Suricata  ${locSuricataConfigAppBtn}
+    Verify App Has Been Installed    Suricata  ${locSuricataAppCard}  ${locSuricataAppCardCircle}
+    Uninstall App    Suricata  ${locSuricataAppCard}  ${locSuricataConfigAppBtn}
+
+    Download App From Catalog    Wikijs  ${locWikijsConfigAppBtn}
+    Verify App Has Been Installed    Wikijs  ${locWikijsAppCard}  ${locWikijsAppCardCircle}
+    Uninstall App    Wikijs  ${locWikijsAppCard}  ${locWikijsConfigAppBtn}
+
+    Download App From Catalog    Zeek  ${locZeekConfigAppBtn}
+    Verify App Has Been Installed    Zeek  ${locZeekAppCard}  ${locZeekAppCardCircle}
+    Uninstall App    Zeek  ${locZeekAppCard}  ${locZeekConfigAppBtn}
