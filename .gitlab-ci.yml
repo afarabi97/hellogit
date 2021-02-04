@@ -100,7 +100,7 @@ variables:
   REDFISH_USER: "root"
   ESXI_DATASTORE: "datastore1"
   CONTROLLER_OVA: DIP_Controller
-  DIP_TEMPLATE_OVA: "dip_template.ova"
+  TEMPLATE_OVA: "rhel8_template.ova"
   CONTROLLER_DNS_SERVERS: "10.10.101.248"
   REDFISH_PASSWORD: ""
   MANAGEMENT_PASSWORD: ""
@@ -166,7 +166,7 @@ variables:
 
   DRIVE_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging_$TFPLENUM_EXPORT_VERSION"
   DRIVE_GIP_STAGING_FOLDER: "$MASTER_DRIVE_CREATION_PATH/staging_gip_$TFPLENUM_EXPORT_VERSION"
-  DIP_TEMPLATE_PATH: "/mnt/drive_creation/templates/"
+  TEMPLATE_PATH: "/mnt/drive_creation/templates/"
   DIP_CONTROLLER_PATH: "/mnt/drive_creation/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH\ $TFPLENUM_EXPORT_VERSION/Software/DIP/"
 
   APP_STORE_DIRECTORY: "PowerShell_Modules"
@@ -223,6 +223,7 @@ stages:
   - breakingpoint-test
   - verodin-test
   - remote-node
+  - range-mip-controller
 
 default:
   before_script:
@@ -243,6 +244,7 @@ include:
   - local: gitlab/DIP/dip.docs.gitlab-ci.yml
   - local: gitlab/DIP/dip.robot.gitlab-ci.yml
   - local: gitlab/DIP/dip.baremetal-gitlab-ci.yml
+  - local: gitlab/MIP/mip.baremetal-gitlab-ci.yml
   - local: gitlab/MIP/mip.gitlab-ci.yml
   - local: gitlab/MIP/mip.export.gitlab-ci.yml
   - local: gitlab/MIP/mip.docs.gitlab-ci.yml

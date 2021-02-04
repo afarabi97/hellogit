@@ -18,8 +18,8 @@ Setup Hardware DIP Controller:
     --vm-datastore "$ESXI_DATASTORE" \
     --ctrl-path "$DIP_CONTROLLER_PATH" \
     --ctrl-name "$CONTROLLER_OVA" \
-    --template-path "$DIP_TEMPLATE_PATH" \
-    --template "$DIP_TEMPLATE_OVA" \
+    --template-path "$TEMPLATE_PATH" \
+    --template "$TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
     --ipaddress "$CONTROLLER_IPADDRESS" \
     --dns-servers $CONTROLLER_DNS_SERVERS \
@@ -51,7 +51,7 @@ Hardware DIP Kickstart:
     --vm-datastore "$ESXI_DATASTORE" \
     --ctrl-path "$DIP_CONTROLLER_PATH" \
     --ctrl-name "$CONTROLLER_OVA" \
-    --template-path "$DIP_TEMPLATE_PATH" \
+    --template-path "$TEMPLATE_PATH" \
     --template "$DIP_TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
     --ipaddress "$CONTROLLER_IPADDRESS" \

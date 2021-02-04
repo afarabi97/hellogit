@@ -170,6 +170,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
     def __init__(self, baremetal_ctrl_settings: HwControllerSetupSettings):
         self.baremetal_ctrl_settings = baremetal_ctrl_settings
+        self.system_name = self.baremetal_ctrl_settings.system_name
 
     def create_smart_connect_client(self) -> vim.ServiceInstance:
     # This will connect us to vCenter
@@ -178,7 +179,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
                                 pwd=self.baremetal_ctrl_settings.esxi.password,
                                 port=443)
 
-    def get_vm_list(self):
+    def get_vm_list(self) -> list:
         # make connection
         service_instance = self.create_smart_connect_client()
 
@@ -194,15 +195,15 @@ class BaremetalControllerSetup(ControllerSetupJob):
         Disconnect(service_instance)
         return vm_list
 
-    def get_controller_name(self):
+    def get_controller_name(self) -> str:
         for name in self.get_vm_list():
-            if "Pipeline" in name:
+            if f"Pipeline-{ self.system_name }" in name:
                 return name
 
     def unemployed_ctrls(self) -> list:
         unemployed_controllers = []
         for name in self.get_vm_list():
-            if "DIP" in name or "Controller" in name or "dip" in name or "controller" in name:
+            if self.system_name in name or "Controller" in name or self.system_name.lower() in name or "controller" in name:
                 unemployed_controllers.append(name)
         return unemployed_controllers
 
@@ -228,7 +229,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
                          self.baremetal_ctrl_settings.to_dict())
 
-    def setup_controller(self) -> None:
+    def setup_controller(self):
         hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
         #Sets controller name found on esxi server
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()

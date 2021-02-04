@@ -1,0 +1,33 @@
+Setup Hardware MIP Controller:
+  stage: range-mip-controller
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "Setup Baremetal MIP Controller"
+    echo "IP of runner is $(hostname -I)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "MIP" \
+    setup-baremetal-controller \
+    --run-type "$BUILD_TYPE" \
+    --esxi-ipaddress "$ESXI_IPADDRESS" \
+    --esxi-username "$ESXI_USERNAME" \
+    --esxi-password "$ESXI_PASSWORD" \
+    --node-password "$DEFAULT_TEMPLATE_PASSWORD" \
+    --vm-datastore "$ESXI_DATASTORE" \
+    --ctrl-path "$MIP_CONTROLLER_PATH" \
+    --ctrl-name "$CONTROLLER_OVA" \
+    --template-path "$TEMPLATE_PATH" \
+    --template "$TEMPLATE_OVA" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --ipaddress "$CONTROLLER_IPADDRESS" \
+    --dns-servers $CONTROLLER_DNS_SERVERS \
+    --repo-username "$REPO_USERNAME" \
+    --repo-password "$REPO_PASSWORD" \
+    --repo-url "$REPO_URL" \
+    --branch-name "$CI_COMMIT_REF_NAME" \
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "controller-build"

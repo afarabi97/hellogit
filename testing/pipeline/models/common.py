@@ -179,6 +179,11 @@ class HwNodeSettings(Model):
             self.set_hostname(node_type=node_type)
             self.node_type = node_type
 
+        if namespace.redfish_password == None:
+            self.redfish_password = " "
+        else:
+            self.redfish_password = self.b64decode_string(namespace.redfish_password)
+
         self.domain = namespace.domain
         self.ipaddress = namespace.ipaddress
         self.gateway = namespace.gateway
@@ -191,7 +196,6 @@ class HwNodeSettings(Model):
         self.template_path = namespace.template_path
         self.template = namespace.template
         self.redfish_user = namespace.redfish_user
-        self.redfish_password = self.b64decode_string(namespace.redfish_password)
         self.monitoring_interface = namespace.monitoring_interface
 
     @staticmethod

@@ -1,5 +1,5 @@
 ---
-- name: Rename DIP controller
+- name: Rename controller
   hosts: localhost
   connection: local
   gather_facts: yes
@@ -14,7 +14,7 @@
     - name: Set vm facts
       set_fact:
         vm_name: "{{ ctrl_name }}"
-        new_vm_name: "Pipeline-DIP-Controller-{{ ansible_date_time.date }}"
+        new_vm_name: "Pipeline-{{ system_name }}-Controller-{{ ansible_date_time.date }}"
         datacenter: None #Required variables
         cluster_name: None #Required variables
 
