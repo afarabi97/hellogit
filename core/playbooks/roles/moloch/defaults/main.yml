@@ -24,4 +24,17 @@ moloch_pcap_path: "{{ moloch_path }}/raw"
 es_moloch_user: moloch
 es_moloch_password: password
 
+elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
+elastic_user: elastic
+
+indices: 
+  - users_v*
+  - stats_v*
+  - lookups_v*
+  - files_v*
+  - fields_v*
+  - hunts_v*
+  - dstats_v*
+  - sequence_v*
+  - queries_v*
 ...
