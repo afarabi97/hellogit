@@ -85,7 +85,7 @@ class HealthServiceMetadataModel(Model):
         'conditions_type': fields.String(example="NetworkUnavailable", description="The type of service condition of the kubernetes node."),
         'config': fields.String(example="null", description="The kubernetes node configutation."),
         'kubelet_endpoint_port': fields.Float(example="1050", description="The endpoint port of the kubernetes node kubelet."),
-        'images_names': fields.String(example="dip-controller.lan/tfplenum/moloch@sha256:b7aeb4e941c06c8f3d3d4c5fa5551d5f738e08324814658a9895329dad83ed7e", description="The image name of the pod container images ran on the kubernetes node."),
+        'images_names': fields.String(example="dip-controller.lan/tfplenum/arkime@sha256:b7aeb4e941c06c8f3d3d4c5fa5551d5f738e08324814658a9895329dad83ed7e", description="The image name of the pod container images ran on the kubernetes node."),
         'images_size_bytes': fields.String(example="38570628", description="The size of the correlating pod images on the kubernetes node."),
         'node_info_architecture': fields.String(example="amd64", description="The underlying architecture of the kubernetes node."),
         'node_info_boot_id': fields.String(example="2b9a6f3f-d54c-432e-9632-f2187710113a", description="The kubernetes node boot_id uuid."),

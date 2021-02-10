@@ -91,13 +91,13 @@
     - suricata
   tags: suricata
 
-- name: Validate Moloch
+- name: Validate Arkime
   hosts:
   - master_server
   gather_facts: no
   roles:
-    - moloch
-  tags: moloch
+    - arkime
+  tags: arkime
 
 - name: Validate WikiJS
   hosts:

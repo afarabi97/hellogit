@@ -55,7 +55,7 @@
 {% if system_name == 'DIP' or system_name == 'GIP' %}
             "elk-kibana-admin",
             "misp-operator",
-            "moloch-user",
+            "arkime-user",
             "nifi-user"
 {% endif %}
           ]
@@ -104,7 +104,7 @@
         "attributes": {}
       },
       {
-        "name": "moloch-user",
+        "name": "arkime-user",
         "composite": false,
         "clientRole": false,
         "containerId": "{{ realm_id }}",

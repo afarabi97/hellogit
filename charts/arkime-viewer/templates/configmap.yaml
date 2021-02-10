@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+data:
+  config.ini: |
+    [default]
+    elasticsearch={{ include "createEsNodeList" . }}
+    caTrustFile=/etc/ssl/certs/container/ca.crt
+    rotateIndex=hourly6
+    passwordSecret=default-password
+    httpRealm=Arkime
+    pcapDir=/data/moloch/raw
+    tcpTimeout=10
+    tcpSaveTimeout=10
+    udpTimeout=30
+    icmpTimeout=10
+    maxStreams=14000000
+    maxPackets=10000
+    viewPort=8005
+    geoLite2Country=/data/moloch/etc/GeoLite2-Country.mmdb
+    geoLite2ASN=/data/moloch/etc/GeoLite2-ASN.mmdb
+    rirFile=/data/moloch/etc/ipv4-address-space.csv
+    ouiFile=/data/moloch/etc/oui.txt
+    parseSMTP=true
+    parseSMB=true
+    parseQSValue=true
+    supportSha256=false
+    maxReqBody=64
+    config.reqBodyOnlyUtf8=true
+    smtpIpHeaders=X-Originating-IP:;X-Barracuda-Apparent-Source-IP:
+    parsersDir=/data/moloch/parsers
+    pluginsDir=/data/moloch/plugins
+    compressES=false
+    maxESConns={{ .Values.maxESConns }}
+    maxESRequests={{ .Values.maxESRequests }}
+    packetsPerPoll={{ .Values.packetsPerPoll }}
+    antiSynDrop=false
+    logEveryXPackets=100000
+    logUnknownProtocols=false
+    logESRequests=true
+    logFileCreation=true
+    pcapReadMethod=tpacketv3
+    tpacketv3NumThreads=2
+    maxPacketsInQueue={{ .Values.maxPacketsInQueue }}
+    # Cert file to use, comment out to use http instead
+    # certFile=/etc/ssl/certs/moloch.crt
+    # Private key file to use, comment out to use http instead
+    # keyFile=/etc/ssl/certs/moloch.key
+    userNameHeader=uid
+    viewHost=localhost
+    requiredAuthHeader=roles
+    requiredAuthHeaderVal=arkime-user
+    userAutoCreateTmpl={"userId": "${this.uid}", "userName": "${this.uid}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": true, "removeEnabled": true, "packetSearch": true }

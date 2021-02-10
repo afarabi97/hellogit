@@ -1,0 +1,115 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    component: arkime
+    app: arkime-capture
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arkime-capture
+  template:
+    metadata:
+      labels:
+        component: arkime
+        app: arkime-capture
+    spec:
+      hostNetwork: true
+      initContainers:
+      - name: init-sync-files
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "/data/moloch/db/db.pl --insecure https://$ELASTICSEARCH_USER:$ELASTICSEARCH_PASS@$ELASTICSEARCH_HOST:9200 sync-files {{ regexReplaceAll "\\.(lan)?$" .Values.affinity_hostname "" }} /data/moloch/raw/"]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Values.elastic_fqdn | quote }}
+        - name: ELASTICSEARCH_USER
+          value: {{ .Values.es_user | quote }}
+        - name: ELASTICSEARCH_PASS
+          value: {{ .Values.es_password | quote }}
+      containers:
+      - name: capture
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_TYPE
+          value: "CAPTURE"
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - SYS_RESOURCE
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_request }}m
+          limits:
+            memory: {{ .Values.mem_limit }}
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+          readOnly: true
+        - name: data
+          mountPath: {{ .Values.pcap_path }}
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      - name: viewer
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CONTAINER_TYPE
+          value: "VIEWER"
+        ports:
+          - containerPort: {{ .Values.port }}
+            name: webgui
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: {{ .Values.path }}/etc/config.ini
+          readOnly: true
+        - name: data
+          mountPath: {{ .Values.pcap_path }}
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: configini
+        configMap:
+          name: {{.Release.Name}}
+      - name: data
+        hostPath:
+          path: {{ .Values.fpc_path }}
+          type: DirectoryOrCreate
+      - name: webca
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: webca-certificate
+      affinity:
+        nodeAffinity: # Only schedule on the intended host
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ .Values.affinity_hostname }}"
+        podAntiAffinity: # Do not allow more than one per host
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - arkime-capture
+            topologyKey: "kubernetes.io/hostname"

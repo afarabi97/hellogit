@@ -10,8 +10,8 @@ from models.kit import KitSettings, HwKitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.kickstart import HwKickstartSettings
 from models.gip_settings import GIPKitSettings, GIPServiceSettings
-from models.catalog import (CatalogSettings, MolochCaptureSettings,
-                            MolochViewerSettings, ZeekSettings,
+from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
+                            ArkimeViewerSettings, ZeekSettings,
                             LogstashSettings, SuricataSettings,
                             WikijsSettings, MispSettings, HiveSettings,
                             RocketchatSettings, CortexSettings, MattermostSettings,
@@ -43,8 +43,8 @@ class YamlManager:
             cls.yaml.register_class(HwKitSettings)
             cls.yaml.register_class(SuricataSettings)
             cls.yaml.register_class(CatalogSettings)
-            cls.yaml.register_class(MolochCaptureSettings)
-            cls.yaml.register_class(MolochViewerSettings)
+            cls.yaml.register_class(ArkimeCaptureSettings)
+            cls.yaml.register_class(ArkimeViewerSettings)
             cls.yaml.register_class(ZeekSettings)
             cls.yaml.register_class(LogstashSettings)
             cls.yaml.register_class(WikijsSettings)

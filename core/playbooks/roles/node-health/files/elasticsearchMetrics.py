@@ -10,7 +10,7 @@ class ElasticsearchMetrics():
 
         self._zeek_query = 'observer.hostname:{} AND event.module:zeek'.format(hostname)
         self._suricata_query = 'observer.hostname:"{}" AND event.module:suricata'.format(hostname)
-        self._moloch_query = 'node:{}'.format(shortHostname)
+        self._arkime_query = 'node:{}'.format(shortHostname)
 
         self._elasticsearch = elasticsearch
 
@@ -108,12 +108,12 @@ class ElasticsearchMetrics():
         else:
             return self._createMetric(name, value)
 
-    def _lastMolochElasticEvents(self):
+    def _lastArkimeElasticEvents(self):
         index = 'sessions2*'
-        query = self._moloch_query
+        query = self._arkime_query
         body = self._createQuery(query=query, field='timestamp')
 
-        name = 'last_moloch_elastic_events'
+        name = 'last_arkime_elastic_events'
 
         try:
             result = self._elasticsearch.search(index, body)
@@ -141,8 +141,8 @@ class ElasticsearchMetrics():
         if (suricata):
             data.append(suricata)
 
-        moloch = self._lastMolochElasticEvents()
-        if (moloch):
-            data.append(moloch)
+        arkime = self._lastArkimeElasticEvents()
+        if (arkime):
+            data.append(arkime)
 
         return data

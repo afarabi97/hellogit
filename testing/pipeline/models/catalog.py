@@ -28,7 +28,7 @@ class SuricataSettings(Model):
         self.interfaces = node_settings.monitoring_interface
 
 
-class MolochCaptureSettings(Model):
+class ArkimeCaptureSettings(Model):
     def __init__(self):
         self.cpu_request = 1000
         self.mem_limit = "7Gi"
@@ -46,24 +46,24 @@ class MolochCaptureSettings(Model):
     def set_from_node_settings(self, node_settings: Union[NodeSettings,HwNodeSettings]):
         self.affinity_hostname = node_settings.hostname
         pos = node_settings.hostname.rfind(".")
-        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "moloch")
+        self.deployment_name = "{}-{}".format(node_settings.hostname[:pos], "arkime")
         self.node_hostname = node_settings.hostname
         self.interfaces = node_settings.monitoring_interface
 
 
-class MolochViewerSettings(Model):
+class ArkimeViewerSettings(Model):
     def __init__(self):
         self.node_hostname = "server"
         self.user = "assessor"
         self.password = "password"
-        self.deployment_name = "moloch-viewer"
+        self.deployment_name = "arkime-viewer"
 
     def to_dict(self) -> Dict:
-        moloch_dict = super().to_dict()
-        cache = moloch_dict["password"]
-        del moloch_dict["password"]
-        moloch_dict["pass"] = cache
-        return moloch_dict
+        arkime_dict = super().to_dict()
+        cache = arkime_dict["password"]
+        del arkime_dict["password"]
+        arkime_dict["pass"] = cache
+        return arkime_dict
 
 
 class ZeekSettings(Model):
@@ -165,9 +165,9 @@ class CatalogSettings(Model):
 
     def __init__(self):
         self.suricata_settings = dict()
-        self.moloch_capture_settings = dict()
+        self.arkime_capture_settings = dict()
         self.zeek_settings = dict()
-        self.moloch_viewer_settings = None # type: MolochViewerSettings
+        self.arkime_viewer_settings = None # type: arkimeViewerSettings
         self.logstash_settings = None # type: LogstashSettings
         self.wikijs_settings = dict()
         self.misp_settings = dict()
@@ -189,11 +189,11 @@ class CatalogSettings(Model):
                 suricata_settings.from_namespace(namespace)
                 self.suricata_settings[sensor.hostname] = suricata_settings
 
-            if namespace.which == SubCmd.moloch_capture:
-                moloch_capture_settings = MolochCaptureSettings()
-                moloch_capture_settings.set_from_node_settings(sensor)
-                moloch_capture_settings.from_namespace(namespace)
-                self.moloch_capture_settings[sensor.hostname] = moloch_capture_settings
+            if namespace.which == SubCmd.arkime_capture:
+                arkime_capture_settings = ArkimeCaptureSettings()
+                arkime_capture_settings.set_from_node_settings(sensor)
+                arkime_capture_settings.from_namespace(namespace)
+                self.arkime_capture_settings[sensor.hostname] = arkime_capture_settings
 
             if namespace.which == SubCmd.zeek:
                 zeek_settings = ZeekSettings()
@@ -201,9 +201,9 @@ class CatalogSettings(Model):
                 zeek_settings.from_namespace(namespace)
                 self.zeek_settings[sensor.hostname] = zeek_settings
 
-            if namespace.which == SubCmd.moloch_viewer:
-                self.moloch_viewer_settings = MolochViewerSettings()
-                self.moloch_viewer_settings.from_namespace(namespace)
+            if namespace.which == SubCmd.arkime_viewer:
+                self.arkime_viewer_settings = ArkimeViewerSettings()
+                self.arkime_viewer_settings.from_namespace(namespace)
 
             if namespace.which == SubCmd.logstash:
                 logstash_settings = LogstashSettings()
@@ -252,15 +252,15 @@ class CatalogSettings(Model):
         add_args_from_instance(suricata_parser, SuricataSettings())
         suricata_parser.set_defaults(which=SubCmd.suricata)
 
-        moloch_parser = subparsers.add_parser(SubCmd.moloch_capture,
-                                              help="This subcommand can be used to install moloch capture on your Kit's sensors.")
-        add_args_from_instance(moloch_parser, MolochCaptureSettings())
-        moloch_parser.set_defaults(which=SubCmd.moloch_capture)
+        arkime_parser = subparsers.add_parser(SubCmd.arkime_capture,
+                                              help="This subcommand can be used to install arkime capture on your Kit's sensors.")
+        add_args_from_instance(arkime_parser, ArkimeCaptureSettings())
+        arkime_parser.set_defaults(which=SubCmd.arkime_capture)
 
-        moloch_viewer_parser = subparsers.add_parser(SubCmd.moloch_viewer,
-                                                     help="This subcommand can be used to install moloch viewer on your Kit's servers.")
-        add_args_from_instance(moloch_viewer_parser, MolochViewerSettings())
-        moloch_viewer_parser.set_defaults(which=SubCmd.moloch_viewer)
+        arkime_viewer_parser = subparsers.add_parser(SubCmd.arkime_viewer,
+                                                     help="This subcommand can be used to install arkime viewer on your Kit's servers.")
+        add_args_from_instance(arkime_viewer_parser, ArkimeViewerSettings())
+        arkime_viewer_parser.set_defaults(which=SubCmd.arkime_viewer)
 
         zeek_parser = subparsers.add_parser(SubCmd.zeek,
                                             help="This subcommand can be used to install zeek on your Kit's sensors.")

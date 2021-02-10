@@ -298,7 +298,7 @@ class ChangeStateOfRemoteNetworkDevice(Resource):
     @TOOLS_NS.doc(description="Shuts down the NIC device or turns it back on. \
                                Passing a up value will bring the interface back \
                                into an up state while passing down will bring the interface down. \
-                               Note: This can cause Suricata, Zeek or Moloch pods to crash while \
+                               Note: This can cause Suricata, Zeek or Arkime pods to crash while \
                                the interface is shutdown on the Sensor.",
                   params={'node': "The FQDN or hostname of the node.",
                           'device': "The interface to toggle.",
@@ -332,7 +332,7 @@ class MonitoringInterfaces(Resource):
     @TOOLS_NS.doc(description="Retrieves a list of node hostnames with their associated network interfaces.")
     def get(self):
         nodes = {}
-        applications = ["moloch", "zeek", "suricata"]
+        applications = ["arkime", "zeek", "suricata"]
 
         documents = list(conn_mng.mongo_catalog_saved_values.find({ "application": {"$in": applications} }))
 

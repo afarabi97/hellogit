@@ -69,7 +69,7 @@ class ChartInfoModel(Model):
         "formControls": fields.List(fields.Nested(ChartInfoFormCtrlModel.DTO)),
         "type": fields.String(example="chart"),
         "node_affinity": fields.String(example="Sensor"),
-        "devDependent": fields.String(example="moloch-viewer", description="If this is not null, than a user will be prompted to install the dependent chart first before installing the current one."),
+        "devDependent": fields.String(example="arkime-viewer", description="If this is not null, than a user will be prompted to install the dependent chart first before installing the current one."),
     })
 
 

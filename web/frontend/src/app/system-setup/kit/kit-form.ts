@@ -134,7 +134,7 @@ export const kit_validators = {
 export const kitTooltips = {
     node_type: 'The Node Type refers to whether or not the node is a server or sensor',
     kubernetes_services_cidr: `Range of addresses Kubernetes will use for external services.
-    This includes Moloch viewer, Kibana, and Elasticq. This will use a /28 under the hood.
+    This includes Arkime viewer, Kibana, and Elasticq. This will use a /28 under the hood.
     This means it will take whatever IP address you enter and create a range addresses from that IP + 16.
     For example, 192.168.1.16 would become a range from 192.168.1.16-31`,
     is_master_server: `This is not the ESXi/VM server. This is for the Kubernetes master server only.

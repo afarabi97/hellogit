@@ -2,7 +2,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 SURICATA_SENSOR=$(kubectl get pods | grep -v filebeat | grep suricata |cut -d " " -f 1)
 ZEEK_SENSOR=$(kubectl get pods | grep zeek |cut -d " " -f 1)
-MOLOCH_SENSOR=$(kubectl get pods | grep moloch | grep -v viewer |cut -d " " -f 1)
+MOLOCH_SENSOR=$(kubectl get pods | grep arkime | grep -v viewer |cut -d " " -f 1)
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 
 NODES=$(kubectl get nodes -o jsonpath='{.items..metadata.name}')
@@ -39,12 +39,12 @@ function prompt_runtype() {
     echo "Memory usage: Memory stats"
     echo "CPU usage: CPU stats"
     echo "Node usage: Node stats"
-    echo "Moloch usage: Moloch stats"
+    echo "Arkime usage: Arkime stats"
     echo "Elastic usage: Elastic stats"
     echo "NIC usage: NIC sensor stats"
     echo "Filebeat usage: Filebeat stats"
     if [ -z "$RUN_TYPE" ]; then
-        select cr in "All" "Suricata" "Zeek" "IOPs" "Memory usage" "CPU usage" "Node usage" "Moloch usage" "Elastic usage" "NIC usage" "Filebeat usage"; do
+        select cr in "All" "Suricata" "Zeek" "IOPs" "Memory usage" "CPU usage" "Node usage" "Arkime usage" "Elastic usage" "NIC usage" "Filebeat usage"; do
             case $cr in
                 All ) export RUN_TYPE=all; break;;
                 Suricata ) export RUN_TYPE=suricata; break;;
@@ -53,7 +53,7 @@ function prompt_runtype() {
                 "Memory usage" ) export RUN_TYPE=memoryusage; break;;
                 "CPU usage" ) export RUN_TYPE=cpuusage; break;;
                 "Node usage" ) export RUN_TYPE=nodeusage; break;;
-                "Moloch usage" ) export RUN_TYPE=molochusage; break;;
+                "Arkime usage" ) export RUN_TYPE=molochusage; break;;
                 "Elastic usage" ) export RUN_TYPE=elasticusage; break;;
                 "NIC usage" ) export RUN_TYPE=nicusage; break;;
                 "Filebeat usage" ) export RUN_TYPE=filebeatusage; break;;

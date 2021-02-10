@@ -6,7 +6,7 @@
     {
       "type": "checkbox",
       "default_value": false,
-      "description": "Enable writing PCAPs (do not enable this and Moloch PCAP at the same time)",
+      "description": "Enable writing PCAPs (do not enable this and Arkime PCAP at the same time)",
       "trueValue": true,
       "falseValue": false,
       "name": "pcapEnabled"

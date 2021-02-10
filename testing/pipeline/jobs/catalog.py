@@ -24,10 +24,10 @@ class CatalogJob:
             logging.info("Installing "+application.title())
             if application == SubCmd.suricata:
                 self.runner.install_suricata()
-            elif application == SubCmd.moloch_viewer:
-                self.runner.install_moloch_viewer()
-            elif application == SubCmd.moloch_capture:
-                self.runner.install_moloch_capture()
+            elif application == SubCmd.arkime_viewer:
+                self.runner.install_arkime_viewer()
+            elif application == SubCmd.arkime_capture:
+                self.runner.install_arkime_capture()
             elif application == SubCmd.zeek:
                 self.runner.install_zeek()
             elif application == SubCmd.logstash:

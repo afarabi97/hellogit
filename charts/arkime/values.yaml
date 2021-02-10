@@ -1,0 +1,39 @@
+#### Arkime configuration variables ####
+image: 'tfplenum/arkime'
+port: "8005"
+
+# Location of arkime dirs/files
+dir: '/opt/tfplenum/arkime'
+path: '/data/moloch'
+config_path: "/opt/tfplenum/arkime/etc"
+pcap_path: "/data/moloch/raw"
+fpc_path: "/data/pcap"
+
+# Kubernetes and docker info
+version: 2.7.1
+elastic_ingest_nodes: []
+elastic_fqdn: elasticsearch.default.svc.cluster.local
+cpu_request: 100
+affinity_hostname: {}
+mem_limit: 20Gi
+
+# config options
+elastic_port: 9200
+interfaces: ["eth0"]
+bpf: ""
+dontSaveBPFs: ""
+maxFileSizeG: 1
+freespaceG: 25%
+spiDataMaxIndices: "5"
+packetThreads: 3
+pcapWriteMethod: "simple"
+pcapWriteSize: "2560000"
+dbBulkSize: "400000"
+maxESConns: "60"
+maxESRequests: "500"
+packetsPerPoll: "500000"
+magicMode: "basic"
+tpacketv3BlockSize: 8388608
+maxPacketsInQueue: "400000"
+es_user: arkime
+es_password: password

@@ -36,8 +36,8 @@ class SubCmd:
     reinstall = "reinstall"
 
     suricata = "suricata"
-    moloch_capture = "moloch-capture"
-    moloch_viewer = "moloch-viewer"
+    arkime_capture = "arkime-capture"
+    arkime_viewer = "arkime-viewer"
     zeek = "zeek"
     logstash = "logstash"
     wikijs = "wikijs"

@@ -56,13 +56,13 @@ describe('ChartListComponent', () => {
         },
         {
           "appVersion": "2.2.3v2",
-          "application": "moloch",
+          "application": "arkime",
           "description": "Large scale, open source, indexed packet capture and search.",
           "pmoSupported": true
         },
         {
           "appVersion": "2.2.3v2",
-          "application": "moloch-viewer",
+          "application": "arkime-viewer",
           "description": "Large scale, open source, indexed packet capture and search.",
           "pmoSupported": true
         },

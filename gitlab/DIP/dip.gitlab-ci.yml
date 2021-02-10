@@ -214,8 +214,8 @@ CVAH Catalog PMO Apps:
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog suricata
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-viewer
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog moloch-capture
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog arkime-viewer
+    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog arkime-capture
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog zeek
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog logstash
     python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog wikijs

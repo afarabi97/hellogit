@@ -9,9 +9,9 @@ import configparser
 charts = [
         { "name": "logstash",
                 "version": "1.0.0"},
-        { "name": "moloch",
+        { "name": "arkime",
                 "version": "1.0.0"},
-        { "name": "moloch-viewer",
+        { "name": "arkime-viewer",
                 "version": "1.0.0"},
         { "name": "suricata",
                 "version": "1.0.0"},

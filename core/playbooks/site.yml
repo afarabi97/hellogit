@@ -397,20 +397,20 @@
   tags:
     - metrics
 
-- name: Deploy Moloch
+- name: Deploy Arkime
   hosts:
     - master_server
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
-    - name: Deploy Moloch pre_tasks
+    - name: Deploy Arkime pre_tasks
       setup:
   tasks:
     - import_role:
-        name: moloch
+        name: arkime
       when: system_name == "DIP"
   tags:
-    - moloch
+    - arkime
 
 - name: Setup Log Management
   hosts:

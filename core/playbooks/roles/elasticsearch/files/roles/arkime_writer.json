@@ -1,0 +1,28 @@
+{
+    "cluster": [
+        "monitor",
+        "manage_index_templates",
+        "transport_client",
+        "manage"
+    ],
+    "indices": [
+        {
+            "names": [
+                "sessions*",
+                "stats*",
+                "lookups*",
+                "dstats*",
+                "hunts*",
+                "users*",
+                "fields*",
+                "queries*",
+                "sequence*",
+                "files*",
+                "history*"
+            ],
+            "privileges": [
+                "all"
+            ]
+        }
+    ]
+}

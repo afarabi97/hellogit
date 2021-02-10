@@ -15,7 +15,7 @@ k8s_resizer_version: "1.8.4"
 k8s_version: "1.20.0"
 kube_state_version: "v1.9.7"
 metallb_version: "v0.9.3"
-moloch_version: "2.4.1"
+arkime_version: "2.7.1"
 suricata_version: "6.0.0"
 helm_version: "v3.3.4"
 chartmuseum_version: "2.12.0"
@@ -53,7 +53,7 @@ kube_images:
   - { image: "docker.io/chartmuseum/chartmuseum:{{ chartmuseum_image_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/metallb/controller:{{ metallb_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/metallb/speaker:{{ metallb_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/tfplenum/moloch:{{ moloch_version }}", for_dip: true, for_gip: false }
+  - { image: "docker.io/tfplenum/arkime:{{ arkime_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/suricata:{{ suricata_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/zeek:{{ zeek_version }}", for_dip: true, for_gip: false }
   - { image: "docker.elastic.co/beats/metricbeat:{{ elastic_7_version }}", for_dip: true, for_gip: true }

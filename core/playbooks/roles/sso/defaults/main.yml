@@ -6,7 +6,7 @@ saml_apps:
   - "misp"
   - "wikijs"
   - "rocketchat"
-  - "moloch"
+  - "arkime"
   - "nifi"
 #  - "redmine"
 #  - "mattermost"

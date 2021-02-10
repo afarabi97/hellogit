@@ -1,0 +1,78 @@
+---
+
+- name: Flush Config
+  command: 'kubectl delete configmap arkime-bootstrap --ignore-not-found=true'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Create ConfigMap
+  command: "kubectl create configmap arkime-bootstrap --from-file {{ arkime_dir }}/config.ini"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Run bootstrap job
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Arkime Bootstrap"
+    file_name: "{{ arkime_dir }}/bootstrap.yml"
+
+- name: Wait for bootstrap to end
+  command: "kubectl wait job/arkime-bootstrap --for=condition=complete --timeout=-1s"
+  register: result
+  changed_when: result.rc == 0
+
+- name: Remove Bootstrap
+  command: kubectl delete -f {{ arkime_dir }}/bootstrap.yml --ignore-not-found
+  register: result
+  changed_when: result.rc == 0
+
+- name: Flush Config
+  command: 'kubectl delete configmap arkime-bootstrap --ignore-not-found=true'
+  register: result
+  changed_when: result.rc == 0
+
+- name: Get ES Password
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: true
+
+- name: Disable auto expand shards
+  uri:
+    url: "{{ elastic_url }}/{{ item }}/_settings"
+    method: PUT
+    validate_certs: no
+    user: "{{ elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: 
+      index: 
+        auto_expand_replicas: false
+    status_code: 200, 201
+  with_items: "{{ indices }}"
+  register: results
+  until: results.status == 200
+  retries: 10
+  delay: 5
+
+- name: Set shards
+  uri:
+    url: "{{ elastic_url }}/{{ item }}/_settings"
+    method: PUT
+    validate_certs: no
+    user: "{{ elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: 
+      index:
+        number_of_replicas: 1
+    status_code: 200, 201
+  with_items: "{{ indices }}"
+  register: results
+  until: results.status == 200
+  retries: 10
+  delay: 5
+...

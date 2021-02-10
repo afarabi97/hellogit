@@ -68,7 +68,7 @@ def execute_kit(password: str):
     gip_tags = ""
     system_name = get_system_name()
     if system_name == "GIP":
-        gip_tags = "--skip-tags moloch"
+        gip_tags = "--skip-tags arkime"
         do_stigs =  {
             "command": "make gip-server-stigs",
             "cwd_dir": str(STIGS_DIR),

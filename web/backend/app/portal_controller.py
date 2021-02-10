@@ -49,8 +49,8 @@ def _append_portal_link(portal_links: List, dns: str, ip: str = None):
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
         else:
             portal_links.append({'ip': '', 'dns': HTTPS_STR + dns, 'logins': 'admin/password'})
-    elif short_dns == "moloch":
-        logins = get_app_credentials('moloch-viewer','username','password')
+    elif short_dns == "arkime":
+        logins = get_app_credentials('arkime-viewer','username','password')
         if ip:
             portal_links.append({'ip': HTTPS_STR + ip, 'dns': HTTPS_STR + dns, 'logins': logins})
         else:

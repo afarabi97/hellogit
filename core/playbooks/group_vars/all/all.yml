@@ -39,8 +39,8 @@ kubernetes_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ install_dir }}/kubernetes"
 
 # Username and password for Web login
-moloch_login: 'assessor'
-moloch_pass: 'password'
+arkime_login: 'assessor'
+arkime_pass: 'password'
 
 # Directories in which to store IDS logs
 zeek_log_path: "/data/zeek"

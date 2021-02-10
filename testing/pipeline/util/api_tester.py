@@ -14,7 +14,7 @@ from typing import Union, List, Dict
 from models.ctrl_setup import ControllerSetupSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings
 from models.kit import KitSettings
-from models.catalog import (MolochCaptureSettings, MolochViewerSettings, ZeekSettings, SuricataSettings,
+from models.catalog import (ArkimeCaptureSettings, ArkimeViewerSettings, ZeekSettings, SuricataSettings,
 WikijsSettings, MispSettings, HiveSettings, CortexSettings, RocketchatSettings, CatalogSettings,
 MattermostSettings, NifiSettings, RedmineSettings, NetflowFilebeatSettings)
 from models.mip_config import MIPConfigSettings
@@ -400,11 +400,11 @@ class CatalogPayloadGenerator:
         if role == 'suricata':
             suricata_settings = self._catalog_settings.suricata_settings.get(node.hostname) # type: SuricataSettings
             return suricata_settings.deployment_name
-        elif role == 'moloch-viewer':
-            return self._catalog_settings.moloch_viewer_settings.deployment_name
-        elif role == 'moloch':
-            moloch_capture_settings = self._catalog_settings.moloch_capture_settings.get(node.hostname) # type: MolochCaptureSettings
-            return moloch_capture_settings.deployment_name
+        elif role == 'arkime-viewer':
+            return self._catalog_settings.arkime_viewer_settings.deployment_name
+        elif role == 'arkime':
+            arkime_capture_settings = self._catalog_settings.arkime_capture_settings.get(node.hostname) # type: ArkimeCaptureSettings
+            return arkime_capture_settings.deployment_name
         elif role == 'zeek':
             zeek_settings = self._catalog_settings.zeek_settings.get(node.hostname) # type: ZeekSettings
             return zeek_settings.deployment_name
@@ -432,10 +432,10 @@ class CatalogPayloadGenerator:
     def _get_catalog_dict(self, role: str, node: NodeSettings) -> Dict:
         if role == 'suricata':
             return self._catalog_settings.suricata_settings.get(node.hostname).to_dict()
-        elif role == 'moloch-viewer':
-            return self._catalog_settings.moloch_viewer_settings.to_dict()
-        elif role == 'moloch':
-            return self._catalog_settings.moloch_capture_settings.get(node.hostname).to_dict()
+        elif role == 'arkime-viewer':
+            return self._catalog_settings.arkime_viewer_settings.to_dict()
+        elif role == 'arkime':
+            return self._catalog_settings.arkime_capture_settings.get(node.hostname).to_dict()
         elif role == 'zeek':
             return self._catalog_settings.zeek_settings.get(node.hostname).to_dict()
         elif role == 'logstash':
@@ -573,12 +573,12 @@ class APITester:
         payload = self._catalog_payload_generator.generate("suricata", REINSTALL, SENSOR)
         self.install_app(payload)
 
-    def install_moloch_viewer(self):
-        payload = self._catalog_payload_generator.generate("moloch-viewer", INSTALL, SERVER_ANY)
+    def install_arkime_viewer(self):
+        payload = self._catalog_payload_generator.generate("arkime-viewer", INSTALL, SERVER_ANY)
         self.install_app(payload)
 
-    def install_moloch_capture(self):
-        payload = self._catalog_payload_generator.generate("moloch", INSTALL, SENSOR)
+    def install_arkime_capture(self):
+        payload = self._catalog_payload_generator.generate("arkime", INSTALL, SENSOR)
         self.install_app(payload)
 
     def install_zeek(self):

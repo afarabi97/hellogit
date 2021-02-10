@@ -5,8 +5,8 @@ dip_charts:
   - logstash
   - mattermost
   - misp
-  - moloch
-  - moloch-viewer
+  - arkime
+  - arkime-viewer
   - netflow-filebeat
   - nifi
   - redmine
