@@ -17,6 +17,7 @@
         validate_certs: no
       delegate_to: localhost
       with_items: "{{ esxi_unemployed_ctrls }}"
+      when: esxi_unemployed_ctrls | length > 0
 
     - name: "Remove previously built pipeline controller: {{ esxi_ctrl_name }}"
       ignore_errors: yes
@@ -28,3 +29,4 @@
         state: absent
         validate_certs: False
       delegate_to: localhost
+      when: esxi_ctrl_name != ""

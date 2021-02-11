@@ -84,7 +84,7 @@ class BaremetalRunner():
         remote_parser = subparsers.add_parser(
             SubCmd.run_remote_node, help="this subcommand runs remote node")
         remote_parser.set_defaults(which=SubCmd.run_remote_node)
-        
+
 
         verodin_parser = subparsers.add_parser(
             SubCmd.run_verodin, help="this subcommand run verodin traffic choosen from endpoint or network actors")
@@ -93,6 +93,7 @@ class BaremetalRunner():
 
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
+
         args = parser.parse_args()
         self.args = args
         try:
@@ -176,7 +177,7 @@ class BaremetalRunner():
                 executor = RemoteNode(self.ctrl_settings, self.kickstart_settings)
                 executor.remote_node_config()
             elif self.args.which == SubCmd.run_verodin:
-                executor = VerodinJob(self.verodin_settings, self.ctrl_settings, 
+                executor = VerodinJob(self.verodin_settings, self.ctrl_settings,
                                       self.kickstart_settings, self.kit_settings)
                 executor.run_job()
         except Exception as e:

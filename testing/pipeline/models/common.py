@@ -112,8 +112,8 @@ class NodeSettings(Model):
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument('--vm-datastore', dest='datastore', required=True, help="The name of vsphere's datastore where it will be storing its VMs.")
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.", required=True)
-        parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 0 which uses 96 as the last octet. [81, 113, 145, 177, 209]",
-                            default=0, choices=range(0, 5), type=int)
+        parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
+                            default=0, choices=range(0, 3), type=int)
         parser.add_argument('--vm-prefix', dest='vm_prefix', required=True, help="The prefix name of the VM(s)")
         parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
@@ -168,6 +168,9 @@ class HwNodeSettings(Model):
         self.redfish_password = ''
         self.os_raid = False
         self.monitoring_interface = ''
+        self.network_id = ''
+        self.network_block_index = 0
+        self.ctrl_owner = ""
 
     def set_hostname(self, node_type: str="ctrl", index: int=0):
         self.hostname = "{}{}.{}".format(node_type, index + 1, self.domain)
@@ -185,7 +188,6 @@ class HwNodeSettings(Model):
             self.redfish_password = self.b64decode_string(namespace.redfish_password)
 
         self.domain = namespace.domain
-        self.ipaddress = namespace.ipaddress
         self.gateway = namespace.gateway
         self.netmask = namespace.netmask
         self.username = namespace.username or self.username
@@ -197,6 +199,13 @@ class HwNodeSettings(Model):
         self.template = namespace.template
         self.redfish_user = namespace.redfish_user
         self.monitoring_interface = namespace.monitoring_interface
+        if self.node_type == 'mip':
+            self.network_id = namespace.network_id
+            self.network_block_index = namespace.network_block_index
+            self.ipaddress = IPAddressManager(self.network_id, self.network_block_index).get_next_node_address()
+            self.ctrl_owner = namespace.ctrl_owner + '-'
+        else:
+            self.ipaddress = namespace.ipaddress
 
     @staticmethod
     def add_args(parser: ArgumentParser, is_for_ctrl_setup: bool=False):
@@ -208,13 +217,18 @@ class HwNodeSettings(Model):
         parser.add_argument('--dns-servers', dest='dns_servers', nargs="+", required=True, help="The dns servers that will be used for nodes created.")
         parser.add_argument("--gateway", dest="gateway", help="The gateway ipaddress for the VM.", required=True)
         parser.add_argument("--netmask", dest="netmask", help="The network netmask needed for setting the management interface.", default="255.255.255.0")
-        parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.", required=True)
+        parser.add_argument("--ipaddress", dest="ipaddress", help="ipaddress for the controller.")
         parser.add_argument("--node-username", dest="username", help="The username for ctrl and node.", default="root")
         parser.add_argument("--node-password", dest="password", help="The root password for ctrl and node.", required=True)
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
         parser.add_argument("--monitoring-interface", dest="monitoring_interface", nargs= "+", help="sensor monitoring interface")
+        parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
+        parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",
+                            default=0, choices=range(0, 3), type=int)
+        parser.add_argument('--ctrl-owner', dest='ctrl_owner', default="default",
+                            help="The name of the person who created the controller.")
 
     def set_from_defaults(self, other):
         for key in self.__dict__:

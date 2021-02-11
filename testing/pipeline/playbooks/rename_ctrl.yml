@@ -14,7 +14,7 @@
     - name: Set vm facts
       set_fact:
         vm_name: "{{ ctrl_name }}"
-        new_vm_name: "Pipeline-{{ system_name }}-Controller-{{ ansible_date_time.date }}"
+        new_vm_name: "{{ node.ctrl_owner }}Pipeline-{{ system_name }}-Controller-{{ ansible_date_time.date }}"
         datacenter: None #Required variables
         cluster_name: None #Required variables
 
@@ -28,7 +28,7 @@
         folder: "{{ datacenter }}"
         name: "{{ vm_name }}"
       register: vm_facts
-      
+
     - name: Rename "{{ vm_name }}" to "{{ new_vm_name }}"
       vmware_guest:
         hostname: "{{ esxi.ipaddress}}"

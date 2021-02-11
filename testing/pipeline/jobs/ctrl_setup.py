@@ -171,6 +171,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
     def __init__(self, baremetal_ctrl_settings: HwControllerSetupSettings):
         self.baremetal_ctrl_settings = baremetal_ctrl_settings
         self.system_name = self.baremetal_ctrl_settings.system_name
+        self.ctrl_owner = self.baremetal_ctrl_settings.node.ctrl_owner
 
     def create_smart_connect_client(self) -> vim.ServiceInstance:
     # This will connect us to vCenter
@@ -179,7 +180,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
                                 pwd=self.baremetal_ctrl_settings.esxi.password,
                                 port=443)
 
-    def get_vm_list(self) -> list:
+    def get_vm_list(self, active_only=False) -> list:
         # make connection
         service_instance = self.create_smart_connect_client()
 
@@ -191,20 +192,36 @@ class BaremetalControllerSetup(ControllerSetupJob):
         for child in children:
             summary = child.summary
             if summary.config.name !=None:
-                vm_list.append(summary.config.name)
+                if active_only:
+                    if summary.runtime.powerState == 'poweredOn':
+                        vm_list.append(summary.config.name)
+                else:
+                    vm_list.append(summary.config.name)
         Disconnect(service_instance)
         return vm_list
 
+
     def get_controller_name(self) -> str:
-        for name in self.get_vm_list():
-            if f"Pipeline-{ self.system_name }" in name:
-                return name
+
+        if self.system_name == 'MIP':
+            for name in self.get_vm_list():
+                if f"{ self.ctrl_owner }Pipeline-{ self.system_name }" in name:
+                    return name
+        else:
+            for name in self.get_vm_list():
+                if f"Pipeline-{ self.system_name }" in name:
+                    return name
 
     def unemployed_ctrls(self) -> list:
         unemployed_controllers = []
-        for name in self.get_vm_list():
-            if self.system_name in name or "Controller" in name or self.system_name.lower() in name or "controller" in name:
+        if self.system_name == "MIP":
+            name = self.get_controller_name()
+            if name:
                 unemployed_controllers.append(name)
+        else:
+            for name in self.get_vm_list():
+                if self.system_name in name or self.system_name.lower() in name:
+                    unemployed_controllers.append(name)
         return unemployed_controllers
 
     def copy_controller(self,build_type) -> None:
@@ -212,7 +229,6 @@ class BaremetalControllerSetup(ControllerSetupJob):
             path_type = str(self.baremetal_ctrl_settings.node.template_path) + str(self.baremetal_ctrl_settings.node.template)
         else:
             path_type = str(self.baremetal_ctrl_settings.node.ctrl_path) + str(self.baremetal_ctrl_settings.node.ctrl_name)
-
         cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"
@@ -229,8 +245,19 @@ class BaremetalControllerSetup(ControllerSetupJob):
         execute_playbook([PIPELINE_DIR + 'playbooks/ctrl_config.yml'],
                          self.baremetal_ctrl_settings.to_dict())
 
+    def _at_controller_limit(self):
+        total = 0
+        for vm in self.get_vm_list(active_only=True):
+            if 'mip' in vm.lower() and 'controller' in vm.lower() and self.get_controller_name() not in vm:
+                total += 1
+        return total >= 3
+
     def setup_controller(self):
         hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
+        if self.system_name == "MIP":
+            if self._at_controller_limit():
+                print("Host already has 3 MIP controllers! Network block indexes full [64,128,192]")
+                sys.exit(1)
         #Sets controller name found on esxi server
         self.baremetal_ctrl_settings.esxi_ctrl_name = self.get_controller_name()
         #Sets list of unemployed controllers to be powered off

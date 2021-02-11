@@ -65,6 +65,8 @@ class HwControllerSetupSettings(ControllerSetupSettings):
 
     def from_namespace(self, namespace: Namespace):
 
+        self.system_name = namespace.system_name
+
         self.rhel_source_repo = namespace.rhel_source_repo
         self.run_type = namespace.run_type
 
@@ -72,12 +74,14 @@ class HwControllerSetupSettings(ControllerSetupSettings):
         self.esxi.from_namespace(namespace)
 
         self.node = HwNodeSettings()
-        self.node.from_namespace(namespace)
+        if self.system_name == "MIP":
+            self.node.from_namespace(namespace, node_type="mip")
+        else:
+            self.node.from_namespace(namespace)
 
         self.repo = RepoSettings()
         self.repo.from_namespace(namespace)
 
-        self.system_name = namespace.system_name
 
         self._validate_settings()
 

@@ -9,6 +9,7 @@ Setup Hardware MIP Controller:
     python3 testing/pipeline/baremetal_pipeline.py \
     --system-name "MIP" \
     setup-baremetal-controller \
+    --ctrl-owner "$CTRL_OWNER" \
     --run-type "$BUILD_TYPE" \
     --esxi-ipaddress "$ESXI_IPADDRESS" \
     --esxi-username "$ESXI_USERNAME" \
@@ -20,7 +21,8 @@ Setup Hardware MIP Controller:
     --template-path "$TEMPLATE_PATH" \
     --template "$TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
-    --ipaddress "$CONTROLLER_IPADDRESS" \
+    --network-id          "$NETWORK_ID"              \
+    --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers $CONTROLLER_DNS_SERVERS \
     --repo-username "$REPO_USERNAME" \
     --repo-password "$REPO_PASSWORD" \
