@@ -246,11 +246,13 @@ class BaremetalControllerSetup(ControllerSetupJob):
                          self.baremetal_ctrl_settings.to_dict())
 
     def _at_controller_limit(self):
-        total = 0
-        for vm in self.get_vm_list(active_only=True):
-            if 'mip' in vm.lower() and 'controller' in vm.lower() and self.get_controller_name() not in vm:
-                total += 1
-        return total >= 3
+        vm_list = self.get_vm_list(active_only=True)
+        controller = self.get_controller_name()
+        new_list = [name for name in vm_list if 'mip' in name.lower() and 'controller' in name.lower()]
+        if controller !=None and controller in new_list:
+            new_list.remove(controller)
+        ctrl_count = len(new_list)
+        return ctrl_count >= 3
 
     def setup_controller(self):
         hwsettings = ControllerSetupJob(self.baremetal_ctrl_settings)
