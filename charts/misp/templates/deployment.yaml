@@ -14,6 +14,29 @@ spec:
       labels:
         component: misp
     spec:
+      initContainers:
+      - name: misp-init
+        image: "{{ .Values.python_image }}"
+        securityContext:
+          runAsUser: 0
+        command:
+        - "/bin/sh"
+        - "-c"
+        - |-
+          chown -R 33:33 /tmp/misp
+          python3 -u /init_setup.py
+        env:
+        - name: MISP_MODULES_URL
+          value: {{ .Values.modules_url }}
+        - name: MISP_MODULES_PORT
+          value: "6666"
+        volumeMounts:
+        - name: misp-vol
+          mountPath: /tmp/misp
+          subPath: appConfig
+        - name: misp-setup
+          mountPath: /init_setup.py
+          subPath: init_setup.py
       containers:
       - name: mariadb
         image: {{ .Values.mariadbImage }}
@@ -33,20 +56,31 @@ spec:
         - name: misp-vol
           mountPath: /var/lib/mysql
           subPath: database
-      - name: misp
-        image: {{ .Values.mispImage }}
+      - name: redis
+        image: {{ .Values.redisImage }}
         imagePullPolicy: IfNotPresent
         ports:
+        - containerPort: 6379
+      - name: misp
+        image: {{ .Values.mispImage }}
+        imagePullPolicy: Always
+        ports:
         - name: misp
-          containerPort: 443
+          containerPort: 8443
         env:
-        - name: MISP_BASEURL
+        - name: SETTING_MISP_baseurl
           value: https://misp.{{ .Values.domain }}
-        - name: ORG_NAME
+        - name: SETTING_MISP_baseurl
+          value: https://misp.{{ .Values.domain }}
+        - name: SETTING_MISP_org
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: org_name
+        - name: SETTING_MISP_language
+          value: eng
+        - name: SETTING_MISP_host_org_id
+          value: "1"
         - name: MYSQL_HOST
           value: 127.0.0.1
         - name: MYSQL_DATABASE
@@ -55,21 +89,47 @@ spec:
           value: {{ .Values.sqlUsername }}
         - name: MYSQL_PASSWORD
           value: {{ .Values.sqlUserPassword }}
-        - name: MISP_EXTERNAL_CONFIG
-          value: 'true'
-        - name: MISP_MODULES_URL
+        - name: REDIS_HOST
           value: localhost
+        - name: REDIS_PORT
+          value: "6379"
+        - name: EXTERNAL_CONFIG
+          value: /tmp/config.external.php
+        - name: EXTERNAL_BOOTSRAP
+          value: /tmp/bootstrap.external.php
+        - name: MISP_MODULES_URL
+          value: {{ .Values.modules_url }}
         - name: MISP_MODULES_PORT
           value: "6666"
+        - name: SETTING_Plugin_Cortex_services_url
+          value: {{ .Values.cortex_url }}
+        - name: SETTING_Plugin_Cortex_services_port
+          value: "443"
+        - name: SETTING_Plugin_Enrichment_geoip_country_enabled
+          value: "true"
+        - name: SETTING_Plugin_Enrichment_geoip_country_local_geolite_db
+          value: /misp_modules/geoip/GeoLite2-Country.mmdb
+        - name: SETTING_Plugin_Enrichment_geoip_city_enabled
+          value: "true"
+        - name: SETTING_Plugin_Enrichment_geoip_city_local_geolite_db
+          value: /misp_modules/geoip/GeoLite2-City.mmdb
+        - name: SETTING_Plugin_Enrichment_geoip_asn_enabled
+          value: "true"
+        - name: SETTING_Plugin_Enrichment_geoip_asn_local_geolite_db
+          value: /misp_modules/geoip/GeoLite2-ASN.mmdb
+        - name: SETTING_Plugin_Cortex_ssl_cafile
+          value: /etc/ssl/certs/container/ca.crt
+        - name: SETTING_Plugin_CustomAuth_custom_logout
+          value: /Shibboleth.sso/Logout
         volumeMounts:
         - name: misp-vol
           mountPath: /var/www/MISP/app/Config
           subPath: appConfig
         - name: misp-config
-          mountPath: /var/www/MISP/app/Config/config.external.php
+          mountPath: /tmp/config.external.php
           subPath: config.external.php
         - name: misp-config
-          mountPath: /var/www/MISP/app/Config/bootstrap.external.php
+          mountPath: /tmp/bootstrap.external.php
           subPath: bootstrap.external.php
         - name: misp-config
           mountPath: /etc/apache2/sites-enabled/misp.conf
@@ -87,11 +147,6 @@ spec:
           mountPath: /etc/shibboleth/idp/
         - name: misp-saml
           mountPath: /etc/shibboleth/misp-saml-certs/
-      - name: misp-modules
-        image: {{ .Values.mispModulesImage }}
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 6666
       nodeSelector:
         role: "server"
       volumes:
@@ -101,6 +156,7 @@ spec:
       - name: misp-config
         configMap:
           name: {{ .Release.Name }}-configmap
+          defaultMode: 0444
       - name: misp-setup
         configMap:
           name: {{ .Release.Name }}-setup
@@ -120,3 +176,28 @@ spec:
         secret:
           secretName: misp-saml
           defaultMode: 0444
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-modules
+  labels:
+    component: misp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: misp-modules
+  template:
+    metadata:
+      labels:
+        component: misp-modules
+    spec:
+      containers:
+      - name: misp-modules
+        image: {{ .Values.mispModulesImage }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6666
+      nodeSelector:
+        role: "server"

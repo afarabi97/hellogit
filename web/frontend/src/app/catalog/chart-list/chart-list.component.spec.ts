@@ -102,6 +102,12 @@ describe('ChartListComponent', () => {
           "description": "Modern Wiki based on NodeJS.",
           "pmoSupported": true
         },
+        {
+          "appVersion": "2.4.139",
+          "application": "misp",
+          "description": "MISP is a malware information sharing platform",
+          "pmoSupported": true
+        },
       ];
 
       component.charts = charts;

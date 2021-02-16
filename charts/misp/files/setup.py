@@ -308,7 +308,7 @@ if __name__ == '__main__':
             org = setup.get_org(org_id = 1)
             if org.status_code == 200:
                 setup.edit_org_name(org_id=1,name=ORG_NAME)
-            elif setup.status_code == 404:
+            elif org.status_code == 404:
                 setup.add_org(name=ORG_NAME)
         if setup.get_cortex_status():
             setup.setup_misp_cortex_user()

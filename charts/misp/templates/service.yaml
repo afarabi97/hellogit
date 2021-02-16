@@ -11,10 +11,22 @@ spec:
   ports:
   - name: misp-https
     port: 443
-    targetPort: 443
+    targetPort: 8443
     protocol: TCP
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: misp-modules
+  labels:
+    component: misp-modules
+spec:
+  selector:
+    component: {{ .Release.Name }}-modules
+  ports:
   - name: misp-modules
     port: 6666
     targetPort: 6666
     protocol: TCP
-  type: LoadBalancer
+  type: ClusterIP

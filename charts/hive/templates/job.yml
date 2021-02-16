@@ -21,7 +21,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "python3 /setup.py"
+        - "python3 -u /setup.py"
         env:
           - name: CASE_TEMPLATE
             value: "{{ .Values.case_template }}"

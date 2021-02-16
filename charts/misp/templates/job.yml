@@ -22,7 +22,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "python3 /setup.py"
+        - "python3 -u /setup.py"
         env:
         - name: CORTEX_INTEGRATION
           value: {{ .Values.cortexIntegration | quote}}
@@ -84,9 +84,6 @@ spec:
       nodeSelector:
         role: "server"
       volumes:
-      - name: misp-vol
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
       - name: setup
         configMap:
           name: {{ .Release.Name }}-setup

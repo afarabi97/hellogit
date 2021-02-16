@@ -23,7 +23,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "python3 /filebeat-setup.py"
+        - "python3 -u /filebeat-setup.py"
         env:
         - name: FILEBEAT_USER_EMAIL
           value: {{ .Values.filebeat_user_email }}

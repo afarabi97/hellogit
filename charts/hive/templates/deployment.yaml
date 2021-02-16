@@ -23,7 +23,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "python3 /init_setup.py"
+        - "python3 -u /init_setup.py"
         env:
         - name: CORTEX_INTEGRATION
           value: {{ .Values.cortexIntegration | quote }}

@@ -33,8 +33,9 @@ nifi_version: 1.12.1
 mariadb_version: 10.5.8
 mattermost_version: v5.31.1
 wikijs_version: 2.5.170
-misp_version: 2.4.133
-misp_modules_version: 2.4.121
+misp_version: 2.4.139
+misp_modules_version: 2.4.136
+redis_version: 6.0.10
 crio_version: "v1.20.0"
 conmon_version: 2.0.12
 calico_version: "v3.16.4"
@@ -83,6 +84,7 @@ kube_images:
   - { image: "docker.io/requarks/wiki:{{ wikijs_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/misp:{{ misp_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/misp-modules:{{ misp_modules_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/redis:{{ redis_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/pod2daemon-flexvol:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/cni:{{ calico_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/calico/node:{{ calico_version }}", for_dip: true, for_gip: true }

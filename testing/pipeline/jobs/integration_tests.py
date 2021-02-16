@@ -32,14 +32,16 @@ class IntegrationTestsJob:
         root_ca = check_web_ca()
         REPLAY_PACAP_URL = 'https://{}/api/pcap/replay'.format(self.ctrl_settings.node.ipaddress)
         for sensor in self.kickstart_settings.sensors: # type: NodeSettings
-            payload = {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
-            payload2 = {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
-            payload3 = {"pcap":"smb1_transaction_request.pcap", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
-            response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
-            response2 = requests.post(REPLAY_PACAP_URL, json=payload2, verify=root_ca, headers=headers)
-            response3 = requests.post(REPLAY_PACAP_URL, json=payload3, verify=root_ca, headers=headers)
-            if response.status_code != 200 or response2.status_code != 200 or response3.status_code != 200:
-                raise Exception("Failed to replay pcap.")
+            payloads = [
+                {"pcap":"dns-dnskey.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]},
+                {"pcap":"get.trace", "sensor": sensor.ipaddress, "ifaces": ["ens224"]},
+                {"pcap":"smb1_transaction_request.pcap", "sensor": sensor.ipaddress, "ifaces": ["ens224"]}
+            ]
+            for payload in payloads:
+                response = requests.post(REPLAY_PACAP_URL, json=payload, verify=root_ca, headers=headers)
+                if response.status_code != 200:
+                    logging.error(str(response.status_code) + ': ' + response.text)
+                    raise Exception("Failed to replay pcap.")
 
     def _set_api_keys_to_environment(self):
         try:

@@ -1,76 +1,62 @@
-FROM python:3.7-buster AS build
+FROM python:3.8-buster AS build
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV WORKDIR="/usr/local/src/misp_modules"
 ENV VENV_DIR="/misp_modules"
-
-# Modules version
-ARG MISP_MODULES_VERSION=v2.4.120
+ARG MISP_MODULES_VERSION=2.4.136
+ARG MISP_MODULES_TAG=v${MISP_MODULES_VERSION}
+ARG MAXMIND_API_KEY
 
 # Install Packages for build
 RUN set -eu \
         ;mkdir -p ${WORKDIR} ${VENV_DIR} \
-        ;apt-get update  \
-        ;apt-get install -y \
-                git \
-                libpq5 \
-                libjpeg-dev \
-                tesseract-ocr \
-                libpoppler-cpp-dev \
-                imagemagick \
-                virtualenv \
-                libopencv-dev \
-                zbar-tools \
-                libzbar0 \
-                libzbar-dev \
-                libfuzzy-dev \
+        ;apt-get update && apt-get install -y --no-install-recommends \
+         git libpq5 libjpeg-dev tesseract-ocr \
+         libpoppler-cpp-dev imagemagick virtualenv libopencv-dev \
+         zbar-tools libzbar0 libzbar-dev libfuzzy-dev \
         ;apt-get -y autoremove \
         ;apt-get -y clean \
-        ;rm -rf /var/lib/apt/lists/* \
-        ;
+        ;rm -rf /var/lib/apt/lists/*
 
 # Create MISP Modules
 RUN set -eu \
         ;git clone https://github.com/MISP/misp-modules.git ${WORKDIR} \
         ;virtualenv -p python3 ${VENV_DIR}/venv \
         ;cd ${WORKDIR} \
-        ;git checkout tags/${MISP_MODULES_VERSION} \
+        ;git checkout tags/${MISP_MODULES_TAG} \
         ;${VENV_DIR}/venv/bin/pip3 install -I -r REQUIREMENTS --no-cache-dir \
         ;${VENV_DIR}/venv/bin/pip3 install . --no-cache-dir \
-        ;
+        ;${VENV_DIR}/venv/bin/pip3 install git+https://github.com/abenassi/Google-Search-API socialscan dnsdb2 censys pyfaup \
+        ;curl -L -o /tmp/GeoLite2-ASN.tar.gz "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${MAXMIND_API_KEY}&suffix=tar.gz" \
+        ;curl -L -o /tmp/GeoLite2-City.tar.gz "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${MAXMIND_API_KEY}&suffix=tar.gz" \
+        ;curl -L -o /tmp/GeoLite2-Country.tar.gz "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${MAXMIND_API_KEY}&suffix=tar.gz" \
+        ;mkdir -p /tmp/geoip \
+        ;tar -ztf /tmp/GeoLite2-ASN.tar.gz | grep mmdb | xargs -I X tar -Ozxf /tmp/GeoLite2-ASN.tar.gz X >> /tmp/geoip/GeoLite2-ASN.mmdb \
+        ;tar -ztf /tmp/GeoLite2-City.tar.gz | grep mmdb | xargs -I X tar -Ozxf /tmp/GeoLite2-City.tar.gz X >> /tmp/geoip/GeoLite2-City.mmdb \
+        ;tar -ztf /tmp/GeoLite2-Country.tar.gz | grep mmdb | xargs -I X tar -Ozxf /tmp/GeoLite2-Country.tar.gz X >> /tmp/geoip/GeoLite2-Country.mmdb
+
 
 #########################################
 # Start Final Docker Image
 #
-FROM python:3.7-slim-buster AS final
+FROM python:3.8-slim-buster AS final
 
-ENV DEBIAN_FRONTEND noninteractive 
+ENV DEBIAN_FRONTEND noninteractive
 ENV VENV_DIR="/misp_modules"
 
 # Copy all builded files from build stage
 COPY --from=build ${VENV_DIR} ${VENV_DIR}
+COPY --from=build /tmp/geoip ${VENV_DIR}/geoip
 
 # Install Packages to run it
 RUN set -eu \
-        ;apt-get update  \
-        ;apt-get install -y \
-                curl \
-                libpq5 \
-                # libjpeg-dev \
-                tesseract-ocr \
-                libpoppler-cpp-dev \
-                imagemagick \
-                # virtualenv \
-                # libopencv-dev \
-                zbar-tools \
-                libzbar0 \
-                # libzbar-dev \
-                # libfuzzy-dev \
+        ;apt-get update && apt-get install -y --no-install-recommends \
+         curl libpq5 tesseract-ocr libpoppler-cpp-dev imagemagick \
+         zbar-tools libzbar0 libgl1-mesa-glx \
         ;apt-get -y autoremove \
         ;apt-get -y clean \
         ;rm -rf /var/lib/apt/lists/* \
-        ;chown -R nobody ${VENV_DIR} \
-        ;
+        ;chown -R nobody ${VENV_DIR}
 
 # Entrypoint
         COPY files/entrypoint.sh /entrypoint.sh
@@ -131,4 +117,3 @@ LABEL   org.opencontainers.image.created="${BUILD_DATE}" \
         org.opencontainers.image.documentation="${DOCUMENTATION}" \
         org.opencontainers.image.authors="${AUTHOR}" \
         org.opencontainers.image.licenses="${LICENSE}"
-
