@@ -47,8 +47,8 @@
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
     body_format: json
-    body: 
-      index: 
+    body:
+      index:
         auto_expand_replicas: false
     status_code: 200, 201
   with_items: "{{ indices }}"
@@ -66,7 +66,7 @@
     password: "{{ es_password.stdout }}"
     force_basic_auth: yes
     body_format: json
-    body: 
+    body:
       index:
         number_of_replicas: 1
     status_code: 200, 201
