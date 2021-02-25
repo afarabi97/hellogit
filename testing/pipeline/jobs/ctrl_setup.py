@@ -220,7 +220,7 @@ class BaremetalControllerSetup(ControllerSetupJob):
                 unemployed_controllers.append(name)
         else:
             for name in self.get_vm_list():
-                if self.system_name in name or self.system_name.lower() in name:
+                if self.system_name.lower() in name.lower() or "controller" in name.lower():
                     unemployed_controllers.append(name)
         return unemployed_controllers
 
