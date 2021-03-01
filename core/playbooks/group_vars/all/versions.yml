@@ -23,9 +23,8 @@ chartmuseum_image_version: "v0.12.0"
 elastic_7_version: "7.9.3"
 elastic_7_chart_version: "7.9.3"
 window_remote_installer_version: "1.2"
-hive_elastic_version: "6.8.12"
-hive_cortex_version: "3.0.1"
-hive_version: 4.0.1
+hive_cortex_version: 3.1.1-1
+hive_version: 4.0.5-1
 cassandra_version: 3.11.9
 elastic_operator: 1.3.0
 redmine_version: "4.1.1"
@@ -65,8 +64,7 @@ kube_images:
   - { image: "docker.elastic.co/logstash/logstash:{{ elastic_7_version }}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/eck/eck-operator:{{ elastic_operator }}", for_dip: true, for_gip: true }
   - { image: "docker.io/tfplenum/windows_remote_installer:{{ window_remote_installer_version }}", for_dip: true, for_gip: false }
-  - { image: "docker.elastic.co/elasticsearch/elasticsearch:{{ hive_elastic_version }}", for_dip: true, for_gip: true }
-  - { image: "docker.io/thehiveproject/cortex:{{ hive_cortex_version }}", for_dip: true, for_gip: true }
+  - { image: "docker.io/tfplenum/cortex:{{ hive_cortex_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/thehiveproject/thehive4:{{ hive_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/cassandra:{{ cassandra_version }}", for_dip: true, for_gip: true }
   - { image: "k8s.gcr.io/kube-apiserver:v{{ k8s_version }}", for_dip: true, for_gip: true }

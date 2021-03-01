@@ -37,9 +37,15 @@ describe('ChartListComponent', () => {
   it('should list chart', waitForAsync(() => {
       const charts = [
         {
-          "appVersion": "3.4.0",
+          "appVersion": "4.0.5",
           "application": "hive",
           "description": "TheHive is a scalable 4-in-1 open source and free Security Incident Response Platform.",
+          "pmoSupported": true
+        },
+        {
+          "appVersion": "3.1.1",
+          "application": "cortex",
+          "description": "Cortex is a Powerful Observable Analysis and Active Response Engine.",
           "pmoSupported": true
         },
         {
@@ -116,7 +122,7 @@ describe('ChartListComponent', () => {
       fixture.whenStable().then(() => {
         const debug: DebugElement = fixture.debugElement;
         const cards = debug.queryAll(By.directive(CardComponent));
-        expect(cards.length).toEqual(12);
+        expect(cards.length).toEqual(13);
 
         for (const i in cards) {
           if (cards.hasOwnProperty(i)) {

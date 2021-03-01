@@ -1,5 +1,5 @@
-elastic_image: elasticsearch/elasticsearch:6.8.12
-cortex_image: thehiveproject/cortex:3.0.1
+elastic_image: elasticsearch/elasticsearch:7.9.3
+cortex_image: tfplenum/cortex:3.1.1-1
 python_image: tfplenum/python:3.9.0
 corex_port: 9001
 nginx_image: nginx:1.19.6

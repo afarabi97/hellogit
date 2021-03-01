@@ -140,7 +140,7 @@
           "consentRequired": false,
           "config": {
             "aggregate.attrs": "true",
-            "multivalued": "true",
+            "multivalued": "false",
             "userinfo.token.claim": "true",
             "user.attribute": "hive_role",
             "id.token.claim": "true",
@@ -178,6 +178,22 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "cortex_org",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "Hive Org",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "false",
+            "multivalued": "false",
+            "userinfo.token.claim": "true",
+            "user.attribute": "hive_org",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "hive_org",
             "jsonType.label": "String"
           }
         },
@@ -343,6 +359,19 @@
             "aggregate.attrs": "false",
             "friendly.name": "cortex_org",
             "attribute.name": "cortex_org"
+          }
+        },
+        {
+          "name": "Hive Org",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "attribute.nameformat": "Basic",
+            "user.attribute": "hive_org",
+            "aggregate.attrs": "false",
+            "friendly.name": "hive_org",
+            "attribute.name": "hive_org"
           }
         },
         {

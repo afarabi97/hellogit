@@ -23,18 +23,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "python3 -u /init_setup.py"
-        env:
-        - name: OPEN_ID_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: cortex-openid
-              key: openid-secret
-        - name: CORTEX_ORGANIZATION
-          valueFrom:
-            secretKeyRef:
-              name: cortex-secret
-              key: org_name
+        - "python3 /init_setup.py"
         volumeMounts:
         - name: data
           mountPath: /tmp/elastic-data
@@ -67,15 +56,15 @@ spec:
           - name: http.host
             value: 0.0.0.0
           - name: cluster.name
-            value: hive
-          - name: thread_pool.index.queue_size
-            value: "100000"
+            value: cortex
           - name: thread_pool.search.queue_size
             value: "100000"
-          - name: thread_pool.bulk.queue_size
+          - name: thread_pool.write.queue_size
             value: "100000"
           - name: discovery.type
             value: single-node
+          - name: xpack.security.enabled
+            value: "false"
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
@@ -86,8 +75,6 @@ spec:
         ports:
         - name: https
           containerPort: 443
-        securityContext:
-          runAsUser: 0
         command:
         - "/bin/sh"
         - "-c"
@@ -102,15 +89,33 @@ spec:
       - name: cortex
         image: "{{ .Values.cortex_image }}"
         imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
+        env:
+        - name: OPEN_ID_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cortex-openid
+              key: openid-secret
+        - name: CORTEX_ORGANIZATION
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: org_name
+        - name: APPLICATION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cortex-secret
+              key: application_secret
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "/opt/cortex/entrypoint --no-config"
         ports:
         - name: cortex
           containerPort: {{ .Values.corex_port }}
         volumeMounts:
-        - name: api-cache
+        - name: cortexconfig
           mountPath: /etc/cortex/application.conf
-          subPath: cortex-data/application.conf
+          subPath: cortex.conf
         - name: api-cache
           mountPath: /usr/local/openjdk-8/jre/lib/security/cacerts
           subPath: keystore/cacerts

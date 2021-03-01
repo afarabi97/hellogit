@@ -27,8 +27,6 @@ spec:
         env:
         - name: CORTEX_INTEGRATION
           value: {{ .Values.cortexIntegration | quote }}
-        - name: MISP_INTEGRATION
-          value: {{ .Values.mispIntegration | quote }}
 {{- if .Values.cortexIntegration }}
         - name: CORTEX_SUPERADMIN_USERNAME
           valueFrom:
@@ -46,23 +44,11 @@ spec:
               name: cortex-secret
               key: org_user_username
 {{- end }}
-{{- if .Values.mispIntegration }}
-        - name: MISP_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: misp-secret
-              key: hive_user_api_key
-{{- end }}
         - name: KEYSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: keystore_password
-        - name: OPEN_ID_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: hive-openid
-              key: openid-secret
         volumeMounts:
         - name: api-cache
           mountPath: /tmp/hive
@@ -109,8 +95,6 @@ spec:
         ports:
         - name: https
           containerPort: 443
-        securityContext:
-          runAsUser: 0
         command:
         - "/bin/sh"
         - "-c"
@@ -128,13 +112,32 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "/opt/thehive/entrypoint --no-config"
+        - "export $(cat /etc/thehive/application.env | xargs) && /opt/thehive/entrypoint --no-config"
         env:
         - name: APPLICATION_SECRET
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: application_secret
+{{- if .Values.mispIntegration }}
+        - name: MISP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: misp-secret
+              key: hive_user_api_key
+{{- end }}
+        - name: KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: keystore_password
+        - name: OPEN_ID_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: hive-openid
+              key: openid-secret
+        - name: THEHIVE_ORGANIZATION
+          value: {{ .Values.org_name }}
         ports:
         - containerPort: {{ .Values.hive_port }}
         volumeMounts:
@@ -144,9 +147,12 @@ spec:
         - name: data
           mountPath: /opt/thp_data/files/thehive
           subPath: thehive
-        - name: api-cache
+        - name: hiveconfig
           mountPath: /etc/thehive/application.conf
-          subPath: hive-data/application.conf
+          subPath: hive.conf
+        - name: api-cache
+          mountPath: /etc/thehive/application.env
+          subPath: hive-data/application.env
         - name: api-cache
           mountPath: /etc/thehive/webCA.jks
           subPath: keystore/webCA.jks
@@ -159,16 +165,6 @@ spec:
       - name: {{ .Release.Name }}-secret
         secret:
           secretName: {{ .Release.Name }}-secret
-{{- if .Values.cortexIntegration }}
-      - name: cortex-secret
-        secret:
-          secretName: cortex-secret
-{{- end }}
-{{- if .Values.mispIntegration }}
-      - name: misp-secret
-        secret:
-          secretName: misp-secret
-{{- end }}
       - name: setup
         configMap:
           name: {{ .Release.Name }}-setup

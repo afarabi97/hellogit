@@ -22,7 +22,7 @@
     },
     {
       "type": "textinput",
-      "default_value": "user@hive.local",
+      "default_value": "user@thehive.local",
       "description": "Enter Username",
       "required": true,
       "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
@@ -40,7 +40,7 @@
     },
     {
       "type": "textinput",
-      "default_value": "org_admin@hive.local",
+      "default_value": "org_admin@thehive.local",
       "description": "Enter Username",
       "required": true,
       "regexp": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",

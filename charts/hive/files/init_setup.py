@@ -8,12 +8,9 @@ from requests.auth import HTTPBasicAuth
 CORTEX_SUPERADMIN_USERNAME=os.getenv('CORTEX_SUPERADMIN_USERNAME',default='')
 CORTEX_SUPERADMIN_PASSWORD=os.getenv('CORTEX_SUPERADMIN_PASSWORD',default='')
 CORTEX_USER_USERNAME=os.getenv('CORTEX_USER_USERNAME',default='')
-MISP_API_KEY=os.getenv('MISP_API_KEY',default='')
 KEYSTORE_PASSWORD=os.getenv('KEYSTORE_PASSWORD',default='')
-OPEN_ID_SECRET=os.getenv('OPEN_ID_SECRET',default='')
 CORTEX_INTEGRATION=os.getenv('CORTEX_INTEGRATION',default=False)
-MISP_INTEGRATION=os.getenv('MISP_INTEGRATION',default=False)
-CONF_FILE = '/tmp/hive/application.conf'
+ENV_FILE = '/tmp/hive/application.env'
 TRUST_STORE = '/tmp/keystore/cacerts'
 CUSTOM_KEYSTORE = '/tmp/keystore/webCA.jks'
 CA = '/etc/ssl/certs/container/ca.crt'
@@ -27,23 +24,14 @@ def get_cortex_api():
 
 def update_config_file():
     print("Editing Hive Configuration File")
+    lines = []
     try:
-        if not os.path.isfile(CONF_FILE):
-            shutil.copy('/data/config.conf',CONF_FILE)
-        fin = open(CONF_FILE, "rt")
-        data = fin.read()
         if CORTEX_INTEGRATION == 'true':
-            print("Configuring Cortex Integration")
+            print("Setting Cortex API Key")
             CORTEX_API_KEY = get_cortex_api()
-            data = data.replace('##CORTEX_API_KEY##', CORTEX_API_KEY)
-        if MISP_INTEGRATION == 'true':
-            print("Configuring MISP Integration")
-            data = data.replace('##MISP_API_KEY##', MISP_API_KEY)
-        data = data.replace('##KEYSTORE_PASSWORD##', KEYSTORE_PASSWORD)
-        data = data.replace('##OPEN_ID_SECRET##', OPEN_ID_SECRET)
-        fin.close()
-        fin = open(CONF_FILE, "wt")
-        fin.write(data)
+            lines.append('CORTEX_API_KEY={}'.format(CORTEX_API_KEY))
+        fin = open(ENV_FILE, "wt")
+        fin.write('\n'.join(lines))
         fin.close()
     except Exception as e:
         print("Setup Exception: " + str(e))
@@ -67,5 +55,4 @@ if __name__ == '__main__':
     update_system_truststore()
     print("Setting Directory Permissions")
     os.system('chown -R 1 /tmp/hive')
-    os.system('chown -R 1000 /tmp/elastic-data')
     os.system('chown -R 1000 /tmp/thehive-data')

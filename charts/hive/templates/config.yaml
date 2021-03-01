@@ -48,6 +48,11 @@ data:
 
     ## Authentication configuration
     # More information at https://github.com/TheHive-Project/TheHiveDocs/TheHive4/Administration/Authentication.md
+    user.autoCreateOnSso=true
+    user.defaults.organisation=${?THEHIVE_ORGANIZATION}
+    user.organisationFieldName="hive_org"
+    user.defaults.profile="read-only"
+    user.profileFieldName="hive_role"
     auth {
       providers: [
         {name: session}
@@ -57,7 +62,7 @@ data:
         {
           name: oauth2
           clientId: "hive"
-          clientSecret: "##OPEN_ID_SECRET##"
+          clientSecret: ${?OPEN_ID_SECRET}
           redirectUri: "https://hive.{{ .Values.domain }}/api/ssoLogin"
           responseType: "code"
           grantType: "authorization_code"
@@ -66,10 +71,12 @@ data:
           tokenUrl: "{{ .Values.auth_base }}/protocol/openid-connect/token"
           userUrl: "{{ .Values.auth_base }}/protocol/openid-connect/userinfo"
           scope: ["openid"]
-          userIdField: "upn"
+          userIdField: "email"
+          organisationField: "hive_org"
+          defaultOrganisation: ${?THEHIVE_ORGANIZATION}
         }
       ]
-      defaultUserDomain: "thehive.local"
+      defaultUserDomain: "{{ .Values.system_name }}.local"
     }
 
     ## CORTEX configuration
@@ -84,14 +91,14 @@ data:
           url = "https://cortex.default.svc.cluster.local"
           auth {
             type = "bearer"
-            key = "##CORTEX_API_KEY##"
+            key = ${?CORTEX_API_KEY}
           }
           # HTTP client configuration (SSL and proxy)
           wsConfig {
             ssl.trustManager.stores = [{
               path = /etc/thehive/webCA.jks
               type = "JKS" # or PKCS12
-              password = "##KEYSTORE_PASSWORD##"
+              password = ${?KEYSTORE_PASSWORD}
             }]
           }
           # List TheHive organisation which can use this Cortex server. All ("*") by default
@@ -115,20 +122,22 @@ data:
 {{- if .Values.mispIntegration }}
     play.modules.enabled += org.thp.thehive.connector.misp.MispModule
     misp {
-      interval: 1 hour
+      checkStatusInterval: 5 minutes
+      syncInterval: 15 minutes
+      syncInitialDelay: 15 minutes
       servers: [
         {
           name = "misp-local"            # MISP name
           url = "https://misp.default.svc.cluster.local" # URL or MISP
           auth {
             type = key
-            key = "##MISP_API_KEY##"             # MISP API key
+            key = ${?MISP_API_KEY}             # MISP API key
           }
           wsConfig {
             ssl.trustManager.stores = [{
               path = /etc/thehive/webCA.jks
               type = "JKS" # or PKCS12
-              password = "##KEYSTORE_PASSWORD##"
+              password = ${?KEYSTORE_PASSWORD}
             }]
           }                       # HTTP client configuration (SSL and proxy)
           # Name of the case template in TheHive that shall be used to import

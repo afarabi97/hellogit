@@ -13,7 +13,7 @@ data:
     #
     # IMPORTANT: If you deploy your application to several  instances,  make
     # sure to use the same key.
-    #play.http.secret.key="***CHANGEME***"
+    play.http.secret.key=${?APPLICATION_SECRET}
     play.http.session.secure=true
 
     ## ElasticSearch
@@ -123,8 +123,8 @@ data:
       oauth2 {
         # URL of the authorization server
         clientId = "cortex"
-        clientSecret = "##OPEN_ID_SECRET##"
-        redirectUri = "https://cortex.{{ .Values.domain }}/index.html"
+        clientSecret = ${?OPEN_ID_SECRET}
+        redirectUri = "https://cortex.{{ .Values.domain }}/api/ssoLogin"
         responseType = "code"
         grantType = "authorization_code"
 
@@ -134,7 +134,7 @@ data:
 
         # The endpoint from which to obtain user details using the OAuth token, after successful login
         userUrl = "{{ .Values.auth_base }}/protocol/openid-connect/userinfo"
-        scope = "openid"
+        scope = ["openid"]
       }
 
       # Single-Sign On
@@ -161,7 +161,7 @@ data:
         # Default roles for users with no groups mapped ("read", "write", "admin")
         # defaultRoles = ["superadmin"]
         defaultRoles = []
-        defaultOrganization = "##CORTEX_ORGANIZATION##"
+        defaultOrganization = ${?CORTEX_ORGANIZATION}
 
         # groups {
         #  # URL to retreive groups (leave empty if you are using OIDC)

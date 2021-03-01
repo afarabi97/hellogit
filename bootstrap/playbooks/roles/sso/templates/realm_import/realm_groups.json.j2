@@ -156,13 +156,14 @@
       "subGroups": []
     },
     {
-      "name": "Hive Admin",
-      "path": "/Hive Admin",
+      "name": "Hive Super Admin",
+      "path": "/Hive Super Admin",
       "attributes": {
         "hive_role": [
-          "admin",
-          "write",
-          "read"
+          "admin"
+        ],
+        "hive_org": [
+          "admin"
         ]
       },
       "realmRoles": [],
@@ -170,12 +171,23 @@
       "subGroups": []
     },
     {
-      "name": "Hive Write",
-      "path": "/Hive Write",
+      "name": "Hive Org Admin",
+      "path": "/Hive Org Admin",
       "attributes": {
         "hive_role": [
-          "write",
-          "read"
+          "org-admin"
+        ]
+      },
+      "realmRoles": [],
+      "clientRoles": {},
+      "subGroups": []
+    },
+    {
+      "name": "Hive Analyst",
+      "path": "/Hive Analyst",
+      "attributes": {
+        "hive_role": [
+          "analyst"
         ]
       },
       "realmRoles": [],
@@ -187,7 +199,7 @@
       "path": "/Hive Read",
       "attributes": {
         "hive_role": [
-          "read"
+          "read-only"
         ]
       },
       "realmRoles": [],

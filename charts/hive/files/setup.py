@@ -7,7 +7,7 @@ import os
 LEGACY_URI="https://hive.default.svc.cluster.local/api"
 URI="https://hive.default.svc.cluster.local/api/v1"
 ORGANIZATION=os.environ['THEHIVE_ORGANIZATION']
-SUPER_USERNAME='admin'
+SUPER_USERNAME='admin@thehive.local'
 SUPER_PASS=os.environ['THEHIVE_SUPERADMIN_PASSWORD']
 ORG_ADMIN_USERNAME=os.environ['THEHIVE_ADMIN_USERNAME']
 ORG_ADMIN_PASSWORD=os.environ['THEHIVE_ADMIN_PASSWORD']
@@ -128,4 +128,4 @@ if __name__ == '__main__':
         setup.create_user(login=ORG_USER_USERNAME, name="Hive User (DO NOT MODIFY)", password=ORG_USER_PASSWORD, profile="analyst", organization=ORGANIZATION)
         setup.create_misp_template(name=CASE_TEMPLATE, titlePrefix=CASE_TEMPLATE, description="Case from MISP")
         # Change password for admin user
-        setup.change_password(SUPER_USERNAME+"@thehive.local", SUPER_PASS, "secret")
+        setup.change_password(SUPER_USERNAME, SUPER_PASS, "secret")

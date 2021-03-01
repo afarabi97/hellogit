@@ -1,0 +1,11 @@
+FROM thehiveproject/cortex:3.1.1-1
+
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends python-pip python2.7-dev python3-pip python3-dev ssdeep \
+    libfuzzy-dev libfuzzy2 libimage-exiftool-perl libmagic1 build-essential git libssl-dev && rm -rf /var/lib/apt/lists/* && \
+    pip install -U pip setuptools ldap3 requests && pip3 install -U pip setuptools ldap3 requests
+WORKDIR /opt
+RUN git clone https://github.com/TheHive-Project/Cortex-Analyzers && \
+    for I in $(find Cortex-Analyzers -name 'requirements.txt'); do pip2 install -r $I; done && \
+    for I in $(find Cortex-Analyzers -name 'requirements.txt'); do pip3 install -r $I || true; done
+WORKDIR /opt/cortex
