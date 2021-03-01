@@ -42,6 +42,9 @@ spec:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/state
           subPath: state
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/files
+          subPath: files
       containers:
       - name: shibboleth-proxy
         image: "{{ .Values.proxy.image }}:{{ .Values.proxy.version }}"
@@ -101,6 +104,12 @@ spec:
         - name: nifi-data
           mountPath: {{ .Values.nifi_base_dir }}/state
           subPath: state
+        - name: nifi-data
+          mountPath: {{ .Values.nifi_base_dir }}/files
+          subPath: files
+        - name: webca
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
       restartPolicy: Always
       nodeSelector:
         role: server

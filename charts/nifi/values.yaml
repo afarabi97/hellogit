@@ -1,6 +1,6 @@
 #### Nifi configuration variables ####
 nifi_image: 'apache/nifi'
-nifi_version: '1.12.0'
+nifi_version: '1.12.1'
 nifi_port: "8080"
 nifi_replicas: 1
 nifi_base_dir: /opt/nifi/nifi-current
@@ -8,7 +8,7 @@ path: '/data/nifi'
 domain: lan
 system_name: dip
 auth_base: https://dip-controller.lan/auth/realms/CVAH-SSO
-busyboxImage: busybox:1.32.0
+busyboxImage: busybox:1.32.1
 
 ### proxy info
 proxy:

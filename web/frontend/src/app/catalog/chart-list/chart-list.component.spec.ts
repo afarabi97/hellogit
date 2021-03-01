@@ -49,7 +49,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "5.28.1",
+          "appVersion": "5.31.1",
           "application": "mattermost",
           "description": "Mattermost is a chat and file sharing platform",
           "pmoSupported": false
@@ -67,14 +67,8 @@ describe('ChartListComponent', () => {
           "pmoSupported": true
         },
         {
-          "appVersion": "4.4.1",
-          "application": "mongodb",
-          "description": "NoSQL document-oriented database that stores JSON-like documents with dynamic schemas, simplifying the integration of data in content-driven applications.",
-          "pmoSupported": true
-        },
-        {
-          "appVersion": "1.12.0",
-          "application": "niagra-files",
+          "appVersion": "1.12.1",
+          "application": "nifi",
           "description": "Easy to use, powerful, and reliable system to process and distribute data",
           "pmoSupported": false
         },
@@ -85,7 +79,7 @@ describe('ChartListComponent', () => {
           "pmoSupported": false
         },
         {
-          "appVersion": "3.7.1",
+          "appVersion": "3.11.0",
           "application": "rocketchat",
           "description": "Prepare to take off with the ultimate chat platform, experience the next level of team communications",
           "pmoSupported": true
