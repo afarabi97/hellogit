@@ -27,3 +27,4 @@ keep_mnt: true
 
 # Set to "true" to enable DHCP.
 dhcp: true
+...

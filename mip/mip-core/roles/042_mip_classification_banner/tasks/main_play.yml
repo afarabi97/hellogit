@@ -32,7 +32,7 @@
     group: root
     mode: '0664'
 
-- name: Reload daemon services to accomodate newly added service daemon 
+- name: Reload daemon services to accomodate newly added service daemon
   command: systemctl daemon-reload
   register: result
   changed_when: result.rc == 0

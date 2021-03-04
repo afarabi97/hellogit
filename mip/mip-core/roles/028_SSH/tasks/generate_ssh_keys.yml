@@ -1,5 +1,4 @@
 #   Run with: ansible-playbook -i inventory/<YOUR_INVENTORY> generate_ssh_keys.yml --ask-pass
-
 ---
 - name: Include vars from mip-deployer
   include_vars:

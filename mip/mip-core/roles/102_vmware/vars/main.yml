@@ -4,3 +4,4 @@
  vmware_home_dir: /home/{{ user }}/.vmware
  vmware_desktop_app: vmware-workstation.desktop
  vmware_license: NH08P-0G2D3-H8CJ4-0T8HK-012J1
+...

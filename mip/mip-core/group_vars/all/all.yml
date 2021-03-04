@@ -11,6 +11,8 @@ kernel_version: 4.18.0-193.el8.x86_64
 uefi_grub_path: "/boot/efi/EFI/redhat/"
 tfplenum_root_dir: /opt/tfplenum
 mip_scripts_dir: "{{ tfplenum_root_dir }}/scripts/MIP"
+mip_version: "{{ lookup('ini', 'version section=tfplenum file=/etc/tfplenum.ini') }}"
+
 
 system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.ini') }}"
 ansible_controller_hostname: "{{ system_name | lower }}-controller.lan"

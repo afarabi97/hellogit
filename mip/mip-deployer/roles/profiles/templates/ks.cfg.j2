@@ -31,7 +31,6 @@ network  --bootproto=dhcp --device=eth0 --noipv6 --activate
 network  --hostname=localhost.localdomain
 {% endif %}
 
-
 # Root password
 rootpw --iscrypted {{ rootpw.stdout }}
 # System services

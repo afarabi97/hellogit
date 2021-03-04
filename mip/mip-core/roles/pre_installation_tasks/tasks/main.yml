@@ -11,3 +11,4 @@
     dest: /etc/yum.repos.d/google-chrome.repo
     section: google-chrome
     state: absent
+...

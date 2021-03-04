@@ -85,8 +85,10 @@
     - CPT
 
 - name: CPT release file and notes
-  hosts: mips
-  gather_facts: no
+  hosts:
+    - mips
+    - localhost
+  gather_facts: yes
   any_errors_fatal: true
   roles:
     - 023_CPT_release
@@ -95,8 +97,9 @@
     - CPT
 
 - name: MDT release file and notes
-  hosts: mips
-  gather_facts: no
+  hosts:
+    - mips
+  gather_facts: yes
   any_errors_fatal: true
   roles:
     - 024_MDT_release

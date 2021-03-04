@@ -26,3 +26,4 @@
     path: /etc/crypttab
     regexp: '/etc/mypasswdfile'
     replace: 'none'
+...

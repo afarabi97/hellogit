@@ -50,3 +50,4 @@
       with_items:
       - "{{ groups['mips'] }}"
       when: hostvars[item].pxe_type == 'uefi'
+...

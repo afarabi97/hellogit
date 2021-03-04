@@ -100,13 +100,22 @@ cpt_packages:
   - criu
   - runc
 
+#tars
+mip_images_tar: MIP_Images_v1.tar
+twofa_tar: 2fa_certs_v1.tar
+
+#Drivers
+nvidia_driver: NVIDIA_Quadro_RHEL82_440_64.tar.gz
+amd_driver: amdgpu-pro-20.10-1101037-rhel-8.1.tar.xz
+
 #Third Party Software
 burpsuite_file: burpsuite_pro_linux_v2020_9_2.sh
-chrome_file: google-chrome-stable_current_x86_64.rpm
-gitkraken_file: gitkraken-amd64.rpm
-nexpose_file: Rapid7Setup-Linux64.bin
+chrome_file: google-chrome-stable_current_x86_64_88.0.4324.182.rpm
+gitkraken_file: gitkraken-amd64_7.5.1.rpm
+nexpose_file: Rapid7Setup-Linux64_6.6.69.bin
 vmware_file: VMware-Workstation-Full-16.0.0-16894299.x86_64.bundle
-vscode_file: code-1.50.1-1602601064.el7.x86_64.rpm
+vscode_file: code-1.53.2-1613044734.el7.x86_64.rpm
+
 software:
   - "{{ web_server }}{{ vmware_file }}"
   - "{{ web_server }}{{ vscode_file }}"

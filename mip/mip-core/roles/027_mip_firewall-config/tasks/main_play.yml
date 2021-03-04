@@ -16,7 +16,7 @@
   systemd:
     name: firewalld
     state: restarted
-    
+
 - name: Create hidden file for validation if playbooks crash
   file:
     path: /operator/.DO_NOT_DELETE/.027
