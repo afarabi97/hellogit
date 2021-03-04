@@ -12,7 +12,7 @@ from models.kit import HwKitSettings
 
 class VerodinJob:
 
-    def __init__(self, verodin_settings:VerodinSettings, ctrl_settings:HwControllerSetupSettings, 
+    def __init__(self, verodin_settings:VerodinSettings, ctrl_settings:HwControllerSetupSettings,
     kickstart_settings:HwKickstartSettings, kit_settings:HwKitSettings):
         self.ctrl_settings = ctrl_settings
         self.kickstart_settings = kickstart_settings
@@ -34,10 +34,10 @@ class VerodinJob:
             session.auth = (username, password)
             session.timeout = 60
         return session
-    
+
     def _get_es_info(self) -> tuple:
-        with FabricConnectionWrapper(self.ctrl_settings.node.username, 
-                                        self.ctrl_settings.node.password, 
+        with FabricConnectionWrapper(self.ctrl_settings.node.username,
+                                        self.ctrl_settings.node.password,
                                         self.ctrl_settings.node.ipaddress) as client:
             es_secret = client.run("kubectl get secret tfplenum-es-elastic-user -o jsonpath='{.data.elastic}' | base64 -d", hide=True).stdout.strip()
             elastic_ip = client.run("kubectl get services | grep elasticsearch | grep -i LoadBalancer | awk '{print $4}'", hide=True).stdout.strip()
@@ -74,7 +74,7 @@ class VerodinJob:
         for integration in integrations.json():
             if integration['host'] == self.elastic_ip:
                 return integration['id']
-    
+
     def _get_action_id(self, num_of_actions:int) -> list:
         action_ids = []
         exclude = ['Host CLI','Protected Theater','Phishing Email']
@@ -96,23 +96,23 @@ class VerodinJob:
             self.session.delete(f"https://{self.verodin_ip}/integrations/{integration_id}.json")
 
     def _create_eval(self, ids_list) -> dict:
-        data = {   
+        data = {
                     "simulation": {
-                    "sim_type":"eval", 
-                    "name": "Pipeline Evalulation", 
-                    "desc": "Evaluation created for pipeline", 
+                    "sim_type":"eval",
+                    "name": "Pipeline Evalulation",
+                    "desc": "Evaluation created for pipeline",
                     "steps": {
                         "0": ids_list
-                        }, 
+                        },
                         "step_names": [
                             "Group 1"
                         ]
                     }
-                } 
+                }
 
-        eval_info = self.session.post(f"https://{self.verodin_ip}/simulations.json", 
+        eval_info = self.session.post(f"https://{self.verodin_ip}/simulations.json",
                                       json=data, verify=False)
-        time.sleep(5)    
+        time.sleep(5)
         return eval_info.json()
 
     def _create_elastic_intergration(self):
@@ -156,6 +156,7 @@ class VerodinJob:
                     "disabled": False,
                     "time_adjustment": 0,
                     "query_min_back": 15,
+                    "query_timeout": 180,
                     "delay_time": 0,
                     "query": "{\"query\":{\"query_string\":{\"query\":\"(source.address:(%ACTOR_IPS%) OR destination.address:(%ACTOR_IPS%)) AND @timestamp:[%START_TIME% TO %END_TIME%]\"}}}",
                     "query_frequency": 30,
@@ -168,7 +169,7 @@ class VerodinJob:
                         }
                     }
         self.session.post(f"https://{self.verodin_ip}/integrations.json?integration_type=ElasticSearchServer", json=payload, verify=False)
-        time.sleep(5)    
+        time.sleep(5)
 
     def _build_evalulation(self) -> dict:
         eval_info = {}
@@ -182,9 +183,9 @@ class VerodinJob:
     def _run_simulation(self) -> str:
         data = self._node_payload()
         run_simulation = self.session.post(f"https://{self.verodin_ip}/jobs/run_now.json",
-                                            data=data, 
+                                            data=data,
                                             verify=False)
-        time.sleep(5)                      
+        time.sleep(5)
         return run_simulation.json()['job_actions'][0]['job_id']
 
     def _node_payload(self) -> dict:
@@ -226,7 +227,7 @@ class VerodinJob:
     def run_job(self):
         #Disables errors for self signed SSL certs
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        
+
         if self.sim_type == "eval":
             eval_id = self._get_eval_id()
             self._delete_eval(eval_id)

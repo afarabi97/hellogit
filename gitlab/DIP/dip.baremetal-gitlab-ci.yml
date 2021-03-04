@@ -154,6 +154,21 @@ Hardware CVAH Catalog PMO Apps:
     variables:
       - $RUN_CATALOG == "yes" && $PIPELINE == "hw-developer-dip"
 
+Hardware CVAH Catalog Community Apps:
+  stage: catalog
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog mattermost
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog nifi
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog redmine
+    python3 testing/pipeline/baremetal_pipeline.py --system-name "DIP" run-catalog netflow-filebeat
+  only:
+    variables:
+      - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-dip"
+
 Verodin Automation:
   stage: verodin-test
   tags:
@@ -173,21 +188,6 @@ Verodin Automation:
   only:
     variables:
       - $RUN_CATALOG == "yes" && $RUN_VERODIN == "yes" && $PIPELINE == "hw-developer-dip"
-
-Hardware CVAH Catalog Community Apps:
-  stage: catalog
-  tags:
-    - tfplenum-buildv2
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog mattermost
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog nifi
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog redmine
-    python3 testing/pipeline/pipeline.py --system-name "DIP" run-catalog netflow-filebeat
-  only:
-    variables:
-      - $RUN_CATALOG == "yes" && $COMMUNITY_APPS == "yes" && $PIPELINE == "hw-developer-dip"
 
 BreakingPoint Automation:
   stage: breakingpoint-test

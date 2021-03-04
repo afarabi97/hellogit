@@ -98,43 +98,60 @@ class BaremetalRunner():
         self.args = args
         try:
             if args.which == SubCmd.setup_baremetal_ctrl:
-                self.ctrl_settings = HwControllerSetupSettings()
-                self.ctrl_settings.from_namespace(args)
-                YamlManager.save_to_yaml(self.ctrl_settings, args.system_name)
+                ctrl_settings = HwControllerSetupSettings()
+                ctrl_settings.from_namespace(args)
+                YamlManager.save_to_yaml(ctrl_settings, args.system_name)
+                executor = BaremetalControllerSetup(ctrl_settings)
+                executor.setup_controller()
             elif args.which == SubCmd.run_kickstart:
-                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name,HwControllerSetupSettings)
-                self.kickstart_settings = HwKickstartSettings()
-                self.kickstart_settings.from_namespace(args)
-                YamlManager.save_to_yaml(self.kickstart_settings)
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(args.system_name,HwControllerSetupSettings)
+                kickstart_settings = HwKickstartSettings()
+                kickstart_settings.from_namespace(args)
+                YamlManager.save_to_yaml(kickstart_settings)
+                executor = HwKickstartJob(ctrl_settings, kickstart_settings)
+                executor.run_kickstart()
             elif args.which == SubCmd.run_kit:
-                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                 args.system_name, HwControllerSetupSettings)
-                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
-                self.kit_settings = HwKitSettings()
-                self.kit_settings.from_kickstart(self.kickstart_settings)
-                YamlManager.save_to_yaml(self.kit_settings)
+                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                kit_settings = HwKitSettings()
+                kit_settings.from_kickstart(kickstart_settings)
+                YamlManager.save_to_yaml(kit_settings)
+                executor = KitJob(ctrl_settings, kickstart_settings, kit_settings)
+                executor.run_kit(virtual=False)
             elif args.which == SubCmd.run_integration_tests:
-                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name,HwControllerSetupSettings)
-                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                executor = IntegrationTestsJob(ctrl_settings, kickstart_settings)
+                executor.run_integration_tests()
             elif args.which == SubCmd.simulate_power_failure:
-                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                executor = HwPowerFailureJob(kickstart_settings)
+                executor.run_power_cycle()
             elif args.which == SubCmd.run_catalog:
                 catalog_parser.print_help()
             elif args.which == SubCmd.run_bp:
-                self.bp_settings = BPSettings()
-                self.bp_settings.from_namespace(args)
+                bp_settings = BPSettings()
+                bp_settings.from_namespace(args)
+                executor = BPJob(bp_settings)
+                executor.run_test()
             elif args.which == SubCmd.run_remote_node:
-                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name,HwControllerSetupSettings)
-                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                executor = RemoteNode(ctrl_settings, kickstart_settings)
+                executor.remote_node_config()
             elif args.which == SubCmd.run_verodin:
-                self.ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
                     args.system_name, HwControllerSetupSettings)
-                self.kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
-                self.kit_settings = HwKitSettings()
-                self.verodin_settings = VerodinSettings()
-                self.verodin_settings.from_namespace(args)
+                kickstart_settings = YamlManager.load_kickstart_settings_from_yaml(HwKickstartSettings)
+                kit_settings = HwKitSettings()
+                verodin_settings = VerodinSettings()
+                verodin_settings.from_namespace(args)
+                executor = VerodinJob(verodin_settings, ctrl_settings,
+                                      kickstart_settings, kit_settings)
+                executor.run_job()
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:
@@ -145,41 +162,6 @@ class BaremetalRunner():
             parser.print_help()
             traceback.print_exc()
             sys.exit(1)
-
-    def _run(self):
-        try:
-            if self.args.which == SubCmd.setup_baremetal_ctrl:
-                executor = BaremetalControllerSetup(self.ctrl_settings)
-                executor.setup_controller()
-            elif self.args.which == SubCmd.run_kickstart:
-                executor = HwKickstartJob(self.ctrl_settings, self.kickstart_settings)
-                executor.run_kickstart()
-            elif self.args.which == SubCmd.run_kit:
-                executor = KitJob(
-                            self.ctrl_settings,
-                            self.kickstart_settings,
-                            self.kit_settings
-                            )
-                executor.run_kit(virtual=False)
-            elif self.args.which == SubCmd.run_integration_tests:
-                executor = IntegrationTestsJob(
-                                self.ctrl_settings,
-                                self.kickstart_settings
-                                )
-                executor.run_integration_tests()
-            elif self.args.which == SubCmd.simulate_power_failure:
-                executor = HwPowerFailureJob(self.kickstart_settings)
-                executor.run_power_cycle()
-            elif self.args.which == SubCmd.run_bp:
-                executor = BPJob(self.bp_settings)
-                executor.run_test()
-            elif self.args.which == SubCmd.run_remote_node:
-                executor = RemoteNode(self.ctrl_settings, self.kickstart_settings)
-                executor.remote_node_config()
-            elif self.args.which == SubCmd.run_verodin:
-                executor = VerodinJob(self.verodin_settings, self.ctrl_settings,
-                                      self.kickstart_settings, self.kit_settings)
-                executor.run_job()
         except Exception as e:
             print("\n** ERROR:")
             print(e)
@@ -188,7 +170,6 @@ class BaremetalRunner():
 def main():
     baremetalrunner = BaremetalRunner()
     baremetalrunner._setup_args()
-    baremetalrunner._run()
 
 if __name__ == "__main__":
     main()
