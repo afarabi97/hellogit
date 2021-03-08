@@ -18,13 +18,14 @@
     path: "{{ item }}"
     group: "{{ keycloak_group }}"
     owner: "{{ keycloak_user }}"
-    mode: u+rw,g+rw
+    mode: u+rwx,g+rwx,o+rx
     state: directory
     recurse: true
   with_items:
     - "{{ sso_dir }}"
     - "{{ certs_dir }}"
     - "{{ keycloak_dir }}"
+    - "{{ cvah_theme_dir }}"
 
 - name: Generate SSO Keycloak & Portal Private keys
   openssl_privatekey:
@@ -170,16 +171,11 @@
     path: "{{ keycloak_dir }}"
     group: "{{ keycloak_group }}"
     owner: "{{ keycloak_user }}"
-    mode: u+rw,g+rw
+    mode: u+rwx,g+rwx,o+rx
     state: directory
     recurse: true
 
-- name: Update Keycloak Terms and Conditions
-  lineinfile:
-    dest: /opt/keycloak/themes/base/login/messages/messages_en.properties
-    regexp: "^termsText="
-    line: "termsText=<p>{{ terms_and_conditions }}</p>"
-    state: present
+- import_tasks: setup_theme.yml
 
 - name: Install Keycloak Service
   template:
@@ -227,6 +223,8 @@
     url: https://{{ ansible_controller }}/auth/realms/{{ realm_name }}/protocol/saml/descriptor
     dest: "{{ sso_dir }}/idp.metadata.xml"
     validate_certs: no
+
+- import_tasks: setup_x509.yml
 
 - name: Copy Shibboleth Files
   copy:

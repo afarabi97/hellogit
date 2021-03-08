@@ -31,8 +31,19 @@ keycloak_setup_cmds:
   - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding,value=true)'"
   - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/socket-binding-group=standard-sockets/socket-binding=proxy-https:add(port=443)'"
   - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=redirect-socket,value=proxy-https)'"
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=keycloak-server/spi=x509cert-lookup:write-attribute(name=default-provider, value=apache)'"
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=keycloak-server/spi=x509cert-lookup/provider=default:remove'"
+  - "{{ keycloak_dir }}/bin/jboss-cli.sh 'embed-server,/subsystem=keycloak-server/spi=x509cert-lookup/provider=apache:add(enabled=true,properties={ sslClientCert => \"SSL_CLIENT_CERT\", sslCertChainPrefix => \"USELESS\", certificateChainLength => \"2\"})'"
+  # - "{{ keycloak_dir }}/bin/jboss-cli.sh ':reload'"
 
 keycloak_realm_import_cmds:
   - "{{ keycloak_dir }}/bin/kcadm.sh config credentials --server http://localhost:8080/auth --realm master --user {{ admin_user | quote }} --password {{ sso_admin_password | quote }}"
   - "{{ keycloak_dir }}/bin/kcadm.sh create realms -f {{ sso_dir }}/realm_import.json"
   - "{{ keycloak_dir }}/bin/kcadm.sh create users -f {{ sso_dir }}/realm_user.json -r {{ realm_name | quote }}"
+
+keycloak_base_endpoint: "http://localhost:8080"
+keycloak_authentication_endpoint: "{{ keycloak_base_endpoint }}/auth/admin/realms/{{ realm_name }}/authentication"
+browser_x509_flow_name: Browser_X509
+x509_provider_id: auth-x509-client-username-form
+cvah_theme: cvah
+cvah_theme_dir: "{{ keycloak_dir }}/themes/{{ cvah_theme }}"

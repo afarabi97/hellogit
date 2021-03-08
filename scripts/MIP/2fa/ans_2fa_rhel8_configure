@@ -1,9 +1,8 @@
 #!/bin/bash
-
 #  ans_2fa_rhel8_configure - Builds 2FA configuration on RHEL8 systems
 #
 #		NOTES: This script must be run by the root user to provide required permissions for writing to
-#			multiple files 
+#			multiple files
 #
 #			This script is dependent on the presence of three scripts in the local directory:
 #
@@ -14,9 +13,6 @@
 #			Created by Roy Presley, Applied Research Solutions, for CVA/H PMO; 7 Jan 2020
 #			Added code to call ans_2fa_rhel8_install_rpm to install RPMs from local or remote source; 7 Feb 2020
 #
-#			The RPM_DIR variable points to a local store with the required RPMs. The variable can be modified
-#			    to match the local directory structure.
-#
 #			Added "internal" card driver to /etc/opensc.conf to handle undetermined formats; 10 Jun 2020
 #
 #			Added code to modify /etc/pam.d/sudo configuration to prompt for PIN (vice password); 10 Jun 20
@@ -24,322 +20,138 @@
 #			Renamed as part of Ansible "friendly" RHEL8 2FA configuration scripts; 28 Sep 2020
 #
 
-# Set variables
-#
-# Set card type to reflect mission environment:  either NMIL or SMIL
-#    NOTE:  If CARDTYPE is "NMIL," the DoD root cert chain will be installed
-#           Else if CARDTYPE is "SMIL," the NSS root cert chain will be installed
-#
-#           The CARDTYPE variable can be switched by commenting/uncommenting the desired value before executing the script to install the desired root cert chain
-#
-#
-CARDTYPE="NMIL"         # This variable triggers installation of the DoD root certs
-#CARDTYPE="SMIL"                # This variable value triggers installation of the NSS root certs
-
-# Set names for DoD (NMIL) and NSS (SMIL) root cert files
 NMILROOTCERTS="NMIL_Cert_DoD_Root_CA_3.der.p7b"
 SMILROOTCERTS="SMIL_checkedbase64.zip"
-
-# Set default computer user account name
-USERACCT="assessor"
-
 PKCS15TOOL=/usr/bin/pkcs15-tool
-PKIDB=/etc/pki/nssdb
 AUTHSELECT=/usr/bin/authselect
-OPENSSL=/usr/bin/openssl
 OPENSCCFG=/etc/opensc.conf
 SUDOCFG=/etc/pam.d/sudo
-SSSD_CERTDB=/etc/sssd/pki/sssd_auth_ca_db.pem
 SSSD_CONF_FILE=/etc/sssd/sssd.conf
 INSTALLCERTS="./ans_2fa_rhel8_install_certs"
-#TWOFAMAPPER="./ans_2fa_rhel8_mapper"
-LOGGEDINUSR=`whoami`
-#CERTFILE=""
-TOKENUSER=""
-NOFILE=0
-NOUSER=0
-NOCARD=0
-RPM_DIR=../rpms/rhel8
+
+fatal_error(){
+	printf "Error: %s\n"  "$*" >>/dev/stderr
+	exit 1
+}
+
+# Run pre-checks
+if [ -z "$1" ]
+then
+	fatal_error "Usage: $0 <cardtype>\n \
+		cardtype  Set card type to reflect mission environment:  either NMIL or SMIL\n"
+fi
 
 # Check to see if the logged in user is root. If not, inform the user and exit.
-if [ "$LOGGEDINUSR" != "root" ]
+if [ "$EUID" -ne 0 ]
 then
-   echo ""
-   echo "You MUST be logged in as root to run this script!"
-   echo ""
-   exit 1
+	fatal_error "Script must be run as root or use sudo."
 fi
 
-# Check for required packages. If any are missing, install them.
-echo "Checking for required packages..."
-
-# Check for pcsc-lite package
-rpm -q pcsc-lite > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
+CARDTYPE=$1
+if [ "$CARDTYPE" != "NMIL" ] && [ "$CARDTYPE" != "SMIL" ]
 then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR pcsc-lite
+	fatal_error "Incorrect cardtype selected. Please select 'NMIL' or 'SMIL'"
 fi
 
-# Check for pcsc-lite-ccid package
-rpm -q pcsc-lite-ccid > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR pcsc-lite-ccid
-fi
-
-# Check for pcsc-lite-libs package
-rpm -q pcsc-lite-libs > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR pcsc-lite-libs
-fi
-
-# Check for opensc package
-rpm -q opensc > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR opensc
-fi
-
-# Check for openssl package
-rpm -q openssl > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR openssl
-fi
-
-# Check for openssl-pkcs11 package
-rpm -q openssl-pkcs11 > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR openssl-pkcs11
-fi
-
-# Check for authselect package
-rpm -q authselect > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR authselect
-fi
-
-# Check for sssd package
-rpm -q sssd > /dev/null
-
-# If not found, attempt to install it
-if [ $? != 0 ]
-then
-   ./ans_2fa_rhel8_install_rpm $RPM_DIR sssd
-
-# If ans_2fa_rhel8_install_rpm returns an exit status of 2, the script was unable to install from a local source
-# or to connect to and install from the remote Red Hat server (cdn.redhat.com). Flag this as a fatal error & exit.
-   if [ $? == 2 ]
-   then
-      echo ""
-      echo "FATAL ERROR:  Cannot install one or more required RPMs. Exiting!"
-      echo ""
-      exit 1
-   fi
-fi
-
-#
-# Check for multiple command dependencies
-#
-# Check for existence of executable pkcs15-tool
+# Check for required executables
 if [ ! -x $PKCS15TOOL ]
 then
-   echo ""
-   echo "$PKCS15TOOL not found! Is opensc package missing or corrupted?"
-   echo ""
-   exit 1
+	fatal_error "$PKCS15TOOL not found! Is opensc package missing or corrupted?\n"
 fi
 
-# Check for existence of executable authselect command
 if [ ! -x $AUTHSELECT ]
 then
-   echo ""
-   echo "$AUTHSELECT not found! Is authselect package missing or corrupted?"
-   echo ""
-   exit 1
+	fatal_error "$AUTHSELECT not found! Is authselect package missing or corrupted?\n"
 fi
 
-# Check for existence of opensc.conf file
+if [ ! -e $INSTALLCERTS ]
+then
+	fatal_error "$INSTALLCERTS script is missing!\n"
+fi
+
+# Check for existence of configuration files
 # NOTE:  This file isn't created until the opensc package is installed
 if [ ! -e $OPENSCCFG ]
 then
-   echo ""
-   echo "$OPENSCCFG not found!"
-   echo ""
-   exit 1
+	fatal_error "$OPENSCCFG not found!\n"
 fi
 
-# Check for existence of sssd.conf file
 # NOTE:  This file isn't created until the sssd package is installed
 if [ ! -e $SSSD_CONF_FILE ]
 then
-   echo ""
-   echo "$SSSD_CONF_FILE not found! Creating empty file..."
-   echo ""
-   touch $SSSD_CONF_FILE
-#   exit 1
+	printf "%s not found! Creating empty file...\n" "$SSSD_CONF_FILE"
+	touch $SSSD_CONF_FILE
 fi
 
-#
-# Check for existence of two supporting scripts (ans_2fa_rhel8_install_certs & ans_2fa_rhel8_mapper)
-#
-# Check for existence of executable ans_2fa_rhel8_install_certs script in local directory
-if [ ! -x $INSTALLCERTS ]
-then
-   echo ""
-   echo "$INSTALLCERTS script is missing!"
-   echo ""
-   exit 1
-fi
+# Begin configuration
 
-# Check for existence of executable ans_2fa_rhel8_mapper script in local directory
-#if [ ! -x $TWOFAMAPPER ]
-#then
-#   echo ""
-#   echo "$TWOFAMAPPER script is missing!"
-#   echo ""
-#   exit 1
-#fi
-
-#
-# Now that dependencies have been addressed, proceed with configuration
-#
 # Set SELinux mode to Permissive
-echo ""
-echo "Setting SELinux mode to 'Permissive'"
+printf "Setting SELinux mode to 'Permissive'\n"
 setenforce Permissive
 
 # Start the pcscd daemon, just to be safe
-echo ""
-echo "Starting pcscd daemon..."
+printf "Starting pcscd daemon...\n"
 systemctl start pcscd
-echo ""
 
 # Prompt user to insert the NEATS token
 # Check for sssd daemon. If it isn't already running, start it.
-echo "Checking for running sssd daemon..."
-ps -ef | grep sssd | grep -v grep > /dev/null
-echo ""
-
-if [ $? != 0 ]
-then
-   echo ""
-   echo "Starting sssd..."
-   systemctl start sssd
+printf "Checking for running sssd daemon...\n"
+if ! pgrep sssd > /dev/null; then
+	printf ""
+	printf "Starting sssd...\n"
+	systemctl start sssd
 fi
 
-# Extract the first section of the token user string. This substring will be used to build the certmap for SSSD. 
-TOKENUSER=`$PKCS15TOOL --list-info |& grep '^PKCS#15 Card' | awk -F[ '{print $2}' | awk -F] '{print $1}'`
+# Extract the first section of the token user string. This substring will be used to build the certmap for SSSD.
+# TOKENUSER=$($PKCS15TOOL --list-info |& grep '^PKCS#15 Card' | awk -F[ '{print $2}' | awk -F] '{print $1}')
 
 # If CARDTYPE is hardcoded to "NMIL", install the DoD root cert chain by calling the ans_2fa_rhel7_install_certs script
 # with DoD root certificate file as argument
 if [ "$CARDTYPE" == "NMIL" ]
 then
-   echo "Calling '$INSTALLCERTS $NMILROOTCERTS' to install DoD root certificates for NMIL environment..."
-   $INSTALLCERTS $NMILROOTCERTS
+	printf "Calling '%s %s to install DoD root certificates for NMIL environment..." "$INSTALLCERTS" "$NMILROOTCERTS"
+	$INSTALLCERTS $NMILROOTCERTS
 
 # Else if CARDTYPE is hardcode to "SMIL," install the NSS root cert chain by calling the ans_2fa_rhel7_install_certs script
 # with NSS root certificate file as argument
 elif [ "$CARDTYPE" == "SMIL" ]
 then
-   echo "Calling '$INSTALLCERTS $SMILROOTCERTS' to install NSS root certificates for SMIL environment..."
-   $INSTALLCERTS $SMILROOTCERTS
+	printf "Calling '%s %s' to install NSS root certificates for SMIL environment..." "$INSTALLCERTS" "$SMILROOTCERTS"
+	$INSTALLCERTS $SMILROOTCERTS
 fi
-
-# Check whether USERACCT exists in /etc/passwd
-getent passwd $USERACCT > /dev/null
-
-# If user account is not found, set NOUSER=1
-if [ $? != 0 ]
-then
-   echo "User $USERACCT not found!"
-   NOUSER=1
-else
-   echo "Found $USERACCT user account!"
-fi
-
-echo ""
-
-# Call rhel8_2fa_mapper script with computer user account name as argument
-#echo "Calling 'rhel8_2fa_mapper $USERACCT' ..."
-#$TWOFAMAPPER $USERACCT
-
-# Configure authentication system for smart card use
-echo "Configuring system for smart card authentication..."
-# NOTE:  "with-smartcard" sets "try_cert_auth" option for PAM in /etc/pam.d/system-auth
-#	 "with-smartcard-lock-on-removal" locks the system when smartcard authentication
-#	    is used and the smartcard is removed
-#$AUTHSELECT select sssd with-smartcard with-smartcard-lock-on-removal              ## deleted authselect from configure script and added manually to ansible role 045_2fa
-#$AUTHSELECT apply-changes
 
 # Display newly applied authselect settings
-echo ""
-echo "Smartcard authentication settings:"
+printf "Smartcard authentication settings:"
 $AUTHSELECT current
-echo ""
+printf ""
 
 # Modify /etc/opensc.conf file to set precedence of smartcard drivers
-
-grep card_drivers $OPENSCCFG > /dev/null
-
-if [ $? != 0 ]
-then
-   echo "Inserting 'card_drivers = PIV-II, cac, internal;' into $OPENSCCFG..."
-   sed '$i \\tcard_drivers = PIV-II, cac, internal;' $OPENSCCFG > $OPENSCCFG.tmp
-   mv $OPENSCCFG $OPENSCCFG.old
-   mv $OPENSCCFG.tmp $OPENSCCFG
-   echo ""
+if ! grep card_drivers $OPENSCCFG > /dev/null; then
+	printf "Inserting 'card_drivers = PIV-II, cac, internal;' into %s...\n" "$OPENSCCFG"
+	cp $OPENSCCFG $OPENSCCFG.bak
+	sed '$i \\tcard_drivers = PIV-II, cac, internal;' $OPENSCCFG
 fi
 
 # Modify /etc/pam.d/sudo file to prompt for PIN with sudo
-grep 'auth[[:space:]]*sufficient[[:space:]]*pam_pkcs11.so' $SUDOCFG >& /dev/null
-
-if [ $? != 0 ]
-then
-   echo "Configuring sudo for PIN prompt in $SUDOCFG..."
-   echo "auth	sufficient	pam_pkcs11.so" > $SUDOCFG.tmp
-   cat $SUDOCFG >> $SUDOCFG.tmp
-   mv $SUDOCFG.tmp $SUDOCFG
-   echo ""
+if ! grep 'auth[[:space:]]*sufficient[[:space:]]*pam_pkcs11.so' $SUDOCFG >& /dev/null; then
+	printf "Configuring sudo for PIN prompt in %s...\n" "$SUDOCFG"
+	cp $SUDOCFG $SUDOCFG.bak
+	sed -i '1s/^/auth sufficient pam_pkcs11.so\n/' $SUDOCFG
 fi
 
 # Set SELinux mode to Enforcing
-echo "Setting SELinux mode back to 'Enforcing'"
+printf "Setting SELinux mode back to 'Enforcing'\n"
 setenforce Enforcing
-echo ""
 
 # Check for existing SELinux exception for p11_child module
-semodule -l | grep my-p11child >& /dev/null
-
 # If p11_child module exception is not found, configure one for the /usr/libexec/sssd/p11_child executable
 # to prevent SELinux errors in /var/log/messages
-if [ $? != 0 ]
-then
-   echo "Configuring SELinux exception for sssd child process (p11_child)"
-   ausearch -c 'p11_child' --raw | audit2allow -M my-p11child >& /dev/null
-   semodule -i my-p11child.pp >& /dev/null
-   echo ""
+if ! semodule -l | grep my-p11child >& /dev/null; then
+	printf "Configuring SELinux exception for sssd child process (p11_child)\n"
+	ausearch -c 'p11_child' --raw | audit2allow -M my-p11child >& /dev/null
+	semodule -i my-p11child.pp >& /dev/null
+	printf ""
 fi
 
-# Prompt user to reboot
-echo "Done! Please reboot the system to test logging into user account with token."
-echo ""
-
+printf "Done! Please reboot the system to test logging into user account with token.\n"
 exit

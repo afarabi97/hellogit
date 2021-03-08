@@ -16,7 +16,6 @@
 #			   this change will work for both unclass and class alt tokens; 11 Sep 2020
 #
 #			Renamed as part of Ansible "friendly" RHEL8 2FA configuration scripts; 28 Sep 2020
-
 # Set variables
 PKCS15TOOL=/usr/bin/pkcs15-tool
 PKCS11TOOL=/usr/bin/pkcs11-tool
@@ -24,132 +23,105 @@ SSSD_CONF_FILE=/etc/sssd/sssd.conf
 NO_SSSD_CONF_FILE=0
 NOT_MATCHRULE=0
 MATCH_CHK=""
-LOGGEDINUSR=`whoami`
 
+fatal_error(){
+	printf "Error: %s\n"  "$*" >>/dev/stderr
+	exit 1
+}
 # Check to see if the logged in user is root. If not, inform the user and exit.
-if [ "$LOGGEDINUSR" != "root" ]
+if [ "$EUID" -ne 0 ]
 then
-   echo ""
-   echo "You MUST be logged in as root to run this script!"
-   echo ""
-   exit 1
+	fatal_error "Script must be run as root or use sudo."
 fi
 
-# Check for existence of executable pkcs15-tool
+# Check for required executables
 if [ ! -x $PKCS15TOOL ]
 then
-   echo ""
-   echo "$PKCS15TOOL not found! Is OpenSC package missing or corrupted?"
-   echo ""
-   exit 1
+	fatal_error "$PKCS15TOOL not found! Is opensc package missing or corrupted?"
 fi
 
 # The user must provide a valid computer username to associate with the token username.
-# If no argument is provide, show usage and exit.
 if [ $# != 1 ]
 then
-   echo ""
-   echo "Usage:  ans_2fa_rhel8_mapper username"
-   echo ""
-   exit 1
+	fatal_error "Usage:  ans_2fa_rhel8_mapper username"
+
 # Check to see if the supplied argument is a valid computer username.
-# If not, inform the user and exit.
 else
-   USRNAME=$1
-   USRNAME=`echo $1 | tr -d [:punct:]`
-   getent passwd $USRNAME > /dev/null
+	USRNAME="$1"
+	USRNAME=$(echo "$1" | tr -d '[:punct:]')
 
-   if [ $? != 0 ]
-   then
-      echo ""
-      echo "User $USRNAME not found!"
-      echo
-      exit 1
-# Check the smart card for a token username.
-# If no smart card has been inserted in the reader, inform the user and exit.
-   else
-      echo ""
-      echo "Checking smart card for token username..."
-      $PKCS15TOOL --list-info &> /dev/null
-
-      if [ $? != 0 ]
-      then
- 	 echo ""
-	 echo "Please insert a smart card in the reader and try again."
-	 echo ""
-	 exit 1
-# Check whether the token username already exists in the sssd.conf matchrule entry.
-# If not, add the token username to the matchrule.
-# If the token username is already in the matchrule, inform the user and exit.
-# NOTE:  If no matchrule entry exists, the section below will create one.
-# Subsequent execution of this script with other tokens will append entries to the matchrule entry.
-      else
-	 TOKENUSR=`$PKCS11TOOL --list-objects |& grep -v "^Using" | grep "^ *subject:" | awk -F= '{print $7}' | head -1`
+	if ! getent passwd "$USRNAME" > /dev/null;
+	then
+		fatal_error "User $USRNAME not found!"
+		# Check the smart card for a token username.
+	else
+		printf "Checking smart card for token username...\n"
+		if ! $PKCS15TOOL --list-info &> /dev/null
+		then
+			fatal_error "Please insert a smart card in the reader and try again."
+			# Check whether the token username already exists in the sssd.conf matchrule entry.
+			# If not, add the token username to the matchrule.
+			# If the token username is already in the matchrule, inform the user and exit.
+			# NOTE:  If no matchrule entry exists, the section below will create one.
+			# Subsequent execution of this script with other tokens will append entries to the matchrule entry.
+		else
+			TOKENUSR=$($PKCS11TOOL --list-objects |& grep -v "^Using" | grep "^ *subject:" | awk -F= '{print $7}' | head -1)
 
 # Check for existence of sssd.conf file
-	 if [ -e $SSSD_CONF_FILE ]
-         then
-# If sssd.conf file exists, grep for token user name in matchrule entry
-	    MATCH_CHK=`grep $TOKENUSR $SSSD_CONF_FILE`
+if [ -e $SSSD_CONF_FILE ]
+then
+	# If sssd.conf file exists, grep for token user name in matchrule entry
+	# If the token user name is not found, check for the '||' operator and at least one other <SUBJECT> entry
+	# in the matchrule
+	if ! MATCH_CHK=$(grep "$TOKENUSR" "$SSSD_CONF_FILE")
+	then
+		# Make a backup copy of the sssd.conf file
+		cp $SSSD_CONF_FILE $SSSD_CONF_FILE.bak
 
-# If the token user name is not found, check for the '||' operator and at least one other <SUBJECT> entry
-# in the matchrule
-	    if [ $? != 0 ]
-	    then
-# Make a backup copy of the sssd.conf file
-	       cp $SSSD_CONF_FILE $SSSD_CONF_FILE.bak
-
-	       grep 'matchrule =||<SUBJECT>' $SSSD_CONF_FILE >& /dev/null
-
-# If the pattern above isn't found in the sssd.conf file, set the NOT_MATCHRULE flag to 1
-	       if [ $? != 0 ]
-	       then
-	          NOT_MATCHRULE=1  
-# Else set the flag to 0
-	       else
-	          NOT_MATCHRULE=0
-	       fi
+# If the pattern isn't found in the sssd.conf file, set the NOT_MATCHRULE flag to 1
+if ! grep 'matchrule =||<SUBJECT>' $SSSD_CONF_FILE >& /dev/null;
+then
+	NOT_MATCHRULE=1
+else
+	NOT_MATCHRULE=0
+fi
 
 # Else if the token user name is already in the matchrule, do nothing
-            else
-	       echo ""
-	       echo "Token username is already listed in matchrule:  $MATCH_CHK"
-	       echo "Nothing more to do!"
-	       echo ""
-	       exit 2
-	    fi
+else
+	printf "Token username is already listed in matchrule:  %s\n" "$MATCH_CHK"
+	printf "Nothing more to do!\n"
+	exit 2
+	fi
 
 # The sssd.conf file exists so set the NO_SSSD_CONF_FILE flag to 0
-	    NO_SSSD_CONF_FILE=0
-
-# Else if the sssd.conf file does not exist, set the flag to 1
- 	 else
-	    NO_SSSD_CONF_FILE=1
-         fi
+NO_SSSD_CONF_FILE=0
+else
+	NO_SSSD_CONF_FILE=1
+fi
 
 # If there's not a matchrule starting with '||<SUBJECT>' or there's no sssd.conf file, create an sssd.conf
 # file with a matchrule for the token user name as the first <SUBJECT> entry
-	 if [[ $NOT_MATCHRULE == 1 ]] || [[ $NO_SSSD_CONF_FILE == 1 ]]  
-	 then
-	       echo "Creating matchrule with token username ($TOKENUSR)..."
+if [[ $NOT_MATCHRULE == 1 ]] || [[ $NO_SSSD_CONF_FILE == 1 ]]
+then
+	echo "Creating matchrule with token username ($TOKENUSR)..."
 
-               echo -e "[sssd]\nservices = nss, pam\ndomains = files\n\ncertificate_verification = no_ocsp\n\n[nss]\n\n[pam]\npam_cert_auth = True\n\n[domain/files]\nid_provider = files\n\n[certmap/files/$USRNAME]\nmatchrule =||<SUBJECT>CN=$TOKENUSR\n" > $SSSD_CONF_FILE
+	echo -e "[sssd]\nservices = nss, pam\ndomains = files\n\ncertificate_verification = no_ocsp\n\n[nss]\n\n[pam]\npam_cert_auth = True\n\n[domain/files]\nid_provider = files\n\n[certmap/files/$USRNAME]\nmatchrule =||<SUBJECT>CN=$TOKENUSR\n" > $SSSD_CONF_FILE
 
-	       echo "Done!"
-	       echo ""
-# Else append the token username to the existing matchrule in the sssd.conf file
-	 elif [ $NOT_MATCHRULE == 0 ]
-         then
-	      echo "Appending $TOKENUSR to matchrule..."
-	      sed "s/\(<SUBJECT>CN=.*$\)/\1<SUBJECT>CN=$TOKENUSR/" $SSSD_CONF_FILE.bak > $SSSD_CONF_FILE
-	      echo ""
-         fi
+	echo "Done!"
+	echo ""
+	# Else append the token username to the existing matchrule in the sssd.conf file
+elif [ $NOT_MATCHRULE == 0 ]
+then
+	echo "Appending $TOKENUSR to matchrule..."
+	sed "s/\(<SUBJECT>CN=.*$\)/\1<SUBJECT>CN=$TOKENUSR/" $SSSD_CONF_FILE.bak > $SSSD_CONF_FILE
+	echo ""
+fi
 
 # Change permissions to RW for root only (per the SSSD documentation)
-         chmod 600 $SSSD_CONF_FILE > /dev/null
+chmod 600 $SSSD_CONF_FILE > /dev/null
 
-      fi
-   fi
+		fi
+	fi
 fi
 
 exit

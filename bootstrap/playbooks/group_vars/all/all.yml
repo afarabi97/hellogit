@@ -15,6 +15,11 @@ system_name: "{{ lookup('ini', 'system_name section=tfplenum file=/etc/tfplenum.
 mip_core_vars: /opt/tfplenum/mip/mip-core/group_vars/all/packages.yml
 keycloak_version: 11.0.3
 mip_repo: "https://nexus.sil.lab/repository/mip-repo"
+dod_nmil_file: "Certificates_PKCS7_v5.7_DoD.pem"
+dod_smil_file: "Certificates_PKCS7_v5.5_SIPR.pem"
+dod_nmil_download: "{{ misc_server }}/dod_certs/{{ dod_nmil_file }}"
+dod_smil_download: "{{ misc_server }}/dod_certs/{{ dod_smil_file }}"
+offline_cert_dir: /opt/tfplenum/scripts/dod_certs
 
 server_repos:
   - codeready-builder-for-rhel-8-x86_64-rpms

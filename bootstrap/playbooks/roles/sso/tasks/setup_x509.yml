@@ -1,0 +1,148 @@
+---
+- name: Get Keycloak Auth Config
+  set_fact:
+    keycloak_config: "{{ lookup('file', '/root/.keycloak/kcadm.config') | from_json }}"
+
+- name: Set Keycloak Bear Token
+  set_fact:
+    keycloak_bearer_token: "{{ keycloak_config.endpoints['http://localhost:8080/auth'].master.token }}"
+
+- name: Duplicate Browser Flow
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/flows/browser/copy"
+    return_content: yes
+    method: POST
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      newName: "{{ browser_x509_flow_name }}"
+    status_code: [201]
+  register: copy_flow_result
+  until: copy_flow_result.status == 201
+  retries: 5
+  delay: 5
+
+- name: Add X509 Execution
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/flows/{{ browser_x509_flow_name }}/executions/execution"
+    return_content: yes
+    method: POST
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      provider: "{{ x509_provider_id }}"
+    status_code: [201]
+  register: execution_result
+  until: execution_result.status == 201
+  retries: 5
+  delay: 5
+
+- name: Get Executions
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/flows/{{ browser_x509_flow_name }}/executions"
+    return_content: yes
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+  register: execution_list
+  until: execution_list.status == 200
+  retries: 5
+  delay: 5
+
+- name: Get Keycloak token
+  set_fact:
+    x509_execution_id: "{{ item.id }}"
+  with_items: "{{ execution_list.json }}"
+  when: item.providerId is defined and item.providerId == x509_provider_id
+
+- name: Raise X509 Execution
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/executions/{{ x509_execution_id }}/raise-priority"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      execution: "{{ x509_execution_id }}"
+      realm: "{{ realm_name }}"
+    status_code: [204]
+  register: raise_result
+  until: raise_result.status == 204
+  retries: 5
+  delay: 5
+
+- name: Enable X509 Execution
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/flows/{{ browser_x509_flow_name }}/executions"
+    return_content: yes
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      id: "{{ x509_execution_id }}"
+      requirement: ALTERNATIVE
+      displayName: X509/Validate Username Form
+      requirementChoices:
+      - REQUIRED
+      - ALTERNATIVE
+      - DISABLED
+      configurable: true
+      providerId: "{{ x509_provider_id }}"
+      level: 0
+      index: 3
+    status_code: [202, 204]
+  register: execution_result
+  until: execution_result.status == 202 or execution_result.status == 204
+  retries: 5
+  delay: 5
+
+- name: Configure X509 Execution
+  uri:
+    url: "{{ keycloak_authentication_endpoint }}/executions/{{ x509_execution_id }}/config"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      alias: CAC
+      config:
+        x509-cert-auth.canonical-dn-enabled: false
+        x509-cert-auth.confirmation-page-disallowed: ""
+        x509-cert-auth.crl-checking-enabled: ""
+        x509-cert-auth.crl-relative-path: "crl.pem"
+        x509-cert-auth.crldp-checking-enabled: false
+        x509-cert-auth.mapper-selection: "Custom Attribute Mapper"
+        x509-cert-auth.mapper-selection.user-attribute-name: "certificate"
+        x509-cert-auth.mapping-source-selection: "Match SubjectDN using regular expression"
+        x509-cert-auth.ocsp-checking-enabled: ""
+        x509-cert-auth.regular-expression: "CN=.*?([A-Z0-9]*)(?:,|$)"
+        x509-cert-auth.serialnumber-hex-enabled: false
+        x509-cert-auth.timestamp-validation-enabled: true
+
+    status_code: [201]
+  register: config_result
+  until: config_result.status == 201
+  retries: 5
+  delay: 5
+
+- name: Configure Realm
+  uri:
+    url: "{{ keycloak_base_endpoint }}/auth/admin/realms/{{ realm_name }}"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ keycloak_bearer_token }}"
+    body_format: json
+    body:
+      browserFlow: "{{ browser_x509_flow_name }}"
+      accountTheme: "{{ cvah_theme }}"
+      adminTheme: "{{ cvah_theme }}"
+      emailTheme: "{{ cvah_theme }}"
+      loginTheme: "{{ cvah_theme }}"
+    status_code: [204]
+  register: config_result
+  until: config_result.status == 204
+  retries: 5
+  delay: 5

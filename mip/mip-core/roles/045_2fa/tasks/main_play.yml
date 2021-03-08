@@ -34,7 +34,7 @@
   shell: authselect apply-changes
 
 - name: Run ans_2fa_rhel8_configure script
-  shell: ./ans_2fa_rhel8_configure
+  shell: ./ans_2fa_rhel8_configure NMIL
   args:
     chdir: /home/assessor/Desktop/2fa/
 

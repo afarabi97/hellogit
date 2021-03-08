@@ -1,0 +1,29 @@
+---
+- name: Copy Keycloak Theme
+  copy:
+    src: "{{ keycloak_dir }}/themes/keycloak/"
+    dest: "{{ cvah_theme_dir }}"
+    remote_src: yes
+
+- name: Update Keycloak Terms and Conditions
+  lineinfile:
+    dest: "{{ keycloak_dir }}/themes/base/login/messages/messages_en.properties"
+    regexp: "^termsText="
+    line: "termsText=<p>{{ terms_and_conditions }}</p>"
+    state: present
+
+- name: Copy Custom Login Page
+  copy:
+    src: "files/login.ftl"
+    dest: "{{ keycloak_dir }}/themes/{{ cvah_theme }}/login/login.ftl"
+    group: "{{ keycloak_group }}"
+    owner: "{{ keycloak_user }}"
+    mode: u+rw,g+rw
+
+- name: Copy Custom Background
+  copy:
+    src: "files/background.jpg"
+    dest: "{{ keycloak_dir }}/themes/{{ cvah_theme }}/login/resources/img/keycloak-bg.png"
+    group: "{{ keycloak_group }}"
+    owner: "{{ keycloak_user }}"
+    mode: u+rw,g+rw

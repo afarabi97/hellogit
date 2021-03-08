@@ -51,6 +51,23 @@
     csr_path: "{{ certificate_request }}"
     provider: selfsigned
 
+- name: Create dod_certs Directory
+  file:
+    path: "{{ offline_cert_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download DOD Root CAs
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ offline_cert_dir }}/"
+  with_items:
+    - "{{ dod_nmil_download }}"
+    - "{{ dod_smil_download }}"
+
+- name: Apply NMIL Certs
+  command: cp {{ offline_cert_dir }}/{{ dod_nmil_file }} /etc/httpd/conf.d/dod_root.pem
+
 - name: Remove default httpd files
   file:
     path: "{{ item }}"
