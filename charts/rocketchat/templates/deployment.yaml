@@ -149,8 +149,6 @@ spec:
       nodeSelector:
         role: server
       restartPolicy: Always
-      securityContext:
-        runAsUser: 0
       volumes:
       - configMap:
           defaultMode: 0444

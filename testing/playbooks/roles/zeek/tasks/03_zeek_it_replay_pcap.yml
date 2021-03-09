@@ -1,0 +1,19 @@
+- name: Zeek Integration Test | 003 | Replay The PCAP
+  command: |
+      /usr/bin/tcpreplay --loop=5 --loopdelay-ms=3000 --intf1={{ test_interface }} {{ item }}
+  changed_when: false
+  loop:
+    - "{{ zeek_test_pcap_dir }}/zeek_it_intel.pcap"
+    - "{{ zeek_test_pcap_dir }}/smb1_transaction_request.pcap"
+    - "{{ zeek_test_pcap_dir }}/get.trace"
+    - "{{ zeek_test_pcap_dir }}/dns-dnskey.trace"
+  loop_control:
+    pause: "{{ zeek_pcap_pause }}"
+
+
+- name: Zeek Integration Test | 003 | Pause To Allow Changes To Take Effect
+  pause:
+    seconds: "{{ zeek_pause }}"
+    prompt: "{{ zeek_pause_prompt }}"
+    echo: false
+

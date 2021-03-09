@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { PcapService } from './pcap.service';
+import { PcapService } from '../services/pcap.service';
 import { Title } from '@angular/platform-browser';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -42,7 +42,7 @@ export class PcapFormComponent implements OnInit {
   }
 
   private initalizePage(){
-    this.pcapSrv.getPcaps().subscribe(data => {
+    this.pcapSrv.get_pcaps().subscribe(data => {
       this.pcaps = new MatTableDataSource<Object>(data as Array<Object>);
       this.pcaps.paginator = this.paginator;
     });

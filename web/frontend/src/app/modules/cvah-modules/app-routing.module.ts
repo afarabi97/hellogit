@@ -11,7 +11,6 @@ import { IndexManagementComponent } from '../../index-management/component/index
 import { LogIngestComponent } from '../../log-ingest/log-ingest.component';
 import { MIPConfigComponent } from '../../mip-config/mip-config.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
-import { PolicyManagementComponent } from '../../policy-management/component/policy-management.component';
 import { RegistryComponent } from '../../registry/registry.component';
 import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
@@ -21,6 +20,7 @@ import { AddNodeComponent } from '../../system-setup/add-node/add-node.component
 import { KickstartComponent } from '../../system-setup/kickstart/kickstart.component';
 import { KitComponent } from '../../system-setup/kit/kit.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
+import { PolicyManagementComponent } from '../policy-management/policy-management.component';
 import { PortalComponent } from '../portal/portal.component';
 
 const routes: Routes = [

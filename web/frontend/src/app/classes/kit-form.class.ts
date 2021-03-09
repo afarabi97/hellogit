@@ -1,5 +1,6 @@
 import { KitFormInterface, NodeInterface } from '../interfaces';
 import { NodeClass } from './node.class';
+import { ObjectUtilitiesClass } from './object-utilities.class';
 
 /**
  * Class defines the kit form
@@ -21,6 +22,10 @@ export class KitFormClass implements KitFormInterface {
   constructor(kitFormInterface: KitFormInterface) {
     this.complete = kitFormInterface.complete;
     this.kubernetes_services_cidr = kitFormInterface.kubernetes_services_cidr;
-    this.nodes = kitFormInterface.nodes.map((n: NodeInterface) => new NodeClass(n));
+    if (ObjectUtilitiesClass.notUndefNull(kitFormInterface.nodes)) {
+      this.nodes = kitFormInterface.nodes.map((n: NodeInterface) => new NodeClass(n));
+    } else {
+      this.nodes = [];
+    }
   }
 }

@@ -67,8 +67,9 @@ class NotificationMessage(object):
                 return
         raise ValueError("The %s passed is does not match on of %s." % (status, str(valid_names)) )
 
-    def set_exception(self, exception: str) -> None:
-        self.exception = exception
+    def set_exception(self, exception: Exception) -> None:
+        if exception is not None:
+            self.exception = str(exception)
 
     def to_json(self):
         self.timestamp = datetime.datetime.utcnow().isoformat()

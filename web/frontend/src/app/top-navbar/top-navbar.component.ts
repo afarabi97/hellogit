@@ -1,18 +1,10 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { KitFormClass, ObjectUtilitiesClass, VersionClass } from '../classes';
 import { returnDate } from '../functions/cvah.functions';
-import { BackingObjectInterface } from '../interfaces';
-import {
-  DialogControlTypes,
-  DialogFormControl,
-  DialogFormControlConfigClass
-} from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { UserService } from '../services/user.service';
@@ -70,7 +62,6 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @param {UserService} userService_
    * @param {KitService} kitService_
    * @param {ChangeDetectorRef} changeDetectorRef_
-   * @param {MatDialog} matDialog_
    * @memberof TopNavbarComponent
    */
   constructor(private cookieService_: CookieService,
@@ -80,8 +71,7 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
               private weaponSystemNameService_: WeaponSystemNameService,
               private userService_: UserService,
               private kitService_: KitService,
-              private changeDetectorRef_: ChangeDetectorRef,
-              private matDialog_: MatDialog) {
+              private changeDetectorRef_: ChangeDetectorRef) {
     this.showLinkNames = true;
     this.kitStatus = false;
     this.controllerMaintainer = this.userService_.isControllerMaintainer();

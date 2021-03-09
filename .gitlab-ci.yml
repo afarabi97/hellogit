@@ -202,6 +202,7 @@ variables:
   ACTION_SAMPLE: "no"
 
 stages:
+  - test-compile
   - code-analysis
   - publish-to-confluence
   - clean-staging-env
@@ -243,6 +244,7 @@ default:
           --branch-name "$CI_COMMIT_REF_NAME"
 
 include:
+  - local: gitlab/test-compile.yml
   - local: gitlab/code-analysis.yml
   - local: gitlab/confluence-publish.yml
   - local: gitlab/DIP/dip.gitlab-ci.yml

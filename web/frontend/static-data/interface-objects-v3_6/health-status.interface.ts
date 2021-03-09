@@ -20946,43 +20946,67 @@ export const MockHealthStatusInterface: HealthStatusInterface = {
           }
       }
   ],
-  "node_info": {
-      "jdms-sensor1.lan": {
-          "status.allocatable.cpu": "16000m",
-          "status.allocatable.ephemeral-storage": "16.775Gi",
-          "status.allocatable.memory": "15.401Gi",
-          "status.capacity.cpu": "16000m",
-          "status.capacity.ephemeral-storage": "18.639Gi",
-          "status.capacity.memory": "15.499Gi",
-          "node_type": "Sensor"
+  node_info: {
+    'jdms-sensor1.lan': {
+      status: {
+        allocatable: {
+          cpu: '16000m',
+          'ephemeral-storage': '16.775Gi',
+          memory: '15.401Gi'
+        },
+        capacity: {
+          cpu: '16000m',
+          'ephemeral-storage': '18.639Gi',
+          memory: '15.499Gi'
+        }
       },
-      "jdms-sensor2.lan": {
-          "status.allocatable.cpu": "16000m",
-          "status.allocatable.ephemeral-storage": "16.775Gi",
-          "status.allocatable.memory": "15.401Gi",
-          "status.capacity.cpu": "16000m",
-          "status.capacity.ephemeral-storage": "18.639Gi",
-          "status.capacity.memory": "15.499Gi",
-          "node_type": "Sensor"
+      node_type: 'Sensor'
+    },
+    'jdms-sensor2.lan': {
+      status: {
+        allocatable: {
+          cpu: '16000m',
+          'ephemeral-storage': '16.775Gi',
+          memory: '15.401Gi'
+        },
+        capacity: {
+          cpu: '16000m',
+          'ephemeral-storage': '18.639Gi',
+          memory: '15.499Gi'
+        }
       },
-      "jdms-server1.lan": {
-          "status.allocatable.cpu": "16000m",
-          "status.allocatable.ephemeral-storage": "16.775Gi",
-          "status.allocatable.memory": "23.276Gi",
-          "status.capacity.cpu": "16000m",
-          "status.capacity.ephemeral-storage": "18.639Gi",
-          "status.capacity.memory": "23.374Gi",
-          "node_type": "Server"
+      node_type: 'Sensor'
       },
-      "jdms-server2.lan": {
-          "status.allocatable.cpu": "16000m",
-          "status.allocatable.ephemeral-storage": "16.775Gi",
-          "status.allocatable.memory": "23.276Gi",
-          "status.capacity.cpu": "16000m",
-          "status.capacity.ephemeral-storage": "18.639Gi",
-          "status.capacity.memory": "23.374Gi",
-          "node_type": "Server"
-      }
+    'jdms-server1.lan': {
+      status: {
+        allocatable: {
+          cpu: '16000m',
+          'ephemeral-storage': '16.775Gi',
+          memory: '23.276Gi'
+        },
+        capacity: {
+          cpu: '16000m',
+          'ephemeral-storage': '18.639Gi',
+          memory: '23.374Gi'
+        }
+      },
+      node_type: 'Server'
+      },
+    'jdms-server2.lan': {
+      status: {
+        allocatable: {
+          cpu: '16000m',
+          'ephemeral-storage': '16.775Gi',
+          memory: '23.276Gi'
+        },
+        capacity: {
+          cpu: '16000m',
+          'ephemeral-storage': '18.639Gi',
+          memory: '23.374Gi'
+        }
+      },
+      node_type: 'Server'
+    }
   },
   "utilization_info": {
       "jdms-sensor1.lan": {

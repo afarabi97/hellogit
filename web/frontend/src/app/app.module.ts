@@ -55,13 +55,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PcapFormComponent } from './pcap-form/pcap-form.component';
 import { ReplayPcapDialog } from './pcap-form/replay-pcap-dialog/replay-pcap-dialog.component';
 
-//Policy Management
-import { PolicyManagementComponent } from './policy-management/component/policy-management.component';
-import { PolicyManagementDialog } from './policy-management/dialog/policy-management-dialog.component';
-import { PolicyManagementTable } from './policy-management/table/policy-management-table.component';
-import { PolicyManagementAddDialog } from './policy-management/add-dialog/policy-management-add-dialog.component';
-import { PolicyManagementUploadDialog } from './policy-management/upload-dialog/policy-mng-upload.component';
-
 //Windows Agent Deployer
 import { AgentBuilderChooserComponent } from './agent-builder-chooser/agent-builder-chooser.component';
 import { AgentInstallerDialogComponent } from './agent-builder-chooser/agent-installer-dialog/agent-installer-dialog.component';
@@ -117,9 +110,9 @@ import { MIPConfigValidationComponent } from './mip-config-validation/mip-config
 import { IndexManagementComponent } from './index-management/component/index-management.component';
 
 import { SystemNameClass, UserClass } from './classes';
-
 import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
 import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
+import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
@@ -157,11 +150,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     ConfigmapEditorComponent,
     RegistryComponent,
     PcapFormComponent,
-    PolicyManagementComponent,
-    PolicyManagementDialog,
-    PolicyManagementTable,
-    PolicyManagementAddDialog,
-    PolicyManagementUploadDialog,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
@@ -205,6 +193,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
     NGXMonacoTextEditorModule,
+    PolicyManagementModule,
     PortalModule
   ],
   providers: [
@@ -222,11 +211,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    PolicyManagementDialog,
-    PolicyManagementComponent,
-    PolicyManagementTable,
-    PolicyManagementAddDialog,
-    PolicyManagementUploadDialog,
     NotificationsModuleComponent,
     ConfirmDailogComponent,
     AgentInstallerDialogComponent,

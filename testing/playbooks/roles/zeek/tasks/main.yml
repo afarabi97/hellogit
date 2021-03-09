@@ -1,110 +1,50 @@
 ---
 
-- name: Set Initial Facts
-  set_fact:
-    app_deployed: false
-    releases: ""
+- name: Zeek | Helm Deployment Checks
+  include_tasks: 00_zeek_prelim_helm_check.yml
+  args:
+    apply:
+      tags:
+        - zeek
 
-- name: check if Zeek is installed
-  command: helm list --filter 'zeek$' --output json
-  register: app_installed
-  changed_when: app_installed.rc != 0
+- name: Zeek Integration Test | Setup Sensor
+  include_tasks: 01_zeek_it_setup_sensor.yml
+  args:
+    apply:
+      tags:
+        - zeek
+  when: inventory_hostname in groups['sensors']
 
-- name: update installed variable
-  set_fact:
-    releases: "{{ (app_installed.stdout | from_json) }}"
-  when:
-    - app_installed.stdout
+- name: Zeek Integration Test | Sanitize Index
+  include_tasks: 02_zeek_it_sanitize_index.yml
+  args:
+    apply:
+      tags:
+        - zeek
+  when: inventory_hostname in groups['master_server']
 
-- name: update installed variable
-  set_fact:
-    app_deployed: true
-  when:
-    - app_installed is defined
-    - releases is defined and releases
-    - "'deployed' in item.status"
-  with_items: "{{ releases }}"
+- name: Zeek Integration Test | Replay PCAP
+  include_tasks: 03_zeek_it_replay_pcap.yml
+  args:
+    apply:
+      tags:
+        - zeek
+  when: inventory_hostname in groups['sensors']
 
-- name: Test | Check Zeek Helm Deployed
-  assert:
-    that: "'deployed' in item.status"
-    msg: "Failed to determine if Zeek is installed"
-  when: releases is defined and releases
-  with_items:
-    - "{{ releases }}"
+- name: Zeek Integration Test | Retrieve Index Values
+  include_tasks: 04_zeek_it_retrieve_index.yml
+  args:
+    apply:
+      tags:
+        - zeek
+  when: inventory_hostname in groups['master_server']
 
-- name: Check Zeek data within Elasticsearch
-  block:
-  - name: get Zeek pods
-    shell: |
-      set -o pipefail && {{ kubectl_get_pods_cmd }} | grep 'zeek-'
-    register: get_pods
-    changed_when: get_pods.failed
-
-  - name: Check Zeek Indicies
-    import_role:
-      name: common
-      tasks_from: check_indices
-    vars:
-      app_name: "zeek"
-      index_regex: "^ecs-zeek.*"
-
-  - name: Check Zeek HTTP Result
-    uri:
-      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=method:GET+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
-      validate_certs: no
-      user: "{{ elastic_username }}"
-      password: "{{ elastic_password }}"
-      force_basic_auth: yes
-    register: results_bh
-    until: results_bh.json.hits.total != 0
-    retries: 60
-    delay: 5
-    ignore_errors: yes
-
-  - name: Test | Check Zeek HTTP Results
-    assert:
-      that: results_bh.json.hits.total != 0
-      msg: "Failed verifying Elasticsearch received HTTP logs from Zeek"
-
-  - name: Check Zeek DNS Result
-    uri:
-      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=event.dataset:dns+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
-      validate_certs: no
-      user: "{{ elastic_username }}"
-      password: "{{ elastic_password }}"
-      force_basic_auth: yes
-    register: results_bd
-    until: results_bd.json.hits.total != 0
-    retries: 60
-    delay: 5
-    ignore_errors: yes
-
-  - name: Test | Check Zeek DNS Results
-    assert:
-      that: results_bd.json.hits.total != 0
-      msg: "Failed verifying Elasticsearch received DNS logs from Zeek"
-
-  - name: Check Zeek SMB Result
-    uri:
-      url: "{{ elastic_uri }}/ecs-zeek-*/_search?q=event.dataset:smb_mapping+AND+@timestamp:[now-15m+TO+now]"
-      return_content: yes
-      validate_certs: no
-      user: "{{ elastic_username }}"
-      password: "{{ elastic_password }}"
-      force_basic_auth: yes
-    register: results_bs
-    until: results_bs.json.hits.total != 0
-    retries: 60
-    delay: 5
-    ignore_errors: yes
-
-  - name: Test | Check Zeek SMB Results
-    assert:
-      that: results_bs.json.hits.total != 0
-      msg: "Failed verifying Elasticsearch received SMB logs from Zeek"
-  when: app_deployed
+- name: Zeek Integration Test | Validate Index Values
+  include_tasks: 05_zeek_it_validate_elastic.yml
+  args:
+    apply:
+      tags:
+        - zeek
+  when: inventory_hostname in groups['master_server']
 
 ...

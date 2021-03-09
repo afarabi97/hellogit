@@ -16,7 +16,7 @@ import { ToolsService } from './tools-form/services/tools.service';
 import { NavBarService } from './top-navbar/services/navbar.service';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 
-export function cleanStylesFromDOM(): void {
+function cleanStylesFromDOM(): void {
   const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
   const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
   for (let i = 0; i < styles.length; i++) {

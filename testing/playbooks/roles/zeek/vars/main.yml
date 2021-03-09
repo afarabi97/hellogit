@@ -1,0 +1,70 @@
+# Lab Repo URL's
+labrepo_url: labrepo.sil.lab
+misc_server: http://misc.{{ labrepo_url }}
+
+
+# The name of the aliased index
+zeek_index_alias: "filebeat-zeek"
+zeek_test_pcap_dir: "/tmp/pcap"
+
+# Handles the pauses (seconds) after deleting and
+# Replaying PCAP against the sensor
+zeek_pause_prompt: "Allowing Changes To Take Effect In Elastic"
+zeek_pause: 5                         # Seconds to wait before continuing execution
+zeek_delete_pause: 10
+zeek_pcap_pause: 10
+
+# Time frame of the query
+zeek_query_gte: "now-24h"
+zeek_query_lte: "now"
+
+# Paths For Loading Zeek Scripts Onto Sensor
+zeek_script_directory_path: "/opt/tfplenum/zeek/scripts/integration_test_scripts"
+zeek_script_load_path: "/opt/tfplenum/zeek/scripts/__load__.zeek"
+zeek_script_load_text: "custom/integration_test_scripts/zeek_script_integration_test.zeek"
+zeek_script_file_path: "/opt/tfplenum/zeek/scripts/integration_test_scripts/zeek_it_script.zeek"
+zeek_script_file_ext: zeek
+
+# Paths For Loading Zeek Signatures Onto Sensor
+zeek_signature_directory_path: "/opt/tfplenum/zeek"
+zeek_signature_load_path: ""
+zeek_signature_load_text: ""
+zeek_signature_file_path: "/opt/tfplenum/zeek/custom.sig"
+zeek_signature_file_ext: sig
+
+# Paths For Loading Zeek Intelligence Onto Sensor
+zeek_intel_directory_path: "/opt/tfplenum/zeek"
+zeek_intel_load_path: ""
+zeek_intel_load_text: ""
+zeek_intel_file_path: "/opt/tfplenum/zeek/intel.dat"
+zeek_intel_file_ext: dat
+
+# zeek_remote_dir_basename: "/opt/tfplenum/zeek/"
+# zeek_it_dirname_base: "INTEGRATION_TEST_"
+pcap_dir: "{{ install_dir }}/playbooks/roles/zeek/pcaps"
+test_interface: "ens224"
+
+
+# zeek_it_rulesets is a list that holds the information for each type of zeek
+zeek_it_rulesets:
+  - zeek_type: script
+    zeek_file_ext: "{{ zeek_script_file_ext }}"
+    zeek_remote_dir: "{{ zeek_script_directory_path }}"
+    zeek_remote_file_path: "{{ zeek_script_file_path }}"
+    zeek_remote_load_path: "{{ zeek_script_load_path }}"
+    zeek_remote_load_text: "{{ zeek_script_load_text }}"
+
+  - zeek_type: signature
+    zeek_file_ext: "{{ zeek_signature_file_ext }}"
+    zeek_remote_dir: "{{ zeek_signature_directory_path }}"
+    zeek_remote_file_path: "{{ zeek_signature_file_path }}"
+    zeek_remote_load_path: "{{ zeek_signature_load_path }}"
+    zeek_remote_load_text: "{{ zeek_signature_load_text }}"
+
+  - zeek_type: intel
+    zeek_file_ext: "{{ zeek_intel_file_ext }}"
+    zeek_remote_dir: "{{ zeek_intel_directory_path }}"
+    zeek_remote_file_path: "{{ zeek_intel_file_path }}"
+    zeek_remote_load_path: "{{ zeek_intel_load_path }}"
+    zeek_remote_load_text: "{{ zeek_intel_load_text }}"
+

@@ -821,97 +821,92 @@ POD_LOG_DIALOG__BUTTON_CLOSE = 'pod-log-dialog-div-button-close' # button
 
 
 # These are for policy-management-add-dialog.component.html
-POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_RULESET_NAME = 'policy-management-add-dialog-div-mat-form-field-ruleset-name' # mat-form-field
-POLICY_MANAGEMENT_ADD_DIALOG__RULESET_NAME_INPUT = 'policy-management-add-dialog-div-mat-form-field-ruleset-name-input' # input
-POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_CLASSIFICATION = 'policy-management-add-dialog-div-mat-form-field-classification' # mat-form-field
-POLICY_MANAGEMENT_ADD_DIALOG__CLASSIFICATION_MAT_SELECT = 'policy-management-add-dialog-div-mat-form-field-classification-mat-select' # mat-select
-# TODO policy-management-add-dialog-div-mat-form-field-classification-mat-select-mat-option-* # mat-option
-POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_RULE_TYPE = 'policy-management-add-dialog-div-mat-form-field-rule-type' # mat-form-field
-POLICY_MANAGEMENT_ADD_DIALOG__RULE_TYPE_MAT_SELECT = 'policy-management-add-dialog-div-mat-form-field-rule-type-mat-select' # mat-select
-# TODO policy-management-add-dialog-div-mat-form-field-rule-type-mat-select-mat-option-* # mat-option
-POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_SENSORS = 'policy-management-add-dialog-div-mat-form-field-sensors' # mat-form-field
-POLICY_MANAGEMENT_ADD_DIALOG__SENSORS_MAT_SELECT = 'policy-management-add-dialog-div-mat-form-field-sensors-mat-select' # mat-select
-# TODO policy-management-add-dialog-div-mat-form-field-sensors-mat-select-mat-option-* # mat-option
-POLICY_MANAGEMENT_ADD_DIALOG__MAT_CHECKBOX_IS_ENABLED = 'policy-management-add-dialog-div-mat-checkbox-is-enabled' # mat-checkbox
-POLICY_MANAGEMENT_ADD_DIALOG__BUTTON_CANCEL = 'policy-management-add-dialog-div-button-cancel' # button
-POLICY_MANAGEMENT_ADD_DIALOG__BUTTON_SUBMIT = 'policy-management-add-dialog-div-button-submit' # button
-
-
-# These are for policy-management.component.html
-APP_POLICY_MANAGEMENT__POLICY_MANAGEMENT_TABLE = 'app-policy-management-div-policy-management-table' # policy-management-table (internal)
-APP_POLICY_MANAGEMENT__POLICY_MANAGEMENT_DIALOG = 'app-policy-management-policy-management-dialog' # policy-management-dialog (internal)
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_RULESET_NAME = 'cvah-policy-management-add-dialog-div-mat-form-field-ruleset-name' # mat-form-field
+CVAH_CVAH_POLICY_MANAGEMENT_ADD_DIALOG__RULESET_NAME_INPUT = 'cvah-policy-management-add-dialog-div-mat-form-field-ruleset-name-input' # input
+POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_CLASSIFICATION = 'cvah-policy-management-add-dialog-div-mat-form-field-classification' # mat-form-field
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__CLASSIFICATION_MAT_SELECT = 'cvah-policy-management-add-dialog-div-mat-form-field-classification-mat-select' # mat-select
+# TODO cvah-policy-management-add-dialog-div-mat-form-field-classification-mat-select-mat-option-* # mat-option
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_RULE_TYPE = 'cvah-policy-management-add-dialog-div-mat-form-field-rule-type' # mat-form-field
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__RULE_TYPE_MAT_SELECT = 'cvah-policy-management-add-dialog-div-mat-form-field-rule-type-mat-select' # mat-select
+# TODO cvah-policy-management-add-dialog-div-mat-form-field-rule-type-mat-select-mat-option-* # mat-option
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__MAT_FORM_FIELD_SENSORS = 'cvah-policy-management-add-dialog-div-mat-form-field-sensors' # mat-form-field
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__SENSORS_MAT_SELECT = 'cvah-policy-management-add-dialog-div-mat-form-field-sensors-mat-select' # mat-select
+# TODO cvah-policy-management-add-dialog-div-mat-form-field-sensors-mat-select-mat-option-* # mat-option
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__MAT_CHECKBOX_IS_ENABLED = 'cvah-policy-management-add-dialog-div-mat-checkbox-is-enabled' # mat-checkbox
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__BUTTON_CANCEL = 'cvah-policy-management-add-dialog-div-button-cancel' # button
+CVAH_POLICY_MANAGEMENT_ADD_DIALOG__BUTTON_SUBMIT = 'cvah-policy-management-add-dialog-div-button-submit' # button
 
 
 # These are for policy-management-dialog.component.html
-POLICY_MANAGEMENT_DIALOG__MAT_FORM_FIELD_RULE_NAME = 'policy-management-dialog-div-mat-card-mat-card-content-mat-form-field-rule-name' # mat-form-field
-POLICY_MANAGEMENT_DIALOG__RULE_NAME_INPUT = 'policy-management-dialog-div-mat-card-mat-card-content-mat-form-field-rule-name-input' # input
-# TODO policy-management-dial'og-div-mat-card-mat-card-content-div-div-div-line-numbers-* # div
-POLICY_MANAGEMENT_DIALOG__TEXTAREA_RULE = 'policy-management-dialog-div-mat-card-mat-card-content-div-div-textarea-rule' # textarea
-POLICY_MANAGEMENT_DIALOG__MAT_CHECKBOX_RULE_ENABLE = 'policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-checkbox-rule-enable' # mat-checkbox
-POLICY_MANAGEMENT_DIALOG__MAT_FORM_FIELD_PCAP_TEST = 'policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test' # mat-form-field
-POLICY_MANAGEMENT_DIALOG__PCAP_TEST_MAT_SELECT = 'policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select' # mat-select
-# TODO policy-management-dial'og-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select-maty-option-* # mat-option
-POLICY_MANAGEMENT_DIALOG__BUTTON_CLOSE_WITHOUT_SAVING = 'policy-management-dialog-div-mat-card-mat-card-footer-button-close-without-saving' # button
-POLICY_MANAGEMENT_DIALOG__BUTTON_SAVE_AND_CLOSE = 'policy-management-dialog-div-mat-card-mat-card-footer-button-save-and-close' # button
-POLICY_MANAGEMENT_DIALOG__BUTTON_VALIDATE_SYNTAX = 'policy-management-dialog-div-mat-card-mat-card-footer-button-validate-syntax' # button
-POLICY_MANAGEMENT_DIALOG__BUTTON_TEST_AGAINST_PCAP = 'policy-management-dialog-div-mat-card-mat-card-footer-button-test-against-pcap' # button
+CVAH_POLICY_MANAGEMENT_DIALOG__MAT_FORM_FIELD_RULE_NAME = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-mat-form-field-rule-name' # mat-form-field
+CVAH_POLICY_MANAGEMENT_DIALOG__RULE_NAME_INPUT = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-mat-form-field-rule-name-input' # input
+# TODO cvah-policy-management-dial'og-div-mat-card-mat-card-content-div-div-div-line-numbers-* # div
+CVAH_POLICY_MANAGEMENT_DIALOG__TEXTAREA_RULE = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-div-div-textarea-rule' # textarea
+CVAH_POLICY_MANAGEMENT_DIALOG__MAT_CHECKBOX_RULE_ENABLE = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-checkbox-rule-enable' # mat-checkbox
+CVAH_POLICY_MANAGEMENT_DIALOG__MAT_FORM_FIELD_PCAP_TEST = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test' # mat-form-field
+CVAH_POLICY_MANAGEMENT_DIALOG__PCAP_TEST_MAT_SELECT = 'cvah-policy-management-dialog-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select' # mat-select
+# TODO cvah-policy-management-dial'og-div-mat-card-mat-card-content-div-div-mat-form-field-pcap-test-mat-select-maty-option-* # mat-option
+CVAH_POLICY_MANAGEMENT_DIALOG__BUTTON_CLOSE_WITHOUT_SAVING = 'cvah-policy-management-dialog-div-mat-card-mat-card-footer-button-close-without-saving' # button
+CVAH_POLICY_MANAGEMENT_DIALOG__BUTTON_SAVE_AND_CLOSE = 'cvah-policy-management-dialog-div-mat-card-mat-card-footer-button-save-and-close' # button
+CVAH_POLICY_MANAGEMENT_DIALOG__BUTTON_VALIDATE_SYNTAX = 'cvah-policy-management-dialog-div-mat-card-mat-card-footer-button-validate-syntax' # button
+CVAH_POLICY_MANAGEMENT_DIALOG__BUTTON_TEST_AGAINST_PCAP = 'cvah-policy-management-dialog-div-mat-card-mat-card-footer-button-test-against-pcap' # button
 
 
 # These are for policy-management-table.component.html
-POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_RULE_SYNC = 'policy-management-table-mat-card-mat-card-header-mat-card-title-button-rule-sync' # button
-POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_RULE_SYNC_EM_SWAP_HORIZ = 'policy-management-table-mat-card-mat-card-header-mat-card-title-button-rule-sync-em-swap-horiz' # em
-POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_ADD_RULESET = 'policy-management-table-mat-card-mat-card-header-mat-card-title-button-add-ruleset' # button
-POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_ADD_RULESET_EM_ADD_CIRCLE_OUTLINE = 'policy-management-table-mat-card-mat-card-header-mat-card-title-button-add-ruleset-em-add-circle-outline' # em
-POLICY_MANAGEMENT_TABLE__MAT_FORM_FIELD_FILTER = 'policy-management-table-mat-card-mat-card-content-div-mat-form-field-filter' # mat-form-field
-POLICY_MANAGEMENT_TABLE__FILTER_INPUT = 'policy-management-table-mat-card-mat-card-content-div-mat-form-field-filter-input' # input
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-is-enabled # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-is-enabled-mat-checkbox # mat-checkbox
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a # app-elasticconfig-editor (internal)
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-em-chevron-right # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-em-expand-more # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-span-name # span
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-type # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-classification # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-state # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-classification-dl-dt-hostname # dt
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-classification-dl-dt-state # dd
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-assigned-sensors # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-assigned-sensors-div-*-hostname # div
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-cloud-upload # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-cloud-upload-em # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-edit # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-edit-em # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-delete # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-delete-em # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-button-add-rule # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-button-add-rule-em-add-circle-outline # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-is-enabled # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-is-enabled-mat-checkbox # mat-checkbox
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-rule-name # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-last-modified # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions # td
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-edit # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-edit-em # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-delete # button
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-delete-em # em
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-tr-mat-row-* # tr
-# TODO policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-mat-paginator # mat-paginator
-# TODO policy-management-table-mat-card-mat-card-content-table-tr-mat-row-* # tr
-# TODO policy-management-table-mat-card-mat-card-content-table-tr-mat-row-expanded-detail-* # tr
-POLICY_MANAGEMENT_TABLE__MAT_PAGINATOR = 'policy-management-table-mat-card-mat-card-content-mat-paginator' # mat-paginator
+CVAH_POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_RULE_SYNC = 'cvah-policy-management-table-mat-card-mat-card-header-mat-card-title-button-rule-sync' # button
+CVAH_POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_RULE_SYNC_EM_SWAP_HORIZ = 'cvah-policy-management-table-mat-card-mat-card-header-mat-card-title-button-rule-sync-em-swap-horiz' # em
+CVAH_POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_ADD_RULESET = 'cvah-policy-management-table-mat-card-mat-card-header-mat-card-title-button-add-ruleset' # button
+CVAH_POLICY_MANAGEMENT_TABLE__TITLE_BUTTON_ADD_RULESET_EM_ADD_CIRCLE_OUTLINE = 'cvah-policy-management-table-mat-card-mat-card-header-mat-card-title-button-add-ruleset-em-add-circle-outline' # em
+CVAH_POLICY_MANAGEMENT_TABLE__MAT_FORM_FIELD_FILTER = 'cvah-policy-management-table-mat-card-mat-card-content-div-mat-form-field-filter' # mat-form-field
+CVAH_POLICY_MANAGEMENT_TABLE__FILTER_INPUT = 'cvah-policy-management-table-mat-card-mat-card-content-div-mat-form-field-filter-input' # input
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-is-enabled # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-is-enabled-mat-checkbox # mat-checkbox
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a # app-elasticconfig-editor (internal)
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-em-chevron-right # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-em-expand-more # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-rule-set-name-a-span-name # span
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-type # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-classification # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-state # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-classification-dl-dt-hostname # dt
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-classification-dl-dt-state # dd
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-assigned-sensors # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-assigned-sensors-div-*-hostname # div
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-cloud-upload # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-cloud-upload-em # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-edit # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-edit-em # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-delete # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-actions-button-delete-em # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-button-add-rule # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-button-add-rule-em-add-circle-outline # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-is-enabled # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-is-enabled-mat-checkbox # mat-checkbox
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-rule-name # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-last-modified # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions # td
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-edit # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-edit-em # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-delete # button
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-td-*-actions-button-delete-em # em
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-table-tr-mat-row-* # tr
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-td-*-expanded-detail-div-mat-paginator # mat-paginator
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-tr-mat-row-* # tr
+# TODO cvah-policy-management-table-mat-card-mat-card-content-table-tr-mat-row-expanded-detail-* # tr
+CVAH_POLICY_MANAGEMENT_TABLE__MAT_PAGINATOR = 'cvah-policy-management-table-mat-card-mat-card-content-mat-paginator' # mat-paginator
 
 
-# These are for policy-mng-upload.component.html
-POLICY_MNG_UPLOAD__MAT_FORM_FIELD_RULESET_NAME = 'policy-mng-upload-div-mat-form-field-ruleset-name' # mat-form-field
-POLICY_MNG_UPLOAD__RULESET_NAME_INPUT = 'policy-mng-upload-div-mat-form-field-ruleset-name-input' # input
-POLICY_MNG_UPLOAD__SPAN_FILE_NAME = 'policy-mng-upload-div-span-file-name' # span
-POLICY_MNG_UPLOAD__BUTTON_CHOOSE_RULES_FILE = 'policy-mng-upload-div-button-choose-rules-file' # button
-POLICY_MNG_UPLOAD__INPUT_HIDDEN_TYPE_FILE = 'policy-mng-upload-div-input-hidden-type-file' # input
-POLICY_MNG_UPLOAD__BUTTON_CANCEL = 'policy-mng-upload-div-button-cancel' # button
-POLICY_MNG_UPLOAD__BUTTON_UPLOAD = 'policy-mng-upload-div-button-upload' # upload
+# These are for policy-management-upload-dialog.component.html
+CVAH_POLICY_MNG_UPLOAD__MAT_FORM_FIELD_RULESET_NAME = 'cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name' # mat-form-field
+CVAH_POLICY_MNG_UPLOAD__RULESET_NAME_INPUT = 'cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name-input' # input
+CVAH_POLICY_MNG_UPLOAD__SPAN_FILE_NAME = 'cvah-policy-management-upload-dialog-div-span-file-name' # span
+CVAH_POLICY_MNG_UPLOAD__BUTTON_CHOOSE_RULES_FILE = 'cvah-policy-management-upload-dialog-div-button-choose-rules-file' # button
+CVAH_POLICY_MNG_UPLOAD__INPUT_HIDDEN_TYPE_FILE = 'cvah-policy-management-upload-dialog-div-input-hidden-type-file' # input
+CVAH_POLICY_MNG_UPLOAD__BUTTON_CANCEL = 'cvah-policy-management-upload-dialog-div-button-cancel' # button
+CVAH_POLICY_MNG_UPLOAD__BUTTON_UPLOAD = 'cvah-policy-management-upload-dialog-div-button-upload' # upload
 
 
 # These are for portal.component.html

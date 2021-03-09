@@ -121,6 +121,26 @@
                                     id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-mat-form-field-control-name-kafka-mat-error' }}">{{getErrorMessage(control)}}</mat-error>
                         </mat-form-field>
                       </div>
+                      <!-- Suricata -->
+                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'suricata-list'">
+                        <mat-form-field class="multiple-list-select">
+                          <mat-label>Suricata List</mat-label>
+                          <mat-select formControlName="{{control.name}}" multiple required>
+                            <mat-option *ngFor="let log of control.default_value; let i = index"
+                                        [value]="log">{{log}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <!-- Zeek -->
+                      <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'zeek-list'">
+                        <mat-form-field class="multiple-list-select">
+                          <mat-label>Zeek List</mat-label>
+                          <mat-select formControlName="{{control.name}}" multiple required>
+                            <mat-option *ngFor="let log of control.default_value; let i = index"
+                                        [value]="log">{{log}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
                     </div>
                   </div>
                 </section>

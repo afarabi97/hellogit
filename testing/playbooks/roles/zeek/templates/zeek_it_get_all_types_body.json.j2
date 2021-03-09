@@ -1,0 +1,27 @@
+{
+    "size": 0,
+    "aggs": {
+        "zeek_types": {
+            "terms": {
+                "field": "fileset.name"
+            }
+        }
+    },
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match_all": {}
+                },
+                {
+                    "range": {
+                        "@timestamp": {
+                          "gte": "{{ zeek_query_gte }}",
+                          "lte": "{{ zeek_query_lte }}"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "scripts": {
     "ng": "ng",
     "postinstall": "ngcc",
@@ -63,7 +63,7 @@
     "eslint": "7.6.0",
     "eslint-plugin-eslint-plugin": "2.3.0",
     "eslint-plugin-import": "2.22.1",
-    "eslint-plugin-rxjs": "^2.0.0",
+    "eslint-plugin-rxjs": "2.0.0",
     "exitzero": "1.0.1",
     "jasmine-core": "3.6.0",
     "jasmine-spec-reporter": "6.0.0",

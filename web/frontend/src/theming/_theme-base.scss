@@ -18,15 +18,15 @@
   }
 
   .mat-error {
-    font-size: map-get($theme, primary-font-size) + ' ' + !important;
+    font-size: map-get($theme, primary-font-size) !important;
   }
 
   .mat-tooltip {
-    font-size: map-get($theme, primary-font-size) + ' ' + !important;
+    font-size: map-get($theme, primary-font-size) !important;
   }
 
   .mat-form-field{
-    font-size: map-get($theme, form-field-font-size) + ' ' + !important;
+    font-size: map-get($theme, form-field-font-size) !important;
   }
 
   snack-bar-container.mat-snack-bar-container {
@@ -55,7 +55,7 @@
   }
 
   mat-dialog-container{
-    background-color: map-get($theme, first-elevation-dark-background) + ' ' + !important;
+    background-color: map-get($theme, first-elevation-dark-background) !important;
 
     .mat-stepper-horizontal, .mat-stepper-vertical {
       background-color: inherit;

@@ -12,14 +12,6 @@
       "name": "pcapEnabled"
     },
     {
-      "type": "checkbox",
-      "default_value": false,
-      "description": "Enable Protocol Analysis (Zeek has this feature enabled by default)",
-      "trueValue": true,
-      "falseValue": false,
-      "name": "flow"
-    },
-    {
       "type": "textinputlist",
       "default_value": "[\"192.168.0.0/24\"]",
       "description": "Enter your home/defended network in this format [\"home network IP 1\", \" home network IP 2\"] or [\"any\"]",
@@ -62,6 +54,22 @@
     {
       "type": "invisible",
       "name": "node_hostname"
+    },
+    {
+      "type": "suricata-list",
+      "default_value": [
+        "alert",
+        "http",
+        "dns",
+        "tls",
+        "flow",
+        "other"
+      ],
+      "description": "List of Suricata log types. Uncheck any that are not needed.",
+      "required": true,
+      "regexp": "",
+      "name": "log_types",
+      "error_message": "Please select a log type"
     }
   ]
 }

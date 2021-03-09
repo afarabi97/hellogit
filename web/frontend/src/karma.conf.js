@@ -20,7 +20,7 @@ module.exports = function(config) {
     files: [],
     exclude: [],
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly' ],
+      reports: ['html', 'lcovonly'],
       dir: path.join(__dirname, '../test-coverage'), // so it will add coverage report into test-coverage dir on frontend root level
       fixWebpackSourcePaths: true,
       skipFilesWithNoCoverage: false,
@@ -31,7 +31,6 @@ module.exports = function(config) {
           subdir: 'html'
         }
       },
-
       // enforce percentage thresholds
       // anything under these percentages will cause karma to fail with an exit code of 1 if not running in watch mode
       thresholds: {
@@ -62,7 +61,6 @@ module.exports = function(config) {
       outputDir: 'doc-tests-results/',
       useBrowserName: true
     },
-
     preprocessors: {},
     reporters: config.angularCli && config.angularCli.codeCoverage
       ? ['progress', 'coverage-istanbul']
@@ -72,17 +70,18 @@ module.exports = function(config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     singleRun: true,
-    browserNoActivityTimeout: 60000,
-    browserDisconnectTimeout: 2000,
+    browserDisconnectTolerance: 2, // maximum number of tries a browser will attempt in the case of a disconnection
+    browserNoActivityTimeout: 400000,
+    browserDisconnectTimeout: 10000,
     browsers: ['ChromeHeadlessNoSandbox', 'ChromeNoSandbox'], // only used for running tests as root within docker container
     customLaunchers: {
-        ChromeHeadlessNoSandbox: {
-            base: 'ChromeHeadless',
-            flags: ['--no-sandbox', '--headless']
-        },
-        ChromeNoSandbox: {
-          base: 'Chrome',
-          flags: ['--no-sandbox']
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--headless']
+      },
+      ChromeNoSandbox: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
       }
     }
   });

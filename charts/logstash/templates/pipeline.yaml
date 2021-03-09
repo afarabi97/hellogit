@@ -9,7 +9,7 @@ metadata:
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
-  beats.conf: |
+  external_beats.conf: |
     input {
       beats {
         port => 5045
@@ -46,7 +46,7 @@ data:
             index => "%{[@metadata][index]}"
             template_name => "filebeat-external"
             ilm_enabled => false
-            pipeline => "filebeat-external_modules"
+            pipeline => "filebeat-all_modules"
             manage_template => false
           }
         } else {
@@ -60,7 +60,7 @@ data:
             ilm_policy => "filebeat-external"
             ilm_enabled => true
             ilm_pattern => "{now/d}-000001"
-            pipeline => "filebeat-external_modules"
+            pipeline => "filebeat-all_modules"
             manage_template => false
           }
         }
@@ -106,5 +106,42 @@ data:
           ilm_pattern => "{now/d}-000001"
           manage_template => false
         }
+      }
+    }
+
+  internal_filebeat.conf: |
+    input {
+      beats {
+        port => 5050
+      }
+    }
+
+    filter {
+      if ![@metadata][ingest_pipeline] {
+        mutate {
+          add_field => {
+            "[@metadata][ingest_pipeline]" => "filebeat-all_modules"
+          }
+        }
+      } else if [@metadata][ingest_pipeline] == "" {
+        mutate {
+          update => {
+            "[@metadata][ingest_pipeline]" => "filebeat-all_modules"
+          }
+        }
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => {{ .Values.elastic_ingest_nodes | toJson }}
+        cacert => '/etc/ssl/certs/container/ca.crt'
+        ssl_certificate_verification => true
+        user => "${ELASTICSEARCH_USERNAME}"
+        password => "${ELASTICSEARCH_PASSWORD}"
+        index => "%{[@metadata][custom_index]}"
+        ilm_enabled => false
+        manage_template => false
+        pipeline => "%{[@metadata][ingest_pipeline]}"
       }
     }

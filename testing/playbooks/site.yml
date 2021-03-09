@@ -29,12 +29,12 @@
   tags: preflight
 
 # - name: Replay PCAPs
-#   hosts:
-#   - localhost
-#   gather_facts: yes
-#   roles:
-#     - replay
-#   tags: replay
+  # hosts:
+  # - localhost
+  # gather_facts: yes
+  # roles:
+  #   - replay
+  # tags: replay
 
 - name: Verify kubernetes is healthy
   hosts: master_server
@@ -76,11 +76,13 @@
 
 - name: Validate Zeek
   hosts:
-  - master_server
-  gather_facts: no
+    - master_server
+    - sensors
+  gather_facts: false
   roles:
     - zeek
-  tags: zeek
+  tags:
+    - zeek
 
 - name: Validate Suricata
   hosts:

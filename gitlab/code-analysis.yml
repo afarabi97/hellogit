@@ -98,38 +98,6 @@ analyze ansible mip playbooks:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
 
-compile front-end:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
-
-environment setup backend:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-mip"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-dip-mip"
-
 sonarqube front-end code base:
   tags:
     - tfplenum-buildv2

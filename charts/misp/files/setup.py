@@ -16,6 +16,8 @@ api_key = ''
 HIVE_USER_EMAIL=os.environ['HIVE_USER_EMAIL']
 FILEBEAT_USER_EMAIL=os.environ['FILEBEAT_USER_EMAIL']
 FILEBEAT_USER_API_KEY=os.environ['FILEBEAT_USER_API_KEY']
+RULESET_USER_EMAIL=os.environ['RULESET_USER_EMAIL']
+RULESET_USER_API_KEY=os.environ['RULESET_USER_API_KEY']
 HIVE_USER_API_KEY=os.environ['HIVE_USER_API_KEY']
 CORTEX_USER_EMAIL=os.getenv('CORTEX_USER_EMAIL', default='')
 CORTEX_USER_API_KEY=os.getenv('CORTEX_USER_API_KEY',default='')
@@ -216,10 +218,10 @@ class MISPSetup:
         user = self.get_users(HIVE_USER_EMAIL)
         if user is not None and user is not False:
             # Edit Hive User
-            self.edit_user(user_id=user, email=HIVE_USER_EMAIL, role_id=1, org_id=None, authkey=HIVE_USER_API_KEY)
+            self.edit_user(user_id=user, email=HIVE_USER_EMAIL, role_id=5, org_id=None, authkey=HIVE_USER_API_KEY)
         else:
             # Create Hive User
-            self.create_user(email=HIVE_USER_EMAIL, role_id=1, org_id=None, authkey=HIVE_USER_API_KEY)
+            self.create_user(email=HIVE_USER_EMAIL, role_id=5, org_id=None, authkey=HIVE_USER_API_KEY)
 
     def setup_misp_cortex_user(self):
         user = self.get_users(CORTEX_USER_EMAIL)
@@ -234,10 +236,19 @@ class MISPSetup:
         user = self.get_users(FILEBEAT_USER_EMAIL)
         if user is not None and user is not False:
             # Edit Filebeat User
-            self.edit_user(user_id=user, email=FILEBEAT_USER_EMAIL, role_id=1, org_id=None, authkey=FILEBEAT_USER_API_KEY)
+            self.edit_user(user_id=user, email=FILEBEAT_USER_EMAIL, role_id=6, org_id=None, authkey=FILEBEAT_USER_API_KEY)
         else:
             # Create Filebeat User
-            self.create_user(email=FILEBEAT_USER_EMAIL, role_id=1, org_id=None, authkey=FILEBEAT_USER_API_KEY)
+            self.create_user(email=FILEBEAT_USER_EMAIL, role_id=6, org_id=None, authkey=FILEBEAT_USER_API_KEY)
+
+    def setup_misp_ruleset_user(self):
+        user = self.get_users(RULESET_USER_EMAIL)
+        if user is not None and user is not False:
+            # Edit Filebeat User
+            self.edit_user(user_id=user, email=RULESET_USER_EMAIL, role_id=6, org_id=None, authkey=RULESET_USER_API_KEY)
+        else:
+            # Create Filebeat User
+            self.create_user(email=RULESET_USER_EMAIL, role_id=6, org_id=None, authkey=RULESET_USER_API_KEY)
 
     def get_cortex_status(self):
         if not CORTEX_INTEGRATION == "true":
@@ -305,6 +316,7 @@ if __name__ == '__main__':
             setup.reset_authkey()
             setup.setup_misp_filebeat_user()
             setup.setup_misp_hive_user()
+            setup.setup_misp_ruleset_user()
             org = setup.get_org(org_id = 1)
             if org.status_code == 200:
                 setup.edit_org_name(org_id=1,name=ORG_NAME)

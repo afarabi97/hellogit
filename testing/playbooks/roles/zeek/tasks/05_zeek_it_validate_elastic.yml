@@ -1,0 +1,11 @@
+- name: Zeek Integration Test | 005 | Validate Updated Type Values
+  assert:
+    that: "0 <= {{ item.value }}"
+    msg: "Failed to determine if elastic was updated for {{ item.value }}"
+  loop: "{{ zeek_types_dict | dict2items  }}"
+
+- name: Zeek Integration Test | 005 | Validate Total Number Of Types
+  assert:
+    that: "{{ zeek_types | length }} <= {{ zeek_updated_types | length }}"
+    msg: "Failed to determine if elastic was updated"
+  when: (zeek_types is defined) and (zeek_updated_types is defined)

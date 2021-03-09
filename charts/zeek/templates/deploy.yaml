@@ -91,6 +91,9 @@ tries to restart.
         - name: intel-dat
           mountPath: {{ $.Values.zeek_intel_dat }}
           readOnly: true
+        - name: sig-file
+          mountPath: {{ $.Values.zeek_custom_sig_path }}
+          readOnly: true
 {{- if eq $config.type "logger" }}
         - name: logs
           mountPath: {{ $.Values.zeek_log_path }}
@@ -127,6 +130,10 @@ tries to restart.
       - name: intel-dat
         hostPath:
           path: {{ .Values.zeek_intel_dat }}
+          type: FileOrCreate
+      - name: sig-file
+        hostPath:
+          path: {{ .Values.zeek_custom_sig_path }}
           type: FileOrCreate
       - name: default-scripts
         configMap:

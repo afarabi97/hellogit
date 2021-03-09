@@ -12,4 +12,7 @@ spec:
   - name: beats
     port: 5045
     protocol: TCP
+  - name: logstash-internal-filebeats
+    port: 5050
+    protocol: TCP
   type: LoadBalancer

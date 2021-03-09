@@ -93,7 +93,7 @@ describe('SystemHealthService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush([MockHealthStatusInterface]);
+        xhrRequest.flush(MockHealthStatusInterface);
 
         after();
       });

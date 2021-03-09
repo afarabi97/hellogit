@@ -3,13 +3,23 @@ import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
-import { MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
+import { ErrorMessageClass, MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
 import { ApiServiceInterface, EntityConfig } from '../../interfaces';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { MatSnackBarService } from '../mat-snackbar.service';
 
 const SERVICE_CONFIG = new InjectionToken<EntityConfig>('entityConfig');
 
+/**
+ * Service used for default functionality and to allow other
+ * services to have default methods for error handeling
+ *
+ * @export
+ * @abstract
+ * @class ApiService
+ * @implements {ApiServiceInterface<T>}
+ * @template T
+ */
 @Injectable()
 export abstract class ApiService<T> implements ApiServiceInterface<T> {
   // TODO - update with neccessary criteria
@@ -153,9 +163,13 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
 
     if (ObjectUtilitiesClass.notUndefNull(httpErrorResponse)) {
       this.handleErrorConsole(httpErrorResponse);
-      if (httpErrorResponse.error && httpErrorResponse.error['error_message']){
+      if (httpErrorResponse.error && httpErrorResponse.error['error_message']) {
         this.matSnackBarService.displaySnackBar(httpErrorResponse.error['error_message']);
-      } else if (httpErrorResponse.error && httpErrorResponse.error['message']){
+
+        const error_message: ErrorMessageClass = new ErrorMessageClass(httpErrorResponse.error);
+
+        return throwError(error_message);
+      } else if (httpErrorResponse.error && httpErrorResponse.error['message']) {
         this.matSnackBarService.displaySnackBar(httpErrorResponse.error['message']);
       } else{
         this.matSnackBarService.displaySnackBar(`An error has occured: ${httpErrorResponse.status}-${httpErrorResponse.statusText}`, matSnackBarConfiguration);
@@ -204,11 +218,14 @@ export abstract class ApiService<T> implements ApiServiceInterface<T> {
   handleErrorConsole(httpErrorResponse: HttpErrorResponse): Observable<never> {
     if (httpErrorResponse.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.
-      console.error('An error occurred:', httpErrorResponse.error.message);
+      console.error(`An error occurred: ${httpErrorResponse.error.type}`);
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong,
-      console.error(`Backend returned code ${httpErrorResponse.status}, body was: ${httpErrorResponse.error}`);
+      const error_message: string = ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error) &&
+                                    ObjectUtilitiesClass.notUndefNull(httpErrorResponse.error['error_message']) ?
+                                      httpErrorResponse.error['error_message'] : httpErrorResponse.error;
+      console.error(`Backend returned code ${httpErrorResponse.status}, error: ${error_message}, message: ${httpErrorResponse.message}`);
     }
     // return an observable with a user-facing error message
     return throwError('Something bad happened; please try again later.');

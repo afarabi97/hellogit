@@ -22,9 +22,6 @@ spec:
         ports:
         - name: netflow
           containerPort: {{ .Values.netflow_port }}
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
         env:
         - name: ELASTICSEARCH_USERNAME
           valueFrom:

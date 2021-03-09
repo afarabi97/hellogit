@@ -1,0 +1,32 @@
+- name: Zeek | Set Initial Facts
+  set_fact:
+    app_deployed: false
+    releases: ""
+
+- name: Zeek | Check If Installed
+  command: helm list --filter 'zeek$' --output json
+  register: app_installed
+  changed_when: app_installed.rc != 0
+
+- name: Zeek | Update Installed Variable
+  set_fact:
+    releases: "{{ (app_installed.stdout | from_json) }}"
+  when:
+    - app_installed.stdout
+
+- name: Zeek | Update Deployed Variable
+  set_fact:
+    app_deployed: true
+  when:
+    - app_installed is defined
+    - releases is defined and releases
+    - "'deployed' in item.status"
+  with_items: "{{ releases }}"
+
+- name: Zeek | Check If Helm Deployed
+  assert:
+    that: "'deployed' in item.status"
+    msg: "Failed to determine if Zeek is installed"
+  when: releases is defined and releases
+  with_items:
+    - "{{ releases }}"

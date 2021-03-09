@@ -127,8 +127,12 @@ filebeat-setup:
 filebeat-setup-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t run-filebeat-setup,run-winlogbeat-setup
 
+filebeat_exernal_setup:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t load_filebeat_external_items
+
 winlogbeat-setup:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t run-winlogbeat-setup
 
 change-interfaces:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e update_kube_vars=true -t change-interfaces
+

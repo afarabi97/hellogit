@@ -27,7 +27,7 @@ ELK_SNAPSHOT_STATE = "elk_snapshot"
 DATE_FORMAT_STR = '%Y-%m-%d %H:%M:%S'
 
 RULESET_STATES = ("Created", "Dirty", "Synced", "Error")
-RULE_TYPES = ("Suricata", "Zeek")
+RULE_TYPES = ("Suricata", "Zeek Scripts", "Zeek Intel", "Zeek Signatures")
 PCAP_UPLOAD_DIR = "/var/www/html/pcaps"
 AGENT_UPLOAD_DIR = "/var/www/html/agents"
 SURICATA_IMAGE_VERSION = "6.0.0"
@@ -35,7 +35,9 @@ ZEEK_IMAGE_VERSION = "3.2.2"
 BEATS_IMAGE_VERSIONS = "7.11.1"
 
 # The path inside of the docker container
-ZEEK_RULE_DIR = "/opt/zeek/share/zeek/site/custom"
+ZEEK_SCRIPT_DIR = "/opt/zeek/share/zeek/site/custom"
+ZEEK_INTEL_PATH = "/opt/tfplenum/zeek"
+ZEEK_SIG_PATH = "/opt/tfplenum/zeek/custom.sig"
 
 NODE_TYPES = ["Server", "Sensor"]
 class TARGET_STATES(Enum):

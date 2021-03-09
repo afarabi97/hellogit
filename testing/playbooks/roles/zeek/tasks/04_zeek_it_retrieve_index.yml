@@ -1,0 +1,55 @@
+# - Grab the updated types
+# - Set the updated types dictionary to the returned value
+- name: Zeek Integration Test | 004 | Initialize Zeek Updated Elastic Facts
+  set_fact:
+    zeek_updated_types: []
+    zeek_updated_types_dict: "{{ zeek_updated_types_dict | default({}) }}"
+
+- name: Zeek Integration Test | 004 | Get Zeek Updated Elastic Index
+  uri:
+    url: "{{ elastic_uri }}/_resolve/index/{{ zeek_index_alias }}"
+    return_content: true
+    validate_certs: false
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+  register: zeek_updated_index_result
+  until: zeek_updated_index_result.json | default('', true)
+  retries: 60
+  delay: 5
+  ignore_errors: true
+  when: inventory_hostname in groups['master_server']
+
+- name: Zeek Integration Test | 004 | Set Zeek Updated Elastic Index Fact
+  set_fact:
+    zeek_updated_index: "{{ zeek_updated_index_result.json.aliases[0].indices[0] }}"
+  when: zeek_updated_index_result
+
+- name: Zeek Integration Test | 004 | Get All Zeek Updated Elastic Types
+  uri:
+    url: "{{ elastic_uri }}/{{ zeek_index_alias }}/_search"
+    return_content: true
+    validate_certs: false
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+    body: "{{ lookup('template', 'zeek_it_get_all_types_body.json.j2') }}"
+    method: GET
+    body_format: json
+  register: zeek_updated_types_result
+  until: zeek_updated_types_result.json
+  retries: 60
+  delay: 10
+  ignore_errors: true
+
+- name: Zeek Integration Test | 004 | Set Zeek Updated Elastic Types
+  set_fact:
+    zeek_updated_types: "{{ zeek_updated_types }} + [ '{{ item.key }}' ]"
+    zeek_updated_types_dict:
+      "{{ zeek_types_dict | default({}) | combine ({ item.key : item.doc_count
+      }) }}"
+  when: zeek_updated_types_result
+  with_items: "{{ zeek_updated_types_result.json.aggregations.zeek_types.buckets }}"

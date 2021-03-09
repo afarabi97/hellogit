@@ -7,14 +7,13 @@ from typing import List
 from datetime import timedelta, datetime
 
 from app import logger, rq_logger, conn_mng, REDIS_CLIENT
-from app.models.kit_setup import DIPKitForm
+from app.models.kit_setup import DIPKickstartForm, DIPKitForm
 from app.service.socket_service import NotificationMessage, NotificationCode
 from app.service.system_info_service import get_system_name, get_auth_base
 from app.service.job_service import run_command2
 from rq.decorators import job
 from app.utils.constants import KICKSTART_ID, KIT_ID
 from app.utils.connection_mngs import FabricConnectionWrapper, KubernetesWrapper, KubernetesWrapper2
-from app.kit_controller import _get_domain
 
 
 HELM_BINARY_PATH = "/usr/local/bin/helm"
@@ -23,6 +22,10 @@ _MESSAGETYPE_PREFIX = "catalog"
 _CHART_EXEMPTS = ["chartmuseum", "elasticsearch", "kibana", "filebeat", "metricbeat"]
 _PMO_SUPPORTED_CHARTS = ['cortex', 'hive', 'misp', 'logstash', 'arkime', 'arkime-viewer', 'mongodb', 'rocketchat', 'suricata', 'wikijs', 'zeek', 'squid', 'jcat-nifi']
 
+
+def _get_domain() -> str:
+    kickstart_configuration = DIPKickstartForm.load_from_db() # type: DIPKickstartForm
+    return kickstart_configuration.domain
 
 def _get_elastic_nodes(node_type="coordinating") -> list:
     """
@@ -53,8 +56,27 @@ def _get_elastic_nodes(node_type="coordinating") -> list:
                 name = node.metadata.name
                 stateful_set = node.metadata.labels["elasticsearch.k8s.elastic.co/statefulset-name"]
                 nodes.append("https://{name}.{set}.default.svc.cluster.local:9200".format(name=name,set=stateful_set))
-        except Exception:
+        except Exception as exc:
             nodes = ["elasticsearch.default.svc.cluster.local"]
+            logger.exception(exc)
+    return nodes
+
+def _get_logstash_nodes() -> list:
+    """
+    Get the logstash nodes
+    """
+    nodes = []
+    label_selector = "component=logstash"
+    with KubernetesWrapper(conn_mng) as kube_apiv1:
+        try:
+            api_response = kube_apiv1.list_pod_for_all_namespaces(watch=False,label_selector=label_selector)
+            for node in api_response.items:
+                name = node.metadata.name
+                stateful_set = node.spec.subdomain
+                nodes.append("{name}.{set}.default.svc.cluster.local:5050".format(name=name, set=stateful_set))
+        except Exception as exc:
+            nodes = ["logstash.default.svc.cluster.local:5050"]
+            logger.exception(exc)
     return nodes
 
 def _get_chartmuseum_uri() -> str:
@@ -280,6 +302,8 @@ def generate_values(application: str, namespace: str, configs: list=None) -> lis
             values['elastic_ingest_nodes'] = _get_elastic_nodes(node_type="ingest")
         if 'shards' in values:
             values['shards'] = len(_get_elastic_nodes(node_type="data"))
+        if 'logstash_nodes' in values:
+            values['logstash_nodes'] = _get_logstash_nodes()
     except Exception as exec:
         logger.exception(exec)
     if configs:
@@ -592,7 +616,8 @@ def wait_for_deployment_to_ready(application: str, deployment_name: str, namespa
             try:
                 apps_v1_api = api.apps_V1_API
                 deployments = apps_v1_api.list_namespaced_deployment(namespace=namespace,watch=False)
-                items = deployments.to_dict()['items']
+                stateful_sets = apps_v1_api.list_namespaced_stateful_set(namespace=namespace,watch=False)
+                items = deployments.to_dict()['items'] + stateful_sets.to_dict()['items']
                 if len(items) > 0 and _check_deployment_states(items, application, deployment_name):
                     return True
                 sleep(5)

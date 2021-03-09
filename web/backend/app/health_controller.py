@@ -120,13 +120,19 @@ def _get_node_info(nodes: List) -> Dict[str, str]:
     for node in nodes.to_dict()['items']:
         try:
             node_info = {
-                "status.allocatable.cpu": str(_get_cpu_total(node['status']['allocatable']['cpu'])) + "m",
-                "status.allocatable.ephemeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['ephemeral-storage']))) + "Gi",
-                "status.allocatable.memory": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['memory']))) + "Gi",
-                "status.capacity.cpu": str(_get_cpu_total(node['status']['capacity']['cpu'])) + "m",
-                "status.capacity.ephemeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['ephemeral-storage']))) + "Gi",
-                "status.capacity.memory": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['memory']))) + "Gi",
-                "node_type": _get_node_type(node["metadata"]["name"], kit_form.nodes)
+                "status": {
+                    "allocatable": {
+                        "cpu": str(_get_cpu_total(node['status']['allocatable']['cpu'])) + "m",
+                        "ephermeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['ephemeral-storage']))) + "Gi",
+                        "memory": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['memory']))) + "Gi"
+                    },
+                    "capacity": {
+                        "cpu": str(_get_cpu_total(node['status']['capacity']['cpu'])) + "m",
+                        "ephermeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['ephemeral-storage']))) + "Gi",
+                        "memory": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['memory']))) + "Gi"
+                    }
+                },
+                "node_type":_get_node_type(node["metadata"]["name"], kit_form.nodes)
             }
 
             if node["metadata"]["annotations"].get("flannel.alpha.coreos.com/public-ip"):

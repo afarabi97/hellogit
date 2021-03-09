@@ -28,7 +28,7 @@ def get_system_name_api():
     return jsonify({'message': 'Could not get the system_name.'}), 404
 
 @app.route('/api/metrics', methods=['POST'])
-# @login_required_roles(['metrics'], all_roles_req=False)
+@login_required_roles(['metrics'], all_roles_req=False)
 def replace_metrics():
     data = request.get_json()
     status = 200

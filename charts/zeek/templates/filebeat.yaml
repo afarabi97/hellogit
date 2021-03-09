@@ -1,5 +1,4 @@
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,7 +16,7 @@ spec:
         component: zeek-logshipper
     spec:
       containers:
-      - name: filebeat
+      - name: filebeat-zeek
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         securityContext:
@@ -40,7 +39,7 @@ spec:
               fieldPath: spec.nodeName
         volumeMounts:
         - name: data
-          mountPath: /var/log/bro/current
+          mountPath: {{ $.Values.zeek_log_path }}
           readOnly: true
         - name: configs
           subPath: filebeat.yml
@@ -49,7 +48,23 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"']
+        args:
+          - '-e'
+          - '-E'
+          - 'name="{{ $.Release.Name }}"'
+          - '--modules'
+          - 'zeek'
+          - '-M'
+          - 'zeek.*.enabled=false'
+      {{- range .Values.log_types }}
+      {{- $log_file := ternary "conn" . (eq . "connection") }}
+          - '-M'
+          - 'zeek.{{ . }}.enabled=true'
+          - '-M'
+          - 'zeek.{{ . }}.var.paths=[{{ $.Values.zeek_log_path }}/{{ $log_file }}*.log]'
+          - '-M'
+          - 'zeek.{{ . }}.var.tags=[forwarded]'
+      {{- end }}
       volumes:
       - name: data
         hostPath:

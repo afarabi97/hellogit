@@ -724,7 +724,21 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       case 'invisible':
         return new FormControl(valid_control ? value[control.name] : hostname);
       case 'checkbox':
-        return new FormControl(valid_control ? value[control.name] : control.default_value);
+        const checkboxformControl = new FormControl(valid_control ? value[control.name] : control.default_value);
+        if(ObjectUtilitiesClass.notUndefNull(control.dependent_app)) {
+          let appValues;
+          this._CatalogService.getByString(`${control.dependent_app}/saved-values`).subscribe(values => {
+            appValues = values.length !== 0 ? values : null;
+            if(appValues != null) {
+              checkboxformControl.enable();
+            } else {
+              checkboxformControl.setValue(false);
+              checkboxformControl.disable();
+            }
+            return checkboxformControl;
+          });
+        }
+        return checkboxformControl;
       case 'interface':
         const formControl: FormControl = new FormControl([]);
         if (valid_control) {
@@ -736,7 +750,20 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       case 'cortex-checkbox':
         return new FormControl({ value: !this.cortexDisable, disabled: this.cortexDisable });
       case 'misp-checkbox':
-        return new FormControl({ value: !this.mispDisable, disabled: this.mispDisable });
+        return new FormControl({ value: !this.mispDisable, disabled: this.mispDisable });  
+      case 'suricata-list':
+        const suricataControl: FormControl = new FormControl(control.default_value);
+        if (valid_control) {
+          suricataControl.setValue(value[control.name], { onlySelf: true } );
+        }
+        return suricataControl;
+      case 'zeek-list':
+        const zeekControl: FormControl = new FormControl(control.default_value);
+        if (valid_control) {
+          zeekControl.setValue(value[control.name], { onlySelf: true } );
+        }
+        return zeekControl;
+  
       default:
         return new FormControl([]);
     }

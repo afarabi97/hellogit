@@ -1,7 +1,7 @@
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { AfterContentInit, Component, HostBinding } from '@angular/core';
 
-import { ObjectUtilitiesClass, SystemNameClass } from './classes';
+import { ObjectUtilitiesClass } from './classes';
 import { ClassForSystemNameEnum } from './enums';
 import { WeaponSystemNameService } from './services/weapon-system-name.service';
 
@@ -10,10 +10,10 @@ import { WeaponSystemNameService } from './services/weapon-system-name.service';
   templateUrl: './app.component.html'
 })
 export class AppComponent implements AfterContentInit {
-  // theme for application
-  theme = null;
   // Css class reference hostbinding
   @HostBinding('class') componentCssClass: string;
+  // theme for application
+  theme = null;
 
   /**
    * Creates an instance of AppComponent.
@@ -35,9 +35,11 @@ export class AppComponent implements AfterContentInit {
     const newTheme: string = ClassForSystemNameEnum[systemName];
     const containerElement: HTMLElement = this.overlayContainer_.getContainerElement();
 
-    ObjectUtilitiesClass.notUndefNull(this.theme) ?
-      containerElement.classList.replace(this.theme, newTheme) :
+    if (ObjectUtilitiesClass.notUndefNull(this.theme)) {
+      containerElement.classList.replace(this.theme, newTheme);
+    } else {
       containerElement.classList.add(newTheme);
+    }
     this.theme = newTheme;
     this.componentCssClass = newTheme;
   }

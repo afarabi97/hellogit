@@ -1,4 +1,4 @@
-import { fakeAsync, TestBed, waitForAsync } from '@angular/core/testing';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 
 import { AppModule } from './app.module';
 import * as AppModuleFunctions from './app.module';
@@ -8,8 +8,6 @@ import { AppLoadServiceSpy } from './services/app-load.service.spec';
 
 describe('AppModule', () => {
   let appModule: AppModule;
-  let spyInitializeApp: jasmine.Spy<any>;
-  let spyInitializeSystemName: jasmine.Spy<any>;
   let serviceAppLoad: AppLoadService;
 
   beforeEach(() => {

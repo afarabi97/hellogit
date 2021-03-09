@@ -10,14 +10,20 @@ export interface HealthStatusTotalsInterface {
 }
 
 export interface HealthStatusNodeInfoInterface {
-  'status.allocatable.cpu': string;
-  'status.allocatable.ephemeral-storage': string;
-  'status.allocatable.memory': string;
-  'status.capacity.cpu': string;
-  'status.capacity.ephemeral-storage': string;
-  'status.capacity.memory': string;
+  status: HealthStatusNodeInfoStatusTypesInterface;
   node_type: string;
-  public_ip?: string
+  public_ip?: string;
+}
+
+export interface HealthStatusNodeInfoStatusTypesInterface {
+  allocatable: HealthStatusNodeInfoStatusTypesDataInterface;
+  capacity: HealthStatusNodeInfoStatusTypesDataInterface;
+}
+
+export interface HealthStatusNodeInfoStatusTypesDataInterface {
+  cpu: string;
+  'ephemeral-storage': string;
+  memory: string;
 }
 
 export interface HealthStatusDiskUsageInterface {

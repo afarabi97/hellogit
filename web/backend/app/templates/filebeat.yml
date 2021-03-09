@@ -31,7 +31,7 @@ output.elasticsearch:
   hosts: ["https://{{ template_ctx.elk_ip }}:{{ template_ctx.elk_port }}"]
   username: "{{ template_ctx.elk_username }}"
   password: "{{ template_ctx.elk_password }}"
-  pipeline: "filebeat-external_modules"
+  pipeline: "filebeat-all_modules"
   index: "{{ template_ctx.index }}"
   ssl.verification_mode: none
 

@@ -29,7 +29,7 @@
       "regexp": "^\\d+$",
       "name": "zeek_workers",
       "error_message": "Enter a valid number"
-    },    
+    },
     {
       "type": "invisible",
       "default_value": "",
@@ -45,6 +45,53 @@
       "required": true,
       "regexp": "",
       "name": "node_hostname"
+    },
+    {
+      "type": "zeek-list",
+      "default_value": [
+        "capture_loss",
+        "connection",
+        "dce_rpc",
+        "dhcp",
+        "dnp3",
+        "dns",
+        "dpd",
+        "files",
+        "ftp",
+        "http",
+        "intel",
+        "irc",
+        "kerberos",
+        "modbus",
+        "mysql",
+        "notice",
+        "ntlm",
+        "ocsp",
+        "pe",
+        "radius",
+        "rdp",
+        "rfb",
+        "sip",
+        "smb_cmd",
+        "smb_files",
+        "smb_mapping",
+        "smtp",
+        "snmp",
+        "socks",
+        "ssh",
+        "ssl",
+        "stats",
+        "syslog",
+        "traceroute",
+        "tunnel",
+        "weird",
+        "x509"
+      ],
+      "description": "Uncheck the Zeek log types that are not needed",
+      "required": true,
+      "regexp": "",
+      "name": "log_types",
+      "error_message": "Please ensure a log type is checked"
     }
   ]
 }

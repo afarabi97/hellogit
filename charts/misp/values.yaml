@@ -19,6 +19,7 @@ sqlUserPassword: SKhLFlu@SxyWUaQrpHZlJlxZ4
 hive_user_email: hive@dip.local
 cortex_user_email: cortex@dip.local
 filebeat_user_email: filebeat@dip.local
+ruleset_user_email: ruleset@dip.local
 admin_user: admin@admin.test
 admin_pass: 1qaz@WSX1qaz@WSX
 org_name: CPT HUNT

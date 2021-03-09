@@ -4,12 +4,13 @@
   "node_affinity": "Server - Any",
   "formControls": [
     {
-      "type": "cortex-checkbox",
-      "default_value": false,
+      "type": "checkbox",
+      "default_value": true,
       "description": "Integrate with Cortex (Requires Cortex to be installed first, verify Cortex is up and running before continuing)",
       "trueValue": true,
       "falseValue": false,
-      "name": "cortexIntegration"
+      "name": "cortexIntegration",
+      "dependent_app": "cortex"
     },
     {
       "type": "textinput",
@@ -57,12 +58,13 @@
       "error_message": "Please enter a vaild password it must have a minimum of fifteen characters, at least one uppercase letter, one lowercase letter, one number and one special character.  Valid special characters !@#$%^&*()<>.?)."
     },
     {
-      "type": "misp-checkbox",
-      "default_value": false,
+      "type": "checkbox",
+      "default_value": true,
       "description": "Integrate with MISP (Requires MISP to be installed first, verify MISP is up and running before continuing)",
       "trueValue": true,
       "falseValue": false,
-      "name": "mispIntegration"
+      "name": "mispIntegration",
+      "dependent_app": "misp"
     },
     {
       "type": "textinput",

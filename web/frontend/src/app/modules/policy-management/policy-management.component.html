@@ -1,0 +1,18 @@
+<div *ngIf="!user_editing" class="main-content2">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Page Instructions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="pageInstructions">
+        <p>The Rule Set allows the modification and synchronization of Suricata rules on a per sensor basis. Suricata rules can be enabled / disabled and tested against existing PCAP files.</p>
+        <p>Prior to clicking the "<strong>Rule Sync</strong>" button in the top left, ensure sensors are assigned to the rule set by clicking the “<strong>Edit</strong>” button and selecting the required sensors to apply.</p>
+        <p>After clicking the "<strong>Rule Sync</strong>" button, ensure the state column displays "<strong>&lt;sensor_name&gt; - Synced</strong>"</p>
+        <p>For amplifying information, please refer to the Policy management – Rule Sync section of the DIP Operations guide.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <br>
+  <cvah-policy-management-table></cvah-policy-management-table>
+</div>
+<cvah-policy-management-dialog *ngIf="user_editing"></cvah-policy-management-dialog>

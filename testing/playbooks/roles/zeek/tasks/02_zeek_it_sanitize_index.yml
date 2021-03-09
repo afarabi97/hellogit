@@ -1,0 +1,79 @@
+- name: Zeek Integration Test | 002 | Initialize Zeek Elastic Facts
+  set_fact:
+    zeek_types: []
+    zeek_types_dict: "{{ zeek_types_dict | default({}) }}"
+
+- name: Zeek Integration Test | 002 | Get Zeek Elastic Index
+  uri:
+    url: "{{ elastic_uri }}/_resolve/index/{{ zeek_index_alias }}"
+    return_content: true
+    validate_certs: false
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+  register: zeek_index_result
+  until: zeek_index_result.json | default('', true)
+  retries: 60
+  delay: 5
+  ignore_errors: true
+  when: inventory_hostname in groups['master_server']
+
+- name: Zeek Integration Test | 002 | Set Zeek Elastic Index Fact
+  set_fact:
+    zeek_index: "{{ zeek_index_result.json.aliases[0].indices[0] }}"
+  when: zeek_index_result
+
+- name: Zeek Integration Test | 002 | Get All Zeek Elastic Types
+  uri:
+    url: "{{ elastic_uri }}/{{ zeek_index_alias }}/_search"
+    return_content: true
+    validate_certs: false
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+    body: "{{ lookup('template', 'zeek_it_get_all_types_body.json.j2') }}"
+    method: GET
+    body_format: json
+  register: zeek_types_result
+  until: zeek_types_result.json
+  retries: 60
+  delay: 10
+  ignore_errors: true
+
+- name: Zeek Integration Test | 002 | Set Zeek Elastic Types
+  set_fact:
+    zeek_types: "{{ zeek_types }} + [ '{{ item.key }}' ]"
+    zeek_types_dict:
+      "{{ zeek_types_dict | default({}) | combine ({ item.key : item.doc_count
+      }) }}"
+  when: zeek_types_result
+  with_items: "{{ zeek_types_result.json.aggregations.zeek_types.buckets }}"
+
+- name: Zeek Integration Test | 002 | Delete All For Last 24 Hours
+  uri:
+    url: "{{ elastic_uri }}/{{ zeek_index_alias }}/_delete_by_query?wait_for_completion=true"
+    return_content: true
+    validate_certs: false
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: true
+    body: "{{ lookup('template', 'zeek_it_delete_all_body.json.j2') }}"
+    method: POST
+    body_format: json
+  register: zeek_sanitized_index_results
+  until: zeek_sanitized_index_results.json
+  retries: 80
+  delay: 20
+  ignore_errors: true
+
+- name: Zeek Integration Test | 002 | Pause To Allow Changes To Take Effect
+  pause:
+    seconds: "{{ zeek_delete_pause }}"
+    prompt: "{{ zeek_pause_prompt }}"
+    echo: false

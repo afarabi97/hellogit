@@ -77,6 +77,8 @@ data:
 
     redef Intel::read_files += { "{{ .Values.zeek_intel_dat }}" };
 
+    redef signature_files  += "{{ .Values.zeek_custom_sig_path }}";
+
     # Load tfplenum scripts
     @load ./tfplenum
 
@@ -131,8 +133,8 @@ data:
   __load__.zeek: |
     # Custom Scripts
     @load ./ja3.zeek
-    @load ./intel_ja3.zeek
     @load ./ja3s.zeek
+    @load ./intel_ja3.zeek
     @load ./hassh.zeek
     @load ./new-certs.zeek
     @load ./ssl-add-cert-hash.zeek

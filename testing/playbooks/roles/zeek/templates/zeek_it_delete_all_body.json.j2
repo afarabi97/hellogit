@@ -1,0 +1,19 @@
+{
+  "query": {
+        "bool": {
+            "must": [
+                {
+                    "match_all": {}
+                },
+                {
+                    "range": {
+                        "@timestamp": {
+                            "gte": "{{ zeek_query_gte }}",
+                            "lte": "{{ zeek_query_lte }}"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,6 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
+
 @Component({
   selector: 'app-confirm-dailog',
   templateUrl: './confirm-dailog.component.html',
@@ -8,16 +10,15 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 })
 export class ConfirmDailogComponent {
 
-
   /**
-   *Creates an instance of ConfirmDailogComponent.
+   * Creates an instance of ConfirmDailogComponent.
+   *
    * @param {MatDialogRef<ConfirmDailogComponent>} dialogRef
-   * @param {*} data
+   * @param {ConfirmDialogMatDialogDataInterface} data
    * @memberof ConfirmDailogComponent
    */
   constructor(public dialogRef: MatDialogRef<ConfirmDailogComponent>,
-              @Inject(MAT_DIALOG_DATA)
-              public data: {paneString: string, paneTitle: string, option1: string, option2: string}) { }
+              @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogMatDialogDataInterface) { }
 
   /**
    * closes the dialogRef
@@ -26,7 +27,6 @@ export class ConfirmDailogComponent {
    * @memberof ConfirmDailogComponent
    */
   close(selectedOption: string) {
-    selectedOption === 'option1' ? this.dialogRef.close(this.data.option1) : this.dialogRef.close(this.data.option2);
+    this.dialogRef.close(selectedOption === 'option1' ? this.data.option1 : this.data.option2);
   }
-
 }

@@ -1,0 +1,33 @@
+compile front-end:
+  tags:
+    - tfplenum-buildv2
+  stage: test-compile
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
+  allow_failure: false
+  only:
+    variables:
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"
+
+environment setup backend:
+  tags:
+    - tfplenum-buildv2
+  stage: test-compile
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
+  allow_failure: false
+  only:
+    variables:
+      - $PIPELINE == "static_analysis_only"
+      - $PIPELINE == "developer-dip"
+      - $PIPELINE == "developer-mip"
+      - $PIPELINE == "developer-all"
+      - $PIPELINE == "developer-dip-mip"

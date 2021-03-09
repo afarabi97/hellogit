@@ -16,8 +16,10 @@ data:
     pipeline.batch.size: {{ .Values.batch_size }}
 
   pipelines.yml: |
-    - pipeline.id: beats
-      path.config: "/usr/share/logstash/pipeline/beats.conf"
+    - pipeline.id: external_beats
+      path.config: "/usr/share/logstash/pipeline/external_beats.conf"
+    - pipeline.id: internal_filebeat
+      path.config: "/usr/share/logstash/pipeline/internal_filebeat.conf"
 
   metricbeat.yml: |-
     metricbeat.config.modules:

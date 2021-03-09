@@ -1,0 +1,53 @@
+- name: Zeek Integration Test | 001 | Create Test Directories
+  file:
+    path: "{{ item['zeek_remote_dir'] }}"
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+  with_items: "{{ zeek_it_rulesets }}"
+
+- name: Zeek Integration Test | 001 | Create Test Files
+  copy:
+    src: "zeek_it_{{ item['zeek_type'] }}.{{ item['zeek_file_ext'] }}"
+    dest: "{{ item['zeek_remote_file_path'] }}"
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  with_items: "{{ zeek_it_rulesets }}"
+
+- name: Zeek Integration Test | 001 | Create Test Load Files
+  copy:
+    src: "zeek_it_load_{{ item['zeek_type'] }}.{{ item['zeek_file_ext'] }}"
+    dest: "{{ item['zeek_remote_file_path'] }}"
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+  when: item['zeek_type'] == 'script'
+  ignore_errors: true
+  with_items: "{{ zeek_it_rulesets }}"
+
+
+- name: Zeek Integration Test | 001 | Create PCAP Test Directory
+  file:
+    path: "{{ zeek_test_pcap_dir }}"
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+
+- name: Zeek Integration Test | 001 | Create Test PCAP Files
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ zeek_test_pcap_dir }}"
+    owner: root
+    group: root
+    mode: '0755'
+    force: true
+  with_items:
+    - "{{ misc_server }}/pcaps/zeek_it_intel.pcap"
+    - "{{ misc_server }}/malware-pcaps/dns-dnskey.trace"
+    - "{{ misc_server }}/malware-pcaps/get.trace"
+    - "{{ misc_server }}/malware-pcaps/smb1_transaction_request.pcap"

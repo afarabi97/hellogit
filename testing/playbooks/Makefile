@@ -14,3 +14,4 @@ ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
+

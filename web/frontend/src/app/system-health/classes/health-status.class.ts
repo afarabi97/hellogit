@@ -1,4 +1,13 @@
-import { HealthStatusInterface, HealthStatusTotalsInterface, HealthStatusNodeInfoInterface, HealthStatusUtilizationInfoInterface, HealthStatusDiskUsageInterface, HealthStatusVirtualMemoryInterface } from "../interfaces";
+import {
+  HealthStatusDiskUsageInterface,
+  HealthStatusInterface,
+  HealthStatusNodeInfoInterface,
+  HealthStatusNodeInfoStatusTypesDataInterface,
+  HealthStatusNodeInfoStatusTypesInterface,
+  HealthStatusTotalsInterface,
+  HealthStatusUtilizationInfoInterface,
+  HealthStatusVirtualMemoryInterface
+} from '../interfaces';
 
 export class HealthStatusTotalsClass implements HealthStatusTotalsInterface {
   cpus_requested: number;
@@ -10,6 +19,12 @@ export class HealthStatusTotalsClass implements HealthStatusTotalsInterface {
   name?: string;
   node_type?: string;
 
+  /**
+   * Creates an instance of HealthStatusTotalsClass.
+   *
+   * @param {HealthStatusTotalsInterface} health_status_totals
+   * @memberof HealthStatusTotalsClass
+   */
   constructor(health_status_totals: HealthStatusTotalsInterface) {
     this.cpus_requested = health_status_totals.cpus_requested;
     this.mem_requested = health_status_totals.mem_requested;
@@ -23,24 +38,54 @@ export class HealthStatusTotalsClass implements HealthStatusTotalsInterface {
 }
 
 export class HealthStatusNodeInfoClass implements HealthStatusNodeInfoInterface {
-  'status.allocatable.cpu': string;
-  'status.allocatable.ephemeral-storage': string;
-  'status.allocatable.memory': string;
-  'status.capacity.cpu': string;
-  'status.capacity.ephemeral-storage': string;
-  'status.capacity.memory': string;
+  status: HealthStatusNodeInfoStatusTypesClass;
   node_type: string;
   public_ip?: string;
 
+  /**
+   * Creates an instance of HealthStatusNodeInfoClass.
+   *
+   * @param {HealthStatusNodeInfoInterface} health_status_node_info
+   * @memberof HealthStatusNodeInfoClass
+   */
   constructor(health_status_node_info: HealthStatusNodeInfoInterface) {
-    this['status.allocatable.cpu'] = health_status_node_info['status.allocatable.cpu'];
-    this['status.allocatable.ephemeral-storage'] = health_status_node_info['status.allocatable.ephemeral-storage'];
-    this['status.allocatable.memory'] = health_status_node_info['status.allocatable.memory'];
-    this['status.capacity.cpu'] = health_status_node_info['status.capacity.cpu'];
-    this['status.capacity.ephemeral-storage'] = health_status_node_info['status.capacity.ephemeral-storage'];
-    this['status.capacity.memory'] = health_status_node_info['status.capacity.memory'];
+    this.status = new HealthStatusNodeInfoStatusTypesClass(health_status_node_info.status);
     this.node_type = health_status_node_info.node_type;
     this.public_ip = health_status_node_info?.public_ip;
+  }
+}
+
+export class HealthStatusNodeInfoStatusTypesClass implements HealthStatusNodeInfoStatusTypesInterface {
+  allocatable: HealthStatusNodeInfoStatusTypesDataClass;
+  capacity: HealthStatusNodeInfoStatusTypesDataClass;
+
+  /**
+   * Creates an instance of HealthStatusNodeInfoStatusTypesClass.
+   *
+   * @param {HealthStatusNodeInfoStatusTypesInterface} health_status_node_info_status_types_interface
+   * @memberof HealthStatusNodeInfoStatusTypesClass
+   */
+  constructor(health_status_node_info_status_types_interface: HealthStatusNodeInfoStatusTypesInterface) {
+    this.allocatable = new HealthStatusNodeInfoStatusTypesDataClass(health_status_node_info_status_types_interface.allocatable);
+    this.capacity = new HealthStatusNodeInfoStatusTypesDataClass(health_status_node_info_status_types_interface.capacity);
+  }
+}
+
+export class HealthStatusNodeInfoStatusTypesDataClass implements HealthStatusNodeInfoStatusTypesDataInterface {
+  cpu: string;
+  'ephemeral-storage': string;
+  memory: string;
+
+  /**
+   * Creates an instance of HealthStatusNodeInfoStatusTypesDataClass.
+   *
+   * @param {HealthStatusNodeInfoStatusTypesDataInterface} health_status_node_info_status_types_data_interface
+   * @memberof HealthStatusNodeInfoStatusTypesDataClass
+   */
+  constructor(health_status_node_info_status_types_data_interface: HealthStatusNodeInfoStatusTypesDataInterface) {
+    this.cpu = health_status_node_info_status_types_data_interface.cpu;
+    this['ephemeral-storage'] = health_status_node_info_status_types_data_interface['ephemeral-storage'];
+    this.memory = health_status_node_info_status_types_data_interface.memory;
   }
 }
 
@@ -50,6 +95,12 @@ export class HealthStatusDiskUsageClass implements HealthStatusDiskUsageInterfac
   free: number;
   percent: number;
 
+  /**
+   * Creates an instance of HealthStatusDiskUsageClass.
+   *
+   * @param {HealthStatusDiskUsageInterface} disk_usage
+   * @memberof HealthStatusDiskUsageClass
+   */
   constructor(disk_usage: HealthStatusDiskUsageInterface) {
     this.total = disk_usage.total;
     this.used = disk_usage.used;
@@ -71,6 +122,12 @@ export class HealthStatusVirtualMemoryClass implements HealthStatusVirtualMemory
   shared: number;
   slab: number;
 
+  /**
+   * Creates an instance of HealthStatusVirtualMemoryClass.
+   *
+   * @param {HealthStatusVirtualMemoryInterface} virtual_memory
+   * @memberof HealthStatusVirtualMemoryClass
+   */
   constructor(virtual_memory: HealthStatusVirtualMemoryInterface) {
     this.total = virtual_memory.total;
     this.available = virtual_memory.available;
@@ -92,6 +149,12 @@ export class HealthStatusUtilizationInfoClass implements HealthStatusUtilization
   root_usage: HealthStatusDiskUsageClass;
   memory: HealthStatusVirtualMemoryClass;
 
+  /**
+   * Creates an instance of HealthStatusUtilizationInfoClass.
+   *
+   * @param {HealthStatusUtilizationInfoInterface} health_status_utilization_info
+   * @memberof HealthStatusUtilizationInfoClass
+   */
   constructor(health_status_utilization_info: HealthStatusUtilizationInfoInterface) {
     this.cpu_percent = health_status_utilization_info.cpu_percent;
     this.data_usage = new HealthStatusDiskUsageClass(health_status_utilization_info.data_usage);
@@ -107,6 +170,12 @@ export class HealthStatusClass implements HealthStatusInterface {
   node_info: {[key: string]: HealthStatusNodeInfoInterface};
   utilization_info:{[key: string]: HealthStatusUtilizationInfoInterface};
 
+  /**
+   * Creates an instance of HealthStatusClass.
+   *
+   * @param {HealthStatusInterface} health_status
+   * @memberof HealthStatusClass
+   */
   constructor(health_status: HealthStatusInterface) {
     this.totals = {};
     for (const [key, value] of Object.entries(health_status.totals)) {

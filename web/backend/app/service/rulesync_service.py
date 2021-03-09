@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 import traceback
+import tempfile
+from shutil import make_archive
 
 from app.service.socket_service import NotificationMessage, NotificationCode, notify_ruleset_refresh
 from app.utils.db_mngs import MongoConnectionManager
@@ -21,7 +23,10 @@ from typing import List, Dict
 
 
 SURICATA_RULESET_LOC = "/opt/tfplenum/suricata/rules/suricata.rules"
-BRO_CUSTOM_DIR = "/opt/tfplenum/zeek/scripts/"
+ZEEK_CUSTOM_DIR = "/opt/tfplenum/zeek/"
+ZEEK_SCRIPTS_DIR = os.path.join(ZEEK_CUSTOM_DIR, 'scripts/')
+ZEEK_INTEL_PATH = os.path.join(ZEEK_CUSTOM_DIR, 'intel.dat')
+ZEEK_SIG_PATH = os.path.join(ZEEK_CUSTOM_DIR, 'custom.sig')
 
 
 def _get_pod_name(ip_address: str,
@@ -45,7 +50,7 @@ def get_suricata_pod_name(ip_address: str,
     return _get_pod_name(ip_address, 'suricata', mongo_conn)
 
 
-def get_bro_pod_name(ip_address: str,
+def get_zeek_pod_name(ip_address: str,
                      mongo_conn: MongoConnectionManager=None) -> str:
     return _get_pod_name(ip_address, 'zeek', mongo_conn)
 
@@ -62,10 +67,11 @@ class RuleSynchronization():
         self.mongo = None # type: MongoConnectionManager
         self.notification = NotificationMessage(role="rulesync")
 
-    def _send_notification(self, msg: str, code: str = NotificationCode.ERROR.name):
+    def _send_notification(self, msg: str, code: str = NotificationCode.ERROR.name, exception=''):
         print(msg)
         self.notification.set_status(status=code)
         self.notification.set_message(msg)
+        self.notification.set_exception(exception)
         self.notification.post_to_websocket_api()
 
     def _is_sensor_in_ruleset(self, ip_address: str, rule_set: Dict) -> bool:
@@ -96,9 +102,9 @@ class RuleSynchronization():
 
         self.mongo.mongo_ruleset.update_many({'_id': {'$in': ids_to_reset}}, {'$set': {'state': []}})
 
-    def _build_suricata_rule_file(self, ip_address: str) -> io.StringIO:
+    def _build_suricata_rule_file(self, ip_address: str) -> tempfile.NamedTemporaryFile:
         print("Building suricata rule file for {}.".format(ip_address))
-        rules_file = io.StringIO()
+        rules_file = tempfile.NamedTemporaryFile(mode='w',delete=False)
         for rule_set in self.rule_sets:
             if rule_set["appType"] != RULE_TYPES[0]:
                 continue
@@ -120,7 +126,62 @@ class RuleSynchronization():
         rules_file.seek(0, os.SEEK_END)
         if rules_file.tell() == 0:
             rules_file.write("# No rulesets where enabled for this Sensor.")
+        rules_file.close()
         return rules_file
+
+    def _build_zeek_intel_file(self, ip_address: str) -> tempfile.NamedTemporaryFile:
+        print("Building zeek intel file for {}.".format(ip_address))
+        intel_file = tempfile.NamedTemporaryFile(mode='w',delete=False)
+        for rule_set in self.rule_sets:
+            if rule_set["appType"] != RULE_TYPES[2]:
+                continue
+
+            if not self._is_sensor_in_ruleset(ip_address, rule_set):
+                continue
+
+            if not rule_set["isEnabled"]:
+                continue
+
+            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            for rule in rules:
+                try:
+                    if rule["isEnabled"]:
+                        intel_file.write(rule["rule"] + "\n")
+                except KeyError as e:
+                    self._send_notification("Failed to write Zeek intel {} because it is missing {} field inside of the object.".format(rule, str(e)))
+
+        intel_file.seek(0, os.SEEK_END)
+        if intel_file.tell() == 0:
+            intel_file.write("# No rulesets where enabled for this Sensor.")
+        intel_file.close()
+        return intel_file
+
+    def _build_zeek_signatures_file(self, ip_address: str) -> tempfile.NamedTemporaryFile:
+        print("Building zeek signatures file for {}.".format(ip_address))
+        sigs_file = tempfile.NamedTemporaryFile(mode='w',delete=False)
+        for rule_set in self.rule_sets:
+            if rule_set["appType"] != RULE_TYPES[3]:
+                continue
+
+            if not self._is_sensor_in_ruleset(ip_address, rule_set):
+                continue
+
+            if not rule_set["isEnabled"]:
+                continue
+
+            rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
+            for rule in rules:
+                try:
+                    if rule["isEnabled"]:
+                        sigs_file.write(rule["rule"] + "\n")
+                except KeyError as e:
+                    self._send_notification("Failed to write Zeek signature {} because it is missing {} field inside of the object.".format(rule, str(e)))
+
+        sigs_file.seek(0, os.SEEK_END)
+        if sigs_file.tell() == 0:
+            sigs_file.write("# No rulesets where enabled for this Sensor.")
+        sigs_file.close()
+        return sigs_file
 
     def _set_states(self,
                     hostname: str,
@@ -143,11 +204,23 @@ class RuleSynchronization():
                     statestr: str) -> None:
         self._set_states(hostname, ip_address, statestr, RULE_TYPES[0])
 
-    def _set_bro_states(self,
+    def _set_zeek_script_states(self,
                     hostname: str,
                     ip_address: str,
                     statestr: str) -> None:
         self._set_states(hostname, ip_address, statestr, RULE_TYPES[1])
+
+    def _set_zeek_intel_states(self,
+                    hostname: str,
+                    ip_address: str,
+                    statestr: str) -> None:
+        self._set_states(hostname, ip_address, statestr, RULE_TYPES[2])
+
+    def _set_zeek_signatures_states(self,
+                    hostname: str,
+                    ip_address: str,
+                    statestr: str) -> None:
+        self._set_states(hostname, ip_address, statestr, RULE_TYPES[3])
 
     def _get_suricata_pod_name(self, ip_address: str) -> str:
         with KubernetesWrapper(self.mongo) as kube_apiv1:
@@ -167,7 +240,8 @@ class RuleSynchronization():
             return
 
         rules_file = self._build_suricata_rule_file(ip_address)
-        fabric.put(rules_file, SURICATA_RULESET_LOC)
+        fabric.put(rules_file.name, SURICATA_RULESET_LOC)
+        os.remove(rules_file.name)
         try:
             self._run_cmd_or_raise(fabric, "kubectl delete pod %s" % suricata_pod_name)
             self._set_suricata_states(hostname, ip_address, RULESET_STATES[2])
@@ -182,26 +256,19 @@ class RuleSynchronization():
         if ret_val.return_code != 0:
             raise RuleSyncError("Failed to run %s" % cmd)
 
-    def _convert_bro_ruleset_name(self, name: str) -> str:
+    def _convert_zeek_ruleset_name(self, name: str) -> str:
         return name.replace(' ', '_')
 
-    def _convert_bro_rule_name(self, name: str) -> str:
+    def _convert_zeek_rule_name(self, name: str) -> str:
         pos = name.rfind('.zeek')
         if pos == -1:
             name = name + '.zeek'
         return name.replace(' ', '_')
 
-    def _sync_bro_rulesets(self, fabric: Connection, ip_address: str, hostname: str):
-        try:
-            bro_pod_name = get_bro_pod_name(ip_address, self.mongo)
-        except ValueError as e:
-            print(str(e))
-            self._send_notification("Zeek is not installed on {}".format(hostname), NotificationCode.CANCELLED.name)
-            return
-
-        bro_load_file = io.StringIO()
-        self._run_cmd_or_raise(fabric, "rm -rf %s/*" % BRO_CUSTOM_DIR)
-
+    def _build_zeek_intel_scripts_file(self, ip_address: str):
+        zeek_load_dir = tempfile.TemporaryDirectory()
+        load_file_path = os.path.join(zeek_load_dir.name, '__load__.zeek')
+        load_file = open(load_file_path, 'w')
         for rule_set in self.rule_sets:
             if rule_set["appType"] != RULE_TYPES[1]:
                 continue
@@ -212,9 +279,9 @@ class RuleSynchronization():
             if not self._is_sensor_in_ruleset(ip_address, rule_set):
                 continue
 
-            rule_set_name = self._convert_bro_ruleset_name(rule_set['name'])
-            rule_set_dir = "%s/%s" % (BRO_CUSTOM_DIR, rule_set_name)
-            self._run_cmd_or_raise(fabric, "mkdir -p " + rule_set_dir)
+            rule_set_name = self._convert_zeek_ruleset_name(rule_set['name'])
+            rule_set_dir = os.path.join(zeek_load_dir.name, rule_set_name)
+            os.mkdir(rule_set_dir)
 
             rules = self.mongo.mongo_rule.find({"rule_set_id": rule_set["_id"]})
             for rule in rules:
@@ -222,26 +289,59 @@ class RuleSynchronization():
                     continue
 
                 try:
-                    bro_file = io.StringIO()
-                    bro_file.write(rule['rule'])
-                    bro_file.seek(0, os.SEEK_END)
-                    rule_name = self._convert_bro_rule_name(rule['ruleName'])
-                    bro_file_path = "%s/%s" % (rule_set_dir, rule_name)
-                    fabric.put(bro_file, bro_file_path)
-                    self._run_cmd_or_raise(fabric, "chmod 0744 %s" % bro_file_path)
-                    # Append the load statement
+                    rule_name = self._convert_zeek_rule_name(rule['ruleName'])
+                    script_file = os.path.join(rule_set_dir, rule_name)
+                    with open(script_file, 'w') as sf:
+                        sf.write(rule['rule'])
                     pos = rule_name.rfind('.')
-                    bro_load_file.write('@load custom/%s/%s\n' % (rule_set_name, rule_name[0:pos]))
+                    load_file.write('@load custom/{}/{}\n'.format(rule_set_name, rule_name[0:pos]))
                 except KeyError as e:
                     self._send_notification("Failed to write Zeek script {} because it is missing {} field inside of the object.".format(rule, str(e)))
+        load_file.seek(0, os.SEEK_END)
+        if load_file.tell() == 0:
+            load_file.write("# No scripts were enabled for this Sensor.")
+        load_file.close()
+        return zeek_load_dir
 
-        bro_load_file.seek(0, os.SEEK_END)
-        bro_load_file_path = "%s/__load__.zeek" % BRO_CUSTOM_DIR
-        fabric.put(bro_load_file, bro_load_file_path)
-        self._run_cmd_or_raise(fabric, "chmod 0744 %s" % bro_load_file_path)
-        self._run_cmd_or_raise(fabric, "kubectl delete pod %s" % bro_pod_name)
-        self._set_bro_states(hostname, ip_address, RULESET_STATES[2])
-        self._send_notification("Successfully synchronized Zeek scripts for {}.".format(hostname), NotificationCode.DEPLOYED.name)
+    def _sync_zeek_items(self, fabric: Connection, ip_address: str, hostname: str):
+        try:
+            zeek_pod_name = get_zeek_pod_name(ip_address, self.mongo)
+        except ValueError as e:
+            print(str(e))
+            self._send_notification("Zeek is not installed on {}".format(hostname), NotificationCode.CANCELLED.name)
+            return
+
+        intel_file = self._build_zeek_intel_file(ip_address)
+        fabric.put(intel_file.name, ZEEK_INTEL_PATH)
+        os.remove(intel_file.name)
+
+        sigs_file = self._build_zeek_signatures_file(ip_address)
+        fabric.put(sigs_file.name, ZEEK_SIG_PATH)
+        os.remove(sigs_file.name)
+
+        scripts_dir = self._build_zeek_intel_scripts_file(ip_address)
+        self._run_cmd_or_raise(fabric, "rm -rf {}/*".format(ZEEK_SCRIPTS_DIR))
+        tmp_file = '/tmp/zeek_scripts.zip'
+        make_archive('/tmp/zeek_scripts', 'zip', scripts_dir.name)
+        fabric.put(tmp_file, tmp_file)
+        self._run_cmd_or_raise(fabric, "unzip /tmp/zeek_scripts.zip -d {}".format(ZEEK_SCRIPTS_DIR))
+        self._run_cmd_or_raise(fabric, "chmod 0744 {}".format(ZEEK_SCRIPTS_DIR))
+        self._run_cmd_or_raise(fabric, "rm -rf {}".format(tmp_file))
+        scripts_dir.cleanup()
+        os.unlink(tmp_file)
+
+        try:
+            self._run_cmd_or_raise(fabric, "kubectl delete pod %s" % zeek_pod_name)
+            self._set_zeek_intel_states(hostname, ip_address, RULESET_STATES[2])
+            self._set_zeek_script_states(hostname, ip_address, RULESET_STATES[2])
+            self._set_zeek_signatures_states(hostname, ip_address, RULESET_STATES[2])
+            self._send_notification("Successfully synchronized Zeek scripts, intel, and signatures for {}.".format(hostname), NotificationCode.DEPLOYED.name)
+        except RuleSyncError as e:
+            self._set_zeek_intel_states(hostname, ip_address, RULESET_STATES[3])
+            self._set_zeek_script_states(hostname, ip_address, RULESET_STATES[3])
+            self._set_zeek_signatures_states(hostname, ip_address, RULESET_STATES[3])
+            self._send_notification("Failed to synchronize Zeek scripts, intel, and signatures rules on pod {} on node {}".format(zeek_pod_name, ip_address))
+            raise e
 
     def sync_rulesets(self):
         try:
@@ -261,6 +361,7 @@ class RuleSynchronization():
                 self.notification.set_status(status=NotificationCode.IN_PROGRESS.name)
                 self.notification.set_message("Rule synchronization in progress.")
                 self.notification.post_to_websocket_api()
+                errors = False
                 for node in kit.nodes: # type: Node
                     if node.node_type != NODE_TYPES[1]:
                         continue
@@ -272,6 +373,7 @@ class RuleSynchronization():
                             print("Synchronizing Suricata signatures for {}.".format(hostname))
                             self._sync_suricata_rulesets(fabric, ip_address, hostname)
                         except Exception as e:
+                            errors = True
                             self._set_suricata_states(hostname, ip_address, RULESET_STATES[3])
                             self.notification.set_status(status=NotificationCode.ERROR.name)
                             self.notification.set_message("Failed to synchronize Suricata rules for {}.".format(hostname))
@@ -280,20 +382,28 @@ class RuleSynchronization():
                             traceback.print_exc()
 
                         try:
-                            print("Synchronizing Bro scripts for {}.".format(hostname))
-                            self._sync_bro_rulesets(fabric, ip_address, hostname)
+                            print("Synchronizing Zeek scripts, intel, and signatures for {}.".format(hostname))
+                            self._sync_zeek_items(fabric, ip_address, hostname)
                         except Exception as e:
+                            errors = True
                             self.notification.set_status(status=NotificationCode.ERROR.name)
-                            self.notification.set_message("Failed to synchronize Zeek scripts for {}.".format(hostname))
+                            self.notification.set_message("Failed to synchronize Zeek scripts, intel, and signatures for {}.".format(hostname))
                             self.notification.set_exception(e)
                             self.notification.post_to_websocket_api()
-                            self._set_bro_states(hostname, ip_address, RULESET_STATES[3])
+                            self._set_zeek_intel_states(hostname, ip_address, RULESET_STATES[3])
+                            self._set_zeek_script_states(hostname, ip_address, RULESET_STATES[3])
+                            self._set_zeek_signatures_states(hostname, ip_address, RULESET_STATES[3])
                             traceback.print_exc()
 
-            print("Synchronization Complete!")
-            self.notification.set_status(status=NotificationCode.COMPLETED.name)
-            self.notification.set_message("Rule synchronization completed successfully!")
-            self.notification.post_to_websocket_api()
+            if not errors:
+                self.notification.set_status(status=NotificationCode.COMPLETED.name)
+                self.notification.set_message("Rule synchronization completed successfully!")
+                self.notification.post_to_websocket_api()
+            else:
+                self.notification.set_status(status=NotificationCode.ERROR.name)
+                self.notification.set_message("Rule synchronization completed with errors!")
+                self.notification.post_to_websocket_api()
+
         except Exception as e:
             self.notification.set_status(status=NotificationCode.ERROR.name)
             self.notification.set_message("Unrecoverable error. This is really bad contact the programmers!")

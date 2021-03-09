@@ -4,13 +4,12 @@ import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule }
 import { MatDialog } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { of } from 'rxjs';
+import { of as observableOf, of } from 'rxjs';
 
 import {
   MockDIPTimeClass,
   MockKitFormClass,
-  MockSystemNameDIPClass,
-  MockSystemNameMIPClass,
+  MockSystemNameMIPClass
 } from '../../../static-data/class-objects-v3_4';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
@@ -23,16 +22,31 @@ import { NotificationsModuleComponent } from '../notifications/notification-modu
 import { CapitalizeFirstPipe } from '../pipes/capitalize-first.pipe';
 import { ApiService } from '../services/abstract/api.service';
 import { CookieService } from '../services/cookies.service';
+import { WebsocketService } from '../services/websocket.service';
 import { ToolsService } from '../tools-form/services/tools.service';
 import { getSideNavigationButtons } from './functions/navbar.functions';
 import { NavGroupInterface } from './interfaces';
 import { TopNavbarComponent } from './top-navbar.component';
 
-export function cleanStylesFromDOM(): void {
+function cleanStylesFromDOM(): void {
   const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
   const styles: HTMLCollectionOf<HTMLStyleElement> | [] = head.getElementsByTagName('style');
   for (let i = 0; i < styles.length; i++) {
     head.removeChild(styles[i]);
+  }
+}
+
+const MockWebsocketBoradcast = {
+  role: 'kit',
+  status: 'COMPLETED'
+};
+
+class MockSocket {
+  getSocket() {
+    return {'on': () => {}};
+  }
+  onBroadcast() {
+    return observableOf(MockWebsocketBoradcast);
   }
 }
 
@@ -113,10 +127,10 @@ describe('TopNavbarComponent', () => {
       ],
       providers: [
         ApiService,
+        { provide: WebsocketService, useClass: MockSocket },
         { provide: MatDialog, useClass: MatDialogMock }
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
   }));
 
   beforeEach(() => {

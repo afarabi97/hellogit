@@ -22,12 +22,13 @@
       "error_message": "Enter a value"
     },
     {
-        "type": "cortex-checkbox",
-        "default_value": false,
-        "description": "Integrate with Cortex (Requires Cortex to be installed first, verify Cortex is up and running before continuing)",
-        "trueValue": true,
-        "falseValue": false,
-        "name": "cortexIntegration"
+      "type": "checkbox",
+      "default_value": true,
+      "description": "Integrate with Cortex (Requires Cortex to be installed first, verify Cortex is up and running before continuing)",
+      "trueValue": true,
+      "falseValue": false,
+      "name": "cortexIntegration",
+      "dependent_app": "cortex"
     },
     {
       "type": "invisible",

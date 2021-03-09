@@ -1,0 +1,34 @@
+<h1 mat-dialog-title>Upload Rules File</h1>
+<div mat-dialog-content [formGroup]="rule_set_form_group"
+     fxLayout="column" fxLayoutAlign="start stretch"
+     style="overflow: unset;">
+
+   <!-- Ruleset Name -->
+  <mat-form-field id="cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name">
+    <input matInput id="cvah-policy-management-upload-dialog-div-mat-form-field-ruleset-name-input"
+           placeholder="Rule Set Name" type="text" formControlName="name" required>
+  </mat-form-field>
+</div>
+<div mat-dialog-content fxLayout="column" fxLayoutAlign="start stretch"
+     style="overflow: unset;">
+
+   <!-- File Name -->
+  <mat-form-field id="cvah-policy-management-upload-dialog-div-mat-form-field-file-name">
+    <input matInput id="cvah-policy-management-upload-dialog-div-mat-form-field-file-name-input"
+           placeholder="{{ get_file_name_place_holder() }}" type="text" [formControl]="file_name_form_control">
+  </mat-form-field>
+
+  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-choose-rules-file"
+          color="primary" style="float:right; margin-right: 10px;"
+          (click)="fileInput.click()">Choose Rules File</button>
+  <mat-hint>EX: .dat, .rules, .txt, .zip, .zeek</mat-hint>
+  <input hidden #fileInput id="cvah-policy-management-upload-dialog-div-input-hidden-type-file"
+         (change)="handle_file_input($event.target.files)" type="file" accept=".dat,.rules,.txt,.zeek,.zip">
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-upload"
+          color="primary" [mat-dialog-close]="dialog_data" [disabled]="!rules_file_to_upload"
+          (click)="upload()" cdkFocusInitial>Upload</button>
+  <button mat-raised-button id="cvah-policy-management-upload-dialog-div-button-cancel"
+          color="warn" (click)="cancel()">Cancel</button>
+</div>

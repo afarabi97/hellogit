@@ -6,7 +6,7 @@ import { MatSnackbarConfigurationClass } from '../../classes';
  * @export
  * @interface MatSnackbarServiceInterface
  */
- export interface MatSnackbarServiceInterface {
+export interface MatSnackbarServiceInterface {
   generate_return_success_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
   generate_return_fail_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
   generate_return_error_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;

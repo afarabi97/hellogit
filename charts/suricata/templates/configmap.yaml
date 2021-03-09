@@ -57,6 +57,7 @@ data:
       enabled: yes
       interval: 60
     outputs:
+      {{ if has "alert" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
@@ -69,7 +70,8 @@ data:
             - alert:
                 metadata: yes     # enable inclusion of app layer metadata with alert. Default yes
                 tagged-packets: yes
-      {{ if .Values.flow }}
+      {{- end }}
+      {{ if has "http" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
@@ -81,6 +83,8 @@ data:
           types:
             - http:
                 extended: yes
+      {{- end }}
+      {{ if has "dns" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
@@ -97,6 +101,8 @@ data:
                 response: yes
                 formats: [detailed, grouped]
                 types: [a, aaaa, cname, mx, ns, ptr, txt]
+      {{- end }}
+      {{ if has "tls" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
@@ -110,6 +116,8 @@ data:
                 extended: yes
                 session-resumption: no
                 custom: [subject, issuer, session_resumed, serial, fingerprint, sni, version, not_before, not_after, certificate, ja3, ja3s]
+      {{- end }}
+      {{ if has "flow" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
@@ -120,10 +128,12 @@ data:
           community-id-seed: 0
           types:
             - flow:
+      {{- end }}
+      {{ if has "other" .Values.log_types }}
       - eve-log:
           enabled: yes
           filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
-          filename: eve-apps-%Y-%m-%d-%H-%M.json
+          filename: eve-other-%Y-%m-%d-%H-%M.json
           rotate-interval: 300s
           pcap-file: false
           community-id: true
@@ -171,7 +181,7 @@ data:
           scripts:
             - script1.lua
     logging:
-      default-log-level: notice
+      default-log-level: info
       default-output-filter:
       outputs:
         - console:

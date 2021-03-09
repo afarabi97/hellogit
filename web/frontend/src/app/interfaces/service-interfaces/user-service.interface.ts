@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs';
 
-import { UserInterface } from '../';
 import { UserClass } from '../../classes';
 
 /**

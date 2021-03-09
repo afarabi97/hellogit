@@ -44,12 +44,18 @@ class HealthServiceTotalsWildcardModel(Model):
 
 class HealthServiceNodeInfoModel(Model):
     DTO = api.model('HealthServiceNodeInfoModel', {
-        'status.allocatable.cpu': fields.String(example="16000m"),
-        'status.allocatable.ephemeral-storage': fields.String(example="16.775Gi"),
-        'status.allocatable.memory': fields.String(example="15.401Gi"),
-        'status.capacity.cpu': fields.String(example="16000m"),
-        'status.capacity.ephemeral-storage': fields.String(example="18.639Gi"),
-        'status.capacity.memory': fields.String(example="15.499Gi"),
+        'status': fields.Nested({
+            'allocatable': fields.Nested({
+                'cpu': fields.String(example="16000m"),
+                'ephermeral-storage': fields.String(example="16.775Gi"),
+                'memory': fields.String(example="15.401Gi")
+            }),
+            'capacity': fields.Nested({
+                'cpu': fields.String(example="16000m"),
+                'ephermeral-storage': fields.String(example="18.639Gi"),
+                'memory': fields.String(example="15.499Gi")
+            })
+        }),
         'node_type': fields.String(example="Sensor"),
         'public_ip': fields.String(required=False)
     })

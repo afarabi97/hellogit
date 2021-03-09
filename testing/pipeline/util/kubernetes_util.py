@@ -181,8 +181,9 @@ def wait_for_deployments_to_ready(deployments: list, master_srv: NodeSettings, t
                 logging.info("wait_for_deployments_to_ready took too long to complete. Exiting application.")
                 exit(3)
             try:
-                jobs = api.apps_V1_API.list_namespaced_deployment('default',watch=False)
-                items = jobs.to_dict()['items']
+                deployment_list = api.apps_V1_API.list_namespaced_deployment(namespace='default',watch=False)
+                stateful_set_list = api.apps_V1_API.list_namespaced_stateful_set(namespace='default',watch=False)
+                items = deployment_list.to_dict()['items'] + stateful_set_list.to_dict()['items']
                 if len(items) == 0 or _check_deployment_states(items, deployments):
                     break
             except MaxRetryError as e:

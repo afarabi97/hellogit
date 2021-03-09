@@ -1,27 +1,31 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
-import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { PolicyManagementService } from '../../policy-management/services/policy-management.service';
-import { PcapService } from '../pcap.service';
-import { HostInfo } from '../../policy-management/interface/rule.interface';
-import { COMMON_VALIDATORS } from 'src/app/frontend-constants';
-import { validateFromArray } from 'src/app/validators/generic-validators.validator';
+
+import { HostInfoClass, HostInfoRedacClass } from '../../classes';
+import { COMMON_VALIDATORS } from '../../frontend-constants';
+import { PcapService } from '../../services/pcap.service';
+import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SortingService } from '../../services/sorting.service';
+import { validateFromArray } from '../../validators/generic-validators.validator';
 
 @Component({
   selector: 'replay-pcap-dialog',
   templateUrl: 'replay-pcap-dialog.component.html',
   styleUrls: ['replay-pcap-dialog.component.css'],
+  providers: [
+    SensorHostInfoService
+  ]
 })
 export class ReplayPcapDialog implements OnInit {
-  selectableSensors: Array<{ hostname: string, management_ip: string }>;
+  selectableSensors: HostInfoRedacClass[];
   pcapForm: FormGroup;
   selectableIfaces: Array<string>;
 
   constructor( public dialogRef: MatDialogRef<ReplayPcapDialog>,
                private formBuilder: FormBuilder,
-               private policySrv: PolicyManagementService,
+               private sensor_host_info_service_: SensorHostInfoService,
                private pcapSrv: PcapService,
                private sortSvc: SortingService,
                @Inject(MAT_DIALOG_DATA) public pcap_name: any) {
@@ -30,14 +34,12 @@ export class ReplayPcapDialog implements OnInit {
   }
 
   ngOnInit(){
-    this.policySrv.getSensorHostInfo().subscribe(data => {
-      let hosts = data as Array<HostInfo>;
-      this.selectableSensors = [];
-      for (let host of hosts) {
-        this.selectableSensors.push({hostname: host.hostname, management_ip: host.management_ip});
-      }
-      this.selectableSensors.sort(this.sortSvc.node_alphanum);
-    });
+    this.sensor_host_info_service_.get_sensor_host_info()
+      .subscribe(
+        (data: HostInfoClass[]) => {
+          this.selectableSensors = data.map((sensor_host_info: HostInfoClass) => new HostInfoRedacClass(sensor_host_info));
+          this.selectableSensors.sort(this.sortSvc.node_alphanum);
+        });
 
     this.initializeForm();
   }
@@ -66,7 +68,7 @@ export class ReplayPcapDialog implements OnInit {
 
   changeIfaceValues(event: MatSelectChange){
     let hostname = "";
-    for (let sensor of this.selectableSensors){
+    for (const sensor of this.selectableSensors){
       if (sensor.management_ip === event.value){
         hostname = sensor.hostname;
         break;

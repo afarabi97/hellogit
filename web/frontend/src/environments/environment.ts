@@ -5,6 +5,8 @@
 export const environment = {
   production: false,
 
+  SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
+
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
   WEAPON_SYSTEM_NAME_SERVICE_SYSTEM_NAME: `/api/get_system_name`,
@@ -77,12 +79,23 @@ export const environment = {
   NAV_BAR_SERVICE_VERSION: `/api/version`,
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`,
-  
+
   SYSTEM_HEALTH_SERVICE_GET_HEALTH_STATUS: `/api/health/status`,
   SYSTEM_HEALTH_SERVICE_GET_PIPELINE_STATUS: `/api/pipeline/status`,
   SYSTEM_HEALTH_SERVICE_DESCRIBE_POD: `/api/pod/describe`,
   SYSTEM_HEALTH_SERVICE_POD_LOGS: `/api/pod/logs`,
-  SYSTEM_HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`
+  SYSTEM_HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`,
+
+  RULES_SERVICE_RULE_SETS: `/api/ruleset`,
+  RULES_SERVICE_RULE_SETS_SYNC: `/api/rulesets/sync`,
+  RULES_SERVICE_UPLOAD_RULE_FILE: `/api/rule/upload`,
+  RULES_SERVICE_RULES: `/api/rules`,
+  RULES_SERVICE_RULE: `/api/rule`,
+  RULES_SERVICE_RULE_VALIDATE: `/api/rule/validate`,
+  RULES_SERVICE_TEST_RULE_AGAINST_PCAP: `/api/pcap/rule/test`,
+
+  POLICY_MANAGEMENT_SERVICE_CHECK_CATALOG_STATUS: `/api/catalog/chart`,
+  POLICY_MANAGEMENT_SERVICE_GET_JOBS: `/api/jobs`
 };
 
 /*
