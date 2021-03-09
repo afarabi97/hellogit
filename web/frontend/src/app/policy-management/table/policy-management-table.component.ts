@@ -90,7 +90,7 @@ export class PolicyManagementTable implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.checkRuleSyncStatus()
-    
+
     this.ruleSetsDataSource.filterPredicate = (data, filter: string)  => {
       const accumulator = (currentTerm, key) => {
         return this.nestedFilterCheck(currentTerm, data, key);

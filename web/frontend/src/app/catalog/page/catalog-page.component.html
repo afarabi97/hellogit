@@ -99,10 +99,11 @@
                       <div class="stepper__body__selection" fxLayout="column" fxLayoutAlign="center none" *ngSwitchCase="'interface'">
                         <div *ngFor="let sensorint of nodeList; let m = index;">
                           <div *ngIf="sensorint === sensor">
-                            <mat-form-field id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface' }}">
-                              <mat-label id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-label' }}">{{ control.name | capitalizeFirst }}</mat-label>
+                            <mat-form-field>
+                              <mat-label>{{ control.name | capitalizeFirst }}</mat-label>
                               <mat-select id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select' }}"
-                                          formControlName="{{control.name}}" multiple required>
+                                          formControlName="{{control.name}}" multiple required
+                                          (selectionChange)="ifaceChange($event, sensor)">
                                 <mat-option *ngFor="let interface of sensorint.deviceFacts.potential_monitor_interfaces; let n = index;"
                                             id="{{ 'app-catalog-page-div-mat-card-div-mat-vertical-stepper-div-mat-step-configuration-overview-form-div-' + k + '-div-div-' + l + '-div-div-' + m + '-div-mat-form-field-control-name-interface-mat-select-' + n }}"
                                             [value]="interface">{{interface}}</mat-option>

@@ -88,7 +88,7 @@ data:
           ssl.trustManager.stores = [{
               path = /etc/thehive/webCA.jks
               type = "JKS" # or PKCS12
-              password = "##KEYSTORE_PASSWORD##"
+              password = ${?KEYSTORE_PASSWORD}
           }]
       }
       includedTheHiveOrganisations: ["*"]

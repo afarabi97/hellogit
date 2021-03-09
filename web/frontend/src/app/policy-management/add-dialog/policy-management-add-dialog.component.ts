@@ -34,9 +34,9 @@ export class PolicyManagementAddDialog  implements OnInit {
   }
 
   ngOnInit() {
-    this.changeSensorSelection();
     if (this.data === 'edit') {
       this.initializeForm(this.policySrv.editRuleSet, true);
+      this.changeSensorSelection(this.ruleSetGroup.get('appType').value.toLowerCase());
     } else {
       this.initializeForm(null);
     }

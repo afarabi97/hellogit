@@ -111,6 +111,11 @@ export class ToolsService extends ApiService<any> {
                            .pipe(catchError((err: any) => this.handleError('monitoring-interfaces', err)));
   }
 
+  getIfaceStates(hostname: string): Observable<Object> {
+    const url = `/api/ifaces/${hostname}`;
+    return this.httpClient_.get(url).pipe(catchError((err: any) => this.handleError('interfaces', err)));
+  }
+
   /**
    * REST call to POST configure repository
    *

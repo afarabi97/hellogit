@@ -2,9 +2,9 @@
   <mat-card-header *ngIf="hasTitle">
     <mat-card-title>
       <a id="app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a" (click)="toggleCard()">
-        <em *ngIf="!isCardVisible" id="app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a-em-chevron-right"
+        <em *ngIf="!isCardVisible"
             class="material-icons">chevron_right</em>
-        <em *ngIf="isCardVisible" id="app-node-maintenance-form-mat-card-mat-card-header-mat-card-title-a-em-expand-more"
+        <em *ngIf="isCardVisible"
             class="material-icons">expand_more</em>
         <span style="vertical-align: top;">Node Maintenance</span>
       </a>
@@ -17,20 +17,25 @@
       <ng-container matColumnDef="node">
         <th scope="col" mat-header-cell *matHeaderCellDef>Node</th>
         <td mat-cell *matCellDef="let node; let z = index;"
-            id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-node' }}"
             style="width: 33%;"> {{ node.node }} </td>
       </ng-container>
       <!-- Interfaces -->
       <ng-container matColumnDef="interfaces">
         <th scope="col" mat-header-cell *matHeaderCellDef>Interfaces</th>
-        <td mat-cell *matCellDef="let node; let z = index;"
-            id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-interface-state' }}"
-            style="width: 33%;">
-          <div *ngFor="let interface of node.interfaces; let i = index;">
-            <span *ngIf='interface.state'
-                  id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-interface-state-div-span-interface-name-state-' + i }}">{{ interface.name }}: {{ interface.state }}</span>
-            <span *ngIf='!interface.state'
-                  id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-interface-state-div-span-interface-name-error-' + i }}">{{ interface.name }}: error</span>
+        <td mat-cell *matCellDef="let node; let z = index;" style="width: 33%;">
+          <div *ngFor="let interface of node.interfaces; let i = index;" fxLayout="column" fxLayoutAlign="start none">
+            <div *ngIf='interface.state' class="interface_stat">
+              <div fxLayout="row" fxLayoutAlign="start none">
+                <div class="interface_label">Iface:</div><div>{{ interface.name }}</div>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start none" >
+                <div class="interface_label">State:</div><div>{{ interface.state }}</div>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start none" >
+                <div class="interface_label">Physically Connected:</div><div>{{ interface.link_up }}</div>
+              </div>
+            </div>
+            <span *ngIf='!interface.state'>{{ interface.name }}: error</span>
           </div>
         </td>
       </ng-container>
@@ -38,7 +43,6 @@
       <ng-container matColumnDef="actions">
         <th scope="col" mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let node; let z = index;"
-            id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-slider-label-node' }}"
             style="width: 33%;">
           <mat-slide-toggle id="{{ 'app-node-maintenance-form-mat-card-mat-card-content-table-td-' + z + '-slider-label-node-mat-slide-toggle' }}"
                             [checked]="isSliderChecked(node)" (change)="set_interface_state($event, node)">{{ getSliderLabel(node) }}</mat-slide-toggle>

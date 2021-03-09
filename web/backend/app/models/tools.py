@@ -28,12 +28,15 @@ class NetworkDeviceStateModel(Model):
                                description="The name of the network interface card (NIC)."),
         "state": fields.String(example="up",
                                description="The state the NIC is in.  It can be in an up or down state."),
+        "link_up": fields.Boolean(example="True if link is up",
+                                  description="The link state the NIC is in.  The value determines whether or not the interface is actually plugged in.")
     })
 
-    def __init__(self, node: str, device: str, state: str):
+    def __init__(self, node: str, device: str, state: str, link_up: bool):
         self.node = node
         self.device = device
         self.state = state
+        self.link_up = link_up
 
 
 class NetworkInterfaceModel(Model):
@@ -41,12 +44,15 @@ class NetworkInterfaceModel(Model):
         "name": fields.String(example="ens192",
                               description="The name of the network interface card (NIC)."),
         "state": fields.String(example="up",
-                               description="The state the NIC is in.  It can be in an up or down state.")
+                               description="The state the NIC is in.  It can be in an up or down state."),
+        "link_up": fields.Boolean(example="True if iface is actually plugged in.",
+                                  description="The link state the NIC is in.  The value determines whether or not the interface is actually plugged in.")
     })
 
-    def __init__(self, device: str, state: str=None):
+    def __init__(self, device: str, state: str=None, link_up: bool=False):
         self.name = device
         self.state = state
+        self.link_up = link_up
 
 
 class InitalDeviceStatesModel(Model):

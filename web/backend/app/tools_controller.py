@@ -262,31 +262,39 @@ class RemoteNetworkDevice(object):
         self._node = node
         self._device = device
 
+    def _is_link_up(self, shell: FabricConnection) -> bool:
+        cmd = 'ethtool {} | grep "Link detected: yes"'.format(self._device)
+        print(cmd)
+        result = shell.run(cmd, warn=True, shell=True)
+        return (result.return_code == 0)
+
     def set_up(self):
         with FabricConnection(self._node) as shell:
             result = shell.run("bash -c 'ip link set {} up'".format(self._device))
+            link_up = self._is_link_up(shell)
             if result.return_code == 0:
-                return NetworkDeviceStateModel(self._node, self._device, "up").to_dict()
+                return NetworkDeviceStateModel(self._node, self._device, "up", link_up).to_dict()
             else:
                 return {}
 
     def down(self):
         with FabricConnection(self._node) as shell:
             result = shell.run("bash -c 'ip link set {} down'".format(self._device))
+            link_up = self._is_link_up(shell)
             if result.return_code == 0:
-                return NetworkDeviceStateModel(self._node, self._device, "down").to_dict()
+                return NetworkDeviceStateModel(self._node, self._device, "down", link_up).to_dict()
             else:
                 return {}
 
     def get_state(self):
         with FabricConnection(self._node) as shell:
             result = shell.run("bash -c 'ip address show {} up'".format(self._device))
-
+            link_up = self._is_link_up(shell)
             if result.return_code == 0:
                 if result.stdout == "":
-                    return NetworkDeviceStateModel(self._node, self._device, "down").to_dict()
+                    return NetworkDeviceStateModel(self._node, self._device, "down", link_up).to_dict()
                 else:
-                    return NetworkDeviceStateModel(self._node, self._device, "up").to_dict()
+                    return NetworkDeviceStateModel(self._node, self._device, "up", link_up).to_dict()
             else:
                 return {}
 
@@ -334,7 +342,6 @@ class MonitoringInterfaces(Resource):
         applications = ["arkime", "zeek", "suricata"]
 
         documents = list(conn_mng.mongo_catalog_saved_values.find({ "application": {"$in": applications} }))
-
         for document in documents:
             hostname = document['values']['node_hostname']
             interfaces = document['values']['interfaces']
@@ -350,12 +357,31 @@ class MonitoringInterfaces(Resource):
             for interface in interfaces:
                 device = RemoteNetworkDevice(hostname, interface)
                 try:
-                    state = device.get_state()['state']
-                    inital_states.add_interface(NetworkInterfaceModel(interface, state))
+                    ret_val = device.get_state()
+                    state = ret_val['state']
+                    link_up = ret_val['link_up']
+                    inital_states.add_interface(NetworkInterfaceModel(interface, state, link_up))
                 except KeyError:
                     inital_states.add_interface(NetworkInterfaceModel(interface))
             result.append(inital_states.to_dict())
 
+        return result
+
+
+@TOOLS_NS.route('/ifaces/<hostname>')
+class AllIfaces(Resource):
+
+    @TOOLS_NS.response(200, 'InitalDeviceStates', [NetworkInterfaceModel.DTO])
+    @TOOLS_NS.doc(description="Retrieves a list of network interfaces with their states.")
+    def get(self, hostname: str):
+        node = Node.load_from_db_using_hostname(hostname)
+        result = []
+        for iface in node.deviceFacts['interfaces']:
+            device = RemoteNetworkDevice(hostname, iface['name'])
+            ret_val = device.get_state()
+            state = ret_val['state']
+            link_up = ret_val['link_up']
+            result.append(NetworkInterfaceModel(iface['name'], state, link_up).to_dict())
         return result
 
 

@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
@@ -12,6 +13,8 @@ import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '
 import { ProcessInterface } from '../interface';
 import { ChartInfo } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
+import { ToolsService } from 'src/app/tools-form/services/tools.service';
+
 
 @Component({
   selector: 'app-catalog-page',
@@ -60,7 +63,8 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
               private router: Router,
               private snackBar: MatSnackBar,
               public dialog: MatDialog,
-              private sortSvc: SortingService) {
+              private sortSvc: SortingService,
+              private toolsSrv: ToolsService) {
     this.isReady = false;
     this.isLoading = true;
     this.isAdvance = false;
@@ -190,7 +194,6 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
         this.nodeList = p.children;
       }
     });
-
     return this.nodeList;
   }
 
@@ -762,6 +765,41 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
       }
     } else if (event.selectedIndex == 2){ // Values File Overview
       this.getValuesFile();
+    }
+  }
+
+  private _find_ifaces_in_violation(selected_ifaces: string[], interfaces: Object[]): string[]{
+    const ret_val = [];
+    for (const selected_iface of selected_ifaces){
+      for (const iface of interfaces){
+        if (selected_iface === iface['name'] && !iface['link_up']){
+          ret_val.push(selected_iface);
+        }
+      }
+    }
+    return ret_val;
+  }
+
+  ifaceChange(event: MatSelectChange, sensor: Object) {
+    if (event && event.value.length > 0){
+      const selected_ifaces = event.value;
+      const hostname = sensor['hostname'];
+      this.toolsSrv.getIfaceStates(hostname).subscribe(data => {
+        const ifaces_in_violation = this._find_ifaces_in_violation(selected_ifaces, data as object[]);
+        const ifaces_in_violation_str = ifaces_in_violation.join(', ');
+        let word = "is";
+        if (ifaces_in_violation.length > 1){
+          word = "are";
+        }
+
+        if (ifaces_in_violation.length > 0){
+          this.snackBar.open(`${ifaces_in_violation_str} ${word} not connected at the physical layer.
+Zeek and Suricata will not be able to sense any traffic on selected iface(s)
+until they are connected with network cables.`, 'OK', { duration: 30000 });
+        } else {
+          this.snackBar.open(`All interfaces selected for ${hostname} are connected physically.`, 'OK', { duration: 30000 });
+        }
+      });
     }
   }
 }
