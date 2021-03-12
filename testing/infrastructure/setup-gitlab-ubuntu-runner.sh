@@ -54,6 +54,7 @@ function install_ovftool(){
 
 function install_sonarscanner(){
     pushd ~/ > /dev/null
+    apt install unzip
     run_cmd wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip
     run_cmd unzip sonar-scanner-cli-4.2.0.1873-linux.zip
     run_cmd ln -s /home/gitlab/sonar-scanner-4.2.0.1873-linux/bin/sonar-scanner /usr/bin/sonar-scanner
@@ -84,6 +85,21 @@ function install_powershell(){
     run_cmd add-apt-repository universe
     # Install PowerShell
     run_cmd apt-get install -y powershell
+}
+
+function update_profile(){
+    run_cmd cat <<EOF > /root/.profile
+# ~/.profile: executed by Bourne-compatible login shells.
+
+if [ "$BASH" ]; then
+  if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+  fi
+fi
+
+tty -s && mesg n
+EOF
+
 }
 
 function install_docker(){
@@ -123,5 +139,6 @@ install_ovftool
 install_sonarscanner
 install_powershell
 install_docker
+update_profile
 
 popd > /dev/null
