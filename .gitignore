@@ -66,3 +66,4 @@ kubernetes_config
 hwcontrollersetupsettings_dip.yml
 hwkickstartsettings.yml
 hwkitsettings.yml
+kitsettingsv2.yml
