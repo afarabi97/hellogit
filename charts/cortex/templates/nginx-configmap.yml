@@ -10,7 +10,7 @@ data:
   default.conf: |
     # Upstreams
     upstream backend {
-        server 127.0.0.1:{{ .Values.corex_port }};
+        server 127.0.0.1:{{ .Values.cortex_port }};
     }
 
     # HTTPS Server

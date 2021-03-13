@@ -65,6 +65,8 @@ spec:
             value: single-node
           - name: xpack.security.enabled
             value: "false"
+          - name: ES_JAVA_OPTS
+            value: -Xms2g -Xmx2g
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
@@ -111,7 +113,7 @@ spec:
         - "/opt/cortex/entrypoint --no-config"
         ports:
         - name: cortex
-          containerPort: {{ .Values.corex_port }}
+          containerPort: {{ .Values.cortex_port }}
         volumeMounts:
         - name: cortexconfig
           mountPath: /etc/cortex/application.conf

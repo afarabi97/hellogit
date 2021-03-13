@@ -14,37 +14,44 @@ default_elastic_user: elastic
 default_data_dir_per_server: 10
 
 filebeat_modules:
-  - apache
-  - auditd
-  - haproxy
-  - icinga
-  - iis
-  - kafka
-  - mongodb
-  - mysql
-  - nats
-  - nginx
-  - osquery
-  - postgresql
-  - redis
-  - santa
-  - system
-  - traefik
-  - activemq
-  - cef
-  - cisco
-  - coredns
-  - envoyproxy
-  - ibmmq
-  - iptables
-  - misp
-  - mssql
-  - panw
-  - rabbitmq
-  - zeek
-  - suricata
-  - netflow
-
+  - module: apache
+  - module: auditd
+  - module: haproxy
+  - module: icinga
+  - module: iis
+  - module: kafka
+  - module: mongodb
+  - module: mysql
+  - module: nats
+  - module: nginx
+  - module: osquery
+  - module: postgresql
+  - module: redis
+  - module: santa
+  - module: system
+  - module: traefik
+  - module: activemq
+  - module: cef
+  - module: cisco
+  - module: coredns
+  - module: envoyproxy
+  - module: ibmmq
+  - module: iptables
+  - module: misp
+  - module: mssql
+  - module: panw
+  - module: rabbitmq
+  - module: zeek
+  - module: suricata
+  - module: netflow
+    log:
+      enabled: true
+      var:
+        netflow_host: localhost
+        netflow_port: 2055
+        internal_networks:
+          - private
+          
 elasticsearch_plugins:
   - repository-s3-{{ elastic_7_version }}.zip
 

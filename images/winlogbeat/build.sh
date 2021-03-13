@@ -11,7 +11,7 @@ pushd $SCRIPT_DIR > /dev/null
 # docker build -t tfplenum/winlogbeat-setup:7.6.2 -f 7.6.2.Dockerfile .
 # docker build -t tfplenum/winlogbeat-setup:7.7.1 -f 7.7.1.Dockerfile .
 # docker build -t tfplenum/winlogbeat-setup:7.8.1 -f 7.8.1.Dockerfile .
-docker build -t tfplenum/winlogbeat-setup:7.9.3 -f 7.9.3.Dockerfile .
-# docker build -t tfplenum/winlogbeat-setup:7.10.0 -f 7.10.0.Dockerfile .
+# docker build -t tfplenum/winlogbeat-setup:7.9.3 -f 7.9.3.Dockerfile .
+docker build -t tfplenum/winlogbeat-setup:7.11.1 -f 7.11.1.Dockerfile .
 
 popd > /dev/null

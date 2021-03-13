@@ -468,3 +468,4 @@
       command: /opt/tfplenum/scripts/retrieve_beats_certs.py
       register: result
       changed_when: result.rc == 0
+...

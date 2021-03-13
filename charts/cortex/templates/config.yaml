@@ -30,9 +30,9 @@ data:
       # Scroll page size.
       #pagesize = 50
       # Number of shards
-      #nbshards = 5
+      nbshards = 1
       # Number of replicas
-      #nbreplicas = 1
+      nbreplicas = 0
       # Arbitrary settings
       #settings {
       #  # Maximum number of nested fields

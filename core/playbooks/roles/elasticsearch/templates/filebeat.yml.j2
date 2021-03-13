@@ -5,10 +5,7 @@ metadata:
   name: filebeat-job-configs
 data:
   filebeat.yml: |
-    filebeat.modules:
-{% for module in filebeat_modules %}
-      - module: {{ module }}
-{% endfor %}
+    filebeat.modules: {{ filebeat_modules }}
 
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
@@ -128,7 +125,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', 'setup']
+        args: ['-e', 'setup', '--index-management', '--pipelines', '--dashboards']
       - name: "filebeat-setup"
         image: "beats/filebeat:{{elastic_7_version}}"
         imagePullPolicy: IfNotPresent
@@ -151,7 +148,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', 'setup']
+        args: ['-e', 'setup', '--index-management', '--pipelines', '--dashboards']
       volumes:
       - name: configs
         configMap:

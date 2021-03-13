@@ -49,4 +49,26 @@
     resource_name: "metricbeat"
     label: ""
 
+- name: Get ES Password
+  shell: |
+    set -o pipefail
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+
+- name: Load Index Policies
+  uri:
+    url: "{{ elastic_url }}/_ilm/policy/metricbeat"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ lookup('template', 'templates/ilm_policy.json.j2') }}"
+    status_code: 200, 201
+  register: policy_results
+  until: policy_results.status == 200
+  retries: 10
+  delay: 5
 ...

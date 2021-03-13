@@ -1,5 +1,5 @@
 FROM golang:1.15.3 as builder
-ARG version=7.10.0
+ARG version=7.11.1
 
 # Install virtualenv. Required for beats build processes.
 RUN apt-get update

@@ -1,7 +1,7 @@
-elastic_image: elasticsearch/elasticsearch:7.9.3
+elastic_image: elasticsearch/elasticsearch:7.11.1
 cortex_image: tfplenum/cortex:3.1.1-1
 python_image: tfplenum/python:3.9.0
-corex_port: 9001
+cortex_port: 9001
 nginx_image: nginx:1.19.6
 elastic_port: 9200
 superadmin_username: cortex_admin

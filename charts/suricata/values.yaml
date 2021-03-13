@@ -13,7 +13,7 @@ affinity_hostname: {}
 ids_log_rotate_interval: 300
 suricata_log_path: /data/suricata
 filebeat_image_name: beats/filebeat
-filebeat_image_tag: 7.9.3
+filebeat_image_tag: 7.11.1
 pcapEnabled: false
 fpc_path: "/data/pcap"
 flow: false
