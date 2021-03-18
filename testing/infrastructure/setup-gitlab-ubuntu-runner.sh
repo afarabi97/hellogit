@@ -27,6 +27,10 @@ EOF
     run_cmd chmod 400 ~/.ssh/config
 }
 
+function install_packages {
+    run_cmd apt-get install ansible-lint -y
+}
+
 function update_system_pkgs {
     run_cmd apt-get update -y
     run_cmd apt-get install open-vm-tools perl curl python3.6 python3-pip sshpass -y
@@ -134,6 +138,7 @@ disable_host_key_checking
 update_system_pkgs
 install_nodejs
 setup_gitlab_runner
+install_packages
 install_requirements
 install_ovftool
 install_sonarscanner

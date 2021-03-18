@@ -1,0 +1,105 @@
+---
+- name: Get ES Password
+  shell: set -o pipefail && kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+
+- name: Get Default Filebeat Template
+  uri:
+    method: GET
+    url: "{{ elastic_url }}/_template/filebeat-{{ elastic_7_version }}"
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: default_template
+  until: default_template.status == 200
+  retries: 10
+  delay: 5
+
+- name: Update Index Template
+  set_fact:
+    external_template: "{{ default_template.json['filebeat-'+elastic_7_version]|combine(external_template_defaults, recursive=True) }}"
+
+- name: Get Default Filebeat Ingest Pipelines
+  uri:
+    method: GET
+    url: "{{ elastic_url }}/_ingest/pipeline/filebeat-{{ elastic_7_version }}*?filter_path=*.description"
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: filebeat_ingest_pipelines
+  until: filebeat_ingest_pipelines.status == 200
+  retries: 10
+  delay: 5
+
+- name: Find Modules with Multiple Pipelines
+  set_fact:
+    multi_pipeline: "{{ multi_pipeline|default({})|combine({dataset: []}, recursive=true)  }}"
+  vars:
+    pipe_arr: "{{ item.key.split('-') }}"
+    dataset: "{{ pipe_arr[2] }}.{{ pipe_arr[3] }}"
+  with_dict: "{{ filebeat_ingest_pipelines.json }}"
+
+- name: Group Pipelines by dataset
+  set_fact:
+    multi_pipeline: "{{ multi_pipeline|combine({dataset: multi_pipeline[dataset] + [ item.key ]}, recursive=true) }}"
+  vars:
+    pipe_arr: "{{ item.key.split('-') }}"
+    dataset: "{{ pipe_arr[2] }}.{{ pipe_arr[3] }}"
+  ignore_errors: yes
+  with_dict: "{{ filebeat_ingest_pipelines.json }}"
+
+- name: Generate Ingest Pipeline Processors
+  set_fact:
+    new_ingest_pipeline_processors: "{{ new_ingest_pipeline_processors|default([]) + [ processor ] }}"
+  vars:
+    pipe_arr: "{{ item.key.split('-') }}"
+    name: "{{ pipe_arr[2] }}"
+    dataset: "{{ pipe_arr[2] }}.{{ pipe_arr[3] }}"
+    fileset: "{{ pipe_arr[2] }}-{{ pipe_arr[3] }}"
+    processor:
+      pipeline:
+        name: "{{ item.key }}"
+        if: "ctx.event.module == '{{ name }}' && ctx.event.dataset == '{{ dataset }}'"
+        description: "{{ item.value.description }}"
+  when: not (multi_pipeline[dataset]|length > 1 and item.key is not search("^.*"+fileset+"-pipeline(-entry)?$") )
+  with_dict: "{{ filebeat_ingest_pipelines.json }}"
+
+- name: Create Pipeline Data
+  set_fact:
+    new_ingest_pipeline:
+      processors: "{{ new_ingest_pipeline_processors }}"
+      description: Ingest Pipeline to dynamically handle filebeat modules.
+      on_failure:
+        - set:
+            value: !unsafe "{{ _ingest.on_failure_message }}"
+            field: error.message
+
+- name: Load Ingest Pipeline
+  uri:
+    url: "{{ elastic_url }}/_ingest/pipeline/{{ filebeat_pipeline_all }}"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ new_ingest_pipeline }}"
+    status_code: 200, 201
+
+- name: Load Filebeat External Template
+  uri:
+    url: "{{ elastic_url }}/_template/{{ filebeat_external_name }}"
+    method: PUT
+    validate_certs: no
+    user: "{{ default_elastic_user }}"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ external_template }}"
+    status_code: 200, 201
+...

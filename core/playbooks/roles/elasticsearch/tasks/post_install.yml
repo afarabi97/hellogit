@@ -132,8 +132,4 @@
     - super_user
     - read_only
     - kibana_admin
-
-
-
-
 ...

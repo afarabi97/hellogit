@@ -5,7 +5,7 @@ nginx_image: nginx:1.19.6
 hive_port: 9000
 cortexIntegration: false
 mispIntegration: false
-superadmin_username: admin
+superadmin_username: admin@thehive.local
 superadmin_password: Password!123456
 read_write_user_username: user@thehive.local
 read_write_user_password: Password!123456

@@ -36,12 +36,6 @@
   register: results
   changed_when: results.rc == 0
 
-- name: Setup filebeat external template and pipeline
-  shell: |
-    /opt/tfplenum/web/setup/setup_filebeat_external.py\
-      --elastic-host elasticsearch.{{ kit_domain }}\
-      --elastic-port {{ elastic_port }}\
-      --elastic-version {{ elastic_7_version }}
-  register: results
-  changed_when: results.rc == 0
-  delegate_to: localhost
+- name: Load External Template and Pipeline
+  import_tasks: setup_filebeat_external.yml
+  tags: load_filebeat_external_items

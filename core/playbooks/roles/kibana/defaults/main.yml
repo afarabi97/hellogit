@@ -3,7 +3,7 @@
 kibana_dir: "{{ install_dir  }}/kibana"
 default_elastic_user: elastic
 elastic_url: "https://{{ elastic_fqdn }}:{{ elastic_port }}"
-hunt_space_siem_idices_payload:
+hunt_space_siem_indices_payload:
   changes:
     securitySolution:defaultIndex:
     - apm-*-transaction*

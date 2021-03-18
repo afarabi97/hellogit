@@ -154,7 +154,7 @@
     body_format: json
     headers:
       kbn-xsrf: true
-    body: "{{ hunt_space_siem_idices_payload }}"
+    body: "{{ hunt_space_siem_indices_payload }}"
     status_code: [200]
   register: results
   until: results.status == 200

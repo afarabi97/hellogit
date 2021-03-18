@@ -30,7 +30,8 @@ data:
     setup.kibana.username: ${ELASTICSEARCH_USERNAME}
     setup.kibana.password: ${ELASTICSEARCH_PASSWORD}
     setup.template.overwrite: false
-    setup.template.enabled: false
+    setup.template.enabled: true
+    setup.template.name: "filebeat-external"
     setup.template.pattern: "filebeat-external-*"
 
     #================================ Outputs =====================================
