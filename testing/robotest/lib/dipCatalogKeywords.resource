@@ -1,3 +1,4 @@
+*** Settings ***
 Resource    ../include/dipCommonVariables.resource
 Resource    ../include/dipCatalogVariables.resource
 

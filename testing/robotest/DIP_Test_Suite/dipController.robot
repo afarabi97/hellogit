@@ -39,5 +39,5 @@ Verify Correct System Name And Version Number
     Click Element    ${locExpandSideNavIcon}
     Element Should Contain  ${locSystemName}  TFPLENUM ${SYSTEM_NAME} Controller  # System Name should be DIP, MIP, or GIP
     Click Element    ${locSupportPageNavIcon}
-    Element Should Contain  ${locSystemVersionNumber}  ${KIT_VERSION}
+    Wait Until Element Contains  ${locSystemVersionNumber}  ${KIT_VERSION}
     Element Should Contain    ${locServiceNowURL}  https://afdco.servicenowservices.com/sp
