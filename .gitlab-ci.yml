@@ -169,7 +169,11 @@ variables:
   TEMPLATE_PATH: "/mnt/drive_creation/templates/"
   DIP_CONTROLLER_PATH: "/mnt/drive_creation/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH\ $TFPLENUM_EXPORT_VERSION/Software/DIP/"
 
-  APP_STORE_DIRECTORY: "PowerShell_Modules"
+  # Options for the export-powershell-modules pipeline.
+  POWERSHELL_MODULES_CPT_EXPORT_DIR: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/CPT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore/PowerShell_Modules"
+  POWERSHELL_MODULES_MDT_EXPORT_DIR: "$MASTER_DRIVE_CREATION_PATH/v$TFPLENUM_EXPORT_VERSION/MDT/Data/CVAH $TFPLENUM_EXPORT_VERSION/Software/AppStore/PowerShell_Modules"
+
+
   DOCS_ARCH_FOLDER: "Architecture"
   DOCS_SETUP_FOLDER: "Setup"
   DOCS_TRAINING_FOLDER: "Training"

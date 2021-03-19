@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script has been modified to configure JUST the environment, and not to 
+# This script has been modified to configure JUST the environment, and not to
 # setup the gitlab-ci or runner components at all.
 # ------------------------------------------------------------------------------
 # POC THISTA: Red Thomas <red.thomas@red-knight.com>, 210.880.5777
@@ -58,10 +58,22 @@ function install_nodejs(){
     run_cmd npm -v
 }
 
+function install_powershell(){
+    # https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux
+    run_cmd apt-get update
+    run_cmd apt-get install -y wget apt-transport-https software-properties-common
+    run_cmd wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+    run_cmd dpkg -i packages-microsoft-prod.deb
+    run_cmd apt-get update
+    run_cmd add-apt-repository universe
+    run_cmd apt-get install -y powershell
+}
+
 update_system_pkgs
 remove_conflicts
 install_nodejs
 install_requirements
 install_ovftool
+install_powershell
 
 popd > /dev/null

@@ -5,12 +5,13 @@ Clear Staging Environment:
   script: |
     echo "IP of runner is $(hostname -I | cut -d " " -f1)"
     echo "Current working directory is $(pwd)"
-    echo "Clear Staging Environment"
+    echo "Clear Staging Environment: $DRIVE_STAGING_FOLDER/"
     rm -fr "$DRIVE_STAGING_FOLDER/"
     mkdir -p "$DRIVE_STAGING_FOLDER/"
   retry: 2
   only:
     variables:
+      - $PIPELINE == "export-powershell-modules"
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 

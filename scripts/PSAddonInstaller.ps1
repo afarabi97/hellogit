@@ -11,7 +11,7 @@
 
 # NOTES:
 
-#    List of community Powershell modules was identified as needed within the MIP's Win 10 Virtual machine. 
+#    List of community Powershell modules was identified as needed within the MIP's Win 10 Virtual machine.
 
 #    Identifies PS Community Modules - https://jira.di2e.net/browse/THISISCVAH-5172
 #    Creation of Script - https://jira.di2e.net/browse/THISISCVAH-5388
@@ -21,7 +21,7 @@
 
 #    C:\PS>
 #	.\PSAssonInstaller -Install (add -Verbose to see output)
-	
+
 #	 Optional parameters:
 #   .\PSAssonInstaller -PullOnly # Pulls modules to a local /tmp or c:\temp (depending on host)
 #	.\PSAssonInstaller -InstallSaved # Installs modules pulled from /tmp or c:\temp (depending on host)
@@ -62,61 +62,7 @@ param(
 )
 
 #==========================================================================================#
-#                  Gets the required dependent packages if not present:
-#==========================================================================================#
-
-if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'NuGet'){
-	Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
-	Register-PackageSource -provider NuGet -name nugetRepository -location https://www.nuget.org/api/v2
-}
-
-if((Get-PackageProvider -ListAvailable | select -ExpandProperty Name) -notcontains 'PowerShellGet'){
-	Install-PackageProvider -Name PowerShellGet -Force -AllowClobber
-}
-
-if((Get-PSRepository | select -ExpandProperty Name) -notcontains 'PSGallery'){
-	Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
-}
-
-#==========================================================================================#
-# 									            Input 
-#                Get values from array within this script/input:
-#==========================================================================================#
-
-$modules = @("Advanced-Threat-Analytics:0.0.12",
-	"ORCA:1.9.11",
-	"CIF3:0.9.0",
-	"PowerSponse:0.3.0",
-	"PSURLhaus:0.4.0",
-	"VMware.VimAutomation.Security:12.1.0.17009513",
-	"NTFSSecurity:4.2.6",
-	"xSystemSecurity:1.5.1",
-	"AzureRM.Security:0.2.0-preview",
-	"CYB3RTools:1.2.1",
-	"DSInternals:4.4.1",
-	"SecurityFever:2.8.1",
-	"Hardening:1.0.1",
-	"psprivilege:0.1.0",
-	"HAWK:1.15.0",
-	"AutoRuns:13.98",
-	"BAMCIS.OffensiveSecurity:1.0.1.3",
-	"PSWinReporting:1.8.1.5",
-	"HardenedPS:0.0.1") | sort
-
-# ---- or ------
-
-#Get values from text file:
-#$modules = Get-Content -Path "C:\Users\ed\Desktop\plugins.txt" -ErrorAction SilentlyContinue
-
-#breaks if no input found:
-
-if(!($modules)){
-	Write-Warning "No Input from file found"
-	break
-}
-
-#==========================================================================================#
-# 								Input Validation 
+# 								Input Validation
 #==========================================================================================#
 
 #Make sure only one of "-Install", "-PullOnly" or "-InstallSaved" is specified
@@ -164,7 +110,7 @@ if ($Linux_Usage) {
 	$MSI_Extension			= ".msi"
 	$Slash				= "\"
 	if (!$Module_Destination) {
-		$Module_Destination	= "C:\Program Files (x86)\WindowsPowerShell\Modules\"
+		$Module_Destination	= "C:\Program Files\PowerShell\Modules\"
 	}
 	if (!$T_Root) {
 		$T_Root			= "C:"
@@ -179,7 +125,7 @@ if ($Linux_Usage) {
 		$PWSH_PATH		= "C:\Program Files\PowerShell\7\pwsh.exe"
 	}
 	if (!$PWSH) {
-		$PWSH			= "PowerShell-7.0.0-win-x64"
+		$PWSH			= "PowerShell-7.1.3-win-x64"
 	}
 }
 $TEMP					= "$T_Root" + "$Slash" + "$T_Dir"
@@ -197,10 +143,10 @@ if(!(Test-Path "$TEMP")){
 
 function installPS7 {
 	write-verbose "Fetching PS7 Stable from github"
-	$url = "https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/$PWSH" + "$MSI_Extension"
+	$url = "https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/$PWSH" + "$MSI_Extension"
 	$dest = "$TEMP"
 	$name = "$PWSH"
-	$output = "$dest" + +"$Slash" + +"$name" + +"$MSI_Extension"
+	$output = "$dest" + "$Slash" + "$name" + "$MSI_Extension"
 	if(!(Test-Path $output)){
 		write-verbose "Downloading $name"
 		$wc = New-Object System.Net.WebClient
@@ -237,7 +183,7 @@ function InstallModules {
 			$modname = $module.Split(":")[0] -replace ",","" -replace '"',""
 			$modversion = $module.Split(":")[1] -replace ",","" -replace '"',""
 			write-verbose -Message "Installing Module $i : $modname $modversion"
-			Install-Module -Name $modname -RequiredVersion $modversion -AllowClobber `
+			Install-Module -Scope AllUsers -Name $modname -RequiredVersion $modversion -AllowClobber `
 				-SkipPublisherCheck -Force -AllowPrerelease -AcceptLicense | Out-Null
 		}
 	}
@@ -245,8 +191,8 @@ function InstallModules {
 	if(($ver) -lt 7){
 
 # MSI Download Link and file:
-# https://github.com/PowerShell/PowerShell/releases/tag/v7.0.0
-# https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/PowerShell-7.0.0-win-x64.msi
+# https://github.com/PowerShell/PowerShell/releases/tag/v7.1.3
+# https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/PowerShell-7.1.3-win-x64.msi
 
 #Checks if PS Version > 6+ installed locally
 
@@ -289,7 +235,7 @@ function PullOnly {
 
 function InstallSavedModules {
 	$Source		= "$Module_Source"		#'C:\temp\*'
-	$Destination	= "$Module_Destination"		#'C:\Program Files (x86)\WindowsPowerShell\Modules\'
+	$Destination	= "$Module_Destination"		#'C:\Program Files\PowerShell\Modules\'
 	if (!(Test-Path -Path "$Destination")) {
 		New-Item -Path "$Destination" -ItemType Directory -Force | Out-Null
 	}
@@ -302,26 +248,29 @@ function InstallSavedModules {
 # Next set of lines gets values from array within this script/input:
 
 $modules = @("Advanced-Threat-Analytics:0.0.12",
-	"ORCA:1.5.3",
-	"CIF3:0.7.0",
+	"ORCA:1.9.11",
+	"ExchangeOnlineManagement:2.0.4",
+	"CIF3:0.9.5",
 	"PowerSponse:0.3.0",
-	"PSURLhaus:0.3.0",
+	"PSURLhaus:0.4.0",
 	"CimSweep:0.6.0.0",
-	"VMware.VimAutomation.Security:12.0.0.15939672",
+	"VMware.VimAutomation.Security:12.1.0.17009513",
 	"NTFSSecurity:4.2.6",
-	"xSystemSecurity:1.5.1",
-	"OpenSSHUtils:1.0.0.1",
-	"AzureRM.Security:0.2.0-preview",
+	"Az.Security:0.9.0",
 	"CYB3RTools:1.2.1",
-	"DSInternals:4.3",
+	"DSInternals:4.4.1",
 	"SecurityFever:2.8.1",
 	"Hardening:1.0.1",
 	"psprivilege:0.1.0",
-	"HAWK:1.15.0",
-	"AutoRuns:13.95",
+	"HAWK:2.0.0",
+	"AutoRuns:13.98",
 	"BAMCIS.OffensiveSecurity:1.0.1.3",
-	"PSWinReporting:1.8.1.5",
-	"HardenedPS:0.0.1") | sort
+    "BAMCIS.UserAccounts:1.0.1",
+    "BAMCIS.DynamicParam:1.0.0.0",
+    "PSWinReportingV2:2.0.20",
+	"HardenedPS:0.0.1",
+    "ComputerManagementDsc:8.4.1-preview0003",
+    "FileSystemDsc:1.2.0-preview0002") | sort
 
 # ---- or ------
 
