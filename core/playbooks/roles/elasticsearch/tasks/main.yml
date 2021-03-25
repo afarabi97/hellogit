@@ -33,3 +33,6 @@
 - import_tasks: "load_ml.yml"
   when: inventory_hostname in groups['master_server'] and enable_ml
   tags: load-ml
+
+- import_tasks: "deploy_maps_service.yml"
+  when: inventory_hostname in groups['master_server'] and enable_maps

@@ -1,0 +1,52 @@
+
+- name: Uninstall Map Server
+  command: "kubectl delete {{ item }} --ignore-not-found"
+  ignore_errors: yes
+  with_items:
+    - deployment elastic-maps-server
+  register: result
+  changed_when: result.rc == 0
+
+- name: Wait for all Map Server pods to die
+  shell: |
+    while [ $(kubectl get pods --no-headers | awk '{ print $1 }' | grep elastic-maps-server | tail -n +0 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: result
+  changed_when: result.rc == 0
+  failed_when: result.rc != 0
+  ignore_errors: yes
+
+- name: Copy Map Server Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ elastic_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items:
+    - maps_server.yml
+    - ems_certificate.yml
+
+- name: Install EMS Certificate
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/ems_certificate.yml
+  register: result
+  changed_when: result.rc == 0
+
+- name: Install Map Server
+  shell: |
+    kubectl apply -f {{ elastic_dir }}/maps_server.yml
+  register: result
+  changed_when: result.rc == 0
+
+- name: Wait for Map Server to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "elastic-maps-server"
+    label: ""

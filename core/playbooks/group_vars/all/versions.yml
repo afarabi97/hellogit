@@ -63,6 +63,7 @@ kube_images:
   - { image: "docker.elastic.co/kibana/kibana:{{ elastic_7_version }}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/logstash/logstash:{{ elastic_7_version }}", for_dip: true, for_gip: true }
   - { image: "docker.elastic.co/eck/eck-operator:{{ elastic_operator }}", for_dip: true, for_gip: true }
+  - { image: "docker.elastic.co/elastic-maps-service/elastic-maps-server-ubi8:{{ elastic_7_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/windows_remote_installer:{{ window_remote_installer_version }}", for_dip: true, for_gip: false }
   - { image: "docker.io/tfplenum/cortex:{{ hive_cortex_version }}", for_dip: true, for_gip: true }
   - { image: "docker.io/thehiveproject/thehive4:{{ hive_version }}", for_dip: true, for_gip: true }

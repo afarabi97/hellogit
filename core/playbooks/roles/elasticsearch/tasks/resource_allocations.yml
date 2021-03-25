@@ -6,6 +6,7 @@
     master_count: 3
     coordinating_count: 1
     enable_ml: True
+    enable_maps: True
 
 #- name: Multiple Masters if more than 2 servers are available
 #  set_fact:
@@ -129,6 +130,9 @@
       ml_num_procs: "8000m"
       ml_count: 4
     when: kit_size == 100
+  - name: Disable Maps
+    set_fact:
+      enable_maps: False
   when: system_name == "GIP"
 
 - name: Set Index Rollover Size

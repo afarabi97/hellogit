@@ -51,6 +51,9 @@ spec:
         order: 1
     monitoring.kibana.collection.interval: 30000
     elasticsearch.ssl.certificateAuthorities: /etc/ssl/certs/container/ca.crt
+{% if enable_maps %}
+    map.emsUrl: "https://elastic-maps-server.{{ kit_domain }}"
+{% endif %}
   secureSettings:
   - secretName: kibana-key-secret-settings
   - secretName: kibana-alert-secret-settings

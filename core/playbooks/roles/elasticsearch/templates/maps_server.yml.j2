@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastic-maps-service-configs
+data:
+  elastic-maps-server.yml: |
+    elasticsearch.host: 'https://elasticsearch.default.svc.cluster.local:9200'
+    elasticsearch.username: 'elastic'
+    elasticsearch.password: ${ELASTICSEARCH_PASSWORD}
+    elasticsearch.ssl.certificateAuthorities: [ "/etc/ssl/certs/container/ca.crt" ]
+    elasticsearch.ssl.verificationMode: 'full'
+    path.planet: "/usr/src/app/data/planet.mbtiles"
+    elasticsearch.ssl.certificate: /etc/ssl/certs/elasticsearch/tls.crt
+    elasticsearch.ssl.key: /etc/ssl/certs/elasticsearch/tls.key
+    ssl.enabled: true
+    ssl.certificate: /etc/ssl/certs/container/tls.crt
+    ssl.key: /etc/ssl/certs/container/tls.key
+    port: 4343
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elastic-maps-server
+  labels:
+    component: elastic-maps-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: elastic-maps-server
+  template:
+    metadata:
+      labels:
+        component: elastic-maps-server
+        app: elastic-maps-server
+    spec:
+      containers:
+      - name: maps-server
+        image: elastic-maps-service/elastic-maps-server-ubi8:{{ elastic_7_version }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4343
+          name: https
+        env:
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tfplenum-es-elastic-user
+              key: elastic
+        volumeMounts:
+        - name: configs
+          subPath: elastic-maps-server.yml
+          mountPath: /usr/src/app/server/config/elastic-maps-server.yml
+          readOnly: true
+        - name: emscerts
+          mountPath: /etc/ssl/certs/container
+          readOnly: true
+        - name: escerts
+          mountPath: /etc/ssl/certs/elasticsearch
+          readOnly: true
+      volumes:
+      - name: emscerts
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: ems-certificate
+      - name: escerts
+        secret:
+          defaultMode: 420
+          optional: false
+          secretName: elasticsearch-certificate
+      - name: configs
+        configMap:
+          name: elastic-maps-service-configs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elastic-maps-server
+  labels:
+    component: elastic-maps-server
+spec:
+  selector:
+    component: elastic-maps-server
+  ports:
+  - name: http
+    port: 443
+    targetPort: 4343
+  type: LoadBalancer

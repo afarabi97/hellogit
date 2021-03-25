@@ -16,6 +16,7 @@ from app.kit_controller import _get_domain
 
 DISCLUDES = ("elasticsearch",
         "elasticsearch-headless",
+        "elastic-maps-server",
         "mysql",
         "logstash",
         "chartmuseum",

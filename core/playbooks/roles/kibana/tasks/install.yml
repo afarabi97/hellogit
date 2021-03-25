@@ -44,6 +44,11 @@
     - create-kibana-space
     - enable-detections
 
+- name: Resource allocation
+  include_tasks:
+    file: "{{ resource_allocation }}"
+  when: inventory_hostname in groups['master_server']
+
 - name: Copy Kibana Templates
   template:
     src: "templates/{{ item }}.j2"

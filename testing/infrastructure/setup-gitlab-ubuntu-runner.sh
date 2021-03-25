@@ -29,6 +29,7 @@ EOF
 
 function install_packages {
     run_cmd apt-get install ansible-lint -y
+    run_cmd apt-get install zip -y
 }
 
 function update_system_pkgs {

@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: elastic-maps-service
+  namespace: default
+spec:
+  # Secret names are always required.
+  secretName: ems-certificate
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: elastic-maps-service
+  subject:
+   organizations:
+   - "CVA/H"
+   countries:
+   - "US"
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+  dnsNames:
+  - elastic-maps-server
+  - elastic-maps-server.{{ kit_domain }}
+  - elastic-maps-server.{{ fqdn }}
+  issuerRef:
+    name: webca-issuer
+    kind: Issuer
+    group: cert-manager.io
