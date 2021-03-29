@@ -33,10 +33,9 @@
     dest: /etc/default/minio
 
 - name: Install the MinIO systemd service file.
-  get_url:
-    url: "{{ minio_systemd_service_url }}"
+  copy:
+    src: "{{ minio_systemd_service }}"
     dest: /etc/systemd/system/minio.service
-    checksum: "sha256:{{ minio_systemd_service_sha256 }}"
   notify: "Reload the systemd daemon."
 
 - name: Open the port that the MinIO server is listening on.

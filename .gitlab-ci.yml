@@ -93,7 +93,7 @@ variables:
   MINIO_MEMORY: 8192
   MINIO_CPU: 2
   MINIO_VM: "no"
-  MINIO_TEMPLATE_TO_CLONE: "jdms-rhel7-template"
+  MINIO_TEMPLATE_TO_CLONE: "MinIO_Template"
   MINIO_DISK_SIZE: 10
 
   # Hardware specific variables

@@ -30,6 +30,7 @@ EOF
 function install_packages {
     run_cmd apt-get install ansible-lint -y
     run_cmd apt-get install zip -y
+    run_cmd apt-get install nmap -y
 }
 
 function update_system_pkgs {

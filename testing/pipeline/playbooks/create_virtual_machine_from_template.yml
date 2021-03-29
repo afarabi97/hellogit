@@ -33,6 +33,12 @@
         validate_certs: False
       delegate_to: localhost
 
+    - debug:
+        var: networks
+
+    - debug:
+        var: customization
+
     - name: "Create a new virtual machine named {{ vmname }} from the {{ template }} template."
       vmware_guest:
         hostname: "{{ vcenter.hostname }}"
@@ -51,4 +57,3 @@
         disk: "{{ disks }}"
       delegate_to: localhost
       register: result
-    
