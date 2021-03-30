@@ -181,7 +181,6 @@ export class AddNodeComponent implements OnInit {
         result => {
           if(result == doItText) {
             this.kitSrv.executeAddNode(this.kitNode.getRawValue()).subscribe(data => {
-              this.systemSetupSrv.displaySnackBar("Some Error");
               this.openKitConsole(data['job_id']);
             });
           }

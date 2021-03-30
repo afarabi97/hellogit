@@ -178,9 +178,9 @@ export class SecurityAlertsComponent implements OnInit {
     if (timeInterval == "days"){
       initalDate.setDate(initalDate.getDate() - timeAmt);
     } else if (timeInterval === "hours"){
-      initalDate.setHours(initalDate.getDate() - timeAmt);
+      initalDate.setHours(initalDate.getHours() - timeAmt);
     } else if (timeInterval === "minutes") {
-      initalDate.setMinutes(initalDate.getDate() - timeAmt);
+      initalDate.setMinutes(initalDate.getMinutes() - timeAmt);
     }
 
     this.controlForm.get('startDatetime').setValue(initalDate);
@@ -210,6 +210,7 @@ export class SecurityAlertsComponent implements OnInit {
       const acknowledge = this.isacknowledgedChecked();
       const escalated = this.isEscalatedChecked();
       const showClosed = this.isShowClosedChecked()
+      this.saveCookies();
       this.alertSrv.getAlerts(this.dynamicColumns.join(","),
                               this.getStartDatetime(),
                               this.getEndDatetime(),
@@ -277,10 +278,14 @@ export class SecurityAlertsComponent implements OnInit {
     this.alerts.paginator = this.paginator;
   }
 
+  private saveCookies(){
+    this.cookieService.set("dynamic-column", JSON.stringify(this.dynamicColumns));
+    this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
+    this.cookieService.set('autoRefresh', this.autoRefresh.toString());
+  }
+
   ngOnDestroy(){
-      this.cookieService.set("dynamic-column", JSON.stringify(this.dynamicColumns));
-      this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
-      this.cookieService.set('autoRefresh', this.autoRefresh.toString());
+      this.saveCookies();
       //Turn off auto refresh when we leave the page so its not running in the background.
       this.autoRefresh = false;
   }
