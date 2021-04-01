@@ -18,7 +18,7 @@ from app.utils.elastic import ElasticWrapper
 from app.service.hive_service import HiveService, HiveFailureError, configure_webhook
 
 
-DEFAULT_INDEXES = "filebeat-suricata-*,filebeat-zeek-*,endgame-*"
+DEFAULT_INDEXES = "filebeat-suricata-*,filebeat-zeek-*,endgame-*,filebeat-external-*"
 SIGNAL_INDEX = ".siem-signals-default"
 ALL_INDEXES = DEFAULT_INDEXES + "," + SIGNAL_INDEX
 ELASTIC_TIMEOUT = 20
