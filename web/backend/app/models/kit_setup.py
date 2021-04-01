@@ -552,11 +552,11 @@ class DIPKickstartForm(KickstartBase):
     def load_from_db(cls, query: Dict={"_id": KICKSTART_ID}) -> Model:
         mongo_document = conn_mng.mongo_kickstart.find_one(query)
         if mongo_document:
+            mongo_document['root_password'] = decode_password(mongo_document['root_password'])
             node_ids = mongo_document.pop("nodes") # List[str]
             kickstart = cls.schema.load(mongo_document, partial=("nodes",))
             nodes = Node.load_from_db(node_ids)
             kickstart.nodes = nodes
-            kickstart.root_password = decode_password(kickstart.root_password)
             return kickstart
 
         raise DBModelNotFound("Kickstart has not been saved yet.")
@@ -697,11 +697,12 @@ class MIPKickstartForm(KickstartBase):
     def load_from_db(cls, query: Dict={"_id": KICKSTART_ID}) -> Model:
         mongo_document = conn_mng.mongo_kickstart.find_one(query)
         if mongo_document:
+            mongo_document['root_password'] = decode_password(mongo_document['root_password'])
+            mongo_document['luks_password'] = decode_password(mongo_document['luks_password'])
             node_ids = mongo_document.pop("nodes") # List[str]
             kickstart = cls.schema.load(mongo_document, partial=("nodes",))
             nodes = MIP.load_from_db(node_ids)
             kickstart.nodes = nodes
-            kickstart.root_password = decode_password(kickstart.root_password)
             return kickstart
 
         raise DBModelNotFound("Kickstart has not been saved yet.")

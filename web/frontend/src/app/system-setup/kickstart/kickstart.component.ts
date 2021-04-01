@@ -224,7 +224,7 @@ export class KickstartComponent implements OnInit {
 
     if (this.system_name === "MIP") {
       let luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.luks_password)]));
-      let confirm_luks_password_control = new FormControl(kickstartForm ? kickstartForm.confirm_luks_password : '', Validators.compose([validateFromArray(kickstart_validators.confirm_luks_password, { parentControl: luks_password_control })]));
+      let confirm_luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.confirm_luks_password, { parentControl: luks_password_control })]));
 
       kickstartFormGroup.addControl('luks_password', luks_password_control);
       kickstartFormGroup.addControl('confirm_luks_password', confirm_luks_password_control);
