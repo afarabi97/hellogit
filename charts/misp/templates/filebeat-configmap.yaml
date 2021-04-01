@@ -21,6 +21,7 @@ data:
         var.ssl.verification_mode: none
 
   filebeat.yml: |-
+
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
 

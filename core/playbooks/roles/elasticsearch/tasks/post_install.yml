@@ -103,6 +103,7 @@
     - filebeat-suricata
     - filebeat-misp
     - filebeat-zeek
+    - filebeat-netflow
   register: policy_results
   until: policy_results.status == 200
   retries: 10

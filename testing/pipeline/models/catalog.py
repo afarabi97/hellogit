@@ -159,6 +159,7 @@ class NetflowFilebeatSettings(Model):
         self.node_hostname = "server"
         self.affinity_hostname = "Server - Any"
         self.deployment_name = "netflow-filebeat"
+        self.home_net = ["any"]
 
 
 class CatalogSettings(Model):

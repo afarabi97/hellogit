@@ -38,6 +38,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-alert*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -49,7 +51,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-alert*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"']
         {{ if .Values.flow }}
       - name: filebeat-suricata-http
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
@@ -72,6 +74,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-http*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -83,7 +87,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-http"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-http*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-http"']
       - name: filebeat-suricata-dns
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -105,6 +109,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-dns*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -116,7 +122,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-dns*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"']
       - name: filebeat-suricata-tls
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -138,6 +144,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-tls*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -149,7 +157,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-tls*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"']
       - name: filebeat-suricata-flow
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -171,6 +179,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-flow*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -182,7 +192,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-flow*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"']
       - name: filebeat-suricata-apps
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -204,6 +214,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-apps*.json"
         volumeMounts:
         - name: data
           mountPath: {{ .Values.suricata_log_path }}
@@ -215,7 +227,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}-apps"', '--modules', 'suricata', '-M', 'suricata.eve.var.paths=[{{ .Values.suricata_log_path }}/eve-apps*.json]', '-M', 'suricata.eve.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}-apps"']
         {{ end }}
       volumes:
       - name: data

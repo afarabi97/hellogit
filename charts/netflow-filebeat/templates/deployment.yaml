@@ -44,7 +44,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'netflow', '-M', 'netflow.log.enabled=true', '-M','netflow.log.var.netflow_host=0.0.0.0', '-M','netflow.log.var.netflow_port={{ .Values.netflow_port }}']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"']
       volumes:
       - name: configs
         configMap:

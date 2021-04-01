@@ -8,9 +8,18 @@ metadata:
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
   filebeat.yml: |
+
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
+
+    filebeat.modules:
+    - module: suricata
+      eve:
+        enabled: true
+        var.paths:
+        - ${LOG_PATH}
+        var.tags: [forwarded]
 
     #==================== Elasticsearch template setting ==========================
 

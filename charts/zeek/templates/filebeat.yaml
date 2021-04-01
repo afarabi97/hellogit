@@ -49,7 +49,7 @@ spec:
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
-        args: ['-e', '-E', 'name="{{ .Release.Name }}"', '--modules', 'zeek', '-M', 'zeek.*.var.tags=[forwarded]']
+        args: ['-e', '-E', 'name="{{ .Release.Name }}"']
       volumes:
       - name: data
         hostPath:
@@ -81,5 +81,4 @@ spec:
                 values:
                 - zeek-logshipper
             topologyKey: "kubernetes.io/hostname"
-
 ...

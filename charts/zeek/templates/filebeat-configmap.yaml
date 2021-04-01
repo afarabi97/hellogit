@@ -9,9 +9,124 @@ metadata:
     "helm.sh/hook-delete-policy": "before-hook-creation"
 data:
   filebeat.yml: |
+
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
+
+    filebeat.modules:
+    - module: zeek
+      capture_loss:
+        enabled: true
+        var.tags: [forwarded]
+      connection:
+        enabled: true
+        var.tags: [forwarded]
+      dce_rpc:
+        enabled: true
+        var.tags: [forwarded]
+      dhcp:
+        enabled: true
+        var.tags: [forwarded]
+      dnp3:
+        enabled: true
+        var.tags: [forwarded]
+      dns:
+        enabled: true
+        var.tags: [forwarded]
+      dpd:
+        enabled: true
+        var.tags: [forwarded]
+      files:
+        enabled: true
+        var.tags: [forwarded]
+      ftp:
+        enabled: true
+        var.tags: [forwarded]
+      http:
+        enabled: true
+        var.tags: [forwarded]
+      intel:
+        enabled: true
+        var.tags: [forwarded]
+      irc:
+        enabled: true
+        var.tags: [forwarded]
+      kerberos:
+        enabled: true
+        var.tags: [forwarded]
+      modbus:
+        enabled: true
+        var.tags: [forwarded]
+      mysql:
+        enabled: true
+        var.tags: [forwarded]
+      notice:
+        enabled: true
+        var.tags: [forwarded]
+      ntlm:
+        enabled: true
+        var.tags: [forwarded]
+      ocsp:
+        enabled: true
+        var.tags: [forwarded]
+      pe:
+        enabled: true
+        var.tags: [forwarded]
+      radius:
+        enabled: true
+        var.tags: [forwarded]
+      rdp:
+        enabled: true
+        var.tags: [forwarded]
+      rfb:
+        enabled: true
+        var.tags: [forwarded]
+      sip:
+        enabled: true
+        var.tags: [forwarded]
+      smb_cmd:
+        enabled: true
+        var.tags: [forwarded]
+      smb_files:
+        enabled: true
+        var.tags: [forwarded]
+      smb_mapping:
+        enabled: true
+        var.tags: [forwarded]
+      smtp:
+        enabled: true
+        var.tags: [forwarded]
+      snmp:
+        enabled: true
+        var.tags: [forwarded]
+      socks:
+        enabled: true
+        var.tags: [forwarded]
+      ssh:
+        enabled: true
+        var.tags: [forwarded]
+      ssl:
+        enabled: true
+        var.tags: [forwarded]
+      stats:
+        enabled: true
+        var.tags: [forwarded]
+      syslog:
+        enabled: true
+        var.tags: [forwarded]
+      traceroute:
+        enabled: true
+        var.tags: [forwarded]
+      tunnel:
+        enabled: true
+        var.tags: [forwarded]
+      weird:
+        enabled: true
+        var.tags: [forwarded]
+      x509:
+        enabled: true
+        var.tags: [forwarded]
 
     #==================== Elasticsearch template setting ==========================
     setup.template.settings:
@@ -19,6 +134,7 @@ data:
       index.number_of_replicas: 1
       index.refresh_interval: 30s
       #index.merge.scheduler.max_thread_count: 1
+      setup.template.overwrite: false
 
     setup.ilm:
       policy_name: filebeat-zeek
