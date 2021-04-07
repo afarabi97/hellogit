@@ -329,9 +329,15 @@ class WinRunner:
 
     def notify_failure(self, action: str, host: str, err_msg: str, ansible_error: str=None):
         if ansible_error:
-            self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}".format(action, host, err_msg, ansible_error))
+            self._notification.set_message("Failed to {} {} because of error: {} ansible_error: {}. \
+                                            Check /var/log/tfplenum/rq.log for more details. \
+                                            If your package contains Endgame check the \
+                                            /var/log/tfplenum/endgame_install_<host or IP>.log for more details.".format(action, host, err_msg, ansible_error))
         else:
-            self._notification.set_message("Failed to {} {} because of error: {}".format(action, host, err_msg))
+            self._notification.set_message("Failed to {} {} because of error: {} \
+                                            Check /var/log/tfplenum/rq.log for more details. \
+                                            If your package contains Endgame check the \
+                                            /var/log/tfplenum/endgame_install_<host or IP>.log for more details.".format(action, host, err_msg))
         self._notification.set_status(NotificationCode.ERROR.name)
         self._notification.post_to_websocket_api()
 
@@ -344,7 +350,9 @@ class WinRunner:
         self._notification.post_to_websocket_api()
 
     def notify_success(self, action: str, hostname_or_ip: str):
-        msg = "%s %s successfully completed for Windows host: %s." % (_JOB_NAME.capitalize(), action, hostname_or_ip)
+        msg = "%s %s successfully completed for Windows host: %s. \
+               If your package contains Endgame check the \
+               /var/log/tfplenum/endgame_install_<host or IP>.log for more details." % (_JOB_NAME.capitalize(), action, hostname_or_ip)
         self._notification.set_message(msg)
         self._notification.set_status(NotificationCode.COMPLETED.name)
         self._notification.post_to_websocket_api()
@@ -426,6 +434,13 @@ class WinRunner:
                     self._set_installer()
                     self._move_agent_installer()
                     self._run_post_operatios_over_smb()
+
+                    if not isinstance(self._hostname_or_ip, list):
+                        self._hostname_or_ip = [self._hostname_or_ip]
+
+                    for host in self._hostname_or_ip:
+                        self._winapi.pull_file("C:\\tfplenum_agent\\endgame\\install.log",
+                                               "/var/log/tfplenum/endgame_install_{}.log".format(host))
                 finally:
                     self._winapi.cleanup_smb_command_operations()
             else:

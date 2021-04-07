@@ -19,8 +19,10 @@ function uninstall_endgame(){
     $installer_name = $(dir "*.exe").name
     $config_name = $(dir "*.cfg").name
     $my_exe = ".\$installer_name"
-    $arguments = " -k {{ template_ctx.api_token }} -c $config_name -u force"
-    Start-Process $my_exe $arguments -NoNewWindow
+    $arguments = " -k {{ template_ctx.api_token }} -c $config_name -u force -d false -l $Script:script_path\uninstall.log"
+    $process = (Start-Process $my_exe $arguments -NoNewWindow -Wait -PassThru)
+    $process.WaitForExit()
+    $return_value = $process.ExitCode
     Set-Location -Path $Script:script_path
 }
 

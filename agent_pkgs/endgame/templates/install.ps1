@@ -19,8 +19,10 @@ function install_endgame(){
     $installer_name = $(dir "*.exe").name
     $config_name = $(dir "*.cfg").name
     $my_exe = ".\$installer_name"
-    $arguments = " -k {{ template_ctx.api_token }} -c $config_name"
-    Start-Process $my_exe $arguments -NoNewWindow
+    $arguments = " -k {{ template_ctx.api_token }} -c $config_name -l $Script:script_path\install.log -d false"
+    $process = (Start-Process $my_exe $arguments -NoNewWindow -Wait -PassThru)
+    $process.WaitForExit()
+    $return_value = $process.ExitCode
     Set-Location -Path $Script:script_path
 }
 

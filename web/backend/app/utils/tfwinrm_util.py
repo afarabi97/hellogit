@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 
+from app import rq_logger
 from app.models.cold_log import WinlogbeatInstallModel
 from ansible import context
 from ansible.cli import CLI
@@ -270,6 +271,15 @@ class WindowsConnectionManager:
         finally:
             self._smb_conn.close()
 
+    def _pull_over_smb(self, remote_src: str, local_dest: str):
+        self._smb_conn.connect(self._host, self._port)
+        try:
+            remote_src = remote_src.replace("C:\\", "")
+            with open(local_dest, 'rb') as file:
+                self._smb_conn.retrieveFile("C$", remote_src, file)
+        finally:
+            self._smb_conn.close()
+
     def push_file(self, local_source_file: Union[str, Path],
                         remote_dest_path: str) -> None:
         source = local_source_file
@@ -281,6 +291,13 @@ class WindowsConnectionManager:
 
         if self._protocol == WINRM_PROTOCOLS[3]:
             self._send_over_smb(str(source), remote_dest_path)
+        else:
+            raise ProtocolNotSupported("push_file not supported for {}".format(self._protocol))
+
+    def pull_file(self, remote_src: str,
+                  local_dest: str):
+        if self._protocol == WINRM_PROTOCOLS[3]:
+            self._pull_over_smb(remote_src, local_dest)
         else:
             raise ProtocolNotSupported("push_file not supported for {}".format(self._protocol))
 
