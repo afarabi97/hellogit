@@ -55,21 +55,22 @@ class DeviceFactsCtrl(Resource):
     @api.doc(description="Gathers the device facts and displays it in the form of JSON.")
     def get(self, management_ip: str):
         try:
+            if management_ip in ["127.0.0.1", "localhost"]:
+                return create_device_facts_from_ansible_setup("localhost", "").to_dict()
             try:
-                current_config = DIPKickstartForm.load_from_db()
-            except ValidationError:
-                current_config = MIPKickstartForm.load_from_db()
-            device_facts = create_device_facts_from_ansible_setup(
-                                management_ip, current_config.root_password)
-            return device_facts.to_dict()
-        except DBModelNotFound as e:
-            device_facts = create_device_facts_from_ansible_setup(
-                                management_ip, "")
-            return device_facts.to_dict()
+                return create_device_facts_from_ansible_setup(management_ip, get_kickstart_form_from_db().root_password).to_dict()
+            except DBModelNotFound as e:
+                return create_device_facts_from_ansible_setup(management_ip, "").to_dict()
+
         except Exception as e:
             logger.exception(e)
             return {"error_message": str(e)}, 400
 
+def get_kickstart_form_from_db():
+    try:
+        return DIPKickstartForm.load_from_db()
+    except ValidationError:
+        return MIPKickstartForm.load_from_db()
 
 def _is_valid_ip_block(available_ip_addresses: List[str], index: int) -> bool:
     """
