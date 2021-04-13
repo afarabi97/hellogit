@@ -122,38 +122,6 @@
         <!-- System Settings   -->
         <section fxLayout="column" fxLayoutAlign="start stretch">
           <h5>System Settings</h5>
-          <ng-container *ngIf="system_name == 'MIP'">
-            <!-- LUKs Password -->
-            <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password">
-              <mat-label>LUKs Password</mat-label>
-              <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-input"
-                     type="password" placeholder="You must enter a password for disk encryption."
-                     formControlName="luks_password" matTooltip="{{ getTooltip('luks_password') }}">
-              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('luks_password').valid &&
-                                         kickStartFormGroup.get('luks_password').touched"
-                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-mat-icon-check-circle"
-                        color="primary">check_circle</mat-icon>
-              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('luks_password').invalid &&
-                                         kickStartFormGroup.get('luks_password').touched"
-                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-mat-icon-error"
-                        color="warn">error</mat-icon>
-            </mat-form-field>
-            <!-- Confirm LUKs Password -->
-            <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password">
-              <mat-label>Confirm LUKs Password</mat-label>
-              <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-input"
-                     type="password" placeholder="You must enter a password for disk encryption."
-                     formControlName="confirm_luks_password" matTooltip="{{ getTooltip('confirm_luks_password') }}">
-              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('confirm_luks_password').valid &&
-                                         kickStartFormGroup.get('confirm_luks_password').touched"
-                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-mat-icon-check-circle"
-                        color="primary">check_circle</mat-icon>
-              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('confirm_luks_password').invalid &&
-                                         kickStartFormGroup.get('confirm_luks_password').touched"
-                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-mat-icon-error"
-                        color="warn">error</mat-icon>
-            </mat-form-field>
-          </ng-container>
           <ng-container *ngIf="system_name === 'DIP' || system_name === 'GIP'">
             <!-- Domain -->
             <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-domain">
@@ -170,8 +138,42 @@
               <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-domain-mat-error">{{ getErrorMessage(kickStartFormGroup.get("domain")) }}</mat-error>
             </mat-form-field>
           </ng-container>
-          <!-- Root Password -->
           <app-password-message id="app-kickstart-form-div-mat-card-mat-card-content-section-app-password-message"></app-password-message>
+          <ng-container *ngIf="system_name == 'MIP'">
+            <!-- LUKs Password -->
+            <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password">
+              <mat-label>LUKs Password</mat-label>
+              <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-input"
+                     (keyup)="reEvaluateLUKS($event)" type="password" placeholder="You must enter a password for disk encryption."
+                     formControlName="luks_password" matTooltip="{{ getTooltip('luks_password') }}">
+              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('luks_password').valid &&
+                                         kickStartFormGroup.get('luks_password').touched"
+                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-mat-icon-check-circle"
+                        color="primary">check_circle</mat-icon>
+              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('luks_password').invalid &&
+                                         kickStartFormGroup.get('luks_password').touched"
+                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-mat-icon-error"
+                        color="warn">error</mat-icon>
+              <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-luks-password-mat-error">{{getErrorMessage(kickStartFormGroup.get("luks_password"))}}</mat-error>
+            </mat-form-field>
+            <!-- Confirm LUKs Password -->
+            <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password">
+              <mat-label>Confirm LUKs Password</mat-label>
+              <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-input"
+                     (keyup)="reEvaluateLUKS($event)" type="password" placeholder="You must enter a password for disk encryption."
+                     formControlName="confirm_luks_password" matTooltip="{{ getTooltip('confirm_luks_password') }}">
+              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('confirm_luks_password').valid &&
+                                         kickStartFormGroup.get('confirm_luks_password').touched"
+                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-mat-icon-check-circle"
+                        color="primary">check_circle</mat-icon>
+              <mat-icon matSuffix *ngIf="kickStartFormGroup.get('confirm_luks_password').invalid &&
+                                         kickStartFormGroup.get('confirm_luks_password').touched"
+                        id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-mat-icon-error"
+                        color="warn">error</mat-icon>
+              <mat-error id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-confirm-luks-password-mat-error">{{getErrorMessage(kickStartFormGroup.get("confirm_luks_password"))}}</mat-error>
+            </mat-form-field>
+          </ng-container>
+          <!-- Root Password -->
           <mat-form-field id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-root-password">
             <mat-label>Root Password</mat-label>
             <input matInput id="app-kickstart-form-div-mat-card-mat-card-content-section-mat-form-field-root-password-input"

@@ -605,6 +605,7 @@ APP_MIP_CONFIG__TITLE_MAT_RADIO_GROUP = 'app-mip-config-div-mat-card-mat-card-he
 APP_MIP_CONFIG__TITLE_MAT_RADIO_BUTTON_CPT = 'app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-radio-group-mat-radio-button-cpt' # mat-radio-button
 APP_MIP_CONFIG__TITLE_MAT_RADIO_BUTTON_MDT = 'app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-radio-group-mat-radio-button-mdt' # mat-radio-button
 APP_MIP_CONFIG__TITLE_MAT_CHECKBOX_USE_SAME_PASSWORD = 'app-mip-config-div-mat-card-mat-card-header-mat-card-title-div-mat-checkbox-use-same-password' # mat-checkbox
+APP_MIP_CONFIG__APP_PASSWORD_MESSAGE = 'app-mip-config-div-mat-card-mat-card-content-app-password-message'
 APP_MIP_CONFIG__APP_CONFIG_PASSWORD__ASSESSOR_PW = 'app-mip-config-div-mat-card-mat-card-content-app-config-password-assessor-pw' # app-mip-config-password (internal)
 APP_MIP_CONFIG__APP_CONFIG_PASSWORD__USAF_ADMIN_PW = 'app-mip-config-div-mat-card-mat-card-content-app-config-password-usaf-admin-pw' # app-mip-config-password (internal)
 APP_MIP_CONFIG__APP_CONFIG_PASSWORD__ADMIN_PW = 'app-mip-config-div-mat-card-mat-card-content-app-config-password-admin-pw' # app-mip-config-password (internal)

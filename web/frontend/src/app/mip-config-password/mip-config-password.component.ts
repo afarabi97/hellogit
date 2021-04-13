@@ -59,17 +59,14 @@ export class MIPConfigPasswordComponent implements OnInit, OnChanges {
       const capitalizedName = this.capitalize(this.name);
 
       const vpassword = [
-        { ops: { pattern: /^.{6,}$/ }, error_message: `You must enter a ${this.name} password with a minimum length of 6 characters.`, validatorFn: 'pattern' },
-        { error_message: `${capitalizedName} password is required.`, validatorFn: 'required' }
+        { error_message: `The ${this.name} password did not meet password requirements.`, validatorFn: 'password' }
       ];
 
       const vconfirm_password = [
-        { ops: { pattern: /^.{6,}$/ }, error_message: `You must enter a ${this.name} password with a minimum length of 6 characters.`, validatorFn: 'pattern' },
-        { error_message: `The passwords for ${this.name} do not match. Please retype them carefully.`, validatorFn: 'fieldMatch' },
-        { error_message: `Retyping ${this.name} password is required.`, validatorFn: 'required' }
+        { error_message: `The passwords for ${this.name} do not match. Please retype them carefully.`, validatorFn: 'fieldMatch' }
       ];
 
-      const password = new FormControl(null, Validators.compose([validateFromArray(vpassword)]));
+      const password = new FormControl(null, Validators.compose([validateFromArray(vpassword, { error_message_subject: `The ${this.name} password`})]));
       const confirm_password = new FormControl(null, Validators.compose([validateFromArray(vconfirm_password, { parentControl: password })]));
       const name = new FormControl(this.name);
 
@@ -91,5 +88,12 @@ export class MIPConfigPasswordComponent implements OnInit, OnChanges {
 
     public getErrorMessage(control: FormControl): string {
         return control.errors ? control.errors.error_message : '';
+    }
+
+    public reEvaluate(event: KeyboardEvent){
+      if (this.group){
+        this.group.get('password').updateValueAndValidity();
+        this.group.get('confirm_password').updateValueAndValidity();
+      }
     }
 }

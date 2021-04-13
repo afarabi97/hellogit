@@ -118,7 +118,7 @@ class NodeSettings(Model):
         parser.add_argument('--domain', dest='domain', required=False, help="The kit domain", default="lan")
         parser.add_argument("--disk-size", dest="disk_size", type=int, help="The size of the VM's first disk.", default=100)
         parser.add_argument('--extra-disk', dest='extra_disks', action='append', required=False, default=[])
-        parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='default')
+        parser.add_argument("--luks-password", dest="luks_password", type=str, help="The password used for disk encryption.", default='1qaz2wsx!QAZ@WSX')
         parser.add_argument('--os-raid', dest='os_raid', default='no', help="Sets OS either enabled or disabled. Use yes|no when setting it.")
 
         if is_for_ctrl_setup:

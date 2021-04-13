@@ -223,7 +223,7 @@ export class KickstartComponent implements OnInit {
     }
 
     if (this.system_name === "MIP") {
-      let luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.luks_password)]));
+      let luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.luks_password, { error_message_subject: 'The LUKS password'})]));
       let confirm_luks_password_control = new FormControl(kickstartForm ? kickstartForm.luks_password : '', Validators.compose([validateFromArray(kickstart_validators.confirm_luks_password, { parentControl: luks_password_control })]));
 
       kickstartFormGroup.addControl('luks_password', luks_password_control);
@@ -233,7 +233,7 @@ export class KickstartComponent implements OnInit {
     }
 
     // since re_password is dependent on root_password, the formcontrol for root_password must exist first. Then we can add the dependency for validation
-    const root_verify = Validators.compose([validateFromArray(kickstart_validators.root_password, { parentControl: kickstartFormGroup.get('re_password') })])
+    const root_verify = Validators.compose([validateFromArray(kickstart_validators.root_password, { parentControl: kickstartFormGroup.get('re_password'), error_message_subject: 'The root password' })])
     const re_verify = Validators.compose([validateFromArray(kickstart_validators.re_password, { parentControl: kickstartFormGroup.get('root_password') })])
     root_password.setValidators(root_verify);
     re_password.setValidators(re_verify);
@@ -250,6 +250,13 @@ export class KickstartComponent implements OnInit {
     if (this.kickStartFormGroup){
       this.kickStartFormGroup.get('root_password').updateValueAndValidity();
       this.kickStartFormGroup.get('re_password').updateValueAndValidity();
+    }
+  }
+
+  reEvaluateLUKS(event: KeyboardEvent){
+    if (this.kickStartFormGroup){
+      this.kickStartFormGroup.get('luks_password').updateValueAndValidity();
+      this.kickStartFormGroup.get('confirm_luks_password').updateValueAndValidity();
     }
   }
 

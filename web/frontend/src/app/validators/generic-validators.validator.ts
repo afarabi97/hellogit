@@ -35,7 +35,7 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
         case 'pattern':
           return patternValidator(validator, control);
         case 'password':
-          return passwordValidator(validator, control)
+          return passwordValidator(validator, control, ops)
         case 'unique':
           return uniqueValidator(validator, control, ops);
         case 'ip&subnet':
@@ -55,36 +55,41 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
   };
 }
 
-export function passwordValidator(validatorObject: validatorObject, control: AbstractControl): ValidationErrors | null {
+export function passwordValidator(validatorObject: validatorObject, control: AbstractControl, ops?: any): ValidationErrors | null {
   if (!control.value){
     return null;
   }
 
+  let subject = 'The password';
+  if (ops?.error_message_subject) {
+    subject = ops.error_message_subject;
+  }
+
   if (control.value.length < 15) {
-    return { password: validatorObject.error_message, error_message: "The password must be at least 15 characters"};
+    return { password: validatorObject.error_message, error_message: `${subject} must be at least 15 characters`};
   }
 
   if(!/[0-9]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: "The password must have at least 1 digit"}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 digit`}
   }
 
   if(!/[a-z]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: "The password must have at least 1 lowercase letter"}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 lowercase letter`}
   }
 
   if (!/[A-Z]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: "The password must have at least 1 uppercase letter"}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 uppercase letter`}
   }
 
   if (!/[^0-9a-zA-Z]/.test(control.value)) {
-  return { password: validatorObject.error_message, error_message: "The password must have at least 1 symbol"}
+  return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 symbol`}
   }
 
   if ((new Set(control.value)).size < 8) {
-    return { password: validatorObject.error_message, error_message: "The password must have at least 8 unique characters."}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 8 unique characters.`}
   }
   if (consecutive(control.value)) {
-    return { password: validatorObject.error_message, error_message: "The password must not have 3 consecutive characters that are the same"}
+    return { password: validatorObject.error_message, error_message: `${subject} must not have 3 consecutive characters that are the same`}
   }
 
 }

@@ -136,13 +136,10 @@ export const kickstart_validators = {
     { ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' },
   ],
   luks_password: [
-    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a luks password with a minimum length of 6 characters.', validatorFn: 'pattern' },
-    { error_message: 'Luks password is required', validatorFn: 'required' }
+    { error_message: 'LUKS password did not meet the password requirements.', validatorFn: 'password' }
   ],
   confirm_luks_password: [
-    { ops: { pattern: /^.{6,}$/ }, error_message: 'You must enter a luks password with a minimum length of 6 characters.', validatorFn: 'pattern' },
-    { error_message: "The passwords you entered do not match.  Please retype them carefully.", validatorFn: 'fieldMatch' },
-    { error_message: 'Retyping luks password is required', validatorFn: 'required' }
+    { error_message: "The LUKS passwords you entered do not match. Please retype them carefully.", validatorFn: 'fieldMatch' }
   ],
   timezone: [{ error_message: 'Timezone is required.', validatorFn: 'required' }],
   upstream_dns: [{ ops: { pattern: new RegExp(IP_CONSTRAINT) }, error_message: 'You must enter a valid IP address.', validatorFn: 'pattern' }],
