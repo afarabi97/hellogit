@@ -228,6 +228,8 @@ stages:
   - verodin-test
   - remote-node
   - range-mip-controller
+  - range-mip-kickstart
+  - range-mip-kit
 
 default:
   before_script:

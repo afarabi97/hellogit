@@ -1,11 +1,11 @@
 import os
 import logging
 
-from models.kickstart import HwKickstartSettings
+from models.kickstart import HwKickstartSettings, HwMIPKickstartSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
 from models.ctrl_setup import ControllerSetupSettings
 from models.ctrl_setup import HwControllerSetupSettings
-from models.common import NodeSettings
+from models.common import NodeSettings, HwNodeSettings
 from models.remote_node import RemoteNodeSettings
 from jobs.remote_node import RemoteNode
 from typing import List
@@ -189,4 +189,43 @@ class MIPKickstartJob(KickstartJob):
         ip_list = [self.ctrl_settings.node.ipaddress]
         if len(self.mip_kickstart_settings.mips) > 0:
             ip_list.append(self.mip_kickstart_settings.mips[0].ipaddress)
+        write_to_file(ip_list, "mipnodestoscan.txt")
+
+class HwMIPKickstartJob(KickstartJob):
+    def __init__(self, ctrl_settings: ControllerSetupSettings, mip_kickstart_settings: HwMIPKickstartSettings):
+        super().__init__(ctrl_settings, None)
+        self.mip_kickstart_settings = mip_kickstart_settings
+
+    def run_hw_mip_kickstart(self):
+        self._open_mongo_port()
+        runner = MIPAPITester(self.ctrl_settings, self.mip_kickstart_settings)
+        runner.run_mip_kickstart_api_call()
+
+        logging.info("Rebooting machines.")
+        for mip in self.mip_kickstart_settings.mips:
+            with FabricConnectionWrapper(mip.username,
+                                         mip.password,
+                                         mip.ipaddress) as client:
+
+                # Set boot manager to use IPV4 netboot on next startup
+                client.run("efibootmgr -o `efibootmgr | grep IPV4 | awk '{print $1}' | sed 's/[^0-9]*//g'`")
+                # Reboot after 1 minute to avoid so we can get the return value of the command and not error out
+                client.run('shutdown -r +1')
+
+        print("Waiting for nodes to pxe boot....")
+        time.sleep(60 * 13)
+        print("Waiting for nodes to respond....")
+        test_nodes_up_and_alive(self.mip_kickstart_settings.mips, 35)
+        self._write_acas_mips_file()
+
+        try:
+            sys.exit(0)
+        except SystemExit:
+            print("Kickstart finished")
+
+    def _write_acas_mips_file(self):
+        ip_list = [self.ctrl_settings.node.ipaddress]
+        if len(self.mip_kickstart_settings.mips) > 0:
+            for mip_ip in self.mip_kickstart_settings.mip_ip_address:
+                ip_list.append(mip_ip)
         write_to_file(ip_list, "mipnodestoscan.txt")

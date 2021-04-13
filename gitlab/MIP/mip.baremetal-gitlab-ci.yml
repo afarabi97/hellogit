@@ -1,3 +1,4 @@
+---
 Setup Hardware MIP Controller:
   stage: range-mip-controller
   tags:
@@ -21,15 +22,67 @@ Setup Hardware MIP Controller:
     --template-path "$TEMPLATE_PATH" \
     --template "$TEMPLATE_OVA" \
     --gateway "$CONTROLLER_GATEWAY" \
-    --network-id          "$NETWORK_ID"              \
+    --network-id "$NETWORK_ID" \
     --network-block-index "$MIP_NETWORK_BLOCK_INDEX" \
     --dns-servers $CONTROLLER_DNS_SERVERS \
     --repo-username "$REPO_USERNAME" \
     --repo-password "$REPO_PASSWORD" \
+    --luks-password "$LUKS_PASSWORD" \
     --repo-url "$REPO_URL" \
-    --branch-name "$CI_COMMIT_REF_NAME" \
+    --branch-name "$CI_COMMIT_REF_NAME"
   artifacts:
     untracked: true
   only:
     variables:
-      - $PIPELINE == "controller-build"
+      - $PIPELINE == "hw-developer-mip"
+      - $PIPELINE == "only_build"
+
+Hardware MIP Kickstart:
+  needs: ["Setup Hardware MIP Controller"]
+  stage: range-mip-kickstart
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "MIP" \
+    run-mip-kickstart \
+    --node-password "$MIP_PASSWORD" \
+    --vm-datastore "$ESXI_DATASTORE" \
+    --ctrl-path "$MIP_CONTROLLER_PATH" \
+    --ctrl-name "$CONTROLLER_OVA" \
+    --template-path "$TEMPLATE_PATH" \
+    --template "$TEMPLATE_OVA" \
+    --gateway "$CONTROLLER_GATEWAY" \
+    --ipaddress "$CONTROLLER_IPADDRESS" \
+    --dns-servers $CONTROLLER_DNS_SERVERS \
+    --domain "$KIT_DOMAIN" \
+    --dhcp-ip-block "$DHCP_IP_BLOCK" \
+    --luks-password "$LUKS_PASSWORD" \
+    --mip-ip-address "$MIP_IP_ADDRESS" \
+    --short-hash "$CI_COMMIT_SHORT_SHA"
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-mip"
+
+Configure Hardware MIPs:
+  needs: ["Hardware MIP Kickstart"]
+  stage: range-mip-kit
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/baremetal_pipeline.py \
+    --system-name "MIP" \
+    run-mip-config \
+    --operator-type "$MIP_OPERATOR_TYPE" \
+    --password "$DEFAULT_VM_PASSWORD"
+  artifacts:
+    untracked: true
+  only:
+    variables:
+      - $PIPELINE == "hw-developer-mip"

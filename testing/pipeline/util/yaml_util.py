@@ -8,7 +8,7 @@ from models.remote_node import RemoteNodeSettings
 from models.ctrl_setup import ControllerSetupSettings, HwControllerSetupSettings
 from models.kit import KitSettings, HwKitSettings
 from models.kickstart import KickstartSettings, MIPKickstartSettings, GIPKickstartSettings
-from models.kickstart import HwKickstartSettings
+from models.kickstart import HwKickstartSettings, HwMIPKickstartSettings
 from models.gip_settings import GIPKitSettings, GIPServiceSettings
 from models.catalog import (CatalogSettings, ArkimeCaptureSettings,
                             ArkimeViewerSettings, ZeekSettings,
@@ -39,6 +39,7 @@ class YamlManager:
             cls.yaml.register_class(RepoSettings)
             cls.yaml.register_class(KickstartSettings)
             cls.yaml.register_class(HwKickstartSettings)
+            cls.yaml.register_class(HwMIPKickstartSettings)
             cls.yaml.register_class(KitSettings)
             cls.yaml.register_class(HwKitSettings)
             cls.yaml.register_class(SuricataSettings)
@@ -111,6 +112,11 @@ class YamlManager:
     @classmethod
     def load_mip_kickstart_settings_from_yaml(cls) -> MIPKickstartSettings:
         yaml_name = YAML_FILE.format(MIPKickstartSettings.__name__.lower())
+        return cls._load_from_yaml(yaml_name)
+
+    @classmethod
+    def load_hw_mip_kickstart_settings_from_yaml(cls) -> HwMIPKickstartSettings:
+        yaml_name = YAML_FILE.format(HwMIPKickstartSettings.__name__.lower())
         return cls._load_from_yaml(yaml_name)
 
     @classmethod

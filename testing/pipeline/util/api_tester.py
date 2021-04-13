@@ -212,12 +212,12 @@ class MIPKickstartPayloadGenerator:
         self._mip_kickstart_settings = mip_kickstart_settings
 
     def _construct_node_part(self, node: NodeSettings) -> Dict:
-        boot_mode = "SCSI/SATA/USB"
+
         return {
             "hostname": node.hostname,
             "ip_address": node.ipaddress,
             "mac_address": node.mng_mac,
-            "pxe_type": boot_mode
+            "pxe_type": node.boot_mode
         }
 
     def _construct_node_parts(self) -> List[Dict]:
@@ -676,7 +676,7 @@ class APITester:
         suricata_rule_id = self._get_suricata_rule_id()
         payload = {
                     "_id": int(suricata_rule_id),
-                    "appType": "Suricata", 
+                    "appType": "Suricata",
                     "name":"Emerging Threats",
                     "clearance":"Unclassified",
                     "isEnabled":True

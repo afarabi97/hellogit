@@ -5,7 +5,8 @@ from argparse import ArgumentParser, Namespace
 
 from jobs.integration_tests import IntegrationTestsJob, HwPowerFailureJob
 from jobs.ctrl_setup import BaremetalControllerSetup
-from jobs.kickstart import HwKickstartJob
+from jobs.kickstart import HwKickstartJob, HwMIPKickstartJob
+from jobs.mip_config import MIPConfigJob
 from jobs.kit import KitJob
 from jobs.catalog import CatalogJob
 from jobs.breakingpoint import BPJob
@@ -22,6 +23,8 @@ from models.breakingpoint import BPSettings
 from models.verodin import VerodinSettings
 from util.ansible_util import delete_vms
 from util.yaml_util import YamlManager
+from models.kickstart import HwMIPKickstartSettings
+from models.mip_config import MIPConfigSettings
 
 import os
 from os import listdir
@@ -91,6 +94,18 @@ class BaremetalRunner():
         VerodinSettings.add_args(verodin_parser)
         verodin_parser.set_defaults(which=SubCmd.run_verodin)
 
+        mip_kickstart_ctrl_parser = subparsers.add_parser(SubCmd.run_mip_kickstart,
+                                                          help="This command is used to Kickstart/PXE \
+                                                                boot the nodes for the MIP.")
+        HwMIPKickstartSettings.add_mip_args(mip_kickstart_ctrl_parser)
+        mip_kickstart_ctrl_parser.set_defaults(which=SubCmd.run_mip_kickstart)
+
+        mip_config_parser = subparsers.add_parser(
+            SubCmd.run_mip_config,
+            help="Configures Kickstarted MIPs by using the api/execute_mip_config_inventory endpoint.")
+        MIPConfigSettings.add_args(mip_config_parser)
+        mip_config_parser.set_defaults(which=SubCmd.run_mip_config)
+
         parser.add_argument('--system-name', dest='system_name', choices=['DIP','MIP'],
                             help="Selects which component your controller should be built for.")
 
@@ -152,6 +167,24 @@ class BaremetalRunner():
                 executor = VerodinJob(verodin_settings, ctrl_settings,
                                       kickstart_settings, kit_settings)
                 executor.run_job()
+            elif args.which == SubCmd.run_mip_kickstart:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                    args.system_name, HwControllerSetupSettings)
+                mip_kickstart_settings = HwMIPKickstartSettings()
+                mip_kickstart_settings.from_mip_namespace(args)
+                YamlManager.save_to_yaml(mip_kickstart_settings)
+                executor = HwMIPKickstartJob(
+                    ctrl_settings, mip_kickstart_settings)
+                executor.run_hw_mip_kickstart()
+            elif args.which == SubCmd.run_mip_config:
+                ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
+                    args.system_name, HwControllerSetupSettings)
+                kickstart_settings = YamlManager.load_hw_mip_kickstart_settings_from_yaml()
+                mip_config_settings = MIPConfigSettings()
+                mip_config_settings.from_namespace(args)
+                YamlManager.save_to_yaml(mip_config_settings)
+                executor = MIPConfigJob(ctrl_settings, kickstart_settings, mip_config_settings)
+                executor.run_mip_config()
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:

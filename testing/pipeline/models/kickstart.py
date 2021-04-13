@@ -8,7 +8,9 @@ from typing import Dict
 from models.constants import SubCmd
 from util.network import IPAddressManager
 from util import redfish_util as redfish
+from util.connection_mngs import FabricConnectionWrapper
 import os
+import json
 
 MEM_ERROR = "The command flag --server-mem {} is invalid. It must be greater than 1024 and less than 65536"
 
@@ -295,6 +297,8 @@ class MIPKickstartSettings(KickstartSettings):
         super().__init__()
         self.dns = ''
         self.mips = [] # type: List[NodeSettings]
+        self.servers = [] # type: List[NodeSettings]
+        self.boot_mode = "SCSI/SATA/USB"
 
     def from_mip_namespace(self, namespace: Namespace):
         self.num_mips = namespace.num_mips
@@ -311,6 +315,7 @@ class MIPKickstartSettings(KickstartSettings):
             node = NodeSettings()
             node.set_from_defaults(self.node_defaults)
             node.set_hostname(self.node_defaults.vm_prefix, "mip", i)
+            node.boot_mode = self.boot_mode
             node.set_for_kickstart(self.mip_cpu, self.mip_mem, NodeSettings.valid_node_types[5])
             self.mips.append(node)
 
@@ -325,3 +330,76 @@ class MIPKickstartSettings(KickstartSettings):
 
         VCenterSettings.add_args(parser)
         NodeSettings.add_args(parser, False)
+
+class HwMIPKickstartSettings(Model):
+    def __init__(self):
+        super().__init__()
+        self.node_defaults = HwNodeSettings() # type: HwNodeSettings
+        self.mips = [] # type: List[HwNodeSettings]
+        self.dhcp_ip_block = ''
+        self.domain = ''
+        self.mip_ip_address = ''
+        self.short_hash = ''
+
+    def _generate_hostname(self, hw_type, num) -> str:
+        hostname = "mip-" + hw_type + "-{}-".format(num) + self.short_hash
+        return hostname
+
+    def _drive_type(self, hw_type) -> str:
+        if hw_type == "7720":
+            return "SCSI/SATA/USB"
+        else:
+            return "NVMe"
+
+    def _mip_info(self, username, password) -> dict:
+        count = 0
+        nodes = {}
+        mip_artifacts = []
+
+        try:
+            for count, mip_ip in enumerate(self.mip_ip_address, start=1):
+                with FabricConnectionWrapper(username,
+                                             password,
+                                             mip_ip) as client:
+                    interface = client.run("nmcli dev status | grep ethernet | head -n 1 | awk '{print $1}'").stdout.strip()
+                    mip_mac = client.run("ip address show dev {} | grep link/ether | awk '{{print $2}}'".format(interface)).stdout.strip()
+                    hw_type = client.run("dmidecode | grep  -A3 'System Information' | grep 'Product Name' | awk '{print $4}'").stdout.strip()
+                    drive_type = self._drive_type(hw_type)
+                    hostname = self._generate_hostname(hw_type, count)
+                    mip_artifacts.append({"hostname":hostname,"ipaddress":mip_ip,"mng_mac":mip_mac,"boot_mode":drive_type })
+
+            nodes['nodes'] = mip_artifacts
+            return nodes
+
+        except Exception as e:
+            print('ERROR: Check connection to MIPs!')
+            print(e)
+
+    def _validate_params(self):
+        pass
+
+    def from_mip_namespace(self, namespace: Namespace):
+        self.node_defaults = HwNodeSettings()
+        self.node_defaults.from_namespace(namespace)
+        self.domain = self.node_defaults.domain
+        self.short_hash = namespace.short_hash
+        self.luks_password = self.b64decode_string(namespace.luks_password)
+        self.mip_ip_address = namespace.mip_ip_address.strip().split()
+        self.dhcp_ip_block = namespace.dhcp_ip_block
+
+        for mip in self._mip_info(self.node_defaults.username, self.node_defaults.password)['nodes']:
+            node = HwNodeSettings()
+            node.set_from_defaults(self.node_defaults)
+            node.set_from_dict(mip)
+            self.mips.append(node)
+
+    @staticmethod
+    def add_mip_args(parser: ArgumentParser):
+        parser.add_argument('--timezone', type=str, dest="timezone", required=False, default="UTC",
+                            help="The timezone for each node.")
+        parser.add_argument("--mip-ip-address", dest="mip_ip_address", required=True,
+                            help="IP address of mips being built (IP address for each MIP needs to be preconfigured)")
+        parser.add_argument('--dhcp-ip-block', dest='dhcp_ip_block', required=True, help="Set an DHCP IP block")
+        parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
+
+        HwNodeSettings.add_args(parser, False)
