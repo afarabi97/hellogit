@@ -42,7 +42,6 @@ def is_ipv4_address(s: str) -> bool:
         return False
 
 
-
 def filter_ip(ipaddress: str) -> bool:
     """
     Filters IP addresses from NMAP functions commands.

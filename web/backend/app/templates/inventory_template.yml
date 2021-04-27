@@ -18,9 +18,8 @@ all:
 
     # kubernetes_services_cidr is the range of addresses kubernetes will use for external services
     # This includes cockpit, Arkime viewer, Kibana, elastichq, and
-    # the kubernetes dashboard. This range must be at least a /28. Ex: "192.168.1.16/28"
-    kubernetes_services_cidr: "{{ template_ctx.kubernetes_services_cidr }}"
-
+    # the kubernetes dashboard. This range must be at least a /27. Ex: "192.168.1.16/27"
+    kubernetes_services_cidr: "{{ template_ctx.kubernetes_services_cidr }}/27"
     #############################
     # Software Locations        #
     #############################

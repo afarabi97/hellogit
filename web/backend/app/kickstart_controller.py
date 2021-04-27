@@ -34,7 +34,7 @@ def _is_valid_ip(ip_address: str) -> bool:
 
     :return:
     """
-    command = "nmap -v -sn -n %s/32 -oG - | awk '/Status: Down/{print $2}'" % ip_address
+    command = "nmap -v -sn -T5 --min-parallelism 100 -n %s/32 -oG - | awk '/Status: Down/{print $2}'" % ip_address
     stdout_str = run_command(command, use_shell=True)
     if stdout_str != '':
         available_ip_addresses = stdout_str.split('\n')

@@ -100,7 +100,7 @@ class KitInventoryGenerator:
         :return:
         """
         self._set_sensor_type_counts()
-        self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr'] + "/27"
+        self._template_ctx['kubernetes_services_cidr'] = self._template_ctx['kubernetes_services_cidr']
 
         if "remove_node" not in self._template_ctx:
             self._template_ctx["remove_node"] = ''

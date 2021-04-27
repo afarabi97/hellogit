@@ -135,10 +135,10 @@ def _get_available_ip_blocks(mng_ip: str, netmask: str) -> List:
     """
     cidr = netmask_to_cidr(netmask)
     if cidr <= 24:
-        command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % mng_ip
+        command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % mng_ip
         cidr = 24
     else:
-        command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (mng_ip, cidr)
+        command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (mng_ip, cidr)
 
     stdout_str = run_command(command, use_shell=True)
     available_ip_addresses = stdout_str.split('\n')
@@ -203,9 +203,9 @@ class UnusedIPAddresses(Resource):
         """
         cidr = netmask_to_cidr(netmask)
         if cidr <= 24:
-            command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % ip_or_network_id
+            command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % ip_or_network_id
         else:
-            command = "nmap -v -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (ip_or_network_id, cidr)
+            command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/%d -oG - | awk '/Status: Down/{print $2}'" % (ip_or_network_id, cidr)
 
         stdout_str = run_command(command, use_shell=True)
         available_ip_addresses = stdout_str.split('\n')

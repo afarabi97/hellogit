@@ -121,9 +121,8 @@ export const kit_validators = {
     kit_form_one_master: [
         { error_message: kit_validator_error_messages.at_least_one_master_server, validatorFn: 'minInArray' }
     ],
-    //mips validations
     kubernetes_services_cidr: [
-        { error_message: 'Kubernetetes Service IP is required', validatorFn: 'required' }
+      { error_message: 'Kubernetes Service IP is required', validatorFn: 'required' }
     ],
     node_type: [
         { error_message: 'Node Type is required', validatorFn: 'required' }
@@ -134,9 +133,9 @@ export const kit_validators = {
 export const kitTooltips = {
     node_type: 'The Node Type refers to whether or not the node is a server or sensor',
     kubernetes_services_cidr: `Range of addresses Kubernetes will use for external services.
-    This includes Arkime viewer, Kibana, and Elasticq. This will use a /28 under the hood.
-    This means it will take whatever IP address you enter and create a range addresses from that IP + 16.
-    For example, 192.168.1.16 would become a range from 192.168.1.16-31`,
+    This includes Arkime viewer, Kibana, and Elastic. This will use a /27 under the hood.
+    This means it will take whatever IP address you enter and create a range addresses from that IP + 30.
+    For example, 192.168.1.32 would become a range from 192.168.1.32-63`,
     is_master_server: `This is not the ESXi/VM server. This is for the Kubernetes master server only.
     There can only be one master server. It is a bit like the Highlander that way.
     The master server is special in that it runs the Kubernetes master and is responsible for deploying services out to all the other hosts in the cluster.

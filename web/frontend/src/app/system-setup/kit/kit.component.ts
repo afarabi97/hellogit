@@ -20,7 +20,8 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./kit.component.scss']
 })
 export class KitComponent implements OnInit, AfterViewInit {
-  avaiable_ip_addrs: string[];
+  available_ip_addrs: string[];
+  default_kubernetes_cidr: string
   kickstartForm;
   kitFormGroup: FormGroup;
   nodes: FormArray;
@@ -120,9 +121,14 @@ export class KitComponent implements OnInit, AfterViewInit {
    * @private
    * @memberof KitFormComponent
    */
-  private setKubernetesCIDRRange(): void {
+   private setKubernetesCIDRRange(): void {
     this.kickStartSrv.getAvailableIPBlocks().subscribe(ipblocks => {
-      this.avaiable_ip_addrs = ipblocks;
+      this.available_ip_addrs = ipblocks;
+      this.default_kubernetes_cidr = this.kubernetes_default_cidr();
+
+      if (this.kitFormGroup.get("kubernetes_services_cidr").value == "") {
+        this.kitFormGroup.get("kubernetes_services_cidr").setValue(this.default_kubernetes_cidr);
+      }
     });
   }
 
@@ -149,11 +155,17 @@ export class KitComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /**
+   /**
    * Triggered everytime a user adds input to the Kubernetes CIDR input
    *
    * @param event - A Keyboard event.
    */
+  public kubernetes_default_cidr():string {
+    const network_sub_id = this.available_ip_addrs[0].split('.').slice(0,3);
+    const default_kubernertes_cidr = network_sub_id.join(".") + ".96"
+    return default_kubernertes_cidr
+  }
+
   public kubernetesInputEvent(): string {
     const kubernetes_value = this.kitFormGroup.get('kubernetes_services_cidr').value;
     if (kubernetes_value && kubernetes_value.length == 0) {
@@ -196,6 +208,11 @@ export class KitComponent implements OnInit, AfterViewInit {
    */
   public clearkitFormGroup(): void {
     this.kitFormGroup = this.kitSrv.newKitFormGroup();
+    if (this.default_kubernetes_cidr) {
+      this.kitFormGroup.get('kubernetes_services_cidr').setValue(this.default_kubernetes_cidr);
+    } else {
+      this.setKubernetesCIDRRange();
+    }
     this.nodes = this.kitFormGroup.get('nodes') as FormArray;
     this.getNodeDeviceFacts(this.kickstartForm.nodes);
   }

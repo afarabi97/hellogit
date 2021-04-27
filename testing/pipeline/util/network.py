@@ -197,7 +197,7 @@ class IPAddressManager:
         return False
 
     def _create_ip_address_cache(self):
-        command = "nmap -v -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % self._network_id
+        command = "nmap -v -T5 --min-parallelism 100 -sn -n %s/24 -oG - | awk '/Status: Down/{print $2}'" % self._network_id
         stdout_str = run_command(command, use_shell=True)
         available_ip_addresses = stdout_str.split('\n')
         IPAddressManager.unused_ips = [x for x in available_ip_addresses if not self.filter_ip(x)]

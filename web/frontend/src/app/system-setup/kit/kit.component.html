@@ -24,6 +24,10 @@
           If there is an active configuration (form is disabled), and adding a node is required for the Kit.
           First add the node to the Kickstart page, then return to finish the configuration.
         </p>
+        <p>
+          WARNING, modifications to the <strong>"Advanced Kit Configurations"</strong> section is intended for experienced users.
+          Modify at your own risk!
+        </p>
         <p>For amplifying information, please refer to the Kit Configuration procedures section of the DIP Installation guide.</p>
       </mat-card-content>
 
@@ -39,18 +43,25 @@
       </mat-card-actions>
     </mat-card>
     <br>
-    <!-- Kubernetes -->
+    <!-- Advanced Kit Configurations -->
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Kubernetes</mat-card-title>
+        <mat-card-title>Advanced Kit Configurations (Optional)</mat-card-title>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutAlign="center stretch">
-        <unused-ipaddress-autocomplete-ctrl id="app-kit-form-div-mat-card-mat-card-content-unused-ipaddress-autocomplete-ctrl"
-                                            [uniqueHTMLID]="'app-kit-form'" [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')" matTooltip="{{ getTooltip('kubernetes_services_cidr') }}"
-                                            [options]="avaiable_ip_addrs" inputPlaceHolder='Kubernetes Service IP Range Start' [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
-        </unused-ipaddress-autocomplete-ctrl>
-        <mat-hint id="app-kit-form-div-mat-card-mat-card-content-mat-hint-kubernetes-input-event">{{ kubernetesInputEvent() }}</mat-hint>
-      </mat-card-content>
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Kubernetes</mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-card-content fxLayout="column" fxLayoutAlign="center stretch">
+              <unused-ipaddress-autocomplete-ctrl id="app-kit-form-div-mat-card-mat-card-content-unused-ipaddress-autocomplete-ctrl"
+                                                  [uniqueHTMLID]="'app-kit-form'" [formControlInput]="kitFormGroup.get('kubernetes_services_cidr')" matTooltip="{{ getTooltip('kubernetes_services_cidr') }}"
+                                                  [options]="available_ip_addrs" inputPlaceHolder="Kubernetes Service IP Range Start" [matError]="getErrorMessage(kitFormGroup.get('kubernetes_services_cidr'))">
+              </unused-ipaddress-autocomplete-ctrl>
+              <mat-hint id="app-kit-form-div-mat-card-mat-card-content-mat-hint-kubernetes-input-event">{{ kubernetesInputEvent() }}</mat-hint>
+          </mat-card-content>
+        </mat-expansion-panel>
+      </mat-accordion>
     </mat-card>
     <br>
     <!-- Resources -->
