@@ -1,4 +1,4 @@
-$return_value = 0x00
+$global:return_value = 0x00
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
 
 function _unzip() {
@@ -21,8 +21,7 @@ function install_endgame(){
     $my_exe = ".\$installer_name"
     $arguments = " -k {{ template_ctx.api_token }} -c $config_name -l $Script:script_path\install.log -d false"
     $process = (Start-Process $my_exe $arguments -NoNewWindow -Wait -PassThru)
-    $process.WaitForExit()
-    $return_value = $process.ExitCode
+    $global:return_value = $process.ExitCode
     Set-Location -Path $Script:script_path
 }
 

@@ -34,18 +34,38 @@
       args:
         chdir: C:\tfplenum_agent
       register: install_results
+      ignore_errors: yes
 
-    - fail:
-        msg: FAILED to uninstall AGENTS PACKAGE "{{ install_results }}"
-      when: "install_results.rc != 0"
+    - name: Copy Endgame install.logs over if they exist
+      fetch:
+        src: C:\tfplenum_agent\endgame\install.log
+        dest: "/var/log/tfplenum/endgame_install_{{ ansible_host }}.log"
+        fail_on_missing: no
+        flat: yes
+      ignore_errors: yes
+
+    - name: Copy Endgame uninstall.logs over if they exist
+      fetch:
+        src: C:\tfplenum_agent\endgame\uninstall.log
+        dest: "/var/log/tfplenum/endgame_uninstall_{{ ansible_host }}.log"
+        fail_on_missing: no
+        flat: yes
+      ignore_errors: yes
 
     - name: Remove tfplenum_agent directory on {{ ansible_host }}
       win_file:
         path: C:\tfplenum_agent
         state: absent
+      ignore_errors: yes
 
     - name: Remove agents.zip on {{ ansible_host }}
       win_file:
         path: C:\agents.zip
         state: absent
+      ignore_errors: yes
+
+    - fail:
+        msg: FAILED to uninstall AGENTS PACKAGE "{{ install_results }}"
+      when: "install_results.rc != 0"
+
 ...

@@ -79,7 +79,8 @@ def execute_win_playbook(playbooks: List, extra_vars: Dict={},
     results_callback = CallbackModule()
     pbex._tqm._stdout_callback = results_callback
     status_code = pbex.run()
-    print(results_callback.summary)
+    rq_logger.debug(results_callback.summary)
+    rq_logger.debug(results_callback.results)
     if status_code != 0:
         raise WinrmCommandFailure("Failed with status_code {}. Run tail -f /var/log/tfplenum/rq.log for more information.".format(status_code), results_callback.summary, results_callback.results)
     return results_callback.summary

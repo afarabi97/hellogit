@@ -34,20 +34,23 @@
       args:
         chdir: C:\tfplenum_agent
       register: install_results
+      ignore_errors: yes
 
     - name: Copy Endgame install.logs over if they exist
       fetch:
         src: C:\tfplenum_agent\endgame\install.log
-        dest: "/var/log/tfplenum/endgame_uninstall_{{ ansible_host }}.log"
+        dest: "/var/log/tfplenum/endgame_install_{{ ansible_host }}.log"
         fail_on_missing: no
         flat: yes
+      ignore_errors: yes
 
     - name: Copy Endgame uninstall.logs over if they exist
       fetch:
-        src: C:\tfplenum_agent\endgame\install.log
+        src: C:\tfplenum_agent\endgame\uninstall.log
         dest: "/var/log/tfplenum/endgame_uninstall_{{ ansible_host }}.log"
         fail_on_missing: no
         flat: yes
+      ignore_errors: yes
 
     - fail:
         msg: FAILED to install AGENTS PACKAGE "{{ install_results }}"
