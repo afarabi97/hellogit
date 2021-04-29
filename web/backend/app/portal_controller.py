@@ -5,7 +5,7 @@ from app import (app, conn_mng, logger)
 from app.common import ERROR_RESPONSE, cursor_to_json_response
 from flask import jsonify, Response
 from app.utils.connection_mngs import  KubernetesWrapper2
-from app.utils.elastic import get_elastic_password
+from app.utils.elastic import ElasticWrapper, get_elastic_password
 from typing import List
 from flask import Response, request, jsonify
 from bson import ObjectId

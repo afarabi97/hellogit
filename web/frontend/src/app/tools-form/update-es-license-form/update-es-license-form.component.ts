@@ -47,7 +47,8 @@ export class UpdateEsLicenseComponent implements OnInit {
     this.snackBar.open(message, "Close", { duration: duration_seconds * 1000 });
   }
 
-  uploadFile() {
+  uploadFile(event: any) {
+    event.target.disabled = true;
     this.displaySnackBar("Loading " + this.fileToUpload.name + "...");
     let fileReader = new FileReader();
     fileReader.onload = (e) => {

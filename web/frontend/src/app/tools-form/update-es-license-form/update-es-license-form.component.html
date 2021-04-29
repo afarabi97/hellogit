@@ -27,8 +27,7 @@
     <input hidden #fileInput id="app-update-docs-form-mat-card-mat-card-actions-input-hidden"
            (change)="handleFileInput($event.target.files)" type="file" id="zip_file_uploader" accept=".json">
     <button mat-raised-button id="app-update-docs-form-mat-card-mat-card-actions-button-upload"
-            color="primary" style="margin-left: 10px;" (click)="uploadFile()" [disabled]="!fileToUpload" name="execute_kickstart">Upload
-      <span *ngIf="fileToUpload" id="app-update-docs-form-mat-card-mat-card-actions-button-upload-span-zip-file-name">&nbsp;{{ fileToUpload.name }}</span>
+            color="primary" style="margin-left: 10px;" (click)="uploadFile($event)" [disabled]="!fileToUpload" name="execute_kickstart">Upload{{  fileToUpload && fileToUpload.name ? ' ' + fileToUpload.name : '' }}
     </button>
   </mat-card-actions>
 </mat-card>
