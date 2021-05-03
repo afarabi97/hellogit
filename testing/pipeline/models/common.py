@@ -193,7 +193,6 @@ class HwNodeSettings(Model):
         self.netmask = namespace.netmask
         self.username = namespace.username or self.username
         self.password = self.b64decode_string(namespace.password)
-        self.luks_password = self.b64decode_string(namespace.luks_password)
         self.datastore = namespace.datastore
         self.ctrl_path = namespace.ctrl_path
         self.ctrl_name = namespace.ctrl_name
@@ -225,7 +224,6 @@ class HwNodeSettings(Model):
         parser.add_argument("--domain", dest="domain", help="The domain for the kit", default="lan")
         parser.add_argument("--redfish-password", dest="redfish_password", help="The redfish password")
         parser.add_argument("--redfish-user", dest="redfish_user", help="The redfish username", default="root")
-        parser.add_argument('--luks-password', dest="luks_password", help="Set an luks password")
         parser.add_argument("--monitoring-interface", dest="monitoring_interface", nargs= "+", help="sensor monitoring interface")
         parser.add_argument("--network-id", dest="network_id", help="The network ID the application will be selecting IPs from.")
         parser.add_argument("--network-block-index", dest="network_block_index", help="The network block index to use. If left as default it will default to 1 which uses 64 as the last octet. [64, 128, 192]",

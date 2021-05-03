@@ -27,7 +27,6 @@ Setup Hardware MIP Controller:
     --dns-servers $CONTROLLER_DNS_SERVERS \
     --repo-username "$REPO_USERNAME" \
     --repo-password "$REPO_PASSWORD" \
-    --luks-password "$LUKS_PASSWORD" \
     --repo-url "$REPO_URL" \
     --branch-name "$CI_COMMIT_REF_NAME"
   artifacts:
@@ -35,7 +34,7 @@ Setup Hardware MIP Controller:
   only:
     variables:
       - $PIPELINE == "hw-developer-mip"
-      - $PIPELINE == "only_build"
+      - $PIPELINE == "mip_only_build"
 
 Hardware MIP Kickstart:
   needs: ["Setup Hardware MIP Controller"]

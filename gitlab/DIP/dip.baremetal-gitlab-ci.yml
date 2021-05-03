@@ -36,7 +36,7 @@ Setup Hardware DIP Controller:
   only:
     variables:
       - $PIPELINE == "hw-developer-dip"
-      - $PIPELINE == "only_build"
+      - $PIPELINE == "dip_only_build"
 
 Hardware DIP Kickstart:
   stage: kickstart

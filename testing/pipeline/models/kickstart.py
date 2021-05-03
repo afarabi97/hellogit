@@ -381,9 +381,9 @@ class HwMIPKickstartSettings(Model):
     def from_mip_namespace(self, namespace: Namespace):
         self.node_defaults = HwNodeSettings()
         self.node_defaults.from_namespace(namespace)
+        self.node_defaults.luks_password =  self.b64decode_string(namespace.luks_password)
         self.domain = self.node_defaults.domain
         self.short_hash = namespace.short_hash
-        self.luks_password = self.b64decode_string(namespace.luks_password)
         self.mip_ip_address = namespace.mip_ip_address.strip().split()
         self.dhcp_ip_block = namespace.dhcp_ip_block
 
@@ -401,5 +401,6 @@ class HwMIPKickstartSettings(Model):
                             help="IP address of mips being built (IP address for each MIP needs to be preconfigured)")
         parser.add_argument('--dhcp-ip-block', dest='dhcp_ip_block', required=True, help="Set an DHCP IP block")
         parser.add_argument('--short-hash', dest='short_hash', help="short commit hash", default="null")
+        parser.add_argument('--luks-password', dest="luks_password", help="Set an luks password")
 
         HwNodeSettings.add_args(parser, False)
