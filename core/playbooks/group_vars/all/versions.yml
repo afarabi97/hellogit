@@ -7,7 +7,6 @@ rocketchat_version: 3.11.0
 mongodb_version: 4.4.3
 zeek_version: "3.2.2"
 busybox_version: "1.32.1"
-coreos_version: "1688.5.3"
 k8s_coredns_version: "1.7.0"
 k8s_etcd_version: "3.4.13-0"
 k8s_pause_version: "3.2"
