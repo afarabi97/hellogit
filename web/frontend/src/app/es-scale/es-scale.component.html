@@ -1,4 +1,4 @@
-<div class="main-content2" *ngIf="!isUserEditing">
+<div class="main-content2" fxLayout="column" fxLayoutGap="10px">
   <!-- Title -->
   <mat-card>
     <mat-card-header>
@@ -11,18 +11,17 @@
       <p>Taking away the ability to handle master duties, to hold data, and pre-process documents leaves a coordinating node that can only route requests, handle the search reduce phase, and distribute bulk indexing. Add more Coordinating Nodes for search related issues.</p>
     </mat-card-content>
   </mat-card>
-  <br>
   <!-- PODS -->
   <mat-card>
     <mat-card-header>
       <mat-card-title>Elasticsearch Node Types</mat-card-title>
     </mat-card-header>
-    <mat-progress-bar *ngIf="loading" id="app-es-scale-div-mat-card-mat-progress-bar" mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
     <mat-card-content>
       <ng-container *ngFor="let slider of elasticPodTypes; let i = index;">
         <div *ngIf="!slider.hidden" fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
-            <h2 id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-h2-slider-title' }}" class="example-h2">Elastic {{slider.title}} Pod</h2>
-            <mat-slider id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-mat-slider-current-count' }}"
+            <h2 id="{{ 'app-es-scale-' + i + '-slider-title' }}" class="example-h2">Elastic {{slider.title}} Pod</h2>
+            <mat-slider id="{{ 'app-es-scale-' + i + '-mat-slider-current-count' }}"
                         class="example-margin"
                         [max]=slider.maxCount
                         [min]=slider.minCount
@@ -33,22 +32,19 @@
                         [disabled]="status">
             </mat-slider>
             <div fxLayout="row" fxLayoutAlign="space-between center">
-              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-count' }}">Current {{slider.title}} Node Count: {{slider.currentCount}}</h4>
-              <h4 mat-line id="{{ 'app-es-scale-div-mat-card-mat-card-content-div-' + i + '-div-h4-type-maxcount' }}">Max {{slider.title}} Node Count: {{slider.maxCount}}</h4>
+              <h4 mat-line id="{{ 'app-es-scale-' + i + '-type-count' }}">Current {{slider.title}} Node Count: {{slider.currentCount}}</h4>
+              <h4 mat-line id="{{ 'app-es-scale-' + i + '-type-maxcount' }}">Max {{slider.title}} Node Count: {{slider.maxCount}}</h4>
             </div>
         </div>
       </ng-container>
     </mat-card-content>
     <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-      <button mat-stroked-button id="app-es-scale-div-mat-card-mat-card-actions-button-edit-full-config"
-              color="warn" (click)="editElasticConfig()" [disabled]="status" matTooltip="Advanced edit of entire Elastic Config">Edit Full Config</button>
-      <button mat-raised-button id="app-es-scale-div-mat-card-mat-card-actions-button-run"
-              color="warn" color="primary" (click)="askRunDialog()" [disabled]="status" matTooltip="Execute Elastic Scaling">Run</button>
+      <button mat-stroked-button id="app-es-scale-button-edit-full-config"
+              color="warn" (click)="editElasticConfig()" [disabled]="status"
+              matTooltip="Advanced edit of entire Elastic Config">Edit Full Config</button>
+      <button mat-raised-button id="app-es-scale-button-run"
+              color="primary" (click)="askRunDialog()"
+              [disabled]="status" matTooltip="Execute Elastic Scaling">Run</button>
     </mat-card-actions>
   </mat-card>
-  <br>
-  <br>
 </div>
-<app-elasticconfig-editor *ngIf="isUserEditing" id="app-es-scale-app-elasticconfig-editor"
-                          color="warn"[text]="elasticConfig" (closeNoSaveEvent)="closeEditor($event)"
-                          (closeSaveEvent)="saveAndCloseEditor($event)"></app-elasticconfig-editor>

@@ -107,7 +107,6 @@ import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.comp
 
 // ES Scale
 import { ESScaleComponent } from './es-scale/es-scale.component';
-import { ElasticEditorComponent } from './elasticconfig-editor/elasticconfig-editor.component';
 
 // MIP Configuration
 import { MIPConfigComponent } from './mip-config/mip-config.component';
@@ -130,6 +129,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
 export function initializeSystemName(appLoadService: AppLoadService): () => Promise<SystemNameClass> {
   return (): Promise<SystemNameClass> => appLoadService.getSystemName();
 }
+import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 
 @NgModule({
   declarations: [
@@ -188,7 +188,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     KitNodeFormComponent,
     ESScaleComponent,
     PodLogModalDialogComponent,
-    ElasticEditorComponent,
     RepositorySettingsComponent,
     IndexManagementComponent,
     LogIngestComponent
@@ -206,7 +205,8 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     DateTimeModule,
     NgxMatTimepickerModule,
     NgxMatDatetimePickerModule,
-    NgxMatNativeDateModule
+    NgxMatNativeDateModule,
+    NGXMonacoTextEditorModule
   ],
   providers: [
     SnackbarWrapper,

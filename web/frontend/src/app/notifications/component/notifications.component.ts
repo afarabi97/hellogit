@@ -76,8 +76,8 @@ export class NotificationsComponent implements OnInit {
 
     if (!this.dialogRef) {
       this.dialogRef = this.dialog.open(NotificationsModuleComponent, {
-        width: '50%',
-        height: '720px',
+        width: '50vw',
+        height: '732px',
         data: this._NotificationService.buttonList,
       });
       this.newNotifications = [];

@@ -1,0 +1,14 @@
+<h1 matDialogTitle *ngIf="has_title()" id="cvah-ngx-monaco-text-editor-title" class="title">{{ title }}</h1>
+<div mat-dialog-content>
+  <cvah-ngx-monaco-editor [show_options]="show_options" [is_read_only]="is_read_only" [text]="text"
+                          [use_language]="use_language" [return_editor_text$]="get_return_text$"
+                          (editor_text)="save($event)">
+  </cvah-ngx-monaco-editor>
+</div>
+<div mat-dialog-actions class="editor-action-buttons">
+  <button mat-raised-button id="cvah-ngx-monaco-text-editor-button-save"
+          matTooltip="{{ get_save_tooltip() }}" color="primary"
+          [disabled]="get_disabled_save()" (click)="save_click()">Save</button>
+  <button mat-raised-button id="cvah-ngx-monaco-text-editor-button-close"
+          matTooltip="{{ get_close_tooltip() }}" (click)="close_click()">Close</button>
+</div>

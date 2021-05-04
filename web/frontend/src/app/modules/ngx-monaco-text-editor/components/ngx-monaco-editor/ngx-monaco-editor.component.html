@@ -1,0 +1,100 @@
+<mat-sidenav-container>
+
+  <!-- Sidenav -->
+  <mat-sidenav #sidenavEditor mode="over" position="'side'">
+    <div *ngIf="show_options && !is_read_only" class="sidenav-editor-options">
+
+      <!-- Language -->
+      <mat-form-field id="cvah-ngx-monaco-editor-mat-form-field-language">
+        <mat-label>Language</mat-label>
+        <mat-select id="cvah-ngx-monaco-editor-mat-form-field-language-mat-select"
+                    [(ngModel)]="selected_lang" (selectionChange)="selection_change_language($event)">
+          <mat-option *ngFor="let language of languages; let i = index;"
+                      id="{{ 'cvah-ngx-monaco-editor-mat-form-field-language-mat-select-mat-option-' + i }}"
+                      [value]="language">{{ language }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Theme -->
+      <mat-form-field id="cvah-ngx-monaco-editor-mat-form-field-theme">
+        <mat-label>Theme</mat-label>
+        <mat-select id="cvah-ngx-monaco-editor-mat-form-field-theme-mat-select"
+                    [(ngModel)]="selected_theme" (selectionChange)="selection_change_theme($event)">
+          <mat-option *ngFor="let theme of themes; let j = index;"
+                      id="{{ 'cvah-ngx-monaco-editor-mat-form-field-theme-mat-select-mat-option-' + j }}"
+                      [value]="theme.value">{{ theme.display_name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Word Wrap -->
+      <mat-form-field id="cvah-ngx-monaco-editor-mat-form-field-wordwrap">
+        <mat-label>Word Wrap</mat-label>
+        <mat-select id="cvah-ngx-monaco-editor-mat-form-field-wordwrap-mat-select"
+                    [(ngModel)]="selected_word_wrap" (selectionChange)="selection_change_word_wrap($event)">
+          <mat-option *ngFor="let word_wrap of word_wraps; let k = index;"
+                      id="{{ 'cvah-ngx-monaco-editor-mat-form-field-wordwrap-mat-select-mat-option-' + k }}"
+                      [value]="word_wrap.value">{{ word_wrap.display_name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Editor Options Divider -->
+      <mat-divider class="editor-side-nav-options-divider"></mat-divider>
+
+      <!-- Minimap -->
+      <mat-checkbox id="cvah-ngx-monaco-editor-mat-checkbox-minimap"
+                    matTooltip="Turn ON/OFF Minimap" [matTooltipPosition]="'above'"
+                    [(ngModel)]="minimap" (change)="change_minimap($event)"
+                    [disabled]="inline_diff">Minimap</mat-checkbox>
+
+      <!-- Compare Changes -->
+      <mat-checkbox id="cvah-ngx-monaco-editor-mat-checkbox-compare-changes"
+                    matTooltip="Compare Code Changes to Original Code" [matTooltipPosition]="'above'"
+                    [(ngModel)]="compare" (change)="change_compare_mode($event)">Compare Changes</mat-checkbox>
+
+      <!-- Inline Diff -->
+      <mat-checkbox id="cvah-ngx-monaco-editor-mat-checkbox-inline-diff"
+                    matTooltip="Show Changes With Inline Diff" [matTooltipPosition]="'above'"
+                    [(ngModel)]="inline_diff" (change)="change_inline_diff($event)"
+                    [disabled]="!compare_mode">Inline Diff</mat-checkbox>
+    </div>
+  </mat-sidenav>
+
+  <!-- Sidenav Content -->
+  <mat-sidenav-content>
+    <div class="editor-wrappers">
+
+      <!-- Editor Options Button -->
+      <button mat-button *ngIf="show_options && !is_read_only"
+              id="cvah-ngx-monaco-editor-button-editor-options"
+              [ngClass]="get_edit_option_class()" matTooltip="Editor Options"
+              [matTooltipPosition]="'above'" (click)="sidenavEditor.toggle()">EO</button>
+
+      <!-- Not Compare Mode -->
+      <div *ngIf="!compare_mode" class="not-compare-mode">
+        <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1"></ngx-monaco-editor>
+      </div>
+
+      <!-- Compare Mode -->
+      <div *ngIf="compare_mode" class="compare-mode">
+
+        <!-- Not Inline Diff -->
+        <div *ngIf="!inline_diff" class="not-inline-diff">
+          <div class="modified-editor-wrapper">
+            <ngx-monaco-editor [options]="modified_options" [(ngModel)]="text1"></ngx-monaco-editor>
+          </div>
+          <mat-divider vertical="true"></mat-divider>
+          <div class="original-editor-wrapper">
+            <ngx-monaco-editor [options]="original_options" [(ngModel)]="text2"></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Inline Diff -->
+        <div *ngIf="inline_diff" class="inline-diff">
+          <div class="diff-editor-wrapper">
+            <ngx-monaco-diff-editor [options]="diff_options" [originalModel]="original_model" [modifiedModel]="modified_model"></ngx-monaco-diff-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -38,7 +38,7 @@
     "file-saver": "2.0.2",
     "hammerjs": "2.0.8",
     "material-design-icons": "3.0.1",
-    "ngx-monaco-editor": "10.0.0-beta.1",
+    "ngx-monaco-editor": "9.0.0",
     "rxjs": "6.6.3",
     "socket.io-client": "2.3.0",
     "tslib": "2.0.1",

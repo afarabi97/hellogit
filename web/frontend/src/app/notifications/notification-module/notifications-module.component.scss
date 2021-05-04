@@ -1,3 +1,10 @@
+app-notifications-module {
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  display: flex;
+  overflow: hidden;
+}
 .messageCenter {
   place-content: center;
   align-items: center;
@@ -6,6 +13,7 @@
   display: flex;
   flex: 1 1 100%;
   max-width: 79%;
+  height: 100%;
 
   &__center {
     width:100%;
@@ -47,14 +55,15 @@
 
   &__card {
     width: 30%;
-    height: auto;
-    min-height: 75%;
-    // height: 75%;
   }
 
   &__clear {
     margin-top: 15px;
   }
+}
+
+.mat-icon {
+  user-select: none;
 }
 
 .messageAll {
@@ -65,5 +74,16 @@
   flex-direction: column;
   box-sizing: border-box;
   display: flex;
+  overflow: hidden;
 }
 
+.message-status-icon {
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+  place-content: center space-between;
+  align-items: center;
+}
+.message-and-delete-wrapper {
+  width: 100%;
+}

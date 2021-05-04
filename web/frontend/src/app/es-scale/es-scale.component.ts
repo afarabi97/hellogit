@@ -2,9 +2,12 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormArray } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ObjectUtilitiesClass } from '../classes';
 
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmActionConfigurationInterface, TextEditorConfigurationInterface } from '../interfaces';
+import { NGXMonacoTextEditorComponent } from '../modules/ngx-monaco-text-editor/ngx-monaco-text-editor.component';
 import { UserService } from '../services/user.service';
 import { WebsocketService } from '../services/websocket.service';
 import { ESScaleServiceService } from './es-scale-service.service';
@@ -58,16 +61,13 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   readonly elasticScaling = 'Elastic Scaling';
   nodes: FormArray;
   newArray: any[] = [];
-  ioConnection: any;
   elasticPodTypes: SliderControl[] = [];
   max: number;
   min: number;
   step: number;
   value: number;
   thumbLabel: boolean;
-  elasticConfig: string;
   status: boolean;
-  isUserEditing: boolean;
   loading: boolean;
   controllerMaintainer: boolean;
   masterSlider: SliderControl;
@@ -82,8 +82,6 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
     this.min = 3;
     this.step = 1;
     this.value = 0;
-    this.isUserEditing = false;
-    this.elasticConfig = '';
     this.loading = true;
     this.status = false;
     this.thumbLabel = false;
@@ -109,7 +107,7 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
     });
 
 
-    this.ioConnection = this._WebsocketService.onBroadcast()
+    this._WebsocketService.onBroadcast()
     .subscribe((message: any) => {
       if(message["status"] === "COMPLETED") {
         this.status = false;
@@ -200,19 +198,53 @@ export class ESScaleComponent implements OnInit, AfterViewInit {
   }
 
   editElasticConfig(){
-    this.isUserEditing = true;
     this.EsScaleSrv.getElasticFullConfig().subscribe(data => {
-      this.elasticConfig = data['elastic'];
+      const save_confirm_action_configuration: ConfirmActionConfigurationInterface = {
+        title: 'Close and save',
+        message: 'Are you sure you want to save this configuration? ' +
+                 'Doing so will update the Elasticsearch configuration ' +
+                 'and may cause interuption to services for a few minutes.',
+        confirmButtonText: 'Save',
+        successText: 'Saved Elastic Configuration',
+        failText: 'Could not save',
+        useGeneralActionFunc: true,
+        actionFunc: () => {}
+      };
+      const close_confirm_action_configuration: ConfirmActionConfigurationInterface = {
+        title: 'Close without saving',
+        message: 'Are you sure you want to close this editor? All changes will be discarded.',
+        confirmButtonText: 'Close',
+        successText: 'Closed without saving',
+        failText: '',
+        useGeneralActionFunc: true,
+        actionFunc: () => {}
+      };
+      const text_editor_configuration: TextEditorConfigurationInterface = {
+        show_options: true,
+        is_read_only: false,
+        title: 'Elastic Configuration',
+        text: data['elastic'],
+        use_language: 'yaml',
+        disable_save: !this.controllerMaintainer,
+        confirm_save: save_confirm_action_configuration,
+        confirm_close: close_confirm_action_configuration
+      };
+      const dialogRef = this.dialog.open(NGXMonacoTextEditorComponent, {
+        height: '90vh',
+        width: '80vw',
+        disableClose: true,
+        data: text_editor_configuration,
+      });
+
+      dialogRef.afterClosed()
+        .subscribe(
+          (response: string) => {
+            if(ObjectUtilitiesClass.notUndefNull(response)) {
+              this.EsScaleSrv.postElasticFullConfig(response)
+                .subscribe(_pe => this.deployElastic_());
+            }
+          });
     });
-  }
-
-  saveAndCloseEditor(configData: string){
-    this.isUserEditing = false;
-    this.EsScaleSrv.postElasticFullConfig(configData).subscribe(_pe => this.deployElastic_());
-  }
-
-  closeEditor(event: any) {
-    this.isUserEditing = false;
   }
 
   private deployElastic_(): void {

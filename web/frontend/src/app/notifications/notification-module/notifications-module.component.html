@@ -1,4 +1,4 @@
-<div class="messageAll" fxLayout="row" fxLayoutAlign="space-between start">
+<div class="messageAll" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px">
     <!--Buttons-->
     <mat-card class="messageList__card messageList__buttonGroup" fxLayoutGap="10px" fxLayout="column" fxLayoutAlign="start center">
         <button mat-raised-button *ngFor="let button of buttonList; let i = index;"
@@ -21,39 +21,41 @@
             <ng-container *ngFor="let list of buttonList; let i = index;">
                 <div class="messageCenter__center__outerCard__margin" *ngIf="(selectedButton.role === list.role)">
                     <div *ngFor="let notification of list.notifications; let j = index;" fxLayout="row" fxLayoutAlign="start center">
-                        <div [ngSwitch]="notification.status">
-                            <mat-icon *ngSwitchCase="'IN_PROGRESS'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-sync' }}"
-                                      style="font-size: 24px; margin-right: 10px;">sync</mat-icon>
-                            <mat-icon *ngSwitchCase="'ERROR'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-warning' }}"
-                                      style="font-size: 24px; margin-right: 10px;">warning</mat-icon>
-                            <mat-icon *ngSwitchCase="'COMPLETED'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-done' }}"
-                                      style="font-size: 24px; margin-right: 10px;">done</mat-icon>
-                            <mat-icon *ngSwitchCase="'STARTED'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-play-circle-outline' }}"
-                                      style="font-size: 24px; margin-right: 10px;">play_circle_outline</mat-icon>
-                            <mat-icon *ngSwitchCase="'DEPLOYED'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-assignment-turned-in' }}"
-                                      style="font-size: 24px; margin-right: 10px;">assignment_turned_in</mat-icon>
-                            <mat-icon *ngSwitchCase="'CANCELLED'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-not-interested' }}"
-                                      style="font-size: 24px; margin-right: 10px;">not_interested</mat-icon>
-                            <mat-icon *ngSwitchCase="'DELETED'"
-                                      id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-clear' }}"
-                                      style="font-size: 24px; margin-right: 10px;">clear</mat-icon>
-                        </div>
-                        <mat-card class="messageCenter__center__outerCard__innerCard" fxLayout="row" fxLayoutAlign="space-between center">
-                            <div class="messageCenter__center__outerCard__innerCard__left">
-                                <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-statusactionapp' }}">{{notification.status}}&nbsp;{{notification.action}}&nbsp;{{notification.application}}</div>
-                                <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-message' }}">{{notification.message}}</div>
-                                <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-exception' }}">{{notification.exception}}</div>
-                                <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-displaytime' }}">{{notification.displayTime}}</div>
+                        <mat-card class="messageCenter__center__outerCard__innerCard" fxLayout="row" fxLayoutGap="10px">
+                            <div [ngSwitch]="notification.status" class="message-status-icon">
+                                <mat-icon *ngSwitchCase="'IN_PROGRESS'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-sync' }}"
+                                          style="font-size: 24px; margin-right: 10px;">sync</mat-icon>
+                                <mat-icon *ngSwitchCase="'ERROR'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-warning' }}"
+                                          style="font-size: 24px; margin-right: 10px;">warning</mat-icon>
+                                <mat-icon *ngSwitchCase="'COMPLETED'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-done' }}"
+                                          style="font-size: 24px; margin-right: 10px;">done</mat-icon>
+                                <mat-icon *ngSwitchCase="'STARTED'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-play-circle-outline' }}"
+                                          style="font-size: 24px; margin-right: 10px;">play_circle_outline</mat-icon>
+                                <mat-icon *ngSwitchCase="'DEPLOYED'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-assignment-turned-in' }}"
+                                          style="font-size: 24px; margin-right: 10px;">assignment_turned_in</mat-icon>
+                                <mat-icon *ngSwitchCase="'CANCELLED'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-not-interested' }}"
+                                          style="font-size: 24px; margin-right: 10px;">not_interested</mat-icon>
+                                <mat-icon *ngSwitchCase="'DELETED'"
+                                          id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-div-mat-icon-clear' }}"
+                                          style="font-size: 24px; margin-right: 10px;">clear</mat-icon>
                             </div>
-                            <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controllerMaintainer">
-                                <mat-icon id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-mat-icon-delete' }}"
-                                          style="font-size: 24px;cursor: pointer;" (click)="clearNotification(notification._id)">delete</mat-icon>
+                            <div class="message-and-delete-wrapper" fxLayout="row" fxLayoutAlign="space-between center">
+                                <div class="messageCenter__center__outerCard__innerCard__left" fxFlex>
+                                    <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-statusactionapp' }}">{{notification.status}}&nbsp;{{notification.action}}&nbsp;{{notification.application}}</div>
+                                    <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-message' }}">{{notification.message}}</div>
+                                    <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-exception' }}">{{notification.exception}}</div>
+                                    <div id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-div-notification-displaytime' }}">{{notification.displayTime}}</div>
+                                </div>
+                                <div class="messageCenter__center__outerCard__innerCard__right" *ngIf="controllerMaintainer" fxFlex="none">
+                                    <mat-icon id="{{ 'app-notifications-module-div-div-div-list-' + i + '-div-div-' + j + '-notification-mat-card-div-mat-icon-delete' }}"
+                                              style="font-size: 24px;cursor: pointer;" (click)="clearNotification(notification._id)">delete</mat-icon>
+                                </div>
                             </div>
                         </mat-card>
                     </div>

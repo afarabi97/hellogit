@@ -1,0 +1,111 @@
+.mat-drawer-container,
+.mat-sidenav-container {
+  height: 100% !important;
+  .sidenav-editor-options {
+    padding: 10px;
+    flex-direction: column;
+    box-sizing: border-box;
+    display: flex;
+    .editor-side-nav-options-divider {
+      padding-bottom: 1.25em;
+    }
+  }
+  .editor-wrappers {
+    height: 100%;
+    flex-direction: column;
+    box-sizing: border-box;
+    display: flex;
+    .option-button {
+      flex: 0 0 auto;
+      box-sizing: border-box;
+      margin-right: -16px;
+      margin-bottom: -20px;
+      position: sticky;
+      z-index: 100;
+      width: 18px !important;
+      min-width: 18px !important;
+      height: 20px;
+      padding: 0 2px;
+      font-size: 9px;
+      line-height: inherit !important;
+    }
+    .option-button-light {
+      color: black;
+    }
+    .option-button-dark {
+      color: white;
+    }
+    .not-compare-mode {
+      height: 100%;
+      overflow: hidden;
+      flex-direction: column;
+      box-sizing: border-box;
+      display: flex;
+      flex: 1 1 0%;
+    }
+    .compare-mode {
+      height: 100%;
+      overflow: hidden;
+      flex-direction: column;
+      box-sizing: border-box;
+      display: flex;
+      flex: 1 1 0%;
+      .not-inline-diff {
+        flex-direction: row;
+        box-sizing: border-box;
+        display: flex;
+        flex: 1 1 1e-09px;
+        .modified-editor-wrapper {
+          flex-direction: column;
+          box-sizing: border-box;
+          display: flex;
+          flex: 1 1 100%;
+          max-width: 49.75%;
+        }
+        .mat-divider-vertical {
+          flex: 1 1 100%;
+          box-sizing: border-box;
+          max-width: 0.5%;
+          border-right-style: hidden;
+        }
+        .original-editor-wrapper {
+          flex-direction: column;
+          box-sizing: border-box;
+          display: flex;
+          flex: 1 1 100%;
+          max-width: 49.75%;
+        }
+      }
+      .inline-diff {
+        flex-direction: column;
+        box-sizing: border-box;
+        display: flex;
+        flex: 1 1 1e-09px;
+        .diff-editor-wrapper {
+          flex-direction: column;
+          box-sizing: border-box;
+          display: flex;
+          flex: 1 1 1e-09px;
+        }
+      }
+    }
+  }
+}
+
+.mat-drawer-content .mat-sidenav-content {
+  overflow: hidden !important;
+}
+
+/** NGX MONACO EDITOR **/
+ngx-monaco-editor,
+ngx-monaco-diff-editor {
+  flex: 1 1 1e-09px;
+  box-sizing: border-box;
+  .editor-container {
+    height: 100% !important;
+    .monaco-editor {
+      position: relative;
+      height: 100% !important;
+    }
+  }
+}
