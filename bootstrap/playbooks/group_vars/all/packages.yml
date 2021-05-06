@@ -31,7 +31,7 @@ extra_packages:
   - inotify-tools
   - mongodb-org
   - nload
-  - openvpn-2.4.10-1.el8
+  - openvpn-2.4.11-1.el8
   - screen
   - sshpass
   - pkcs11-helper
