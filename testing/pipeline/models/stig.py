@@ -9,7 +9,7 @@ from enum import Enum, auto
 
 
 PIPELINE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/../"
-STIG_PATH_TO_SITE_YAML = PIPELINE_DIR + '/../../rhel8-stigs/' + 'rhel8-playbook-stig.yml'
+STIG_PATH_TO_SITE_YAML = PIPELINE_DIR + '/../../rhel8-stigs/' + 'site.yml'
 STIG_TIMEOUT = 300
 STIG_MAKE_PATH_TO_PLAYBOOK_DIR = '/opt/tfplenum/rhel8-stigs/'
 
@@ -85,7 +85,7 @@ class STIGSettings(Model):
         self.executor_type = ExecutorType.PLAY      # default is MAKE but, if you call this function you probably don't want to run a make command
         self.play_execution_vars = {
             'play_ipaddress': self.ipaddress,
-            'play_extra_vars': {"ansible_ssh_pass": self.password, "ansible_user": self.username},
+            'play_extra_vars': {"ansible_ssh_pass": self.password, "ansible_user": self.username, "node_type": "Server"},
             'play_targets': play_targets,
             'play_tags': play_tags,
             'play_timeout': play_timeout,

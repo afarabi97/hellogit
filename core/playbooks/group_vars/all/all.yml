@@ -1,6 +1,6 @@
 ---
 # TFPlenum
-version: 3.6.0
+version: 3.7.0
 tfplenum_config_dir: /etc/tfplenum
 tfplenum_opt_dir: /opt/tfplenum
 tfplenum_log_path: /var/log/tfplenum

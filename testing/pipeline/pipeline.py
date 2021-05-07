@@ -339,6 +339,7 @@ class Runner:
                     ctrl_settings, export_settings.export_loc)
                 executor.export_controller()
             elif args.which == SubCmd.create_master_drive_hashes:
+                print("Starting hash files")
                 drive_hash_settings = DriveCreationHashSettings()
                 drive_hash_settings.from_namespace(args)
                 executor = DriveHashCreationJob(drive_hash_settings)
@@ -384,6 +385,7 @@ class Runner:
 
 
 def main():
+    print("Starting pipeline.py process")
     runner = Runner()
     runner._setup_logging()
     runner._setup_args()

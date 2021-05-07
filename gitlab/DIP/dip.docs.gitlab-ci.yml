@@ -34,8 +34,8 @@ DIP Setup Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_SETUP_DOCS"
@@ -58,8 +58,8 @@ DIP User Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_USER_DOCS"
@@ -82,8 +82,8 @@ DIP Maintenance Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_MAIN_DOCS"
@@ -106,8 +106,8 @@ DIP TroubleShooting Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
+    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$DIP_CONFLUENCE_TROUBLE_DOCS"
@@ -117,8 +117,7 @@ DIP TroubleShooting Documents:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
 
-
-DIP VDD Documents:
+CPT VDD Documents:
   stage: docs
   needs: ["Clear Staging Environment"]
   tags:
@@ -130,16 +129,38 @@ DIP VDD Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$DIP_CPT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
-    --mdt-export-path "$DIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
+    --cpt-export-path "$CPT_VDD_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$DIP_CONFLUENCE_VDD_DOCS"
+    --page-titles "$CPT_CONFLUENCE_VDD_DOCS"
   retry: 2
   only:
     variables:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
+
+MDT VDD Documents:
+  stage: docs
+  needs: ["Clear Staging Environment"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP VDD Documents - Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    run-export export-single-page-pdf \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --mdt-export-path "$MDT_VDD_EXPORT_LOC/" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "$MDT_CONFLUENCE_VDD_DOCS"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "export-docs"
+      - $PIPELINE == "export-all"
+
 
 Minor Release VDD Documents:
   stage: docs

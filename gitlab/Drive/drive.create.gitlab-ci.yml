@@ -29,7 +29,7 @@ Clear GIP Staging Environment:
   retry: 2
   only:
     variables:
-      - $PIPELINE == "export-gip"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
 
 Hash Master GIP Drive:
   stage: hashfiles
@@ -37,13 +37,14 @@ Hash Master GIP Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_GIP_RSYNC_SOURCE" \
+    --drive-type "GIP" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $PIPELINE == "export-gip"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
 
 Hash Check Master GIP Drive:
   stage: checkhash
@@ -51,13 +52,14 @@ Hash Check Master GIP Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_GIP_MOUNT_POINT" \
+    --drive-type "GIP" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
-      - $RUN_CREATE_GIP_DRIVE == "yes"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"
 
 Hash Master CPT Drive:
   stage: hashfiles
@@ -65,14 +67,16 @@ Hash Master CPT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE" \
+    --drive-type "CPT" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
       - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $PIPELINE == "minor-release"      
+      - $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
 
 Hash Master MDT Drive:
   stage: hashfiles
@@ -80,14 +84,16 @@ Hash Master MDT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE" \
+    --drive-type "MDT" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
       - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $MDT == "yes" && $PIPELINE == "minor-release"      
+      - $MDT == "yes" && $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
 
 Hash Check Master CPT Drive:
   stage: checkhash
@@ -95,14 +101,16 @@ Hash Check Master CPT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_CPT_MOUNT_POINT" \
+    --drive-type "CPT" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
       - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $PIPELINE == "minor-release"      
+      - $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
 
 Hash Check Master MDT Drive:
   stage: checkhash
@@ -110,15 +118,17 @@ Hash Check Master MDT Drive:
     - tfplenum-buildv2
   script: |
     python3 testing/pipeline/pipeline.py run-export check-master-drive-hashes \
-    --rsync-source "$MASTER_DRIVE_CREATION_MDT_MOUNT_POINT" \
+    --drive-type "MDT" \
+    --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS"
   only:
     variables:
       - $PIPELINE == "export-all" && $RUN_CREATE_MASTER_DRIVE == "yes"
-      - $MDT == "yes" && $PIPELINE == "minor-release"      
-      
+      - $MDT == "yes" && $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
+
 Create Master CPT Drive:
   stage: publish
   tags:
@@ -126,19 +136,17 @@ Create Master CPT Drive:
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive \
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_CPT_DRIVE" \
-    --mount-point "$MASTER_DRIVE_CREATION_CPT_MOUNT_POINT" \
-    --rsync-source "$MASTER_DRIVE_CREATION_CPT_RSYNC_SOURCE" \
+    --drive-type "CPT" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --multiboot-path "$MASTER_DRIVE_CPT_MULTIBOOT_PATH" \
-    --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
     --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
       - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
 
 Create Master MDT Drive:
   stage: publish
@@ -147,19 +155,17 @@ Create Master MDT Drive:
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive \
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_MDT_DRIVE" \
-    --mount-point "$MASTER_DRIVE_CREATION_MDT_MOUNT_POINT" \
-    --rsync-source "$MASTER_DRIVE_CREATION_MDT_RSYNC_SOURCE" \
+    --drive-type "MDT" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
-    --multiboot-path "$MASTER_DRIVE_MDT_MULTIBOOT_PATH" \
     --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
       - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
       - $RUN_CREATE_MASTER_DRIVE == "yes" && $MDT == "yes" && $PIPELINE == "minor-release"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "drive-only"
 
 Create Master GIP Drive:
   stage: publish
@@ -168,14 +174,12 @@ Create Master GIP Drive:
   script: |
     python3 testing/pipeline/pipeline.py run-export create-master-drive \
     --external-drive "$MASTER_DRIVE_CREATION_EXTERNAL_GIP_DRIVE" \
-    --mount-point "$MASTER_DRIVE_CREATION_GIP_MOUNT_POINT" \
-    --rsync-source "$MASTER_DRIVE_CREATION_GIP_RSYNC_SOURCE" \
+    --drive-type "GIP" \
     --username "$MASTER_DRIVE_CREATION_USERNAME" \
     --password "$MASTER_DRIVE_CREATION_PASSWORD" \
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
-    --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
     --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
     --burn-multiboot "no"
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-gip"

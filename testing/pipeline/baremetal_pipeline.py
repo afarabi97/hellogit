@@ -21,9 +21,6 @@ from models.node import HardwareNodeSettingsV2
 from models.kit import KitSettingsV2
 from util.ansible_util import delete_vms
 from util.yaml_util import YamlManager
-#TODO:
-#from models.kickstart import HwMIPKickstartSettings
-#from models.mip_config import MIPConfigSettings
 
 
 class BaremetalRunner():
@@ -169,25 +166,6 @@ class BaremetalRunner():
                 executor = VerodinJob(verodin_settings, ctrl_settings,
                                       nodes, kit_settings)
                 executor.run_job()
-            # TODO:
-            # elif args.which == SubCmd.run_mip_kickstart:
-            #     ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-            #         args.system_name, HwControllerSetupSettings)
-            #     mip_kickstart_settings = HwMIPKickstartSettings()
-            #     mip_kickstart_settings.from_mip_namespace(args)
-            #     YamlManager.save_to_yaml(mip_kickstart_settings)
-            #     executor = HwMIPKickstartJob(
-            #         ctrl_settings, mip_kickstart_settings)
-            #     executor.run_hw_mip_kickstart()
-            # elif args.which == SubCmd.run_mip_config:
-            #     ctrl_settings = YamlManager.load_ctrl_settings_from_yaml(
-            #         args.system_name, HwControllerSetupSettings)
-            #     kickstart_settings = YamlManager.load_hw_mip_kickstart_settings_from_yaml()
-            #     mip_config_settings = MIPConfigSettings()
-            #     mip_config_settings.from_namespace(args)
-            #     YamlManager.save_to_yaml(mip_config_settings)
-            #     executor = MIPConfigJob(ctrl_settings, kickstart_settings, mip_config_settings)
-            #     executor.run_mip_config()
             else:
                 self._run_catalog(args.which, args.process, args)
         except ValueError as e:

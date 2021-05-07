@@ -33,8 +33,8 @@ MIP Setup Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_SETUP_FOLDER" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_SETUP_DOCS"
@@ -55,8 +55,8 @@ MIP User Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_USER_FOLDER" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_USER_DOCS"
@@ -77,8 +77,8 @@ MIP Maintenance Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_MAINTENANCE_FOLDER" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_MAIN_DOCS"
@@ -99,33 +99,11 @@ MIP TroubleShooting Documents:
     run-export export-single-page-pdf \
     --username "$CONFLUENCE_USERNAME" \
     --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_TROUBLESHOOTING_FOLDER" \
+    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/" \
+    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/" \
     --staging-export-path "$DRIVE_STAGING_FOLDER" \
     --export-version "$TFPLENUM_EXPORT_VERSION" \
     --page-titles "$MIP_CONFLUENCE_TROUBLE_DOCS"
-  retry: 2
-  only:
-    variables:
-      - $PIPELINE == "export-docs"
-      - $PIPELINE == "export-all"
-
-
-MIP VDD Documents:
-  stage: docs
-  needs: ["Clear Staging Environment"]
-  tags:
-    - tfplenum-buildv2
-  script: |
-    python3 testing/pipeline/pipeline.py \
-    run-export export-single-page-pdf \
-    --username "$CONFLUENCE_USERNAME" \
-    --password "$CONFLUENCE_PASSWORD" \
-    --cpt-export-path "$MIP_CPT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
-    --mdt-export-path "$MIP_MDT_DOC_EXPORT_LOC/$DOCS_VDD_FOLDER" \
-    --staging-export-path "$DRIVE_STAGING_FOLDER" \
-    --export-version "$TFPLENUM_EXPORT_VERSION" \
-    --page-titles "$MIP_CONFLUENCE_VDD_DOCS"
   retry: 2
   only:
     variables:

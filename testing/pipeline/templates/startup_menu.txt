@@ -1,0 +1,80 @@
+# Do not change or move this function
+function make_entry {
+if [ -f "${gmenu}" ] ; then
+	set myclass="$1"
+    if [ "$myclass" == "" ]; then set myclass=exe; fi
+	set myhotkey="$2"
+    if ! [ "$myhotkey" == "" ]; then set myhotkey=--hotkey=$myhotkey; fi
+	menuentry "$gmenu_title" "$gmenu" "$gmenu_type"  --class="$myclass" $myhotkey {
+		set grubfm_file="$2"
+		if [ "$3" = "wininst" ] ; then delvars; configfile (${user})/boot/grubfm/rules/iso/win.sh ; fi
+		if [ "$3" = "e2biso" ]  ; then delvars; configfile (${user})/boot/grubfm/rules/iso/e2b.sh ; fi
+		delvars; grubfm_open "${grubfm_file}"
+	}
+fi
+	unset gmenu
+}
+
+function delvars {
+unset gmenu;unset gmenu_title; unset gmenu_type
+unset mymenu
+unset mytheme
+unset DIAG
+}
+
+# ========== MENU STARTS HERE ==============
+
+# default must always be 0 because it affects all menus - DO NOT CHANGE!!!
+set default=0
+# FIRST MENU ENTRY HERE - this must always be the default menu entry (always use 'set default=0')
+
+
+###### MENU SETTINGS #######
+
+export lang=en_US
+set quiet=1
+#unset quiet
+
+export grub_disable_console=1
+export grub_disable_edit=1
+export grub_enable_menu_jump=1
+
+export grub_normal_menu_title="CVA/H MIP/DIP Multiboot Installer"
+
+set DIAG=0
+
+######## MYMENU=2 - USER MENU CONFIG ##########
+unset theme_std; unset theme_fm;unset theme_info;unset theme_hw_grub;unset theme_hw_cpu;unset theme_hw_board;unset theme_hw_ram;set theme_fm=xxxx
+unset theme
+set gfxmode=1024x768
+terminal_output gfxterm
+set gfxpayload=1024x768
+#Menu colours - format: text/background  (black background=transparent)
+#Choice: black,blue,brown,cyan,dark-gray,green,light-cyan,light-blue,light-green,light-gray,light-magenta,light-red,magenta,red,white,yellow
+set menu_color_highlight=light-green/black
+set menu_color_normal=white/black
+set color_normal=light-gray/black
+#add either your background image or a fill colour - use stretch or normal - .png, .tga, .jpg, or .jpeg
+background_image -m normal (${user})/boot/grubfm/af2.jpg
+#valid fill_colors: black,blue,brown,cyan,green,gray,magenta,red,white,yellow
+###background_color black
+###########################################
+
+grubfm_set --boot 1
+export grubfm_disable_qsort=1
+export grubfm_current_path="(${bootdev},msdos1)/_ISO/"
+
+if [ "${theme}" == "" ]; then unset theme; fi
+
+# ====== HOTKEYS ======
+# You must change 0 to 1 if you want to define your own hotkeys instead of using global.sh
+if [ 1 == 1 ]; then
+
+menuentry "[F10] Power Options" --hotkey f10 {
+  delvars; configfile ${prefix}/power.sh;
+}
+fi
+# ====== END of hotkeys =====
+
+
+

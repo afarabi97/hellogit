@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-export CVAH_VERSION=3.6.0
+export CVAH_VERSION=3.7.0
 bootstrap_version=1.5.0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 EPEL_RPM_PUBLIC_URL="https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"

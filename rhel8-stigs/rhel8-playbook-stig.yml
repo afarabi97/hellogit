@@ -1,7 +1,9 @@
 ---
-- set_fact:
+
+- name: Setting node type
+  set_fact:
     node_type: "Controller"
-  when: inventory_hostname == "localhost"
+  when: 'inventory_hostname == "localhost"'
 
 - name: Set Variables
   set_fact:

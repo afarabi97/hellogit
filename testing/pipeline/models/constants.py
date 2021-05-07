@@ -65,11 +65,6 @@ class SubCmd:
     check_master_drive_hashes = 'check-master-drive-hashes'
     export_minio = Command('minio', 'export-minio')
 
-    # mip subcommands
-    run_mip_kickstart = 'run-mip-kickstart'
-    run_mip_config = 'run-mip-config'
-    save_kit = 'save-kit'
-
     # gip-setup subcommands
     create_gip_service_vm = 'create-gip-service-vm'
     run_gip_kickstart = 'run-gip-kickstart'
