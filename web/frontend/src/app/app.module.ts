@@ -30,7 +30,6 @@ import { KickstartNodeFormComponent } from './system-setup/components/kickstart-
 import { KitNodeFormComponent } from './system-setup/components/kit-node-form/kit-node-form.component';
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { PortalComponent } from './portal/portal.component';
 import { SupportComponent } from './support/support.component';
 import { AddNodeComponent } from './system-setup/add-node/add-node.component';
 import { LogIngestComponent } from './log-ingest/log-ingest.component';
@@ -120,7 +119,8 @@ import { IndexManagementComponent } from './index-management/component/index-man
 import { SystemNameClass, UserClass } from './classes';
 
 import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
-// import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
+import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
+import { PortalModule } from './modules/portal/portal.module';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
@@ -129,7 +129,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
 export function initializeSystemName(appLoadService: AppLoadService): () => Promise<SystemNameClass> {
   return (): Promise<SystemNameClass> => appLoadService.getSystemName();
 }
-import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 
 @NgModule({
   declarations: [
@@ -147,7 +146,6 @@ import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-
     TotalSensorResourcesCardComponent,
     TotalSystemResourceCardComponent,
     ServerStdoutComponent,
-    PortalComponent,
     SupportComponent,
     ToolsFormComponent,
     ChangePasswordFormComponent,
@@ -206,7 +204,8 @@ import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-
     NgxMatTimepickerModule,
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
-    NGXMonacoTextEditorModule
+    NGXMonacoTextEditorModule,
+    PortalModule
   ],
   providers: [
     SnackbarWrapper,

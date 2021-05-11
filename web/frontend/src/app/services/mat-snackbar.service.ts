@@ -40,6 +40,45 @@ export class MatSnackBarService implements MatSnackbarServiceInterface, OnDestro
   }
 
   /**
+   * Used for generating a success return snackbar message
+   *
+   * @param {string} message
+   * @param {MatSnackbarConfigurationClass} [matSnackbarConfigurationClass]
+   * @memberof MatSnackBarService
+   */
+  generate_return_success_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void {
+    const success_message: string = `Successfully ${message}`;
+
+    this.displaySnackBar(success_message, matSnackbarConfigurationClass);
+  }
+
+  /**
+   * Used for generating a fail return snackbar message
+   *
+   * @param {string} message
+   * @param {MatSnackbarConfigurationClass} [matSnackbarConfigurationClass]
+   * @memberof MatSnackBarService
+   */
+  generate_return_fail_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void {
+    const fail_message: string = `Failed ${message}`;
+
+    this.displaySnackBar(fail_message, matSnackbarConfigurationClass);
+  }
+
+  /**
+   * Used for generating a error return snackbar message
+   *
+   * @param {string} message
+   * @param {MatSnackbarConfigurationClass} [matSnackbarConfigurationClass]
+   * @memberof MatSnackBarService
+   */
+  generate_return_error_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void {
+    const error_message: string = `Error ${message}`;
+
+    this.displaySnackBar(error_message, matSnackbarConfigurationClass);
+  }
+
+  /**
    * Used to display a snackbar
    *
    * @param {string} message

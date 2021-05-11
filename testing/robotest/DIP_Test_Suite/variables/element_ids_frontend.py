@@ -915,17 +915,15 @@ POLICY_MNG_UPLOAD__BUTTON_UPLOAD = 'policy-mng-upload-div-button-upload' # uploa
 
 
 # These are for portal.component.html
-APP_PORTAL__TITLE_BUTTON_ADD_LINK = 'app-portal-div-mat-card-mat-card-header-mat-card-title-button-add-link' # button
-APP_PORTAL__TITLE_BUTTON_ADD_LINK_MAT_ICON_ADD = 'app-portal-div-mat-card-mat-card-header-mat-card-title-button-add-link-mat-icon-add' # mat-icon
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-a-dns # a
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-a-ip # a
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-logins # div
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-name # div
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-url # div
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-description # div
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-button # button
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-button-em-delete # em
-# TODO app-portal-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-*-div-div-div-link-description-substring # div
+CVAH_PORTAL__TITLE_BUTTON_ADD_LINK = 'cvah-portal-title-button-add-link' # button
+# TODO cvah-portal-portal-link-*-dns # a
+# TODO cvah-portal-portal-link-*-ip # a
+# TODO cvah-portal-portal-link-*-logins # div
+# TODO cvah-portal-user-portal-link-*-name # div
+# TODO cvah-portal-user-portal-link-*-url # div
+# TODO cvah-portal-user-portal-link-*-description # div
+# TODO cvah-portal-user-portal-link-*-button-delete # button
+# TODO cvah-portal-user-portal-link-*-description-substring # div
 
 
 # These are for registry.component.html

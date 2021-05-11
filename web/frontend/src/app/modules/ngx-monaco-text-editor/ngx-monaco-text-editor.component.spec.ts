@@ -3,11 +3,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
 import {
-  CONFIRM_ACTION_CONFIGURATION_CLOSE_ALT_ACTION_FUNCTION_TRUE_INTERFACE,
-  CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_TRUE_INTERFACE,
-  TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_FALSE_INTERFACE,
-  TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE,
-  TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE
+  ConfirmActionConfigurationCloseAltActionFunctionTrueInterface,
+  ConfirmActionConfigurationSaveAltActionFunctionTrueInterface,
+  TextEditorConfigurationAltActionFuncFalseInterface,
+  TextEditorConfigurationAltActionFuncTrueInterface,
+  TextEditorConfigurationNoConfirmActionsInterface
 } from '../../../../static-data/interface-objects-v3_7';
 import { ConfirmActionPopup } from '../../classes/ConfirmActionPopup';
 import { CLOSE_DEFAULT_TOOLTIP, SAVE_DEFAULT_TOOLTIP } from './constants/ngx-monaco-editor.constants';
@@ -53,7 +53,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       providers: [
         ConfirmActionPopup,
         { provide: MatDialogRef, useClass: MatDialogMock },
-        { provide: MAT_DIALOG_DATA, useValue: TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE }
+        { provide: MAT_DIALOG_DATA, useValue: TextEditorConfigurationNoConfirmActionsInterface }
       ]
     }).compileComponents();
   }));
@@ -140,10 +140,10 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call get_save_tooltip() and return passed save button tooltip', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         const return_value: string = component.get_save_tooltip();
 
-        expect(return_value).toEqual(CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_TRUE_INTERFACE.title);
+        expect(return_value).toEqual(ConfirmActionConfigurationSaveAltActionFunctionTrueInterface.title);
       });
 
       it('should call has_title() and return default save tooltip', () => {
@@ -167,10 +167,10 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call get_close_tooltip() and return passed close button tooltip', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         const return_value: string = component.get_close_tooltip();
 
-        expect(return_value).toEqual(CONFIRM_ACTION_CONFIGURATION_CLOSE_ALT_ACTION_FUNCTION_TRUE_INTERFACE.title);
+        expect(return_value).toEqual(ConfirmActionConfigurationCloseAltActionFunctionTrueInterface.title);
       });
 
       it('should call get_close_tooltip() and return default close tooltip', () => {
@@ -212,7 +212,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call save_click() and call confirm_action_dialog_.confirmAction()', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         component.save_click();
 
         expect(component['confirm_action_dialog_'].confirmAction).toHaveBeenCalled();
@@ -224,7 +224,7 @@ describe('NGXMonacoTextEditorComponent', () => {
         // Add spy to trigger action function
         spyOn(component['confirm_action_dialog_']['dialog'], 'open').and.returnValue({ afterClosed: () => of(component['mat_dialog_data_'].confirm_save.confirmButtonText) } as MatDialogRef<typeof component>);
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         component.save_click();
 
         // No way to see if return function passed but can check that variables within
@@ -235,7 +235,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call save_click() and reference actionFunc', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_FALSE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncFalseInterface;
         component.save_click();
 
         // No way to see if return function passed but can check that variables within
@@ -274,7 +274,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call close_click() and call confirm_action_dialog_.confirmAction()', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         component.close_click();
 
         expect(component['confirm_action_dialog_'].confirmAction).toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe('NGXMonacoTextEditorComponent', () => {
         // Add spy to trigger action function
         spyOn(component['confirm_action_dialog_']['dialog'], 'open').and.returnValue({ afterClosed: () => of(component['mat_dialog_data_'].confirm_close.confirmButtonText) } as MatDialogRef<typeof component>);
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_TRUE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncTrueInterface;
         component.close_click();
 
         // No way to see if return function passed but can check that variables within
@@ -297,7 +297,7 @@ describe('NGXMonacoTextEditorComponent', () => {
       it('should call close_click() and reference actionFunc', () => {
         reset();
 
-        component['mat_dialog_data_'] = TEXT_EDITOR_CONFIGURATION_ALT_ACTION_FUNC_FALSE_INTERFACE;
+        component['mat_dialog_data_'] = TextEditorConfigurationAltActionFuncFalseInterface;
         component.close_click();
 
         // No way to see if return function passed but can check that variables within

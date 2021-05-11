@@ -1,0 +1,76 @@
+<div class="main-content2">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+                <div fxFlex></div>
+                <div fxFlex >Portal</div>
+                <div fxFlex fxLayout="row" fxLayoutAlign="end center">
+                  <button mat-raised-button id="cvah-portal-title-button-add-link"
+                        color="primary" (click)="open_add_user_portal_link()" [disabled]="!operator">
+                    <mat-icon>add</mat-icon>Add Link
+                  </button>
+                </div>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <br>
+            <div fxLayout="row" fxLayoutAlign="center center">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                    <img class="logo" height="100" src="../assets/logo.png" alt="CVA/H" />
+                </div>
+                <br>
+            </div>
+            <mat-grid-list cols="2" rowHeight="4:1" gutterSize="10px">
+                <h3 mat-subheader>Common Links</h3>
+                <mat-grid-tile *ngFor="let portal_link of portal_links; let i = index;" class="zoom" style="background: rgba(0,0,0,.38);">
+                    <div fxLayout="column" fxLayoutAlign="space-around start">
+                        <div style="margin-bottom: 10px; font-size: 1.5em;">
+                            <a id="{{ 'cvah-portal-portal-link-' + i + '-dns' }}"
+                               href="{{ portal_link.dns }}" target="_blank">{{ portal_link.dns }}</a>
+                        </div>
+                        <div style="margin-bottom: 10px; font-size: 1.2em;">
+                            <a id="{{ 'cvah-portal-portal-link-' + i + '-ip' }}"
+                               href="{{ portal_link.ip }}" target="_blank">{{ portal_link.ip }}</a>
+                        </div>
+                        <div *ngIf="portal_link.logins" id="{{ 'cvah-portal-portal-link-' + i + '-logins' }}">
+                            user/password: {{portal_link.logins}}
+                        </div>
+                    </div>
+                </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="2" rowHeight="3:1" gutterSize="10px">
+                <h3 mat-subheader>User Links</h3>
+                <mat-grid-tile *ngFor="let user_portal_link of user_portal_links; let i = index;" class="zoom"
+                               style="background: rgba(0,0,0,.38);" (click)="go_to_url(user_portal_link.url)">
+                    <div fxLayout="column" fxLayoutAlign="space-around start" style="padding: 2em; width: 100%; height: 100%">
+                        <div id="{{ 'cvah-portal-user-portal-link-' + i + '-name' }}"
+                             style="margin-bottom: 10px; font-size: 1.5em;">
+                            {{user_portal_link.name}}
+                        </div>
+                        <div id="{{ 'cvah-portal-user-portal-link-' + i + '-url' }}"
+                             style="margin-bottom: 10px; font-size: 1.3em;">
+                            {{user_portal_link.url}}
+                        </div>
+                        <div *ngIf="user_portal_link.description.length < 170; else smallDescription;"
+                             id="{{ 'cvah-portal-user-portal-link-' + i + '-description' }}"
+                             matTooltip="{{user_portal_link.description}}">
+                            {{user_portal_link.description}}
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button mat-button *ngIf="operator" id="{{ 'cvah-portal-user-portal-link-' + i + '-button-delete' }}"
+                                    color="warn" (click)="open_confirm_remove_user_portal_link($event, user_portal_link)">
+                                <em class="material-icons">delete</em>
+                            </button>
+                        </div>
+                        <ng-template #smallDescription>
+                            <div id="{{ 'cvah-portal-user-portal-link-' + i + '-description-substring' }}"
+                                 matTooltip="{{user_portal_link.description}}">
+                                {{user_portal_link.description.substring(0, 170)}}..
+                            </div>
+                        </ng-template>
+                    </div>
+                </mat-grid-tile>
+            </mat-grid-list>
+        </mat-card-content>
+    </mat-card>
+</div>

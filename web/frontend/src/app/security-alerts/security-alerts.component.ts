@@ -1,28 +1,31 @@
-import { Component, OnInit, ViewChild, ElementRef, Testability } from '@angular/core';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSelectChange } from '@angular/material/select';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { AlertService } from './alerts.service';
+import { forkJoin, Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+
+import { UserPortalLinkClass } from '../classes';
+import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import {
+  DialogControlTypes,
+  DialogFormControl,
+  DialogFormControlConfigClass
+} from '../modal-dialog-mat/modal-dialog-mat-form-types';
+import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { CookieService } from '../services/cookies.service';
 import { MatSnackBarService } from '../services/mat-snackbar.service';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { MatSelectChange } from '@angular/material/select';
-
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { PortalService } from '../services/portal.service';
 import { AlertDrillDownDialog } from './alert-drilldown-dialog/alert-drilldown-dialog.component';
-import { MatSort } from '@angular/material/sort';
-import { PortalService, UserLinkInterface } from '../portal/portal.service';
-import { DialogFormControl, DialogFormControlConfigClass, DialogControlTypes } from '../modal-dialog-mat/modal-dialog-mat-form-types';
-import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
-import { forkJoin } from 'rxjs';
-
+import { AlertService } from './alerts.service';
 
 const DIALOG_WIDTH = "1000px";
 
@@ -33,7 +36,7 @@ const MOLOCH_FIELD_LOOKUP = {
   "destination.port": "port.dst",
   "destination.address": "ip.dst",
   "destination.ip": "ip.dst"
-}
+};
 
 
 @Component({
@@ -42,35 +45,24 @@ const MOLOCH_FIELD_LOOKUP = {
   styleUrls: ['./security-alerts.component.css']
 })
 export class SecurityAlertsComponent implements OnInit {
-  links: Array<UserLinkInterface>;
+  @ViewChild('paginator') paginator: MatPaginator;
+  //CHIP fields
+  @ViewChild('groupByInput') groupByInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
+  @ViewChild(MatSort) sort: MatSort;
+  links: UserPortalLinkClass[];
   alerts: MatTableDataSource<Object>;
   autoRefresh: boolean;
-
-  @ViewChild('paginator')
-  paginator: MatPaginator;
-
-  //CHIP fields
-  @ViewChild('groupByInput')
-  groupByInput: ElementRef<HTMLInputElement>;
-
-  @ViewChild('auto')
-  matAutocomplete: MatAutocomplete;
-
-  @ViewChild(MatSort)
-  sort: MatSort;
-
   visible = true;
   selectable = true;
   removable = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
   groupByCtrl = new FormControl();
   filteredGroups: Observable<string[]>;
-
   dynamicColumns: string[];
   allColumns: string[];
   allChipOptions: string[] = [];
   //END CHIP fields
-
   controlForm: FormGroup;
 
   constructor(private title: Title,
@@ -79,52 +71,14 @@ export class SecurityAlertsComponent implements OnInit {
               private alertSrv: AlertService,
               private fb: FormBuilder,
               private cookieService: CookieService,
-              private portalSrv: PortalService
-              ) {
+              private portalSrv: PortalService) {
     this.setupControlFormGroupFromCookies();
     this.setAutoRefreshFromCookie();
-    this.links = new Array();
+    this.links = [];
     this.alerts = new MatTableDataSource();
     this.filteredGroups = this.groupByCtrl.valueChanges.pipe(
       startWith(null),
       map((group: string | null) => group ? this._filter(group) : this.allChipOptions.slice()));
-  }
-
-  private setAutoRefreshFromCookie(){
-    const autoRefreshCookie = this.cookieService.get("autoRefresh");
-    if (autoRefreshCookie.length > 0){
-      this.autoRefresh = (autoRefreshCookie === "true");
-    } else {
-      this.autoRefresh = true;
-    }
-  }
-
-  private setupControlFormGroupFromCookies(){
-    const savedControls = this.cookieService.get("controlForm");
-    if (savedControls.length > 0){
-      const values = JSON.parse(savedControls);
-      this.controlForm = this.fb.group({
-        acknowledged: new FormControl(values['acknowledged']),
-        escalated: new FormControl(values['escalated']),
-        showClosed: new FormControl(values['showClosed']),
-        timeInterval: new FormControl(values['timeInterval']),
-        timeAmount: new FormControl(values['timeAmount']),
-        startDatetime: new FormControl(new Date(values['startDatetime'])),
-        endDatetime: new FormControl(new Date(values['endDatetime'])),
-        absoluteTime: new FormControl(values['absoluteTime'])
-      });
-    } else {
-      this.controlForm = this.fb.group({
-        acknowledged: new FormControl(false),
-        escalated: new FormControl(false),
-        showClosed: new FormControl(false),
-        timeInterval: new FormControl('hours'),
-        timeAmount: new FormControl(24),
-        startDatetime: new FormControl(),
-        endDatetime: new FormControl(),
-        absoluteTime: new FormControl(false)
-      });
-    }
   }
 
   isacknowledgedChecked(){
@@ -155,7 +109,7 @@ export class SecurityAlertsComponent implements OnInit {
 
   getColumnValue(alert: Object, columnName: string){
     if (columnName === "@timestamp"){
-      let time = new Date(alert[columnName]);
+      const time = new Date(alert[columnName]);
       return time.toISOString();
     }
 
@@ -165,105 +119,20 @@ export class SecurityAlertsComponent implements OnInit {
     return "";
   }
 
-  private populateChipOptions(){
-    this.alertSrv.getFields().subscribe(data => {
-      this.allChipOptions = data as string[];
-    });
-  }
-
-  private setDateTimes(){
-    const timeAmt = this.controlForm.get('timeAmount').value;
-    const timeInterval = this.controlForm.get('timeInterval').value;
-    let initalDate = new Date();
-    if (timeInterval == "days"){
-      initalDate.setDate(initalDate.getDate() - timeAmt);
-    } else if (timeInterval === "hours"){
-      initalDate.setHours(initalDate.getHours() - timeAmt);
-    } else if (timeInterval === "minutes") {
-      initalDate.setMinutes(initalDate.getMinutes() - timeAmt);
-    }
-
-    this.controlForm.get('startDatetime').setValue(initalDate);
-    this.controlForm.get('endDatetime').setValue(new Date());
-  }
-
-  private getStartDatetime(): string {
-    return this.controlForm.get('startDatetime').value.toISOString();
-  }
-
-  private getEndDatetime(): string {
-    return this.controlForm.get('endDatetime').value.toISOString();
-  }
-
-  private validateDatetimes(){
-    if (this.controlForm.get('startDatetime').value >= this.controlForm.get('endDatetime').value){
-      this.matSnackBarSrv.displaySnackBar("Zero results returned because start datetime cannot be larger than end datetime.")
-    }
-  }
-
-  private updateAlertsTable(displayMessage:boolean=false){
-    if (this.dynamicColumns.length > 0){
-      if (!this.controlForm.get('absoluteTime').value){
-        this.setDateTimes();
-      }
-
-      const acknowledge = this.isacknowledgedChecked();
-      const escalated = this.isEscalatedChecked();
-      const showClosed = this.isShowClosedChecked()
-      this.saveCookies();
-      this.alertSrv.getAlerts(this.dynamicColumns.join(","),
-                              this.getStartDatetime(),
-                              this.getEndDatetime(),
-                              acknowledge, escalated, showClosed).subscribe(data => {
-        this.alerts.data = data as object[];
-        if (displayMessage){
-          this.matSnackBarSrv.displaySnackBar("Successfully updated Alerts table!");
-        }
-      }, err => {
-        if (err.status === 400){
-          this.matSnackBarSrv.displaySnackBar(err.error["message"]);
-        } else if (err.message){
-          this.matSnackBarSrv.displaySnackBar(err.message);
-        } else {
-          this.matSnackBarSrv.displaySnackBar("Unknown failure. Check logs for more details.");
-        }
-      });
-    } else {
-      this.alerts.data = [];
-    }
-  }
-
   refreshAlerts(){
     this.updateAlertsTable(true);
-  }
-
-  private setPortalLinks(){
-    this.portalSrv.getPortalLinks().subscribe((data: any) => {
-      this.links = data;
-    });
-  }
-
-
-  private loadDynamicColumnsFromCooke(){
-    const saved_columns = this.cookieService.get("dynamic-column");
-    if (saved_columns.length > 0){
-      this.dynamicColumns = JSON.parse(saved_columns);
-    } else {
-      this.dynamicColumns = ['event.module', 'event.kind', 'rule.name']; // NOTE: this will default to most basic options
-    }
-    this.allColumns =  ['actions', 'count'].concat(this.dynamicColumns);
   }
 
   ngOnInit() {
     this.title.setTitle("Security Alerts");
     this.loadDynamicColumnsFromCooke();
-    this.populateChipOptions()
+    this.populateChipOptions();
     this.updateAlertsTable();
     this.setPortalLinks();
 
     setInterval(() => {
       if (this.autoRefresh){
-        this.updateAlertsTable()
+        this.updateAlertsTable();
       }
     }, 15000);
   }
@@ -278,45 +147,10 @@ export class SecurityAlertsComponent implements OnInit {
     this.alerts.paginator = this.paginator;
   }
 
-  private saveCookies(){
-    this.cookieService.set("dynamic-column", JSON.stringify(this.dynamicColumns));
-    this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
-    this.cookieService.set('autoRefresh', this.autoRefresh.toString());
-  }
-
   ngOnDestroy(){
       this.saveCookies();
       //Turn off auto refresh when we leave the page so its not running in the background.
       this.autoRefresh = false;
-  }
-
-  private _ackorUnsetAck(alert: Object, paneTitle: string, paneString: string){
-    const option2 = "Confirm";
-    const count = alert["count"];
-
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
-      width: DIALOG_WIDTH,
-      data: {
-        paneString: paneString,
-        paneTitle: paneTitle,
-        option1: "Cancel",
-        option2: option2
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
-        this.alertSrv.modifyAlert(alert, this.controlForm, false).subscribe(data=>{
-          const count = data["total"];
-          let msg = `Successfully performed operation on ${count} Alerts.`;
-          this.matSnackBarSrv.displaySnackBar(msg);
-          this.updateAlertsTable()
-        }, err => {
-          this.matSnackBarSrv.displaySnackBar('Failed to acknowledge the Alert Aggregation for an unknown reason.');
-        });
-
-      }
-    });
   }
 
   acknowledgeEvent(alert: Object) {
@@ -364,7 +198,7 @@ export class SecurityAlertsComponent implements OnInit {
     }).subscribe(data => {
       if (data.hive_settings["admin_api_key"] === "" || data.hive_settings["admin_api_key"] === "org_admin_api_key"){
         this.matSnackBarSrv.displaySnackBar(`Hive is not configured. Plase click on the Gear
-Icon in upper left hand corner of page and set your API key there.`);
+          Icon in upper left hand corner of page and set your API key there.`);
         return;
       }
 
@@ -390,8 +224,8 @@ Icon in upper left hand corner of page and set your API key there.`);
       }
 
       const count = alert["count"];
-      let paneString = `Are you sure you want to escalate ${count} alerts? \
-                        \n\nDoing so will create hive ticket.`;
+      const paneString = `Are you sure you want to escalate ${count} alerts? \
+                          \n\nDoing so will create hive ticket.`;
       const paneTitle = 'Escalate Alerts';
       const eventTitleConfig: DialogFormControlConfigClass = new DialogFormControlConfigClass();
       eventTitleConfig.validatorOrOpts = [Validators.required];
@@ -438,11 +272,11 @@ Icon in upper left hand corner of page and set your API key there.`);
         result => {
           const form = result as FormGroup;
           if(form && form.valid) {
-            this.alertSrv.modifyAlert(alert, this.controlForm, true, form).subscribe(data=>{
-              const count = data["total"];
-              let msg = `Successfully performed operation on ${count} Alerts.`;
+            this.alertSrv.modifyAlert(alert, this.controlForm, true, form).subscribe(new_data=>{
+              const new_count = new_data["total"];
+              const msg = `Successfully performed operation on ${new_count} Alerts.`;
               this.matSnackBarSrv.displaySnackBar(msg);
-              this.updateAlertsTable()
+              this.updateAlertsTable();
             }, err => {
               if (err && err["message"]){
                 this.matSnackBarSrv.displaySnackBar(err["message"]);
@@ -525,11 +359,6 @@ Icon in upper left hand corner of page and set your API key there.`);
     this.groupByCtrl.setValue(null);
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.allChipOptions.filter(group => group.toLowerCase().indexOf(filterValue) === 0);
-  }
-
   //CHIP End
 
   changeQueryTime(event: KeyboardEvent) {
@@ -553,60 +382,6 @@ Icon in upper left hand corner of page and set your API key there.`);
     });
   }
 
-  private getLink(search: string) {
-    for (const entry of this.links){
-      if (entry['dns'].includes(search)){
-        return entry['dns']
-      }
-    }
-    return "";
-  }
-
-  private getQueryPiece(alert: Object): string {
-    let ret_val = '';
-    for (const field in alert){
-      if (field === "count" || field === "form" || field === "links"){
-        continue;
-      }
-      if (alert['event.kind'] === "signal" && field === "rule.name"){
-        ret_val += 'signal.rule.name : "' + alert[field] + '" and ';
-      } else {
-        ret_val += field + ' : "' + alert[field] + '" and ';
-      }
-    }
-
-    return ret_val.slice(0, ret_val.length - 5);
-  }
-
-  private getKibanaLink(alert: Object){
-    const prefix = this.getLink("kibana");
-    let query = this.getQueryPiece(alert);
-    if (this.isEscalatedChecked()){
-      query += " and event.escalated : true";
-    }
-
-    const startDateTime = this.getStartDatetime();
-    const endDateTime = this.getEndDatetime();
-    let page = 'overview';
-    if (alert['event.kind'] && alert['event.kind'] === "signal"){
-      page = "detections";
-    } else if (alert['event.kind'] && alert['event.kind'] === "alert") {
-      if (alert['event.module'] ) {
-        if (alert['event.module'] === "zeek" || alert['event.module'] === "suricata"){
-          page = "network/external-alerts";
-        } else if (alert['event.module'] === "endgame" || alert['event.module'] === "system" || alert['event.module'] === "sysmon"){
-          page = "hosts/alerts";
-        }
-      }
-    }
-
-const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')
-&timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),
-timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
-
-    return url.replace(/'/g, "%27").replace(/ /g, "%20").replace(/\(/g, "%28").replace(/\)/g, "%29");  //url.replaceAll("'", "%27").replaceAll(" ", "%20");
-  }
-
   openKibana(alert: Object) {
     const url = this.getKibanaLink(alert);
     const win = window.open(url, '_blank');
@@ -623,14 +398,6 @@ timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,
       const win = window.open(url, '_blank');
       win.focus();
     });
-  }
-
-  private getMolochLink(alert: Object, prefix: string, expression: string) {
-    const startTime = Math.floor(this.controlForm.get('startDatetime').value.getTime() / 1000)
-    const stopTime = Math.floor(this.controlForm.get('endDatetime').value.getTime() / 1000);
-    const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars
-&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
-    return url;
   }
 
   openMoloch(alert: Object){
@@ -652,38 +419,6 @@ you need one of the following Group By fields: ${fields}`);
     const url = this.getMolochLink(alert, prefix, expression);
     const win = window.open(url, '_blank');
     win.focus();
-  }
-
-  private buildMolochExpression(alert: Object): string {
-    let fields = this.getFields(alert);
-    let url_part = "";
-    for (let field of fields){
-      let molochField = MOLOCH_FIELD_LOOKUP[field];
-      if (molochField){
-        const alertValue = alert[field];
-        url_part += `${molochField}%20%3D%3D${alertValue}%26%26%20`;
-      }
-    }
-    return url_part.slice(0, url_part.length - 9);
-  }
-
-  private getRequiredKibanaFields(){
-    let fields = [];
-    for (const field in MOLOCH_FIELD_LOOKUP){
-      fields.push(field);
-    }
-    return fields;
-  }
-
-  private getFields(alert: Object) : string[]{
-    let fields = [];
-    for (const field in alert){
-      if (field === 'count' || field === 'form' || field === 'links'){
-        continue;
-      }
-      fields.push(field);
-    }
-    return fields;
   }
 
   openHiveTokenSettings(){
@@ -727,7 +462,7 @@ copy and paste the admin and org_admin Hive API keys in the boxes below. The key
         result => {
           const form = result as FormGroup;
           if(form && form.valid) {
-            this.alertSrv.saveHiveSettings(form).subscribe(data => {
+            this.alertSrv.saveHiveSettings(form).subscribe((_data) => {
               this.matSnackBarSrv.displaySnackBar(`Successfully saved the Hive API Key.`);
             }, err => {
               if (err['error'] && err['error']['message']){
@@ -756,12 +491,12 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   startDatetimeChange(event){
-    this.validateDatetimes()
+    this.validateDatetimes();
     this.updateAlertsTable();
   }
 
   endDatetimeChange(event){
-    this.validateDatetimes()
+    this.validateDatetimes();
     this.updateAlertsTable();
   }
 
@@ -770,5 +505,261 @@ Please check the /var/log/tfplenum logs for more information`);
       return this.controlForm.get('absoluteTime').value;
     }
     return false;
+  }
+
+  private setAutoRefreshFromCookie(){
+    const autoRefreshCookie = this.cookieService.get("autoRefresh");
+    if (autoRefreshCookie.length > 0){
+      this.autoRefresh = (autoRefreshCookie === "true");
+    } else {
+      this.autoRefresh = true;
+    }
+  }
+
+  private setupControlFormGroupFromCookies(){
+    const savedControls = this.cookieService.get("controlForm");
+    if (savedControls.length > 0){
+      const values = JSON.parse(savedControls);
+      this.controlForm = this.fb.group({
+        acknowledged: new FormControl(values['acknowledged']),
+        escalated: new FormControl(values['escalated']),
+        showClosed: new FormControl(values['showClosed']),
+        timeInterval: new FormControl(values['timeInterval']),
+        timeAmount: new FormControl(values['timeAmount']),
+        startDatetime: new FormControl(new Date(values['startDatetime'])),
+        endDatetime: new FormControl(new Date(values['endDatetime'])),
+        absoluteTime: new FormControl(values['absoluteTime'])
+      });
+    } else {
+      this.controlForm = this.fb.group({
+        acknowledged: new FormControl(false),
+        escalated: new FormControl(false),
+        showClosed: new FormControl(false),
+        timeInterval: new FormControl('hours'),
+        timeAmount: new FormControl(24),
+        startDatetime: new FormControl(),
+        endDatetime: new FormControl(),
+        absoluteTime: new FormControl(false)
+      });
+    }
+  }
+
+  private setPortalLinks(){
+    this.portalSrv.get_portal_links().subscribe((data: any) => {
+      this.links = data;
+    });
+  }
+
+
+  private loadDynamicColumnsFromCooke(){
+    const saved_columns = this.cookieService.get("dynamic-column");
+    if (saved_columns.length > 0){
+      this.dynamicColumns = JSON.parse(saved_columns);
+    } else {
+      this.dynamicColumns = ['event.module', 'event.kind', 'rule.name']; // NOTE: this will default to most basic options
+    }
+    this.allColumns =  ['actions', 'count'].concat(this.dynamicColumns);
+  }
+
+  private populateChipOptions(){
+    this.alertSrv.getFields().subscribe(data => {
+      this.allChipOptions = data as string[];
+    });
+  }
+
+  private setDateTimes(){
+    const timeAmt = this.controlForm.get('timeAmount').value;
+    const timeInterval = this.controlForm.get('timeInterval').value;
+    const initalDate = new Date();
+    if (timeInterval === "days"){
+      initalDate.setDate(initalDate.getDate() - timeAmt);
+    } else if (timeInterval === "hours"){
+      initalDate.setHours(initalDate.getHours() - timeAmt);
+    } else if (timeInterval === "minutes") {
+      initalDate.setMinutes(initalDate.getMinutes() - timeAmt);
+    }
+
+    this.controlForm.get('startDatetime').setValue(initalDate);
+    this.controlForm.get('endDatetime').setValue(new Date());
+  }
+
+  private getStartDatetime(): string {
+    return this.controlForm.get('startDatetime').value.toISOString();
+  }
+
+  private getEndDatetime(): string {
+    return this.controlForm.get('endDatetime').value.toISOString();
+  }
+
+  private validateDatetimes(){
+    if (this.controlForm.get('startDatetime').value >= this.controlForm.get('endDatetime').value){
+      this.matSnackBarSrv.displaySnackBar("Zero results returned because start datetime cannot be larger than end datetime.");
+    }
+  }
+
+  private updateAlertsTable(displayMessage:boolean=false){
+    if (this.dynamicColumns.length > 0){
+      if (!this.controlForm.get('absoluteTime').value){
+        this.setDateTimes();
+      }
+
+      const acknowledge = this.isacknowledgedChecked();
+      const escalated = this.isEscalatedChecked();
+      const showClosed = this.isShowClosedChecked();
+      this.saveCookies();
+      this.alertSrv.getAlerts(this.dynamicColumns.join(","),
+                              this.getStartDatetime(),
+                              this.getEndDatetime(),
+                              acknowledge, escalated, showClosed).subscribe(data => {
+        this.alerts.data = data as object[];
+        if (displayMessage){
+          this.matSnackBarSrv.displaySnackBar("Successfully updated Alerts table!");
+        }
+      }, err => {
+        if (err.status === 400){
+          this.matSnackBarSrv.displaySnackBar(err.error["message"]);
+        } else if (err.message){
+          this.matSnackBarSrv.displaySnackBar(err.message);
+        } else {
+          this.matSnackBarSrv.displaySnackBar("Unknown failure. Check logs for more details.");
+        }
+      });
+    } else {
+      this.alerts.data = [];
+    }
+  }
+
+  private saveCookies(){
+    this.cookieService.set("dynamic-column", JSON.stringify(this.dynamicColumns));
+    this.cookieService.set('controlForm', JSON.stringify(this.controlForm.value));
+    this.cookieService.set('autoRefresh', this.autoRefresh.toString());
+  }
+
+  private _ackorUnsetAck(alert: Object, paneTitle: string, paneString: string){
+    const option2 = "Confirm";
+    const count = alert["count"];
+
+    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+      width: DIALOG_WIDTH,
+      data: {
+        paneString: paneString,
+        paneTitle: paneTitle,
+        option1: "Cancel",
+        option2: option2
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(response => {
+      if (response === option2) {
+        this.alertSrv.modifyAlert(alert, this.controlForm, false).subscribe(data=>{
+          const new_count = data["total"];
+          const msg = `Successfully performed operation on ${new_count} Alerts.`;
+          this.matSnackBarSrv.displaySnackBar(msg);
+          this.updateAlertsTable();
+        }, err => {
+          this.matSnackBarSrv.displaySnackBar('Failed to acknowledge the Alert Aggregation for an unknown reason.');
+        });
+
+      }
+    });
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.allChipOptions.filter(group => group.toLowerCase().indexOf(filterValue) === 0);
+  }
+
+  private getLink(search: string) {
+    for (const entry of this.links){
+      if (entry['dns'].includes(search)){
+        return entry['dns'];
+      }
+    }
+    return "";
+  }
+
+  private getQueryPiece(alert: Object): string {
+    let ret_val = '';
+    for (const field in alert){
+      if (field === "count" || field === "form" || field === "links"){
+        continue;
+      }
+      if (alert['event.kind'] === "signal" && field === "rule.name"){
+        ret_val += 'signal.rule.name : "' + alert[field] + '" and ';
+      } else {
+        ret_val += field + ' : "' + alert[field] + '" and ';
+      }
+    }
+
+    return ret_val.slice(0, ret_val.length - 5);
+  }
+
+  private getKibanaLink(alert: Object){
+    const prefix = this.getLink("kibana");
+    let query = this.getQueryPiece(alert);
+    if (this.isEscalatedChecked()){
+      query += " and event.escalated : true";
+    }
+
+    const startDateTime = this.getStartDatetime();
+    const endDateTime = this.getEndDatetime();
+    let page = 'overview';
+    if (alert['event.kind'] && alert['event.kind'] === "signal"){
+      page = "detections";
+    } else if (alert['event.kind'] && alert['event.kind'] === "alert") {
+      if (alert['event.module'] ) {
+        if (alert['event.module'] === "zeek" || alert['event.module'] === "suricata"){
+          page = "network/external-alerts";
+        } else if (alert['event.module'] === "endgame" || alert['event.module'] === "system" || alert['event.module'] === "sysmon"){
+          page = "hosts/alerts";
+        }
+      }
+    }
+
+    const url = `${prefix}/app/security/${page}?query=(language:kuery,query:'${query}')
+    &timerange=(global:(linkTo:!(timeline),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)),
+    timeline:(linkTo:!(global),timerange:(from:%27${startDateTime}%27,kind:absolute,to:%27${endDateTime}%27)))`;
+
+    return url.replace(/'/g, "%27").replace(/ /g, "%20").replace(/\(/g, "%28").replace(/\)/g, "%29");  //url.replaceAll("'", "%27").replaceAll(" ", "%20");
+  }
+
+  private getMolochLink(alert: Object, prefix: string, expression: string) {
+    const startTime = Math.floor(this.controlForm.get('startDatetime').value.getTime() / 1000);
+    const stopTime = Math.floor(this.controlForm.get('endDatetime').value.getTime() / 1000);
+    const url = `${prefix}/sessions?graphType=lpHisto&seriesType=bars
+&expression=${expression}&startTime=${startTime}&stopTime=${stopTime}`;
+    return url;
+  }
+
+  private buildMolochExpression(alert: Object): string {
+    const fields = this.getFields(alert);
+    let url_part = "";
+    for (const field of fields){
+      const molochField = MOLOCH_FIELD_LOOKUP[field];
+      if (molochField){
+        const alertValue = alert[field];
+        url_part += `${molochField}%20%3D%3D${alertValue}%26%26%20`;
+      }
+    }
+    return url_part.slice(0, url_part.length - 9);
+  }
+
+  private getRequiredKibanaFields(){
+    const fields = [];
+    for (const field in MOLOCH_FIELD_LOOKUP){
+      fields.push(field);
+    }
+    return fields;
+  }
+
+  private getFields(alert: Object) : string[]{
+    const fields = [];
+    for (const field in alert){
+      if (field === 'count' || field === 'form' || field === 'links'){
+        continue;
+      }
+      fields.push(field);
+    }
+    return fields;
   }
 }

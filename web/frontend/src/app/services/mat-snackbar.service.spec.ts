@@ -12,6 +12,9 @@ describe('MatSnackBarService', () => {
   let service: MatSnackBarService;
 
   // Spy's
+  let spyGenerateReturnSuccessSnackbarMessage: jasmine.Spy<any>;
+  let spyGenerateReturnFailSnackbarMessage: jasmine.Spy<any>;
+  let spyGenerateReturnErrorSnackbarMessage: jasmine.Spy<any>;
   let spyDisplaySnackBar: jasmine.Spy<any>;
   let spyDestroySnackBar: jasmine.Spy<any>;
 
@@ -31,11 +34,17 @@ describe('MatSnackBarService', () => {
 
     service = TestBed.inject(MatSnackBarService);
 
+    spyGenerateReturnSuccessSnackbarMessage = spyOn(service, 'generate_return_success_snackbar_message').and.callThrough();
+    spyGenerateReturnFailSnackbarMessage = spyOn(service, 'generate_return_fail_snackbar_message').and.callThrough();
+    spyGenerateReturnErrorSnackbarMessage = spyOn(service, 'generate_return_error_snackbar_message').and.callThrough();
     spyDisplaySnackBar = spyOn(service, 'displaySnackBar').and.callThrough();
     spyDestroySnackBar = spyOn(service, 'destroySnackBar').and.callThrough();
   });
 
   const reset = () => {
+    spyGenerateReturnSuccessSnackbarMessage.calls.reset();
+    spyGenerateReturnFailSnackbarMessage.calls.reset();
+    spyGenerateReturnErrorSnackbarMessage.calls.reset();
     spyDisplaySnackBar.calls.reset();
     spyDestroySnackBar.calls.reset();
   };
@@ -49,6 +58,60 @@ describe('MatSnackBarService', () => {
   });
 
   describe('MatSnackBarService methods', () => {
+    describe('generate_return_success_snackbar_message()', () => {
+      it('should call generate_return_success_snackbar_message()', () => {
+        reset();
+
+        service.generate_return_success_snackbar_message(message);
+
+        expect(service.generate_return_success_snackbar_message).toHaveBeenCalled();
+      });
+
+      it('should call generate_return_success_snackbar_message() and call diaplaySnackBar()', () => {
+        reset();
+
+        service.generate_return_success_snackbar_message(message, { actionLabel: 'Close' });
+
+        expect(service.displaySnackBar).toHaveBeenCalled();
+      });
+    });
+
+    describe('generate_return_fail_snackbar_message()', () => {
+      it('should call generate_return_fail_snackbar_message()', () => {
+        reset();
+
+        service.generate_return_fail_snackbar_message(message);
+
+        expect(service.generate_return_fail_snackbar_message).toHaveBeenCalled();
+      });
+
+      it('should call generate_return_fail_snackbar_message() and call diaplaySnackBar()', () => {
+        reset();
+
+        service.generate_return_fail_snackbar_message(message, { actionLabel: 'Close' });
+
+        expect(service.displaySnackBar).toHaveBeenCalled();
+      });
+    });
+
+    describe('generate_return_error_snackbar_message()', () => {
+      it('should call generate_return_error_snackbar_message()', () => {
+        reset();
+
+        service.generate_return_error_snackbar_message(message);
+
+        expect(service.generate_return_error_snackbar_message).toHaveBeenCalled();
+      });
+
+      it('should call generate_return_error_snackbar_message() and call diaplaySnackBar()', () => {
+        reset();
+
+        service.generate_return_error_snackbar_message(message, { actionLabel: 'Close' });
+
+        expect(service.displaySnackBar).toHaveBeenCalled();
+      });
+    });
+
     describe('displaySnackBar()', () => {
       it('should call displaySnackBar() and display message with snackbarConfig undefined', () => {
         reset();
@@ -99,6 +162,18 @@ describe('MatSnackBarService', () => {
 
 @Injectable()
 export class MatSnackbarServiceSpy implements MatSnackbarServiceInterface {
+
+  generate_return_success_snackbar_message = jasmine.createSpy('generate_return_success_snackbar_message').and.callFake(
+    (message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void => {}
+  );
+
+  generate_return_fail_snackbar_message = jasmine.createSpy('generate_return_fail_snackbar_message').and.callFake(
+    (message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void => {}
+  );
+
+  generate_return_error_snackbar_message = jasmine.createSpy('generate_return_error_snackbar_message').and.callFake(
+    (message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void => {}
+  );
 
   displaySnackBar = jasmine.createSpy('displaySnackBar').and.callFake(
     (message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void => {}

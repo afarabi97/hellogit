@@ -1,7 +1,7 @@
 import { ConfirmActionConfigurationInterface } from '../../src/app/interfaces/confirm-action-configuration.interface';
 
 
-export const CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_TRUE_INTERFACE: ConfirmActionConfigurationInterface = {
+export const ConfirmActionConfigurationSaveAltActionFunctionTrueInterface: ConfirmActionConfigurationInterface = {
   title: 'Close and save',
   message: 'Save Message.',
   confirmButtonText: 'Save',
@@ -10,7 +10,7 @@ export const CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_TRUE_INTERFAC
   useGeneralActionFunc: true,
   actionFunc: () => {}
 };
-export const CONFIRM_ACTION_CONFIGURATION_CLOSE_ALT_ACTION_FUNCTION_TRUE_INTERFACE: ConfirmActionConfigurationInterface = {
+export const ConfirmActionConfigurationCloseAltActionFunctionTrueInterface: ConfirmActionConfigurationInterface = {
   title: 'Close without saving',
   message: 'Close Message.',
   confirmButtonText: 'Close',
@@ -19,7 +19,7 @@ export const CONFIRM_ACTION_CONFIGURATION_CLOSE_ALT_ACTION_FUNCTION_TRUE_INTERFA
   useGeneralActionFunc: true,
   actionFunc: () => {}
 };
-export const CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_FALSE_INTERFACE: ConfirmActionConfigurationInterface = {
+export const ConfirmActionConfigurationSaveAltActionFunctionFalseInterface: ConfirmActionConfigurationInterface = {
   title: 'Close and save',
   message: 'Save Message.',
   confirmButtonText: 'Save',
@@ -28,7 +28,7 @@ export const CONFIRM_ACTION_CONFIGURATION_SAVE_ALT_ACTION_FUNCTION_FALSE_INTERFA
   useGeneralActionFunc: false,
   actionFunc: () => {}
 };
-export const CONFIRM_ACTION_CONFIGURATION_CLOSE_ALT_ACTION_FUNCTION_FALSE_INTERFACE: ConfirmActionConfigurationInterface = {
+export const ConfirmActionConfigurationCloseAltActionFunctionFalseInterface: ConfirmActionConfigurationInterface = {
   title: 'Close without saving',
   message: 'Close Message.',
   confirmButtonText: 'Close',

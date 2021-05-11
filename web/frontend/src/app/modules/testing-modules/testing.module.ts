@@ -3,6 +3,10 @@ import { NgModule } from '@angular/core';
 
 import { CookieService } from '../../services/cookies.service';
 import { CookieServiceSpy } from '../../services/cookies.service.spec';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { MatSnackbarServiceSpy } from '../../services/mat-snackbar.service.spec';
+import { PortalService } from '../../services/portal.service';
+import { PortalServiceSpy } from '../../services/portal.service.spec';
 import { UserService } from '../../services/user.service';
 import { UserServiceSpy } from '../../services/user.service.spec';
 import { WeaponSystemNameService } from '../../services/weapon-system-name.service';
@@ -16,6 +20,8 @@ import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec'
   ],
   providers: [
     { provide: CookieService, useClass: CookieServiceSpy },
+    { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
+    { provide: PortalService, useClass: PortalServiceSpy },
     { provide: UserService, useClass: UserServiceSpy },
     { provide: WeaponSystemNameService, useClass: WeaponSystemNameServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },

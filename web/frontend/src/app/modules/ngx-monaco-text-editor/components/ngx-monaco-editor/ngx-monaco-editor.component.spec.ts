@@ -4,7 +4,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSelectChange } from '@angular/material/select';
 
 import {
-  TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE,
+  TextEditorConfigurationNoConfirmActionsInterface,
 } from '../../../../../../static-data/interface-objects-v3_7';
 import { NGXMonacoTextEditorModule } from '../../ngx-monaco-text-editor.module';
 import { NGXMonacoEditorComponent } from './ngx-monaco-editor.component';
@@ -81,10 +81,10 @@ describe('NGXMonacoEditorComponent', () => {
     spyOn(component.editor_text, 'emit');
 
     // Set Component @Input() Data
-    component.show_options = TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.show_options;
-    component.is_read_only = TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.is_read_only;
-    component.text = TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.text;
-    component.use_language = TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language;
+    component.show_options = TextEditorConfigurationNoConfirmActionsInterface.show_options;
+    component.is_read_only = TextEditorConfigurationNoConfirmActionsInterface.is_read_only;
+    component.text = TextEditorConfigurationNoConfirmActionsInterface.text;
+    component.use_language = TextEditorConfigurationNoConfirmActionsInterface.use_language;
 
     // Detect changes
     fixture.detectChanges();
@@ -164,8 +164,8 @@ describe('NGXMonacoEditorComponent', () => {
       it('should call ngOnChanges() and handle @Input() text change', () => {
         reset();
 
-        expect(component.text1).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.text);
-        expect(component.text2).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.text);
+        expect(component.text1).toEqual(TextEditorConfigurationNoConfirmActionsInterface.text);
+        expect(component.text2).toEqual(TextEditorConfigurationNoConfirmActionsInterface.text);
 
         component.text = 'current text';
         const simple_changes: SimpleChanges = new Object() as SimpleChanges;
@@ -226,11 +226,11 @@ describe('NGXMonacoEditorComponent', () => {
       it('should call selection_change_language() and set language in known objects from event', () => {
         reset();
 
-        expect(component.modified_options.language).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language);
-        expect(component.original_options.language).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language);
-        expect(component.diff_options.language).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language);
-        expect(component.original_model.language).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language);
-        expect(component.modified_model.language).toEqual(TEXT_EDITOR_CONFIGURATION_NO_CONFIRM_ACTIONS_INTERFACE.use_language);
+        expect(component.modified_options.language).toEqual(TextEditorConfigurationNoConfirmActionsInterface.use_language);
+        expect(component.original_options.language).toEqual(TextEditorConfigurationNoConfirmActionsInterface.use_language);
+        expect(component.diff_options.language).toEqual(TextEditorConfigurationNoConfirmActionsInterface.use_language);
+        expect(component.original_model.language).toEqual(TextEditorConfigurationNoConfirmActionsInterface.use_language);
+        expect(component.modified_model.language).toEqual(TextEditorConfigurationNoConfirmActionsInterface.use_language);
 
         component.selection_change_language(language_mat_select_change);
 

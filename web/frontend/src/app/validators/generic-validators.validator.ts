@@ -1,13 +1,8 @@
-import { FormArray, AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+
 import { IP_CONSTRAINT } from '../frontend-constants';
 import { isIpv4InSubnet } from '../globals';
-
-
-export interface validatorObject {
-  validatorFn: string;
-  error_message: string | any;
-  ops?: any;
-}
+import { ValidatorObjectInterface } from '../interfaces';
 
 export class errorObject {
   error_message: string;
@@ -28,14 +23,14 @@ export interface AllValidationErrors {
   error_value: any;
 }
 
-export function validateFromArray(validatorArray: validatorObject[], ops?: any): ValidatorFn {
+export function validateFromArray(validatorArray: ValidatorObjectInterface[], ops?: any): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
     let errors = validatorArray.map(validator => {
       switch (validator.validatorFn) {
         case 'pattern':
           return patternValidator(validator, control);
         case 'password':
-          return passwordValidator(validator, control, ops)
+          return passwordValidator(validator, control, ops);
         case 'unique':
           return uniqueValidator(validator, control, ops);
         case 'ip&subnet':
@@ -55,7 +50,7 @@ export function validateFromArray(validatorArray: validatorObject[], ops?: any):
   };
 }
 
-export function passwordValidator(validatorObject: validatorObject, control: AbstractControl, ops?: any): ValidationErrors | null {
+export function passwordValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any): ValidationErrors | null {
   if (!control.value){
     return null;
   }
@@ -70,26 +65,26 @@ export function passwordValidator(validatorObject: validatorObject, control: Abs
   }
 
   if(!/[0-9]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 digit`}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 digit`};
   }
 
   if(!/[a-z]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 lowercase letter`}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 lowercase letter`};
   }
 
   if (!/[A-Z]/.test(control.value)) {
-    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 uppercase letter`}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 uppercase letter`};
   }
 
   if (!/[^0-9a-zA-Z]/.test(control.value)) {
-  return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 symbol`}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 1 symbol`};
   }
 
   if ((new Set(control.value)).size < 8) {
-    return { password: validatorObject.error_message, error_message: `${subject} must have at least 8 unique characters.`}
+    return { password: validatorObject.error_message, error_message: `${subject} must have at least 8 unique characters.`};
   }
   if (consecutive(control.value)) {
-    return { password: validatorObject.error_message, error_message: `${subject} must not have 3 consecutive characters that are the same`}
+    return { password: validatorObject.error_message, error_message: `${subject} must not have 3 consecutive characters that are the same`};
   }
 
 }
@@ -99,11 +94,11 @@ function consecutive(password) {
   let same;
 
   for (let i = 0; i<= password.length; i++) {
-    if (i == 0) {
+    if (i === 0) {
       c = password[i];
       same = 1;
     } else {
-      if (c == password[i]) {
+      if (c === password[i]) {
         same += 1;
       } else {
         if (same > 2) {
@@ -114,33 +109,33 @@ function consecutive(password) {
       }
     }
   }
-  return false
+  return false;
 }
 
 
 
 
 
-export function patternValidator(validatorObject: validatorObject, control: AbstractControl) {
+export function patternValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl) {
   const forbidden = control.value && control.value.length > 0 ? validatorObject.ops.pattern.test(control.value) : {};
   return forbidden ? null : { pattern: { value: control.value }, error_message: validatorObject.error_message };
 }
 
-export function uniqueValidator(validatorObject: validatorObject, control: AbstractControl, ops?: any) {
+export function uniqueValidator(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
   let isUnique;
   if (ops.uniqueArray instanceof Array) {
-    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] == control.value && i != ops.index);
+    isUnique = ops.uniqueArray.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] === control.value && i !== ops.index);
   } else if (ops.uniqueArray instanceof FormArray) {
-    isUnique = ops.uniqueArray.value.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] == control.value && i != ops.index);
+    isUnique = ops.uniqueArray.value.find((obj, i) => control.value.length > 0 && obj[ops.formControlName] === control.value && i !== ops.index);
   }
   return isUnique ? new errorObject({ control: control, error_message: validatorObject.error_message(control.value) }) : null;
 }
 
-export function inputFieldMatch(validatorObject: validatorObject, control: AbstractControl, ops?: any) {
+export function inputFieldMatch(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
   return control.value === ops.parentControl.value ? null : new errorObject({ control: control, error_message: validatorObject.error_message });
 }
 
-export function validateIPAddress(validatorObject: validatorObject, control: AbstractControl, ops?: any) {
+export function validateIPAddress(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
   let error = null;
   if (control.touched) {
     const ip_range = validatorObject.ops.ip_range;
@@ -152,12 +147,12 @@ export function validateIPAddress(validatorObject: validatorObject, control: Abs
 
       if (fgIP instanceof FormArray) {
         // hard coded to position one because controller_interface is a FormArray
-        const fa = ops.parentFormGroup.get(ip.value) as FormArray
+        const fa = ops.parentFormGroup.get(ip.value) as FormArray;
         fgIP = fa.at(0);
       }
 
       if (fgIP.invalid) {
-        unfilledControls.push(ip.label)
+        unfilledControls.push(ip.label);
         return;
       }
       if (control.value && control.value.length > 0) {
@@ -176,16 +171,16 @@ export function validateIPAddress(validatorObject: validatorObject, control: Abs
     });
 
     // specific for ip address
-    let findValue = (arr, key, value) => arr.filter(v => v[key] == value);
+    const findValue = (arr, key, value) => arr.filter(v => v[key] === value);
     if (findValue(ip_range, 'value', 'controller_interface') && findValue(ip_range, 'value', 'netmask')) {
       // get the formcontrols
-      let pat = new RegExp(IP_CONSTRAINT);
-      let controller_interface = ops.parentFormGroup.get('controller_interface');
-      let netmask = ops.parentFormGroup.get('netmask');
+      const pat = new RegExp(IP_CONSTRAINT);
+      const controller_interface = ops.parentFormGroup.get('controller_interface');
+      const netmask = ops.parentFormGroup.get('netmask');
       // start validating using previous validation
       if (controller_interface.value !== undefined && pat.test(control.value)) {
         if (!isIpv4InSubnet(control.value, controller_interface.value, netmask.value)) {
-          error = new errorObject({ control: control, error_message: `The value ${control.value} is not in the correct subnet` })
+          error = new errorObject({ control: control, error_message: `The value ${control.value} is not in the correct subnet` });
         }
 
       }
@@ -209,7 +204,7 @@ export function getFormValidationErrors(controls: FormGroupControls): AllValidat
       const formArray = control as FormArray;
       formArray.controls.map(c => {
         if (c instanceof FormGroup) {
-          errors = errors.concat(getFormValidationErrors(c.controls))
+          errors = errors.concat(getFormValidationErrors(c.controls));
         }
       });
     }
@@ -227,29 +222,29 @@ export function getFormValidationErrors(controls: FormGroupControls): AllValidat
   return errors.filter(error => !(error.error_value instanceof Object));
 }
 
-export function requiredField(validatorObject: validatorObject, control: AbstractControl) {
+export function requiredField(validatorObject: ValidatorObjectInterface, control: AbstractControl) {
   if (control.touched && control.value.length > 0) {
     return null;
   }
 
-  if (control.value == null || control.touched || control.value.length == 0) {
+  if (control.value == null || control.touched || control.value.length === 0) {
     return new errorObject({ control: control, error_message: validatorObject.error_message });
   }
   return null;
 }
 
-export function minInArray(validatorObject: validatorObject, control: AbstractControl, ops?: any) {
+export function minInArray(validatorObject: ValidatorObjectInterface, control: AbstractControl, ops?: any) {
   let minRequiredArray = [];
   if (ops.minRequiredArray instanceof FormArray) {
-    if (!ops.minRequiredArray.value.find(c => c[ops.minRequireControl] != undefined)) {
+    if (!ops.minRequiredArray.value.find(c => c[ops.minRequireControl] !== undefined)) {
       return null;
     }
-    minRequiredArray = ops.minRequiredArray.value.filter(c => c[ops.minRequireControl] == ops.minRequiredValue);
+    minRequiredArray = ops.minRequiredArray.value.filter(c => c[ops.minRequireControl] === ops.minRequiredValue);
   } else {
-    if (!ops.minRequiredArray.find(c => c[ops.minRequireControl] != undefined)) {
+    if (!ops.minRequiredArray.find(c => c[ops.minRequireControl] !== undefined)) {
       return null;
     }
-    minRequiredArray = ops.minRequiredArray.filter(c => c.value == ops.minRequiredValue);
+    minRequiredArray = ops.minRequiredArray.filter(c => c.value === ops.minRequiredValue);
   }
   return minRequiredArray.length < ops.minRequired ? new errorObject({ control: control, error_message: validatorObject.error_message }) : null;
 }

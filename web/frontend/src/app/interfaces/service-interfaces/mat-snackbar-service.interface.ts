@@ -1,5 +1,3 @@
-import { MatSnackBarRef, SimpleSnackBar } from '@angular/material/snack-bar';
-
 import { MatSnackbarConfigurationClass } from '../../classes';
 
 /**
@@ -8,7 +6,10 @@ import { MatSnackbarConfigurationClass } from '../../classes';
  * @export
  * @interface MatSnackbarServiceInterface
  */
-export interface MatSnackbarServiceInterface {
+ export interface MatSnackbarServiceInterface {
+  generate_return_success_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
+  generate_return_fail_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
+  generate_return_error_snackbar_message(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
   displaySnackBar(message: string, matSnackbarConfigurationClass?: MatSnackbarConfigurationClass): void;
   destroySnackBar(): void;
 }
