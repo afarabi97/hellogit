@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { HealthServiceService } from './health-service.service';
+import { SystemHealthService } from './services/system-health.service';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogDisplayMatComponent } from '../modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { PodLogModalDialogComponent } from '../pod-log-dialog/pod-log-dialog.component';
-import { MatTabChangeEvent } from '@angular/material/tabs';
 import { interval, Subscription } from 'rxjs';
 import { ModalTableComponent } from './table-dialog/modal-table.component';
-import { MatTable } from '@angular/material/table';
-import { ViewChild } from '@angular/core';
+import { HealthStatusClass, HealthStatusTotalsClass, HealthStatusNodeInfoClass, HealthStatusUtilizationInfoClass } from './classes';
 
 const MODAL_SIZE ='900px';
 
@@ -20,43 +17,41 @@ const MODAL_SIZE ='900px';
   styleUrls: ['./system-health.component.css']
 })
 export class SystemHealthComponent implements OnInit {
-  columnsForNodeStatues: string[] = ['name', 'type', 'ip_address',
-                                     'ready', 'storage', 'memory', 'cpu', 'actions'];
+  columns_for_node_table = ['name', 'type', 'ip_address', 'ready',
+                            'storage', 'memory', 'cpu', 'actions'];
 
-  columnsForPodStatues: string[] = ['namespace', 'pod_name', 'container_states',
-                                    'restart_count', 'actions'];
+  columns_for_pod_table = ['namespace', 'pod_name', 'container_states',
+                           'restart_count', 'actions'];
 
-  tabs_names: Array<string>;
-  podStatus: Object;
-  unscheduledPodStatus: MatTableDataSource<Array<Object>>;
-  podErrors: MatTableDataSource<Array<Object>>;
-  nodeStatuses: MatTableDataSource<Array<Object>>;
-  totals: Object;
+  totals: {[key: string]: HealthStatusTotalsClass};
+  nodes: MatTableDataSource<Object>;
+  is_node_expanded: {[key: string]: boolean} = {};
+
+  node_info: {[key: string]: HealthStatusNodeInfoClass};
+  utilization_info: {[key: string]: HealthStatusUtilizationInfoClass};
+
+  pipeline_status: Object;
+
+  pod_errors: MatTableDataSource<Object>;
+  pod_health: { "scheduled": {[key: string]: MatTableDataSource<Object>},
+                "unscheduled": MatTableDataSource<Object>};
+
   loading: boolean;
 
-  @ViewChild('nodeStatusesTable') nodeTable: MatTable<any>;
-
-  pipelineStatus: Object;
-
-  isNodeResourcesVisible: Array<boolean>;
-  currentTabIndex: number;
+  tabs: Array<string>;
 
   private updateSubscription: Subscription;
 
-
   constructor(private title: Title,
-              private healthSrv: HealthServiceService,
-              private router: Router,
+              private healthSrv: SystemHealthService,
               private dialog: MatDialog) { }
 
   ngOnInit() {
     this.title.setTitle("System Health");
-    this.currentTabIndex = 0;
     this.loading = false;
 
     this._reloadHealthPage();
 
-    // Refresh the page every 15 seconds with the new health data.
     this.updateSubscription = interval(30000).subscribe((val) => {
       this._reloadHealthPage();
     });
@@ -66,273 +61,149 @@ export class SystemHealthComponent implements OnInit {
     this.updateSubscription.unsubscribe();
   }
 
-  podHasErrors(pod) {
-    let status = pod['status'];
-    let containers = this.getPodStatus(status);
-    let hasError = containers.some(container => {
-      return this._badContainerStatus(container['status']);
-    });
-    return hasError;
-  }
-
-  private _reloadPodErrors(pods){
-    let podErrors = pods.filter(pod => {
-      let podStatus = pod['status'];
-      let containers = this.getPodStatus(podStatus);
-      let hasError = containers.some(container => {
-        return this._badContainerStatus(container['status']);
-      });
-      return hasError;
-    });
-
-    this.podErrors = new MatTableDataSource<Array<Object>>(podErrors);
-  }
-
-  private _badContainerStatus(status) {
-    return status !== 'running' && status !== 'Succeeded'
-  }
-  private _getLookup(nodes: Object) {
-    let lookup = {};
-
-    for (let node in nodes) {
-
-      let address = nodes[node]["metadata"]["public_ip"];
-      let hostname = nodes[node]["metadata"]["name"];
-
-      lookup[address] = hostname;
+  private _containerStatusHasAnError(container_status): boolean {
+    if (container_status.state.running) {
+      return false;
     }
 
-    return lookup;
+    if (container_status.state.terminated) {
+      return (container_status.state.terminated.exit_code !== 0) ? true : false;
+    }
+
+    if (container_status.state.waiting) {
+      return true;
+    }
   }
 
-  private _getPodStatusTabData(pods, lookup) {
-    let podStatus = {};
-    let unscheduledPodStatus = [];
+  podHasAnError(pod): boolean {
+    if (pod.status.container_statuses) {
+      return pod.status.container_statuses.map(container_status => this._containerStatusHasAnError(container_status)).some(error => error);
+    }
 
-    for (let pod of pods) {
-      let hostname = pod["spec"]["node_name"];
-      if (hostname) {
-        if (hostname in podStatus) {
-          podStatus[hostname].push(pod);
-        } else {
-          podStatus[hostname] = [pod];
-        }
+    return (pod.status.phase !== "Running" || pod.status.phase !== "Succeeded");
+  }
+
+  private _getPodTabData(pods) {
+    let scheduled = {};
+    let unscheduled = [];
+
+    for (const pod of pods) {
+      if (pod.spec.node_name) {
+        scheduled[pod.spec.node_name] ? scheduled[pod.spec.node_name].push(pod) : scheduled[pod.spec.node_name] = [pod];
       } else {
-        unscheduledPodStatus.push(pod);
+        unscheduled.push(pod);
       }
     }
 
-    let _podStatus = {};
-    for (let key in podStatus) {
-      _podStatus[key] = new MatTableDataSource<Array<Object>>(podStatus[key]);
+    return {
+      "scheduled": Object.fromEntries(
+        Object.entries<Array<Object>>(scheduled).map(([key, value]) => [key, new MatTableDataSource(value)])),
+      "unscheduled": new MatTableDataSource(unscheduled)
     }
-
-    let _unscheduledPodStatus = new MatTableDataSource<Array<Object>>(unscheduledPodStatus);
-
-    let _tabs = new Array<string>();
-    for (let node in _podStatus){
-      _tabs.push(node);
-    }
-
-    let result: [Object, MatTableDataSource<Array<Object>>, Array<string>];
-    result = [_podStatus, _unscheduledPodStatus, _tabs];
-    return result;
-  }
-
-  private keepNodeExpansions(nodesTable, state, newNodes) {
-    let arrayExpanded;
-
-    if (state === undefined || nodesTable === undefined) {
-      arrayExpanded = new Array(newNodes.length).fill(false);
-    } else {
-      let nodes = nodesTable.data;
-      let indexedState = {};
-      for (let i in nodes) {
-        let node = nodes[i];
-        let name = node['metadata']['name'];
-        indexedState[name] = state[i];
-      }
-
-      arrayExpanded = [];
-      for (let node of nodes) {
-        let name = node['metadata']['name'];
-        if (indexedState.hasOwnProperty(name)) {
-          arrayExpanded.push(indexedState[name])
-        } else {
-          arrayExpanded.push(false);
-        }
-      }
-    }
-
-    return arrayExpanded;
   }
 
   private _reloadHealthPage() {
-    this.healthSrv.getHealthStatus().subscribe(data => {
-      let nodes = data['node_info'];
-
-      let expansionState = this.keepNodeExpansions(this.nodeStatuses, this.isNodeResourcesVisible, nodes);
-      this.isNodeResourcesVisible = expansionState;
-
-      this.nodeStatuses = new MatTableDataSource<Array<Object>>(nodes);
-
-      this.totals = data['totals'] as Object;
-
-      let pods = data['pod_info'];
-      this._reloadPodErrors(pods);
-
-      let lookup = this._getLookup(nodes);
-      let tab_data = this._getPodStatusTabData(pods, lookup);
-      this.podStatus = tab_data[0];
-      this.unscheduledPodStatus = tab_data[1];
-      this.tabs_names = tab_data[2];
-      this.tabs_names.sort();
-    });
-
     this.healthSrv.getPipelineStatus().subscribe(data => {
-      this.pipelineStatus = data;
+      this.pipeline_status = data;
+    });
+
+    this.healthSrv.getHealthStatus().subscribe((status: HealthStatusClass) => {
+      this.totals = status.totals;
+      this.pod_errors = new MatTableDataSource(status.pods.filter(pod => this.podHasAnError(pod)));
+      this.pod_health = this._getPodTabData(status.pods);
+      this.nodes = new MatTableDataSource(status.nodes);
+      this.node_info = status.node_info;
+      this.utilization_info = status.utilization_info;
+      this.tabs = Object.keys(this.pod_health.scheduled).sort();
     });
   }
 
-  getTotalObj(hostname: string): Object {
-    return this.totals[hostname];
-  }
-
-  private _getNodeIndex(nodeObj: Object){
-    for (let index =0; index < this.nodeStatuses.data.length; index++){
-      if (nodeObj["metadata"]["name"] === this.nodeStatuses.data[index]["metadata"]["name"]){
-        return index;
-      }
+  toggleNodeResources(node_name: string) {
+    if (this.is_node_expanded.hasOwnProperty(node_name)) {
+      this.is_node_expanded[node_name] = !this.is_node_expanded[node_name];
+    } else {
+      this.is_node_expanded[node_name] = true;
     }
-    return -1;
   }
 
-  toggleNodeResources(nodeObj: Object) {
-    let index = this._getNodeIndex(nodeObj);
-    if (index !== -1)
-      this.isNodeResourcesVisible[index] = !this.isNodeResourcesVisible[index];
-  }
-
-  isNodeResourceVisible(nodeObj: Object): boolean {
-    let index = this._getNodeIndex(nodeObj);
-    if (index !== -1)
-      return this.isNodeResourcesVisible[index];
-    return false;
-  }
-
-  openPodDialog(podObj: Object){
+  openPodDialog(pod){
     this.dialog.open(ModalTableComponent, {
       width: MODAL_SIZE,
-      data: { title: podObj["metadata"]["name"], pod: podObj}
+      data: { "title": pod.metadata.name, "pod": pod}
     });
   }
 
-  changeTab(tab: MatTabChangeEvent){
-    this.currentTabIndex = tab.index;
-  }
-
-  openConsole(){
-    this.router.navigate(['/stdout/SystemsCheck'])
-  }
-
-  describePod(podMetadata: any) {
+  describePod(pod_name: string, pod_namespace: string) {
     this.loading = true;
-    this.healthSrv.describePod(podMetadata.name, podMetadata.namespace).subscribe(data => {
+    this.healthSrv.describePod(pod_name, pod_namespace).subscribe(data => {
+      this.loading = false;
       this.dialog.open(ModalDialogDisplayMatComponent, {
         minWidth: MODAL_SIZE,
-        data: { title: podMetadata.name, info: data['stdout']}
+        data: { "title": pod_name, "info": data['stdout'] }
       });
-      this.loading = false;
-    }, err => {
-      console.error(err);
-      this.healthSrv.displaySnackBar(err.message);
     });
   }
 
-  podLogs(podMetadata: any) {
+  podLogs(pod_name: string, pod_namespace: string) {
     this.loading = true;
-    this.healthSrv.podLogs(podMetadata.name, podMetadata.namespace).subscribe(data => {
+    this.healthSrv.podLogs(pod_name, pod_namespace).subscribe(data => {
+      this.loading = false;
       this.dialog.open(PodLogModalDialogComponent, {
         minWidth: MODAL_SIZE,
-        data: { title: podMetadata.name, info: data}
+        data: { "title": pod_name, "info": data }
       });
-      this.loading = false;
-    }, err => {
-      console.error(err);
-      this.healthSrv.displaySnackBar(err.message);
     });
   }
 
-  describeNode(nodeName: string) {
+  describeNode(node_name: string) {
     this.loading = true;
-    this.healthSrv.describeNode(nodeName).subscribe(data => {
+    this.healthSrv.describeNode(node_name).subscribe(data => {
+      this.loading = false;
       this.dialog.open(ModalDialogDisplayMatComponent, {
         minWidth: MODAL_SIZE,
-        data: { title: nodeName, info: data['stdout']}
+        data: { "title": node_name, "info": data['stdout']}
       });
-      this.loading = false;
-    }, err => {
-      console.error(err);
-      this.healthSrv.displaySnackBar(err.message);
     });
   }
 
-  openNodeInfo(nodeName: string, nodeInfo: Object){
+  openNodeInfo(node_name: string, node_info: Object){
     this.dialog.open(ModalDialogDisplayMatComponent, {
       width: MODAL_SIZE,
-      data: { title: nodeName + " info", info: JSON.stringify(nodeInfo, null, 2).trim()}
+      data: { "title": node_name + " info", info: JSON.stringify(node_info, null, 2)}
     });
   }
 
-  openPodStatusInfo(podName: string, podStatusInfo: Object){
+  openPodInfo(pod_name: string, pod_info: Object){
     this.dialog.open(ModalDialogDisplayMatComponent, {
       width: MODAL_SIZE,
-      data: { title: podName + " status", info: JSON.stringify(podStatusInfo, null, 2).trim()}
+      data: { "title": pod_name + " status", "info": JSON.stringify(pod_info, null, 2)}
     });
   }
 
-  getContainerRestartCount(pod: Object){
-    if (pod['status']['container_statuses']){
-      return pod['status']['container_statuses'][0]['restart_count'];
-    } else {
-      return "N/A";
-    }
-  }
-
-  getPodStatus(stateObj: Object): Array<{name: string, status: string}> {
-    let retVal: Array<{name: string, status: string}> = [];
-
-    if (stateObj["phase"] === "Pending"){
-      let item = {name: '', status: 'Pending'};
-      retVal.push(item);
-      return retVal;
-    } else if (stateObj["phase"] === "Succeeded"){
-      let item = {name: '', status: 'Succeeded'};
-      retVal.push(item);
-      return retVal;
-    }
-
-    let containerStatuses = stateObj['container_statuses'];
-    if (containerStatuses){
-      for (let status of containerStatuses){
-        let item = {name: '', status: ''};
-        for (let key in status['state']) {
-          if (stateObj['reason']){
-            item['status'] = stateObj['reason'];
-            if (stateObj['message']){
-              item['status'] = item['status'].concat(stateObj['message']);
-            }
-          } else if (status['state'][key]){
-            item['name'] = status['name'];
-            item['status'] = item['status'].concat(key);
-            if (status['state'][key]['message']){
-              item['status'] = item['status'].concat(": " + status['state'][key]['message']);
-            }
-          }
-        }
-        retVal.push(item);
+  getPodRestartCount(pod): number {
+    if (pod.status.container_statuses) {
+      let restart_count = 0;
+      for (const container_status of pod.status.container_statuses) {
+        restart_count += container_status.restart_count;
       }
+      return restart_count;
     }
-    return retVal;
+    return null;
+  }
+
+  getContainerStatus(container_status): string {
+    if (container_status.state.running) {
+      return "running";
+    }
+
+    if (container_status.state.terminated) {
+      return container_status.state.terminated.reason ? `terminated: ${container_status.state.terminated.reason}` : 'terminated';
+    }
+
+    if (container_status.state.waiting) {
+      return container_status.state.waiting.reason ? `waiting: ${container_status.state.waiting.reason}` : 'waiting';
+    }
+
+    return "";
   }
 }

@@ -14,7 +14,7 @@ import json
 from fabric.runners import Result
 from flask import Response, jsonify, request
 import kubernetes.client
-from flask_restplus import Resource
+from flask_restx import Resource
 from kubernetes.client.models.v1_service import V1Service
 from kubernetes.client.models.v1_service_list import V1ServiceList
 from kubernetes.client.rest import ApiException

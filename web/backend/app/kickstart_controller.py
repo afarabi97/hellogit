@@ -9,7 +9,7 @@ from app.service.job_service import run_command
 from app.service.kickstart_service import perform_kickstart
 from app.common import OK_RESPONSE, ERROR_RESPONSE
 from flask import request, jsonify, Response
-from flask_restplus import Resource
+from flask_restx import Resource
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
 from app.utils.constants import KICKSTART_ID, ADDNODE_ID

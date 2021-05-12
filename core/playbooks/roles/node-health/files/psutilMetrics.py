@@ -18,25 +18,25 @@ class PsutilMetrics():
 
     def _virtualMemory(self):
         name = "memory"
-        value = list(psutil.virtual_memory())
+        value = dict(psutil.virtual_memory()._asdict())
 
         return self._createMetric(name, value)
 
     def _rootDiskUsage(self):
         name = "root_usage"
-        value = list(psutil.disk_usage('/'))
+        value = dict(psutil.disk_usage('/')._asdict())
 
         return self._createMetric(name, value)
 
     def _dataDiskUsage(self):
         name = "data_usage"
-        value = list(psutil.disk_usage('/data'))
+        value = dict(psutil.disk_usage('/data')._asdict())
 
         return self._createMetric(name, value)
 
     def _cpuPercent(self):
         name = "cpu_percent"
-        value = psutil.cpu_percent()
+        value = psutil.cpu_percent(interval=3)
 
         return self._createMetric(name, value)
 

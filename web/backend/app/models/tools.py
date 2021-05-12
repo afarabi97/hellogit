@@ -1,6 +1,6 @@
 from app import api
 from app.models import Model
-from flask_restplus import fields
+from flask_restx import fields
 
 
 COMMON_TOOLS_RETURNS = api.model('Spaces', {

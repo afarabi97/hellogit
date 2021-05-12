@@ -9,7 +9,7 @@ from app.resources import convert_kib_to_gib, convert_gib_to_kib, convert_mib_to
 from app.service.job_service import run_command
 
 from flask import Response, jsonify
-from flask_restplus import Resource
+from flask_restx import Resource
 
 from pathlib import Path
 from app.utils.connection_mngs import KubernetesWrapper, KUBEDIR, objectify
@@ -114,37 +114,33 @@ def _get_node_type(hostname: str, nodes: List) -> str:
     return ""
 
 
-def _get_node_info(nodes: V1NodeList) -> List:
+def _get_node_info(nodes: List) -> Dict[str, str]:
     kit_form = DIPKitForm.load_from_db() # type: DIPKitForm
-    ret_val = []
-    for item in nodes.to_dict()['items']:
+    ret_val = {}
+    for node in nodes.to_dict()['items']:
         try:
+            node_info = {
+                "status.allocatable.cpu": str(_get_cpu_total(node['status']['allocatable']['cpu'])) + "m",
+                "status.allocatable.ephemeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['ephemeral-storage']))) + "Gi",
+                "status.allocatable.memory": str(convert_kib_to_gib(_get_mem_total(node['status']['allocatable']['memory']))) + "Gi",
+                "status.capacity.cpu": str(_get_cpu_total(node['status']['capacity']['cpu'])) + "m",
+                "status.capacity.ephemeral-storage": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['ephemeral-storage']))) + "Gi",
+                "status.capacity.memory": str(convert_kib_to_gib(_get_mem_total(node['status']['capacity']['memory']))) + "Gi",
+                "node_type": _get_node_type(node["metadata"]["name"], kit_form.nodes)
+            }
 
-            name = item["metadata"]["name"]
-            metrics = conn_mng.mongo_metrics.find({'node': name, "type": "psutil"})
-            if metrics:
-                for metric in metrics:
-                    item['metadata']['annotations']['tfplenum/{}'.format(metric['name'])] = metric['value']
+            if node["metadata"]["annotations"].get("flannel.alpha.coreos.com/public-ip"):
+                node_info['public_ip'] = node["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
 
-            item['status']['allocatable']['cpu'] = str(_get_cpu_total(item['status']['allocatable']['cpu'])) + "m"
-            item['status']['allocatable']["ephemeral-storage"] = str(convert_kib_to_gib(_get_mem_total(item['status']['allocatable']['ephemeral-storage']))) + "Gi"
-            item['status']['allocatable']['memory'] = str(convert_kib_to_gib(_get_mem_total(item['status']['allocatable']['memory']))) + "Gi"
-            item['status']['capacity']['cpu'] = str(_get_cpu_total(item['status']['capacity']['cpu'])) + "m"
-            item['status']['capacity']["ephemeral-storage"] = str(convert_kib_to_gib(_get_mem_total(item['status']['capacity']['ephemeral-storage']))) + "Gi"
-            item['status']['capacity']['memory'] = str(convert_kib_to_gib(_get_mem_total(item['status']['capacity']['memory']))) + "Gi"
-            public_ip = item["metadata"]["annotations"]["flannel.alpha.coreos.com/public-ip"]
-            item["metadata"]["public_ip"] = public_ip
-            item["metadata"]["node_type"] = _get_node_type(item["metadata"]["name"], kit_form.nodes)
-            ret_val.append(item)
-        except KeyError as e:
-            item["metadata"]["public_ip"] = ''
-            ret_val.append(item)
+            ret_val[node["metadata"]["name"]] = node_info
         except Exception as e:
             logger.exception(e)
     return ret_val
 
+def _get_nodes(nodes: V1NodeList) -> List:
+    return nodes.to_dict()['items']
 
-def _get_pod_info(pods: V1PodList) -> List:
+def _get_pods(pods: V1PodList) -> List:
     return pods.to_dict()['items']
 
 
@@ -218,26 +214,35 @@ class HealthNodeTotals:
         self._set_allocatable_totals()
         return self.node_names
 
+def _get_utilization_info(nodes):
+    return list(conn_mng.mongo_metrics.aggregate([
+        {"$match": {"type": "psutil"}},
+        {"$group": {"_id": "$node", "data": {"$push": {"k": "$name", "v": "$value"}}}},
+        {"$set": {"data": {"$arrayToObject": "$data"}}},
+        {"$group": {"_id": None, "data": {"$push": {"k": "$_id", "v": "$data"}}}},
+        {"$set": {"data": {"$arrayToObject": "$data"}}},
+        {"$replaceRoot": {"newRoot": "$data"}}
+    ]))[0]
 
 def _get_health_status() -> Dict:
     with KubernetesWrapper(conn_mng) as kube_apiv1:
         pods = kube_apiv1.list_pod_for_all_namespaces(watch=False) # type: V1PodList
         nodes = kube_apiv1.list_node() # type: V1NodeList
 
-        ret_val = {}
-        health = HealthNodeTotals(pods, nodes)
-        ret_val['totals'] = health.execute()
-        ret_val['node_info'] = _get_node_info(nodes)
-        ret_val['pod_info'] = _get_pod_info(pods)
-
-        return ret_val
+    return {
+        "totals": HealthNodeTotals(pods, nodes).execute(),
+        "nodes": _get_nodes(nodes),
+        "pods": _get_pods(pods),
+        "node_info": _get_node_info(nodes),
+        "utilization_info": _get_utilization_info(nodes)
+    }
 
 
 @KUBERNETES_NS.route('/health/status')
 class SystemHealthStatus(Resource):
 
     @KUBERNETES_NS.doc(description="Gets the kubernetes health status for all nodes.")
-    @KUBERNETES_NS.response(200, 'HealthService', [HealthServiceModel.DTO])
+    @KUBERNETES_NS.response(200, 'HealthService', HealthServiceModel.DTO)
     def get(self):
         try:
             return objectify(_get_health_status())
@@ -246,7 +251,7 @@ class SystemHealthStatus(Resource):
             return objectify(_get_health_status())
         except Exception as e:
             logger.exception(e)
-        return {'totals': {}, 'pod_info': [], 'node_info': []}
+        return {'totals': {}, 'nodes': [], 'pods': [], 'node_info': {}, 'utilization_info': {}}
 
 
 @KUBERNETES_NS.route('/pipeline/status')

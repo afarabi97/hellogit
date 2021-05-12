@@ -3,7 +3,7 @@ Main module for handling all of the Kit Configuration REST calls.
 """
 from typing import Dict, Tuple
 from flask import request, Response, jsonify
-from flask_restplus import Resource
+from flask_restx import Resource
 from pymongo.collection import ReturnDocument
 from app import app, logger, conn_mng, KIT_SETUP_NS
 from app.common import OK_RESPONSE, ERROR_RESPONSE

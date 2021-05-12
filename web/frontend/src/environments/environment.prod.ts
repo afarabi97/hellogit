@@ -69,5 +69,11 @@ export const environment = {
   NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/controller/datetime`,
   NAV_BAR_SERVICE_VERSION: `/api/version`,
 
-  ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`
+  ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`,
+  
+  SYSTEM_HEALTH_SERVICE_GET_HEALTH_STATUS: `/api/health/status`,
+  SYSTEM_HEALTH_SERVICE_GET_PIPELINE_STATUS: `/api/pipeline/status`,
+  SYSTEM_HEALTH_SERVICE_DESCRIBE_POD: `/api/pod/describe`,
+  SYSTEM_HEALTH_SERVICE_POD_LOGS: `/api/pod/logs`,
+  SYSTEM_HEALTH_SERVICE_DESCRIBE_NODE: `/api/node/describe`
 };

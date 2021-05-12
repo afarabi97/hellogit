@@ -4,7 +4,7 @@ from app import app, logger, KUBERNETES_NS
 from app.models.kubernetes import DockerImageModel
 from requests.exceptions import ConnectionError
 from flask import jsonify
-from flask_restplus import Resource
+from flask_restx import Resource
 from requests.models import Response
 from typing import List, Tuple
 

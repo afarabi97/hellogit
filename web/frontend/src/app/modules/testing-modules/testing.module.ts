@@ -13,6 +13,8 @@ import { WeaponSystemNameService } from '../../services/weapon-system-name.servi
 import { WeaponSystemNameServiceSpy } from '../../services/weapon-system-name.service.spec';
 import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
+import { SystemHealthService } from '../../system-health/services/system-health.service';
+import { SystemHealthServiceSpy } from '../../system-health/services/system-health.service.spec';
 
 @NgModule({
   imports: [
@@ -25,6 +27,7 @@ import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec'
     { provide: UserService, useClass: UserServiceSpy },
     { provide: WeaponSystemNameService, useClass: WeaponSystemNameServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },
+    { provide: SystemHealthService, useClass: SystemHealthServiceSpy }
     // { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open', 'closeAll', 'getDialogById']) },
     // { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', ['close', 'afterOpen', 'afterClosed', 'beforeClose', 'backdropClick', 'keydownEvents', 'updatePosition']) }
   ]

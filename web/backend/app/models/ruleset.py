@@ -1,7 +1,7 @@
 from app import api
 from app.models import Model
-from flask_restplus import fields
-from flask_restplus.fields import Nested
+from flask_restx import fields
+from flask_restx.fields import Nested
 
 from app.utils.constants import  RULESET_STATES, RULE_TYPES
 from app.utils.utils import encode_password, decode_password

@@ -3,7 +3,7 @@ Main module for handling all of the config map REST calls.
 """
 from typing import Dict, List
 from flask import jsonify, Response, request
-from flask_restplus import Resource, fields
+from flask_restx import Resource, fields
 from kubernetes import client
 from kubernetes.client.models.v1_pod_list import V1PodList
 from app import app, logger, conn_mng, KUBERNETES_NS

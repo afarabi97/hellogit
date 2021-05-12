@@ -5,7 +5,7 @@ from app.common import OK_RESPONSE, JSONEncoder
 from app.middleware import controller_admin_required
 from app.models.common import BackgroundJob, WorkerModel, JobID
 from flask import Response
-from flask_restplus import Resource, fields, Namespace
+from flask_restx import Resource, fields, Namespace
 from rq import Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry, FinishedJobRegistry, FailedJobRegistry, DeferredJobRegistry

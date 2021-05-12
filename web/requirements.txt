@@ -21,7 +21,7 @@ eventlet==0.24.1
 fabric==2.4.0
 Flask==1.0.2
 Flask-Cors==3.0.6
-flask-restplus==0.13.0
+flask-restx==0.3.0
 Flask-SocketIO==4.0.0
 freezegun==1.1.0
 future==0.16.0

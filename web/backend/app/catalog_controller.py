@@ -1,7 +1,7 @@
 from app import app, logger, conn_mng, CATALOG_NS
 from app.common import ERROR_RESPONSE
 from flask import jsonify, request, Response
-from flask_restplus import Resource, fields
+from flask_restx import Resource, fields
 from typing import List
 from app.catalog_service import (delete_helm_apps, install_helm_apps, get_app_state,
                                  get_repo_charts, chart_info, generate_values, get_nodes, get_node_apps,

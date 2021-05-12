@@ -13,7 +13,7 @@ from app.service.rulesync_service import perform_rulesync
 from app.utils.utils import tar_folder
 from datetime import datetime
 from flask import jsonify, request, Response, send_file
-from flask_restplus import Resource
+from flask_restx import Resource
 from io import StringIO
 from pathlib import Path
 from pymongo import ReturnDocument

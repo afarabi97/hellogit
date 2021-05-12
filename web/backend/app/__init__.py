@@ -18,7 +18,7 @@ from app.utils.constants import (CORE_DIR, PLAYBOOK_DIR, DEPLOYER_DIR, WEB_DIR, 
                                  AGENT_PKGS_DIR, MIP_KICK_DIR, MIP_CONFIG_DIR, STIGS_DIR)
 from flask_cors import CORS
 from flask import Flask, url_for
-from flask_restplus import Api, Namespace
+from flask_restx import Api, Namespace
 from flask_socketio import SocketIO
 from logging.handlers import RotatingFileHandler
 from logging import Logger

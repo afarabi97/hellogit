@@ -7,7 +7,7 @@ from app.utils.constants import KICKSTART_ID
 from app.service.pcap_service import replay_pcap_srv
 from datetime import datetime
 from flask import jsonify, request, Response
-from flask_restplus import Resource
+from flask_restx import Resource
 from pathlib import Path
 from app.utils.constants import DATE_FORMAT_STR, PCAP_UPLOAD_DIR
 from app.utils.utils import hash_file

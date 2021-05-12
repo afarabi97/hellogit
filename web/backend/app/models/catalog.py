@@ -1,8 +1,8 @@
 from app import api
 from app.models import Model
 from app.models.kit_setup import Node
-from flask_restplus import fields
-from flask_restplus.fields import Nested
+from flask_restx import fields
+from flask_restx.fields import Nested
 
 
 class ChartNodeModel(Model):

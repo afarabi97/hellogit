@@ -1,5 +1,5 @@
-.card-body{
-    max-height: 800px; 
+.card-body {
+    max-height: 800px;
     overflow-y: auto;
 }
 
@@ -9,6 +9,14 @@ a {
 
 dd {
     margin: 0px 0px 0px 5px;
+}
+
+.podStatus {
+    color: #4caf50;
+}
+
+.podErrors .podStatus {
+    color: #f44336;
 }
 
 .containerStatus {
@@ -22,7 +30,6 @@ dd {
 .podErrors i {
     color: #f44336;
     font-weight: bold;
-
 }
 
 .podErrors a {

@@ -6,8 +6,8 @@ import uuid
 from app import api, conn_mng
 from app.models import Model, DBModelNotFound, PostValidationError
 from ipaddress import IPv4Address
-from flask_restplus import fields
-from flask_restplus.fields import Nested
+from flask_restx import fields
+from flask_restx.fields import Nested
 
 from marshmallow import Schema, post_load, validate, validates, ValidationError
 from marshmallow import fields as marsh_fields

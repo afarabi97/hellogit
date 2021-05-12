@@ -11,7 +11,7 @@ from app.models.common import COMMON_RETURNS
 from app.models.kit_setup import DIPKickstartForm, DBModelNotFound, DIPKitForm, Node, MIPKickstartForm
 from app.models.device_facts import DeviceFacts, create_device_facts_from_ansible_setup
 from flask import request, jsonify, Response
-from flask_restplus import Resource
+from flask_restx import Resource
 from app.utils.constants import KICKSTART_ID, KIT_ID, NODE_TYPES
 from app.utils.utils import filter_ip, netmask_to_cidr, decode_password, is_ipv4_address
 from typing import List, Dict, Tuple
@@ -26,7 +26,6 @@ def get_system_name_api():
         return jsonify({'system_name': system_name})
 
     return jsonify({'message': 'Could not get the system_name.'}), 404
-
 
 @app.route('/api/metrics', methods=['POST'])
 # @login_required_roles(['metrics'], all_roles_req=False)
@@ -45,7 +44,6 @@ def replace_metrics():
     return jsonify(replaced), status
 
 MIN_MBPS = 1000
-
 
 @api.route("/api/gather-device-facts/<management_ip>")
 @api.doc(params={'management_ip': "The IP we wish to get additional information from."})

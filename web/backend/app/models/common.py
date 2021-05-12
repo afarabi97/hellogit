@@ -1,7 +1,7 @@
 from app import api, conn_mng
 from app.utils.constants import HIVE_ID
 from app.models import Model
-from flask_restplus import fields
+from flask_restx import fields
 
 from marshmallow import Schema, post_load, pre_load, validate, validates, ValidationError
 from marshmallow import fields as marsh_fields
