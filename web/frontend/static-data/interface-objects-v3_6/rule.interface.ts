@@ -22,6 +22,17 @@ export const MockRuleForToggleInterface: RuleInterface = {
   rule_set_id: 0
 };
 
+export const MockRuleForToggleDisabledInterface: RuleInterface = {
+  _id: 10,
+  ruleName: 'FakeRuleNameToggle',
+  rule: 'FakeRule',
+  createdDate: '2020-02-27 00:08:58',
+  lastModifiedDate: '2020-02-27 00:08:58',
+  isEnabled: false,
+  byPassValidation: false,
+  rule_set_id: 0
+};
+
 export const MockRuleForDeleteInterface: RuleInterface = {
   _id: 10,
   ruleName: 'FakeRuleNameDelete',

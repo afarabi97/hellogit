@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { of, throwError } from 'rxjs';
+import { ApiService } from 'src/app/services/abstract/api.service';
 
 import {
   MockArrayRuleSetClass,
@@ -156,6 +157,7 @@ describe('PolicyManagementTableComponent', () => {
         TestingModule
       ],
       providers: [
+        ApiService,
         { provide: MatDialog, useClass: MatDialogMock },
         { provide: WebsocketService, useClass: MockSocket }
       ]
@@ -424,6 +426,10 @@ describe('PolicyManagementTableComponent', () => {
 
       it('should call rules_visible() and return boolean false', () => {
         reset();
+
+        const rule_set_index: number = component['get_rule_set_index_'](MockRuleSetClass);
+
+        component['rules_visible_'][rule_set_index] = false;
 
         const return_value: boolean = component.rules_visible(MockRuleSetClass);
 

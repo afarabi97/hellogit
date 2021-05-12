@@ -55,7 +55,9 @@ export const environment = {
   HEALTH_STATUS_SERVICE_DESCRIBE_POD: `/api/pod/describe/`,
   HEALTH_STATUS_SERVICE_POD_LOGS: `/api/pod/logs/`,
   HEALTH_STATUS_SERVICE_DESCRIBE_NODE: `/api/node/describe/`,
-  REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/docker/registry`,
+
+  DOCKER_REGISTRY_SERVICE_GET_DOCKER_REGISTRY: `/api/docker/registry`,
+
   PORTAL_SERVICE_GET_PORTAL_LINKS: `/api/get_portal_links`,
   PORTAL_SERVICE_ADD_USER_LINK: `/api/add_user_link`,
   PORTAL_SERVICE_REMOVE_USER_LINK: `/api/remove_user_link/`,

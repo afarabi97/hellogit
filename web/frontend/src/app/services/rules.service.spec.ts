@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import {
   MockArrayRuleSetClass,
+  MockErrorMessageClass,
   MockRuleClass,
   MockRuleForDeleteClass,
   MockRuleForToggleClass,
@@ -17,7 +18,6 @@ import {
   MockSuccessMessageClass
 } from '../../../static-data/class-objects-v3_6';
 import {
-  MockErrorMessageInterface,
   MockRuleForToggleInterface,
   MockRuleInterface,
   MockRuleSetInterface,
@@ -404,8 +404,6 @@ describe('RulesService', () => {
       it('should call get_rule_sets()', () => {
         reset();
 
-        MockRuleSetClass.state = MockRuleSetInterface.state;
-
         service.get_rule_sets()
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: RuleSetClass[]) => {
@@ -426,15 +424,13 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush([MockRuleSetInterface]);
+        xhrRequest.flush([MockRuleSetClass]);
 
         after();
       });
 
       it('should call get_rule_sets() and handle error', () => {
         reset();
-
-        MockRuleSetClass.state = MockRuleSetInterface.state;
 
         service.get_rule_sets()
           .pipe(takeUntil(ngUnsubscribe$))
@@ -455,10 +451,8 @@ describe('RulesService', () => {
     });
 
     describe('REST create_rule_set()', () => {
-      it('should call create_rule_set()', () => {
+      it('should call create_rule_set() and return rule set', () => {
         reset();
-
-        MockRuleSetClass.state = MockRuleSetInterface.state;
 
         service.create_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -478,15 +472,13 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(MockRuleSetInterface);
+        xhrRequest.flush(MockRuleSetClass);
 
         after();
       });
 
       it('should call create_rule_set() and handle error message error', () => {
         reset();
-
-        MockRuleSetClass.state = MockRuleSetInterface.state;
 
         service.create_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -516,8 +508,6 @@ describe('RulesService', () => {
       it('should call create_rule_set() and handle error', () => {
         reset();
 
-        MockRuleSetClass.state = MockRuleSetInterface.state;
-
         service.create_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
@@ -537,10 +527,8 @@ describe('RulesService', () => {
     });
 
     describe('REST update_rule_set()', () => {
-      it('should call update_rule_set()', () => {
+      it('should call update_rule_set() and return rule set', () => {
         reset();
-
-        MockRuleSetClass.state = MockRuleSetInterface.state;
 
         service.update_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -560,15 +548,13 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(putType);
 
-        xhrRequest.flush(MockRuleSetInterface);
+        xhrRequest.flush(MockRuleSetClass);
 
         after();
       });
 
       it('should call update_rule_set() and handle error message error', () => {
         reset();
-
-        MockRuleSetClass.state = MockRuleSetInterface.state;
 
         service.update_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -598,8 +584,6 @@ describe('RulesService', () => {
       it('should call update_rule_set() and handle error', () => {
         reset();
 
-        MockRuleSetClass.state = MockRuleSetInterface.state;
-
         service.update_rule_set(MockRuleSetInterface)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe(
@@ -619,26 +603,7 @@ describe('RulesService', () => {
     });
 
     describe('REST delete_rule_set()', () => {
-      it('should call delete_rule_set()', () => {
-        reset();
-
-        service.delete_rule_set(MockRuleSetInterface._id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: ErrorMessageClass | SuccessMessageClass) => {
-            expect(service.delete_rule_set).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = `${environment.RULES_SERVICE_RULE_SETS}/${MockRuleSetInterface._id}`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(deleteType);
-
-        xhrRequest.flush(MockSuccessMessageInterface);
-
-        after();
-      });
-
-      it('should call delete_rule_set() and success message', () => {
+      it('should call delete_rule_set() and return success message', () => {
         reset();
 
         service.delete_rule_set(MockRuleSetInterface._id)
@@ -714,7 +679,7 @@ describe('RulesService', () => {
     });
 
     describe('REST sync_rule_sets()', () => {
-      it('should call sync_rule_sets()', () => {
+      it('should call sync_rule_sets() and return rule sync', () => {
         reset();
 
         service.sync_rule_sets()
@@ -765,8 +730,6 @@ describe('RulesService', () => {
       it('should call get_rules()', () => {
         reset();
 
-        MockRuleInterface.isEnabled = MockRuleClass.isEnabled;
-
         service.get_rules(MockRuleSetInterface._id)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: RuleClass[]) => {
@@ -787,7 +750,7 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush([MockRuleInterface]);
+        xhrRequest.flush([MockRuleClass]);
 
         after();
       });
@@ -814,10 +777,8 @@ describe('RulesService', () => {
     });
 
     describe('REST create_rule()', () => {
-      it('should call create_rule()', () => {
+      it('should call create_rule() and return rule', () => {
         reset();
-
-        MockRuleInterface.isEnabled = MockRuleClass.isEnabled;
 
         service.create_rule(MockRuleInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -837,7 +798,7 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(MockRuleInterface);
+        xhrRequest.flush(MockRuleClass);
 
         after();
       });
@@ -892,10 +853,8 @@ describe('RulesService', () => {
     });
 
     describe('REST update_rule()', () => {
-      it('should call update_rule()', () => {
+      it('should call update_rule() and return rule', () => {
         reset();
-
-        MockRuleInterface.isEnabled = MockRuleClass.isEnabled;
 
         service.update_rule(MockRuleInterface)
           .pipe(takeUntil(ngUnsubscribe$))
@@ -915,7 +874,7 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(putType);
 
-        xhrRequest.flush(MockRuleInterface);
+        xhrRequest.flush(MockRuleClass);
 
         after();
       });
@@ -970,26 +929,8 @@ describe('RulesService', () => {
     });
 
     describe('REST delete_rule()', () => {
-      it('should call delete_rule()', () => {
-        reset();
 
-        service.delete_rule(MockRuleInterface._id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: SuccessMessageClass) => {
-            expect(service.delete_rule).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = `${environment.RULES_SERVICE_RULE}/${MockRuleInterface._id}`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(deleteType);
-
-        xhrRequest.flush(MockSuccessMessageInterface);
-
-        after();
-      });
-
-      it('should call delete_rule() and handle success message', () => {
+      it('should call delete_rule() and return success message', () => {
         reset();
 
         service.delete_rule(MockRuleInterface._id)
@@ -1065,26 +1006,7 @@ describe('RulesService', () => {
     });
 
     describe('REST upload_rule_file()', () => {
-      it('should call upload_rule_file()', () => {
-        reset();
-
-        service.upload_rule_file(form_data)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: RuleClass | RuleClass[]) => {
-            expect(service.upload_rule_file).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.RULES_SERVICE_UPLOAD_RULE_FILE;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(postType);
-
-        xhrRequest.flush(MockRuleInterface);
-
-        after();
-      });
-
-      it('should call upload_rule_file() and handle rule', () => {
+      it('should call upload_rule_file() and return rule', () => {
         reset();
 
         service.upload_rule_file(form_data)
@@ -1105,12 +1027,12 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush(MockRuleInterface);
+        xhrRequest.flush(MockRuleClass);
 
         after();
       });
 
-      it('should call upload_rule_file() and handle rule[]', () => {
+      it('should call upload_rule_file() and return rule[]', () => {
         reset();
 
         service.upload_rule_file(form_data)
@@ -1135,7 +1057,7 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(postType);
 
-        xhrRequest.flush([MockRuleInterface]);
+        xhrRequest.flush([MockRuleClass]);
 
         after();
       });
@@ -1190,28 +1112,7 @@ describe('RulesService', () => {
     });
 
     describe('REST get_rule_content()', () => {
-      it('should call get_rule_content()', () => {
-        reset();
-
-        MockRuleInterface.isEnabled = MockRuleClass.isEnabled;
-
-        service.get_rule_content(MockRuleInterface._id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: RuleClass) => {
-            expect(service.get_rule_content).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = `${environment.RULES_SERVICE_RULE}/${MockRuleInterface._id}/content`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(getType);
-
-        xhrRequest.flush(MockRuleInterface);
-
-        after();
-      });
-
-      it('should call get_rule_content() and handle rule', () => {
+      it('should call get_rule_content() and return rule', () => {
         reset();
 
         service.get_rule_content(MockRuleInterface._id)
@@ -1232,7 +1133,7 @@ describe('RulesService', () => {
 
         expect(xhrRequest.request.method).toEqual(getType);
 
-        xhrRequest.flush(MockRuleInterface);
+        xhrRequest.flush(MockRuleClass);
 
         after();
       });
@@ -1287,26 +1188,7 @@ describe('RulesService', () => {
     });
 
     describe('REST validate_rule()', () => {
-      it('should call validate_rule()', () => {
-        reset();
-
-        service.validate_rule(MockRuleInterface)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: SuccessMessageClass) => {
-            expect(service.validate_rule).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.RULES_SERVICE_RULE_VALIDATE;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(postType);
-
-        xhrRequest.flush(MockSuccessMessageInterface);
-
-        after();
-      });
-
-      it('should call validate_rule() and handle success message', () => {
+      it('should call validate_rule() and return success message', () => {
         reset();
 
         service.validate_rule(MockRuleInterface)
@@ -1382,26 +1264,7 @@ describe('RulesService', () => {
     });
 
     describe('REST test_rule_against_pcap()', () => {
-      it('should call test_rule_against_pcap()', () => {
-        reset();
-
-        service.test_rule_against_pcap(payload)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: Blob) => {
-            expect(service.test_rule_against_pcap).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.RULES_SERVICE_TEST_RULE_AGAINST_PCAP;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(postType);
-
-        xhrRequest.flush(mock_blob);
-
-        after();
-      });
-
-      it('should call test_rule_against_pcap() and handle success message', () => {
+      it('should call test_rule_against_pcap() and return success message', () => {
         reset();
 
         service.test_rule_against_pcap(payload)
@@ -1451,28 +1314,7 @@ describe('RulesService', () => {
     });
 
     describe('REST toggle_rule()', () => {
-      it('should call toggle_rule()', () => {
-        reset();
-
-        MockRuleForToggleClass.isEnabled = MockRuleForToggleInterface.isEnabled;
-
-        service.toggle_rule(MockRuleForToggleInterface._id)
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((response: RuleClass) => {
-            expect(service.toggle_rule).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = `${environment.RULES_SERVICE_RULE}/${MockRuleForToggleInterface._id}/toggle`;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(putType);
-
-        xhrRequest.flush(MockRuleForToggleInterface);
-
-        after();
-      });
-
-      it('should call toggle_rule() and handle rule', () => {
+      it('should call toggle_rule() and return rule', () => {
         reset();
 
         MockRuleForToggleClass.isEnabled = MockRuleForToggleInterface.isEnabled;
@@ -1729,14 +1571,14 @@ export class RulesServiceSpy implements RulesServiceInterface {
     const rule_set_new: RuleSetClass = new RuleSetClass(rule_set);
     this.rule_sets_.push(rule_set_new);
 
-    return ObjectUtilitiesClass.notUndefNull(rule_set_new) ? observableOf(rule_set_new) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule_set_new) ? observableOf(rule_set_new) : throwError(MockErrorMessageClass);
   }
 
   call_fake_update_rule_set(rule_set: RuleSetInterface): Observable<RuleSetClass> {
     const rule_set_update: RuleSetClass = new RuleSetClass(rule_set);
     this.rule_sets_ = this.rule_sets_.map((rs: RuleSetClass) => rule_set._id === rs._id ? rule_set_update : rs);
 
-    return this.rule_sets_.indexOf(rule_set_update) !== -1 ? observableOf(rule_set_update) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return this.check_for_rule_set_(rule_set_update) ? observableOf(rule_set_update) : throwError(MockErrorMessageClass);
   }
 
   call_fake_delete_rule_set(rule_set_id: number): Observable<SuccessMessageClass> {
@@ -1749,11 +1591,11 @@ export class RulesServiceSpy implements RulesServiceInterface {
       }
     });
 
-    return ObjectUtilitiesClass.notUndefNull(rule_set) ? observableOf(new SuccessMessageClass(MockSuccessMessageInterface)) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule_set) ? observableOf(MockSuccessMessageClass) : throwError(MockErrorMessageClass);
   }
 
   call_fake_sync_rule_sets(): Observable<RuleSyncClass> {
-    return observableOf(new RuleSyncClass(MockRuleSyncInterface));
+    return observableOf(MockRuleSyncClass);
   }
 
   call_fake_get_rules(rule_set_id: number): Observable<RuleClass[]> {
@@ -1766,14 +1608,14 @@ export class RulesServiceSpy implements RulesServiceInterface {
     const rule_new: RuleClass = new RuleClass(rule);
     this.rules_.push(rule_new);
 
-    return ObjectUtilitiesClass.notUndefNull(rule_new) ? observableOf(rule_new) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule_new) ? observableOf(rule_new) : throwError(MockErrorMessageClass);
   }
 
   call_fake_update_rule(rule: RuleInterface): Observable<RuleClass> {
     const rule_update: RuleClass = new RuleClass(rule);
     this.rules_ = this.rules_.map((r: RuleClass) => rule._id === r._id ? rule_update : r);
 
-    return this.rules_.indexOf(rule_update) !== -1 ? observableOf(rule_update) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return this.check_for_rule_(rule_update) ? observableOf(rule_update) : throwError(MockErrorMessageClass);
   }
 
   call_fake_delete_rule(rule_id: number): Observable<SuccessMessageClass> {
@@ -1786,11 +1628,11 @@ export class RulesServiceSpy implements RulesServiceInterface {
       }
     });
 
-    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(new SuccessMessageClass(MockSuccessMessageInterface)) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(MockSuccessMessageClass) : throwError(MockErrorMessageClass);
   }
 
   call_fake_upload_rule_file(form_data: FormData): Observable<RuleClass | RuleClass[]> {
-    return ObjectUtilitiesClass.notUndefNull(form_data) ? observableOf(MockRuleClass) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(form_data) ? observableOf(MockRuleClass) : throwError(MockErrorMessageClass);
   }
 
   call_fake_get_rule_content(rule_id: number): Observable<RuleClass> {
@@ -1803,13 +1645,13 @@ export class RulesServiceSpy implements RulesServiceInterface {
       }
     });
 
-    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(rule) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(rule) : throwError(MockErrorMessageClass);
   }
 
   call_fake_validate_rule(rule: RuleInterface): Observable<SuccessMessageClass> {
     const new_rule: RuleClass = new RuleClass(rule);
 
-    return new_rule instanceof RuleClass ? observableOf(new SuccessMessageClass(MockSuccessMessageInterface)) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return new_rule instanceof RuleClass ? observableOf(MockSuccessMessageClass) : throwError(MockErrorMessageClass);
   }
 
   call_fake_test_rule_against_pcap(payload: RulePCAPTestInterface): Observable<Blob> {
@@ -1835,6 +1677,18 @@ export class RulesServiceSpy implements RulesServiceInterface {
       }
     });
 
-    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(rule) : throwError(new ErrorMessageClass(MockErrorMessageInterface));
+    return ObjectUtilitiesClass.notUndefNull(rule) ? observableOf(rule) : throwError(MockErrorMessageClass);
+  }
+
+  private check_for_rule_(rule: RuleClass): boolean {
+    const search = (r: RuleClass) => r._id === rule._id;
+
+    return this.rules_.findIndex(search) !== -1;
+  }
+
+  private check_for_rule_set_(rule_set: RuleSetClass): boolean {
+    const search = (rs: RuleSetClass) => rs._id === rule_set._id;
+
+    return this.rule_sets_.findIndex(search) !== -1;
   }
 }

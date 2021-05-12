@@ -47,7 +47,6 @@ import { ModalTableComponent } from './system-health/table-dialog/modal-table.co
 
 import { ConfigmapsComponent } from './configmaps/configmaps.component';
 import { ConfigmapEditorComponent } from './configmap-editor/configmap-editor.component';
-import { RegistryComponent } from './registry/registry.component';
 import { MaterialModule } from './modules/utilily-modules/material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -111,6 +110,7 @@ import { IndexManagementComponent } from './index-management/component/index-man
 
 import { SystemNameClass, UserClass } from './classes';
 import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
+import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
@@ -148,7 +148,6 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     SystemHealthComponent,
     ConfigmapsComponent,
     ConfigmapEditorComponent,
-    RegistryComponent,
     PcapFormComponent,
     AgentBuilderChooserComponent,
     AgentInstallerDialogComponent,
@@ -192,6 +191,7 @@ export function initializeSystemName(appLoadService: AppLoadService): () => Prom
     NgxMatTimepickerModule,
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
+    DockerRegistryModule,
     NGXMonacoTextEditorModule,
     PolicyManagementModule,
     PortalModule

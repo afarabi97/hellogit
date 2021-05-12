@@ -5,3 +5,9 @@ export const MockPortalLinkInterface: PortalLinkInterface = {
   ip: 'https://10.40.31.103',
   logins: 'assessor/password'
 };
+
+export const MockPortalLinkFakeInterface: PortalLinkInterface = {
+  dns: 'https://fake.user',
+  ip: 'https://10.40.30.100',
+  logins: 'user/password'
+};

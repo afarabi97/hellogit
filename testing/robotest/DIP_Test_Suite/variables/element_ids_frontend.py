@@ -922,15 +922,14 @@ CVAH_PORTAL__TITLE_BUTTON_ADD_LINK = 'cvah-portal-title-button-add-link' # butto
 
 
 # These are for registry.component.html
-APP_REGISTRY__MAT_PROGRESS_BAR = 'app-registry-div-mat-card-mat-progress-bar' # mat-progress-bar
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-name # td
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-tags # td
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-name-p-*-tag # p
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-image-id # td
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-image-id-p-*-id # p
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-image-size # td
-# TODO app-registry-div-mat-card-mat-card-content-table-td-*-image-size-p-*-size # p
-# TODO app-registry-div-mat-card-mat-card-content-table-tr-mat-row-* # tr
+# TODO cvah-docker-registry-table-td-*-name # td
+# TODO cvah-docker-registry-table-td-*-tags # td
+# TODO cvah-docker-registry-table-td-*-name-p-*-tag # p
+# TODO cvah-docker-registry-table-td-*-image-id # td
+# TODO cvah-docker-registry-table-td-*-image-id-p-*-id # p
+# TODO cvah-docker-registry-table-td-*-image-size # td
+# TODO cvah-docker-registry-table-td-*-image-size-p-*-size # p
+# TODO cvah-docker-registry-table-tr-mat-row-* # tr
 
 
 # These are for replay-pcap-dialog.component.html

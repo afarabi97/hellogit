@@ -11,7 +11,6 @@ import { IndexManagementComponent } from '../../index-management/component/index
 import { LogIngestComponent } from '../../log-ingest/log-ingest.component';
 import { MIPConfigComponent } from '../../mip-config/mip-config.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
-import { RegistryComponent } from '../../registry/registry.component';
 import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
 import { SupportComponent } from '../../support/support.component';
@@ -21,6 +20,7 @@ import { KickstartComponent } from '../../system-setup/kickstart/kickstart.compo
 import { KitComponent } from '../../system-setup/kit/kit.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
+import { DockerRegistryComponent } from '../docker-registry/docker-registry.component';
 import { PortalComponent } from '../portal/portal.component';
 
 const routes: Routes = [
@@ -33,7 +33,7 @@ const routes: Routes = [
   { path: 'kit_configuration', component: KitComponent, canActivate: [ ControllerAdminRequiredGuard ] },
   { path: 'configmaps', component: ConfigmapsComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'stdout/:jobName/:id', component: ServerStdoutComponent, canActivate: [ ControllerAdminRequiredGuard ]  },
-  { path: 'registry', component: RegistryComponent },
+  { path: 'registry', component: DockerRegistryComponent },
   { path: 'windows_agent_deployer', component: AgentBuilderChooserComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'rulesets', component: PolicyManagementComponent, canActivate: [ OperatorRequiredGuard ] },
   { path: 'pcaps', component: PcapFormComponent, canActivate: [ OperatorRequiredGuard ] },

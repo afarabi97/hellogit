@@ -1,8 +1,5 @@
 import { UserPortalLinkClass }  from '../../src/app/classes';
+import { MockUserPortalLinkInterface, MockUserPortalLinkRemoveInterface } from '../interface-objects-v3_7';
 
-export const MockUserPortalLinkClass: UserPortalLinkClass = {
-  _id: '1',
-  name: 'Fake Link',
-  url: 'https://fake-link.com',
-  description: 'Fake url link for mock tests'
-};
+export const MockUserPortalLinkClass: UserPortalLinkClass = new UserPortalLinkClass(MockUserPortalLinkInterface);
+export const MockUserPortalLinkRemoveClass: UserPortalLinkClass = new UserPortalLinkClass(MockUserPortalLinkRemoveInterface);

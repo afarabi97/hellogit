@@ -328,7 +328,7 @@ export class RulesService extends ApiService<any> implements RulesServiceInterfa
   }
 
   /**
-   * Used to return rule, rule[] or error message
+   * Used to return rule, rule[]
    *
    * @private
    * @param {Object} response

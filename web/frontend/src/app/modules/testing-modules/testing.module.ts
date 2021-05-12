@@ -21,12 +21,15 @@ import { NavBarService } from '../../top-navbar/services/navbar.service';
 import { NavbarServiceSpy } from '../../top-navbar/services/navbar.service.spec';
 import { SystemHealthService } from '../../system-health/services/system-health.service';
 import { SystemHealthServiceSpy } from '../../system-health/services/system-health.service.spec';
+import { DockerRegistryService } from '../docker-registry/services/docker-registry.service';
+import { DockerRegistryServiceSpy } from '../docker-registry/services/docker-registry.service.spec';
 
 @NgModule({
   imports: [
     HttpClientTestingModule,
   ],
   providers: [
+    { provide: DockerRegistryService, useClass: DockerRegistryServiceSpy },
     { provide: CookieService, useClass: CookieServiceSpy },
     { provide: MatSnackBarService, useClass: MatSnackbarServiceSpy },
     { provide: PortalService, useClass: PortalServiceSpy },

@@ -7,7 +7,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockPortalLinkClass, MockUserPortalLinkClass } from '../../../static-data/class-objects-v3_7';
+import {
+  MockPortalLinkClass,
+  MockPortalLinkFakeClass,
+  MockUserPortalLinkClass,
+  MockUserPortalLinkRemoveClass
+} from '../../../static-data/class-objects-v3_7';
 import { MockPortalLinkInterface, MockUserPortalLinkInterface } from '../../../static-data/interface-objects-v3_7';
 import { environment } from '../../environments/environment';
 import { PortalLinkClass, UserPortalLinkClass } from '../classes';
@@ -224,10 +229,10 @@ describe('PortalService', () => {
       it('should call remove_user_link()', () => {
         reset();
 
-        service.remove_user_link(MockUserPortalLinkClass)
+        service.remove_user_link(MockUserPortalLinkRemoveClass)
           .pipe(takeUntil(ngUnsubscribe$))
           .subscribe((response: UserPortalLinkClass[]) => {
-            expect(response.length).toEqual(0);
+            expect(response.length).toEqual(1);
             expect(service.remove_user_link).toHaveBeenCalled();
           });
 
@@ -236,7 +241,7 @@ describe('PortalService', () => {
 
         expect(xhrRequest.request.method).toEqual(deleteType);
 
-        xhrRequest.flush([]);
+        xhrRequest.flush([MockUserPortalLinkClass]);
 
         after();
       });

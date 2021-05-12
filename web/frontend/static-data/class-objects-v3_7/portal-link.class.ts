@@ -1,7 +1,5 @@
 import { PortalLinkClass } from '../../src/app/classes';
+import { MockPortalLinkInterface, MockPortalLinkFakeInterface } from '../interface-objects-v3_7';
 
-export const MockPortalLinkClass: PortalLinkClass = {
-  dns: 'https://arkime.user',
-  ip: 'https://10.40.31.103',
-  logins: 'assessor/password'
-};
+export const MockPortalLinkClass: PortalLinkClass = new PortalLinkClass(MockPortalLinkInterface);
+export const MockPortalLinkFakeClass: PortalLinkClass = new PortalLinkClass(MockPortalLinkFakeInterface);
