@@ -581,6 +581,8 @@ describe('PolicyManagementTableComponent', () => {
 
         spyOn(component['mat_dialog_'], 'open').and.returnValue({ afterClosed: () => of(CONFIRM_DIALOG_OPTION) } as MatDialogRef<typeof component>);
 
+        MockRuleSetClass.rules = [MockRuleClass];
+
         component.delete_rule_confirm_dialog(MockRuleClass, MockRuleSetClass);
 
         expect(component['api_delete_rule_']).toHaveBeenCalled();

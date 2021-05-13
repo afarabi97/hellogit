@@ -59,12 +59,12 @@
 
   mat-dialog-container, .main-content2, .container-fluid {
     .mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary {
-      background-color: map-get($theme, primary-btn-color);
+      background-color: map-get($theme, primary);
       color: map-get($theme, primary-btn-text-color);
     }
 
     .mat-flat-button.mat-warn, .mat-raised-button.mat-warn, .mat-fab.mat-warn, .mat-mini-fab.mat-warn {
-      background-color: map-get($theme, danger-btn-color);
+      background-color: map-get($theme, warn);
       color: map-get($theme, primary-btn-text-color);
     }
   }

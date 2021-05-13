@@ -11,6 +11,8 @@ import { RulesService } from '../../services/rules.service';
 import { RulesServiceSpy } from '../../services/rules.service.spec';
 import { SensorHostInfoService } from '../../services/sensor-host-info.service';
 import { SensorHostInfoServiceSpy } from '../../services/sensor-host-info.service.spec';
+import { SystemVersionService } from '../pmo-support/services/system-version.service';
+import { SystemVersionServiceSpy } from '../pmo-support/services/system-version.service.spec';
 import { UserService } from '../../services/user.service';
 import { UserServiceSpy } from '../../services/user.service.spec';
 import { SystemHealthService } from '../../system-health/services/system-health.service';
@@ -34,6 +36,7 @@ import { PolicyManagementServiceSpy } from '../policy-management/services/policy
     { provide: PortalService, useClass: PortalServiceSpy },
     { provide: RulesService, useClass: RulesServiceSpy },
     { provide: SensorHostInfoService, useClass: SensorHostInfoServiceSpy },
+    { provide: SystemVersionService, useClass: SystemVersionServiceSpy },
     { provide: UserService, useClass: UserServiceSpy },
     { provide: PolicyManagementService, useClass: PolicyManagementServiceSpy },
     { provide: NavBarService, useClass: NavbarServiceSpy },

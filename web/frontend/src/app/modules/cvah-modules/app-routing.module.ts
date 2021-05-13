@@ -12,7 +12,7 @@ import { LogIngestComponent } from '../../log-ingest/log-ingest.component';
 import { PcapFormComponent } from '../../pcap-form/pcap-form.component';
 import { SecurityAlertsComponent } from '../../security-alerts/security-alerts.component';
 import { ServerStdoutComponent } from '../../server-stdout/server-stdout.component';
-import { SupportComponent } from '../../support/support.component';
+import { PmoSupportComponent } from '../pmo-support/pmo-support.component';
 import { SystemHealthComponent } from '../../system-health/system-health.component';
 import { ToolsFormComponent } from '../../tools-form/tools.component';
 import { PolicyManagementComponent } from '../policy-management/policy-management.component';
@@ -25,7 +25,7 @@ import { MipManagementComponent } from '../../system-setupv2/mip-mng/mip-mng.com
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
   { path: 'portal', component:  PortalComponent},
-  { path: 'support', component:  SupportComponent},
+  { path: 'support', component:  PmoSupportComponent},
   { path: 'health', component:  SystemHealthComponent},
   { path: 'alerts', component:  SecurityAlertsComponent},
   { path: 'settings', component: SystemSettingsComponent, canActivate: [ ControllerAdminRequiredGuard ] },

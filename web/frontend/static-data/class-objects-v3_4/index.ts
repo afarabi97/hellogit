@@ -6,5 +6,5 @@ export * from './interfaces.class';
 export * from './kit-form.class';
 export * from './mat-snackbar-configuration.class';
 export * from './node.class';
+export * from './system-version.class';
 export * from './user.class';
-export * from './version.class';

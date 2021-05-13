@@ -1,14 +1,12 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, interval, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { KitFormClass, ObjectUtilitiesClass, VersionClass, KitStatusClass } from '../classes';
+import { ObjectUtilitiesClass, KitStatusClass } from '../classes';
 import { returnDate } from '../functions/cvah.functions';
 import { NotificationsComponent } from '../notifications/component/notifications.component';
 import { CookieService } from '../services/cookies.service';
 import { UserService } from '../services/user.service';
-import { WebsocketService } from '../services/websocket.service';
 import { ToolsService } from '../tools-form/services/tools.service';
 import { DIPTimeClass } from './classes/dip-time.class';
 import { getSideNavigationButtons } from './functions/navbar.functions';
@@ -37,11 +35,9 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   showLinkNames: boolean;
   time: Date;
   timezone: string;
-  version: string;
   sideNavigationButtons: NavGroupInterface[];
   controllerMaintainer: boolean;
-
-  public kitStatus: boolean;
+  kitStatus: boolean;
   htmlSpaces: string[] = [];
   private clockCounter$_: Observable<number>;
   private ngUnsubscribe$_: Subject<void> = new Subject<void>();
@@ -53,21 +49,17 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
    * @param {CookieService} cookieService_
    * @param {ToolsService} toolService_
    * @param {NavBarService} navBarService_
-   * @param {WebsocketService} websocketService_
    * @param {UserService} userService_
    * @param {KitService} kitService_
    * @param {ChangeDetectorRef} changeDetectorRef_
-   * @param {MatDialog} matDialog_
    * @memberof TopNavbarComponent
    */
   constructor(private cookieService_: CookieService,
               private toolService_: ToolsService,
               private navBarService_: NavBarService,
-              private websocketService_: WebsocketService,
               private userService_: UserService,
               private changeDetectorRef_: ChangeDetectorRef,
-              private kitSettingsSrv: KitSettingsService,
-              private matDialog_: MatDialog) {
+              private kitSettingsSrv: KitSettingsService) {
     this.showLinkNames = true;
     this.kitStatus = false;
     this.controllerMaintainer = this.userService_.isControllerMaintainer();
@@ -82,8 +74,6 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildNavBar();
     this.getCurrentDipTime_();
-    this.getVersion_();
-    // this.socketRefresh_();
   }
 
   /**
@@ -202,45 +192,5 @@ export class TopNavbarComponent implements OnInit, OnDestroy {
         this.setClock_(data);
         this.startClockCounter_();
       });
-  }
-
-  /**
-   * Used for calling service to get version
-   *
-   * @private
-   * @memberof TopNavbarComponent
-   */
-  private getVersion_(): void {
-    this.navBarService_.getVersion()
-      .pipe(takeUntil(this.ngUnsubscribe$_))
-      .subscribe((response: VersionClass) => this.version = response.version);
-  }
-
-  /**
-   * Used for calling service to refresh the websocket
-   *
-   * @private
-   * @memberof TopNavbarComponent
-   */
-  private socketRefresh_(): void {
-    // TODO: update data from any once object defined
-    this.websocketService_.getSocket()
-      .on('clockchange', (_data: any) => this.getCurrentDipTime_());
-
-    // TODO: update message from any once object defined
-    this.websocketService_.onBroadcast()
-      .pipe(takeUntil(this.ngUnsubscribe$_))
-      .subscribe(
-        (message: any) => {
-          /* istanbul ignore else */
-          if (message['role'] === 'kit' && message['status'] === 'COMPLETED') {
-            this.kitStatus = true;
-            this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
-          } else if(message['role'] === 'kit' && message['status'] === 'IN_PROGRESS') {
-            //TODO fix this
-            this.kitStatus = false;
-            this.sideNavigationButtons = getSideNavigationButtons(this.userService_, this.kitStatus, this.htmlSpaces);
-          }
-        });
   }
 }

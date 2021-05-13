@@ -40,7 +40,6 @@ import { NodeInfoDialog } from './system-setupv2/node-info-dialog/node-info-dial
 //Kit Page
 
 import { ServerStdoutComponent } from './server-stdout/server-stdout.component';
-import { SupportComponent } from './support/support.component';
 import { LogIngestComponent } from './log-ingest/log-ingest.component';
 
 //Tools page
@@ -111,6 +110,7 @@ import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 import { DateTimeModule } from './modules/date-time/date-time.module';
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
 import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
+import { PmoSupportModule } from './modules/pmo-support/pmo-support.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { InjectorModule } from './modules/utilily-modules/injector.module';
@@ -129,7 +129,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeManagementComponent,
     NodeStateProgressBarComponent,
     ServerStdoutComponent,
-    SupportComponent,
     ToolsFormComponent,
     ChangePasswordFormComponent,
     UpdateDocsFormComponent,
@@ -187,6 +186,7 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     DateTimeModule,
     DockerRegistryModule,
     ElasticsearchScaleModule,
+    PmoSupportModule,
     PolicyManagementModule,
     PortalModule,
     InjectorModule

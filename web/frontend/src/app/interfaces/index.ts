@@ -33,4 +33,3 @@ export * from './upgrade-controller.interface';
 export * from './user-portal-link.interface';
 export * from './user.interface';
 export * from './validator-object.interface';
-export * from './version.interface';

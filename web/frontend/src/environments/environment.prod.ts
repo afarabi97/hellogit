@@ -8,6 +8,7 @@ export const environment = {
   ELASTICSEARCH_SERVICE_POST_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,
   ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC: `/api/apply_elastic_deploy`,
   ELASTICSEARCH_SERVICE_CHECK_ELASTIC: `/api/scale/check`,
+  SYSTEM_VERSION_SERVICE_SYSTEM_VERSION: `/api/version`,
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 
@@ -75,7 +76,6 @@ export const environment = {
   TOOLS_SERVICE_CONFIGURE_REPOSITORY: `/api/snapshot`,
 
   NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME: `/api/controller/datetime`,
-  NAV_BAR_SERVICE_VERSION: `/api/version`,
 
   ENDGAME_SERVICE_ENDGAME_SENSOR_PROFILES: `/api/endgame_sensor_profiles`,
 

@@ -1,4 +1,4 @@
-import {DateTimeModule } from './date-time.module';
+import { DateTimeModule } from './date-time.module';
 
 describe('DateTimeModule', () => {
   let dateTimeModule: DateTimeModule;

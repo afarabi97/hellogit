@@ -6,10 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { of as observableOf, of } from 'rxjs';
 
-import {
-  MockDIPTimeClass,
-  MockKitStatusClass
-} from '../../../static-data/class-objects-v3_4';
+import { MockDIPTimeClass, MockKitStatusClass } from '../../../static-data/class-objects-v3_4';
 import { SnackbarWrapper } from '../classes/snackbar-wrapper';
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { DateTimeModule } from '../modules/date-time/date-time.module';
@@ -95,8 +92,6 @@ describe('TopNavbarComponent', () => {
   let spyStartClockCounter: jasmine.Spy<any>;
   let spySetClock: jasmine.Spy<any>;
   let spyGetCurrentDipTime: jasmine.Spy<any>;
-  let spyGetVersion: jasmine.Spy<any>;
-  let spySocketRefresh: jasmine.Spy<any>;
 
   // TODO - remove when toolServiceSpy created
   const htmlSpacesData: string[] = ['test'];
@@ -145,8 +140,6 @@ describe('TopNavbarComponent', () => {
     spyStartClockCounter = spyOn<any>(component, 'startClockCounter_').and.callThrough();
     spySetClock = spyOn<any>(component, 'setClock_').and.callThrough();
     spyGetCurrentDipTime = spyOn<any>(component, 'getCurrentDipTime_').and.callThrough();
-    spyGetVersion = spyOn<any>(component, 'getVersion_').and.callThrough();
-    spySocketRefresh = spyOn<any>(component, 'socketRefresh_').and.callThrough();
 
     // TODO - Remove once toolService_, kitService has proper spy service in place
     spyOn<any>(component['toolService_'], 'getSpaces').and.returnValue(of(htmlSpacesData));
@@ -165,8 +158,6 @@ describe('TopNavbarComponent', () => {
     spyStartClockCounter.calls.reset();
     spySetClock.calls.reset();
     spyGetCurrentDipTime.calls.reset();
-    spyGetVersion.calls.reset();
-    spySocketRefresh.calls.reset();
   };
 
   afterAll(() => {
@@ -329,27 +320,6 @@ describe('TopNavbarComponent', () => {
         component['getCurrentDipTime_']();
 
         expect(component['getCurrentDipTime_']).toHaveBeenCalled();
-      });
-    });
-
-    describe('private getVersion_()', () => {
-      it('should call getVersion_()', () => {
-        reset();
-
-        component['getVersion_']();
-
-        expect(component['getVersion_']).toHaveBeenCalled();
-      });
-    });
-
-    // TODO - Update when websocket has been flushed out
-    describe('private socketRefresh_()', () => {
-      it('should call socketRefresh_()', () => {
-        reset();
-
-        component['socketRefresh_']();
-
-        expect(component['socketRefresh_']).toHaveBeenCalled();
       });
     });
   });

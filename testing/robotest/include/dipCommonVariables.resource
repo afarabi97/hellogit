@@ -30,5 +30,5 @@ ${locSupportPageNavIcon}    id=app-top-navbar-mat-drawer-container-mat-drawer-ma
 
 
 # Support Page
-${locSystemVersionNumber}   id=app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-p-version
-${locServiceNowURL}         id=app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-a-servicenow-website
+${locSystemVersionNumber}   id=cvah-pmo-support-version
+${locServiceNowURL}         id=cvah-pmo-support-servicenow-website

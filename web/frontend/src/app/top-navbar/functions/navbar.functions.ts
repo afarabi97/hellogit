@@ -1,8 +1,6 @@
 import { UserClass } from '../../classes';
 import { UserService } from '../../services/user.service';
-import {
-  allSections
-} from '../constants/navbar.constants';
+import { allSections } from '../constants/navbar.constants';
 import { NavGroupInterface, NavLinkInterface } from '../interfaces';
 
 /**
@@ -41,7 +39,7 @@ export function getSideNavigationButtons(userService: UserService, kitStatus: bo
     { label: 'ES Scale', url: '/es_scale', icon: 'tune', isExternalLink: false, section: 'Elastic', privs: controller_maintainer, kitStatus: true },
     { label: 'Index Management', url: '/index_management', icon: 'settings', isExternalLink: false, section: 'Elastic', privs: controller_maintainer, kitStatus: true },
     { label: 'Cold Log Ingest', url: '/logingest', icon: 'cloud_download', isExternalLink: false, section: 'Elastic', privs: operator, kitStatus: true },
-    { label: 'Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', privs: operator, kitStatus: false }
+    { label: 'PMO Support', url: 'support', icon: 'contact_phone', isExternalLink: false, section: 'support', privs: operator, kitStatus: false }
   ];
   html_spaces.forEach((element: string) => {
     allLinks.push(

@@ -5,5 +5,5 @@ export * from './disks.interface';
 export * from './interfaces.interface';
 export * from './kit-form.interface';
 export * from './node.interface';
+export * from './system-version.interface';
 export * from './user.interface';
-export * from './version.interface';

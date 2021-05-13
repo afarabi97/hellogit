@@ -3,8 +3,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { VersionClass } from '../../classes';
-import { EntityConfig, VersionInterface } from '../../interfaces';
+import { EntityConfig } from '../../interfaces';
 import { ApiService } from '../../services/abstract/api.service';
 import { DIPTimeClass } from '../classes/dip-time.class';
 import { DIPTimeInterface } from '../interfaces/dip-time.interface';
@@ -43,17 +42,5 @@ export class NavBarService extends ApiService<any> implements NavbarServiceInter
     return this.httpClient_.get<DIPTimeInterface>(environment.NAV_BAR_SERVICE_GET_CURRENT_DIP_TIME)
                            .pipe(map((response: DIPTimeInterface) => new DIPTimeClass(response)),
                                  catchError((err: any) => this.handleError('get_current_dip_time', err)));
-  }
-
-  /**
-   * REST call to GET version
-   *
-   * @returns {Observable<VersionClass>}
-   * @memberof NavBarService
-   */
-  getVersion(): Observable<VersionClass> {
-    return this.httpClient_.get<VersionInterface>(environment.NAV_BAR_SERVICE_VERSION)
-                           .pipe(map((response: VersionInterface) => new VersionClass(response)),
-                                 catchError((err: any) => this.handleError('version', err)));
   }
 }

@@ -971,12 +971,12 @@ APP_SERVER_STDOUT__TITLE_BUTTON_CLEAR_CONSOLE = 'app-server-stdout-div-mat-card-
 
 
 # These are for support.component.html
-APP_SUPPORT__A_SERVICENOW_WEBSITE = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-a-servicenow-website' # a
-APP_SUPPORT__A_SERVICENOW_MAIL = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-a-servicenow-mail' # a
-APP_SUPPORT__A_INTELSHARE_WEBSITE = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-a-intelshare-website' # a
-APP_SUPPORT__P_VERSION = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-p-version' # p
-APP_SUPPORT__P_COMMIT_HASH = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-p-commit-hash' # p
-APP_SUPPORT__P_BUILD_DATE = 'app-support-div-mat-card-mat-card-content-mat-grid-list-mat-grid-tile-div-div-p-build-date' # p
+CVAH_PMO_SUPPORT__A_SERVICENOW_WEBSITE = 'cvah-pmo-support-servicenow-website' # a
+CVAH_PMO_SUPPORT__A_SERVICENOW_MAIL = 'cvah-pmo-support-servicenow-mail' # a
+CVAH_PMO_SUPPORT__A_INTELSHARE_WEBSITE = 'cvah-pmo-support-intelshare-website' # a
+CVAH_PMO_SUPPORT__P_VERSION = 'cvah-pmo-support-version' # p
+CVAH_PMO_SUPPORT__P_COMMIT_HASH = 'cvah-pmo-support-commit-hash' # p
+CVAH_PMO_SUPPORT__P_BUILD_DATE = 'cvah-pmo-support-build-date' # p
 
 
 # These are for system-health.component.html

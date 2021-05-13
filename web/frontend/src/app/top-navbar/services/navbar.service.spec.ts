@@ -7,10 +7,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Observable, of as observableOf, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MockDIPTimeClass, MockVersionClass } from '../../../../static-data/class-objects-v3_4';
-import { MockDIPTimeInterface, MockVersionInterface } from '../../../../static-data/interface-objects-v3_4';
+import { MockDIPTimeClass } from '../../../../static-data/class-objects-v3_4';
+import { MockDIPTimeInterface } from '../../../../static-data/interface-objects-v3_4';
 import { environment } from '../../../environments/environment';
-import { VersionClass } from '../../classes';
 import { InjectorModule } from '../../modules/utilily-modules/injector.module';
 import { ApiService } from '../../services/abstract/api.service';
 import { MatSnackBarService } from '../../services/mat-snackbar.service';
@@ -24,7 +23,6 @@ describe('NavBarService', () => {
 
   // Setup spy references
   let spyGetCurrentDIPTime: jasmine.Spy<any>;
-  let spyGetVersion: jasmine.Spy<any>;
 
   // Used to handle subscriptions
   const ngUnsubscribe$: Subject<void> = new Subject<void>();
@@ -56,7 +54,6 @@ describe('NavBarService', () => {
 
     // Add method spies
     spyGetCurrentDIPTime = spyOn(service, 'getCurrentDIPTime').and.callThrough();
-    spyGetVersion = spyOn(service, 'getVersion').and.callThrough();
   });
 
   afterAll(() => {
@@ -68,7 +65,6 @@ describe('NavBarService', () => {
     ngUnsubscribe$.next();
 
     spyGetCurrentDIPTime.calls.reset();
-    spyGetVersion.calls.reset();
   };
   const after = () => {
     httpMock.verify();
@@ -121,55 +117,6 @@ describe('NavBarService', () => {
         after();
       });
     });
-
-    describe('CRUD getVersion()', () => {
-      it('should call getVersion()', () => {
-        reset();
-
-        service.getVersion()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe((r: VersionClass) => {
-            const objectKeys: string[] = Object.keys(r);
-            objectKeys.forEach((key: string) => {
-              if (key === 'commit_hash') {
-                expect(r[key]).toEqual(MockVersionClass[key].substring(0, 8));
-              } else {
-                expect(r[key]).toEqual(MockVersionClass[key]);
-              }
-            });
-            expect(service.getVersion).toHaveBeenCalled();
-          });
-
-        const xhrURL: string = environment.NAV_BAR_SERVICE_VERSION;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        expect(xhrRequest.request.method).toEqual(getType);
-
-        xhrRequest.flush(MockVersionInterface);
-
-        after();
-      });
-
-      it('should call getVersion() and handle error', () => {
-        reset();
-
-        service.getVersion()
-          .pipe(takeUntil(ngUnsubscribe$))
-          .subscribe(
-            (r: VersionClass) => {},
-            (error: HttpErrorResponse) => {
-              expect(error.error).toContain(errorRequest);
-              expect(service.getVersion).toHaveBeenCalled();
-            });
-
-        const xhrURL: string = environment.NAV_BAR_SERVICE_VERSION;
-        const xhrRequest: TestRequest = httpMock.expectOne(xhrURL);
-
-        xhrRequest.flush(errorRequest, mockErrorResponse);
-
-        after();
-      });
-    });
   });
 });
 
@@ -180,15 +127,7 @@ export class NavbarServiceSpy implements NavbarServiceInterface {
     (): Observable<DIPTimeClass> => this.callFakeGetCurrentDIPTime()
   );
 
-  getVersion = jasmine.createSpy('getVersion').and.callFake(
-    (): Observable<VersionClass> => this.callFakeGetVersion()
-  );
-
   callFakeGetCurrentDIPTime(): Observable<DIPTimeClass> {
     return observableOf(MockDIPTimeClass);
-  }
-
-  callFakeGetVersion(): Observable<VersionClass> {
-    return observableOf(MockVersionClass);
   }
 }
