@@ -23,6 +23,11 @@
   changed_when: kernel_results.rc == 0
   failed_when:  kernel_results.rc > 0
 
+- name: Fix /usr/bin permissions - currently dumpcap (wireshark)
+  file:
+    path: /usr/bin/dumpcap
+    mode: o+rx
+  
 - name: Reboot system and utilize new kernel
   reboot:
     reboot_timeout: 2000
@@ -33,4 +38,5 @@
   file:
     path: /operator/.DO_NOT_DELETE/.003
     state: touch
+
 ...
