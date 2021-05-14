@@ -6,6 +6,12 @@ export const environment = {
   production: false,
 
   SENSOR_HOST_INFO_SERVICE_GET_SENSOR_HOST_INFO: `/api/get_sensor_hostinfo`,
+  ELASTICSEARCH_SERVICE_GET_ELASTIC_NODES: `/api/scale/elastic/nodes`,
+  ELASTICSEARCH_SERVICE_POST_ELASTIC_NODES: `/api/scale/elastic`,
+  ELASTICSEARCH_SERVICE_GET_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,
+  ELASTICSEARCH_SERVICE_POST_ELASTIC_FULL_CONFIG: `/api/scale/elastic/advanced`,
+  ELASTICSEARCH_SERVICE_DEPLOY_ELASTIC: `/api/apply_elastic_deploy`,
+  ELASTICSEARCH_SERVICE_CHECK_ELASTIC: `/api/scale/check`,
 
   USER_SERVICE_CURRENT_USER: `/api/current_user`,
 

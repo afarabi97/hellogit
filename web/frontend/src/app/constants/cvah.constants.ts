@@ -12,6 +12,9 @@ export const TIMEZONES2: string[] = [
 ];
 
 // Used for passing specific dialog width when opening a mat dialog
+export const DIALOG_WIDTH_80VW: string = '80vw';
+export const DIALOG_HEIGHT_90VH: string = '90vh';
+export const DIALOG_WIDTH_35PERCENT: string = '35%';
 export const DIALOG_WIDTH_50PERCENT: string = '50%';
 export const DIALOG_WIDTH_500PX: string = '500px';
 export const DIALOG_WIDTH_800PX: string = '800px';
@@ -19,6 +22,7 @@ export const DIALOG_MAX_HEIGHT_800PX: string = '800px';
 export const CONFIRM_DIALOG_OPTION: string = 'Confirm';
 export const CANCEL_DIALOG_OPTION: string = 'Cancel';
 export const MAT_SNACKBAR_ACTION_LABEL_CLOSE: string = 'Close';
+export const MAT_SNACKBAR_ACTION_LABEL_DISMISS: string = 'Dismiss';
 
 // Service Constants
 export const HTTP_OPTIONS = {

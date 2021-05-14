@@ -360,15 +360,14 @@ APP_ELASTICCONFIG_EDITOR__BUTTON_CLOSE_WITHOUT_SAVING = 'app-elasticconfig-edito
 APP_ELASTICCONFIG_EDITOR__BUTTON_SAVE_CLOSE = 'app-elasticconfig-editor-div-mat-card-mat-card-footer-button-save-and-close' # button
 
 
-# These are for es-scale.component.html
-APP_ES_SCALE__MAT_PROGRESS_BAR = 'app-es-scale-div-mat-card-mat-progress-bar' # mat-progress-bar
-# TODO app-es-scale-div-mat-card-mat-card-content-div-*-h2-slider-title # h2
-# TODO app-es-scale-div-mat-card-mat-card-content-div-*-mat-slider-current-count # mat-slider
-# TODO app-es-scale-div-mat-card-mat-card-content-div-*-div-h4-type-count # h4
-# TODO app-es-scale-div-mat-card-mat-card-content-div-*-div-h4-type-maxcount # h4
-APP_ES_SCALE__BUTTON_EDIT_FULL_CONFIG = 'app-es-scale-div-mat-card-mat-card-actions-button-edit-full-config' # button
-APP_ES_SCALE__BUTTON_RUN = 'app-es-scale-div-mat-card-mat-card-actions-button-run' # button
-APP_ES_SCALE__APP_ELASTICCONFIG_EDITOR = 'app-es-scale-app-elasticconfig-editor' # app-elasticconfig-editor (internal)
+# These are for elasticsearch-scale.component.html
+# TODO cvah-elasticsearch-scale-*-slider-title # span
+# TODO cvah-elasticsearch-scale-*-slider-current-count # span
+# TODO cvah-elasticsearch-scale-*-slider-maxcount # span
+# TODO cvah-elasticsearch-scale-*-mat-slider # mat-slider
+# TODO cvah-elasticsearch-scale-server-node-count # h2
+CVAH_ELASTICSEARCH_SCALE__BUTTON_EDIT_CONFIGURATION = 'cvah-elasticsearch-scale-button-edit-configuration' # button
+CVAH_ELASTICSEARCH_SCALE__BUTTON_RUN = 'cvah-elasticsearch-scale-button-run' # button
 
 
 # These are for index-management.component.html

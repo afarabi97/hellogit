@@ -10,10 +10,7 @@ compile front-end:
   only:
     variables:
       - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"
 
 environment setup backend:
   tags:
@@ -27,7 +24,4 @@ environment setup backend:
   only:
     variables:
       - $PIPELINE == "static_analysis_only"
-      - $PIPELINE == "developer-dip"
-      - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
-      - $PIPELINE == "developer-dip-mip"

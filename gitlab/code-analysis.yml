@@ -84,32 +84,6 @@ analyze ansible mip playbooks:
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
       - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
 
-compile front-end:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/compile_frontend.sh
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-
-environment setup backend:
-  tags:
-    - tfplenum-buildv2
-  stage: code-analysis
-  script: |
-    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
-    echo "Current working directory is $(pwd)"
-    docker run --rm -v $(pwd):/opt/tfplenum nexus.sil.lab/tfplenum/code-checker:1.1 /opt/tfplenum/web/setup/setup_backend.sh
-  only:
-    variables:
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "static_analysis_only"
-      - $RUN_CODE_CHECKS == "yes" && $PIPELINE == "developer-all"
-
 sonarqube front-end code base:
   tags:
     - tfplenum-buildv2

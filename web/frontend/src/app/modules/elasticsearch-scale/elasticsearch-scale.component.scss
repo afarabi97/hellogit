@@ -1,0 +1,95 @@
+.main-content2 {
+  flex-direction: column;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 0%;
+  height: inherit;
+  .mat-card-statement {
+    margin-bottom: 10px;
+    flex-direction: column;
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 auto;
+    mat-card-header,
+    mat-card-content {
+      flex: 0 0 auto;
+      box-sizing: border-box;
+      .warning-text {
+        font-weight: bold;
+        color: red;
+      }
+    }
+  }
+  .mat-card-pods {
+    flex-direction: column;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 1e-09px;
+    mat-card-header,
+    mat-progress-bar,
+    .server-node-count {
+      flex: 0 0 auto;
+      box-sizing: border-box;
+    }
+    mat-card-content {
+      flex-direction: column;
+      box-sizing: border-box;
+      display: flex;
+      place-content: stretch space-between;
+      align-items: stretch;
+      flex: 1 1 1e-09px;
+      .elasticsearch-slider-wrapper {
+        flex-direction: column;
+        box-sizing: border-box;
+        display: flex;
+        place-content: stretch center;
+        align-items: stretch;
+        flex: 1 1 1e-09px;
+        .elasticsearch-slider-title-count-wrapper {
+          margin-bottom: 10px;
+          flex-direction: column;
+          box-sizing: border-box;
+          display: flex;
+          place-content: stretch space-around;
+          align-items: stretch;
+          flex: 1 1 1e-09px;
+          .elasticsearch-slider-title-wrapper {
+            flex-direction: row;
+            box-sizing: border-box;
+            display: flex;
+            .elasticsearch-slider-title {
+              font-size: 1.5em;
+              font-weight: bold;
+            }
+          }
+          .elasticsearch-slider-count-wrapper {
+            flex-direction: row;
+            box-sizing: border-box;
+            display: flex;
+            place-content: center space-between;
+            align-items: center;
+            .elasticsearch-slider-count {
+              font-size: 1em;
+              font-weight: bold;
+            }
+          }
+        }
+        mat-slider {
+          margin-bottom: 10px;
+        }
+        .elasticsearch-slider-divider {
+          position: relative !important;
+          margin-bottom: 10px;
+        }
+      }
+    }
+    mat-card-actions {
+      flex-direction: row;
+      box-sizing: border-box;
+      display: flex;
+      place-content: center space-between;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+  }
+}

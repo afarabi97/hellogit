@@ -75,7 +75,7 @@ def get_es_full_config() -> Response:
 
     :return (Response): Returns a Reponse object
     """
-    deploy_config = {};
+    deploy_config = {}
     try:
         deploy_config = elastic_deploy.read()
         return (jsonify({ "elastic": yaml.dump(deploy_config) }), 200)

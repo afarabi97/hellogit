@@ -1,18 +1,22 @@
-import { BrowserModule } from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import {
+  NgxMatDatetimePickerModule,
+  NgxMatNativeDateModule,
+  NgxMatTimepickerModule
+} from '@angular-material-components/datetime-picker';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppLoadService } from './services/app-load.service';
 import { UserService } from './services/user.service';
 import { UnauthorizedInterceptor } from './interceptors';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from './guards';
-import {FlexLayoutModule} from "@angular/flex-layout";
 
 import { AppComponent } from './app.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
-import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
 
 //Common components
 import { PasswordMessageComponent } from './common/components/password-message.component';
@@ -86,37 +90,30 @@ import { SnackbarWrapper } from './classes/snackbar-wrapper';
 import { ConfirmActionPopup } from './classes/ConfirmActionPopup';
 
 // modules
-import { InjectorModule } from './modules/utilily-modules/injector.module';
 import { CookieService } from './services/cookies.service';
 
 // Kickstart Form
 import { UnusedIpAddressAutoCompleteComponent } from './system-setupv2/components/unused-ipaddress-autocomplete-ctrl.component';
-
-// Date-Time
-import { DateTimeModule } from './modules/date-time/date-time.module';
 
 //Pipes
 import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
 import { ModalDialogDisplayMatComponent } from './modal-dialog-display-mat/modal-dialog-display-mat.component';
 import { PodLogModalDialogComponent } from './pod-log-dialog/pod-log-dialog.component';
 
-
-// ES Scale
-import { ESScaleComponent } from './es-scale/es-scale.component';
-
-
 // Index Management
 import { IndexManagementComponent } from './index-management/component/index-management.component';
+import { AddMipDialog } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
+import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
 
 import { UserClass } from './classes';
 
-import { NgxMatDatetimePickerModule, NgxMatTimepickerModule, NgxMatNativeDateModule } from '@angular-material-components/datetime-picker';
+import { AppRoutingModule } from './modules/cvah-modules/app-routing.module';
+import { DateTimeModule } from './modules/date-time/date-time.module';
 import { DockerRegistryModule } from './modules/docker-registry/docker-registry.module';
-import { NGXMonacoTextEditorModule } from './modules/ngx-monaco-text-editor/ngx-monaco-text-editor.module';
+import { ElasticsearchScaleModule } from './modules/elasticsearch-scale/elasticsearch-scale.module';
 import { PolicyManagementModule } from './modules/policy-management/policy-management.module';
 import { PortalModule } from './modules/portal/portal.module';
-import { AddMipDialog } from './system-setupv2/add-mip-dialog/add-mip-dialog.component';
-import { MipManagementComponent } from './system-setupv2/mip-mng/mip-mng.component';
+import { InjectorModule } from './modules/utilily-modules/injector.module';
 
 export function initializeApp(appLoadService: AppLoadService): () => Promise<UserClass> {
   return (): Promise<UserClass> => appLoadService.getCurrentUser();
@@ -164,7 +161,6 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     NodeInfoDialog,
     ModalTableComponent,
     PasswordMessageComponent,
-    ESScaleComponent,
     PodLogModalDialogComponent,
     RepositorySettingsComponent,
     IndexManagementComponent,
@@ -178,22 +174,22 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     MaterialModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
-    InjectorModule,
-    DateTimeModule,
     NgxMatTimepickerModule,
     NgxMatDatetimePickerModule,
     NgxMatNativeDateModule,
+    AppRoutingModule,
+    DateTimeModule,
     DockerRegistryModule,
-    NGXMonacoTextEditorModule,
+    ElasticsearchScaleModule,
     PolicyManagementModule,
-    PortalModule
+    PortalModule,
+    InjectorModule
   ],
   providers: [
     SnackbarWrapper,
@@ -208,7 +204,9 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     OperatorRequiredGuard,
     NodeManagementComponent
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [
+    AppComponent
+  ],
   entryComponents: [
     NotificationsModuleComponent,
     ConfirmDailogComponent,

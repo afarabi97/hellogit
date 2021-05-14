@@ -1,0 +1,28 @@
+import { ElasticsearchNodeDataReturnInterface } from "../interfaces";
+
+/**
+ * Class defines the elasticsearch node data return
+ *
+ * @export
+ * @class ElasticsearchNodeDataReturnClass
+ * @implements {ElasticsearchNodeDataReturnInterface}
+ */
+export class ElasticsearchNodeDataReturnClass implements ElasticsearchNodeDataReturnInterface {
+  coordinating: number;
+  data: number;
+  master: number;
+  ml: number;
+
+  /**
+   * Creates an instance of ElasticsearchNodeDataReturnClass.
+   *
+   * @param {ElasticsearchNodeDataReturnInterface} elasticsearch_node_data_return_interface
+   * @memberof ElasticsearchNodeDataReturnClass
+   */
+  constructor(elasticsearch_node_data_return_interface: ElasticsearchNodeDataReturnInterface) {
+    this.coordinating = elasticsearch_node_data_return_interface.coordinating;
+    this.data = elasticsearch_node_data_return_interface.data;
+    this.master = elasticsearch_node_data_return_interface.master;
+    this.ml = elasticsearch_node_data_return_interface.ml;
+  }
+}

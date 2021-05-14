@@ -73,6 +73,10 @@
     display: block;
     content: "\00a0";
   }
+  .main-content2::after {
+    display: block;
+    content: "\00a0";
+  }
 
   .main-content2 {
     width: fit-content;

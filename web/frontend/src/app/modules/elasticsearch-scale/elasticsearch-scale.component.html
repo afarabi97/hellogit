@@ -1,0 +1,59 @@
+<div class="main-content2">
+
+  <!-- Title -->
+  <mat-card class="mat-card-statement">
+    <mat-card-header>
+      <mat-card-title>Elasticsearch Scaling (Experimental)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="warning-text">NOTE: There is currently no validation on this feature. Utilization has the potential to destroy a cluster. Proceed with caution.</p>
+      <p>The master node is responsible for lightweight cluster-wide actions such as creating or deleting an index, tracking which nodes are part of the cluster, and deciding which shards to allocate to which nodes. It is important for cluster health to have a stable master node. The Recommended count for master nodes is 3.</p>
+      <p>Data nodes hold the shards that contain the documents you have indexed. Data nodes handle data related operations like CRUD, search, and aggregations. These operations are I/O-, memory-, and CPU-intensive. They execute pre-processing pipelines, composed of one or more ingest processors. Add more Data Nodes for expending heavy traffic.</p>
+      <p>Taking away the ability to handle master duties, to hold data, and pre-process documents leaves a coordinating node that can only route requests, handle the search reduce phase, and distribute bulk indexing. Add more Coordinating Nodes for search related issues.</p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- PODS -->
+  <mat-card class="mat-card-pods">
+    <mat-card-header>
+      <mat-card-title>Elasticsearch Node Types</mat-card-title>
+    </mat-card-header>
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+    <mat-card-content>
+      <ng-container *ngFor="let slider of node_sliders; let i = index;">
+        <div *ngIf="!slider.hidden" class="elasticsearch-slider-wrapper">
+            <div class="elasticsearch-slider-title-count-wrapper">
+              <div class="elasticsearch-slider-title-wrapper">
+                <span class="elasticsearch-slider-title" id="{{ 'cvah-elasticsearch-scale-' + i + '-slider-title' }}">Elastic {{slider.title}} Pod</span>
+              </div>
+              <div class="elasticsearch-slider-count-wrapper">
+                <span class="elasticsearch-slider-count" id="{{ 'cvah-elasticsearch-scale-' + i + '-slider-current-count' }}">--  Current Count: {{slider.current_count}}</span>
+                <span class="elasticsearch-slider-count" id="{{ 'cvah-elasticsearch-scale-' + i + '-slider-max-count' }}">--  Max Count: {{slider.max_count}}</span>
+              </div>
+            </div>
+            <mat-slider id="{{ 'cvah-elasticsearch-scale-' + i + '-mat-slider' }}"
+                        [max]=slider.max_count
+                        [min]=slider.min_count
+                        [step]="1"
+                        [thumbLabel]="true"
+                        [tickInterval]=1
+                        [(ngModel)]=slider.current_count
+                        [disabled]="status">
+            </mat-slider>
+            <mat-divider class="elasticsearch-slider-divider"></mat-divider>
+        </div>
+      </ng-container>
+      <div class="server-node-count">
+        <h2 id="cvah-elasticsearch-scale-server-node-count">Server Node Count: {{ server_node_count }}</h2>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button id="cvah-elasticsearch-scale-button-edit-configuration"
+              color="warn" [disabled]="status" matTooltip="Advanced edit of entire Elastic Configuration"
+              (click)="edit_elasticsearch_configuration()">Edit Configuration</button>
+      <button mat-raised-button id="cvah-elasticsearch-scale-button-run"
+              color="primary" [disabled]="status" matTooltip="Execute Elastic Scaling"
+              (click)="open_run_confirm_dialog()">Run</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -1,5 +1,3 @@
-//@import '~material-design-icons/iconfont/material-icons.css';
-
 body {
     height: 100vh;
     width: 100vw;
@@ -7,6 +5,9 @@ body {
       flex-direction: column;
       height: 100%;
       display: flex;
+    }
+    cvah-elasticsearch-scale {
+      height: 100vh;
     }
     .mat-dialog-container {
       overflow: hidden;
@@ -44,6 +45,7 @@ body {
   word-wrap: normal;
   direction: ltr;
   -moz-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
   -moz-osx-font-smoothing: grayscale;
 }
 
@@ -60,5 +62,6 @@ body {
   word-wrap: normal;
   direction: ltr;
   -moz-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
   -moz-osx-font-smoothing: grayscale;
 }

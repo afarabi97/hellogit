@@ -5,7 +5,7 @@ import { AgentBuilderChooserComponent } from '../../agent-builder-chooser/agent-
 import { CatalogComponent } from '../../catalog/component/catalog.component';
 import { CatalogPageComponent } from '../../catalog/page/catalog-page.component';
 import { ConfigmapsComponent } from '../../configmaps/configmaps.component';
-import { ESScaleComponent } from '../../es-scale/es-scale.component';
+import { ElasticsearchScaleComponent } from '../elasticsearch-scale/elasticsearch-scale.component';
 import { ControllerAdminRequiredGuard, ControllerMaintainerRequiredGuard, OperatorRequiredGuard } from '../../guards';
 import { IndexManagementComponent } from '../../index-management/component/index-management.component';
 import { LogIngestComponent } from '../../log-ingest/log-ingest.component';
@@ -40,7 +40,7 @@ const routes: Routes = [
   { path: 'catalog', component: CatalogComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'tools', component: ToolsFormComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'application/:id', component : CatalogPageComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
-  { path: 'es_scale', component: ESScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
+  { path: 'es_scale', component: ElasticsearchScaleComponent, canActivate: [ ControllerMaintainerRequiredGuard ] },
   { path: 'index_management', component: IndexManagementComponent, canActivate: [ControllerMaintainerRequiredGuard] },
   { path: 'logingest', component: LogIngestComponent, canActivate: [ OperatorRequiredGuard ] },
 ];

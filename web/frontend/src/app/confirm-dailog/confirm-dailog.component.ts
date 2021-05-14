@@ -27,6 +27,10 @@ export class ConfirmDailogComponent {
    * @memberof ConfirmDailogComponent
    */
   close(selectedOption: string) {
-    this.dialogRef.close(selectedOption === 'option1' ? this.data.option1 : this.data.option2);
+    if (selectedOption === 'option1') {
+      this.dialogRef.close(this.data.option1);
+    } else {
+      this.dialogRef.close(this.data.option2);
+    }
   }
 }

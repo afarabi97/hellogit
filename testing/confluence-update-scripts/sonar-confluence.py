@@ -4,12 +4,12 @@ import datetime
 import json
 import requests
 import lxml.html
-import sys, os, io
+import os
 import re
 from argparse import Namespace
 from datetime import datetime
 from lxml.html import HtmlElement
-from typing import List, Tuple
+from typing import Tuple
 import base64
 
 # Globals:
@@ -46,49 +46,49 @@ def get_page_ancestors(auth: Tuple[str, str], page_id: int, server: str):
     url = "{server}{base}/{page_id}?expand=ancestors".format(
         server=server, base=BASE_URL, page_id=page_id
     )
-    r = requests.get(
+    request = requests.get(
         url,
         auth=auth,
         headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT},
     )
-    return r.json()["ancestors"]
+    return request.json()["ancestors"]
 
 
 def get_page_info(auth: Tuple[str, str], page_id: int, server: str):
     url = "{server}{base}/{page_id}".format(
         server=server, base=BASE_URL, page_id=page_id
     )
-    r = requests.get(
+    request = requests.get(
         url,
         auth=auth,
         headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT},
     )
-    return r.json()
+    return request.json()
 
 
 def convert_db_to_view(auth2: Tuple[str, str], html: str, server: str):
     url = "{server}/rest/api/contentbody/convert/view".format(server=server)
     data2 = {"value": html, "representation": "storage"}
 
-    r = requests.post(
+    request = requests.post(
         url,
         data=json.dumps(data2),
         auth=auth2,
         headers={"Content-Type": CONTENT_TYPE},
     )
-    return r.json()
+    return request.json()
 
 
 def convert_view_to_db(auth2: Tuple[str, str], html: str, server: str):
     url = "{server}/rest/api/contentbody/convert/storage".format(server=server)
     data2 = {"value": html, "representation": "editor"}
-    r = requests.post(
+    request = requests.post(
         url,
         data=json.dumps(data2),
         auth=auth2,
         headers={"Content-Type": CONTENT_TYPE}
     )
-    return r.json()
+    return request.json()
 
 
 def write_data(auth: Tuple[str, str], html: str, page_id: int, server: str):
@@ -122,15 +122,13 @@ def read_data(auth: Tuple[str, str], page_id: int, server: str):
     return requests.get(url, auth=auth, headers={"Content-Type": CONTENT_TYPE, "USER-AGENT": USER_AGENT})
 
 def get_pic_file_name(filename: str):
-     fn = os.path.basename(filename)
-     return fn
+    function = os.path.basename(filename)
+    return function
 
 
 def patch_html2(auth: Tuple[str, str], args: Namespace):
     branch = args.branch_name
     page_id = return_pageid(branch)
-    # server = PAGE_SERVER
-    # info = get_page_info(auth, page_id, server)
     json_text = read_data(auth, args.page_id, args.server).text
     json2 = json.loads(json_text)
     html_storage_txt = json2["body"]["storage"]["value"]
@@ -163,8 +161,8 @@ def patch_html2(auth: Tuple[str, str], args: Namespace):
     write_data(auth, json2["body"]["storage"]["value"], args.page_id, args.server)
 
 
-def upload_image(auth: Tuple[str, str], screen_shot: str):
-    pg_id = return_pageid(globals()['branch_name'])
+def upload_image(auth: Tuple[str, str], screen_shot: str, branch_name: str):
+    pg_id = return_pageid(branch_name)
     url = "{server}{base}/{page_id}".format(
         server=PAGE_SERVER, base=BASE_URL, page_id= pg_id
     ) + '/child/attachment'
@@ -176,8 +174,8 @@ def upload_image(auth: Tuple[str, str], screen_shot: str):
 
 def get_login(args: Namespace) -> Tuple[str, str]:
     username = args.username
-    pw = args.password
-    password = b64decode_string(pw) #comment-out if using a masked-object input
+    passed_code = args.password
+    password = b64decode_string(passed_code) #comment-out if using a masked-object input
     return username, password
 
 
@@ -273,7 +271,7 @@ def main():
     if args.server.endswith("/"):
         args.server = args.server[:-1]
     auth = get_login(args)
-    upload_image(auth, args.screen_shot)
+    upload_image(auth, args.screen_shot, args.branch_name)
     patch_html2(auth, args)
 
 if __name__ == "__main__":
