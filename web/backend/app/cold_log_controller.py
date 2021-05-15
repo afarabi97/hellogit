@@ -9,6 +9,7 @@ from app.service.cold_log_service import (process_cold_logs,
                                           install_winlogbeat_srv,
                                           process_cold_logs)
 from app.utils.utils import TfplenumTempDir
+from app.utils.constants import ColdLogModules
 from flask import jsonify, request, Response
 
 
@@ -60,6 +61,11 @@ def upload_cold_log_file() -> Response:
         raise e
 
     return (jsonify(JobID(job).to_dict()), 200)
+
+
+@app.route("/api/get_module_info", methods=['GET'])
+def get_module_info() -> Response:
+    return jsonify(ColdLogModules.to_list())
 
 
 @app.route("/api/get_winlogbeat_configuration", methods=['GET'])

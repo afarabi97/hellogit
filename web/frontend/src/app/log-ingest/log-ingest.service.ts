@@ -34,4 +34,9 @@ export class LogIngestService {
     return this.http.post(url, winlogBeatSetupForm, HTTP_OPTIONS).pipe();
   }
 
+  getModuleInfo(){
+    const url = '/api/get_module_info';
+    return this.http.get(url).pipe();
+  }
+
 }

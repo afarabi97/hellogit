@@ -4,4 +4,33 @@ arkime_uri: "http://arkime.lan"
 install_dir: /opt/tfplenum/testing
 deployer_dir: /opt/tfplenum/deployer
 kubectl_get_pods_cmd: !unsafe kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}'
+modules_and_filesets:
+  - { module: "apache", fileset: "access" }
+  - { module: "apache", fileset: "error" }
+  - { module: "auditd", fileset: "log" }
+  - { module: "aws", fileset: "ec2" }
+  - { module: "aws", fileset: "elb" }
+  - { module: "aws", fileset: "s3access" }
+  - { module: "aws", fileset: "cloudtrail" }
+  - { module: "aws", fileset: "cloudwatch" }
+  - { module: "azure", fileset: "activitylogs" }
+  - { module: "azure", fileset: "auditlogs" }
+  - { module: "azure", fileset: "platformlogs" }
+  - { module: "azure", fileset: "signinlogs" }
+  - { module: "bluecoat", fileset: "director" }
+  - { module: "cisco", fileset: "asa" }
+  - { module: "cisco", fileset: "ftd" }
+  - { module: "cisco", fileset: "ios" }
+  - { module: "cisco", fileset: "meraki" }
+  - { module: "cisco", fileset: "nexus" }
+  - { module: "cisco", fileset: "umbrella" }
+  - { module: "juniper", fileset: "srx" }
+  - { module: "juniper", fileset: "junos" }
+  - { module: "juniper", fileset: "netscreen" }
+  - { module: "o365", fileset: "audit" }
+  - { module: "panw", fileset: "panos" }
+  - { module: "snort", fileset: "log" }
+  - { module: "suricata", fileset: "eve" }
+  - { module: "system", fileset: "auth" }
+  - { module: "system", fileset: "syslog" }
 ...

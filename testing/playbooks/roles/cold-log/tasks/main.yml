@@ -1,0 +1,54 @@
+---
+- name: Get ES Password
+  shell: |
+    set -o pipefail
+    kubectl get secret tfplenum-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode
+  register: es_password
+  changed_when: es_password.rc == 0
+  tags:
+    - load-ml
+
+- name: Set bearer token
+  command: /opt/tfplenum/web/tfp-env/bin/python3 /opt/sso-idp/gen_api_token.py --roles "controller-admin,controller-maintainer,operator" --exp 4
+  register: keycloak_bearer_token
+
+- name: Create Cold-Log Indicies
+  command: >
+    curl -f -k -X POST -H "Authorization: Bearer {{ keycloak_bearer_token.stdout }}"
+    -F 'upload_file=@roles/cold-log/files/{{ item.module }}/{{ item.fileset }}.log'
+    -F 'coldLogForm={"module":"{{ item.module }}", "fileset":"{{ item.fileset }}", "index_suffix":"{{ item.fileset }}", "send_to_logstash":""}'
+    https://localhost/api/upload_cold_log_file
+  loop: "{{ modules_and_filesets }}"
+  register: post_result
+  failed_when: "post_result.rc != 0"
+
+- name: Verify Cold-Log Indicies Exist
+  uri:
+    url: "{{ elastic_uri }}/filebeat-external-{{ item.fileset }}-{{ item.module }}/_count"
+    validate_certs: no
+    user: "elastic"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    status_code: 200
+  loop: "{{ modules_and_filesets }}"
+  register: index
+  until: index.json.count is defined and index.json.count > 0
+  retries: 20
+  delay: 1
+
+- name: Delete Cold-Log Indicies
+  uri:
+    url: "{{ elastic_uri }}/filebeat-external-{{ item.fileset }}-{{ item.module }}"
+    method: DELETE
+    validate_certs: no
+    user: "elastic"
+    password: "{{ es_password.stdout }}"
+    force_basic_auth: yes
+    status_code: 200
+  loop: "{{ modules_and_filesets }}"
+  register: index
+  until: index.status == 200
+  retries: 20
+  delay: 1
+
+...

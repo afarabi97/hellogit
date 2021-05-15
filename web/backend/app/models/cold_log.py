@@ -12,6 +12,7 @@ class ColdLogUploadModel(Model):
     def __init__(self):
         self.system_type = ""
         self.module = ""
+        self.fileset = ""
         self.index_suffix = ""
         self.filename = ""
         self.upload_file = None # type: FileStorage
@@ -22,6 +23,7 @@ class ColdLogUploadModel(Model):
                      form: ImmutableMultiDict):
         cold_log_form = json.loads(form['coldLogForm'], encoding="utf-8")
         self.module = cold_log_form["module"]
+        self.fileset = cold_log_form["fileset"]
         self.index_suffix = cold_log_form["index_suffix"]
         self.upload_file = payload['upload_file']
         self.filename = secure_filename(self.upload_file.filename)
@@ -31,6 +33,7 @@ class ColdLogUploadModel(Model):
         self.module = payload["module"]
         self.index_suffix = payload["index_suffix"]
         self.filename = payload['filename']
+        self.fileset = payload["fileset"]
         self.send_to_logstash = payload["send_to_logstash"]
 
     def is_windows(self) -> bool:
@@ -52,7 +55,8 @@ class ColdLogUploadModel(Model):
             'module': self.module,
             'index_suffix': self.index_suffix,
             'filename': self.filename,
-            'send_to_logstash': self.send_to_logstash
+            'send_to_logstash': self.send_to_logstash,
+            'fileset': self.fileset
         }
 
 

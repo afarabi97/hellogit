@@ -1,0 +1,19 @@
+NX-1# show accounting log
+Sun Apr  2 01:09:02 2017:type=update:id=vsh.12412:user=admin:cmd=configure terminal ;
+  version 6.0(2)U6(9) (SUCCESS)
+Sun Apr  2 01:09:03 2017:type=update:id=vsh.12412:user=admin:cmd=interface-vlan
+  enable
+Sun Apr  2 01:09:03 2017:type=update:id=vsh.12412:user=admin:cmd=configure terminal ;
+  feature interface-vlan (SUCCESS)
+Sun Apr  2 01:09:38 2017:type=update:id=vsh.12963:user=admin:cmd=configure terminal ;
+  control-plane (SUCCESS)
+Sun Apr  2 01:09:38 2017:type=update:id=vsh.12963:user=admin:cmd=configure terminal ;
+  control-plane ; service-policy input copp-system-policy (SUCCESS
+)
+Sun Apr  2 01:09:38 2017:type=update:id=vsh.12963:user=admin:cmd=configure terminal ;
+  hardware profile tcam region arpacl 128 (SUCCESS)
+Sun Apr  2 01:09:38 2017:type=update:id=vsh.12963:user=admin:cmd=configure terminal ;
+  hardware profile tcam region ifacl 256 (SUCCESS)
+Sun Apr  2 01:09:38 2017:type=update:id=vsh.12963:user=admin:cmd=configure terminal ;
+ ip ftp source-interface mgmt0 (SUCCESS)
+! Output omitted for brevity

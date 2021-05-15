@@ -37,25 +37,32 @@
     </mat-card-header>
     <mat-card-content [formGroup]="logForm">
       <!-- Select Log Type -->
-      <mat-form-field id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type" appearance="fill">
+      <mat-form-field appearance="fill">
         <mat-label>Select Log Type</mat-label>
-        <mat-select disableRipple id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select" formControlName="module">
-          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-apache" value="apache">Apache</mat-option>
-          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-auditd" value="auditd">Auditd</mat-option>
-          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-system" value="system">System</mat-option>
-          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-suricata" value="suricata">Suricata</mat-option>
-          <mat-option id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-select-log-type-mat-select-mat-option-windows-event-logs" value="windows">Windows event logs</mat-option>
+        <mat-select disableRipple formControlName="module" (selectionChange)="moduleChange($event)">
+          <mat-option *ngFor="let module of modules"
+                      [value]="module.value">{{ module.name }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <!-- Elasticsearch Index Suffix -->
-      <mat-form-field id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix" class="custom-suffix">
-        <mat-label>Elasticsearch Index Suffix</mat-label>
-        <input matInput id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-input"
-               maxlength="256" placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
-        <mat-error id="app-log-ingest-div-mat-card-mat-card-content-mat-form-field-elasticsearch-index-suffix-mat-error">The Index Suffix is invalid. Please make sure it only uses alphanumeric characters and can only use a dash and an underscore and is no more than 50 characters.</mat-error>
+
+      <!-- Fileset type -->
+      <mat-form-field *ngIf="!isFilesetsEmpty()" appearance="fill" style="margin-left: 15px;">
+        <mat-label>Select Fileset</mat-label>
+        <mat-select disableRipple formControlName="fileset">
+            <mat-option *ngFor="let fileset of filesets; let i = index;" matTooltip="{{ fileset.tooltip }}"
+                        [value]="fileset.value">{{ fileset.name }}</mat-option>
+        </mat-select>
       </mat-form-field>
 
-      <mat-checkbox id="app-log-ingest-div-mat-card-mat-card-content-mat-checkbox-custom-logstash-processors" formControlName="send_to_logstash"
+      <!-- Elasticsearch Index Suffix -->
+      <mat-form-field class="custom-suffix">
+        <mat-label>Elasticsearch Index Suffix</mat-label>
+        <input matInput maxlength="256"
+               placeholder="Any arbitrary name that has no special characters" formControlName="index_suffix">
+        <mat-error>The Index Suffix is invalid. Please make sure it only uses alphanumeric characters and can only use a dash and an underscore and is no more than 50 characters.</mat-error>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="send_to_logstash"
                     matTooltip="NOTE: You should only select this if you want your data to be processed by custom logstash processors that you have setup before going to Elasticsearch.">
         (Optional) Send data through logstash instead of sending it directly to elasticsearch.
       </mat-checkbox>

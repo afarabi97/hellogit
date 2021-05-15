@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
+import { MatSelectChange } from '@angular/material/select';
+
 
 import {
   DialogControlTypes,
@@ -11,8 +13,11 @@ import {
 import { ModalDialogMatComponent } from '../modal-dialog-mat/modal-dialog-mat.component';
 import { WINLOGBEAT_DEFAULT_PASSWORD_LABEL } from './constants/log-ingest.constant';
 import { LogIngestService } from './log-ingest.service';
+import { FilebeatModule } from './log-ingest.classes';
+
 
 const DIALOG_WIDTH = '800px';
+
 
 @Component({
     selector: 'app-log-ingest',
@@ -22,6 +27,8 @@ const DIALOG_WIDTH = '800px';
 export class LogIngestComponent implements OnInit {
   logToUpload: File;
   logForm: FormGroup;
+  filesets: Array<{name: string, value: string, tooltip: string}>;
+  modules: Array<FilebeatModule>;
 
   constructor(private title: Title,
               private formBuilder: FormBuilder,
@@ -32,6 +39,14 @@ export class LogIngestComponent implements OnInit {
   ngOnInit() {
     this.title.setTitle("LogIngest");
     this.initializeFormGroup();
+    this.filesets = [];
+
+    this.modules = [];
+    this.ingestSrv.getModuleInfo().subscribe(data => {
+      for (let i of data as []){
+        this.modules.push(new FilebeatModule(i))
+      }
+    });
   }
 
   handleFileInput(files: FileList) {
@@ -42,7 +57,8 @@ export class LogIngestComponent implements OnInit {
     this.logForm = this.formBuilder.group({
       module: new FormControl('', Validators.required),
       index_suffix: new FormControl("cold-log", [Validators.maxLength(50), Validators.pattern('^[a-zA-Z0-9\-\_]+$')]),
-      send_to_logstash: new FormControl()
+      send_to_logstash: new FormControl(),
+      fileset: new FormControl('')
     });
   }
 
@@ -51,13 +67,31 @@ export class LogIngestComponent implements OnInit {
       if (data["error_message"]){
         this.ingestSrv.displaySnackBar(data["error_message"]);
       } else {
-        this.ingestSrv.displaySnackBar(`Successfully uploaded ${this.logToUpload.name}. 
+        this.ingestSrv.displaySnackBar(`Successfully uploaded ${this.logToUpload.name}.
                                         Open the notification manager to track its progress.`);
       }
     }, error => {
       this.ingestSrv.displaySnackBar("Failed to initiate upload for an unknown reason.");
       console.error(error);
     });
+  }
+
+  /*
+  Means
+  */
+  isFilesetsEmpty(): boolean{
+    return this.filesets.length === 0;
+  }
+
+  moduleChange(event: MatSelectChange){
+    this.filesets = [];
+    for (const item of this.modules){
+      if (item.value === event.value){
+        if (item.filesets.length > 1){
+          this.filesets = item.filesets;
+        }
+      }
+    }
   }
 
   setupWinlogBeat() {

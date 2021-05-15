@@ -14,7 +14,7 @@ from rq.decorators import job
 from app.utils.tfwinrm_util import (configure_and_run_winlogbeat_for_cold_log_ingest, install_winlogbeat_for_cold_log_ingest)
 from app.utils.utils import zip_package, TfplenumTempDir
 from pathlib import Path
-from app.utils.constants import BEATS_IMAGE_VERSIONS
+from app.utils.constants import BEATS_IMAGE_VERSIONS, ColdLogModules
 from typing import List, Dict
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from app.utils.elastic import ElasticWrapper, get_elastic_password, get_elastic_service_ip, get_elastic_fqdn
@@ -187,23 +187,45 @@ class ColdLogsProcessor:
             self._remove_lifecyle_settings_from_index()
             return 0
 
-    def _get_module_specific_params(self, module: str):
+    def _get_module_specific_params(self, module: str, fileset: str):
         module_section = "--modules={module} --once "
-        enable_and_eof_close = ("-M \"{module}.*.input.close_eof=true\" "
-                                "-M \"{module}.*.enabled=true\" ")
-        if self._module == "apache":
-            module_section = module_section + ("-M \"{module}.access.var.paths=['/tmp/logs/*access*']\" "
-                    "-M \"{module}.error.var.paths=['/tmp/logs/*error*']\" ") + enable_and_eof_close
-        elif self._module == "suricata":
-            module_section = module_section + ("-M \"{module}.eve.var.paths=['/tmp/logs/suricata*', '/tmp/logs/eve*']\" ") + enable_and_eof_close
-        elif self._module == "auditd":
-            module_section = module_section + ("-M \"{module}.log.var.paths=['/tmp/logs/audit*']\" ") + enable_and_eof_close
-        elif self._module == "system":
-            module_section = module_section + ("-M \"{module}.syslog.var.paths=['/tmp/logs/messages*', '/tmp/logs/boot*', '/tmp/logs/kern*', '/tmp/logs/cron*', '/tmp/logs/syslog*']\" "
-                    "-M \"{module}.auth.var.paths=['/tmp/logs/auth*', '/tmp/logs/secure*', '/tmp/logs/utmp*', '/tmp/logs/wtmp*']\" ") + enable_and_eof_close
+        enable_and_eof_close = ("-M \"{module}.{fileset}.input.close_eof=true\" "
+                                "-M \"{module}.*.enabled=false\" "
+                                "-M \"{module}.{fileset}.enabled=true\" ")
+        if self._module == ColdLogModules.AUDITD.value:
+            fileset = ColdLogModules.AUDITD.filesets[0].value
+        elif self._module == ColdLogModules.BLUECOAT.value:
+            fileset = ColdLogModules.BLUECOAT.filesets[0].value
+        elif self._module == ColdLogModules.OFFICE365.value:
+            fileset = ColdLogModules.OFFICE365.filesets[0].value
+        elif self._module == ColdLogModules.PALOALTO.value:
+            fileset = ColdLogModules.PALOALTO.filesets[0].value
+        elif self._module == ColdLogModules.SNORT.value:
+            fileset = ColdLogModules.SNORT.filesets[0].value
+        elif self._module == ColdLogModules.SURICATA.value:
+            fileset = ColdLogModules.SURICATA.filesets[0].value
+
+        if (self._module == ColdLogModules.APACHE.value
+            or self._module == ColdLogModules.AUDITD.value
+            or self._module == ColdLogModules.SURICATA.value
+            or self._module == ColdLogModules.SYSTEM.value):
+
+            module_section = module_section + ("-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" ")
+        elif (self._module == ColdLogModules.AZURE.value
+              or self._module == ColdLogModules.AWS.value
+              or self._module == ColdLogModules.BLUECOAT.value
+              or self._module == ColdLogModules.JUNIPER.value
+              or self._module == ColdLogModules.CISCO.value
+              or self._module == ColdLogModules.OFFICE365.value
+              or self._module == ColdLogModules.PALOALTO.value
+              or self._module == ColdLogModules.SNORT.value):
+            input_override = '-M "{module}.{fileset}.var.input=file" '
+            module_section = module_section + input_override + "-M \"{module}.{fileset}.var.paths=['/tmp/logs/*']\" "
         else:
-            module_section = module_section + ("-M \"{module}.*.var.paths=['/tmp/logs/*']\" ") + enable_and_eof_close
-        return module_section.format(module=module)
+            raise ValueError("Unsupported module: {} and fileset: {} was passed in.".format(module, fileset))
+
+        module_section += enable_and_eof_close
+        return module_section.format(module=module, fileset=fileset)
 
     def _get_volume_mount_section(self, tmp_dir: str, logs_dir: str):
         mount_section = ("-v {tmp_dir}/filebeat.yml:/usr/share/filebeat/filebeat.yml "
@@ -215,8 +237,10 @@ class ColdLogsProcessor:
                                              "-v /opt/tfplenum/scripts/filebeat-agent-certificate/tls.key:/usr/share/filebeat/tls.key ")
         return mount_section
 
-    def process_linux_logs(self, log_files: List[str], module: str='system'):
+    def process_linux_logs(self, log_files: List[str], model: ColdLogUploadModel):
         with TfplenumTempDir() as tmp_directory:
+            module = model.module
+            fileset = model.fileset
             self._setup_class_members(log_files, module)
             self._set_filebeat_index()
             self._generate_filebeat_template(tmp_directory)
@@ -224,15 +248,15 @@ class ColdLogsProcessor:
             Path(logs_directory).mkdir(exist_ok=True)
             self._copy_logs_to_dir(logs_directory)
             mount_section = self._get_volume_mount_section(tmp_directory, logs_directory)
-            module_section = self._get_module_specific_params(module)
+            module_section = self._get_module_specific_params(module, fileset)
             container_section = "localhost:5000/beats/filebeat:{} -e ".format(BEATS_IMAGE_VERSIONS)
             run_cmd = ("docker run --rm " +
-                       mount_section +
-                       container_section +
-                       module_section)
+                        mount_section +
+                        container_section +
+                        module_section)
 
             rq_logger.debug(run_cmd)
-            job = AsyncJob(JOB_NAME.capitalize(), run_cmd, use_shell=True)
+            job = AsyncJob(JOB_NAME.capitalize(), "", run_cmd, use_shell=True)
             result = job.run_asycn_command()
             self._remove_lifecyle_settings_from_index()
             return result
@@ -258,7 +282,7 @@ def process_cold_logs(model_dict: Dict,
 
         ret_val = 1
         if model.is_linux():
-            ret_val = logs_processor.process_linux_logs(logs, model.module)
+            ret_val = logs_processor.process_linux_logs(logs, model)
         elif model.is_windows():
             ret_val = logs_processor.process_windows_event_logs(logs)
         else:

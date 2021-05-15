@@ -3,6 +3,8 @@ Module hold constants that can be used for controllers or fabric files.
 """
 from pathlib import Path
 from enum import Enum, auto
+from typing import Dict
+
 
 SHARED_DIR = Path(__file__).parent  # type: Path
 CORE_DIR = SHARED_DIR / '../../../../core'
@@ -97,3 +99,94 @@ class PXE_TYPES(Enum):
     bios = "BIOS"
     scsi_sata_usb = "SCSI/SATA/USB"
     nvme = "NVMe"
+
+
+class FileSet:
+    def __init__(self, value: str, name: str, tooltip: str=""):
+        self.value = value
+        self.name = name # The display name on the UI
+        self.tooltip = tooltip
+
+    def to_dict(self):
+        return {"value": self.value,
+                "name": self.name,
+                "tooltip": self.tooltip}
+
+
+class FilebeatModule:
+    def __init__(self, value: str, name: str):
+        self.value = value
+        self.name = name # The display name on the UI
+        self.filesets = [] # type: FileSet
+
+    def appendFileset(self, value: str, name: str, tooltip: str=""):
+        self.filesets.append(FileSet(value, name, tooltip))
+
+    def to_dict(self):
+        fileset_l = [i.to_dict() for i in self.filesets]
+        return {"value": self.value,
+                "name": self.name,
+                "filesets": fileset_l}
+
+
+class ColdLogModules:
+    APACHE = FilebeatModule("apache", "Apache")
+    AUDITD = FilebeatModule("auditd", "Auditd")
+    AWS = FilebeatModule("aws", "AWS")
+    AZURE = FilebeatModule("azure", "Azure")
+    BLUECOAT = FilebeatModule("bluecoat", "Blue Coat")
+    CISCO = FilebeatModule("cisco", "Cisco")
+    JUNIPER = FilebeatModule("juniper", "Juniper")
+    OFFICE365 = FilebeatModule("o365", "Office 365")
+    PALOALTO = FilebeatModule("panw", "Palo Alto")
+    SNORT = FilebeatModule("snort", "Snort")
+    SURICATA = FilebeatModule("suricata", "Suricata")
+    SYSTEM = FilebeatModule("system", "System")
+    WINDOWS = FilebeatModule("windows", "Windows event logs")
+
+    @classmethod
+    def _initalize(cls):
+        cls.APACHE.appendFileset("error", "Error logs", "Normally found in /var/log/httpd folder.")
+        cls.APACHE.appendFileset("access", "Access logs", "Normally found in /var/log/httpd folder.")
+
+        cls.AWS.appendFileset("ec2", "EC2 logs")
+        cls.AWS.appendFileset("elb", "ELB logs")
+        cls.AWS.appendFileset("s3access", "S3 Access logs")
+        cls.AWS.appendFileset("vpcflow", "VPC Flow logs")
+        cls.AWS.appendFileset("cloudtrail", "Cloud Trail logs")
+        cls.AWS.appendFileset("cloudwatch", "Cloud Watch logs")
+        cls.AZURE.appendFileset("activitylogs", "Activity logs")
+        cls.AZURE.appendFileset("auditlogs", "Audit logs")
+        cls.AZURE.appendFileset("platformlogs", "Platform logs")
+        cls.AZURE.appendFileset("signinlogs", "Sign in logs")
+        cls.CISCO.appendFileset("amp", "AMP Logs")
+        cls.CISCO.appendFileset("asa", "ASA logs")
+        cls.CISCO.appendFileset("ftd", "FTD logs")
+        cls.CISCO.appendFileset("ios", "IOS logs")
+        cls.CISCO.appendFileset("meraki", "Meraki logs")
+        cls.CISCO.appendFileset("nexus", "Nexus logs")
+        cls.CISCO.appendFileset("umbrella", "Umbella logs")
+
+        cls.JUNIPER.appendFileset("srx", "SRX logs")
+        cls.JUNIPER.appendFileset("junos", "Junos logs")
+        cls.JUNIPER.appendFileset("netscreen", "Netscreen logs")
+
+        cls.AUDITD.appendFileset("log", "Auditd logs")
+        cls.BLUECOAT.appendFileset("director", "Director logs")
+        cls.OFFICE365.appendFileset("audit", "Audit logs")
+        cls.PALOALTO.appendFileset("panos", "Panos logs")
+        cls.SNORT.appendFileset("log", "Snort logs")
+        cls.SURICATA.appendFileset("eve", "Event logs")
+        cls.SYSTEM.appendFileset("syslog", "System logs")
+        cls.SYSTEM.appendFileset("auth", "Authorization logs")
+
+    @classmethod
+    def to_list(cls):
+        ret_val = []
+        for key in cls.__dict__:
+            if key.isupper():
+                ret_val.append(cls.__dict__[key].to_dict())
+
+        return ret_val
+
+ColdLogModules._initalize()

@@ -61,6 +61,13 @@
     - kibana
   tags: kibana
 
+- name: Validate Cold-Log
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - cold-log
+  tags: cold-log
+  
 - name: Validate Zeek
   hosts:
     - localhost
