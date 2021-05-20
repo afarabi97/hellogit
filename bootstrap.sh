@@ -385,6 +385,16 @@ function execute_bootstrap_playbook(){
         popd > /dev/null
     fi
 
+    # Add STIGS to MIP Controller
+    # Do not uncomment this until the MIP CONTROLLER piece
+    # has been corrected.  This will cause the MIP CONTOLLER
+    # to REALLY fail during a a MIP STIG process.
+    #if [ "$SYSTEM_NAME" == "MIP" ]; then
+       #pushd "/opt/tfplenum/rhel8-stigs" > /dev/null
+       #run_cmd make mip-controller-stigs
+       #popd > /dev/null
+    #fi
+
     # Add STIGS to GIP Controller
     if [ "$SYSTEM_NAME" == "GIP" ]; then
        pushd "/opt/tfplenum/rhel8-stigs" > /dev/null

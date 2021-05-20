@@ -26,6 +26,7 @@ class NodeSettings(Model):
         self.template = ''
         self.datastore = ''
         self.username = 'root'
+        self.mip_username = 'assessor'
         self.hostname = ''
         self.vm_prefix = ''
         self.network_id = ''
@@ -40,6 +41,9 @@ class NodeSettings(Model):
         self.os_raid = False
         self.boot_mode = 'BIOS'
         self.monitoring_interface = ["ens224"]
+
+    def is_mip(self) -> bool:
+        return self.node_type == self.valid_node_types[5]
 
     def set_hostname(self, vm_prefix: str, node_type: str="ctrl", index: int=0):
         if index == 0:

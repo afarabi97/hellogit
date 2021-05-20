@@ -29,6 +29,14 @@
 
 ###############################################################################
 - hosts: all # set required host
+  vars:
+    sshd_idle_timeout_value: !!str 600
+    var_sshd_disable_compression: !!str no
+    var_ssh_client_rekey_limit_size: !!str 1G
+    var_ssh_client_rekey_limit_time: !!str 1h
+    var_rekey_limit_size: !!str 1G
+    var_rekey_limit_time: !!str 1h
+
   gather_facts: no
   tasks:
     - name: "PRELIM - Check whether machine is UEFI-based"
@@ -2063,21 +2071,21 @@
         - repo-server-stigs
         - gip-server-stigs
 
-    - name: XCCDF Value sshd_idle_timeout_value # promote to variable
-      set_fact:
-        sshd_idle_timeout_value: !!str 840
-      tags:
-        - all-stigs
-        - dip-controller-stigs
-        - dip-stigs
-        - dip-server-stigs
-        - mip-controller-stigs
-        - mip-stigs
-        - gip-controller-stigs
-        - gip-service-vms
-        - gip-service-vm-stigs
-        - repo-server-stigs
-        - gip-server-stigs
+#   - name: XCCDF Value sshd_idle_timeout_value # promote to variable
+#     set_fact:
+#       sshd_idle_timeout_value: !!str 840
+#     tags:
+#       - all-stigs
+#       - dip-controller-stigs
+#       - dip-stigs
+#       - dip-server-stigs
+#       - mip-controller-stigs
+#       - mip-stigs
+#       - gip-controller-stigs
+#       - gip-service-vms
+#       - gip-service-vm-stigs
+#       - repo-server-stigs
+#       - gip-server-stigs
 
     - name: Verify that unattended or automatic login via ssh is disabled
       block:
@@ -2109,3 +2117,550 @@
         - gip-service-vm-stigs
         - repo-server-stigs
         - gip-server-stigs
+
+    - name: Force frequent session key renegotiation
+      block:
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*RekeyLimit\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: RekeyLimit {{ var_rekey_limit_size }} {{ var_rekey_limit_time }}
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Prevent remote hosts from connecting to the proxy display - RHEL-08-040341
+      block:
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*X11UseLocalhost\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: X11UseLocalhost yes
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Ensure RekeyLimit is not configured in /etc/ssh/ssh_config - RHEL-0-8-040161
+      lineinfile:
+        path: /etc/ssh/ssh_config
+        create: false
+        regexp: ^\s*RekeyLimit.*$
+        state: absent
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Collect all include config files for ssh client which configure RekeyLimit - RHEL-0-8-040161
+      find:
+        paths: /etc/ssh/ssh_config.d/
+        contains: ^[\s]*RekeyLimit.*$
+        patterns: '*.config'
+      register: ssh_config_include_files
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Remove all occurences of RekeyLimit configuration from include config files - RHEL-0-8-040161
+        of ssh client
+      lineinfile:
+        path: '{{ item }}'
+        regexp: ^[\s]*RekeyLimit.*$
+        state: absent
+      loop: '{{ ssh_config_include_files.files }}'
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Ensure that rekey limit is set to {{ var_ssh_client_rekey_limit_size }} {{
+        var_ssh_client_rekey_limit_time }} in /etc/ssh/ssh_config.d/02-rekey-limit.conf - RHEL-0-8-040161
+      lineinfile:
+        path: /etc/ssh/ssh_config.d/02-rekey-limit.conf
+        create: true
+        mode: 644
+        regexp: ^\s*RekeyLimit.*$
+        line: RekeyLimit {{ var_ssh_client_rekey_limit_size }} {{ var_ssh_client_rekey_limit_time }}
+        state: present
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Disable Compression Or Set Compression to delayed - RHEL-08-010510
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*Compression\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: Compression {{ var_sshd_disable_compression }}
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Disable SSH Support for User Known Hosts - RHEL-08-010520
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*IgnoreUserKnownHosts\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: IgnoreUserKnownHosts yes
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Enable SSH Print Last Log - RHEL-08-020350
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*PrintLastLog\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: PrintLastLog yes
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Do Not Allow SSH Environment Options - RHEL-08-010830
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*PermitUserEnvironment\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: PermitUserEnvironment no
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Disable GSSAPI Authentication - RHEL-08-010521
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*GSSAPIAuthentication\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: GSSAPIAuthentication no
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Disable Kerberos Authentication - RHEL-08-010521
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*KerberosAuthentication\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: KerberosAuthentication no
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Enable Use of Strict Mode Checking - RHEL-08-010500
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*StrictModes\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: StrictModes yes
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Set SSH Client Alive Count Max to zero
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*ClientAliveCountMax\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: ClientAliveCountMax 0
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: Set SSH Idle Timeout Interval - RHEL-08-010200
+      block:
+
+        - name: Deduplicate values from /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: false
+            regexp: (?i)^\s*ClientAliveInterval\s+
+            state: absent
+
+        - name: Insert correct line to /etc/ssh/sshd_config
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            create: true
+            line: ClientAliveInterval {{ sshd_idle_timeout_value }}
+            state: present
+            insertbefore: ^[#\s]*Match
+            validate: /usr/sbin/sshd -t -f %s
+      when: '"pam" in ansible_facts.packages'
+      tags:
+        - all-stigs
+        - dip-controller-stigs
+        - dip-stigs
+        - dip-server-stigs
+        - mip-controller-stigs
+        - mip-stigs
+        - gip-controller-stigs
+        - gip-service-vms
+        - gip-service-vm-stigs
+        - repo-server-stigs
+        - gip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040162 | PATCH | RHEL 8 must force a frequent session key renegotiation for SSH connections by the client."
+      lineinfile:
+          path: /etc/ssh/ssh_config
+          regexp: '^#\s*RekeyLimit 1G 1h.*$'
+          line: 'RekeyLimit 1G 1h'
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-010671 | PATCH | RHEL 8 must disable the kernel.core_pattern."
+      lineinfile:
+          path: /etc/sysctl.d/99-sysctl.conf
+          regexp: '^kernel.core_pattern ='
+          line: "kernel.core_pattern = |/bin/false"
+      notify: sysctl system
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-010372 | PATCH | RHEL 8 must prevent the loading of a new kernel for later execution."
+      lineinfile:
+          path: /etc/sysctl.d/99-sysctl.conf
+          regexp: '^kernel.kexec_load_disabled ='
+          line: "kernel.kexec_load_disabled = 1"
+      notify: sysctl system
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040284 | PATCH | RHEL 8 must disable the use of user namespaces."
+      lineinfile:
+          path: /etc/sysctl.d/99-sysctl.conf
+          regexp: '^user.max_user_namespaces'
+          line: 'user.max_user_namespaces = 0'
+      notify: sysctl system
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040282 | PATCH | RHEL 8 must restrict usage of ptrace to descendant processes."
+      lineinfile:
+          path: /etc/sysctl.d/99-sysctl.conf
+          regexp: '^kernel.yama.ptrace_scope'
+          line: 'kernel.yama.ptrace_scope = 1'
+      notify: sysctl system
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040281 | PATCH | RHEL 8 must disable access to network bpf syscall from unprivileged processes."
+      lineinfile:
+          path: /etc/sysctl.d/99-sysctl.conf
+          regexp: '^kernel.unprivileged_bpf_disabled'
+          line: 'kernel.unprivileged_bpf_disabled = 1'
+      notify: sysctl system
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040261 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces."
+      block:
+          - name: "MEDIUM | RHEL-08-040261 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces. | Set accept_ra in sysctl"
+            sysctl:
+                name: net.ipv6.conf.all.accept_ra
+                state: present
+                value: '0'
+    
+          - name: "MEDIUM | RHEL-08-040261 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces. | Set accept_ra value to 0"
+            lineinfile:
+                path: /etc/sysctl.d/99-sysctl.conf
+                regexp: '^net.ipv6.conf.all.accept_ra'
+                line: 'net.ipv6.conf.all.accept_ra=0'
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+    - name: "MEDIUM | RHEL-08-040262 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces by default."
+      block:
+          - name: "MEDIUM | RHEL-08-040262 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces by default. | Set accept_ra in sysctl"
+            sysctl:
+                name: net.ipv6.conf.default.accept_ra
+                state: present
+                value: '0'
+    
+          - name: "MEDIUM | RHEL-08-040262 | PATCH | RHEL 8 must not accept router advertisements on all IPv6 interfaces by default. | Set accept_ra to value 0"
+            lineinfile:
+                path: /etc/sysctl.d/99-sysctl.conf
+                regexp: '^net.ipv6.conf.default.accept_ra'
+                line: 'net.ipv6.conf.default.accept_ra=0'
+      tags:
+          - all-stigs
+          - dip-controller-stigs
+          - dip-stigs
+          - dip-server-stigs
+
+  handlers:
+    - name: sysctl system
+      command: sysctl --system
