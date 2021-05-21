@@ -12,7 +12,7 @@
 - name: Secures access to the MinIO server with a TLS certificate.
   hosts: minio
   tasks:
-    - name: Creates a certificate on the MinIO server.
+    - name: Creates a self signed certificate on the MinIO server.
       import_role:
         name: minio
         tasks_from: create_certificate.yml

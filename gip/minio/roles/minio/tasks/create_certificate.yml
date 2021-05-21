@@ -1,55 +1,31 @@
 ---
-- name: Create a temporary file.
-  tempfile:
-    state: file
-    suffix: cert
-  register: tempfile
-  delegate_to: "{{ certificate_creation_delegate }}"
-
-- name: Copy the certificate resource definition to the temporary file.
+- name: Create an openssl configuration file.
   copy:
-    content: "{{ lookup('template', 'templates/minio-certificate.yml.j2') }}"
-    dest: "{{ tempfile.path }}"
-  delegate_to: "{{ certificate_creation_delegate }}"
+    dest: "{{ minio_certs_dir }}/CAs/openssl.conf"
+    content: |
+      [req]
+      distinguished_name = req_distinguished_name
+      x509_extensions = v3_req
+      prompt = no
 
-- name: Create a certificate for the MinIO server.
-  command: "kubectl create -f {{ tempfile.path }}"
+      [req_distinguished_name]
+      C = US
+      ST = VA
+      L = Somewhere
+      O = MyOrg
+      OU = MyOU
+      CN = MyServerName
+
+      [v3_req]
+      subjectAltName = @alt_names
+
+      [alt_names]:
+      DNS.1 = minio.lan
+
+- name: Generate private key with RSA
+  command: "openssl genrsa -out {{ minio_certs_dir }}/private.key 2048"
+
+- name: Create a self signed certificate for the MinIO server.
+  command: "openssl req -new -x509 -nodes -days 730 -key {{ minio_certs_dir }}/private.key -out {{ minio_certs_dir }}/public.crt -config {{ minio_certs_dir }}/CAs/openssl.conf"
   register: result
   changed_when: result.rc == 0
-  delegate_to: "{{ certificate_creation_delegate }}"
-
-- name: Get the private key.
-  command:
-    cmd: "kubectl get secret minio-certificate '--output=go-template={{ template_string }}'"
-  vars:
-    template_string: !unsafe '{{ index .data "tls.key" }}'
-  changed_when: false
-  retries: 6
-  delay: 10
-  until: private is succeeded
-  delegate_to: "{{ certificate_creation_delegate }}"
-  register: private
-
-- name: Get the certificate.
-  command:
-    cmd: "kubectl get secret minio-certificate '--output=go-template={{ template_string }}'"
-  vars:
-      template_string: !unsafe '{{ index .data "tls.crt" }}'
-  changed_when: false
-  retries: 6
-  delay: 10
-  until: public is succeeded
-  delegate_to: "{{ certificate_creation_delegate }}"
-  register: public
-
-- name: Copy the private key to the MinIO certs directory.
-  copy:
-    content: "{{ private.stdout | b64decode }}"
-    dest: "{{ minio_configuration_directory }}/certs/private.key"
-  notify: Restart the MinIO service.
-
-- name: Copy the certificate to the MinIO certs directory.
-  copy:
-    content: "{{ public.stdout | b64decode }}"
-    dest: "{{ minio_configuration_directory }}/certs/public.crt"
-  notify: Restart the MinIO service.

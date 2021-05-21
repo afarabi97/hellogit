@@ -1,4 +1,4 @@
-MINIO_ACCESS_KEY="minioadmin"
+MINIO_ACCESS_KEY="assessor"
 MINIO_VOLUMES="{{ minio_volumes }}"
-MINIO_OPTS="-C /etc/minio --address {{ minio_binding_ip | default('') }}:{{ minio_binding_port }}"
-MINIO_SECRET_KEY="minioadmin"
+MINIO_OPTS="--address :{{ minio_binding_port }}"
+MINIO_SECRET_KEY="AFt3ch3nthusiasts!!"

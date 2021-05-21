@@ -8,7 +8,22 @@
 - name: Install the MinIO server binary.
   get_url:
     url: "{{ minio_server_binary_url }}"
-    dest: /usr/local/bin/minio
+    dest: "{{ minio_local_bin }}"
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+    mode: 0755
+
+- name: Create the MinIO client directory.
+  file:
+    path: "{{ minio_client }}"
+    state: directory
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+
+- name: Install MinIO Client
+  get_url:
+    url: "{{ minio_client_url }}"
+    dest: "{{ minio_client }}"
     owner: "{{ minio_system_account }}"
     group: "{{ minio_system_account }}"
     mode: 0755
@@ -16,6 +31,13 @@
 - name: Create the MinIO volumes directory.
   file:
     path: "{{ minio_volumes }}"
+    state: directory
+    owner: "{{ minio_system_account }}"
+    group: "{{ minio_system_account }}"
+
+- name: Create the MinIO certs directory.
+  file:
+    path: "{{ minio_certs_dir }}/CAs"
     state: directory
     owner: "{{ minio_system_account }}"
     group: "{{ minio_system_account }}"
@@ -53,6 +75,11 @@
   changed_when: (result.rc == 0) and ("ALREADY_ENABLED" not in result.stderr)
   notify: "Restart the firewalld service."
   when: ansible_facts['python']['version']['major'] == 3
+
+- name: Give MiniIO binary cap net bind service permissions
+  command: "setcap cap_net_bind_service=+ep {{ minio_local_bin }}"
+
+- import_tasks: create_certificate.yml
 
 - name: Start the MinIO service.
   systemd:
