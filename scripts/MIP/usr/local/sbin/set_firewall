@@ -97,6 +97,11 @@ if [ $(id -u) != "0" ]; then
 	exit
 fi
 
+if [ `systemctl is-enabled firewalld` == "enabled" ]; then
+  echo "This script should not be run when firewalld is enabled."
+  exit
+fi
+
 systemctl enable nftables
 systemctl start nftables
 
@@ -255,9 +260,9 @@ flush_rules()
 # Handy wrapper to set the policy of each chain.
 set_policy()
 {	
-	$FWCMD "add chain ip filter INPUT { policy $1 ;}"
-	$FWCMD "add chain ip filter OUTPUT { policy $1 ;}"
-	$FWCMD "add chain ip filter FORWARD { policy $1 ;}"
+	$FWCMD "add chain ip filter INPUT { type filter hook input priority filter; policy $1 ;}"
+	$FWCMD "add chain ip filter OUTPUT { type filter hook output priority filter; policy $1 ;}"
+	$FWCMD "add chain ip filter FORWARD { type filter hook forward priority filter; policy $1 ;}"
 }
 
 log_exceptions()
@@ -276,6 +281,7 @@ allow_localhost()
 	$FWCMD insert rule ip filter OUTPUT ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 counter accept
 }
 
+ $FWCMD add table ip filter
 # Check to see if  trusted/targeted.hosts exists.
 # if not, it will make them
 
