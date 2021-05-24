@@ -115,8 +115,9 @@ def forward():
 
 def save():
     print('Saving the current firewall state/configuration.')
-    Execute_Command(['nft', 'list', 'ruleset', '>',
-                     '/etc/sysconfig/nftables.conf'])
+    completed_process = Execute_Command(['nft', 'list', 'ruleset'])
+    with open ("/etc/sysconfig/nftables.conf", "w") as save_file:
+        save_file.write(completed_process.stdout)
 
 
 def status():
