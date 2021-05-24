@@ -226,9 +226,9 @@ class BaremetalControllerSetup(ControllerSetupJob):
 
     def copy_controller(self,build_type) -> None:
         if build_type == self.baremetal_ctrl_settings.valid_run_types[0]:
-            path_type = str(self.baremetal_ctrl_settings.node.template_path) + str(self.baremetal_ctrl_settings.node.template)
+            path_type = self.baremetal_ctrl_settings.node.template_path + "/" + self.baremetal_ctrl_settings.node.template
         else:
-            path_type = str(self.baremetal_ctrl_settings.node.ctrl_path) + str(self.baremetal_ctrl_settings.node.ctrl_name)
+            path_type = self.baremetal_ctrl_settings.node.ctrl_path + "/" + self.baremetal_ctrl_settings.node.ctrl_name
         cmd = ("ovftool --noSSLVerify --network=Internal --overwrite \
                 --datastore='{datastore}' --diskMode=thin '{path}' \
                 vi://'{username}':'{password}'@'{ipaddress}'"

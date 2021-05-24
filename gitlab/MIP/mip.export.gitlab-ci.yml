@@ -24,7 +24,6 @@
 #   artifacts:
 #     untracked: true
 
-
 Export MIP Controller:
   stage: export
   needs: ["Setup MIP Controller"]
@@ -44,3 +43,25 @@ Export MIP Controller:
     variables:
       - $PIPELINE == "export-mip"
       - $PIPELINE == "export-all"
+
+Export MIP Controller for Minor Release:
+  stage: export
+  needs: ["Setup MIP Controller"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "MIP" \
+    run-export export-ctrl \
+    --cpt-export-path "$MINOR_RELEASE_SOFTWARE_CPT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
+    --mdt-export-path "$MINOR_RELEASE_SOFTWARE_MDT_EXPORT_LOC/$MIP_SOFTWARE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $PIPELINE == "export-mip"
+      - $PIPELINE == "export-all"
+      - $EXPORT_MIP == "yes" && $PIPELINE == "minor-release"
+      - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"

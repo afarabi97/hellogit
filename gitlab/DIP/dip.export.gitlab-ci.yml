@@ -52,7 +52,6 @@ Ship Phyical Stack Build:
 #   artifacts:
 #     untracked: true
 
-
 Export DIP Controller:
   stage: export
   needs: ["Setup DIP Controller"]
@@ -71,7 +70,6 @@ Export DIP Controller:
   only:
     variables:
       - $PIPELINE == "export-all"
-
 
 Export DIP MinIO:
   stage: export
@@ -92,3 +90,23 @@ Export DIP MinIO:
     variables:
       - $PIPELINE == "export-minio"
       - $PIPELINE == "export-all"
+
+Export DIP Controller for Minor Release:
+  stage: export
+  needs: ["Setup DIP Controller"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export export-ctrl \
+    --cpt-export-path "$MINOR_RELEASE_SOFTWARE_CPT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --mdt-export-path "$MINOR_RELEASE_SOFTWARE_MDT_EXPORT_LOC/$DIP_SOFTWARE_FOLDER" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION"
+  only:
+    variables:
+      - $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
+      - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"

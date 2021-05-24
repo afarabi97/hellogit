@@ -44,6 +44,8 @@ Setup DIP Controller:
       - $PIPELINE == "developer-dip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+      - $EXPORT_DIP == "yes" && $PIPELINE == "minor-release"
+      - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
 
 Create a standalone MinIO server:
   stage: build

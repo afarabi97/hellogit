@@ -14,6 +14,7 @@ Clear Staging Environment:
       - $PIPELINE == "export-powershell-modules"
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
+      - $PIPELINE == "minor-release"
 
 Clear GIP Staging Environment:
   stage: clean-staging-env
@@ -30,7 +31,6 @@ Clear GIP Staging Environment:
     variables:
       - $PIPELINE == "export-gip"
 
-
 Hash Master GIP Drive:
   stage: hashfiles
   tags:
@@ -41,7 +41,6 @@ Hash Master GIP Drive:
   only:
     variables:
       - $PIPELINE == "export-gip"
-
 
 Hash Check Master GIP Drive:
   stage: checkhash
@@ -54,7 +53,6 @@ Hash Check Master GIP Drive:
     variables:
       - $PIPELINE == "export-gip"
 
-
 Hash Master CPT Drive:
   stage: hashfiles
   tags:
@@ -65,7 +63,7 @@ Hash Master CPT Drive:
   only:
     variables:
       - $PIPELINE == "export-all"
-
+      - $PIPELINE == "minor-release"
 
 Hash Master MDT Drive:
   stage: hashfiles
@@ -77,7 +75,7 @@ Hash Master MDT Drive:
   only:
     variables:
       - $PIPELINE == "export-all"
-
+      - $MDT == "yes" && $PIPELINE == "minor-release"
 
 Hash Check Master CPT Drive:
   stage: checkhash
@@ -89,7 +87,7 @@ Hash Check Master CPT Drive:
   only:
     variables:
       - $PIPELINE == "export-all"
-
+      - $PIPELINE == "minor-release"
 
 Hash Check Master MDT Drive:
   stage: checkhash
@@ -101,7 +99,7 @@ Hash Check Master MDT Drive:
   only:
     variables:
       - $PIPELINE == "export-all"
-
+      - $MDT == "yes" && $PIPELINE == "minor-release"
 
 Create Master CPT Drive:
   stage: publish
@@ -121,8 +119,8 @@ Create Master CPT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes"
-
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "minor-release"
 
 Create Master MDT Drive:
   stage: publish
@@ -142,8 +140,8 @@ Create Master MDT Drive:
     --burn-multiboot $CREATE_MULTIBOOT
   only:
     variables:
-      - $RUN_CREATE_MASTER_DRIVE == "yes"
-
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $MDT == "yes" && $PIPELINE == "minor-release"
 
 Create Master GIP Drive:
   stage: publish
@@ -159,7 +157,7 @@ Create Master GIP Drive:
     --ipaddress "$MASTER_DRIVE_CREATION_IPADDRESS" \
     --drive-creation-path "$MASTER_DRIVE_CREATION_PATH" \
     --drive-creation-version "v$TFPLENUM_EXPORT_VERSION" \
-    --burn-multiboot no
+    --burn-multiboot "no"
   only:
     variables:
-      - $RUN_CREATE_GIP_DRIVE == "yes"
+      - $RUN_CREATE_MASTER_DRIVE == "yes" && $PIPELINE == "export-all"

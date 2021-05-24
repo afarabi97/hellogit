@@ -23,7 +23,6 @@
 #       - $PIPELINE == "export-docs"
 #       - $PIPELINE == "export-all"
 
-
 DIP Setup Documents:
   stage: docs
   needs: ["Clear Staging Environment"]
@@ -197,3 +196,49 @@ DIP VDD Documents:
     variables:
       - $PIPELINE == "export-docs"
       - $PIPELINE == "export-all"
+
+Minor Release VDD Documents:
+  stage: docs
+  needs: ["Clear Staging Environment"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "DIP VDD Documents - Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export export-single-page-pdf \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --cpt-export-path "$MINOR_RELEASE_CPT_VDD_LOC" \
+    --mdt-export-path "$MINOR_RELEASE_MDT_VDD_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "$CONFLUENCE_VDD_DOCS"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "minor-release"
+
+Supplemental Documents:
+  stage: docs
+  needs: ["Clear Staging Environment"]
+  tags:
+    - tfplenum-buildv2
+  script: |
+    echo "IP of runner is $(hostname -I | cut -d " " -f1)"
+    echo "Supplemental Documents: $CONFLUENCE_SUP_DOCS - Current working directory is $(pwd)"
+    python3 testing/pipeline/pipeline.py \
+    --system-name "DIP" \
+    run-export export-single-page-pdf \
+    --username "$CONFLUENCE_USERNAME" \
+    --password "$CONFLUENCE_PASSWORD" \
+    --cpt-export-path "$SUP_CPT_DOC_EXPORT_LOC" \
+    --mdt-export-path "$SUP_MDT_DOC_EXPORT_LOC" \
+    --staging-export-path "$DRIVE_STAGING_FOLDER" \
+    --export-version "$TFPLENUM_EXPORT_VERSION" \
+    --page-titles "$CONFLUENCE_SUP_DOCS"
+  retry: 2
+  only:
+    variables:
+      - $PIPELINE == "minor-release"

@@ -37,6 +37,8 @@ Setup MIP Controller:
       - $PIPELINE == "developer-mip"
       - $PIPELINE == "developer-all"
       - $PIPELINE == "developer-dip-mip"
+      - $EXPORT_MIP == "yes" && $PIPELINE == "minor-release"
+      - $EXPORT_BOTH == "yes" && $PIPELINE == "minor-release"
   artifacts:
     untracked: true
 
