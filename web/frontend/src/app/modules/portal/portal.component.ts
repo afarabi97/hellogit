@@ -6,7 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { ObjectUtilitiesClass, PortalLinkClass, UserPortalLinkClass } from '../../classes';
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -138,12 +138,12 @@ export class PortalComponent implements OnInit {
     $event.stopPropagation();
 
     const confirm_dialog_mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
-      paneTitle: `Remove User Link "${user_portal_link.name}"?`,
-      paneString: `Confirm deletion of link to ${user_portal_link.url}. This action cannot be undone.`,
+      title: `Remove User Link "${user_portal_link.name}"?`,
+      message: `Confirm deletion of link to ${user_portal_link.url}. This action cannot be undone.`,
       option1: CANCEL_DIALOG_OPTION,
       option2: CONFIRM_DIALOG_OPTION
     };
-    const mat_dialog_ref: MatDialogRef<ConfirmDailogComponent, any> = this.mat_dialog_.open(ConfirmDailogComponent, {
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, {
       width: '35%',
       data: confirm_dialog_mat_dialog_data
     });

@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { MatSnackbarConfigurationClass, ObjectUtilitiesClass } from '../../classes';
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import {
   CONFIRM_DIALOG_OPTION,
   DIALOG_HEIGHT_90VH,
@@ -117,7 +117,7 @@ export class ElasticsearchScaleComponent implements OnInit {
    * @memberof ElasticsearchScaleComponent
    */
   open_run_confirm_dialog(): void {
-    const mat_dialog_ref: MatDialogRef<ConfirmDailogComponent, any> = this.mat_dialog_.open(ConfirmDailogComponent, {
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH_35PERCENT,
       data: RUN_CONFIRM_MAT_DIALOG
     });
@@ -224,7 +224,7 @@ export class ElasticsearchScaleComponent implements OnInit {
    * @memberof ElasticsearchScaleComponent
    */
   private open_cant_run_dialog_(): void {
-    this.mat_dialog_.open(ConfirmDailogComponent, {
+    this.mat_dialog_.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH_35PERCENT,
       data: CANT_RUN_CONFIRM_MAT_DIALOG
     });
@@ -237,7 +237,7 @@ export class ElasticsearchScaleComponent implements OnInit {
    * @memberof ElasticsearchScaleComponent
    */
   private open_elasticsearch_scale_in_progress_dialog_(): void {
-    this.mat_dialog_.open(ConfirmDailogComponent, {
+    this.mat_dialog_.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH_35PERCENT,
       data: ELASTICSEARCH_SCALE_IN_PROGRESS_CONFIRM_MAT_DIALOG
     });

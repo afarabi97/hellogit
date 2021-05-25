@@ -14,7 +14,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 import { UserPortalLinkClass } from '../classes';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import {
   DialogControlTypes,
   DialogFormControl,
@@ -26,6 +26,7 @@ import { MatSnackBarService } from '../services/mat-snackbar.service';
 import { PortalService } from '../services/portal.service';
 import { AlertDrillDownDialog } from './alert-drilldown-dialog/alert-drilldown-dialog.component';
 import { AlertService } from './alerts.service';
+import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 
 const DIALOG_WIDTH = "1000px";
 
@@ -636,21 +637,19 @@ Please check the /var/log/tfplenum logs for more information`);
   }
 
   private _ackorUnsetAck(alert: Object, paneTitle: string, paneString: string){
-    const option2 = "Confirm";
-    const count = alert["count"];
-
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: paneTitle,
+      message: paneString,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: paneString,
-        paneTitle: paneTitle,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.alertSrv.modifyAlert(alert, this.controlForm, false).subscribe(data=>{
           const new_count = data["total"];
           const msg = `Successfully performed operation on ${new_count} Alerts.`;

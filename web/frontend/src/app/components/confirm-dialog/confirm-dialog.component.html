@@ -1,0 +1,12 @@
+<h1 mat-dialog-title *ngIf="check_variable_value_defined(mat_dialog_data.title)" id="cvah-confirm-dialog-title">{{ mat_dialog_data.title }}</h1>
+<div mat-dialog-content *ngIf="check_variable_value_defined(mat_dialog_data.message)" id="cvah-confirm-dialog-message">
+  <span class="message">{{ mat_dialog_data.message }}</span>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option2)"
+          id="cvah-confirm-dialog-button-options2" color="primary"
+          (click)="close(mat_dialog_data.option2)">{{ mat_dialog_data.option2 }}</button>
+  <button mat-raised-button *ngIf="check_variable_value_defined(mat_dialog_data.option1)"
+          id="cvah-confirm-dialog-button-options1" color="warn"
+          (click)="close(mat_dialog_data.option1)">{{ mat_dialog_data.option1 }}</button>
+</div>

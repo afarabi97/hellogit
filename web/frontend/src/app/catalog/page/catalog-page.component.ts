@@ -7,14 +7,14 @@ import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
 
 import { NodeClass, ObjectUtilitiesClass, StatusClass } from '../../classes';
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { SortingService } from '../../services/sorting.service';
 import { DEPLOYED, INSTALL, PROCESS_LIST, REINSTALL, UNINSTALL, UNKNOWN } from '../constants/catalog.constants';
 import { ProcessInterface } from '../interface';
 import { ChartInfo } from '../interface/chart.interface';
 import { CatalogService } from '../services/catalog.service';
 import { ToolsService } from 'src/app/tools-form/services/tools.service';
-
 
 @Component({
   selector: 'app-catalog-page',
@@ -125,17 +125,19 @@ export class CatalogPageComponent implements OnInit, AfterViewInit {
     if(this.chart.devDependent) {
       this._CatalogService.getByString(`chart/${this.chart.devDependent}/status`).subscribe(status => {
         if(status.length === 0 ) {
-          const message = `This chart is dependent on ${this.chart.devDependent} and it is not installed, are you sure you want to continue.`;
-          const title = `${this.chart.id} is dependent on ${this.chart.devDependent}`;
-          const option1 = "Take Me Back";
-          const option2 = "Continue ";
-          const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+          const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+            title: `${this.chart.id} is dependent on ${this.chart.devDependent}`,
+            message: `This chart is dependent on ${this.chart.devDependent} and it is not installed, are you sure you want to continue.`,
+            option1: 'Take Me Back',
+            option2: 'Continue'
+          };
+          const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '35%',
-            data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
+            data: confirm_dialog,
           });
 
           dialogRef.afterClosed().subscribe(result => {
-            if( result === option1) {
+            if( result === confirm_dialog.option1) {
               this.navigateToCatalog();
             }
           });

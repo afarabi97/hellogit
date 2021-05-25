@@ -79,8 +79,8 @@ import { NotificationsComponent } from './notifications/component/notifications.
 import { NotificationsModuleComponent } from './notifications/notification-module/notifications-module.component';
 
 // ConfirmDialog
-import { ConfirmDailogComponent } from './confirm-dailog/confirm-dailog.component';
 import { DoubleConfirmDialogComponent } from './double-confirm-dialog/double-confirm-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 import { ModalDialogMatComponent } from './modal-dialog-mat/modal-dialog-mat.component';
 
@@ -150,8 +150,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
     ChartListComponent,
     NotificationsComponent,
     NotificationsModuleComponent,
-    ConfirmDailogComponent,
     DoubleConfirmDialogComponent,
+    ConfirmDialogComponent,
     NodeBackgroundComponent,
     CatalogPageComponent,
     ReplayPcapDialog,
@@ -209,8 +209,8 @@ export function initializeApp(appLoadService: AppLoadService): () => Promise<Use
   ],
   entryComponents: [
     NotificationsModuleComponent,
-    ConfirmDailogComponent,
     DoubleConfirmDialogComponent,
+    ConfirmDialogComponent,
     AgentInstallerDialogComponent,
     AgentDetailsDialogComponent,
     AgentTargetDialogComponent,

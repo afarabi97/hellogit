@@ -2,7 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { UserService } from '../../services/user.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { NotificationService } from '../services/notification.service';
@@ -72,19 +73,21 @@ export class NotificationsModuleComponent {
    * @memberof NotificationsModuleComponent
    */
   clearAll() {
-    const message = "Are you sure you want to delete all notificaions?";
-    const title = "Clear All Notifications";
-    const option1 = "Close";
-    const option2 = "Delete";
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: 'Clear All Notifications',
+      message: 'Are you sure you want to delete all notificaions?',
+      option1: 'Close',
+      option2: 'Delete'
+    };
 
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '35%',
-      data: {"paneString": message, "paneTitle": title, "option1": option1, "option2": option2},
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(result => {
 
-      if( result === option2) {
+      if( result === confirm_dialog.option2) {
         this._notificationService.deleteAll().subscribe((m: any) => {
           this.snackBar.open("All Notifications Deleted", 'OK', { duration: 5000 });
         });

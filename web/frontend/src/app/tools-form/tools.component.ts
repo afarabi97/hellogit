@@ -1,14 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
 import { UserService } from '../services/user.service';
-import { ToolsService } from './services/tools.service';
-
-const DIALOG_WIDTH = "800px";
 
 export const target_config_validators = {
   required: [
@@ -31,11 +25,8 @@ export class ToolsFormComponent implements OnInit {
   resetClock: FormGroup;
   controllerMaintainer: boolean;
 
-  constructor(private toolsSrv: ToolsService,
-              private title: Title,
-              private dialog: MatDialog,
+  constructor(private title: Title,
               private formBuilder: FormBuilder,
-              private snackBar: MatSnackBar,
               private userService: UserService) {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }

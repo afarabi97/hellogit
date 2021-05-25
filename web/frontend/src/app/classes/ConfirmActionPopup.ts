@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Injectable } from '@angular/core';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 
 const DIALOG_WIDTH = '800px';
 
@@ -31,11 +31,11 @@ export class ConfirmActionPopup {
     successText: string,
     failText: string,
     actionFunc: () => void) {
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
       data: {
-        "paneString": message,
-        "paneTitle": title,
+        "message": message,
+        "title": title,
         "option1": "Cancel",
         "option2": confirmButtonText
       }

@@ -3,11 +3,12 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { COMMON_VALIDATORS } from '../../frontend-constants';
 import { UserService } from '../../services/user.service';
 import { validateFromArray } from '../../validators/generic-validators.validator';
 import { ToolsService } from '../services/tools.service';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
 
 const DIALOG_WIDTH = "800px";
 
@@ -88,16 +89,20 @@ export class ChangePasswordFormComponent implements OnInit {
   }
 
   onSubmit(){
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: 'Kit password change',
+      message: 'Are you sure you want to change the Kits password? \
+                Doing this will change the root password for all servers and sensors in the Kubernetes cluster.',
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: { "paneString": "Are you sure you want to change the Kits password? \
-                             Doing this will change the root password for all servers and sensors in the Kubernetes cluster.",
-              "paneTitle": "Kit password change", "option1": "Cancel", "option2": option2 },
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.changePassword();
       }
     });

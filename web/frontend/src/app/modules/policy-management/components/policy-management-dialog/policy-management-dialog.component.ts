@@ -6,7 +6,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import * as FileSaver from 'file-saver';
 
 import { ErrorMessageClass, ObjectUtilitiesClass, RuleClass, RuleSetClass, SuccessMessageClass } from '../../../../classes';
-import { ConfirmDailogComponent } from '../../../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -182,8 +182,8 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
    */
   close(): void {
     const mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
-      paneString: 'Are you sure you want to close this editor? All changes will be discarded.',
-      paneTitle: 'Close without saving',
+      title: 'Close without saving',
+      message: 'Are you sure you want to close this editor? All changes will be discarded.',
       option1: CANCEL_DIALOG_OPTION,
       option2: CONFIRM_DIALOG_OPTION
     };
@@ -191,7 +191,7 @@ export class PolicyManagementDialogComponent implements OnInit, AfterViewInit {
       width: DIALOG_WIDTH_50PERCENT,
       data: mat_dialog_data
     };
-    const mat_dialog_ref: MatDialogRef<ConfirmDailogComponent, any> = this.mat_dialog_.open(ConfirmDailogComponent, mat_dialog_config);
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, mat_dialog_config);
 
     mat_dialog_ref.afterClosed()
       .pipe(untilDestroyed(this))

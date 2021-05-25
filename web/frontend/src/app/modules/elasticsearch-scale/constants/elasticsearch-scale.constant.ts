@@ -26,19 +26,19 @@ export const CLOSE_CONFIRM_ACTION_CONFIGURATION: ConfirmActionConfigurationInter
   actionFunc: () => {}
 };
 export const RUN_CONFIRM_MAT_DIALOG: ConfirmDialogMatDialogDataInterface = {
-  paneString: `Are you sure that you want to change the ${ELASTICSEARCH_SCALING} configuration. This will take some time for operation to complete.`,
-  paneTitle: ELASTICSEARCH_SCALING,
+  title: ELASTICSEARCH_SCALING,
+  message: `Are you sure that you want to change the ${ELASTICSEARCH_SCALING} configuration. This will take some time for operation to complete.`,
   option1: CANCEL_DIALOG_OPTION,
   option2: CONFIRM_DIALOG_OPTION
 };
 export const CANT_RUN_CONFIRM_MAT_DIALOG: ConfirmDialogMatDialogDataInterface = {
-  paneString: `${ELASTICSEARCH_SCALING} is currently in progress so you can not change the configuration at this time`,
-  paneTitle: ELASTICSEARCH_SCALING,
+  title: ELASTICSEARCH_SCALING,
+  message: `${ELASTICSEARCH_SCALING} is currently in progress so you can not change the configuration at this time`,
   option2: CONFIRM_DIALOG_OPTION
 };
 export const ELASTICSEARCH_SCALE_IN_PROGRESS_CONFIRM_MAT_DIALOG: ConfirmDialogMatDialogDataInterface = {
-  paneString: `${ELASTICSEARCH_SCALING} is currently in progress`,
-  paneTitle: ELASTICSEARCH_SCALING,
+  title: ELASTICSEARCH_SCALING,
+  message: `${ELASTICSEARCH_SCALING} is currently in progress`,
   option2: CONFIRM_DIALOG_OPTION
 };
 export const ELASTICSEARCH_KIT_DEPLOYED_ERROR_MESSAGE: string = '- You cannot scale Elasticsearch until you have a Kit deployed and Elastic is installed';

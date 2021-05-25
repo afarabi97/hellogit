@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular
 import { ServerStdoutService } from './server-stdout.service';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBarService } from '../services/mat-snackbar.service';
+import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 
 @Component({
   selector: 'app-server-stdout',
@@ -92,15 +93,19 @@ export class ServerStdoutComponent implements OnInit {
   }
 
   openKillModal(){
-    let option1 = "Cancel";
-    let option2 = "Yes";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: 'Kill',
+      message: 'Are you sure you want to kill this job?',
+      option1: 'Cancel',
+      option2: 'Yes'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '35%',
-      data: {"paneString": 'Are you sure you want to kill this job?', "paneTitle": 'Kill Job', "option1": option1, "option2": option2},
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if( result === option2) {
+      if( result === confirm_dialog.option2) {
         this.killJob();
       }
     });
@@ -144,16 +149,20 @@ export class ServerStdoutComponent implements OnInit {
     });
   }
 
-  openRetryJobModal(){
-    let option1 = "Cancel";
-    let option2 = "Yes";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+  openRetryJobModal() {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: 'Retry Job',
+      message: 'Are you sure you want to rerun this job?',
+      option1: 'Cancel',
+      option2: 'Yes'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '35%',
-      data: {"paneString": 'Are you sure you want to rerun this job?', "paneTitle": 'Retry Job', "option1": option1, "option2": option2},
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result === option2) {
+      if (result === confirm_dialog.option2) {
         this.retryJob();
         this.validateAllowRetry();
       }

@@ -16,7 +16,7 @@ import {
   RuleSyncClass,
   SuccessMessageClass
 } from '../../../../classes';
-import { ConfirmDailogComponent } from '../../../../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import {
   CANCEL_DIALOG_OPTION,
   CONFIRM_DIALOG_OPTION,
@@ -235,8 +235,8 @@ export class PolicyManagementTableComponent implements OnInit, AfterViewInit, On
    */
   delete_rule_confirm_dialog(rule: RuleClass, rule_set: RuleSetClass): void {
     const mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
-      paneString: `Are you sure you want to permanently remove rule: ${rule.ruleName}?`,
-      paneTitle: 'Remove Rule',
+      message: `Are you sure you want to permanently remove rule: ${rule.ruleName}?`,
+      title: 'Remove Rule',
       option1: CANCEL_DIALOG_OPTION,
       option2: CONFIRM_DIALOG_OPTION
     };
@@ -244,7 +244,7 @@ export class PolicyManagementTableComponent implements OnInit, AfterViewInit, On
       width: DIALOG_WIDTH_50PERCENT,
       data: mat_dialog_data
     };
-    const mat_dialog_ref: MatDialogRef<ConfirmDailogComponent, any> = this.mat_dialog_.open(ConfirmDailogComponent, mat_dialog_config);
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, mat_dialog_config);
 
     mat_dialog_ref.afterClosed()
       .pipe(untilDestroyed(this))
@@ -266,8 +266,8 @@ export class PolicyManagementTableComponent implements OnInit, AfterViewInit, On
    */
   delete_rule_set_confirm_dialog(rule_set: RuleSetClass): void {
     const mat_dialog_data: ConfirmDialogMatDialogDataInterface = {
-      paneString: `Are you sure you want to permanently remove rule set: ${rule_set.name}?`,
-      paneTitle: 'Remove Rule Set',
+      title: 'Remove Rule Set',
+      message: `Are you sure you want to permanently remove rule set: ${rule_set.name}?`,
       option1: CANCEL_DIALOG_OPTION,
       option2: CONFIRM_DIALOG_OPTION
     };
@@ -275,7 +275,7 @@ export class PolicyManagementTableComponent implements OnInit, AfterViewInit, On
       width: DIALOG_WIDTH_50PERCENT,
       data: mat_dialog_data
     };
-    const mat_dialog_ref: MatDialogRef<ConfirmDailogComponent, any> = this.mat_dialog_.open(ConfirmDailogComponent, mat_dialog_config);
+    const mat_dialog_ref: MatDialogRef<ConfirmDialogComponent, any> = this.mat_dialog_.open(ConfirmDialogComponent, mat_dialog_config);
 
     mat_dialog_ref.afterClosed()
       .pipe(untilDestroyed(this))

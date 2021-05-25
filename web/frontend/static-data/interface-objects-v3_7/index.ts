@@ -1,4 +1,5 @@
 export * from './confirm-action-configuration.interface';
+export * from './confirm-dialog-mat-dialog-data.interface';
 export * from './docker-registry-metadata.interface';
 export * from './docker-registry.interface';
 export * from './elasticsearch-check.interface';

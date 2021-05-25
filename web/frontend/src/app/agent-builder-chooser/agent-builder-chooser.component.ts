@@ -7,8 +7,9 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import * as FileSaver from 'file-saver';
 
+import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 import { ObjectUtilitiesClass } from '../classes';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { COMMON_VALIDATORS } from '../frontend-constants';
 import {
   DialogControlTypes,
@@ -383,19 +384,19 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openConfirmDeleteConfig(config: any) {
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Remove configuration ${config.config_name}?`,
+      message: `Are you sure you want to delete ${config.config_name}?`,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: `Are you sure you want to delete ${config.config_name}?`,
-        paneTitle: `Remove configuration ${config.config_name}?`,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.agentBuilderSvc.deleteConfig(config['_id']).subscribe(config_list => {
           this.setSavedConfigs(config_list);
           this.displaySnackBar(`${config.config_name} was deleted successfully.`);
@@ -409,20 +410,20 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openConfirmDeleteTarget(config: IpTargetList) {
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Remove configuration ${config.name}?`,
+      message: 'Before deleting this target configuration, it is strongly advised to first do a "Batch Uninstall". ' +
+      'Please make sure all agents have been uninstalled successfully. This action cannot be undone.',
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: 'Before deleting this target configuration, it is strongly advised to first do a "Batch Uninstall". ' +
-                    'Please make sure all agents have been uninstalled successfully. This action cannot be undone.',
-        paneTitle: `Remove configuration ${config.name}?`,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.agentBuilderSvc.deleteIpTargetList(config.name).subscribe(configs => {
           this.setTargetConfigs(configs);
           this.displaySnackBar(`${config.name} was deleted successfully.`);
@@ -567,19 +568,19 @@ export class AgentBuilderChooserComponent implements OnInit {
   }
 
   openRemoveHostModal(target_config: IpTargetList, hostList: MatTableDataSource<Host>, host: Host, hostIndex: number) {
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Remove configuration ${host.hostname}?`,
+      message: `Before deleting this ${host.hostname}, it is strongly advised to uninstall first. This action cannot be undone.`,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: `Before deleting this ${host.hostname}, it is strongly advised to uninstall first. This action cannot be undone.`,
-        paneTitle: `Remove configuration ${host.hostname}?`,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog,
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.agentBuilderSvc.removeHostFromIpTargetList(target_config._id, host).subscribe(data => {
           if (data instanceof ErrorMessage){
             this.displaySnackBar(data.error_message);

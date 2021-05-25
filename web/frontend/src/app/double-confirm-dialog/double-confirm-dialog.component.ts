@@ -10,10 +10,10 @@ export class DoubleConfirmDialogComponent {
   doubleConfirm = "";
 
   /**
-   *Creates an instance of ConfirmDailogComponent.
-   * @param {MatDialogRef<ConfirmDailogComponent>} dialogRef
+   *Creates an instance of DoubleConfirmDialogComponent.
+   * @param {MatDialogRef<DoubleConfirmDialogComponent>} dialogRef
    * @param {*} data
-   * @memberof ConfirmDailogComponent
+   * @memberof DoubleConfirmDialogComponent
    */
   constructor(public dialogRef: MatDialogRef<DoubleConfirmDialogComponent>,
               @Inject(MAT_DIALOG_DATA)
@@ -28,7 +28,7 @@ export class DoubleConfirmDialogComponent {
    * closes the dialogRef
    *
    * @param {string} selectedOption
-   * @memberof ConfirmDailogComponent
+   * @memberof DoubleConfirmDialogComponent
    */
   close(selectedOption: string) {
     selectedOption === 'option1' ? this.dialogRef.close(this.data.option1) : this.dialogRef.close(this.data.option2);

@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { MatSnackBarService } from '../../services/mat-snackbar.service';
-import { ConfirmDailogComponent } from '../../confirm-dailog/confirm-dailog.component';
-import { UserService } from '../../services/user.service';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { AddNodeDialog } from '../add-node-dialog/add-node-dialog.component';
-import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog.component';
-import { DoubleConfirmDialogComponent } from 'src/app/double-confirm-dialog/double-confirm-dialog.component';
 import { FormGroup } from '@angular/forms';
-import { KitSettingsService } from '../services/kit-settings.service';
-import { WebsocketService } from '../../services/websocket.service';
-import { Node, MIP, Job, KitStatus, Settings } from '../models/kit';
+import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
-import { CatalogService } from '../../catalog/services/catalog.service';
 
+import { CatalogService } from '../../catalog/services/catalog.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { DoubleConfirmDialogComponent } from '../../double-confirm-dialog/double-confirm-dialog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../../interfaces';
+import { MatSnackBarService } from '../../services/mat-snackbar.service';
+import { UserService } from '../../services/user.service';
+import { WebsocketService } from '../../services/websocket.service';
+import { AddNodeDialog } from '../add-node-dialog/add-node-dialog.component';
+import { Job, KitStatus, Node, Settings } from '../models/kit';
+import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog.component';
+import { KitSettingsService } from '../services/kit-settings.service';
 
 const DIALOG_WIDTH = "800px";
 
@@ -24,8 +25,8 @@ const DIALOG_WIDTH = "800px";
   styleUrls: ['./node-mng.component.css']
 })
 export class NodeManagementComponent implements OnInit {
-  nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions']
-  setupNodesColumns = ['hostname', 'node_type', 'state']
+  nodesColumns = ['hostname', 'ip_address', 'node_type', 'deployment_type', 'state', 'actions'];
+  setupNodesColumns = ['hostname', 'node_type', 'state'];
   nodes: Node[] = [];
   controlPlaneNodes: any[] = [];
   controllerMaintainer: boolean;
@@ -47,27 +48,16 @@ export class NodeManagementComponent implements OnInit {
     this.controllerMaintainer = this.userService.isControllerMaintainer();
   }
 
-  private socketRefresh(){
-    this._WebsocketService.getSocket().on('node-state-change', (data: any) => {
-      this.refreshNodes(data)
-
-    });
-    this._WebsocketService.getSocket().on('kit-status-change', (data: any) => {
-      this.kitStatus = data
-    });
-  }
-
-  public disabledRKbutton(){
+  disabledRKbutton(){
     if (!this.kitStatus.base_kit_deployed && this.kitStatus.jobs_running){
       return true;
-    }
-    else if (this.kitStatus.base_kit_deployed){
+    } else if (this.kitStatus.base_kit_deployed){
       return false;
     }
     return true;
   };
 
-  public disableSCPbutton(){
+  disableSCPbutton(){
     if (!this.kitStatus.control_plane_deployed && this.kitStatus.esxi_settings_configured && this.kitStatus.kit_settings_configured){
       if (!this.kitStatus.jobs_running) {
         return false;
@@ -76,7 +66,7 @@ export class NodeManagementComponent implements OnInit {
     return true;
   };
 
-  public disableAddNodeButton(){
+  disableAddNodeButton(){
     if (this.kitStatus.control_plane_deployed && !this.kitStatus.deploy_kit_running){
         return false;
     }
@@ -90,41 +80,6 @@ export class NodeManagementComponent implements OnInit {
     return true;
   }
 
-  private getKitStatus(){
-    this.kitSettingsSvc.getKitStatus().subscribe((data: KitStatus) => {
-      this.kitStatus = data;
-    });
-  }
-
-  private getNodeData(){
-    const nodesArray = [];
-    const cpArray = [];
-      this.kitSettingsSvc.getNodes().subscribe((data: Node[]) => {
-        this.refreshNodes(data);
-      })
-  }
-
-  private refreshNodes(data: Node[]){
-    const nodesArray = [];
-    const cpArray = [];
-    for (var node of data){
-      for (var job of node.jobs){
-        if (job.name == "deploy") node.isDeployed = this.getCurrentStatus(job) == "Complete"
-        if (job.name == "remove") node.isRemoving = true;
-      }
-      if (node.deployment_type == "Iso") this.isoSensorExists = true;
-      if (node.node_type == "Control-Plane" || node.node_type == "Minio"){
-        cpArray.push(node)
-      }
-      else if (node.node_type != "MIP")
-      {
-        nodesArray.push(node)
-      }
-    }
-    this.controlPlaneNodes = cpArray
-    this.nodes = nodesArray
-  }
-
   ngOnInit() {
     this.title.setTitle("Node Management");
     this.socketRefresh();
@@ -133,12 +88,14 @@ export class NodeManagementComponent implements OnInit {
 
     this.kitSettingsSvc.getKitSettings().subscribe((data) => {
       this.kitSettings = data;
-    })
+    });
   }
 
   canGatherFacts(node: Node): boolean{
-    if (node.isDeployed) return true;
-    return false
+    if (node.isDeployed) {
+      return true;
+    }
+    return false;
   }
 
   updateGatherFacts(node: Node){
@@ -153,13 +110,19 @@ export class NodeManagementComponent implements OnInit {
   }
 
   isISOButtonGroup(node: Node){
-    if (node.node_type == "Sensor" && node.deployment_type == "Iso") return true;
+    if (node.node_type === "Sensor" && node.deployment_type === "Iso") {
+      return true;
+    }
     return false;
   }
 
   canDeleteNode(node: Node){
-    if (node.node_type == "Sensor" || node.node_type == "Service") return true;
-    if (node.node_type == "Server" && !node.isDeployed) return true;
+    if (node.node_type === "Sensor" || node.node_type === "Service") {
+      return true;
+    }
+    if (node.node_type === "Server" && !node.isDeployed) {
+      return true;
+    }
     return false;
   }
 
@@ -174,14 +137,10 @@ export class NodeManagementComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-        let form = result as FormGroup;
+        const form = result as FormGroup;
         if (form && form.valid){
-
-          //this.matSnackBarSrv.displaySnackBar("TODO Stubbed out call Implement later.");
-
           this.kitSettingsSvc.addNode(form.value).subscribe(data => {
-
-          })
+          });
 
         }
       err => {
@@ -190,52 +149,47 @@ export class NodeManagementComponent implements OnInit {
     });
   }
 
-  showNodeInfo(node){
-    // console.log(node);
+  showNodeInfo(node) {
     this.dialog.open(NodeInfoDialog, {
       width: DIALOG_WIDTH,
       data: node
     });
-
-    // dialogRef.afterClosed().subscribe(result => {
-
-    // });
   }
 
-  stopNodeJob(node: Node){
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+  stopNodeJob(node: Node) {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Stop ${node} on ${node.hostname}?`,
+      message: `Are you sure you want to cancel the ${node} job on ${node.hostname}?`,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: `Are you sure you want to cancel the ${node} job on ${node.hostname} ?`,
-        paneTitle: `Stop ${node} on ${node.hostname}?`,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         //TODO we need to delete the node here and unjoin it from kubernetes cluster.
         this.matSnackBarSrv.displaySnackBar('TODO stubbed out stopNodeJob()');
       }
     });
   }
 
-  retryNodeJob(node: Node){
-    const option2 = "Confirm";
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+  retryNodeJob(node: Node) {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Rerun job on ${node.hostname}?`,
+      message: `Are you sure you want to rerun the failed job on ${node.hostname}?`,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: DIALOG_WIDTH,
-      data: {
-        paneString: `Are you sure you want to rerun the failed job on ${node.hostname} ?`,
-        paneTitle: `Rerun job on ${node.hostname}?`,
-        option1: "Cancel",
-        option2: option2
-      },
+      data: confirm_dialog
     });
 
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         //TODO we need to delete the node here and unjoin it from kubernetes cluster.
         this.matSnackBarSrv.displaySnackBar('TODO stubbed out retryNodeJob()');
       }
@@ -254,22 +208,26 @@ export class NodeManagementComponent implements OnInit {
 
   downloadOpenVPNCerts(node: Node){
     this.kitSettingsSvc.getNodeVpnConfig(node.hostname).subscribe(data => {
-      let config_blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+      const config_blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
       FileSaver.saveAs(config_blob, `${node.hostname}.conf`);
       this.matSnackBarSrv.displaySnackBar(`Downloading VPN Config for ${node.hostname}`);
-    })
+    });
   }
 
   getVpnStatus(node: Node){
-    if (node.node_type == "Sensor" && node.deployment_type == "Iso"){
-      if (node.vpn_status) return true; else return false;
+    if (node.node_type === "Sensor" && node.deployment_type === "Iso"){
+      if (node.vpn_status) {
+        return true;
+      } else {
+        return false;
+      }
     }
     if (node.vpn_status){
       return false;
     }
   }
 
-  public openConsole(job_id: string=""): void {
+  openConsole(job_id: string=""): void {
     this.router.navigate([`/stdout/${job_id}`]);
   }
 
@@ -301,8 +259,7 @@ export class NodeManagementComponent implements OnInit {
   deployKit(){
     if (this.kitStatus.base_kit_deployed){
       this.redeployKit();
-    }
-    else {
+    } else {
       this.kitSettingsSvc.deployKit().subscribe(data => {
         const job_id = data['job_id'];
         this.router.navigate([`/stdout/${job_id}`]);
@@ -311,11 +268,19 @@ export class NodeManagementComponent implements OnInit {
   }
 
   getCurrentStatus(job: Job): string {
-    if (job.error) return "Error"
-    if (job.complete) return "Complete"
-    if (job.inprogress) return "In Progress"
-    if (job.pending) return "Pending"
-    return "Unknown"
+    if (job.error) {
+      return "Error";
+    }
+    if (job.complete) {
+      return "Complete";
+    }
+    if (job.inprogress) {
+      return "In Progress";
+    }
+    if (job.pending) {
+      return "Pending";
+    }
+    return "Unknown";
   }
 
   refreshKit(){
@@ -338,8 +303,8 @@ export class NodeManagementComponent implements OnInit {
       if (response === option2) {
         //TODO this method is currently stubbed out to be used to call REST
         this.kitSettingsSvc.refreshKit().subscribe(data => {
-          console.log(data)
-        })
+          console.log(data);
+        });
       }
     });
   }
@@ -365,27 +330,26 @@ export class NodeManagementComponent implements OnInit {
   }
 
   removeNodeDialog(node: Node, installed_apps){
-    let message = `Are you sure you want delete ${node.hostname}?`
+    let message = `Are you sure you want delete ${node.hostname}?`;
     if(installed_apps.length > 0){
       message = `${message}\n\n \
       The following applications will be uninstalled: \n ${installed_apps}`;
     }
-    const title = `Delete ${node.hostname}?`;
-    const option2 = "Confirm";
-    const option1 = "Cancel";
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      title: `Delete ${node.hostname}?`,
+      message: message,
+      option1: 'Cancel',
+      option2: 'Confirm'
+    };
 
-    const dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '35%',
-      data: { "paneString": message, "paneTitle": title, "option1": option1, "option2": option2 },
+      data: confirm_dialog,
     });
     dialogRef.afterClosed().subscribe(response => {
-      if (response === option2) {
+      if (response === confirm_dialog.option2) {
         this.kitSettingsSvc.deleteNode(node.hostname).subscribe(data => {
           node.isRemoving = true;
-          //if (data && "job_id" in data){
-          //  const job_id = data['job_id'];
-          //  this.router.navigate([`/stdout/${job_id}`]);
-          //}
         });
       }
     });
@@ -397,16 +361,63 @@ export class NodeManagementComponent implements OnInit {
    * @param {number} index
    * @memberof KitFormComponent
    */
-     public canRemove(node: Node): void {
-      let installed_apps = [];
-      this._CatalogService.getinstalledapps(node.hostname).subscribe(result => {
-        let result_casted = result as [];
-        if( result_casted !== null && result_casted.length > 0 ) {
-          for (const app of result_casted){
-            installed_apps.push(app["application"])
-          }
+  canRemove(node: Node): void {
+    const installed_apps = [];
+    this._CatalogService.getinstalledapps(node.hostname).subscribe(result => {
+      const result_casted = result as [];
+      if( result_casted !== null && result_casted.length > 0 ) {
+        for (const app of result_casted){
+          installed_apps.push(app["application"]);
         }
-        this.removeNodeDialog(node, installed_apps)
+      }
+      this.removeNodeDialog(node, installed_apps);
+    });
+  }
+
+  private socketRefresh(){
+    this._WebsocketService.getSocket().on('node-state-change', (data: any) => {
+      this.refreshNodes(data);
+
+    });
+    this._WebsocketService.getSocket().on('kit-status-change', (data: any) => {
+      this.kitStatus = data;
+    });
+  }
+
+  private getKitStatus(){
+    this.kitSettingsSvc.getKitStatus().subscribe((data: KitStatus) => {
+      this.kitStatus = data;
+    });
+  }
+
+  private getNodeData(){
+      this.kitSettingsSvc.getNodes().subscribe((data: Node[]) => {
+        this.refreshNodes(data);
       });
+  }
+
+  private refreshNodes(data: Node[]){
+    const nodesArray = [];
+    const cpArray = [];
+    for (const node of data){
+      for (const job of node.jobs){
+        if (job.name === "deploy") {
+          node.isDeployed = this.getCurrentStatus(job) === "Complete";
+        }
+        if (job.name === "remove") {
+          node.isRemoving = true;
+        }
+      }
+      if (node.deployment_type === "Iso") {
+        this.isoSensorExists = true;
+      }
+      if (node.node_type === "Control-Plane" || node.node_type === "Minio"){
+        cpArray.push(node);
+      } else if (node.node_type !== "MIP") {
+        nodesArray.push(node);
+      }
     }
+    this.controlPlaneNodes = cpArray;
+    this.nodes = nodesArray;
+  }
 }

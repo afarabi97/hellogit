@@ -5,8 +5,8 @@
  * @interface ConfirmDialogMatDialogDataInterface
  */
 export interface ConfirmDialogMatDialogDataInterface {
-  paneString: string;
-  paneTitle: string;
+  title?: string;
+  message?: string;
   option1?: string;
-  option2: string;
+  option2?: string;
 }

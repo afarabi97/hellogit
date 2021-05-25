@@ -1,0 +1,15 @@
+.message {
+  white-space: pre-line;
+  color: #1eb980;
+  font-size: 12pt;
+}
+mat-dialog-content {
+  margin-bottom: 10px;
+}
+mat-dialog-actions {
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+  place-content: center flex-end;
+  align-items: center;
+}

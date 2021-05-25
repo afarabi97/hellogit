@@ -4,9 +4,10 @@ import { Title } from '@angular/platform-browser';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDailogComponent } from '../confirm-dailog/confirm-dailog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { FormGroup } from '@angular/forms';
 import { ReplayPcapDialog } from './replay-pcap-dialog/replay-pcap-dialog.component';
+import { ConfirmDialogMatDialogDataInterface } from '../interfaces';
 
 const DIALOG_WIDTH = "800px";
 
@@ -85,18 +86,18 @@ export class PcapFormComponent implements OnInit {
   }
 
   openConfirmModal(pcap: Object){
-    let doItText = 'Yes';
-    let dialogRef = this.dialog.open(ConfirmDailogComponent, {
+    const confirm_dialog: ConfirmDialogMatDialogDataInterface = {
+      message: 'Are you sure you want to permanently delete ' + pcap['name']  + '?',
+      option1: 'Cancel',
+      option2: 'Yes'
+    };
+    let dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: DIALOG_WIDTH,
-        data: {
-          'paneString': 'Are you sure you want to permanently delete ' + pcap['name']  + '?',
-          'option1': 'Cancel',
-          'option2': doItText
-        }
+        data: confirm_dialog
       });
       dialogRef.afterClosed().subscribe(
         result => {
-          if(result == doItText) {
+          if(result == confirm_dialog.option2) {
             this.pcapToDelete = pcap['name'];
             this.deleteFile();
           }
