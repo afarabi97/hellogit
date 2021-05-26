@@ -16,7 +16,8 @@ spec:
         component: suricata-logshipper
     spec:
       containers:
-      - name: filebeat-suricata
+      {{ if has "alert" .Values.log_types }}
+      - name: filebeat-suricata-alert
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
         securityContext:
@@ -51,7 +52,8 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
         args: ['-e', '-E', 'name="{{ .Release.Name }}-alert"']
-        {{ if .Values.flow }}
+        {{ end }}
+        {{ if has "http" .Values.log_types }}
       - name: filebeat-suricata-http
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -66,18 +68,26 @@ spec:
             secretKeyRef:
               name: tfplenum-logstash-user
               key: password
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: LOG_PATH
+          value: "{{ .Values.suricata_log_path }}/eve-http*.json"
         volumeMounts:
         - name: data
-          mountPath: {{ $.Values.suricata_log_path }}
+          mountPath: {{ .Values.suricata_log_path }}
           readOnly: true
         - name: configs
-          subPath: filebeat-setup.yml
+          subPath: filebeat.yml
           mountPath: /usr/share/filebeat/filebeat.yml
           readOnly: true
         - name: webca
           mountPath: /etc/ssl/certs/container
           readOnly: true
         args: ['-e', '-E', 'name="{{ .Release.Name }}-http"']
+        {{ end }}
+        {{ if has "dns" .Values.log_types }}
       - name: filebeat-suricata-dns
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -113,6 +123,8 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
         args: ['-e', '-E', 'name="{{ .Release.Name }}-dns"']
+        {{ end }}
+        {{ if has "tls" .Values.log_types }}
       - name: filebeat-suricata-tls
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -148,6 +160,8 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
         args: ['-e', '-E', 'name="{{ .Release.Name }}-tls"']
+        {{ end }}
+        {{ if has "flow" .Values.log_types }}
       - name: filebeat-suricata-flow
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -183,6 +197,8 @@ spec:
           mountPath: /etc/ssl/certs/container
           readOnly: true
         args: ['-e', '-E', 'name="{{ .Release.Name }}-flow"']
+        {{ end }}
+        {{ if has "other" .Values.log_types }}
       - name: filebeat-suricata-other
         image: {{ .Values.filebeat_image_name }}:{{ .Values.filebeat_image_tag }}
         imagePullPolicy: IfNotPresent
