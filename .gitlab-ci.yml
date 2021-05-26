@@ -4,7 +4,7 @@
 variables:
 
   #Version variables
-  TFPLENUM_EXPORT_VERSION: "3.5"
+  TFPLENUM_EXPORT_VERSION: "3.6"
   TFPLENUM_EXPORT_HASH: "$CI_COMMIT_SHORT_SHA"
 
   #Pipeline specific variables

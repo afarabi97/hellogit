@@ -117,11 +117,11 @@ class DriveHashCreationJob:
             raise Exception(error_message.format(stdout, stderr))
 
     def _create_text_description_file(self):
-        readme_txt = ("See CVAH 3.5/Documentation/ folder for additional details on how to setup or operate "
+        readme_txt = ("See CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
                       "the Deployable Interceptor Platform (DIP) or the Mobile Interceptor Platform (MIP).")
 
         if self._drive_hash_settings.is_GIP():
-            readme_txt_gip = ("See CVAH 3.5/Documentation/ folder for additional details on how to setup or operate "
+            readme_txt_gip = ("See CVAH 3.6/Documentation/ folder for additional details on how to setup or operate "
                               "the Garrison Interceptor Platform (GIP)")
             with open("GIP_Drive_Readme.txt", 'w') as script:
                 script.write(readme_txt_gip)

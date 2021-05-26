@@ -455,7 +455,7 @@ def main():
 
     device="/dev/sdc"
     file_location="/mnt/drive_creation/MULTIBOOT"
-    path="/mnt/drive_creation/v3.5"
+    path="/mnt/drive_creation/v3.6"
     for current_argument, current_value in arguments:
         if current_argument in ("-d", "--device"):
             device=current_value
